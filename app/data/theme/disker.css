@@ -1,0 +1,62 @@
+/* disker.css · eies av 6A (Maskinvare). Disker-siden: én oppføring per disk
+ * med helse, temperatur og MB/s i overskriften, og detaljene, partisjonene,
+ * grafen og SMART-tabellen når den foldes ut. Fargene kommer fra tokens.css. */
+
+/* -- Overskriften (hele raden er en knapp, med kortets hjørner) -- */
+window.rigg button.dk-head {
+  padding: var(--sp-2) var(--pad);
+  border-radius: 5px;
+  background-color: transparent;
+  font-weight: 400;
+}
+window.rigg button.dk-head:hover { background-color: var(--hover); }
+window.rigg button.dk-head:active { background-color: var(--active); }
+.dk-disk.open > button.dk-head { border-bottom: 1px solid var(--border-soft); border-radius: 5px 5px 0 0; background-color: var(--panel-head); }
+.dk-detail { border-radius: 0 0 5px 5px; }
+.dk-l1 { min-height: 22px; }
+.dk-icon { color: var(--muted); }
+.dk-title { font-weight: 600; }
+.dk-chips { border-spacing: 4px; }
+.dk-chev { color: var(--muted); }
+.dk-l2 { min-height: 20px; padding-left: 24px; font-size: var(--fs-sm); }
+.dk-meta { color: var(--muted); }
+.dk-stat { border-spacing: 5px; }
+.dk-stat .dk-k { color: var(--muted); }
+.dk-stat .dk-v { min-width: 4.6em; font-weight: 600; }
+.dk-stat .dk-v.warn { color: var(--warn); }
+.dk-stat .dk-v.danger { color: var(--danger); }
+.dk-health { min-width: 74px; }
+
+/* -- Detaljene -- */
+.dk-detail { padding: var(--sp-2); background-color: var(--bg); }
+.dk-panel .group-body { padding-top: var(--sp-1); }
+.dk-chart .chart-body { min-height: 150px; }
+
+/* -- Tabellene (partisjoner og SMART) -- */
+.dk-table { margin-top: 2px; }
+.dk-table > .th {
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+.dk-table > .td {
+  min-height: var(--h-row);
+  padding: 2px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+.dk-table > .td.last { border-bottom: none; }
+.dk-table > .td.na { color: var(--dim); }
+.dk-table > .dot.td { min-height: 8px; margin: 0; padding: 0; border-bottom: none; }
+.dk-table > .td.warn-text { color: var(--warn); }
+.dk-table > .td.danger-text { color: var(--danger); font-weight: 600; }
+.dk-use { border-spacing: 6px; }
+.dk-pct { color: var(--muted); }
+.dk-attrs-note { padding-top: var(--sp-2); }
+
+/* -- Tekst med nivå i SMART-sammendraget -- */
+.kv-row .v.warn-text { color: var(--warn); }
+.kv-row .v.danger-text { color: var(--danger); font-weight: 600; }
+
+.dk-foot { padding: var(--sp-1) 2px 0; }

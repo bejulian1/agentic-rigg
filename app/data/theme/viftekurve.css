@@ -1,0 +1,69 @@
+/* Agentic Rigg · Viftekurve. Eies av 6C (redesignet i runde 6C), utvidet i 7B
+ * (felles kurve eller per vifte, hysterese, rampe, utjevning, stille flate og
+ * forhåndsvisningen).
+ * Det Kontroller og Viftekurve deler (låst-linja, tallflisene) står i
+ * kontroller.css. */
+.viftekurve .curve-card > .group-body { padding: var(--sp-2) var(--sp-2) var(--sp-2); }
+.viftekurve fancurve { min-height: 340px; }
+.viftekurve fancurve:focus:focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: -2px; border-radius: var(--r); }
+.viftekurve .curve-name { margin-left: var(--sp-1); font-weight: 400; }
+.viftekurve.drafting .curve-card { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent); }
+.viftekurve .preset-row { border-spacing: 2px; }
+.viftekurve .legend-row { padding: 0 var(--sp-1) var(--sp-1); color: var(--muted); font-size: var(--fs-sm); }
+.viftekurve .legend { border-spacing: 12px; }
+.viftekurve flowbox.legend { padding: var(--sp-1) var(--sp-1) 0; color: var(--muted); font-size: var(--fs-sm); }
+.viftekurve flowbox.legend > flowboxchild { padding: 0; min-height: 18px; }
+.viftekurve .lg { min-width: 10px; min-height: 10px; border-radius: 50%; }
+.viftekurve .lg.lg-curve { background-color: var(--accent); min-height: 2px; min-width: 14px; border-radius: 1px; }
+.viftekurve .lg.lg-dots { background-color: color-mix(in srgb, var(--muted) 45%, transparent); min-width: 6px; min-height: 6px; }
+.viftekurve .lg.lg-med { background-color: color-mix(in srgb, var(--text) 55%, transparent); min-height: 2px; min-width: 12px; border-radius: 1px; }
+.viftekurve .lg.lg-now { min-width: 8px; min-height: 8px; box-shadow: inset 0 0 0 2px var(--c-temp); }
+.viftekurve .lg.lg-down { min-width: 14px; min-height: 6px; border-radius: 1px; background-color: color-mix(in srgb, var(--accent) 16%, transparent); border-top: 1.5px dashed var(--accent); }
+.viftekurve .lg.lg-ghost { min-width: 14px; min-height: 0; border-radius: 0; border-top: 2px dotted color-mix(in srgb, var(--muted) 60%, transparent); }
+.viftekurve .lg.lg-actual { background-color: var(--muted); min-height: 2px; min-width: 14px; border-radius: 1px; }
+.viftekurve .lg.lg-temp { background-color: var(--c-temp); min-height: 2px; min-width: 14px; border-radius: 1px; }
+.viftekurve .target-seg { margin-right: var(--sp-2); }
+.viftekurve .curve-foot { padding: var(--sp-1) var(--sp-1) 0; }
+.viftekurve .curve-help { padding: 2px var(--sp-1) 0; color: var(--dim); }
+
+/* Modusene: tre valg med forklaring, som radioknapper. */
+.viftekurve .mode-list { padding: var(--sp-1) 0; }
+window.rigg .viftekurve button.mode-opt {
+  padding: var(--sp-2) var(--sp-3);
+  min-height: 0;
+  border-radius: var(--r);
+  border: 1px solid var(--border-soft);
+  background-color: transparent;
+  box-shadow: none;
+  font-weight: 400;
+}
+window.rigg .viftekurve button.mode-opt:hover { background-color: var(--hover); }
+window.rigg .viftekurve button.mode-opt:checked { border-color: color-mix(in srgb, var(--accent) 60%, transparent); background-color: var(--accent-soft); color: var(--text); }
+window.rigg .viftekurve button.mode-opt.changed:checked { border-color: var(--accent); }
+.viftekurve .mode-dot { min-width: 12px; min-height: 12px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--muted); }
+.viftekurve button.mode-opt:checked .mode-dot { box-shadow: inset 0 0 0 4px var(--accent); }
+.viftekurve .mode-title { font-weight: 600; }
+.viftekurve .mode-desc { margin-left: 18px; }
+.viftekurve .manual-row { padding: var(--sp-2) 0 var(--sp-1); }
+
+.viftekurve .pts-grid { margin: var(--sp-1) 0; }
+.viftekurve .pts-grid .pt-n { min-width: 16px; padding-right: 2px; }
+.viftekurve .pts-grid .pt-n.sel { color: var(--accent); font-weight: 600; }
+.viftekurve .rules { padding: var(--sp-1) 0; }
+.viftekurve .rules icon { color: var(--muted); margin-top: 2px; }
+
+
+/* Oppførsel (7B): to spalter med glider eller valg, verdi og forklaring. */
+.viftekurve .tune-card > .group-body { padding: var(--sp-2) var(--sp-3) var(--sp-3); }
+.viftekurve .tune { padding: var(--sp-1) 0; }
+.viftekurve .tune .tune-val { color: var(--text); font-weight: 600; }
+.viftekurve .tune .tune-note { color: var(--muted); }
+.viftekurve .quiet-row { min-height: 32px; }
+.viftekurve .stop-note icon { color: var(--muted); }
+
+/* Forhåndsvisningen: de siste fem minuttene med kurven. */
+.viftekurve .preview-card > .group-body { padding: 0 var(--sp-2) var(--sp-2); }
+.viftekurve fanpreview { min-height: 150px; margin-top: var(--sp-1); }
+.viftekurve .preview-note { padding: var(--sp-1) var(--sp-1) 0; }
+/* 7C: den andre viften med egen kurve i «Siste 5 minutter» (stiplet, som i grafen). */
+.viftekurve .lg.lg-curve2 { min-width: 14px; min-height: 0; border-radius: 0; border-top: 2px dashed var(--accent); }

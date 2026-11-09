@@ -1,0 +1,121 @@
+/* oversikt.css · 2A (Data): Oversikt, grafpanelet, målerne og stolpene.
+ * Port av web/styles.css (Fliser, Grafer, Oversikt, Stolper). Fargene kommer
+ * alltid fra tokens.css. */
+
+/* -- Stolper (widgets/bar.rs): sporet her, fyllet tegnes i Rust med fargen. -- */
+bar {
+  min-height: 8px;
+  min-width: 40px;
+  border-radius: 4px;
+  background-color: var(--track);
+  color: var(--accent-fill);
+  transition: color 150ms cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+bar.thin { min-height: 4px; border-radius: 2px; }
+bar.warn { color: var(--warn-fill); }
+bar.danger { color: var(--danger-fill); }
+/* Høy kontrast: sporet får kant, så det synes mot kortet. */
+window.rigg.hc bar { outline: 1px solid var(--field-border); outline-offset: 0; }
+.meter { border-spacing: var(--sp-3); }
+.meter-num { min-width: 92px; }
+
+/* -- Måleren (widgets/gauge.rs) -- */
+gaugebar { font-size: var(--fs-cap); }
+.g-legend { color: var(--muted); font-size: var(--fs-sm); margin-bottom: 2px; }
+
+/* -- Fliser: «Ikke støttet» er en rolig tekst, ikke et tall. -- */
+.tile .tile-value.na { font-size: var(--fs-body); font-weight: 400; color: var(--dim); }
+
+/* -- Skjermkortet: målerne for temperatur og effekt -- */
+.ov-te > .group-body { padding-top: 0; }
+.ov-part { padding: 2px 0 var(--sp-2); }
+.ov-part + .ov-part { border-top: 1px solid var(--border-soft); padding-top: 2px; }
+.ov-sub { min-height: var(--h-row); }
+.ov-h { color: var(--muted); }
+.ov-aside { color: var(--muted); font-size: var(--fs-sm); }
+.temp-lead { font-feature-settings: "tnum"; }
+.lvl-warn { color: var(--warn); }
+.lvl-danger { color: var(--danger); }
+
+/* -- Grafpanelet (widgets/chart.rs) -- */
+chart {
+  min-height: 120px;
+  font-size: var(--fs-cap);
+  border-radius: var(--r-sm);
+}
+chart:focus:focus-visible { outline-offset: 1px; }
+.chart-card > .group-head { border-spacing: var(--sp-3); }
+.chart-card > .group-body.chart-body { padding: var(--sp-1) var(--sp-2) var(--sp-2) var(--sp-1); }
+.chart-card .stats { color: var(--muted); font-size: var(--fs-sm); }
+.chart-card .now { min-width: 64px; }
+.chart-card .now .now-v { font-size: var(--fs-title); font-weight: 600; }
+.chart-card .now .unit { color: var(--muted); font-size: var(--fs-sm); }
+.legend { border-spacing: var(--sp-2); }
+/* Forklaringen: klikk skjuler eller viser serien. */
+window.rigg button.lg-btn {
+  min-height: var(--h-sm);
+  min-width: 0;
+  padding: 0 var(--sp-1);
+  border-radius: var(--r-sm);
+  background-color: transparent;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  font-weight: 400;
+}
+window.rigg button.lg-btn > box { border-spacing: 5px; }
+window.rigg button.lg-btn:hover { background-color: var(--hover); color: var(--text); }
+window.rigg button.lg-btn:checked { background-color: transparent; }
+window.rigg button.lg-btn:checked:hover { background-color: var(--hover); }
+window.rigg button.lg-btn:not(:checked) { color: var(--dim); }
+window.rigg button.lg-btn:not(:checked) label { text-decoration-line: line-through; }
+window.rigg button.lg-btn:not(:checked) lg { opacity: 0.35; }
+/* Pause: ikon, og «Fortsett» med tekst mens grafen står stille. */
+window.rigg button.pause-btn.on,
+window.rigg button.icon-only.on { background-color: var(--accent-soft); color: var(--accent); }
+.paused-tag { background-color: var(--accent-soft); color: var(--accent); }
+/* Tidsvindu i en liten nedtrekksliste (Oversikt og under en rad på Sensorer). */
+window.rigg dropdown.win-select > button { min-height: var(--h-sm); padding: 0 var(--sp-2); font-size: var(--fs-sm); }
+
+/* ================================================================ 8A: Oversikt over hele maskinen */
+
+/* -- Flisene: ikon og navn, kort status til høyre, tall, to undertall -- */
+.ov-tile-head { min-height: 18px; }
+.ov-tile-icon { color: var(--dim); }
+.tile .tile-aside { color: var(--muted); font-size: var(--fs-sm); }
+.ov-tile-value { margin-top: 1px; }
+.ov-tile-sub { min-height: 16px; }
+.ov-tile-sub .lvl-warn { color: var(--warn); }
+.ov-tile-sub .lvl-danger { color: var(--danger); }
+.tile .tile-aside.lvl-warn { color: var(--warn); }
+.tile .tile-aside.lvl-danger { color: var(--danger); }
+
+/* -- Tilstand-linja: én rolig linje, bare når noe er verdt å se -- */
+.ov-state {
+  min-height: calc(var(--h-sm) + 8px);
+  padding: 3px var(--sp-1) 3px var(--sp-3);
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  background-color: var(--card);
+}
+.ov-state > icon { margin-top: 6px; color: var(--muted); }
+.ov-state.warn { background-color: var(--warn-soft); border-color: color-mix(in srgb, var(--warn) 30%, transparent); }
+.ov-state.warn > icon { color: var(--warn); }
+.ov-state.danger { background-color: var(--danger-soft); border-color: color-mix(in srgb, var(--danger) 30%, transparent); }
+.ov-state.danger > icon { color: var(--danger); }
+.ov-state flowboxchild { padding: 0; }
+window.rigg button.ov-state-item {
+  min-height: var(--h-sm);
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-sm);
+  font-weight: 400;
+}
+.ov-state-title { font-weight: 600; }
+.ov-state-item.warn .ov-state-title { color: var(--warn); }
+.ov-state-item.danger .ov-state-title { color: var(--danger); }
+.ov-state-text { color: var(--muted); }
+.ov-state-more { color: var(--muted); padding: 0 var(--sp-2); min-height: var(--h-sm); }
+
+/* -- Skjermkortet nederst -- */
+window.rigg button.ov-more { color: var(--muted); font-weight: 400; padding: 0 var(--sp-1) 0 var(--sp-2); }
+window.rigg button.ov-more:hover { color: var(--text); }
+.ov-card .meter-num { min-width: 120px; }

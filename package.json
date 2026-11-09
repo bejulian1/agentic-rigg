@@ -1,0 +1,21 @@
+{
+  "name": "agentic-rigg",
+  "version": "0.0.15",
+  "private": true,
+  "description": "Agentic Rigg – lokal demo av et maskinvare- og GPU-verktøy for Linux (overvåking, kontroller via en simulert bakgrunnstjeneste, RGB-forhåndsvisning).",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node scripts/dev.js",
+    "start:sim": "AG_SIMULATE=1 node scripts/dev.js",
+    "start:server": "node server/index.js",
+    "start:daemon": "node daemon-mock/index.js",
+    "check": "node scripts/check.js",
+    "contrast": "node scripts/contrast.js",
+    "test": "node --test test/",
+    "test:server": "node --test 'test/*.test.js'",
+    "test:ui": "node --test test/ui/"
+  }
+}

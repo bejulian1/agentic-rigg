@@ -1,0 +1,951 @@
+/* Lys i 3D – prototype. Komponentene er nedskalerte kopier av appens
+   (web/styles.css, seksjon 3 og 5), så siden ser ut som Lys-siden. Det som
+   er nytt, er merket «nytt» og beskrevet i README.md. */
+
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: var(--fs-body);
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+body {
+  overflow: hidden;
+}
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-size: inherit;
+  font-weight: var(--fw-b);
+}
+p {
+  margin: 0;
+}
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+[hidden] {
+  display: none !important;
+}
+:focus {
+  outline: none;
+}
+:focus-visible {
+  outline: var(--focus-w) solid var(--focus);
+  outline-offset: 2px;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.muted {
+  color: var(--muted);
+}
+button,
+.seg,
+.effect,
+.k,
+.group-title,
+.tag,
+.stage-hint,
+.hover-tip {
+  user-select: none;
+}
+
+/* ------------------------------------------------------------ Skall */
+.shell {
+  display: grid;
+  grid-template-columns: var(--side-w) minmax(0, 1fr);
+  height: 100%;
+}
+.shell[data-skall='av'] {
+  grid-template-columns: minmax(0, 1fr);
+}
+.shell[data-skall='av'] .mock-side {
+  display: none;
+}
+/* Bare for å se proporsjonene: en stille kopi av appens sidefelt. */
+.mock-side {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 var(--sp-2) var(--sp-2);
+  background: var(--sidebar);
+  border-right: 1px solid var(--border);
+  color: var(--text);
+  min-height: 0;
+}
+.mock-side .brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  height: var(--head-h);
+  padding: 0 var(--sp-2);
+  font-weight: var(--fw-b);
+  margin: 0 calc(-1 * var(--sp-2)) var(--sp-2);
+  border-bottom: 1px solid var(--border);
+  padding-left: calc(var(--sp-2) * 2);
+}
+.mock-side .sect {
+  padding: var(--sp-2) var(--sp-2) 2px;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-b);
+}
+.mock-side .item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 28px;
+  padding: 0 var(--sp-2);
+  border-radius: var(--r);
+}
+.mock-side .item::before {
+  content: '';
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  background: var(--muted);
+  opacity: 0.28;
+}
+.mock-side .item[aria-current='page'] {
+  background: var(--active);
+  font-weight: var(--fw-b);
+}
+.mock-side .note {
+  margin-top: auto;
+  padding: var(--sp-2);
+  color: var(--muted);
+  font-size: var(--fs-cap);
+}
+.main {
+  display: grid;
+  grid-template-rows: var(--head-h) minmax(0, 1fr);
+  min-width: 0;
+  min-height: 0;
+}
+.main-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 0 var(--sp-3) 0 var(--content-pad);
+  background: var(--head);
+  border-bottom: 1px solid var(--border);
+  min-width: 0;
+}
+.main-title {
+  font-size: var(--fs-title);
+  font-weight: var(--fw-b);
+  white-space: nowrap;
+}
+.main-head .spacer {
+  flex: 1;
+}
+.main-head .k {
+  color: var(--muted);
+  font-size: var(--fs-sm);
+}
+.content {
+  padding: var(--content-pad);
+  min-height: 0;
+  overflow: auto;
+}
+
+/* ------------------------------------------------------------ Komponenter */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: var(--r-sm);
+  font-size: var(--fs-cap);
+  font-weight: var(--fw-b);
+  white-space: nowrap;
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+  color: var(--muted);
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: var(--h-sm);
+  min-width: var(--h-sm);
+  padding: 0 var(--sp-2);
+  border: 1px solid transparent;
+  border-radius: var(--r);
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-b);
+  white-space: nowrap;
+  cursor: default;
+  transition: background-color var(--dur-1) var(--ease-std);
+}
+.btn:hover {
+  background: color-mix(in srgb, var(--text) 13%, transparent);
+}
+.btn:active {
+  background: color-mix(in srgb, var(--text) 20%, transparent);
+}
+.btn.flat {
+  background: transparent;
+}
+.btn.flat:hover {
+  background: var(--hover);
+}
+.btn .icon {
+  width: 14px;
+  height: 14px;
+}
+.icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Segmentkontroll: som appens .seg.sm. */
+.seg {
+  position: relative;
+  display: inline-flex;
+  padding: 2px;
+  gap: 2px;
+  border-radius: var(--r);
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+  flex: none;
+}
+.seg button {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: calc(var(--h-sm) - 4px);
+  padding: 0 var(--sp-2);
+  border: 0;
+  border-radius: calc(var(--r) - 2px);
+  background: transparent;
+  color: var(--text);
+  font-size: var(--fs-sm);
+  white-space: nowrap;
+  cursor: default;
+  transition: background-color var(--dur-1) var(--ease-std);
+}
+/* Fet tekst på valgt knapp gjør den ikke bredere (usynlig fet kopi). */
+.seg button::after {
+  content: attr(data-text);
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  font-weight: var(--fw-b);
+}
+.seg button:hover:not([aria-checked='true']):not(:disabled) {
+  background: var(--hover);
+}
+.seg button[aria-checked='true'] {
+  background: var(--seg-on);
+  font-weight: var(--fw-b);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+.seg button:disabled {
+  opacity: 0.5;
+}
+.seg button:focus-visible {
+  outline-offset: 0;
+}
+
+.switch {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  width: 36px;
+  height: 20px;
+}
+.switch input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+}
+.switch .track {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  background: var(--track);
+  box-shadow: inset 0 0 0 1px var(--field-border);
+  transition: background-color var(--dur-2) var(--ease-out);
+}
+.switch .knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--knob);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  transition: transform var(--dur-2) var(--ease-out);
+  pointer-events: none;
+}
+.switch input:checked ~ .track {
+  background: var(--accent-bg);
+  box-shadow: none;
+}
+.switch input:checked ~ .knob {
+  transform: translateX(16px);
+  background: #fff;
+}
+.switch input:focus-visible ~ .track {
+  outline: var(--focus-w) solid var(--focus);
+  outline-offset: 2px;
+}
+.inline {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  white-space: nowrap;
+}
+
+/* Slank glider (nytt): 3 px spor og 14 px knott, 20 px høy treffflate. */
+input[type='range'] {
+  --p: 50%;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  min-width: 60px;
+  height: 20px;
+  margin: 0;
+  background: transparent;
+  cursor: default;
+}
+input[type='range']::-webkit-slider-runnable-track {
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(to right, var(--accent-fill) 0 var(--p), var(--track) var(--p) 100%);
+}
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -5.5px;
+  border-radius: 50%;
+  background: var(--knob);
+  border: 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+input[type='range']:focus-visible {
+  outline: none;
+}
+input[type='range']:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 0 0 3px var(--focus);
+}
+input[type='range']::-moz-range-track {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--track);
+}
+input[type='range']::-moz-range-progress {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--accent-fill);
+}
+input[type='range']::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--knob);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+input[type='range']:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 3px var(--focus);
+}
+.numfield {
+  display: inline-flex;
+  align-items: center;
+  width: 64px;
+  height: var(--h-sm);
+  padding: 0 6px 0 0;
+  border: 1px solid var(--field-border);
+  border-radius: var(--r);
+  background: var(--field);
+  flex: none;
+}
+.numfield:focus-within {
+  border-color: var(--accent);
+  outline: var(--focus-w) solid var(--focus);
+  outline-offset: -1px;
+}
+.numfield input {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  outline: none;
+  text-align: right;
+  padding: 0 4px 0 6px;
+  font-size: var(--fs-sm);
+  font-variant-numeric: tabular-nums;
+  -moz-appearance: textfield;
+}
+.numfield input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+.numfield .u {
+  color: var(--muted);
+  font-size: var(--fs-cap);
+}
+.field {
+  display: inline-flex;
+  align-items: center;
+  height: var(--h-sm);
+  padding: 0 6px;
+  border: 1px solid var(--field-border);
+  border-radius: var(--r);
+  background: var(--field);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: var(--fs-sm);
+  outline: none;
+  min-width: 0;
+}
+.field:focus-visible {
+  border-color: var(--accent);
+  outline: var(--focus-w) solid var(--focus);
+  outline-offset: -1px;
+}
+.field[data-invalid] {
+  border-color: var(--danger);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  min-width: 0;
+}
+.group-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--sp-2);
+  min-height: var(--h-panel);
+  padding: 2px var(--pad);
+  background: var(--panel-head);
+  border-bottom: 1px solid var(--border-soft);
+  border-radius: calc(var(--r-lg) - 1px) calc(var(--r-lg) - 1px) 0 0;
+  font-size: var(--fs-sm);
+}
+.group-title {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-b);
+  white-space: nowrap;
+}
+.group-head .aside {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  min-width: 0;
+}
+.group-body {
+  padding: var(--sp-1) var(--pad) var(--sp-2);
+  min-width: 0;
+}
+
+/* ------------------------------------------------------------ Lys-siden (nytt oppsett) */
+/* Forhåndsvisningen fyller det meste av siden. Kontrollene står i en smal
+   kolonne til høyre (300 px), i stedet for to brede kort under scenen. */
+.lys {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: var(--gap);
+  height: 100%;
+  min-height: 520px;
+}
+.stage-panel {
+  min-height: 0;
+}
+.stage-panel .group-head .sim {
+  color: var(--muted);
+}
+.stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  margin: var(--sp-1) var(--sp-1) 0;
+  border-radius: var(--r);
+  background: var(--stage);
+  overflow: hidden;
+}
+.viewport {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+  cursor: grab;
+  border-radius: var(--r);
+}
+.viewport.dragging {
+  cursor: grabbing;
+}
+/* Fokusringen tegnes som et eget lag over lerretet (en omriss-linje ville
+   ligget under det absolutt plasserte lerretet). Lys aksent: scenen er mørk. */
+.viewport:focus-visible {
+  outline: none;
+}
+.viewport::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: var(--r);
+  box-shadow: inset 0 0 0 var(--focus-w) var(--a-d);
+  opacity: 0;
+  pointer-events: none;
+}
+.viewport:focus-visible::after {
+  opacity: 1;
+}
+.viewport canvas.gl {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+/* Tekst på scenen: scenen er mørk i begge temaer. Kontrast mot #16181b:
+   #c9ccd1 ≈ 11:1, #9a9ea6 ≈ 6,4:1. */
+.stage-hint {
+  position: absolute;
+  left: var(--sp-2);
+  bottom: var(--sp-2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+  max-width: calc(100% - 140px);
+  padding: 2px var(--sp-2);
+  border-radius: var(--r-sm);
+  background: rgba(22, 24, 27, 0.72);
+  color: #9a9ea6;
+  font-size: var(--fs-cap);
+  pointer-events: none;
+}
+.stage-hint kbd {
+  font: inherit;
+  color: #c9ccd1;
+}
+.viewport:focus-visible ~ .stage-hint {
+  color: #c9ccd1;
+}
+.stage-note {
+  position: absolute;
+  right: var(--sp-2);
+  bottom: var(--sp-2);
+  padding: 2px var(--sp-2);
+  border-radius: var(--r-sm);
+  background: rgba(255, 255, 255, 0.08);
+  color: #c9ccd1;
+  font-size: var(--fs-cap);
+  pointer-events: none;
+}
+.stage-caption {
+  position: absolute;
+  top: var(--sp-2);
+  left: var(--sp-2);
+  padding: 2px var(--sp-2);
+  border-radius: var(--r-sm);
+  background: rgba(22, 24, 27, 0.72);
+  color: #c9ccd1;
+  font-size: var(--fs-cap);
+  pointer-events: none;
+}
+.hover-tip {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  top: 0;
+  max-width: 260px;
+  padding: 5px var(--sp-2);
+  border-radius: var(--r);
+  background: var(--tip-bg);
+  color: var(--tip-fg);
+  font-size: var(--fs-sm);
+  box-shadow: var(--shadow-pop);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--dur-1) var(--ease-std);
+}
+.hover-tip[data-on] {
+  opacity: 1;
+}
+.hover-tip b {
+  display: block;
+  font-weight: var(--fw-b);
+}
+.hover-tip span {
+  opacity: 0.8;
+}
+.hover-tip em {
+  display: block;
+  font-style: normal;
+  margin-top: 2px;
+  opacity: 0.8;
+}
+.fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--sp-6);
+  color: #c9ccd1;
+  text-align: center;
+}
+
+/* Linja under scenen: lag, avstand, sone og bakgrunnslys. */
+.stage-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-3);
+  padding: var(--sp-2) var(--pad);
+}
+.stage-bar .k,
+.adj-row .k,
+.ctl .k {
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  white-space: nowrap;
+}
+.stage-bar .pair {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.stage-bar .explode {
+  width: 120px;
+}
+.stage-bar output {
+  min-width: 3.2em;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  text-align: right;
+}
+.stage-bar .spacer {
+  flex: 1;
+}
+
+/* Høyre kolonne */
+.side-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  min-height: 0;
+  overflow: auto;
+}
+.side-col .group {
+  flex: none;
+}
+.side-col .group.grow {
+  flex: 1 1 auto;
+  min-height: 120px;
+}
+.effects {
+  display: flex;
+  flex-direction: column;
+  padding: 2px 0;
+}
+.effect {
+  display: grid;
+  grid-template-columns: auto 14px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: 26px;
+  padding: 0 var(--sp-2);
+  margin: 0 calc(-1 * var(--sp-2));
+  border-radius: var(--r);
+  font-size: var(--fs-body);
+}
+.effect:hover {
+  background: var(--hover);
+}
+.radio {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--field-border);
+  background: var(--field);
+  display: grid;
+  place-items: center;
+}
+.radio:checked {
+  border-color: var(--accent-bg);
+  background: var(--accent-bg);
+  box-shadow: inset 0 0 0 3.5px var(--field);
+}
+.radio:focus-visible {
+  outline: var(--focus-w) solid var(--focus);
+  outline-offset: 2px;
+}
+.effect .sample {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--sw, #888);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15);
+}
+.effect .sample[data-fx='rainbow'] {
+  background: conic-gradient(#e5383b, #f2c12e, #3fb950, #2bb3c8, #3a7bf0, #8e5cf0, #e5383b);
+}
+.effect .sample[data-fx='cycle'] {
+  background: conic-gradient(from 90deg, var(--sw, #888), transparent 60%, var(--sw, #888));
+}
+.effect .sample[data-fx='temperature'] {
+  background: linear-gradient(90deg, var(--c1, #3a7bf0), var(--c2, #e5383b));
+}
+.effect .sample[data-fx='breathe'] {
+  background: radial-gradient(circle, var(--sw, #888) 35%, color-mix(in srgb, var(--sw, #888) 25%, transparent) 70%);
+}
+.effect .sample[data-fx='off'] {
+  background: var(--track);
+}
+.effect .eye {
+  color: var(--dim);
+  display: inline-grid;
+  place-items: center;
+}
+.effect .eye .icon {
+  width: 13px;
+  height: 13px;
+}
+.adjust {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--sp-1);
+  padding-top: 2px;
+  border-top: 1px solid var(--border-soft);
+}
+.adj-row {
+  display: grid;
+  grid-template-columns: 70px minmax(0, 1fr) 64px;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: 30px;
+}
+.adj-row .seg {
+  justify-self: start;
+}
+.adj-row .seg,
+.ctl .seg {
+  grid-column: 2 / 4;
+}
+
+/* Sone står i Farge-panelet (nytt): sonen bestemmer hva fargen gjelder. */
+.zone-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--pad) 0;
+}
+.zone-row .k {
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  width: 34px;
+}
+
+/* Fargeknapper (nytt): 20 px, én rad, valgt med ring. */
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: var(--sp-2) 0 var(--sp-1);
+}
+.swatches button {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--sw);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2);
+  cursor: default;
+}
+.swatches button[aria-checked='true'] {
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2), 0 0 0 2px var(--card), 0 0 0 4px var(--accent);
+}
+.swatches button:focus-visible {
+  outline-offset: 4px;
+}
+.hex-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding-bottom: var(--sp-1);
+}
+.hex-row .now {
+  width: var(--h-sm);
+  height: var(--h-sm);
+  border-radius: var(--r);
+  background: var(--sw);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.18);
+  flex: none;
+}
+.hex-row .field {
+  width: 88px;
+}
+.hex-row .msg {
+  color: var(--danger);
+  font-size: var(--fs-sm);
+}
+.ctl {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr) 64px;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: 30px;
+}
+.ctl + .ctl {
+  border-top: 1px solid var(--border-soft);
+}
+.ctl .check {
+  grid-column: 1 / 4;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  color: var(--text);
+}
+.ctl input[type='checkbox'] {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--accent-bg);
+}
+
+/* Dellisten: peker eller fokus fremhever delen i 3D. */
+.parts {
+  list-style: none;
+  margin: 0;
+  padding: 2px 0;
+  overflow: auto;
+  min-height: 0;
+}
+.parts button {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+  padding: 3px var(--sp-2);
+  margin: 0;
+  border: 0;
+  border-radius: var(--r);
+  background: transparent;
+  text-align: left;
+  cursor: default;
+}
+.parts button:hover,
+.parts button[aria-pressed='true'] {
+  background: var(--hover);
+}
+.parts button[aria-pressed='true'] {
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+.parts .n {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-b);
+}
+.parts .d {
+  color: var(--muted);
+  font-size: var(--fs-cap);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.side-col .parts-wrap {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+  padding: 2px var(--sp-1) var(--sp-1);
+}
+
+/* Smale vinduer: kolonnen går under scenen, og scenen får en fast høyde. */
+@media (max-width: 1100px) {
+  .shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .mock-side {
+    display: none;
+  }
+}
+@media (max-width: 900px) {
+  body {
+    overflow: auto;
+  }
+  .shell,
+  .main {
+    height: auto;
+  }
+  .lys {
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+  }
+  .stage-panel .stage {
+    flex: none;
+    height: 58vh;
+    min-height: 280px;
+  }
+  .side-col {
+    overflow: visible;
+  }
+  .main-head {
+    flex-wrap: wrap;
+    height: auto;
+    padding-block: 4px;
+  }
+  .main {
+    grid-template-rows: auto auto;
+  }
+}
+@media (max-width: 520px) {
+  .stage-bar .spacer {
+    display: none;
+  }
+  #reset-view .lbl {
+    display: none;
+  }
+  .stage-panel .group-head .sim {
+    display: none;
+  }
+  .stage-hint .opt {
+    display: none;
+  }
+}

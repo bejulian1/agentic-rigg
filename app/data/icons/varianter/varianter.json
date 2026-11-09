@@ -1,0 +1,73 @@
+{
+  "app": "io.github.AgenticRigg",
+  "standard": "standard",
+  "storrelser": {
+    "128": "scalable",
+    "48": "48x48",
+    "32": "32x32",
+    "24": "24x24",
+    "16": "16x16"
+  },
+  "varianter": [
+    {
+      "id": "standard",
+      "navn": "Standard",
+      "beskrivelse": "Grafitt med blå måler",
+      "ikonnavn": "io.github.AgenticRigg"
+    },
+    {
+      "id": "blue",
+      "navn": "Blå",
+      "beskrivelse": "Flis i blå",
+      "ikonnavn": "io.github.AgenticRigg-blue"
+    },
+    {
+      "id": "teal",
+      "navn": "Blågrønn",
+      "beskrivelse": "Flis i blågrønn",
+      "ikonnavn": "io.github.AgenticRigg-teal"
+    },
+    {
+      "id": "green",
+      "navn": "Grønn",
+      "beskrivelse": "Flis i grønn",
+      "ikonnavn": "io.github.AgenticRigg-green"
+    },
+    {
+      "id": "purple",
+      "navn": "Lilla",
+      "beskrivelse": "Flis i lilla",
+      "ikonnavn": "io.github.AgenticRigg-purple"
+    },
+    {
+      "id": "pink",
+      "navn": "Rosa",
+      "beskrivelse": "Flis i rosa",
+      "ikonnavn": "io.github.AgenticRigg-pink"
+    },
+    {
+      "id": "slate",
+      "navn": "Skifer",
+      "beskrivelse": "Flis i skifer",
+      "ikonnavn": "io.github.AgenticRigg-slate"
+    },
+    {
+      "id": "dark",
+      "navn": "Mørk",
+      "beskrivelse": "Nesten svart flis",
+      "ikonnavn": "io.github.AgenticRigg-dark"
+    },
+    {
+      "id": "light",
+      "navn": "Lys",
+      "beskrivelse": "Lys flis, mørk vifte",
+      "ikonnavn": "io.github.AgenticRigg-light"
+    },
+    {
+      "id": "mono",
+      "navn": "Monokrom",
+      "beskrivelse": "Bare gråtoner",
+      "ikonnavn": "io.github.AgenticRigg-mono"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <title>Agentic Rigg</title>
+  <!-- 16 px, tegnet på pikselrutenettet (Mørk). Laget av varianter/maler/16.svg. -->
+  <rect x="5" y="13" width="6" height="2" rx=".5" fill="#e5a50a"/>
+  <rect x="1" y="2" width="14" height="12" rx="3" fill="#0c0c0e"/>
+  <rect x="1" y="1" width="14" height="12" rx="3" fill="#1c1c1f"/>
+  <path d="M5.17 9.83A4 4 0 1 1 10.83 9.83" fill="none" stroke="#3a3a3f" stroke-opacity="1" stroke-width="2" stroke-linecap="round"/>
+  <path d="M5.17 9.83A4 4 0 1 1 11.28 4.71" fill="none" stroke="#559cf7" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="8" cy="7" r="2" fill="#deddda"/>
+  <circle cx="8" cy="7" r="1" fill="#2a75cf"/>
+</svg>

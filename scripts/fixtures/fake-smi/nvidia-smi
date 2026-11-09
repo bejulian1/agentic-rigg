@@ -1,0 +1,68 @@
+#!/usr/bin/env node
+// TESTFIXTUR – en falsk nvidia-smi for kanttilfeller. Brukes bare ved å legge
+// mappa først i PATH for en egen testserver:
+//   PATH="$PWD/scripts/fixtures/fake-smi:$PATH" FAKE_SMI_MODE_FILE=/tmp/modus \
+//   AG_PORT=4323 AG_DATA_DIR=/tmp/test node server/index.js
+// Den svarer på de tre faste argumentlistene i server/nvidia.js og ingenting
+// annet. Modus leses fra fila i FAKE_SMI_MODE_FILE (eller FAKE_SMI_MODE) ved
+// hver linje, så den kan byttes mens serveren kjører:
+//   normal | na (alt N/A unntatt temperatur) | allna (alt N/A) | extreme |
+//   zero | longname | die (avslutter med feil) | hang (skriver ingenting)
+
+import fs from 'node:fs';
+const args = process.argv.slice(2);
+const mode = () => {
+  try {
+    return fs.readFileSync(process.env.FAKE_SMI_MODE_FILE, 'utf8').trim() || 'normal';
+  } catch {
+    return process.env.FAKE_SMI_MODE || 'normal';
+  }
+};
+const NA = '[N/A]';
+const LONG = 'NVIDIA GeForce RTX 9090 Ti Super Founders Edition Extreme Overclocked Liquid Cooled 48GB GDDR7X Prototype';
+
+function staticLine(m) {
+  const name = m === 'longname' ? LONG : 'NVIDIA GeForce RTX 2080';
+  if (m === 'allna' || m === 'na') return [name, '610.43.02', ...Array(20).fill(NA)].join(', ');
+  return [name, m === 'longname' ? '610.43.02-beta-very-long-build-identifier' : '610.43.02', '90.04.0B.00.2F', '00000000:1C:00.0', '105.00', m === 'extreme' ? '999.00' : '275.00', '245.00', '2190', '7000', m === 'zero' ? '0' : '8192', 'GPU-1234abcd-5678-90ab-cdef-1234567890ab', '0x1E8710DE', '0x12FF10DE', '7.5', '3', '3', '16', '2190', NA, NA, '-4', '245.00'].join(', ');
+}
+
+function liveLine(m, i) {
+  const ts = new Date().toISOString().replace('T', ' ').slice(0, 23).replace(/-/g, '/');
+  if (m === 'allna') return [ts, ...Array(19).fill(NA)].join(', ');
+  if (m === 'na') return [ts, '41', ...Array(18).fill(NA)].join(', ');
+  if (m === 'extreme') return [ts, '100', '100', '100', '2190', '7000', '999.00', '999.00', '100', '0', '0', 'P0', '2190', '2025', '999.00', '100', '100', '3', '16', '0x00000000000001FF'].join(', ');
+  if (m === 'zero') return [ts, '0', '0', '0', '0', '0', '0.00', '0.00', '0', '0', '0', 'P8', '0', '0', '0.00', '0', '0', '1', '16', '0x0000000000000000'].join(', ');
+  const t = 40 + Math.round(Math.sin(i / 10) * 2);
+  return [ts, String(t), String(i % 7), '2', '1260', '7000', (35 + (i % 5)).toFixed(2), '245.00', '35', '600', '8192', 'P0', '1260', '1170', '245.00', '0', '0', '3', '16', '0x0000000000000001'].join(', ');
+}
+
+if (args[0] === '-q') {
+  if (mode() === 'allna') {
+    process.stdout.write('==============NVSMI LOG==============\n\nAttached GPUs : 1\nGPU 00000000:1C:00.0\n    Product Name : N/A\n');
+  } else {
+    process.stdout.write('==============NVSMI LOG==============\n\nCUDA Version : 13.1\nAttached GPUs : 1\nGPU 00000000:1C:00.0\n    Product Name : x\n    Product Brand : GeForce\n    Temperature\n        GPU Shutdown Temp : 100 C\n        GPU Slowdown Temp : 97 C\n        GPU Target Temperature : 83 C\n');
+  }
+  process.exit(0);
+}
+const query = args.find((a) => a.startsWith('--query-gpu='));
+if (!query) {
+  process.stderr.write('falsk nvidia-smi: ukjente argumenter\n');
+  process.exit(2);
+}
+if (!args.includes('-lms')) {
+  process.stdout.write(staticLine(mode()) + '\n');
+  process.exit(0);
+}
+let i = 0;
+const tick = () => {
+  const m = mode();
+  if (m === 'die') {
+    process.stderr.write('Unable to determine the device handle for GPU0000:1C:00.0: GPU is lost.\n');
+    process.exit(15);
+  }
+  if (m !== 'hang') process.stdout.write(liveLine(m, i++) + '\n');
+};
+tick();
+setInterval(tick, 500);
+process.on('SIGTERM', () => process.exit(0));

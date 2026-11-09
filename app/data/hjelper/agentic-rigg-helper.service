@@ -1,0 +1,76 @@
+# Agentic Rigg · root-hjelperen (runde 7A, 1.2.0).
+# Legges i /etc/systemd/system/ av aktiver.sh (bryteren i Innstillinger ›
+# Styring, via pkexec) og fjernes av deaktiver.sh. Se
+# docs/produksjon/hjelper-sikkerhet.md.
+#
+# Hjelperen kjører som root, men med nesten ingen rettigheter: ett privilegium
+# (CAP_CHOWN, så socketen kan eies av brukeren), skrivebeskyttet system, ingen
+# hjemmemapper, ikke nett, bare skjermkortets enheter og bare vanlige
+# systemkall. Stopper den (eller krasjer), setter ExecStopPost kortet til
+# standard.
+
+[Unit]
+Description=Agentic Rigg – hjelper for endring av skjermkortet
+ConditionPathExists=/etc/agentic-rigg/helper.json
+
+[Service]
+Type=notify
+ExecStart=/usr/local/libexec/agentic-rigg-helper --backend nvml
+ExecStopPost=/usr/local/libexec/agentic-rigg-helper --backend nvml --tilbakestill
+Restart=on-failure
+RestartSec=2s
+TimeoutStopSec=10s
+
+# Socket: /run/agentic-rigg/helper.sock (0600, eies av brukeren i helper.json).
+RuntimeDirectory=agentic-rigg
+RuntimeDirectoryMode=0755
+UMask=0077
+
+# Rettigheter: bare chown av socketen. NVML-skriving er sperret i 1.2.0; trinn 2
+# avgjør om CAP_SYS_ADMIN trengs (se hjelper-sikkerhet.md kap. 6).
+CapabilityBoundingSet=CAP_CHOWN
+AmbientCapabilities=
+NoNewPrivileges=yes
+
+# Filsystemet: alt skrivebeskyttet utenom RuntimeDirectory.
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ProtectProc=invisible
+ProcSubset=pid
+
+# Enheter: bare skjermkortet (major 195 og 235 i /proc/devices). Aldri I2C.
+DevicePolicy=closed
+DeviceAllow=char-nvidia rw
+DeviceAllow=char-nvidiactl rw
+DeviceAllow=char-nvidia-uvm rw
+
+# Kjernen og resten av systemet.
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+RemoveIPC=yes
+KeyringMode=private
+PrivateNetwork=yes
+IPAddressDeny=any
+RestrictAddressFamilies=AF_UNIX
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged @resources @mount @swap @reboot @raw-io @module @debug @cpu-emulation @obsolete
+SystemCallFilter=fchown fchownat lchown chown
+SystemCallErrorNumber=EPERM
+
+# Liten og rolig.
+MemoryMax=64M
+TasksMax=4
+
+[Install]
+WantedBy=multi-user.target

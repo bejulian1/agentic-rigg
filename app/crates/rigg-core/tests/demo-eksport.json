@@ -1,0 +1,55 @@
+{
+  "format": "agentic-rigg-settings",
+  "formatVersion": 1,
+  "app": "0.0.15",
+  "exportedAt": "2026-11-07T08:00:00.000Z",
+  "settings": {
+    "intervalMs": 500,
+    "unit": "C",
+    "startSimulated": false,
+    "theme": "system",
+    "accent": "blue",
+    "palette": "midnatt",
+    "highContrast": false,
+    "density": "standard",
+    "fontScale": 100,
+    "motion": "system",
+    "startPage": "oversikt",
+    "showKbd": false,
+    "hiddenPages": [],
+    "statusItems": [
+      "gpuTemp",
+      "gpuLoad",
+      "gpuPower",
+      "cpuTemp",
+      "mem"
+    ],
+    "statusSparks": true,
+    "thresholds": {
+      "gpuTempWarn": 75,
+      "gpuTempCrit": 85,
+      "cpuTempWarn": 80,
+      "cpuTempCrit": 90,
+      "loadWarn": 90
+    },
+    "chartWindow": 120,
+    "chartScale": "auto",
+    "chartFill": true,
+    "charts": [
+      "gpuTemp",
+      "gpuLoad",
+      "coreClock",
+      "memClock",
+      "power",
+      "fan"
+    ],
+    "sensorSparks": true,
+    "sensorKeepMinMax": true,
+    "decimals": "auto",
+    "memUnit": "bin",
+    "netUnit": "byte",
+    "clock": "system",
+    "dismissed": [],
+    "confirmSec": 15
+  }
+}

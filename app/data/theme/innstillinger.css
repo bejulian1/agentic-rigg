@@ -1,0 +1,200 @@
+/* Agentic Rigg · Innstillinger (port av web/styles.css, «Innstillinger
+ * (v0.0.15)»): hele vinduet, egen navigasjon der sidefeltet står (like bred,
+ * samme flate og samme toppstripe), og panelene i én til tre spalter
+ * (widgets/masonry.rs). Under 700 px står delene som ikoner øverst (.top). */
+
+.set-side { background-color: var(--sidebar); border-right: 1px solid var(--border); }
+.set-side.top { border-right: none; border-bottom: 1px solid var(--border); }
+.set-side-head {
+  min-height: var(--head-h);
+  padding: 0 var(--sp-3) 0 var(--sp-2);
+  border-bottom: 1px solid var(--border);
+  border-spacing: var(--sp-1);
+}
+.set-side.top .set-side-head { border-bottom: none; }
+.set-side-head .btn-back icon { color: var(--muted); }
+.set-side-head .btn-back:hover icon { color: var(--text); }
+.set-title { font-size: var(--fs-title); font-weight: 600; }
+.set-find { padding: var(--sp-2) var(--sp-2) var(--sp-1); }
+.set-side.top .set-find { padding: 0 var(--sp-2) 0 0; }
+.set-search { min-width: 0; }
+.set-search .slash { margin-right: 2px; padding: 0 4px; min-height: 16px; min-width: 18px; font-size: var(--fs-cap); color: var(--muted); border-bottom-width: 1px; }
+.set-nav { padding: var(--sp-1) var(--sp-2) var(--sp-2); border-spacing: 1px; }
+.set-side.top .set-nav { padding: var(--sp-1) var(--sp-2); border-top: 1px solid var(--border-soft); }
+window.rigg button.set-tab {
+  min-height: var(--h-md);
+  padding: 0 var(--sp-2);
+  border: none;
+  border-radius: var(--r);
+  background-color: transparent;
+  font-weight: 400;
+  outline-offset: -2px;
+}
+window.rigg button.set-tab > box { border-spacing: 10px; }
+window.rigg button.set-tab:hover { background-color: var(--hover); }
+window.rigg button.set-tab.current { background-color: var(--selected); }
+window.rigg button.set-tab.current label { font-weight: 600; }
+.set-tab icon { color: var(--muted); }
+.set-tab.current icon { color: var(--text); }
+.set-tab .set-n { min-width: 18px; color: var(--muted); font-size: var(--fs-cap); }
+.set-nav.searching .set-tab.no-hits label { color: var(--muted); }
+.set-nav.searching .set-tab.no-hits icon { color: var(--dim); }
+.set-side-foot {
+  padding: var(--sp-2) var(--sp-3);
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  border-spacing: var(--sp-2);
+}
+.set-head {
+  min-height: var(--head-h);
+  padding: 0 var(--sp-3) 0 var(--sp-4);
+  background-color: var(--head);
+  border-bottom: 1px solid var(--border);
+  border-spacing: var(--sp-3);
+}
+.set-heading { font-size: var(--fs-title); font-weight: 600; }
+.set-lead { color: var(--muted); font-size: var(--fs-sm); }
+.set-count { color: var(--muted); font-size: var(--fs-sm); }
+.set-body { padding: var(--sp-4); }
+.set-body.narrow { padding: var(--sp-2); }
+
+/* Panelene: samme panel som på de andre sidene, med radene rett inni. */
+.set-group > .group-head { min-height: var(--h-panel); }
+.set-desc { padding: var(--sp-2) var(--pad) var(--sp-1); color: var(--muted); font-size: var(--fs-sm); }
+.set-note { padding: 6px var(--pad) var(--sp-2); border-top: 1px solid var(--border-soft); color: var(--muted); font-size: var(--fs-sm); }
+.set-row {
+  min-height: calc(var(--h-row) + 14px);
+  padding: 6px var(--pad);
+  border-bottom: 1px solid var(--border-soft);
+  border-spacing: var(--sp-4);
+}
+.set-row.last { border-bottom: none; }
+.set-row .title { font-size: var(--fs-body); font-weight: 400; }
+.set-row .subtitle { color: var(--muted); font-size: var(--fs-sm); margin-top: 1px; }
+.set-row .ctrl { border-spacing: var(--sp-2); }
+window.rigg button.set-row.activatable {
+  border-radius: 0;
+  background-color: transparent;
+  font-weight: 400;
+  outline-offset: -2px;
+}
+window.rigg button.set-row.activatable:hover { background-color: var(--hover); }
+.set-row.wrap .ctrl { margin-top: var(--sp-2); }
+.set-crumb { color: var(--muted); font-size: var(--fs-sm); font-weight: 400; }
+window.rigg button.set-crumb { min-height: 0; min-width: 0; padding: 0 2px; background-color: transparent; }
+window.rigg button.set-crumb:hover label { color: var(--text); }
+.set-crumb-sep { color: var(--dim); }
+.set-flash { box-shadow: 0 0 0 2px var(--accent); }
+.set-empty { padding: var(--sp-6) var(--sp-2); color: var(--muted); border-spacing: var(--sp-3); }
+.set-empty .b { color: var(--text); font-weight: 600; }
+
+/* Fargetema: miniatyrer (tegnet med temaets egne tokens i widgets). */
+window.rigg button.pal-card {
+  padding: 0;
+  border: none;
+  background-color: transparent;
+  font-weight: 400;
+  outline-offset: 3px;
+}
+window.rigg button.pal-card:hover { background-color: transparent; }
+.pv-frame { padding: 3px; border-radius: 7px; }
+.icon-grid { margin-top: 1px; }
+.pal-card:hover .pv-frame { box-shadow: inset 0 0 0 1px var(--border); }
+.pal-card:checked .pv-frame { box-shadow: inset 0 0 0 2px var(--accent); }
+.pal-card .pal-name { font-size: var(--fs-body); }
+.pal-card:checked .pal-name { font-weight: 600; }
+.pal-card .pal-desc { color: var(--muted); font-size: var(--fs-sm); }
+.pv-check {
+  min-width: 18px;
+  min-height: 18px;
+  border-radius: 50%;
+  background-color: var(--accent-bg);
+  color: var(--accent-fg);
+  box-shadow: 0 0 0 2px var(--card);
+}
+
+/* Aksentfarge: fargeprøve med navn under. */
+window.rigg button.swatch {
+  padding: var(--sp-1) 0;
+  border: none;
+  background-color: transparent;
+  font-size: var(--fs-sm);
+  font-weight: 400;
+}
+window.rigg button.swatch:hover { background-color: var(--hover); }
+.swatch .sw { min-width: 28px; min-height: 28px; border-radius: 50%; color: #ffffff; }
+.swatch:checked .sw-name { font-weight: 600; }
+.sw.acc-blue { background-color: #3584e4; }
+.sw.acc-teal { background-color: #2190a4; }
+.sw.acc-green { background-color: #3a944a; }
+.sw.acc-purple { background-color: #9141ac; }
+.sw.acc-pink { background-color: #d56199; }
+.sw.acc-slate { background-color: #6f8396; }
+.swatch:checked .sw.acc-blue { box-shadow: 0 0 0 2px var(--card), 0 0 0 4px #3584e4; }
+.swatch:checked .sw.acc-teal { box-shadow: 0 0 0 2px var(--card), 0 0 0 4px #2190a4; }
+.swatch:checked .sw.acc-green { box-shadow: 0 0 0 2px var(--card), 0 0 0 4px #3a944a; }
+.swatch:checked .sw.acc-purple { box-shadow: 0 0 0 2px var(--card), 0 0 0 4px #9141ac; }
+.swatch:checked .sw.acc-pink { box-shadow: 0 0 0 2px var(--card), 0 0 0 4px #d56199; }
+.swatch:checked .sw.acc-slate { box-shadow: 0 0 0 2px var(--card), 0 0 0 4px #6f8396; }
+
+/* Appikon (docs/produksjon/ikon.md kap. 8): 48 px på 64 px flater, navnet under. */
+.icon-grid > flowboxchild { padding: 0; border-radius: var(--r); outline-offset: 3px; }
+.icon-grid > flowboxchild:hover .ic-tile { box-shadow: inset 0 0 0 1px var(--border); }
+.icon-grid > flowboxchild:selected { background-color: transparent; color: var(--text); }
+.ic-tile {
+  min-height: 64px;
+  border-radius: var(--r);
+  background-color: var(--card-alt);
+  box-shadow: inset 0 0 0 1px var(--border-soft);
+}
+.icon-grid > flowboxchild:selected .ic-tile { box-shadow: inset 0 0 0 2px var(--accent); }
+.ic-name { font-size: var(--fs-sm); margin-top: 4px; }
+.icon-grid > flowboxchild:selected .ic-name { font-weight: 600; }
+
+/* Statusblokken i Sidefelt: ordnet liste. */
+.order-row { min-height: calc(var(--h-row) + 10px); padding: 4px var(--pad); border-bottom: 1px solid var(--border-soft); border-spacing: var(--sp-3); }
+.order-row:focus:focus-visible { outline-offset: -2px; }
+.order-row .title { font-weight: 400; }
+.order-row .subtitle { color: var(--muted); font-size: var(--fs-sm); }
+.order-row .pos { color: var(--dim); font-size: var(--fs-sm); min-width: 16px; }
+.order-row.flash { background-color: var(--accent-soft); }
+.order-foot { padding: 4px var(--pad); }
+.pick-list { border-spacing: 0; }
+window.rigg button.pick { font-weight: 400; }
+.pick .ps { color: var(--muted); font-size: var(--fs-sm); }
+
+/* Stier: «…/agentic-rigg» med hele stien i verktøytipset. */
+.path-box { border-spacing: var(--sp-2); }
+.check-list { border-spacing: 0; }
+.check-list checkbutton { min-height: 30px; }
+
+/* Om: ikon, navn, versjon og en setning i ett panel. */
+.about-card { padding: var(--sp-4) var(--pad); border-spacing: var(--sp-4); }
+.about-name { font-size: var(--fs-title); font-weight: 600; }
+.about-text { border-spacing: var(--sp-1); }
+.about-text .about-line { color: var(--muted); }
+.egg-whisper { color: var(--muted); font-size: var(--fs-sm); }
+/* Signaturen «Code Pro» nederst i Om-kortet (som i Klipp og Agentic Desktop). */
+.about-signature {
+  padding: var(--sp-3) var(--pad) var(--sp-4);
+  border-top: 1px solid var(--border-soft);
+}
+.about-signature-name { color: var(--muted); font-weight: 600; letter-spacing: 0.04em; }
+.about-signature-note { color: var(--dim); font-size: var(--fs-sm); }
+/* Vinduskontrollene til venstre i layouten: sirkelen 12 px fra kanten. */
+.set-side-head windowcontrols.start:not(.empty) { margin-left: -1px; }
+.about-debug { padding: var(--sp-1) var(--pad); }
+
+/* Styring (runde 7A): status for hjelperen, «Hva bryteren gjør» og spørsmålet
+   før et trinn godkjennes. */
+.set-row.helper-status-row { padding-top: var(--sp-2); padding-bottom: var(--sp-2); }
+.helper-status { border-spacing: var(--sp-2); }
+.helper-status-text { color: var(--muted); font-size: var(--fs-sm); }
+.helper-kv { padding: var(--sp-1) var(--pad); }
+.helper-confirm { border-spacing: var(--sp-3); }
+.helper-warn { padding: var(--sp-3); border-radius: var(--r-sm); background-color: var(--warn-soft); }
+.helper-warn icon { color: var(--warn); }
+.helper-warn-title { font-weight: 600; }
+.helper-confirm-text { color: var(--muted); }
+.helper-confirm-buttons { margin-top: var(--sp-2); border-spacing: var(--sp-2); }

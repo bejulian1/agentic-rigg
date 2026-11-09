@@ -1,0 +1,35 @@
+/* grafer.css · 2A (Data): Grafer og Innstillinger › Grafer og sensorer. */
+.chart-page { border-spacing: var(--gap); }
+.chart-grid { min-height: 0; }
+
+/* «Velg grafer»: avkrysning som blir stående åpen. */
+.pick-list { padding: 0 var(--sp-2) var(--sp-2); }
+.pick-list checkbutton { min-height: var(--h-md); }
+
+/* -- Innstillinger › Grafer og sensorer -- */
+.check-row flowboxchild { padding: 0; }
+.thr-head { min-height: 22px; padding-top: var(--sp-1); padding-bottom: 0; border-bottom: none; }
+.thr-h { min-width: 120px; color: var(--muted); font-size: var(--fs-sm); font-weight: 600; }
+.thr-ctrl { border-spacing: var(--sp-4); }
+.thr-cell { min-width: 120px; }
+.thr-none { min-width: 120px; }
+window.rigg spinbutton.thr-field {
+  min-height: var(--h-sm);
+  border: 1px solid var(--field-border);
+  border-radius: var(--r);
+  background-color: var(--field);
+  color: var(--text);
+  box-shadow: none;
+}
+window.rigg spinbutton.thr-field:focus-within { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+window.rigg spinbutton.thr-field > text { min-width: 36px; padding: 0 6px; font-feature-settings: "tnum"; }
+window.rigg spinbutton.thr-field > button {
+  min-height: 0;
+  min-width: 22px;
+  padding: 0;
+  border: none;
+  border-left: 1px solid var(--border-soft);
+  border-radius: 0;
+  background-color: transparent;
+}
+window.rigg spinbutton.thr-field > button:hover { background-color: var(--hover); }

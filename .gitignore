@@ -1,0 +1,23 @@
+# Bygg og lokale data
+target/
+node_modules/
+.data/
+*.swp
+*~
+.idea/
+.vscode/
+
+# Gamle sikkerhetskopier av demoen
+.backup-*/
+
+# Skjermbilder og rådata fra testrundene (store, kan lages på nytt)
+docs/skjermbilder/
+docs/produksjon/maal/
+docs/produksjon/tilbakemelding/*.png
+docs/inspirasjon/
+
+# Demoens UI- og servertester
+test/
+
+# Skjermbilder fra prototypene
+prototyper/**/skjermbilder/

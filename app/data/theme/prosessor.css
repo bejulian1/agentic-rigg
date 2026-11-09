@@ -1,0 +1,40 @@
+/* prosessor.css · eies av 6A (Maskinvare). Prosessor-siden (CPU-Z/HWiNFO):
+ * de levende flisene øverst, instruksjonssettene som brikker, og klokke og
+ * last per tråd gruppert etter CCX og kjerne (tegnet i én widget). Fargene
+ * kommer fra tokens.css. */
+
+/* -- Nå: fire fliser som deler kant -- */
+.pr-now .group-body { padding: 0; }
+.pr-tile {
+  padding: var(--sp-2) var(--pad);
+  border-right: 1px solid var(--border-soft);
+  border-bottom: 1px solid var(--border-soft);
+}
+.pr-tiles { margin: 0 -1px -1px 0; }
+.pr-k { color: var(--muted); font-size: var(--fs-sm); }
+.pr-v { font-size: var(--fs-title); font-weight: 600; }
+.pr-v.warn { color: var(--warn); }
+.pr-v.danger { color: var(--danger); }
+.pr-sub { color: var(--muted); font-size: var(--fs-sm); }
+
+/* -- Instruksjonssett -- */
+.chip {
+  min-height: 20px;
+  padding: 0 6px;
+  border-radius: var(--r-sm);
+  background-color: color-mix(in srgb, var(--text) 7%, transparent);
+  font-size: var(--fs-sm);
+}
+.chip.key { background-color: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.chip.muted { color: var(--muted); }
+.chip.mono { font-size: var(--fs-cap); }
+.flags-card .group-body { padding-top: var(--sp-2); padding-bottom: var(--sp-2); }
+window.rigg entry.flags-search, window.rigg .flags-search { min-height: 22px; }
+.flags-note { margin-top: var(--sp-2); }
+
+/* -- Klokke og last per tråd (widgets/trader.rs tegner rutenettet selv;
+ * fargene er --text, --muted, --border-soft, --card, --track og
+ * --accent-fill/--warn-fill fra tokens.css) -- */
+threadgrid { margin: var(--sp-1) 0 var(--sp-1); font-size: var(--fs-sm); color: var(--text); }
+.legend { color: var(--muted); }
+.legend .lg { min-width: 10px; min-height: 4px; border-radius: 2px; background-color: var(--accent-fill); }

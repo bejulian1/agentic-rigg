@@ -1,0 +1,2 @@
+A2_vert_2s_1 takt=2000 cpu=1.299% Rss:=34532 Pss:=28642 Private_Dirty:=22716  tråder=6 fd=55 sni_i_hovedbussen=1
+A2_vert_2s_2 takt=2000 cpu=1.333% Rss:=34620 Pss:=28680 Private_Dirty:=22708  tråder=6 fd=55 sni_i_hovedbussen=1

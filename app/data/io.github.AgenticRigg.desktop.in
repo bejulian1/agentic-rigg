@@ -1,0 +1,18 @@
+[Desktop Entry]
+Type=Application
+Name=Agentic Rigg
+GenericName=Skjermkort og sensorer
+Comment=Overvåk skjermkortet, prosessoren og sensorene
+Exec=@EXEC@
+Icon=@ICON@
+Terminal=false
+Categories=System;Monitor;
+Keywords=gpu;skjermkort;sensor;temperatur;vifte;nvidia;overvåking;
+StartupNotify=true
+StartupWMClass=io.github.AgenticRigg
+SingleMainWindow=true
+Actions=sensorer;
+
+[Desktop Action sensorer]
+Name=Sensorer
+Exec=@EXEC@ --side sensorer

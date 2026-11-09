@@ -1,0 +1,6 @@
+/* system.css · eies av 6A (Maskinvare). System-siden: Minne med stolper.
+ * Instruksjonssettene og klokke og last per tråd står i prosessor.css (1.1.0). */
+
+/* -- Minne: stolpe og tall på samme rad -- */
+.kv-row.meter-row { border-spacing: var(--sp-3); }
+.kv-row.meter-row > label { min-width: 9em; }

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<defs>
+<linearGradient id="face" x1="0" y1="12" x2="0" y2="112" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#4b4b51"/><stop offset="1" stop-color="#38383d"/></linearGradient>
+<path id="b" d="M0 -11Q2.2 -21.9 20.9 -26.8A34 34 0 0 1 32.3 -10.5Q16.7 -15.7 4.8 -9.9Z" fill="#f6f5f4"/>
+</defs>
+<rect x="40" y="104" width="48" height="14" rx="3" fill="#c88800"/>
+<rect x="40" y="104" width="48" height="12" rx="3" fill="#e5a50a"/>
+<path d="M46 108v5M52 108v5M58 108v5M64 108v5M70 108v5M76 108v5M82 108v5" stroke="#f8e45c" stroke-width="3" stroke-linecap="round"/>
+<rect x="12" y="16" width="104" height="96" rx="20" fill="#26262a"/>
+<rect x="12" y="12" width="104" height="96" rx="20" fill="url(#face)"/>
+<circle cx="64" cy="60" r="40" fill="#2b2b2f"/>
+<circle cx="64" cy="60" r="40" fill="none" stroke="#606066" stroke-width="3"/>
+<g transform="translate(64 60)"><use href="#b" transform="rotate(0.0)"/><use href="#b" transform="rotate(51.43)"/><use href="#b" transform="rotate(102.86)"/><use href="#b" transform="rotate(154.29)"/><use href="#b" transform="rotate(205.71)"/><use href="#b" transform="rotate(257.14)"/><use href="#b" transform="rotate(308.57)"/></g>
+<circle cx="64" cy="60" r="12" fill="#2a75cf"/>
+<circle cx="64" cy="60" r="5" fill="#99c1f1"/>
+</svg>

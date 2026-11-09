@@ -1,0 +1,19 @@
+[Unit]
+Description=Agentic Rigg – sensorer og historikk
+Documentation=file://%h/.local/share/doc/agentic-rigg/README.md
+
+[Service]
+Type=notify
+ExecStart=%h/.local/bin/agentic-riggd
+Restart=on-failure
+RestartSec=2
+# Bare lesing. Ingen root, ingen skriving til kortet.
+NoNewPrivileges=yes
+LockPersonality=yes
+RestrictRealtime=yes
+MemoryHigh=96M
+MemoryMax=128M
+Nice=5
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,168 @@
+/* Agentic Rigg · Kontroller, og det de tre sidene under Styring deler
+ * (låst-linja, også på RGB-lys fra runde 6D, overklokkingsflaten, utkastet og
+ * Behold-linja). Eies av 6C (runde 6C: tallflisene, kontrollradene og (i)).
+ * Fargene kommer alltid fra tokens.css. Låsen er aldri gul eller rød: den
+ * er ikke en feil (produktspesifikasjonen kap. 5). */
+
+/* «Hva skal til?» */
+popover .steps-pop { padding: var(--sp-2) var(--sp-1); border-spacing: var(--sp-2); }
+popover .steps-pop .steps { margin: var(--sp-1) 0; }
+popover .steps-pop label { font-size: var(--fs-body); }
+popover .steps-pop .steps label { min-height: var(--h-row); }
+popover .steps-pop .steps label.sm { font-size: var(--fs-sm); }
+popover .steps-pop .pop-title { font-size: var(--fs-title); font-weight: 600; }
+popover .steps-pop .pop-foot { color: var(--muted); font-size: var(--fs-sm); padding-top: var(--sp-2); border-top: 1px solid var(--border-soft); }
+
+/* -- Behold eller Rull tilbake (bare mot den simulerte backenden) -- */
+.confirm-bar {
+  padding: var(--sp-1) var(--sp-1) var(--sp-1) var(--sp-3);
+  border-radius: var(--r-lg);
+  background-color: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.confirm-bar > icon { color: var(--accent); }
+
+/* Glidere og tallfelt i utkastet (GTKs egne, i appens tette stil). */
+.styring scale.ctl-scale, .lys scale.ctl-scale, popover scale.ctl-scale { min-height: 24px; padding: 0; }
+scale.ctl-scale > trough {
+  min-height: 3px;
+  border-radius: 2px;
+  background-color: var(--track);
+  border: none;
+  margin: 0 7px;
+}
+scale.ctl-scale > trough > highlight { border-radius: 2px; background-color: var(--accent-fill); min-height: 3px; }
+scale.ctl-scale > trough > slider {
+  min-width: 14px;
+  min-height: 14px;
+  margin: -6px;
+  border-radius: 50%;
+  border: none;
+  background-color: var(--knob);
+  box-shadow: 0 0 0 1px var(--field-border), 0 1px 2px var(--shadow-pop);
+}
+scale.ctl-scale > trough > slider:hover { box-shadow: 0 0 0 1px var(--accent), 0 1px 2px var(--shadow-pop); }
+scale.ctl-scale:focus:focus-visible > trough > slider { box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 55%, transparent), 0 0 0 1px var(--accent); }
+scale.ctl-scale:focus:focus-visible { outline: none; }
+scale.ctl-scale > marks.bottom { margin-top: 2px; }
+scale.ctl-scale > marks indicator { min-height: 5px; min-width: 1px; background-color: var(--muted); color: var(--muted); }
+scale.ctl-scale:disabled { opacity: 0.5; }
+spinbutton.ctl-spin {
+  min-height: var(--h-sm);
+  border-radius: var(--r);
+  background-color: var(--field);
+  border: 1px solid var(--field-border);
+  color: var(--text);
+  font-feature-settings: "tnum";
+}
+spinbutton.ctl-spin:focus-within { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+spinbutton.ctl-spin > text { padding: 0 4px; min-height: 0; background: none; border: none; box-shadow: none; }
+spinbutton.ctl-spin > button { min-width: 16px; min-height: 0; padding: 0; border: none; border-radius: 0; background: none; color: var(--muted); }
+spinbutton.ctl-spin > button:hover { background-color: var(--hover); color: var(--text); }
+
+/* -- Sidekolonnen -- */
+.styring .diff-row { min-height: var(--h-row); border-bottom: 1px solid var(--border-soft); border-spacing: 6px; }
+.styring .diff-row > icon { color: var(--muted); }
+.styring .diff-row .k { color: var(--muted); }
+.styring .diff-note { padding-top: var(--sp-2); }
+.kontroller .slot { padding: var(--sp-2) 0; border-bottom: 1px solid var(--border-soft); }
+.kontroller .slot .s-sum { margin-top: 2px; }
+.kontroller .slot entry { min-height: var(--h-sm); }
+.kontroller .slot-add { padding-top: var(--sp-2); }
+.dirty-text { margin-right: var(--sp-1); }
+
+/* Knappene i toppfeltet: en låst Bruk er nøytral, ikke en blek aksent
+   (finpuss v0.0.8 punkt 4). */
+window.rigg .styring-actions button.suggested:disabled { background-color: color-mix(in srgb, var(--text) 8%, transparent); color: var(--muted); opacity: 1; }
+window.rigg .styring-actions button:disabled { opacity: 0.6; }
+
+/* ================================================================ 6C */
+
+/* -- Låst-linja: én rolig linje øverst på Kontroller og Viftekurve -- */
+.lock-strip {
+  min-height: calc(var(--h-sm) + 8px);
+  padding: 3px var(--sp-1) 3px var(--sp-3);
+  border-radius: var(--r-lg);
+  background-color: var(--card);
+  border: 1px solid var(--border);
+}
+.lock-strip .ls-icon { color: var(--muted); }
+.lock-strip .ls-title { font-weight: 600; }
+.lock-strip .ls-text { color: var(--muted); font-size: var(--fs-sm); }
+.lock-strip.draft { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+.lock-strip.draft .ls-icon, .lock-strip.draft .ls-title { color: var(--accent); }
+.lock-strip.sim { background-color: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
+.lock-strip.sim .ls-icon { color: var(--accent); }
+.lock-strip.lost .ls-icon { color: var(--warn); }
+
+/* -- Tallene øverst: like brede fliser med en tynn strek mellom -- */
+.styring .oc-live { padding: 0; }
+.styring .oc-strip { margin-left: -1px; }
+.styring .oc-strip > flowboxchild { padding: 0; border-left: 1px solid var(--border-soft); }
+.styring .oc-stat { padding: var(--sp-2) var(--pad) calc(var(--sp-2) + 2px); }
+.styring .oc-stat .oc-cap { color: var(--muted); font-size: var(--fs-sm); }
+.styring .oc-stat .oc-num-row { margin-top: 1px; }
+.styring .oc-stat .oc-big { font-size: calc(24px * var(--fs-scale)); font-weight: 600; }
+.styring .oc-stat .oc-big.warn { color: var(--warn); }
+.styring .oc-stat .oc-big.danger { color: var(--danger); }
+.styring .oc-stat .oc-big.accent { color: var(--accent); }
+.styring .oc-stat .oc-unit { color: var(--muted); font-size: var(--fs-sm); }
+.styring .oc-stat .oc-sub { color: var(--muted); font-size: var(--fs-cap); min-height: 15px; }
+.styring .oc-stat .oc-meter { margin-top: var(--sp-1); }
+
+/* -- Kontrollradene -- */
+.styring .oc-row {
+  padding: var(--sp-3) var(--pad);
+  border-bottom: 1px solid var(--border-soft);
+  box-shadow: inset 3px 0 0 transparent;
+  transition: background-color 300ms ease-out;
+}
+.styring .oc-row:last-child { border-bottom: none; }
+/* Utkastet er noe annet enn kortet: aksentkant, så det aldri forveksles. */
+.styring .oc-row.changed { box-shadow: inset 3px 0 0 var(--accent); background-color: color-mix(in srgb, var(--accent) 4%, transparent); }
+.styring .oc-row.changed .oc-title { color: var(--accent); }
+.styring .oc-title { font-weight: 600; font-size: var(--fs-title); }
+.styring .oc-desc { color: var(--muted); font-size: var(--fs-sm); }
+.styring .oc-now { color: var(--dim); font-size: var(--fs-cap); margin-top: 2px; }
+.styring .oc-row.narrow .oc-mid { margin-top: var(--sp-2); }
+.styring .oc-top { margin-bottom: var(--sp-1); }
+window.rigg .styring button.oc-i { min-width: 20px; min-height: 20px; color: var(--muted); }
+window.rigg .styring button.oc-i:hover { color: var(--text); }
+.styring .oc-value { font-size: var(--fs-num); font-weight: 600; min-width: 76px; }
+spinbutton.ctl-spin.oc-spin { min-height: var(--h-md); font-size: var(--fs-title); font-weight: 600; }
+.styring .oc-unit-r { color: var(--muted); font-size: var(--fs-sm); }
+window.rigg .styring button.oc-reset { color: var(--muted); }
+window.rigg .styring button.oc-reset:hover { color: var(--text); }
+window.rigg .styring button.oc-reset:disabled { opacity: 0.4; }
+ocslider { min-height: 38px; }
+ocslider:focus:focus-visible { outline: none; }
+ocmeter { min-height: 6px; }
+
+/* -- (i)-popoveren -- */
+popover .oc-info { padding: var(--sp-2) var(--sp-1); }
+popover .oc-info .pop-title { font-size: var(--fs-title); font-weight: 600; }
+popover .oc-info .oc-info-p { font-size: var(--fs-body); }
+popover .oc-info .oc-facts { padding-top: var(--sp-2); margin-top: var(--sp-1); border-top: 1px solid var(--border-soft); }
+
+/* -- Sidekolonnen -- */
+.kontroller .lim-on { color: var(--accent); font-weight: 600; }
+.kontroller .lim-note { padding-top: var(--sp-2); }
+.kontroller .slot.current .s-name { color: var(--accent); }
+.kontroller .ctl-charts { margin-top: 0; }
+.styring .safety-note { padding: var(--sp-2) var(--pad); border-top: 1px solid var(--border-soft); }
+.styring .safety-note > icon { color: var(--muted); }
+.styring .oc-stat .oc-unit { margin-bottom: 4px; }
+
+/* ================================================================ 8A */
+
+/* -- Styrer-linja: kortet Styring-sidene gjelder, rolig og uten ramme -- */
+.target-line { min-height: var(--h-sm); padding: 0 var(--sp-1) 0 var(--sp-3); }
+.target-line .tl-icon { color: var(--muted); }
+.target-line .tl-lead { color: var(--muted); }
+.target-line .tl-name { font-weight: 600; }
+.target-line .tl-meta { color: var(--muted); font-size: var(--fs-sm); }
+.target-line.warn .tl-icon, .target-line.warn .tl-meta { color: var(--warn); }
+.target-line.danger .tl-icon, .target-line.danger .tl-meta { color: var(--danger); }
+window.rigg button.tl-btn { color: var(--muted); font-weight: 400; }
+window.rigg button.tl-btn:hover { color: var(--text); }
+.tl-maker { padding-bottom: var(--sp-1); }

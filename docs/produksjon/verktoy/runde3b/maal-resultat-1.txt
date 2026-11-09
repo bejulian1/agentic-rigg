@@ -1,0 +1,10 @@
+A_vert_2s_1 takt=2000 cpu=1.458% Rss:=33808 Pss:=27887 Private_Dirty:=22028  tråder=6 fd=55 sni_i_hovedbussen=1
+A_utenvert_2s_1 takt=2000 cpu=1.416% Rss:=34032 Pss:=28042 Private_Dirty:=22092  tråder=6 fd=54 sni_i_hovedbussen=0
+B_utentray_2s_1 takt=2000 cpu=1.399% Rss:=33948 Pss:=28016 Private_Dirty:=22176  tråder=6 fd=53 sni_i_hovedbussen=0
+A_vert_2s_2 takt=2000 cpu=1.433% Rss:=34428 Pss:=28411 Private_Dirty:=22484  tråder=6 fd=55 sni_i_hovedbussen=1
+A_utenvert_2s_2 takt=2000 cpu=1.458% Rss:=34352 Pss:=28397 Private_Dirty:=22496  tråder=6 fd=54 sni_i_hovedbussen=0
+B_utentray_2s_2 takt=2000 cpu=1.366% Rss:=34380 Pss:=28355 Private_Dirty:=22452  tråder=6 fd=53 sni_i_hovedbussen=0
+A_vert_1s takt=1000 cpu=2.116% Rss:=34540 Pss:=28586 Private_Dirty:=22692  tråder=6 fd=55 sni_i_hovedbussen=1
+A_vert_5s takt=5000 cpu=.658% Rss:=34536 Pss:=28630 Private_Dirty:=22728  tråder=6 fd=55 sni_i_hovedbussen=1
+B_utentray_1s takt=1000 cpu=2.083% Rss:=34528 Pss:=28645 Private_Dirty:=22732  tråder=6 fd=53 sni_i_hovedbussen=0
+B_utentray_5s takt=5000 cpu=.691% Rss:=34492 Pss:=28582 Private_Dirty:=22752  tråder=6 fd=53 sni_i_hovedbussen=0

@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="nb" data-motion="full">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>{{APP_NAME}}</title>
+    <link rel="icon" href="icons/agentic-rigg.svg" type="image/svg+xml" />
+    <script src="js/theme-boot.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <script type="module" src="js/app.js"></script>
+  </head>
+  <body>
+    <a class="skip" href="#content">Til innhold</a>
+    <!-- Ikoner: Lucide (ISC-lisens, se docs/LISENSER.md). Bare symbolene appen bruker. -->
+    <svg xmlns="http://www.w3.org/2000/svg" hidden aria-hidden="true">
+      <symbol id="i-layout-dashboard" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1" /><rect width="7" height="5" x="14" y="3" rx="1" /><rect width="7" height="9" x="14" y="12" rx="1" /><rect width="7" height="5" x="3" y="16" rx="1" /></symbol>
+      <symbol id="i-thermometer" viewBox="0 0 24 24"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z" /></symbol>
+      <symbol id="i-chart-line" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16" /><path d="m19 9-5 5-4-4-3 3" /></symbol>
+      <symbol id="i-gpu" viewBox="0 0 24 24"><path d="M2 17h18a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H2" /><path d="M2 21V3" /><path d="M7 17v3a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1v-3" /><circle cx="16" cy="11" r="2" /><circle cx="8" cy="11" r="2" /></symbol>
+      <symbol id="i-cpu" viewBox="0 0 24 24"><path d="M12 20v2" /><path d="M12 2v2" /><path d="M17 20v2" /><path d="M17 2v2" /><path d="M2 12h2" /><path d="M2 17h2" /><path d="M2 7h2" /><path d="M20 12h2" /><path d="M20 17h2" /><path d="M20 7h2" /><path d="M7 20v2" /><path d="M7 2v2" /><rect x="4" y="4" width="16" height="16" rx="2" /><rect x="8" y="8" width="8" height="8" rx="1" /></symbol>
+      <symbol id="i-sliders-horizontal" viewBox="0 0 24 24"><path d="M10 5H3" /><path d="M12 19H3" /><path d="M14 3v4" /><path d="M16 17v4" /><path d="M21 12h-9" /><path d="M21 19h-5" /><path d="M21 5h-7" /><path d="M8 10v4" /><path d="M8 12H3" /></symbol>
+      <symbol id="i-fan" viewBox="0 0 24 24"><path d="M10.827 16.379a6.082 6.082 0 0 1-8.618-7.002l5.412 1.45a6.082 6.082 0 0 1 7.002-8.618l-1.45 5.412a6.082 6.082 0 0 1 8.618 7.002l-5.412-1.45a6.082 6.082 0 0 1-7.002 8.618l1.45-5.412Z" /><path d="M12 12v.01" /></symbol>
+      <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" /><circle cx="13.5" cy="6.5" r=".5" fill="currentColor" /><circle cx="17.5" cy="10.5" r=".5" fill="currentColor" /><circle cx="6.5" cy="12.5" r=".5" fill="currentColor" /><circle cx="8.5" cy="7.5" r=".5" fill="currentColor" /></symbol>
+      <symbol id="i-settings" viewBox="0 0 24 24"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" /><circle cx="12" cy="12" r="3" /></symbol>
+      <symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol>
+      <symbol id="i-pause" viewBox="0 0 24 24"><rect x="14" y="3" width="5" height="18" rx="1" /><rect x="5" y="3" width="5" height="18" rx="1" /></symbol>
+      <symbol id="i-play" viewBox="0 0 24 24"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" /></symbol>
+      <symbol id="i-rotate-ccw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></symbol>
+      <symbol id="i-undo-2" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5" /><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11" /></symbol>
+      <symbol id="i-chevrons-down-up" viewBox="0 0 24 24"><path d="m7 20 5-5 5 5" /><path d="m7 4 5 5 5-5" /></symbol>
+      <symbol id="i-chevrons-up-down" viewBox="0 0 24 24"><path d="m7 15 5 5 5-5" /><path d="m7 9 5-5 5 5" /></symbol>
+      <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></symbol>
+      <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></symbol>
+      <symbol id="i-trash-2" viewBox="0 0 24 24"><path d="M10 11v6" /><path d="M14 11v6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" /><path d="M3 6h18" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></symbol>
+      <symbol id="i-save" viewBox="0 0 24 24"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" /><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7" /><path d="M7 3v4a1 1 0 0 0 1 1h7" /></symbol>
+      <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /><circle cx="12" cy="12" r="3" /></symbol>
+      <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" /><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" /><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143" /><path d="m2 2 20 20" /></symbol>
+      <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></symbol>
+      <symbol id="i-triangle-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" /><path d="M12 9v4" /><path d="M12 17h.01" /></symbol>
+      <symbol id="i-circle-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><line x1="12" x2="12" y1="8" y2="12" /><line x1="12" x2="12.01" y1="16" y2="16" /></symbol>
+      <symbol id="i-circle-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="m16 9-5.5 5.5L8 12" /></symbol>
+      <symbol id="i-zap" viewBox="0 0 24 24"><path d="M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z" /></symbol>
+      <symbol id="i-memory-stick" viewBox="0 0 24 24"><path d="M12 12v-2" /><path d="M12 18v-2" /><path d="M16 12v-2" /><path d="M16 18v-2" /><path d="M2 11h1.5" /><path d="M20 18v-2" /><path d="M20.5 11H22" /><path d="M4 18v-2" /><path d="M8 12v-2" /><path d="M8 18v-2" /><rect x="2" y="6" width="20" height="10" rx="2" /></symbol>
+      <symbol id="i-arrow-down-up" viewBox="0 0 24 24"><path d="m3 16 4 4 4-4" /><path d="M7 20V4" /><path d="m21 8-4-4-4 4" /><path d="M17 4v16" /></symbol>
+      <symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 5v14" /><path d="m19 12-7 7-7-7" /></symbol>
+      <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="m5 12 7-7 7 7" /><path d="M12 19V5" /></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></symbol>
+      <symbol id="i-circle-slash" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><line x1="9" x2="15" y1="15" y2="9" /></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14" /><path d="M12 5v14" /></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34" /><circle cx="11" cy="11" r="8" /></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></symbol>
+      <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /><path d="m15 5 4 4" /></symbol>
+      <symbol id="i-keyboard" viewBox="0 0 24 24"><path d="M10 8h.01" /><path d="M12 12h.01" /><path d="M14 8h.01" /><path d="M16 12h.01" /><path d="M18 8h.01" /><path d="M6 8h.01" /><path d="M7 16h10" /><path d="M8 12h.01" /><rect width="20" height="16" x="2" y="4" rx="2" /></symbol>
+      <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 15V3" /><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="m7 10 5 5 5-5" /></symbol>
+      <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 3v12" /><path d="m17 8-5-5-5 5" /><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /></symbol>
+      <symbol id="i-folder" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" /></symbol>
+      <symbol id="i-refresh-cw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" /><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /><path d="M8 16H3v5" /></symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /></symbol>
+      <symbol id="i-timer" viewBox="0 0 24 24"><line x1="10" x2="14" y1="2" y2="2" /><line x1="12" x2="15" y1="14" y2="11" /><circle cx="12" cy="14" r="8" /></symbol>
+      <symbol id="i-unplug" viewBox="0 0 24 24"><path d="m19 5 3-3" /><path d="m2 22 3-3" /><path d="M6.3 20.3a2.4 2.4 0 0 0 3.4 0L12 18l-6-6-2.3 2.3a2.4 2.4 0 0 0 0 3.4Z" /><path d="M7.5 13.5 10 11" /><path d="M10.5 16.5 13 14" /><path d="m12 6 6 6 2.3-2.3a2.4 2.4 0 0 0 0-3.4l-2.6-2.6a2.4 2.4 0 0 0-3.4 0Z" /></symbol>
+      <symbol id="i-monitor" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="3" rx="2" /><line x1="8" x2="16" y1="21" y2="21" /><line x1="12" x2="12" y1="17" y2="21" /></symbol>
+      <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" /></symbol>
+      <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401" /></symbol>
+      <symbol id="i-rotate-cw" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" /></symbol>
+      <symbol id="i-circle-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><path d="M12 17h.01" /></symbol>
+      <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></symbol>
+      <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7" /><path d="M19 12H5" /></symbol>
+      <symbol id="i-activity" viewBox="0 0 24 24"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2" /></symbol>
+      <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M12 20h.01" /><path d="M2 8.82a15 15 0 0 1 20 0" /><path d="M5 12.859a10 10 0 0 1 14 0" /><path d="M8.5 16.429a5 5 0 0 1 7 0" /></symbol>
+      <symbol id="i-network" viewBox="0 0 24 24"><rect x="16" y="16" width="6" height="6" rx="1" /><rect x="2" y="16" width="6" height="6" rx="1" /><rect x="9" y="2" width="6" height="6" rx="1" /><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3" /><path d="M12 12V8" /></symbol>
+      <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 17v5" /><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z" /></symbol>
+      <symbol id="i-pin-off" viewBox="0 0 24 24"><path d="M12 17v5" /><path d="M15 9.34V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H7.89" /><path d="m2 2 20 20" /><path d="M9 9v1.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h11" /></symbol>
+      <symbol id="i-grip-vertical" viewBox="0 0 24 24"><circle cx="9" cy="12" r="1" /><circle cx="9" cy="5" r="1" /><circle cx="9" cy="19" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="15" cy="5" r="1" /><circle cx="15" cy="19" r="1" /></symbol>
+      <symbol id="i-ellipsis-vertical" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1" /><circle cx="12" cy="5" r="1" /><circle cx="12" cy="19" r="1" /></symbol>
+      <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" /></symbol>
+      <symbol id="i-sun-moon" viewBox="0 0 24 24"><path d="M12 2v2" /><path d="M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715" /><path d="M16 12a4 4 0 0 0-4-4" /><path d="m19 5-1.256 1.256" /><path d="M20 12h2" /></symbol>
+      <symbol id="i-ruler" viewBox="0 0 24 24"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z" /><path d="m14.5 12.5 2-2" /><path d="m11.5 9.5 2-2" /><path d="m8.5 6.5 2-2" /><path d="m17.5 15.5 2-2" /></symbol>
+      <symbol id="i-crosshair" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><line x1="22" x2="18" y1="12" y2="12" /><line x1="6" x2="2" y1="12" y2="12" /><line x1="12" x2="12" y1="6" y2="2" /><line x1="12" x2="12" y1="22" y2="18" /></symbol>
+      <symbol id="i-panel-left" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" /><path d="M9 3v18" /></symbol>
+      <symbol id="i-panel-left-close" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" /><path d="M9 3v18" /><path d="m16 15-3-3 3-3" /></symbol>
+      <symbol id="i-panel-left-open" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" /><path d="M9 3v18" /><path d="m14 9 3 3-3 3" /></symbol>
+      <symbol id="i-chart-area" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16" /><path d="M7 11.207a.5.5 0 0 1 .146-.353l2-2a.5.5 0 0 1 .708 0l3.292 3.292a.5.5 0 0 0 .708 0l4.292-4.292a.5.5 0 0 1 .854.353V16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1z" /></symbol>
+      <symbol id="i-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M3 5V19A9 3 0 0 0 21 19V5" /><path d="M3 12A9 3 0 0 0 21 12" /></symbol>
+      <!-- v0.0.12: påskeeggene (web/js/easter.js) -->
+      <symbol id="i-egg" viewBox="0 0 24 24"><path d="M12 2C8 2 4 8 4 14a8 8 0 0 0 16 0c0-6-4-12-8-12" /></symbol>
+      <symbol id="i-cake" viewBox="0 0 24 24"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8" /><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1" /><path d="M2 21h20" /><path d="M7 8v3" /><path d="M12 8v3" /><path d="M17 8v3" /><path d="M7 4h.01" /><path d="M12 4h.01" /><path d="M17 4h.01" /></symbol>
+    </svg>
+
+    <div class="app" id="app">
+      <!-- ============ Sidefeltets toppfelt ============ -->
+      <header class="side-head">
+        <img class="app-icon" src="icons/agentic-rigg.svg" alt="" width="20" height="20" />
+        <span class="app-name" data-app-name>{{APP_NAME}}</span>
+        <span class="tag quiet" id="channel-tag">alpha</span>
+      </header>
+
+      <!-- ============ Sidefelt ============ -->
+      <!-- v0.0.10: ingen hovedmeny. Innstillinger, Tastatursnarveier og knappen
+           som legger sammen sidefeltet står nederst (.side-foot). Om er en egen
+           del av Innstillinger. -->
+      <nav class="sidebar" id="sidebar" aria-label="Sider">
+        <!-- Kortvelgeren: én tynn rad med ikon, navn og statusprikk. Live/Simulert
+             og driveren står i verktøytipset, for skjermlesere og i popoveren. -->
+        <button type="button" class="device-card" id="device-card" aria-haspopup="dialog" aria-expanded="false" aria-controls="device-pop" data-tip-side="right">
+          <span class="icon-wrap"><svg class="icon"><use href="#i-gpu" /></svg><span class="dot" id="device-dot"></span></span>
+          <span class="device-name ellipsis" id="device-name"><span class="skel" style="--w: 9em"></span></span>
+          <span class="sr-only" id="device-sub">Kobler til …</span>
+          <span class="dot" id="device-dot2"></span>
+          <svg class="icon chev"><use href="#i-chevron-down" /></svg>
+        </button>
+
+        <div class="nav" id="nav">
+          <div class="nav-sec" data-sec="mon">Overvåking</div>
+          <a class="nav-item" href="#/oversikt" data-page="oversikt" data-tip="Oversikt" data-tip-key="1" data-tip-side="right">
+            <svg class="icon"><use href="#i-layout-dashboard" /></svg><span class="label">Oversikt</span><kbd>1</kbd>
+          </a>
+          <a class="nav-item" href="#/sensorer" data-page="sensorer" data-tip="Sensorer" data-tip-key="2" data-tip-side="right">
+            <svg class="icon"><use href="#i-thermometer" /></svg><span class="label">Sensorer</span><kbd>2</kbd>
+          </a>
+          <a class="nav-item" href="#/grafer" data-page="grafer" data-tip="Grafer" data-tip-key="3" data-tip-side="right">
+            <svg class="icon"><use href="#i-chart-line" /></svg><span class="label">Grafer</span><kbd>3</kbd>
+          </a>
+          <div class="nav-sec" data-sec="hw">Maskinvare</div>
+          <a class="nav-item" href="#/grafikkort" data-page="grafikkort" data-tip="Grafikkort" data-tip-key="4" data-tip-side="right">
+            <svg class="icon"><use href="#i-gpu" /></svg><span class="label">Grafikkort</span><kbd>4</kbd>
+          </a>
+          <a class="nav-item" href="#/system" data-page="system" data-tip="System" data-tip-key="5" data-tip-side="right">
+            <svg class="icon"><use href="#i-cpu" /></svg><span class="label">System</span><kbd>5</kbd>
+          </a>
+          <div class="nav-sec" data-sec="ctl">Kontroller · simulert</div>
+          <a class="nav-item" href="#/kontroller" data-page="kontroller" data-tip="Kontroller (simulert)" data-tip-key="6" data-tip-side="right">
+            <svg class="icon"><use href="#i-sliders-horizontal" /></svg><span class="label">Kontroller</span><kbd>6</kbd>
+          </a>
+          <a class="nav-item" href="#/viftekurve" data-page="viftekurve" data-tip="Viftekurve (simulert)" data-tip-key="7" data-tip-side="right">
+            <svg class="icon"><use href="#i-fan" /></svg><span class="label">Viftekurve</span><kbd>7</kbd>
+          </a>
+          <a class="nav-item" href="#/lys" data-page="lys" data-tip="Lys (simulert)" data-tip-key="8" data-tip-side="right">
+            <svg class="icon"><use href="#i-palette" /></svg><span class="label">Lys</span><kbd>8</kbd>
+          </a>
+        </div>
+
+        <div class="side-status" id="side-status" aria-label="Status" hidden>
+          <div class="side-status-head">Status</div>
+          <div id="side-status-rows"></div>
+        </div>
+
+        <div class="side-foot">
+          <a class="side-link" id="side-settings" href="#/innstillinger" data-page="innstillinger" data-tip="Innstillinger" data-tip-key="Ctrl+," data-tip-side="right">
+            <svg class="icon"><use href="#i-settings" /></svg><span class="label">Innstillinger</span>
+          </a>
+          <button type="button" class="btn flat icon-only side-btn" id="side-keys" aria-haspopup="dialog" aria-label="Tastatursnarveier" data-tip="Tastatursnarveier" data-tip-key="Ctrl+?" data-tip-side="right">
+            <svg class="icon"><use href="#i-circle-help" /></svg>
+          </button>
+          <button type="button" class="btn flat icon-only side-btn" id="side-toggle" aria-controls="sidebar" aria-expanded="true" aria-label="Legg sammen sidefeltet" data-tip="Legg sammen sidefeltet" data-tip-key="Ctrl+B" data-tip-side="right">
+            <svg class="icon"><use href="#i-panel-left-close" /></svg>
+          </button>
+        </div>
+      </nav>
+
+      <!-- ============ Innholdets toppfelt ============ -->
+      <!-- Står etter sidefeltet i koden, så tab-rekkefølgen blir sidefelt → sidens
+           handlinger → innhold. Plasseringen på skjermen styres av grid-area. -->
+      <header class="main-head">
+        <h1 class="main-title" id="main-title"></h1>
+
+        <div class="head-actions" data-for="sensorer" hidden>
+          <button type="button" class="btn flat icon-only" id="sn-toggle" data-fixed data-tip="Fold sammen alle">
+            <svg class="icon"><use href="#i-chevrons-down-up" /></svg>
+          </button>
+          <span class="sep"></span>
+          <label class="field search-field" data-tip="Filtrer sensorer" data-tip-key="Ctrl+F">
+            <svg class="icon"><use href="#i-search" /></svg>
+            <input type="search" id="sn-search" placeholder="Filtrer" aria-label="Filtrer sensorer" autocomplete="off" />
+          </label>
+          <span class="head-note" id="sn-since" data-tip="Min, maks og snitt regnes fra du åpnet appen eller trykket ↺.">–</span>
+          <button type="button" class="btn flat icon-only" id="sn-reset" data-tip="Nullstill min, maks og snitt">
+            <svg class="icon"><use href="#i-rotate-ccw" /></svg>
+          </button>
+        </div>
+
+        <div class="head-actions" data-for="grafer" hidden>
+          <div class="seg" id="mon-window" role="radiogroup" aria-label="Tidsvindu">
+            <button type="button" role="radio" data-v="60">1 min</button>
+            <button type="button" role="radio" data-v="300">5 min</button>
+            <button type="button" role="radio" data-v="900">15 min</button>
+            <button type="button" role="radio" data-v="3600">1 t</button>
+            <button type="button" role="radio" data-v="21600">6 t</button>
+            <button type="button" role="radio" data-v="86400">24 t</button>
+            <button type="button" role="radio" data-v="172800">48 t</button>
+          </div>
+          <span class="sep"></span>
+          <span class="tag tag-lg" id="mon-paused" hidden></span>
+          <button type="button" class="btn flat icon-only" id="mon-sync" aria-pressed="true" aria-label="Markør på alle grafene" data-tip="Markøren vises på alle grafene">
+            <svg class="icon"><use href="#i-crosshair" /></svg>
+          </button>
+          <button type="button" class="btn flat icon-only" id="mon-pause" data-fixed aria-pressed="false" data-tip="Pause alle" data-tip-key="Mellomrom" aria-label="Pause alle grafene">
+            <svg class="icon"><use href="#i-pause" /></svg>
+          </button>
+          <button type="button" class="btn flat icon-only" id="mon-pick" aria-haspopup="menu" aria-expanded="false" data-tip="Velg grafer">
+            <svg class="icon"><use href="#i-sliders-horizontal" /></svg>
+          </button>
+        </div>
+
+        <div class="head-actions" data-for="grafikkort" hidden>
+          <button type="button" class="btn flat icon-only" id="gc-copy" aria-haspopup="menu" aria-expanded="false" data-tip="Kopier">
+            <svg class="icon"><use href="#i-copy" /></svg>
+          </button>
+        </div>
+
+        <div class="head-actions" data-for="system" hidden>
+          <button type="button" class="btn flat icon-only" id="sy-copy" aria-haspopup="menu" aria-expanded="false" data-tip="Kopier">
+            <svg class="icon"><use href="#i-copy" /></svg>
+          </button>
+        </div>
+
+        <div class="head-actions" data-for="oversikt" hidden>
+          <span class="win-host" id="ov-win-host"></span>
+        </div>
+
+        <div class="head-actions" data-for="kontroller" hidden>
+          <span class="win-host" id="ctl-win-host"></span>
+          <span class="sep"></span>
+          <span class="dirty" id="ctl-dirty" data-state="clean"><span class="dot"></span><span id="ctl-dirty-text">Ingen endringer</span></span>
+          <button type="button" class="btn flat icon-only" id="ctl-reset" data-tip="Tilbakestill alt til standard">
+            <svg class="icon"><use href="#i-undo-2" /></svg>
+          </button>
+          <button type="button" class="btn" id="ctl-discard" disabled data-tip="Ingen endringer å forkaste" data-tip-key="Ctrl+Z">Forkast</button>
+          <button type="button" class="btn suggested" id="ctl-apply" disabled data-tip="Ingen endringer å bruke" data-tip-key="Ctrl+Enter">Bruk</button>
+        </div>
+
+        <div class="head-actions" data-for="viftekurve" hidden>
+          <span class="dirty" id="fc-dirty" data-state="clean"><span class="dot"></span><span id="fc-dirty-text">Ingen endringer</span></span>
+          <button type="button" class="btn" id="fc-discard" disabled data-tip="Ingen endringer å forkaste" data-tip-key="Ctrl+Z">Forkast</button>
+          <button type="button" class="btn suggested" id="fc-apply" disabled data-tip="Ingen endringer å bruke" data-tip-key="Ctrl+Enter">Bruk</button>
+        </div>
+
+        <div class="head-actions" data-for="lys" hidden>
+          <span class="dirty" id="rgb-dirty" data-state="clean"><span class="dot"></span><span id="rgb-dirty-text">Brukt</span></span>
+          <button type="button" class="btn" id="rgb-discard" disabled data-tip="Ingen endringer å forkaste" data-tip-key="Ctrl+Z">Forkast</button>
+          <button type="button" class="btn suggested" id="rgb-apply" disabled data-tip="Ingen endringer å bruke" data-tip-key="Ctrl+Enter">Bruk</button>
+        </div>
+
+        <span class="tag tag-lg status-tag" id="status-tag" hidden><span class="dot" id="status-dot"></span><span id="status-text"></span></span>
+      </header>
+
+      <!-- ============ Linjer under toppfeltet ============ -->
+      <!-- Frakoblet fra serveren, bakgrunnstjenesten ikke tilkoblet, og
+           bekreftelsen etter Bruk. Står før innholdet i koden, så Tab når
+           Behold rett etter sidens handlinger. -->
+      <div class="banners" id="banners">
+        <div class="banner" id="conn-banner" hidden>
+          <svg class="icon"><use href="#i-unplug" /></svg>
+          <span class="grow"><b>Frakoblet fra serveren.</b> <span id="conn-text">Prøver igjen om 3 s.</span> Verdiene under er gamle.</span>
+          <button type="button" class="btn sm" id="conn-retry">Prøv nå</button>
+        </div>
+        <div class="banner warn" id="daemon-banner" hidden>
+          <svg class="icon"><use href="#i-unplug" /></svg>
+          <span class="grow"><b>Bakgrunnstjeneste: ikke tilkoblet.</b> <span id="daemon-text">Endringer kan ikke brukes nå.</span></span>
+          <button type="button" class="btn sm" id="daemon-retry">Prøv nå</button>
+        </div>
+        <div class="banner confirm-bar" id="confirm-bar" role="region" aria-label="Bekreft endringer" hidden>
+          <svg class="icon cb-icon"><use href="#i-timer" /></svg>
+          <span class="grow cb-text"><b id="cb-title">Behold endringene?</b> <span id="cb-body"></span><span class="cb-clamp" id="cb-clamp" hidden></span></span>
+          <span class="cb-count" id="cb-count" aria-hidden="true"></span>
+          <span class="cb-btns">
+            <button type="button" class="btn sm" id="cb-revert">Rull tilbake nå</button>
+            <button type="button" class="btn sm suggested" id="cb-keep" data-tip="Behold endringene" data-tip-key="Ctrl+Shift+Enter">Behold</button>
+            <button type="button" class="btn sm" id="cb-again" hidden>Bruk igjen</button>
+            <button type="button" class="btn sm flat icon-only" id="cb-close" aria-label="Lukk" data-tip="Lukk" hidden><svg class="icon"><use href="#i-x" /></svg></button>
+          </span>
+          <span class="cb-progress" aria-hidden="true"><i id="cb-bar"></i></span>
+        </div>
+      </div>
+
+      <!-- ============ Innhold ============ -->
+      <main class="content" id="content" tabindex="-1">
+        <!-- Oversikt -->
+        <section class="page fill" id="page-oversikt" data-title="Oversikt" hidden>
+          <div class="tiles" id="ov-tiles"></div>
+          <div class="ov-details">
+            <section class="group">
+              <div class="group-head"><h2 class="group-title">Skjermkort</h2><div class="aside" id="ov-gpu-aside"></div></div>
+              <div class="group-body"><dl class="kv" id="ov-gpu"></dl></div>
+            </section>
+            <!-- Temperatur og effekt i ett panel med to deler (v0.0.9), så
+                 detaljraden blir like høy som Skjermkort og Klokker uten tomrom. -->
+            <section class="group ov-te">
+              <div class="group-head"><h2 class="group-title">Temperatur og effekt</h2></div>
+              <div class="group-body">
+                <div class="ov-part">
+                  <div class="ov-sub"><h3>Temperatur</h3><span class="temp-lead" id="ov-temp-margin"><span class="skel" style="--w: 12em"></span></span><span class="aside" id="ov-temp-peak" data-tip="Høyeste GPU-temperatur de siste 5 minuttene"></span></div>
+                  <div id="ov-temp-gauge"></div>
+                </div>
+                <div class="ov-part">
+                  <div class="ov-sub"><h3>Effekt</h3><span class="temp-lead" id="ov-power-text"><span class="skel" style="--w: 6em"></span></span><span class="aside" id="ov-power-aside"></span></div>
+                  <div id="ov-power-gauge"></div>
+                </div>
+              </div>
+            </section>
+            <section class="group">
+              <div class="group-head"><h2 class="group-title">Klokker</h2><div class="aside">MHz</div></div>
+              <div class="group-body"><table class="table" id="ov-clocks"></table></div>
+            </section>
+          </div>
+          <div class="ov-charts" id="ov-charts"></div>
+        </section>
+
+        <!-- Sensorer -->
+        <section class="page" id="page-sensorer" data-title="Sensorer" hidden>
+          <!-- Én tabell, gruppert etter enhet (v0.0.9). Overskriftsraden står
+               én gang og blir stående øverst når siden rulles. Hver gruppe er
+               en egen tbody med en sammenleggbar overskriftsrad. -->
+          <section class="group sn-panel" id="sn-panel" aria-label="Sensorer">
+            <table class="sensors" id="sn-table">
+              <colgroup><col class="c-name" /><col class="c-num" /><col class="c-num" /><col class="c-num" /><col class="c-num" /><col class="c-spark" /></colgroup>
+              <thead>
+                <tr>
+                  <th scope="col">Sensor</th>
+                  <th scope="col">Nå</th>
+                  <th scope="col">Min</th>
+                  <th scope="col">Maks</th>
+                  <th scope="col" data-tip="Snitt for denne økten">Snitt</th>
+                  <th scope="col" class="c-spark-cell">60 s</th>
+                </tr>
+              </thead>
+            </table>
+          </section>
+          <div class="empty" id="sn-empty" hidden>
+            <svg class="icon"><use href="#i-search" /></svg>
+            <span>Ingen sensorer passer filteret.</span>
+          </div>
+          <section class="group" id="sn-notes-group" hidden>
+            <div class="group-head"><h2 class="group-title">Ikke tilgjengelig</h2><div class="aside">Det som ikke kan leses, og hvorfor</div></div>
+            <div class="group-body"><div class="sn-notes" id="sn-notes"></div></div>
+          </section>
+        </section>
+
+        <!-- Grafer -->
+        <section class="page fill" id="page-grafer" data-title="Grafer" hidden>
+          <div class="chart-grid" id="chart-grid"></div>
+        </section>
+
+        <!-- Grafikkort -->
+        <section class="page" id="page-grafikkort" data-title="Grafikkort" hidden>
+          <div class="cols-2">
+            <div class="col">
+              <section class="group">
+                <div class="group-head"><h2 class="group-title">Fra driveren</h2><div class="aside"><span class="tag" id="gc-src">nvidia-smi</span></div></div>
+                <div class="group-body"><dl class="kv" id="gc-driver"></dl></div>
+              </section>
+              <section class="group">
+                <div class="group-head"><h2 class="group-title">Klokker</h2><div class="aside">MHz</div></div>
+                <div class="group-body"><table class="table" id="gc-clocks"></table><p class="group-note" id="gc-clock-note"></p></div>
+              </section>
+            </div>
+            <div class="col">
+              <section class="group">
+                <div class="group-head">
+                  <h2 class="group-title">Spesifikasjon</h2>
+                  <div class="aside"><span class="tag quiet" data-tip="Tallene kommer fra en innebygd tabell slått opp på PCI-ID. De gjelder brikken og referansekortet og er ikke målt på denne maskinen."><svg class="icon"><use href="#i-info" /></svg>Referanse, ikke målt</span></div>
+                </div>
+                <div class="group-body"><p class="group-note" id="gc-ref-note" hidden></p><dl class="kv cols-auto" id="gc-spec"></dl></div>
+              </section>
+              <section class="group">
+                <div class="group-head"><h2 class="group-title">Grenser</h2></div>
+                <div class="group-body"><dl class="kv" id="gc-limits"></dl></div>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <!-- System -->
+        <section class="page" id="page-system" data-title="System" hidden>
+          <div class="cols-2">
+            <div class="col">
+              <section class="group">
+                <div class="group-head"><h2 class="group-title">Prosessor</h2></div>
+                <div class="group-body"><dl class="kv" id="sy-cpu"></dl></div>
+              </section>
+              <section class="group">
+                <div class="group-head"><h2 class="group-title">Cache</h2></div>
+                <div class="group-body"><table class="table" id="sy-cache"></table></div>
+              </section>
+              <section class="group flags-card" id="sy-flags-card">
+                <div class="group-head">
+                  <h2 class="group-title">Instruksjonssett</h2>
+                  <div class="aside">
+                    <label class="field search-field" id="sy-flags-search-wrap" hidden><svg class="icon"><use href="#i-search" /></svg><input type="search" id="sy-flags-search" placeholder="Søk" aria-label="Søk i instruksjonssett" /></label>
+                    <span id="sy-flags-count"></span>
+                    <button type="button" class="btn sm flat icon-only" id="sy-flags-toggle" data-fixed aria-expanded="false" aria-controls="sy-flags-more" data-tip="Vis alle og søk"><svg class="icon chev"><use href="#i-chevron-down" /></svg></button>
+                  </div>
+                </div>
+                <div class="group-body flags-body"><div class="chips" id="sy-flags"></div><div class="chips mono flags-more" id="sy-flags-more"></div></div>
+              </section>
+            </div>
+            <div class="col">
+              <section class="group">
+                <div class="group-head"><h2 class="group-title">Hovedkort og BIOS</h2></div>
+                <div class="group-body"><dl class="kv" id="sy-board"></dl></div>
+              </section>
+              <section class="group">
+                <div class="group-head"><h2 class="group-title">Minne</h2></div>
+                <div class="group-body"><dl class="kv" id="sy-mem"></dl></div>
+              </section>
+              <section class="group">
+                <div class="group-head"><h2 class="group-title">Operativsystem</h2></div>
+                <div class="group-body"><dl class="kv" id="sy-os"></dl></div>
+              </section>
+            </div>
+          </div>
+          <section class="group">
+            <div class="group-head">
+              <h2 class="group-title">Klokke og last per tråd</h2>
+              <div class="aside"><span id="sy-gov"></span><span class="legend"><span><i class="lg" style="--lg: var(--accent-fill)"></i>stolpe = last</span></span></div>
+            </div>
+            <div class="group-body"><div class="core-grid" id="sy-cores"></div></div>
+          </section>
+        </section>
+
+        <!-- Kontroller -->
+        <section class="page fill" id="page-kontroller" data-title="Kontroller" hidden>
+          <div class="infobar" id="ctl-banner" data-infobar="kontroller">
+            <svg class="icon"><use href="#i-info" /></svg>
+            <p id="ctl-banner-text">Alt her er simulert. Bruk lagrer verdiene i appen, og skjermkortet blir ikke endret.</p>
+            <button type="button" class="btn flat icon-only sm" data-close-infobar data-tip="Skjul meldingen"><svg class="icon"><use href="#i-x" /></svg></button>
+          </div>
+          <div class="ctl-layout">
+            <div class="ctl-main">
+              <section class="group">
+                <div class="group-head"><h2 class="group-title">Justeringer</h2><div class="aside"><span id="ctl-mode-note"></span><span class="tag quiet" id="ctl-limits-tag">Grenser fra kortet</span></div></div>
+                <div class="group-body" id="ctl-rows"></div>
+                <p class="safety-note" id="ctl-safety"><svg class="icon"><use href="#i-shield" /></svg><span id="ctl-safety-text"></span></p>
+              </section>
+              <div class="ctl-charts" id="ctl-charts"></div>
+            </div>
+            <div class="ctl-side">
+              <section class="group" id="ctl-diff-group">
+                <div class="group-head"><h2 class="group-title">Endringer</h2><div class="aside" id="ctl-diff-aside"></div></div>
+                <div class="group-body" id="ctl-diff-body"><dl class="kv diff-list" id="ctl-diff"></dl></div>
+              </section>
+              <section class="group">
+                <div class="group-head"><h2 class="group-title">Profiler</h2><div class="aside"><span class="tag quiet" id="slots-count" data-tip="Hent fyller inn verdiene fra profilen. Trykk Bruk etterpå for å ta den i bruk.">–</span></div></div>
+                <div class="group-body"><div class="slots" id="slots"></div></div>
+              </section>
+              <section class="group grow vf-card">
+                <div class="group-head">
+                  <h2 class="group-title">Spennings- og klokkekurve</h2>
+                  <div class="aside">
+                    <span class="tag quiet" data-tip="Kurven er en illustrasjon av hvordan kjerneklokke-offset flytter V/F-kurven på Turing. Den er ikke lest fra kortet, og spenningen kan ikke styres på Linux.">Illustrasjon</span>
+                  </div>
+                </div>
+                <div class="group-body vf-body">
+                  <span class="legend"><span><i class="lg ghost"></i>Standard</span><span><i class="lg" style="--lg: var(--c-clock)"></i>Med offset</span></span>
+                  <div class="chart vf-wrap"><canvas id="vf-canvas" aria-label="Spennings- og klokkekurve (illustrasjon)"></canvas></div>
+                </div>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <!-- Viftekurve -->
+        <section class="page fill" id="page-viftekurve" data-title="Viftekurve" hidden>
+          <div class="infobar" data-infobar="viftekurve">
+            <svg class="icon"><use href="#i-info" /></svg>
+            <p>Kurven kjøres av en simulert bakgrunnstjeneste og styrer ikke den ekte viften. Dra punktene, dobbeltklikk for å legge til eller fjerne. Kortet tillater ikke under 35 %.</p>
+            <button type="button" class="btn flat icon-only sm" data-close-infobar data-tip="Skjul meldingen"><svg class="icon"><use href="#i-x" /></svg></button>
+          </div>
+          <div class="fan-layout">
+            <section class="group curve-card">
+              <div class="group-head">
+                <h2 class="group-title" id="fc-title">Kurve</h2>
+                <span class="tag" id="fc-mode-tag">–</span>
+                <button type="button" class="btn sm flat" id="fc-use-curve" hidden data-tip="Setter viftemodus til Kurve. Trykk Bruk etterpå.">Bruk kurven</button>
+                <div class="aside">
+                  <span class="legend"><span><i class="lg" style="--lg: var(--accent)"></i>Kurve</span><span><i class="lg ghost"></i>Brukt</span><span><i class="lg temp"></i>Temperatur nå</span><span><i class="lg ring"></i>Viftefart nå</span></span>
+                  <button type="button" class="info-btn" data-tip="Tab velger punkt (og start og stopp når de er på) · piltaster flytter · Shift flytter 5 om gangen · Delete fjerner. Hold Shift mens du drar for å smekke til 5 °C / 5 %."><svg class="icon"><use href="#i-keyboard" /></svg></button>
+                </div>
+              </div>
+              <div class="group-body"><div class="curve-wrap"><canvas id="fan-canvas"></canvas></div></div>
+            </section>
+            <div class="fan-side">
+              <section class="group">
+                <div class="group-head"><h2 class="group-title">Forhåndsvalg</h2></div>
+                <div class="group-body">
+                  <div class="preset-row" id="fc-presets">
+                    <button type="button" class="btn" data-p="quiet">Stille</button>
+                    <button type="button" class="btn" data-p="balanced">Balansert</button>
+                    <button type="button" class="btn" data-p="perf">Ytelse</button>
+                  </div>
+                </div>
+              </section>
+              <section class="group">
+                <div class="group-head"><h2 class="group-title">Punkter</h2><div class="aside" id="fc-pts-count"></div></div>
+                <div class="group-body">
+                  <table class="table" id="fc-points"></table>
+                  <div class="pts-actions">
+                    <button type="button" class="btn sm flat" id="fc-add"><svg class="icon"><use href="#i-plus" /></svg>Legg til punkt</button>
+                  </div>
+                </div>
+              </section>
+              <section class="group">
+                <div class="group-head"><h2 class="group-title">Oppførsel</h2></div>
+                <div class="group-body" id="fc-behavior"></div>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <!-- Lys (v0.0.13): forhåndsvisningen i full høyde, smal kolonne til høyre -->
+        <section class="page fill" id="page-lys" data-title="Lys" hidden>
+          <div class="lys-layout">
+            <section class="group rgb-preview" aria-labelledby="rgb-preview-title">
+              <div class="group-head">
+                <h2 class="group-title" id="rgb-preview-title">Forhåndsvisning</h2>
+                <span class="tag rgb-sim">Simulert</span>
+                <button type="button" class="info-btn" id="rgb-status-info" data-tip="–" aria-label="Om lyskontrolleren"><svg class="icon"><use href="#i-circle-help" /></svg></button>
+                <div class="aside">
+                  <div class="seg sm rgb-3d-only" id="rgb-angle" role="radiogroup" aria-label="Vinkel">
+                    <button type="button" role="radio" data-v="forfra">Forfra</button>
+                    <button type="button" role="radio" data-v="skraatt">Skrått</button>
+                    <button type="button" role="radio" data-v="ovenfra">Ovenfra</button>
+                    <button type="button" role="radio" data-v="bakfra">Bakfra</button>
+                  </div>
+                  <button type="button" class="btn sm flat icon-only rgb-3d-only" id="rgb-reset-view" data-tip="Tilbakestill visningen" data-tip-key="0" aria-label="Tilbakestill visningen"><svg class="icon"><use href="#i-rotate-ccw" /></svg></button>
+                  <div class="seg sm" id="rgb-mode" role="radiogroup" aria-label="Visning">
+                    <button type="button" role="radio" data-v="3d">3D</button>
+                    <button type="button" role="radio" data-v="2d">2D</button>
+                  </div>
+                </div>
+              </div>
+              <div class="rgb-stage" id="rgb-stage">
+                <div class="rgb-card" id="rgb-card" hidden></div>
+                <div
+                  class="rgb-view"
+                  id="rgb-view"
+                  tabindex="0"
+                  role="application"
+                  aria-roledescription="3D-visning"
+                  aria-label="Skjermkortet i 3D"
+                  aria-describedby="rgb-view-desc rgb-keys"
+                  hidden
+                ></div>
+                <p class="stage-chip stage-caption rgb-3d-only" id="rgb-caption" aria-hidden="true"></p>
+                <p class="stage-chip stage-hint rgb-3d-only" id="rgb-keys">
+                  <span>Dra for å vri</span><span class="opt">rull for å zoome</span><span><kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> vrir</span><span class="opt"><kbd>+</kbd> <kbd>−</kbd> zoomer</span><span><kbd>0</kbd> tilbakestiller</span>
+                </p>
+                <span class="stage-chip stage-loading" id="rgb-loading" role="status" hidden>Bygger 3D-kortet …</span>
+                <span class="stage-note" id="rgb-stage-note" hidden>Animasjon av</span>
+                <span class="stage-note egg-note" id="rgb-egg-note" hidden>Nordlys · lagres ikke · Esc avslutter</span>
+                <div class="stage-tip" id="rgb-tip" aria-hidden="true"></div>
+              </div>
+              <div class="rgb-bar">
+                <span class="pair rgb-3d-only">
+                  <span class="muted" id="rgb-step-label">Lag</span>
+                  <span class="seg sm" id="rgb-step" role="radiogroup" aria-labelledby="rgb-step-label">
+                    <button type="button" role="radio" data-v="0">Hel</button>
+                    <button type="button" role="radio" data-v="1" aria-label="Uten deksel"><span class="step-full" data-t="Uten deksel">Uten deksel</span><span class="step-short" data-t="Deksel av">Deksel av</span></button>
+                    <button type="button" role="radio" data-v="2" aria-label="Uten kjøler"><span class="step-full" data-t="Uten kjøler">Uten kjøler</span><span class="step-short" data-t="Kjøler av">Kjøler av</span></button>
+                    <button type="button" role="radio" data-v="3" aria-label="Bare kretskort"><span class="step-full" data-t="Bare kretskort">Bare kretskort</span><span class="step-short" data-t="Kretskort">Kretskort</span></button>
+                  </span>
+                </span>
+                <span class="pair rgb-3d-only">
+                  <label class="muted" for="rgb-explode">Skill lagene</label>
+                  <input type="range" id="rgb-explode" class="explode" min="0" max="100" step="1" value="0" aria-describedby="rgb-explode-out" />
+                  <output class="muted" id="rgb-explode-out" for="rgb-explode">0 %</output>
+                </span>
+                <span class="spacer"></span>
+                <label class="inline">Bakgrunnslys <span class="switch"><input type="checkbox" id="rgb-ambient" /><span class="track"></span><span class="knob"></span></span></label>
+              </div>
+            </section>
+            <div class="rgb-side">
+              <section class="group" aria-labelledby="rgb-fx-title">
+                <div class="group-head">
+                  <h2 class="group-title" id="rgb-fx-title">Effekt</h2>
+                  <div class="aside"><span class="fx-legend" data-tip="Effekter med øyet vises bare i forhåndsvisningen. De er ikke dokumentert for lyskontrolleren."><svg class="icon"><use href="#i-eye" /></svg>bare forhåndsvisning</span></div>
+                </div>
+                <div class="group-body">
+                  <div class="effects" id="rgb-effects" role="radiogroup" aria-label="Effekt"></div>
+                  <div class="adjust" id="rgb-adjust" role="group" aria-label="Justering"></div>
+                </div>
+              </section>
+              <section class="group" aria-labelledby="rgb-color-title">
+                <div class="group-head"><h2 class="group-title" id="rgb-color-title">Farge</h2><div class="aside" id="rgb-color-aside"></div></div>
+                <div class="group-body">
+                  <div class="zone-row">
+                    <span class="muted" id="rgb-zone-label">Sone</span>
+                    <div class="seg sm" id="rgb-zone" role="radiogroup" aria-labelledby="rgb-zone-label">
+                      <button type="button" role="radio" data-v="all">Alle</button>
+                      <button type="button" role="radio" data-v="bar">Lyslist</button>
+                      <button type="button" role="radio" data-v="fan1">Vifte 1</button>
+                      <button type="button" role="radio" data-v="fan2">Vifte 2</button>
+                    </div>
+                  </div>
+                  <div class="picker" id="rgb-picker"></div>
+                </div>
+              </section>
+              <section class="group grow rgb-3d-only rgb-parts-group" aria-labelledby="rgb-parts-title">
+                <div class="group-head"><h2 class="group-title" id="rgb-parts-title">Deler</h2><div class="aside" id="rgb-parts-count"></div></div>
+                <ul class="rgb-parts" id="rgb-parts" aria-label="Deler som synes. Pek eller gå til en del for å fremheve den i 3D."></ul>
+              </section>
+            </div>
+          </div>
+          <p class="sr-only" id="rgb-view-desc"></p>
+        </section>
+
+        <!-- Innstillinger (v0.0.15): dekker hele vinduet. data-view="settings" på
+             <html> skjuler sidefeltet og toppfeltet, og Innstillinger har sin egen
+             navigasjon der sidefeltet står. Valget er begrunnet i
+             docs/innstillinger-v0.0.15.md. Tilbake: knappen, Esc eller Ctrl+,. -->
+        <section class="page" id="page-innstillinger" data-title="Innstillinger" hidden>
+          <div class="settings">
+            <div class="set-side">
+              <div class="set-side-head">
+                <button type="button" class="btn flat icon-only" id="set-back" aria-label="Tilbake" data-tip="Tilbake" data-tip-key="Esc">
+                  <svg class="icon"><use href="#i-arrow-left" /></svg>
+                </button>
+                <h1 class="set-title">Innstillinger</h1>
+              </div>
+              <div class="set-find" role="search">
+                <label class="field search-field set-search">
+                  <svg class="icon"><use href="#i-search" /></svg>
+                  <input type="search" id="set-search" placeholder="Søk i innstillinger" aria-label="Søk i innstillinger" aria-controls="set-body" aria-keyshortcuts="Control+F /" autocomplete="off" spellcheck="false" />
+                  <kbd class="key set-search-key" aria-hidden="true">/</kbd>
+                </label>
+              </div>
+              <div class="set-nav" id="set-nav" role="tablist" aria-label="Deler av innstillingene" aria-orientation="vertical"></div>
+              <p class="set-side-foot"><svg class="icon"><use href="#i-check" /></svg>Endringer lagres straks.</p>
+            </div>
+            <div class="set-main">
+              <div class="set-head">
+                <h2 class="set-heading" id="set-heading">Generelt</h2>
+                <span class="set-lead" id="set-lead"></span>
+                <span class="set-count" id="set-count" role="status"></span>
+              </div>
+              <div class="set-body" id="set-body"></div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- ============ Enhetskortets popover ============ -->
+    <div class="popover" id="device-pop" role="dialog" aria-label="Skjermkort">
+      <div class="pop-title" id="dp-name">–</div>
+      <div class="pop-sub" id="dp-sub">–</div>
+      <dl class="kv" id="dp-rows"></dl>
+      <div class="menu-sep"></div>
+      <div class="pop-row">
+        <span>Datakilde</span>
+        <div class="seg sm" id="dp-source" role="radiogroup" aria-label="Datakilde">
+          <button type="button" role="radio" data-v="live">Live</button>
+          <button type="button" role="radio" data-v="sim">Simulert</button>
+        </div>
+      </div>
+      <div class="menu-sep"></div>
+      <a class="menu-item" href="#/grafikkort" id="dp-more"><svg class="icon"><use href="#i-arrow-right" /></svg>Vis alt om kortet</a>
+    </div>
+
+    <!-- ============ Dialoger ============ -->
+    <dialog class="dialog" id="dlg-keys" aria-labelledby="keys-title">
+      <div class="dialog-head">
+        <h2 id="keys-title">Tastatursnarveier</h2>
+        <button type="button" class="btn flat icon-only" data-close data-tip="Lukk"><svg class="icon"><use href="#i-x" /></svg></button>
+      </div>
+      <div class="dialog-body" id="keys-body"></div>
+      <p class="dialog-foot">Versjon og feilsøking står under <a href="#/innstillinger" id="keys-about">Innstillinger › Om</a>.</p>
+    </dialog>
+
+    <div class="tooltip" id="tooltip" role="tooltip"></div>
+    <div class="toasts" id="toasts" aria-live="polite"></div>
+    <div class="sr-only" id="live" aria-live="polite" aria-atomic="true"></div>
+    <input type="file" id="import-file" accept="application/json,.json" hidden />
+  </body>
+</html>

@@ -1,0 +1,452 @@
+/* Agentic Rigg · tokens (port av web/styles.css seksjon 1 og 2).
+ *
+ * Valgene settes som klasser på vinduet, slik demoen setter data-* på <html>
+ * (arkitektur.md 6.3):
+ *   .dark            mørkt (System følger gtk-interface-color-scheme)
+ *   .pal-sand …      fargetema: sand, fjord, midnatt (grafitt er grunnlaget)
+ *   .hc              høy kontrast
+ *   .acc-teal …      aksent: teal, green, pink, purple, slate (blue er grunnlaget)
+ *   .tett-kompakt, .tett-luftig, .skrift-92 … .skrift-116
+ *
+ * Lagene, i rekkefølge (senere lag vinner ved lik spesifisitet): grafitt lyst,
+ * grafitt mørkt, fargetemaene, høy kontrast, seriepaletten, aksentene, scenen.
+ * Komponentene bruker bare de semantiske navnene (--bg, --card, --text,
+ * --accent …), aldri rå farger.
+ *
+ * Kontrasttesten i rigg-core (tokens.rs) leser denne fila og sjekker alle 96
+ * kombinasjonene med de samme parene som scripts/contrast.js. Skriv derfor
+ * bare enkle blokker her: selektorer på formen window.rigg(.klasse|:not(.klasse))*,
+ * og fargeverdier som #rrggbb, rgba(), var() eller color-mix(in srgb, …). */
+
+/* ============================================================
+   1 · Tokens
+   ============================================================ */
+window.rigg {
+  --fs-scale: 1;
+  --fs-cap: calc(11px * var(--fs-scale));
+  --fs-sm: calc(12px * var(--fs-scale));
+  --fs-body: calc(13px * var(--fs-scale));
+  --fs-title: calc(14px * var(--fs-scale));
+  --fs-num: calc(20px * var(--fs-scale));
+  --fs-rail-src: calc(9.5px * var(--fs-scale));
+
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-6: 24px;
+
+  --h-sm: 22px;
+  --h-md: 28px;
+  --h-row: 26px;
+  --h-panel: 30px;
+  --gap: 8px;
+  --pad: 12px;
+  --content-pad: 12px;
+
+  --r-sm: 3px;
+  --r: 4px;
+  --r-lg: 6px;
+
+  --head-h: 41px;
+  --focus-w: 2px;
+}
+window.rigg.tett-kompakt {
+  --h-sm: 20px;
+  --h-md: 26px;
+  --h-row: 22px;
+  --h-panel: 26px;
+  --gap: 6px;
+  --pad: 8px;
+  --content-pad: 8px;
+}
+window.rigg.tett-luftig {
+  --h-sm: 26px;
+  --h-md: 32px;
+  --h-row: 32px;
+  --h-panel: 34px;
+  --gap: 12px;
+  --pad: 16px;
+  --content-pad: 16px;
+}
+window.rigg.skrift-92 { --fs-scale: 0.92; }
+window.rigg.skrift-108 { --fs-scale: 1.08; }
+window.rigg.skrift-116 { --fs-scale: 1.16; }
+
+/* ============================================================
+   2 · Temaer og aksentfarger – ÉN kilde for alle farger
+   ============================================================ */
+window.rigg {
+  --bg: #f6f6f7;
+  --head: #f6f6f7;
+  --sidebar: #ebebed;
+  --card: #ffffff;
+  --card-alt: #f9f9fa;
+  --panel-head: #f4f4f6;
+  --field: #ffffff;
+  --field-border: #8b8b93;
+  --border: #d8d8dc;
+  --border-soft: #e8e8eb;
+  --hover: rgba(0, 0, 6, 0.05);
+  --active: rgba(0, 0, 6, 0.1);
+  --selected: rgba(0, 0, 6, 0.08);
+  --text: #1e1e21;
+  --muted: #57575e;
+  --dim: #66666d;
+  --track: #d5d5da;
+  --grid: rgba(0, 0, 6, 0.08);
+  --zone: rgba(0, 0, 6, 0.04);
+  --hatch: rgba(0, 0, 6, 0.05);
+  --ok: #1a6e30;
+  --warn: #8a5a00;
+  --warn-fill: #b07800;
+  --warn-soft: rgba(200, 136, 0, 0.14);
+  --danger: #c01c28;
+  --danger-fill: #c01c28;
+  --danger-soft: rgba(192, 28, 40, 0.1);
+  --info-soft: rgba(0, 0, 6, 0.04);
+  --knob: #ffffff;
+  --seg-on: #ffffff;
+  --shadow-pop: rgba(0, 0, 0, 0.16);
+  --shadow-ring: rgba(0, 0, 0, 0.08);
+  --tip-bg: #2e2e32;
+  --tip-fg: #ffffff;
+  --scrim: rgba(0, 0, 0, 0.3);
+  --stage: #16181b;
+  --series-3: #6c6c73;
+}
+window.rigg.dark {
+  --bg: #222226;
+  --head: #222226;
+  --sidebar: #2e2e32;
+  --card: #2c2c30;
+  --card-alt: #29292d;
+  --panel-head: #323236;
+  --field: #1d1d20;
+  --field-border: #7a7a82;
+  --border: #3a3a40;
+  --border-soft: #34343a;
+  --hover: rgba(255, 255, 255, 0.06);
+  --active: rgba(255, 255, 255, 0.11);
+  --selected: rgba(255, 255, 255, 0.09);
+  --text: #ececee;
+  --muted: #b4b4ba;
+  --dim: #9d9da4;
+  --track: #4a4a50;
+  --grid: rgba(255, 255, 255, 0.08);
+  --zone: rgba(255, 255, 255, 0.04);
+  --hatch: rgba(255, 255, 255, 0.05);
+  --ok: #78c98a;
+  --warn: #e5b84f;
+  --warn-fill: #c88800;
+  --warn-soft: rgba(229, 184, 79, 0.14);
+  --danger: #ff7b72;
+  --danger-fill: #e0303d;
+  --danger-soft: rgba(255, 123, 114, 0.1);
+  --info-soft: rgba(255, 255, 255, 0.04);
+  --knob: #e8e8ea;
+  --seg-on: #4a4a50;
+  --shadow-pop: rgba(0, 0, 0, 0.45);
+  --shadow-ring: rgba(255, 255, 255, 0.08);
+  --tip-bg: #f1f1f3;
+  --tip-fg: #1e1e21;
+  --scrim: rgba(0, 0, 0, 0.5);
+  --stage: #16181b;
+  --series-3: #a4a4ab;
+}
+
+/* -- Sand: varmt, papiraktig. -- */
+window.rigg.pal-sand:not(.dark) {
+  --bg: #f4f1ea;
+  --head: #f4f1ea;
+  --sidebar: #ede9df;
+  --card: #fffdf8;
+  --card-alt: #faf7f0;
+  --panel-head: #f8f5ee;
+  --field: #fffdf8;
+  --field-border: #8f8778;
+  --border: #dbd4c5;
+  --border-soft: #ebe5d9;
+  --hover: rgba(48, 32, 0, 0.05);
+  --active: rgba(48, 32, 0, 0.1);
+  --selected: rgba(48, 32, 0, 0.08);
+  --text: #27231c;
+  --muted: #5a5347;
+  --dim: #675f52;
+  --track: #d8d0c0;
+  --seg-on: #fffdf8;
+  --tip-bg: #35302a;
+  --tip-fg: #fffdf8;
+  --series-3: #6f6758;
+}
+window.rigg.pal-sand.dark {
+  --bg: #23201c;
+  --head: #23201c;
+  --sidebar: #2e2a24;
+  --card: #2c2823;
+  --card-alt: #292520;
+  --panel-head: #322e28;
+  --field: #1c1a17;
+  --field-border: #7f776a;
+  --border: #3c372f;
+  --border-soft: #35302a;
+  --hover: rgba(255, 244, 222, 0.06);
+  --active: rgba(255, 244, 222, 0.11);
+  --selected: rgba(255, 244, 222, 0.09);
+  --text: #eeeae2;
+  --muted: #bab2a5;
+  --dim: #a59d90;
+  --track: #4d473e;
+  --seg-on: #4d473e;
+  --tip-bg: #f3efe7;
+  --tip-fg: #27231c;
+  --series-3: #aaa294;
+}
+
+/* -- Fjord: kjølig blågrå. -- */
+window.rigg.pal-fjord:not(.dark) {
+  --bg: #f2f4f7;
+  --head: #f2f4f7;
+  --sidebar: #e7ebf1;
+  --card: #ffffff;
+  --card-alt: #f7f9fb;
+  --panel-head: #f4f6f9;
+  --field: #ffffff;
+  --field-border: #848e9c;
+  --border: #d2d9e2;
+  --border-soft: #e3e8ee;
+  --hover: rgba(0, 16, 40, 0.05);
+  --active: rgba(0, 16, 40, 0.1);
+  --selected: rgba(0, 16, 40, 0.08);
+  --text: #1a2029;
+  --muted: #4f5967;
+  --dim: #5d6775;
+  --track: #cfd7e1;
+  --seg-on: #ffffff;
+  --tip-bg: #28313c;
+  --tip-fg: #ffffff;
+  --series-3: #64707f;
+}
+window.rigg.pal-fjord.dark {
+  --bg: #1c2129;
+  --head: #1c2129;
+  --sidebar: #262c35;
+  --card: #252b34;
+  --card-alt: #222830;
+  --panel-head: #2b323c;
+  --field: #171b21;
+  --field-border: #737e8e;
+  --border: #343c48;
+  --border-soft: #2e3540;
+  --hover: rgba(214, 230, 255, 0.06);
+  --active: rgba(214, 230, 255, 0.11);
+  --selected: rgba(214, 230, 255, 0.09);
+  --text: #e7ecf2;
+  --muted: #adb7c3;
+  --dim: #97a2af;
+  --track: #424b58;
+  --seg-on: #424b58;
+  --tip-bg: #edf1f6;
+  --tip-fg: #1a2029;
+  --series-3: #9ca7b4;
+}
+
+/* -- Midnatt: dypt mørkt. I lyst tema rent hvitt med skarpere tekst. -- */
+window.rigg.pal-midnatt:not(.dark) {
+  --bg: #fbfbfb;
+  --head: #fbfbfb;
+  --sidebar: #f0f0f1;
+  --card: #ffffff;
+  --card-alt: #fafafa;
+  --panel-head: #f6f6f7;
+  --field: #ffffff;
+  --field-border: #84848b;
+  --border: #d4d4d8;
+  --border-soft: #e6e6e9;
+  --hover: rgba(0, 0, 0, 0.05);
+  --active: rgba(0, 0, 0, 0.1);
+  --selected: rgba(0, 0, 0, 0.08);
+  --text: #111113;
+  --muted: #4b4b51;
+  --dim: #5b5b61;
+  --track: #d3d3d7;
+  --seg-on: #ffffff;
+  --tip-bg: #18181b;
+  --tip-fg: #ffffff;
+  --series-3: #66666c;
+}
+window.rigg.pal-midnatt.dark {
+  --bg: #0e0e10;
+  --head: #0e0e10;
+  --sidebar: #151517;
+  --card: #18181b;
+  --card-alt: #141416;
+  --panel-head: #1f1f23;
+  --field: #0a0a0b;
+  --field-border: #707078;
+  --border: #29292e;
+  --border-soft: #212125;
+  --hover: rgba(255, 255, 255, 0.06);
+  --active: rgba(255, 255, 255, 0.11);
+  --selected: rgba(255, 255, 255, 0.09);
+  --text: #ececef;
+  --muted: #a9a9b0;
+  --dim: #94949b;
+  --track: #3a3a40;
+  --seg-on: #3a3a40;
+  --tip-bg: #ececef;
+  --tip-fg: #111113;
+  --stage: #050506;
+  --series-3: #9c9ca3;
+}
+
+/* -- Høy kontrast: gjelder over alle fargetemaer. -- */
+window.rigg.hc:not(.dark) {
+  --text: #000000;
+  --muted: #2e2e33;
+  --dim: #38383d;
+  --border: #6e6e75;
+  --border-soft: #8e8e95;
+  --field-border: #4a4a50;
+  --track: #cdcdd2;
+  --grid: rgba(0, 0, 0, 0.2);
+  --hatch: rgba(0, 0, 0, 0.09);
+  --hover: rgba(0, 0, 0, 0.09);
+  --active: rgba(0, 0, 0, 0.16);
+  --selected: rgba(0, 0, 0, 0.13);
+  --ok: #145a27;
+  --warn: #6b4500;
+  --danger: #9c0f1b;
+  --series-3: #3d3d42;
+  --tip-bg: #000000;
+  --tip-fg: #ffffff;
+  --focus-w: 3px;
+}
+window.rigg.hc.dark {
+  --text: #ffffff;
+  --muted: #dcdce0;
+  --dim: #cdcdd2;
+  --border: #8c8c94;
+  --border-soft: #6c6c74;
+  --field-border: #a6a6ae;
+  --track: #34343a;
+  --grid: rgba(255, 255, 255, 0.22);
+  --hatch: rgba(255, 255, 255, 0.1);
+  --hover: rgba(255, 255, 255, 0.11);
+  --active: rgba(255, 255, 255, 0.18);
+  --selected: rgba(255, 255, 255, 0.15);
+  --ok: #9be3ab;
+  --warn: #f5d37f;
+  --danger: #ffa49d;
+  --series-3: #d0d0d6;
+  --tip-bg: #ffffff;
+  --tip-fg: #000000;
+  --focus-w: 3px;
+}
+
+/* Seriepalett (v0.0.11): faste farger for grafene, uavhengige av aksenten.
+   Ingen gul, oransje eller rød: de betyr advarsel og fare. */
+window.rigg {
+  --pal-blue: #2560c8;
+  --pal-magenta: #b2307c;
+  --pal-purple: #7a46c9;
+  --pal-green: #2c7a33;
+  --pal-teal: #0c776d;
+  --pal-cyan: #0a73a0;
+  --pal-gray: #6c6c73;
+}
+window.rigg.dark {
+  --pal-blue: #6fa3f6;
+  --pal-magenta: #ec7cbb;
+  --pal-purple: #b48ef2;
+  --pal-green: #72c477;
+  --pal-teal: #3ec4b3;
+  --pal-cyan: #5bbde6;
+  --pal-gray: #a4a4ab;
+}
+window.rigg.hc:not(.dark) {
+  --pal-blue: #1a4fa8;
+  --pal-magenta: #93205e;
+  --pal-purple: #5c2cab;
+  --pal-green: #1d5c23;
+  --pal-teal: #075c54;
+  --pal-cyan: #06587b;
+  --pal-gray: #3d3d42;
+}
+window.rigg.hc.dark {
+  --pal-blue: #a3c4ff;
+  --pal-magenta: #ffa6d6;
+  --pal-purple: #d2b6ff;
+  --pal-green: #9fe4a4;
+  --pal-teal: #82e6d8;
+  --pal-cyan: #98dbf6;
+  --pal-gray: #d0d0d6;
+}
+/* Hva fargene betyr i grafene. Samme serie har samme farge overalt. */
+window.rigg {
+  --c-load: var(--pal-blue);
+  --c-memctl: var(--pal-magenta);
+  --c-temp: var(--pal-purple);
+  --c-power: var(--pal-green);
+  --c-clock: var(--pal-teal);
+  --c-mem: var(--pal-cyan);
+  --c-limit: var(--pal-gray);
+}
+
+/* Aksent: --accent-bg er fyll med hvit tekst eller hake, --accent er
+   frittstående tekst, ikoner og kontroller, og --accent-fill er fyllet i
+   stolper og glidere. To sett per farge: lyst og mørkt tema. */
+window.rigg {
+  --a-l: #2169be;
+  --a-d: #559cf7;
+  --accent-bg: #2a75cf;
+  --accent: var(--a-l);
+  --accent-fill: var(--a-l);
+  --series-1: var(--a-l);
+  --series-2: var(--pal-magenta);
+  --accent-fg: #ffffff;
+  --accent-soft: color-mix(in srgb, var(--accent-bg) 12%, transparent);
+  --accent-soft-strong: color-mix(in srgb, var(--accent-bg) 26%, transparent);
+  --focus: var(--accent);
+}
+window.rigg.dark {
+  --accent: var(--a-d);
+  --accent-fill: var(--a-d);
+  --series-1: var(--a-d);
+  --series-2: var(--pal-magenta);
+  --accent-soft: color-mix(in srgb, var(--accent-bg) 10%, transparent);
+  --accent-soft-strong: color-mix(in srgb, var(--accent-bg) 42%, transparent);
+}
+window.rigg.acc-teal { --a-l: #017284; --a-d: #4da8bb; --accent-bg: #138093; }
+window.rigg.acc-green { --a-l: #257736; --a-d: #5bac66; --accent-bg: #308540; }
+window.rigg.acc-pink { --a-l: #a84576; --a-d: #e677ab; --accent-bg: #b95083; }
+window.rigg.acc-purple { --a-l: #8a3da4; --a-d: #c481dc; --accent-bg: #9141ac; }
+window.rigg.acc-slate { --a-l: #536475; --a-d: #8a9daf; --accent-bg: #5f7184; }
+
+/* Scenen på Lys (v0.0.13): mørk i alle temaer, i temaets tone. */
+window.rigg {
+  --stage-text: #d2d5da;
+  --stage-dim: #a3a7ae;
+  --stage-chip: color-mix(in srgb, var(--stage) 82%, transparent);
+  --stage-focus: var(--a-d);
+}
+window.rigg.pal-sand {
+  --stage: #1b1815;
+  --stage-text: #d9d3ca;
+  --stage-dim: #aba397;
+}
+window.rigg.pal-fjord {
+  --stage: #12181e;
+  --stage-text: #cdd6de;
+  --stage-dim: #9eabb7;
+}
+window.rigg.pal-midnatt:not(.dark) {
+  --stage: #0c0d12;
+}
+window.rigg.hc:not(.dark),
+window.rigg.hc.dark {
+  --stage: #000000;
+  --stage-text: #ffffff;
+  --stage-dim: #d6d6dc;
+  --stage-chip: #000000;
+}

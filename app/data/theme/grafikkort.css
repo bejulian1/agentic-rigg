@@ -1,0 +1,49 @@
+/* grafikkort.css · eies av 2B (Maskinvare og rapport).
+ * Grafikkort-siden, og det 2B deler mellom sidene: panelene fra
+ * rapportseksjonene (Grafikkort og System), tabellene, «Lagre rapport»,
+ * loggknappen og opptaksikonet. Fargene kommer bare fra tokens.css. */
+
+/* -- Paneler fra seksjonene -- */
+.sec-kv { margin-top: 0; }
+.sec-kv .kv-row { min-height: var(--h-row); }
+.sec-kv .kv-sub { color: var(--text); }
+.sec-kv .kv-sub.first { padding-top: var(--sp-1); }
+.info-mark { color: var(--dim); min-width: 12px; }
+.sec .group-note { padding-top: var(--sp-2); padding-bottom: 2px; }
+
+/* -- Tabeller (demoens .table) -- */
+.rtable { margin-top: 2px; }
+.rtable > .th {
+  min-height: var(--h-row);
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+}
+.rtable > .td {
+  min-height: var(--h-row);
+  border-bottom: 1px solid var(--border-soft);
+}
+.rtable > .td.last { border-bottom: none; }
+.rtable > .td.na { color: var(--dim); }
+.clock-table .bar-cell { min-width: 64px; }
+.clock-table .bar-cell > bar { margin: 0 var(--sp-1); }
+
+/* -- Fra driveren -- */
+.uuid { font-family: "Ubuntu Sans Mono", "Adwaita Mono", monospace; font-size: var(--fs-sm); }
+.gc-empty { padding-top: var(--sp-6); }
+
+/* -- Kopier og Lagre rapport -- */
+window.rigg button.is-done { color: var(--ok); }
+.report-pop { padding: var(--sp-2) var(--sp-2) var(--sp-1); min-width: 300px; }
+.report-pop .pop-title, .report-pop .pop-sub { padding-left: 0; padding-right: 0; }
+
+/* -- Loggen: knappen på Sensorer og opptaksikonet (logg_ui.rs) -- */
+.rec { color: var(--muted); }
+.rec.on { color: var(--danger); }
+window.rigg button.log-btn.logging { color: var(--text); }
+.sensor-pick { padding: var(--sp-2); min-width: 340px; }
+.sensor-pick checkbutton { min-height: 24px; }
+
+/* -- Innstillinger › Logging og varsler: valgene under en bryter som er av -- */
+.set-row.avhengig:disabled label { color: var(--dim); }

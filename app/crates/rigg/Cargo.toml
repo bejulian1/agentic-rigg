@@ -1,0 +1,30 @@
+[package]
+name = "rigg"
+description = "Agentic Rigg: vinduet (GTK4, uten libadwaita)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+build = "build.rs"
+
+[[bin]]
+name = "agentic-rigg"
+path = "src/main.rs"
+
+# Vinduet laster aldri NVML: ingen avhengighet til rigg-hw (arkitektur.md kap. 9).
+[dependencies]
+rigg-core.workspace = true
+gtk.workspace = true
+glib-unix.workspace = true
+serde_json.workspace = true
+libc.workspace = true
+# Til 3D-kortet på Lys (2C): GL-kall og matriser. Brukes ikke før runde 2.
+glow.workspace = true
+glam.workspace = true
+
+[build-dependencies]
+glib-build-tools.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true

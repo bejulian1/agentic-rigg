@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Alt vinduet trenger ved oppstart, kompilert inn i binæren. Ikonene og
+     variantene eies av ikonagenten (data/icons/), resten av grunnmuren. -->
+<gresources>
+  <gresource prefix="/io/github/AgenticRigg">
+    <file>LISENSER.md</file>
+    <file>theme/tokens.css</file>
+    <file>theme/base.css</file>
+    <file>theme/skall.css</file>
+    <file>theme/innstillinger.css</file>
+    <file>theme/oversikt.css</file>
+    <file>theme/sensorer.css</file>
+    <file>theme/grafer.css</file>
+    <file>theme/grafikkort.css</file>
+    <file>theme/system.css</file>
+    <file>theme/prosessor.css</file>
+    <file>theme/disker.css</file>
+    <file>theme/kontroller.css</file>
+    <file>theme/viftekurve.css</file>
+    <file>theme/lys.css</file>
+    <file alias="icons/scalable/apps/io.github.AgenticRigg.svg">icons/hicolor/scalable/apps/io.github.AgenticRigg.svg</file>
+    <file alias="icons/48x48/apps/io.github.AgenticRigg.svg">icons/hicolor/48x48/apps/io.github.AgenticRigg.svg</file>
+    <file alias="icons/32x32/apps/io.github.AgenticRigg.svg">icons/hicolor/32x32/apps/io.github.AgenticRigg.svg</file>
+    <file alias="icons/24x24/apps/io.github.AgenticRigg.svg">icons/hicolor/24x24/apps/io.github.AgenticRigg.svg</file>
+    <file alias="icons/16x16/apps/io.github.AgenticRigg.svg">icons/hicolor/16x16/apps/io.github.AgenticRigg.svg</file>
+    <file alias="icons/symbolic/apps/io.github.AgenticRigg-symbolic.svg">icons/hicolor/symbolic/apps/io.github.AgenticRigg-symbolic.svg</file>
+    <file>icons/varianter/varianter.json</file>
+    <file>icons/varianter/standard/48.svg</file>
+    <file>icons/varianter/standard/16.svg</file>
+    <file>icons/varianter/standard/24.svg</file>
+    <file>icons/varianter/standard/32.svg</file>
+    <file>icons/varianter/standard/128.svg</file>
+    <file>icons/varianter/blue/48.svg</file>
+    <file>icons/varianter/blue/16.svg</file>
+    <file>icons/varianter/blue/24.svg</file>
+    <file>icons/varianter/blue/32.svg</file>
+    <file>icons/varianter/blue/128.svg</file>
+    <file>icons/varianter/teal/48.svg</file>
+    <file>icons/varianter/teal/16.svg</file>
+    <file>icons/varianter/teal/24.svg</file>
+    <file>icons/varianter/teal/32.svg</file>
+    <file>icons/varianter/teal/128.svg</file>
+    <file>icons/varianter/green/48.svg</file>
+    <file>icons/varianter/green/16.svg</file>
+    <file>icons/varianter/green/24.svg</file>
+    <file>icons/varianter/green/32.svg</file>
+    <file>icons/varianter/green/128.svg</file>
+    <file>icons/varianter/purple/48.svg</file>
+    <file>icons/varianter/purple/16.svg</file>
+    <file>icons/varianter/purple/24.svg</file>
+    <file>icons/varianter/purple/32.svg</file>
+    <file>icons/varianter/purple/128.svg</file>
+    <file>icons/varianter/pink/48.svg</file>
+    <file>icons/varianter/pink/16.svg</file>
+    <file>icons/varianter/pink/24.svg</file>
+    <file>icons/varianter/pink/32.svg</file>
+    <file>icons/varianter/pink/128.svg</file>
+    <file>icons/varianter/slate/48.svg</file>
+    <file>icons/varianter/slate/16.svg</file>
+    <file>icons/varianter/slate/24.svg</file>
+    <file>icons/varianter/slate/32.svg</file>
+    <file>icons/varianter/slate/128.svg</file>
+    <file>icons/varianter/dark/48.svg</file>
+    <file>icons/varianter/dark/16.svg</file>
+    <file>icons/varianter/dark/24.svg</file>
+    <file>icons/varianter/dark/32.svg</file>
+    <file>icons/varianter/dark/128.svg</file>
+    <file>icons/varianter/light/48.svg</file>
+    <file>icons/varianter/light/16.svg</file>
+    <file>icons/varianter/light/24.svg</file>
+    <file>icons/varianter/light/32.svg</file>
+    <file>icons/varianter/light/128.svg</file>
+    <file>icons/varianter/mono/48.svg</file>
+    <file>icons/varianter/mono/16.svg</file>
+    <file>icons/varianter/mono/24.svg</file>
+    <file>icons/varianter/mono/32.svg</file>
+    <file>icons/varianter/mono/128.svg</file>
+  </gresource>
+</gresources>
