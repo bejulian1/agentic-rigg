@@ -151,6 +151,49 @@ fn rapporten_har_alt_spesifikasjonen_krever() {
 }
 
 #[test]
+fn cpu_lansering_krever_eksakt_modell_og_har_kilde_i_visning_og_rapport() {
+    const SOURCE: &str = "https://www.amd.com/en/support/downloads/drivers.html/processors/ryzen/ryzen-2000-series/amd-ryzen-7-2700x.html";
+    let mut data = input(false);
+    let sections = report::system::sections(&report::system::SysInput {
+        system: &data.system,
+        sys: None,
+        show_hostname: false,
+        desktop: None,
+        session: None,
+        report: false,
+        max_thread_mhz: None,
+    });
+    let launch = sections.iter().find(|s| s.id == "prosessor").unwrap().find("lansert").unwrap();
+    assert_eq!(launch.k, "Lansert");
+    assert_eq!(launch.v.as_deref(), Some("19. april 2018"));
+    let info = launch.info.as_deref().expect("kilden står i sidens verktøytips");
+    assert!(info.contains("Modelloppslag") && info.contains(SOURCE));
+    for fmt in [ReportFormat::Text, ReportFormat::Markdown] {
+        let text = report::render(&data, fmt);
+        assert!(text.contains("19. april 2018") && text.contains(SOURCE), "dato og kilde i {fmt:?}");
+    }
+    // Samme CPUID/kodenavn er ikke nok: nabomodeller og feil leverandør
+    // skal ikke arve 2700X-datoen i hverken tekst- eller Markdown-rapporten.
+    for (vendor, name) in [
+        ("AuthenticAMD", "AMD Ryzen 7 2700 Eight-Core Processor"),
+        ("AuthenticAMD", "AMD Ryzen 7 2700U"),
+        ("AuthenticAMD", "AMD Ryzen 7 2700X PRO"),
+        ("AuthenticAMD", "AMD Ryzen 7 PRO 2700X"),
+        ("AuthenticAMD", "Ukjent Pinnacle Ridge"),
+        ("GenuineIntel", "AMD Ryzen 7 2700X Eight-Core Processor"),
+        ("", "AMD Ryzen 7 2700X"),
+    ] {
+        data.system["cpu"]["vendor"] = json!(vendor);
+        data.system["cpu"]["name"] = json!(name);
+        for fmt in [ReportFormat::Text, ReportFormat::Markdown] {
+            let text = report::render(&data, fmt);
+            assert!(!text.contains("19. april 2018") && !text.contains(SOURCE), "falskt treff for {vendor}: {name}");
+            assert!(text.contains("Ikke i modelloppslaget"));
+        }
+    }
+}
+
+#[test]
 fn serienumre_uuid_og_vertsnavn_er_ikke_med_som_standard() {
     let t = report::render(&input(false), ReportFormat::Markdown);
     assert!(!t.contains("eaf05f06-1111"), "UUID-en skal ikke stå i rapporten");

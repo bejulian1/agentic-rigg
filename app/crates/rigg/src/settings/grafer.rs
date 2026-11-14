@@ -78,7 +78,7 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
                 switch_row("Markør på alle grafene", Some("Når du holder over én graf, vises tidspunktet på de andre også. Av: bare på grafen du holder over."), s.chart_sync, "synkron tidspunkt sikte", move |on| {
                     save(&a1, json!({"chartSync": on}));
                 }),
-                row("Y-akse", Some("Tilpass følger dataene i vinduet. Prosent har alltid fast skala 0–100."), &scale.root, "skala akse"),
+                row("Y-akse", Some("Tilpass følger dataene i vinduet. Fast beholder normalområdet, men begge utvider aksen når verdiene går utenfor. Last og minne i prosent har skala 0–100; vifter kan gå over 100 %."), &scale.root, "skala akse adaptiv temperatur klokke"),
                 switch_row("Fylt flate", Some("Svak farge under linja. Lange vinduer viser i stedet et bånd fra minste til største verdi."), s.chart_fill, "fyll", move |on| {
                     save(&a2, json!({"chartFill": on}));
                 }),

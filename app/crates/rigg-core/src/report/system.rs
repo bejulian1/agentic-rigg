@@ -157,6 +157,13 @@ pub fn sections(i: &SysInput) -> Vec<Section> {
     // ---- Prosessor ----
     let mut c = Section::new("prosessor", "Prosessor");
     c.kv(Kv::new("navn", "Navn", st(&cpu["name"])));
+    let spec = cpu["vendor"].as_str().zip(cpu["name"].as_str()).and_then(|(vendor, name)| crate::cpu_specs::lookup(vendor, name));
+    let launch_source = spec.map(|s| format!("Modelloppslag, ikke målt. Kilde: AMD, {}: {}", s.name, s.source_url));
+    c.kv(
+        Kv::new("lansert", "Lansert", spec.map(|s| s.launched.to_string()))
+            .na("Ikke i modelloppslaget")
+            .info(launch_source.clone().unwrap_or_else(|| "Lanseringsdato krever et kjent modellnavn og riktig leverandør. CPUID-familie og kodenavn brukes ikke som erstatning.".into())),
+    );
     let cn = &cpu["codename"];
     c.kv(
         Kv::new(
@@ -233,6 +240,11 @@ pub fn sections(i: &SysInput) -> Vec<Section> {
     c.kv(Kv::new("spenning", "Kjernespenning", None).na("Krever root").info("Spenningen (SVI2) ligger i MSR-registrene, som bare root kan lese."));
     c.kv(Kv::new("effekt", "Pakkeeffekt", None).na("Krever root").info("RAPL-telleren (energy_uj) er bare lesbar for root, og perf er sperret."));
     c.kv(Kv::new("multiplikator", "Multiplikator og bussklokke", None).na("Krever root").info("Ligger i MSR-registrene. Klokken per tråd under er snittet fra APERF/MPERF."));
+    if i.report
+        && let Some(source) = launch_source
+    {
+        c.items.push(Item::Note(format!("Lanseringsdato: {source}")));
+    }
     out.push(c);
 
     // ---- Cache ----

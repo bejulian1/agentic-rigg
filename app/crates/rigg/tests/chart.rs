@@ -11,6 +11,24 @@ use math::*;
 const NN: char = '\u{202f}';
 const T0: i64 = 1_794_052_800_000; // 7. nov. 2026 12:00 UTC
 
+#[test]
+fn toppen_forlater_vinduet_uten_å_endre_helningen() {
+    let t = [T0 - 1000, T0 + 1000];
+    let avg = [Some(110.0), Some(20.0)];
+    let series = SeriesView { avg: &avg, lo: None, hi: None, step: false, band: false };
+    let range = window_range(&t, &series, T0, T0 + 2000, 5000, &|v| v).unwrap();
+    assert_eq!(range, (20.0, 65.0));
+    let scale = y_axis(Some(range), &Axis { pref: (20.0, 100.0), hard: None, min_span: 20.0, auto: true }, &[]);
+    let x = |t: i64| (t - T0) as f32 / 1000.0;
+    let y = |v| y_position(v, scale, 0.0, 100.0);
+    let mapping = Mapping { x: &x, y: &y, val: &|v| v };
+    let seg = segments(&t, &series, 0, T0 + 2000, 5000, &mapping, 100.0);
+    let line = &seg[0].line;
+    assert!(line[0].1 < 0.0, "ytterpunktet klippes av tegneflaten, ikke før interpolasjon");
+    let at_left = (line[0].1 + line[1].1) / 2.0;
+    assert!((at_left - y(65.0)).abs() < 1e-4, "korrekt temperatur ved venstrekanten");
+}
+
 fn ident() -> (impl Fn(i64) -> f32, impl Fn(f64) -> f32, impl Fn(f64) -> f64) {
     (|t: i64| ((t - T0) / 1000) as f32, |v: f64| (100.0 - v) as f32, |v: f64| v)
 }
@@ -162,8 +180,117 @@ fn bøttenes_min_og_maks_blir_båndet() {
     let segs = segments(&t, &s, 0, T0 + 3_600_000, 150_000, &m, 3600.0);
     assert_eq!(segs[0].band.len(), 30);
     assert_eq!(segs[0].band[0], (0.0, 30.0, 60.0));
-    let r = window_range(&t, &s, T0, T0 + 3_600_000, &val).unwrap();
+    let r = window_range(&t, &s, T0, T0 + 3_600_000, 150_000, &val).unwrap();
     assert_eq!(r, (40.0, 70.0));
+}
+
+#[test]
+fn framtidsbøtta_utvider_aksen_til_den_synlige_linja() {
+    // Midtpunktet i en åpen 60 s-bøtte ligger 30 s fram. Ved «nå» er
+    // interpolasjonen 110 °C / 2500 MHz, selv om neste punkt ikke er synlig.
+    let t = [T0 - 30_000, T0 + 30_000];
+    for (before, future, visible, pref) in [(50.0, 170.0, 110.0, (20.0, 100.0)), (1000.0, 4000.0, 2500.0, (0.0, 2000.0))] {
+        let avg = [Some(before), Some(future)];
+        let s = SeriesView { avg: &avg, lo: None, hi: None, step: false, band: false };
+        let r = window_range(&t, &s, T0 - 60_000, T0, 150_000, &|v| v).unwrap();
+        assert_eq!(r, (before, visible));
+        // Kontroller at range dekker den enden segments faktisk tegner.
+        let m = Mapping { x: &|ti| (ti - T0) as f32, y: &|v| v as f32, val: &|v| v };
+        let segs = segments(&t, &s, 0, T0, 150_000, &m, 600.0);
+        assert_eq!(segs[0].line.last(), Some(&(0.0, visible as f32)));
+        for auto in [false, true] {
+            let axis = y_axis(Some(r), &Axis { pref, hard: None, min_span: 0.0, auto }, &[]);
+            assert!(axis.lo <= before && axis.hi >= visible, "{axis:?}");
+            assert!(axis.hi < future, "usynlig framtidstopp skal ikke styre aksen: {axis:?}");
+        }
+    }
+}
+
+#[test]
+fn framtidsbåndet_og_neste_trappetrinn_er_ikke_synlige() {
+    let t = [T0 - 30_000, T0 + 30_000];
+    let avg = [Some(50.0), Some(170.0)];
+    let lo = [Some(40.0), Some(-1000.0)];
+    let hi = [Some(60.0), Some(9000.0)];
+    let s = SeriesView { avg: &avg, lo: Some(&lo), hi: Some(&hi), step: false, band: true };
+    assert_eq!(window_range(&t, &s, T0 - 60_000, T0, 150_000, &|v| v), Some((40.0, 110.0)));
+    let step = SeriesView { step: true, band: false, ..s };
+    assert_eq!(window_range(&t, &step, T0 - 60_000, T0, 150_000, &|v| v), Some((50.0, 50.0)));
+    // Omregningen skjer før interpolasjonen, akkurat som i segments.
+    assert_eq!(window_range(&t, &step, T0 - 60_000, T0, 150_000, &|v| v * 1.8 + 32.0), Some((122.0, 122.0)));
+}
+
+#[test]
+fn langtidsbåndets_topper_tas_med_selv_med_lavt_snitt() {
+    let t = [T0 - 120_000, T0 - 60_000];
+    for (avg, lo, hi, expected) in [
+        ([Some(40.0), Some(50.0)], [Some(35.0), Some(40.0)], [Some(110.0), Some(60.0)], (35.0, 110.0)),
+        ([Some(1000.0), Some(1100.0)], [Some(800.0), Some(900.0)], [Some(2500.0), Some(2000.0)], (800.0, 2500.0)),
+    ] {
+        let s = SeriesView { avg: &avg, lo: Some(&lo), hi: Some(&hi), step: false, band: true };
+        assert_eq!(window_range(&t, &s, T0 - 180_000, T0, 150_000, &|v| v), Some(expected));
+    }
+}
+
+#[test]
+fn alle_måleakser_rommer_hele_båndet_med_fast_og_tilpass() {
+    let cases = [
+        ("GPU/CPU-temperatur", (20.0, 100.0), (12.0, 110.0), None),
+        ("GPU-kjerne, kortmaks 2190 MHz", (0.0, 2190.0), (300.0, 2500.0), Some((0.0, f64::INFINITY))),
+        ("GPU-minne", (0.0, 7000.0), (405.0, 10_000.0), Some((0.0, f64::INFINITY))),
+        ("CPU-klokke", (0.0, 4000.0), (800.0, 6000.0), Some((0.0, f64::INFINITY))),
+        ("Effekt", (0.0, 275.0), (15.0, 400.0), Some((0.0, f64::INFINITY))),
+        ("Disktemperatur", (20.0, 60.0), (10.0, 90.0), None),
+        ("Nett MB/s", (0.0, 1.0), (0.1, 125.0), Some((0.0, f64::INFINITY))),
+        ("Disk MB/s", (0.0, 50.0), (1.0, 2000.0), Some((0.0, f64::INFINITY))),
+    ];
+    let t = [T0 - 120_000, T0 - 60_000];
+    for (name, pref, (bottom, peak), hard) in cases {
+        let avg = [Some((bottom + peak) / 2.0); 2];
+        let lo = [Some(bottom); 2];
+        let hi = [Some(peak); 2];
+        let series = SeriesView { avg: &avg, lo: Some(&lo), hi: Some(&hi), step: false, band: true };
+        let range = window_range(&t, &series, T0 - 180_000, T0, 150_000, &|v| v);
+        assert_eq!(range, Some((bottom, peak)), "{name}: begge båndgrenser");
+        for auto in [false, true] {
+            let opts = Axis { pref, hard, min_span: 0.0, auto };
+            let scale = y_axis(range, &opts, &[]);
+            assert!(scale.lo <= bottom && scale.hi > peak, "{name}, auto={auto}: hele båndet med luft: {scale:?}");
+            if hard.is_some() {
+                assert!(scale.lo >= 0.0, "{name}: {scale:?}");
+            }
+            let empty = y_axis(None, &opts, &[]);
+            assert_eq!((empty.lo, empty.hi), pref, "{name}, auto={auto}: uten data brukes foretrukket område");
+            assert!(empty.step.is_finite() && empty.step > 0.0, "{name}: {empty:?}");
+        }
+    }
+}
+
+#[test]
+fn venstrekanten_tar_med_interpolert_linje_og_bånd() {
+    let t = [T0 - 60_000, T0 - 30_000, T0, T0 + 30_000];
+    let avg = [Some(50_000.0), Some(200.0), Some(20.0), Some(90_000.0)];
+    let lo = [Some(-50_000.0), Some(-20.0), Some(10.0), Some(-90_000.0)];
+    let hi = [Some(70_000.0), Some(400.0), Some(100.0), Some(99_000.0)];
+    let s = SeriesView { avg: &avg, lo: Some(&lo), hi: Some(&hi), step: false, band: true };
+    // Ved venstrekanten (-15 s) er båndet -5–250, ikke -20–400.
+    // Verken de gamle toppene eller bøtta etter «nå» skal blåse opp aksen.
+    assert_eq!(window_range(&t, &s, T0 - 15_000, T0, 40_000, &|v| v), Some((-5.0, 250.0)));
+    let line = SeriesView { band: false, ..s };
+    assert_eq!(window_range(&t, &line, T0 - 15_000, T0, 40_000, &|v| v), Some((20.0, 110.0)));
+    let step = SeriesView { step: true, ..line };
+    assert_eq!(window_range(&t, &step, T0 - 15_000, T0, 40_000, &|v| v), Some((20.0, 200.0)));
+}
+
+#[test]
+fn topper_utenfor_vinduet_og_over_hull_er_ikke_med() {
+    let t = [T0 - 300_000, T0 - 30_000, T0 + 30_000, T0 + 300_000];
+    let avg = [Some(50_000.0), Some(50.0), Some(90_000.0), Some(99_000.0)];
+    let s = SeriesView { avg: &avg, lo: None, hi: None, step: false, band: false };
+    // Det er et hull før framtidspunktet: ingen interpolasjon mot 90 000.
+    assert_eq!(window_range(&t, &s, T0 - 60_000, T0, 5000, &|v| v), Some((50.0, 50.0)));
+    // Bare isolerte gamle og framtidige punkter gir ingen synlig kurve.
+    assert_eq!(window_range(&t, &s, T0 - 10_000, T0, 5000, &|v| v), None);
 }
 
 #[test]

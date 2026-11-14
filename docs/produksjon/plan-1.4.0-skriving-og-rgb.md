@@ -1,5 +1,7 @@
 # Plan for 1.4.0 · ekte skriving og RGB
 
+> **Oppdatert føring 14. november 2026:** Les [den nye utredningen](utredning-styring-2026-11-14.md) først. Brukeren ønsker én aktivering uten fire godkjenningstrinn. Tillegget skiller bekreftede getter-resultater fra uprøvde skrivekall og korrigerer sikkerheten i RGB-påstandene nedenfor. Denne eldre planen er historisk forskningsgrunnlag, ikke bekreftet støtte eller instruks om å aktivere ekte skriving. Ingen I2C-lesing eller skriving er autorisert av dokumentet.
+
 *Research-agent 9R, 9. november 2026. Gjelder Palit RTX 2080 Rev. A (TU104, PCI `10de:1e87`, subsystem `10de:1e87`), VBIOS 90.04.0B.40.8C, driver 610.43.02 (NVIDIA Open Kernel Module med GSP), GNOME 50.1 på Wayland, systemd 259. Ingen kode er endret, og ingenting er skrevet til kortet. Ingen `/dev/i2c-*` er åpnet (se «Metode» nederst).*
 
 **Merking i dokumentet**

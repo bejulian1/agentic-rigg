@@ -110,8 +110,27 @@ window.rigg button.nav-target {
 }
 window.rigg button.nav-target icon { color: var(--dim); }
 window.rigg button.nav-target:hover { background-color: var(--hover); color: var(--text); }
+window.rigg button.nav-target.open { background-color: var(--selected); color: var(--text); }
+.nav-target .target-chevron { opacity: 0; }
+.nav-target:hover .target-chevron,
+.nav-target:focus-visible .target-chevron,
+.nav-target.open .target-chevron { opacity: 1; }
 window.rigg button.nav-target.warn { color: var(--warn); }
 window.rigg button.nav-target.danger { color: var(--danger); }
+
+/* Kortdetaljene følger bredden og venstrekanten til raden som åpnet dem. */
+window.rigg popover.device-popover > contents { min-width: 0; padding: 4px; }
+.device-details-head { padding: 8px 8px 10px; border-bottom: 1px solid var(--border-soft); }
+.device-details-caption, .device-detail-key { color: var(--muted); font-size: var(--fs-sm); }
+.device-details-title { font-size: var(--fs-title); font-weight: 600; }
+.device-details-state { color: var(--muted); font-size: var(--fs-sm); }
+.device-details-state.warn { color: var(--warn); }
+.device-details-state.danger { color: var(--danger); }
+.device-details-facts { padding: 10px 8px; }
+.device-detail-value { font-size: var(--fs-body); }
+.device-details-service { padding: 10px 8px; border-top: 1px solid var(--border-soft); }
+window.rigg button.device-details-choice { padding: 5px 8px; }
+window.rigg button.device-details-more { margin-top: 4px; border-top: 1px solid var(--border-soft); border-radius: 0 0 var(--r) var(--r); }
 
 window.rigg button.nav-item,
 window.rigg button.side-link {
@@ -137,7 +156,8 @@ window.rigg button.side-link.current label { font-weight: 600; }
 .nav-item.current icon, .side-link.current icon { color: var(--text); }
 .nav-item .key { color: var(--dim); font-size: var(--fs-cap); }
 .sidebar.rail button.nav-item,
-.sidebar.rail button.side-link { min-width: 40px; padding: 0; }
+.sidebar.rail button.side-link,
+.sidebar.rail button.side-btn { min-width: 40px; min-height: var(--h-md); padding: 0; }
 
 /* Statusblokken nederst. */
 .side-status {

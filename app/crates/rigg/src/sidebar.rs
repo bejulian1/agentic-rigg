@@ -3,8 +3,8 @@
 //! Innstillinger, Tastatursnarveier og knappen som legger sammen.
 //!
 //! Maskinhodet (runde 6B) viser skjermkortet og prosessoren med ikon, navn og
-//! en kort linje under. Skjermkortet åpner detaljene (og kortvalget når det er
-//! flere), prosessoren går til Prosessor. Ingen statusprikk: bare feil vises,
+//! en kort linje under. Skjermkortet går til Grafikkort, prosessoren til
+//! Prosessor. Detaljer og kortvalg åpnes under Skjermkortstyring. Bare feil vises,
 //! diskret, i linja under navnet (og som et lite merke i ikonlista). Under
 //! [`COMPACT_H`] px høyde skjules linjene under navnene.
 //!
@@ -24,7 +24,7 @@ use crate::pages::{PAGES, Section, section_title};
 use crate::state::App;
 use crate::widgets::icon::Spin;
 use crate::widgets::popover::Menu;
-use crate::widgets::rows::{KvList, dot, set_dot};
+use crate::widgets::rows::{dot, set_dot};
 use crate::widgets::spark::SparkOpts;
 use crate::widgets::{Icon, Spark, class, hbox, label, set_text, tip, vbox};
 use gtk::prelude::*;
@@ -418,6 +418,27 @@ struct StatRow {
 /// En side i sidefeltet: (id, knappen, navnet, tasten).
 type NavItem = (String, gtk::Button, gtk::Label, Option<gtk::Label>);
 
+/// Et lite felt i kortdetaljene, uten en bred etikettkolonne.
+fn device_detail(name: &str, value: &str) -> gtk::Box {
+    let field = vbox(2, &["device-detail"]);
+    field.set_hexpand(true);
+    field.append(&label(name, &["device-detail-key"]));
+    let val = label(value, &["device-detail-value", "num"]);
+    val.set_selectable(true);
+    val.set_focusable(false);
+    val.set_wrap(true);
+    val.set_wrap_mode(gtk::pango::WrapMode::WordChar);
+    val.set_max_width_chars(20);
+    field.append(&val);
+    field
+}
+
+fn close_device_popover(button: &gtk::Button) {
+    if let Some(pop) = button.ancestor(gtk::Popover::static_type()).and_downcast::<gtk::Popover>() {
+        pop.popdown();
+    }
+}
+
 pub struct Sidebar {
     app: Rc<App>,
     /// Hele kolonnen (toppfelt + sidefelt) med fast bredde.
@@ -434,7 +455,7 @@ pub struct Sidebar {
     head_controls_ok: Rc<std::cell::Cell<bool>>,
     machine: gtk::Box,
     machine_sep: gtk::Box,
-    device: gtk::ToggleButton,
+    device: gtk::Button,
     gpu: MachineRow,
     cpu: gtk::Button,
     cpu_row: MachineRow,
@@ -502,10 +523,11 @@ impl Sidebar {
         body.set_vexpand(true);
         // Maskinhodet: skjermkortet og prosessoren i ett rolig kort.
         let machine = vbox(0, &["machine"]);
-        let device = gtk::ToggleButton::new();
+        let device = gtk::Button::new();
         device.add_css_class("machine-row");
+        device.add_css_class("gpu-link");
         device.add_css_class("first");
-        let gpu = machine_row("gpu", "chevron-down");
+        let gpu = machine_row("gpu", "chevron-right");
         device.set_child(Some(&gpu.bx));
         machine.append(&device);
         let machine_sep = gtk::Box::new(gtk::Orientation::Horizontal, 0);
@@ -650,14 +672,8 @@ impl Sidebar {
             self.cpu.connect_clicked(move |_| app.go("prosessor"));
         }
         {
-            let me = Rc::downgrade(self);
-            self.device.connect_toggled(move |b| {
-                if b.is_active()
-                    && let Some(s) = me.upgrade()
-                {
-                    s.show_device_popover();
-                }
-            });
+            let app = app.clone();
+            self.device.connect_clicked(move |_| app.go("grafikkort"));
         }
         let me = Rc::downgrade(self);
         app.on_settings.connect(move |keys| {
@@ -781,10 +797,12 @@ impl Sidebar {
                 self.nav.append(&line);
                 if p.section == Section::Control {
                     // Kortet som styres, funnet av seg selv: «RTX 2080 · Palit».
-                    // Klikk åpner detaljene og kortvalget i maskinhodet.
+                    // Detaljene åpnes her, ved kortet som faktisk ble trykket.
                     let b = gtk::Button::new();
                     b.add_css_class("nav-target");
                     b.add_css_class("flat");
+                    b.update_property(&[gtk::accessible::Property::HasPopup(true), gtk::accessible::Property::Description("Detaljer og kortvalg")]);
+                    b.update_state(&[gtk::accessible::State::Expanded(Some(false))]);
                     let bx = hbox(8, &[]);
                     bx.append(&Icon::new("gpu", 14));
                     let l = label("", &["nav-target-name"]);
@@ -792,11 +810,14 @@ impl Sidebar {
                     l.set_xalign(0.0);
                     l.set_hexpand(true);
                     bx.append(&l);
+                    let chevron = Icon::new("chevron-down", 12);
+                    chevron.add_css_class("target-chevron");
+                    bx.append(&chevron);
                     b.set_child(Some(&bx));
                     let me = Rc::downgrade(self);
-                    b.connect_clicked(move |_| {
+                    b.connect_clicked(move |b| {
                         if let Some(s) = me.upgrade() {
-                            s.device.set_active(true);
+                            s.show_device_popover(b.upcast_ref());
                         }
                     });
                     self.nav.append(&b);
@@ -936,8 +957,8 @@ impl Sidebar {
         self.apply_machine_visibility();
         let long = st.as_ref().map(|s| s.name.clone()).filter(|n| !n.is_empty()).unwrap_or_else(|| name.clone());
         let t = if sub.is_empty() { long.clone() } else { format!("{long} · {sub}") };
-        self.device.set_tooltip_text(Some(&format!("{t}\nDetaljer og kortvalg")));
-        self.device.update_property(&[gtk::accessible::Property::Label(&t), gtk::accessible::Property::Description("Detaljer og kortvalg")]);
+        self.device.set_tooltip_text(Some(&format!("{t}\nVis Grafikkort")));
+        self.device.update_property(&[gtk::accessible::Property::Label(&t), gtk::accessible::Property::Description("Vis Grafikkort")]);
         // Kortet Styring gjelder, under seksjonstittelen.
         if let Some((b, l)) = self.nav_target.borrow().as_ref() {
             // Feil: «RTX 2080 · svarer ikke», eller bare feilen når det ikke er
@@ -1004,6 +1025,7 @@ impl Sidebar {
         let rail = self.rail.get();
         let compact = self.height.get() > 0 && self.height.get() < COMPACT_H;
         for (r, err) in [(&self.gpu, self.device.has_css_class("warn") || self.device.has_css_class("danger")), (&self.cpu_row, false)] {
+            r.bx.set_halign(if rail { gtk::Align::Center } else { gtk::Align::Fill });
             if let Some(text) = r.name.parent() {
                 text.set_visible(!rail);
             }
@@ -1019,17 +1041,24 @@ impl Sidebar {
         self.cpu.set_halign(align);
     }
 
-    fn show_device_popover(self: &Rc<Self>) {
+    fn show_device_popover(self: &Rc<Self>, anchor: &gtk::Widget) {
         let app = &self.app;
-        let body = vbox(0, &[]);
+        let body = vbox(0, &["device-details"]);
         let st = app.statics().unwrap_or_default();
         let info = app.gpu_info();
-        let title = label(if st.name.is_empty() { "Skjermkort" } else { &st.name }, &["pop-title"]);
-        body.append(&title);
+        let full_name = if !st.name.is_empty() { st.name.clone() } else { info.as_ref().map(|i| i.name.clone()).filter(|n| !n.is_empty()).unwrap_or_else(|| "Skjermkort".into()) };
+        let head = vbox(3, &["device-details-head"]);
+        head.append(&label("Valgt skjermkort", &["device-details-caption"]));
+        let title = label(&rigg_core::model::short_gpu_name(&full_name), &["device-details-title"]);
+        title.set_wrap(true);
+        title.set_wrap_mode(gtk::pango::WrapMode::WordChar);
+        title.set_max_width_chars(20);
+        title.set_tooltip_text(Some(&full_name));
+        head.append(&title);
         // Feilkoden fra NVML står bare i verktøytipset (spesifikasjonen kap. 5).
         let since = |i: &rigg_core::model::GpuInfo| F::since(crate::app::local_time(i.since), crate::app::local_now());
         let sub = match &info {
-            Some(i) if i.state == DeviceState::Ok => "Leses med NVML".to_string(),
+            Some(i) if i.state == DeviceState::Ok => "Tilkoblet".to_string(),
             Some(i) if i.state == DeviceState::Lost => format!("Svarer ikke siden {}", since(i)),
             Some(i) if i.state == DeviceState::NoDriver => "Fant ingen NVIDIA-driver".into(),
             Some(i) if i.state == DeviceState::DriverUpdated => "Driveren er oppdatert. Start maskinen på nytt.".into(),
@@ -1037,62 +1066,98 @@ impl Sidebar {
             Some(_) => "–".into(),
             None => "Ikke tilkoblet".into(),
         };
-        let subl = label(&sub, &["pop-sub"]);
+        let subl = label(&sub, &["device-details-state"]);
         subl.set_wrap(true);
-        subl.set_max_width_chars(40);
+        subl.set_max_width_chars(22);
+        if let Some(i) = &info {
+            match i.state {
+                DeviceState::Lost => subl.add_css_class("danger"),
+                DeviceState::NoDriver | DeviceState::DriverUpdated => subl.add_css_class("warn"),
+                _ => {}
+            }
+        }
         if let Some(d) = info.as_ref().filter(|i| i.state != DeviceState::Ok).and_then(|i| i.detail.clone()) {
             subl.set_tooltip_text(Some(&d));
         }
-        body.append(&subl);
-        let kv = KvList::new();
-        kv.grid.set_margin_start(8);
-        kv.grid.set_margin_end(8);
+        head.append(&subl);
+        body.append(&head);
+        // Korte felt side om side; lange verdier får hele bredden og brytes.
+        let facts = vbox(8, &["device-details-facts"]);
+        let versions = hbox(12, &[]);
+        versions.set_homogeneous(true);
+        versions.append(&device_detail("Driver", st.driver.as_deref().unwrap_or("–")));
+        versions.append(&device_detail("CUDA", st.cuda_version.as_deref().unwrap_or("–")));
+        facts.append(&versions);
+        facts.append(&device_detail("VBIOS", st.vbios.as_deref().unwrap_or("–")));
         let s = app.gpu_sample().unwrap_or_default();
-        kv.add("Driver", st.driver.as_deref().unwrap_or("–"));
-        kv.add("VBIOS", st.vbios.as_deref().unwrap_or("–"));
-        kv.add("CUDA", st.cuda_version.as_deref().unwrap_or("–"));
         // Samme form som Oversikt: «x16 Gen 1 · maks Gen 3».
         let pcie = if s.pcie_gen.is_none() && s.pcie_width.is_none() {
             F::DASH.to_string()
         } else {
             crate::widgets::chart::math::pcie_text(st.pcie_width_max, st.pcie_gen_max, s.pcie_width, s.pcie_gen).unwrap_or_else(|| F::DASH.into())
         };
-        kv.add("PCIe", &pcie);
-        kv.add("Intervall", &F::seconds(app.settings().interval_ms));
+        facts.append(&device_detail("PCIe", &pcie));
+        body.append(&facts);
+        let service = vbox(8, &["device-details-service"]);
+        service.append(&device_detail("Oppdatering", &F::seconds(app.settings().interval_ms)));
         let svc = match (app.client.is_connected(), app.data.borrow().hello.clone()) {
-            (true, Some(h)) => format!("{} {} · bygg {}", h["daemon"]["name"].as_str().unwrap_or(""), h["daemon"]["version"].as_str().unwrap_or(""), h["daemon"]["build"]),
+            (true, Some(h)) => format!("{} · bygg {}", h["daemon"]["version"].as_str().unwrap_or("–"), h["daemon"]["build"]),
             _ => "Ikke tilkoblet".into(),
         };
-        kv.add("Tjeneste", &svc);
-        body.append(&kv.grid);
+        service.append(&device_detail("Tjeneste", &svc));
+        body.append(&service);
         // Flere kort: velg her.
         let gpus = app.data.borrow().gpus.clone();
         if gpus.iter().filter(|g| !g.id.is_empty()).count() > 1 {
             body.append(&label("Kort", &["menu-label"]));
             for g in gpus.into_iter().filter(|g| !g.id.is_empty()) {
-                let b = crate::widgets::button(None, Some(&rigg_core::model::short_gpu_name(&g.name)), &["flat", "menu-item"]);
+                let selected = app.gpu_id().as_deref() == Some(g.id.as_str());
+                let b = crate::widgets::button(Some(if selected { "check" } else { "gpu" }), Some(&rigg_core::model::short_gpu_name(&g.name)), &["flat", "menu-item", "device-details-choice"]);
+                b.update_property(&[gtk::accessible::Property::Description(if selected { "Valgt skjermkort" } else { "Velg dette skjermkortet" })]);
+                // Lange navn brytes også med flere kort og stor skrift.
+                if let Some(row) = b.child() {
+                    let mut child = row.first_child();
+                    while let Some(w) = child {
+                        if let Some(l) = w.downcast_ref::<gtk::Label>() {
+                            l.set_wrap(true);
+                            l.set_wrap_mode(gtk::pango::WrapMode::WordChar);
+                            l.set_max_width_chars(18);
+                        }
+                        child = w.next_sibling();
+                    }
+                }
                 let a = app.clone();
                 let id = g.id.clone();
-                let me = Rc::downgrade(self);
-                b.connect_clicked(move |_| {
+                b.connect_clicked(move |b| {
+                    close_device_popover(b);
                     a.select_gpu(&id);
-                    if let Some(s) = me.upgrade() {
-                        s.device.set_active(false);
-                    }
                 });
                 body.append(&b);
             }
         }
-        let more = crate::widgets::button(None, Some("Mer om kortet"), &["flat", "menu-item"]);
+        let more = crate::widgets::button(Some("arrow-right"), Some("Mer om kortet"), &["flat", "menu-item", "device-details-more"]);
         {
             let a = app.clone();
-            more.connect_clicked(move |_| a.go("grafikkort"));
+            more.connect_clicked(move |b| {
+                close_device_popover(b);
+                a.go("grafikkort");
+            });
         }
         body.append(&more);
-        let pop = crate::widgets::popover::popover(&self.device, &body);
-        pop.add_css_class("pop-wide");
-        let dev = self.device.clone();
-        pop.connect_closed(move |_| dev.set_active(false));
+        let width = if self.rail.get() { SIDE_W - 17 } else { anchor.compute_bounds(anchor).map(|b| b.width().round() as i32).unwrap_or(SIDE_W - 17) };
+        let constrained = crate::widgets::fixed::Fixed::new(&body, (width - 8).max(160));
+        let pop = crate::widgets::popover::popover(anchor, &constrained);
+        pop.add_css_class("device-popover");
+        pop.set_halign(gtk::Align::Start);
+        // Samme bredde som raden i sidefeltet; ikonlista får normal kortbredde.
+        anchor.add_css_class("open");
+        anchor.update_state(&[gtk::accessible::State::Expanded(Some(true))]);
+        let anchor = anchor.clone();
+        pop.connect_closed(move |_| {
+            anchor.remove_css_class("open");
+            anchor.update_state(&[gtk::accessible::State::Expanded(Some(false))]);
+        });
+        pop.update_property(&[gtk::accessible::Property::Label(&format!("Detaljer om {full_name}"))]);
         pop.popup();
         // Fokus på knappen, ikke på første valgbare verdi (den ble markert).
         more.grab_focus();
@@ -1359,6 +1424,9 @@ impl Sidebar {
         self.head_controls.set_visible(!rail && !self.head_controls.is_empty());
         self.apply_machine_visibility();
         for (_, b, l, k) in self.nav_items.borrow().iter() {
+            if let Some(child) = b.child() {
+                child.set_halign(if rail { gtk::Align::Center } else { gtk::Align::Fill });
+            }
             l.set_visible(!rail);
             if let Some(k) = k {
                 k.set_visible(!rail);
@@ -1398,6 +1466,14 @@ impl Sidebar {
         self.foot.set_orientation(if rail { gtk::Orientation::Vertical } else { gtk::Orientation::Horizontal });
         self.settings_link.set_halign(if rail { gtk::Align::Center } else { gtk::Align::Fill });
         self.settings_link.set_hexpand(!rail);
+        for b in [&self.keys_btn, &self.toggle] {
+            b.set_halign(if rail { gtk::Align::Center } else { gtk::Align::Fill });
+        }
+        if let Some(child) = self.settings_link.child() {
+            child.set_halign(if rail { gtk::Align::Center } else { gtk::Align::Fill });
+        }
+        self.app_icon.set_hexpand(rail);
+        self.app_icon.set_halign(if rail { gtk::Align::Center } else { gtk::Align::Fill });
         self.moon.set_visible(!rail && crate::easter::night(&self.app));
         let show_log = self.log_dot.is_visible() || !self.log_time.text().is_empty();
         self.log_time.set_visible(!rail && show_log && !self.log_time.text().is_empty());

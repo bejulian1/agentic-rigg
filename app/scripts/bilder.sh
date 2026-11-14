@@ -4,8 +4,8 @@
 # backend og sin egen undermappe. Vinduet går gjennom planen og lagrer PNG-ene.
 #
 # Bruk: scripts/bilder.sh [--plan NAVN …] [MAPPE]
-#   MAPPE   standard docs/skjermbilder/1.3.0/plan (én plan) eller
-#           docs/skjermbilder/1.3.0/serie (flere planer, én undermappe per plan)
+#   MAPPE   standard docs/skjermbilder/1.3.3/plan (én plan) eller
+#           docs/skjermbilder/1.3.3/serie (flere planer, én undermappe per plan)
 #   --plan  kan gis flere ganger, eller «alle». Standard: grunnmur.
 #
 # Planene (koden er fasit):
@@ -46,6 +46,11 @@
 #                     lyst/mørkt, 1920/1440/900/640 px, høy kontrast, hele siden
 #   8a-hete           skjermbilder.rs RIGG_PLAN=8a-hete, sim:hete: under 20 °C,
 #                     95 °C, 110 °C og 300 W; aksene kutter ikke (Tilpass, Fast, °F)
+#   kortmeny          kortdetaljer, menybredde, store bokstaver og ikonlist;
+#                     RIGG_KORTMENY_BACKEND=sim:to-kort prøver også kortbytte
+#   innstillinger-sok seksjonsbytte før søkeforsinkelsen, tømming og Esc
+#   adaptive-akser    110 °C, 2500/10000 MHz, 400 W og 108 % vifte, bare
+#                     simulerte verdier i testvinduet; fast/tilpass, °F og 48 t
 #
 # Binærene: $RIGG_BIN, ellers $CARGO_TARGET_DIR/release (eller debug). Planene
 # fra runde 2 finnes bare i debug-bygget (unntatt 2c), så 2a* og 2b* tar
@@ -65,11 +70,11 @@ while [ $# -gt 0 ]; do
     esac
 done
 all=(3c grunnmur 3a 3a-sim 3a-borte 3a-egg 2a 2a-historikk 2b-kort 2b-ingen-driver 2b-driver-oppdatert 2b-borte 2b-to-kort 2b-dvale 2b-bygg 2c
-    6a 6a-ekte 6b 6b-borte 6b-ingen-driver 6b-driver-oppdatert 6b-to-kort 6c-ekte 6c-lys 7a 7a-ekte 7b-ekte 7b-sim 8a 8a-hete)
+    6a 6a-ekte 6b 6b-borte 6b-ingen-driver 6b-driver-oppdatert 6b-to-kort 6c-ekte 6c-lys 7a 7a-ekte 7b-ekte 7b-sim 8a 8a-hete kortmeny innstillinger-sok adaptive-akser)
 [ ${#plans[@]} -gt 0 ] || plans=(grunnmur)
 [ "${plans[0]}" = alle ] && plans=("${all[@]}")
 many=$([ ${#plans[@]} -gt 1 ] && echo 1 || true)
-out=${out:-$here/../docs/skjermbilder/1.3.0/$([ -n "$many" ] && echo serie || echo plan)}
+out=${out:-$here/../docs/skjermbilder/1.3.3/$([ -n "$many" ] && echo serie || echo plan)}
 mkdir -p "$out"
 out=$(cd -- "$out" && pwd)
 target=${CARGO_TARGET_DIR:-$HOME/.cache/rigg-build}
@@ -94,7 +99,7 @@ timeout "${RIGG_PLAN_FRIST:-900}" "$RIGG_BIN/agentic-rigg" $RIGG_VINDU_ARGS 2>"$
 rc=$?
 kill -TERM "$d" 2>/dev/null
 wait "$d" 2>/dev/null
-grep -E "CSS|CRITICAL|WARNING|panicked|RIGG_SKJERMBILDE|RIGG_BILDER_2C|RIGG_BREDDE|RIGG_2C_MAAL|RIGG_2C_KLAR|fant ikke|mangler kroken" "$OKT_BASE/rigg.log" | head -80 >&2
+grep -E "CSS|CRITICAL|WARNING|panicked|RIGG_KORTMENY|kortmenyen er bredere|RIGG_SKJERMBILDE|RIGG_BILDER_2C|RIGG_BREDDE|RIGG_2C_MAAL|RIGG_2C_KLAR|fant ikke|mangler kroken" "$OKT_BASE/rigg.log" | head -80 >&2
 exit $rc
 RUN
 
@@ -156,6 +161,9 @@ for plan in "${plans[@]}"; do
         fi
         ;;
     8a) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=8a") backend=sim warm=${RIGG_OPPVARMING:-70} ;;
+    kortmeny) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=kortmeny") backend=${RIGG_KORTMENY_BACKEND:-sim} warm=${RIGG_OPPVARMING:-8} ;;
+    innstillinger-sok) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=innstillinger-sok") backend=sim warm=${RIGG_OPPVARMING:-4} ;;
+    adaptive-akser) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=adaptive-akser") backend=sim warm=${RIGG_OPPVARMING:-4} ;;
     # Hete-syklusen: 125 s, så 5 min-vinduet har kaldt, 95 °C og 110 °C nå.
     8a-hete) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=8a-hete") backend=sim:hete warm=${RIGG_OPPVARMING:-125} ;;
     7b-ekte) vars=("RIGG_BILDER_2C=$dir" "RIGG_6C_PLAN=7b-ekte") wargs="--side kontroller" ;;

@@ -290,6 +290,21 @@ impl View {
         }
     }
 
+    /// Den ferske målingen kan være høyere enn snittet i en åpen
+    /// langtidsbøtte. Ta den med på aksen før bøttas midtpunkt er synlig.
+    fn latest_value(&self, key: &str, now: i64) -> Option<f64> {
+        let app = self.app.upgrade()?;
+        if !app.client.is_connected() || (key.starts_with("gpu:") && gpu_stopped(&app).is_some()) {
+            return None;
+        }
+        let tel = app.telemetry()?;
+        let age = now.saturating_sub(tel.t);
+        if age < -2000 || age > math::gap_ms(1000, self.cadence_ms.get()) {
+            return None;
+        }
+        app.value(key).filter(|v| v.is_finite())
+    }
+
     pub fn set_window(self: &Rc<Self>, sec: i64) {
         if sec == self.window.get() {
             return;
@@ -1011,8 +1026,13 @@ impl Chart {
                 continue;
             }
             let map = inner.series[k].map.clone();
-            if let Some((a, b)) = math::window_range(&data.t, &sv(k), t0, t_now, &*map) {
+            if let Some((a, b)) = math::window_range(&data.t, &sv(k), t0, t_now, gap, &*map) {
                 dr = Some(dr.map_or((a, b), |(x, y)| (x.min(a), y.max(b))));
+            }
+            if !imp.paused.get()
+                && let Some(v) = view.latest_value(&inner.series[k].key, real_now).map(|v| map(v)).filter(|v| v.is_finite())
+            {
+                dr = Some(dr.map_or((v, v), |(lo, hi)| (lo.min(v), hi.max(v))));
             }
         }
         let auto = (inner.opts.auto)();
@@ -1050,10 +1070,7 @@ impl Chart {
         }
         imp.geom.set(Geom { pad_l, pw, t0, span });
         let x_of = move |t: i64| pad_l + ((t - t0) as f64 / span as f64 * pw as f64) as f32;
-        let y_of = move |v: f64| {
-            let f = ((v.clamp(yr.lo, yr.hi) - yr.lo) / (yr.hi - yr.lo).max(1e-9)) as f32;
-            pad_t + ph - f * ph
-        };
+        let y_of = move |v: f64| math::y_position(v, yr, pad_t, ph);
 
         // ---- Bakgrunn: rutenett, aksetall og tidsaksen ----
         let off = utc_offset(t_now);
@@ -1712,7 +1729,13 @@ impl ChartPanel {
         let t0 = t_now - self.view.window() * 1000;
         if self.show_stats {
             let sv = SeriesView { avg: &col.avg, lo: Some(&col.lo), hi: Some(&col.hi), step: def.step, band: def.band };
-            let text = match math::window_range(&data.t, &sv, t0, t_now, &*def.map) {
+            let mut range = math::window_range(&data.t, &sv, t0, t_now, self.view.gap_ms(), &*def.map);
+            if !paused
+                && let Some(v) = self.view.latest_value(&def.key, t_now).map(|v| (def.map)(v)).filter(|v| v.is_finite())
+            {
+                range = Some(range.map_or((v, v), |(lo, hi)| (lo.min(v), hi.max(v))));
+            }
+            let text = match range {
                 Some((lo, hi)) => format!("min {} · maks {}", F::num(Some(lo), d), F::num(Some(hi), d)),
                 None => String::new(),
             };

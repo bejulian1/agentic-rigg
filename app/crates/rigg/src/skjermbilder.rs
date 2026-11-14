@@ -30,6 +30,8 @@ enum Step {
     CloseSettings,
     Wait(u64),
     Shot(&'static str),
+    /// Kortmenyen er en egen GTK-flate og må tegnes med sin egen renderer.
+    DeviceShot(&'static str),
     Keys(&'static str),
     /// Åpner en dialog og tar bilde av den (navn, hvordan den åpnes).
     Dialog(&'static str, fn(&Rc<App>)),
@@ -58,12 +60,228 @@ fn plan() -> Vec<Step> {
         Ok("7a-ekte") => plan_7a_ekte(),
         Ok("8a") => plan_8a(),
         Ok("8a-hete") => plan_8a_hete(),
+        Ok("kortmeny") => plan_kortmeny(),
+        Ok("innstillinger-sok") => plan_innstillinger_sok(),
+        Ok("adaptive-akser") => plan_adaptive_akser(),
         _ => plan_grunnmur(),
     }
 }
 
 fn base() -> Value {
     json!({"theme": "light", "palette": "grafitt", "accent": "blue", "highContrast": false, "density": "standard", "fontScale": 100, "sideCollapsed": false, "motion": "off", "dismissed": []})
+}
+
+/// Ekstremverdier bare i denne private skjermbildeplanen, aldri til kortet.
+fn inject_extremes(app: &Rc<App>) {
+    assert!(app.profile.is_dev() && app.data.borrow().backend == "sim");
+    let Some(tel) = app.telemetry() else { return };
+    let mut tel = (*tel).clone();
+    tel.t = rigg_core::now_ms().max(tel.t + 1);
+    tel.sys.t = tel.t;
+    tel.sys.cpu.temp = Some(110.0);
+    for gpu in tel.gpus.values_mut() {
+        gpu.temp = Some(110.0);
+        gpu.core_clock = Some(2500.0);
+        gpu.sm_clock = Some(2500.0);
+        gpu.mem_clock = Some(10000.0);
+        gpu.power = Some(400.0);
+        gpu.fan = Some(108.0);
+        for fan in &mut gpu.fans {
+            *fan = Some(108.0);
+        }
+    }
+    if let Some(disk) = tel.sys.disks.first_mut() {
+        disk.temp = Some(90.0);
+    }
+    app.ingest(tel);
+}
+
+fn plan_adaptive_akser() -> Vec<Step> {
+    use Step::*;
+    let all: Vec<_> = crate::widgets::chart::DEFS.iter().map(|d| d.id).collect();
+    let mut v = vec![Size(1920, 1080), Set(base()), Set(json!({"chartWindow": 60, "chartScale": "auto", "charts": all})), Go("grafer"), Wait(1500), Eval(|app| {
+        let weak = Rc::downgrade(app);
+        let busy = Rc::new(std::cell::Cell::new(false));
+        // Erstatt prøven i testvisningen én gang per ekte sim-prøve.
+        // En rask injeksjonstimer ville kunne ugyldiggjøre GTK-bildet akkurat
+        // når WidgetPaintable tar skjermbildet.
+        app.on_telemetry.connect(move |_| {
+            if busy.replace(true) {
+                return;
+            }
+            if let Some(app) = weak.upgrade() {
+                inject_extremes(&app);
+            }
+            busy.set(false);
+        });
+        inject_extremes(app);
+    }), Wait(3000), Shot("akser-110c-2500mhz-tilpass"), Scroll(1.0), Wait(500), Shot("akser-minne-vifte-disk"), Scroll(0.0)];
+    v.extend([Set(json!({"chartScale": "fixed"})), Wait(600), Shot("akser-110c-2500mhz-fast"), Set(json!({"chartScale": "auto", "unit": "F"})), Wait(600), Shot("akser-fahrenheit"), Set(json!({"unit": "C", "chartWindow": 172800})), Wait(1500), Shot("akser-48t-fersk-topp"), Set(json!({"chartWindow": 60}))]);
+    for (page, name) in [("oversikt", "akser-oversikt"), ("kontroller", "akser-klokker-og-effekt"), ("viftekurve", "akser-viftekurve")] {
+        v.extend([Go(page), Wait(1500), Shot(name), Scroll(1.0), Wait(500), Shot(self::name(format!("{name}-bunn"))), Scroll(0.0)]);
+    }
+    v.extend([Set(json!({"theme": "dark"})), Wait(600), Shot("akser-viftekurve-mork"), Set(json!({"unit": "F"})), Wait(600), Shot("akser-viftekurve-fahrenheit"), Set(base())]);
+    v
+}
+
+fn search_field(app: &Rc<App>) -> gtk::SearchEntry {
+    find_class(app.window().unwrap().upcast_ref(), "set-search").unwrap().downcast::<gtk::SearchEntry>().unwrap()
+}
+
+fn settings_key(app: &Rc<App>, key: gtk::gdk::Key, ctrl: bool) {
+    assert!(app.shell().page_key(&crate::pages::Key { key, ctrl, shift: false, alt: false, typing: true }));
+}
+
+/// Prøver debounce ved seksjonsbytte, tømming og Esc gjennom skallets tastesti.
+fn plan_innstillinger_sok() -> Vec<Step> {
+    use Step::*;
+    vec![
+        Size(1440, 900), Set(base()), Settings("generelt"), Wait(500),
+        Eval(|app| {
+            let field = search_field(app);
+            field.grab_focus();
+            field.set_text("temperatur");
+            // Samme runde: før SearchEntry sender search-changed.
+            find_button(app.window().unwrap().upcast_ref(), "Utseende").unwrap().emit_clicked();
+            assert!(field.text().is_empty());
+        }),
+        Wait(400),
+        Eval(|app| {
+            assert_eq!(find_class(app.window().unwrap().upcast_ref(), "set-heading").unwrap().downcast::<gtk::Label>().unwrap().text().as_str(), "Utseende");
+        }),
+        Shot("sok-seksjonsbytte-uten-forsinket-treff"),
+        Eval(|app| {
+            settings_key(app, gtk::gdk::Key::f, true);
+            assert!(search_field(app).state_flags().contains(gtk::StateFlags::FOCUS_WITHIN));
+            search_field(app).set_text("tema");
+        }),
+        Wait(400), Shot("sok-tema-aktivt"),
+        Eval(|app| {
+            settings_key(app, gtk::gdk::Key::Escape, false);
+            assert!(app.shell().in_settings());
+            assert!(search_field(app).text().is_empty());
+            assert!(!search_field(app).state_flags().contains(gtk::StateFlags::FOCUS_WITHIN));
+        }),
+        Wait(300), Shot("sok-esc-avsluttet"),
+        Eval(|app| {
+            settings_key(app, gtk::gdk::Key::f, true);
+            settings_key(app, gtk::gdk::Key::Escape, false);
+            assert!(app.shell().in_settings());
+            assert!(!search_field(app).state_flags().contains(gtk::StateFlags::FOCUS_WITHIN));
+            settings_key(app, gtk::gdk::Key::Escape, false);
+            assert!(!app.shell().in_settings());
+        }),
+        Settings("generelt"),
+        Eval(|app| { search_field(app).set_text("tema"); }),
+        Wait(400),
+        Eval(|app| {
+            let field = search_field(app);
+            field.set_text("");
+            assert_eq!(find_class(app.window().unwrap().upcast_ref(), "set-heading").unwrap().downcast::<gtk::Label>().unwrap().text().as_str(), "Generelt");
+            field.grab_focus();
+            field.emit_by_name::<()>("stop-search", &[]);
+            assert!(!field.state_flags().contains(gtk::StateFlags::FOCUS_WITHIN));
+        }),
+        Set(json!({"theme": "dark"})), Wait(300), Shot("sok-tomt-uten-fokus-morkt"), CloseSettings,
+    ]
+}
+
+/// Kortdetaljer i sidefeltets bredde og direkte navigasjon fra maskinhodet.
+fn plan_kortmeny() -> Vec<Step> {
+    use Step::*;
+    let mut v = vec![Size(1440, 900), Set(base()), Go("kontroller"), Wait(2000)];
+    for (theme, font, hc, tag) in [("light", 100, false, "lys"), ("dark", 100, false, "mork"), ("light", 116, false, "stor-skrift"), ("dark", 100, true, "hoy-kontrast")] {
+        v.push(Set(json!({"theme": theme, "fontScale": font, "highContrast": hc})));
+        v.push(Wait(500));
+        v.push(Eval(|app| {
+            let win = app.window().unwrap();
+            find_class(win.upcast_ref(), "nav-target").unwrap().downcast::<gtk::Button>().unwrap().emit_clicked();
+        }));
+        v.push(Wait(500));
+        v.push(DeviceShot(name(format!("kortmeny-{tag}"))));
+        v.push(Eval(|app| {
+            let win = app.window().unwrap();
+            find_class(win.upcast_ref(), "device-popover").unwrap().downcast::<gtk::Popover>().unwrap().popdown();
+        }));
+        v.push(Wait(200));
+    }
+    v.extend([
+        Set(json!({"theme": "light", "highContrast": false, "fontScale": 116})),
+        Eval(|app| {
+            let mut data = app.data.borrow_mut();
+            let id = data.gpu.clone().unwrap();
+            data.statics.get_mut(&id).unwrap().0.driver = Some("610.43.02-0ubuntu0.26.10.1".into());
+        }),
+        Eval(|app| {
+            find_class(app.window().unwrap().upcast_ref(), "nav-target").unwrap().downcast::<gtk::Button>().unwrap().emit_clicked();
+        }),
+        Wait(500),
+        DeviceShot("kortmeny-lang-driver"),
+        Eval(|app| {
+            let win = app.window().unwrap();
+            let pop = find_class(win.upcast_ref(), "device-popover").unwrap();
+            let next = app.data.borrow().gpus.iter().filter(|g| !g.id.is_empty()).nth(1).cloned();
+            if let Some(g) = next {
+                find_button(&pop, &rigg_core::model::short_gpu_name(&g.name)).unwrap().emit_clicked();
+                assert_eq!(app.gpu_id().as_deref(), Some(g.id.as_str()));
+            } else {
+                pop.downcast::<gtk::Popover>().unwrap().popdown();
+            }
+        }),
+        Wait(300),
+    ]);
+    v.extend([
+        Set(base()),
+        Size(1100, 560),
+        Wait(700),
+        Eval(|app| {
+            let win = app.window().unwrap();
+            find_class(win.upcast_ref(), "nav-target").unwrap().downcast::<gtk::Button>().unwrap().emit_clicked();
+        }),
+        Wait(500),
+        DeviceShot("kortmeny-lavt-vindu"),
+        Click("Mer om kortet"),
+        Wait(500),
+        Eval(|app| {
+            assert_eq!(app.page.borrow().as_str(), "grafikkort");
+            assert!(find_class(app.window().unwrap().upcast_ref(), "device-popover").is_none());
+        }),
+        Go("oversikt"),
+        Eval(|app| {
+            find_class(app.window().unwrap().upcast_ref(), "gpu-link").unwrap().downcast::<gtk::Button>().unwrap().emit_clicked();
+            assert_eq!(app.page.borrow().as_str(), "grafikkort");
+        }),
+        Shot("maskinhode-apner-grafikkort"),
+        Set(json!({"sideCollapsed": true})),
+        Size(640, 760),
+        Wait(500),
+        Size(640, 760),
+        Go("oversikt"),
+        Eval(|app| {
+            find_class(app.window().unwrap().upcast_ref(), "gpu-link").unwrap().downcast::<gtk::Button>().unwrap().emit_clicked();
+            assert_eq!(app.page.borrow().as_str(), "grafikkort");
+        }),
+        Shot("maskinhode-ikonlist-apner-grafikkort"),
+        Set(json!({"theme": "dark"})),
+        Wait(500),
+        Shot("sidefelt-ikonlist-mork"),
+        Eval(|app| {
+            let win = app.window().unwrap();
+            let nav = find_class(win.upcast_ref(), "nav-item").unwrap();
+            let settings = find_class(&find_class(win.upcast_ref(), "side-foot").unwrap(), "side-link").unwrap();
+            let nav_icon = nav.first_child().unwrap().first_child().unwrap();
+            let settings_icon = settings.first_child().unwrap().first_child().unwrap();
+            let nav_x = nav_icon.compute_bounds(&win).unwrap().center().x();
+            let settings_x = settings_icon.compute_bounds(&win).unwrap().center().x();
+            eprintln!("RIGG_KORTMENY ikonsenter: sider={nav_x} innstillinger={settings_x}");
+            assert!((nav_x - settings_x).abs() < 1.0, "Innstillinger er ikke sentrert med navigasjonsikonene");
+        }),
+        Set(base()),
+        Size(1440, 900),
+        Wait(500),
+        Shot("sidefelt-utvidet-etter-ikonlist"),
+    ]);
+    v
 }
 
 /// Festede sensorer med nøkler (navnene fra Sensorer) i statusblokken.
@@ -872,6 +1090,29 @@ fn run(app: Rc<App>, steps: Rc<Vec<Step>>, i: usize, dir: PathBuf) {
                 shot(win.upcast_ref(), &dir.join(format!("{name}.png")));
             }
         }
+        Step::DeviceShot(name) => {
+            let win = app.window().unwrap();
+            let anchor = find_class(win.upcast_ref(), "nav-target").unwrap();
+            let pop = find_class(win.upcast_ref(), "device-popover").unwrap().downcast::<gtk::Popover>().unwrap();
+            let contents = pop.first_child().unwrap();
+            let surface = pop.surface().unwrap().downcast::<gtk::gdk::Popup>().unwrap();
+            let (wx, wy) = win.surface_transform();
+            let (px, py) = pop.surface_transform();
+            let x = surface.position_x() as f32 + wx as f32 - px as f32;
+            let y = surface.position_y() as f32 + wy as f32 - py as f32;
+            let card_width = contents.compute_bounds(&contents).unwrap().width();
+            let row_width = anchor.compute_bounds(&anchor).unwrap().width();
+            eprintln!("RIGG_KORTMENY {name}: meny={} kort={card_width} rad={row_width} x={x} y={y}", pop.width());
+            let paintable = gtk::WidgetPaintable::new(Some(&pop));
+            let snap = gtk::Snapshot::new();
+            paintable.snapshot(&snap, pop.width() as f64, pop.height() as f64);
+            let texture = pop.renderer().unwrap().render_texture(snap.to_node().unwrap(), None);
+            texture.save_to_png(dir.join(format!("{name}.png"))).unwrap();
+            // Vindu og popover er separate native flater. Helheten tas av
+            // Shell ved pekerprøven; ikke gjett popupens plassering i et montasjebilde.
+            shot(win.upcast_ref(), &dir.join(format!("{name}-vindu.png")));
+            assert!(card_width <= row_width, "kortmenyen er bredere enn raden i sidefeltet");
+        }
     }
     gtk::glib::timeout_add_local_once(Duration::from_millis(wait), move || run(app, steps, i + 1, dir));
 }
@@ -915,7 +1156,7 @@ fn find_button(w: &gtk::Widget, text: &str) -> Option<gtk::Button> {
         return None;
     }
     if let Some(b) = w.downcast_ref::<gtk::Button>()
-        && (b.label().is_some_and(|l| matches(&l)) || labels(w, &matches))
+        && (b.label().is_some_and(|l| matches(&l)) || b.child().is_some_and(|child| child.downcast_ref::<gtk::Label>().is_some_and(|l| matches(&l.text())) || labels(&child, &matches)))
     {
         return Some(b.clone());
     }

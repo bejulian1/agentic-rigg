@@ -5,8 +5,8 @@
 //! - **Kurveredigereren:** punkter som dras og snapper (hele grader og
 //!   prosent, Shift: steg på 5), tastaturet, live-punktet med hjelpelinjer,
 //!   minste fart (VBIOS) og nødregelen markert, og driverens faktiske kurve
-//!   fra historikken (punktsky og median per grad) i bakgrunnen. Aksene har
-//!   faste områder (20–100 °C, 0–100 %), og ingen tekst overlapper.
+//!   fra historikken (punktsky og median per grad) i bakgrunnen. Aksene
+//!   starter på 20–100 °C og 0–100 % og utvides for målinger utenfor.
 //! - **Til høyre:** modusene (Auto, Kurve, Manuell) med forklaring, punktene
 //!   som tall, hvordan kurven følges (hysterese, start og stopp) og døgnet.
 //! - **Under:** temperatur og begge viftene de siste ti minuttene.
@@ -196,8 +196,72 @@ pub fn split_curves(d: &mut Values, n: usize) {
     }
 }
 
-/// Temperaturaksen i redigereren (°C). Punktene holdes innenfor.
+/// Tillatt temperatur for redigerbare punkter (°C), uavhengig av måleaksen.
 pub const AXIS_T: (f64, f64) = (20.0, 100.0);
+
+/// Visningsakser: beholder normalområdet og utvider i grove trinn ved behov.
+/// En måletopp blir stående i skalaen mens redigereren lever, så aksene ikke
+/// pumper når nye prøver kommer. Dette endrer ingen grenser for brukerinput.
+#[derive(Clone, Copy, Debug, PartialEq)]
+struct CurveScale {
+    temp: (f64, f64),
+    fan: (f64, f64),
+}
+
+impl Default for CurveScale {
+    fn default() -> Self {
+        Self { temp: AXIS_T, fan: (0.0, 100.0) }
+    }
+}
+
+impl CurveScale {
+    fn expanded(mut self, points: impl Iterator<Item = (f64, f64)>) -> Self {
+        let grow = |range: &mut (f64, f64), v: f64, step: f64| {
+            if !v.is_finite() {
+                return;
+            }
+            if v < range.0 {
+                range.0 = (v / step).ceil() * step - step;
+            }
+            if v > range.1 {
+                range.1 = (v / step).floor() * step + step;
+            }
+        };
+        let (mut temp, mut fan) = (self.temp, self.fan);
+        for (t, f) in points {
+            if t.is_finite() {
+                temp = (temp.0.min(t), temp.1.max(t));
+            }
+            if f.is_finite() {
+                fan = (fan.0.min(f), fan.1.max(f));
+            }
+        }
+        grow(&mut self.temp, temp.0, 10.0);
+        grow(&mut self.temp, temp.1, 10.0);
+        grow(&mut self.fan, fan.0, 25.0);
+        grow(&mut self.fan, fan.1, 25.0);
+        self
+    }
+
+    /// Temperatur og fart til andeler fra venstre og fra bunnen.
+    fn position(self, t: f64, f: f64) -> (f64, f64) {
+        ((t - self.temp.0) / (self.temp.1 - self.temp.0), (f - self.fan.0) / (self.fan.1 - self.fan.0))
+    }
+
+    /// Pekeren følger visningsaksen; input stopper ved de lovlige grensene.
+    fn input_at(self, x: f64, y: f64) -> (f64, f64) {
+        let t = self.temp.0 + x.clamp(0.0, 1.0) * (self.temp.1 - self.temp.0);
+        let f = self.fan.0 + y.clamp(0.0, 1.0) * (self.fan.1 - self.fan.0);
+        (t.clamp(AXIS_T.0, AXIS_T.1), f.clamp(0.0, 100.0))
+    }
+}
+
+/// Høyst elleve rutenettstreker, også når en måling ligger langt utenfor.
+fn curve_ticks((lo, hi): (f64, f64), base: f64) -> Vec<f64> {
+    let step = base * 2f64.powf(((hi - lo) / (base * 10.0)).log2().ceil().max(0.0));
+    let first = (lo / step).ceil() * step;
+    (0..=10).map(|i| first + i as f64 * step).take_while(|v| *v <= hi + 1e-9).collect()
+}
 
 /// Median av viftefart per hele grad (minst tre målinger per grad).
 pub fn median_per_degree(pts: &[(f64, f64)]) -> Vec<(f64, f64)> {
@@ -294,6 +358,9 @@ mod edit_imp {
         pub pts: RefCell<Vec<(f64, f64)>>,
         pub median: RefCell<Vec<(f64, f64)>>,
         pub now: Cell<Option<(f64, f64)>>,
+        pub(super) scale: Cell<CurveScale>,
+        /// Nye topper under dragging vises når museknappen slippes.
+        pub(super) pending_scale: Cell<Option<CurveScale>>,
         pub curve: RefCell<Vec<(f64, f64)>>,
         /// Kurven er et utkast (heltrukket), ellers standardkurven (stiplet).
         pub draft: Cell<bool>,
@@ -322,6 +389,8 @@ mod edit_imp {
                 pts: RefCell::default(),
                 median: RefCell::default(),
                 now: Cell::new(None),
+                scale: Cell::new(CurveScale::default()),
+                pending_scale: Cell::new(None),
                 curve: RefCell::new(txn::DEFAULT_CURVE.to_vec()),
                 draft: Cell::new(false),
                 sel: Cell::new(None),
@@ -366,14 +435,17 @@ mod edit_imp {
             let w = self.obj();
             let (ww, hh) = (w.width() as f32, w.height() as f32);
             let [dots, med, now_c, curve_c, grid, text, zone, card, faint] = *self.colors.borrow();
-            let (lo, hi) = AXIS_T;
+            let scale = w.update_scale(self.pts.borrow().iter().copied().chain(self.now.get()));
+            let (lo, hi) = scale.temp;
             // Plass til tallene på y-aksen til venstre og x-aksen under.
             let (pl, pt, pr, pb) = (48.0f32, 14.0f32, 14.0f32, 40.0f32);
             let pw = (ww - pl - pr).max(10.0);
             let ph = (hh - pt - pb).max(10.0);
             self.geom.set((pl, pt, pw, ph));
-            let x = |t: f64| pl + (((t - lo) / (hi - lo)) as f32).clamp(0.0, 1.0) * pw;
-            let y = |f: f64| pt + ph - ((f / 100.0) as f32).clamp(0.0, 1.0) * ph;
+            let x = |t: f64| pl + (scale.position(t, 0.0).0 as f32).clamp(0.0, 1.0) * pw;
+            let y = |f: f64| pt + ph - (scale.position(0.0, f).1 as f32).clamp(0.0, 1.0) * ph;
+            let temp_ticks = curve_ticks(scale.temp, 10.0);
+            let fan_ticks = curve_ticks(scale.fan, 25.0);
             // Tekst uten overlapp: hver tekst får en flate, og det som ville
             // havnet oppå noe som allerede står, tegnes ikke.
             let placed: RefCell<Vec<graphene::Rect>> = RefCell::new(Vec::new());
@@ -417,15 +489,13 @@ mod edit_imp {
             let ex = x(txn::EMERGENCY_FAN_C);
             s.append_color(&zone, &graphene::Rect::new(ex, pt, pl + pw - ex, fy - pt));
             // Rutenettet.
-            for f in [0, 25, 50, 75, 100] {
-                let yy = y(f as f64).round();
+            for &f in &fan_ticks {
+                let yy = y(f).round();
                 s.append_color(&grid, &graphene::Rect::new(pl, yy - 0.5, pw, 1.0));
             }
-            let mut t = lo as i64;
-            while t as f64 <= hi + 0.1 {
-                let xx = x(t as f64).round();
+            for &t in &temp_ticks {
+                let xx = x(t).round();
                 s.append_color(&grid, &graphene::Rect::new(xx - 0.5, pt, 1.0, ph));
-                t += 10;
             }
             // Minste fart som linje.
             {
@@ -436,22 +506,20 @@ mod edit_imp {
             // viker for dem der de ville overlappet (de står ytterst).
             let mut faint_text = text;
             faint_text.set_alpha(text.alpha() * 0.85);
-            for f in [0, 25, 50, 75, 100] {
-                text_at(&F::pct(Some(f as f64), 0), pl - 8.0, y(f as f64), 1.0, 0.5, &faint_text, false);
+            for &f in &fan_ticks {
+                text_at(&F::pct(Some(f), 0), pl - 8.0, y(f), 1.0, 0.5, &faint_text, false);
             }
-            let mut t = lo as i64;
-            while t as f64 <= hi + 0.1 {
+            for (i, &t) in temp_ticks.iter().enumerate() {
                 // Første tall begynner ved aksen og siste slutter ved kanten,
                 // så de aldri treffer «0 %» eller går utenfor.
-                let ax = if t == lo as i64 {
+                let ax = if i == 0 {
                     0.0
-                } else if (t + 10) as f64 > hi + 0.1 {
+                } else if i + 1 == temp_ticks.len() {
                     1.0
                 } else {
                     0.5
                 };
-                text_at(&F::temp(Some(t as f64), 0), x(t as f64), pt + ph + 6.0, ax, 0.0, &faint_text, false);
-                t += 10;
+                text_at(&F::temp(Some(t), 0), x(t), pt + ph + 6.0, ax, 0.0, &faint_text, false);
             }
             text_at("GPU-temperatur", pl + pw / 2.0, hh - 2.0, 0.5, 1.0, &text, false);
             text_at(&format!("Minst {} (VBIOS)", F::pct(Some(floor), 0)), pl + pw - 6.0, fy - 3.0, 1.0, 1.0, &text, true);
@@ -500,8 +568,8 @@ mod edit_imp {
                 // Hysteresen: båndet mellom kurven og kurven forskjøvet mot
                 // venstre (der viftene går ned), og nedkurven stiplet.
                 if hyst > 0.0 {
-                    let steps = ((hi - lo) / 0.25) as usize;
-                    let ts: Vec<f64> = (0..=steps).map(|k| lo + k as f64 * 0.25).collect();
+                    let steps = (((hi - lo) / 0.25).ceil() as usize).clamp(1, 4096);
+                    let ts: Vec<f64> = (0..=steps).map(|k| lo + (hi - lo) * k as f64 / steps as f64).collect();
                     let up: Vec<(f32, f32)> = ts.iter().map(|t| (x(*t), y(effective_at(&c, quiet, floor, *t)))).collect();
                     let down: Vec<(f32, f32)> = ts.iter().map(|t| (x(*t), y(effective_at(&c, quiet, floor, t + hyst)))).collect();
                     let mut band = col;
@@ -702,22 +770,36 @@ impl CurveEdit {
         s
     }
 
+    fn update_scale(&self, points: impl Iterator<Item = (f64, f64)>) -> CurveScale {
+        let i = self.imp();
+        let current = i.scale.get();
+        let next = i.pending_scale.get().unwrap_or(current).expanded(points);
+        if i.drag.get().is_some() {
+            i.pending_scale.set(Some(next));
+            current
+        } else {
+            i.pending_scale.set(None);
+            i.scale.set(next);
+            next
+        }
+    }
+
     fn to_val(&self, x: f32, y: f32) -> (f64, f64) {
         let (pl, pt, pw, ph) = self.imp().geom.get();
-        let t = AXIS_T.0 + (((x - pl) / pw).clamp(0.0, 1.0)) as f64 * (AXIS_T.1 - AXIS_T.0);
-        let f = (1.0 - ((y - pt) / ph).clamp(0.0, 1.0)) as f64 * 100.0;
-        (t, f)
+        self.imp().scale.get().input_at(((x - pl) / pw) as f64, (1.0 - (y - pt) / ph) as f64)
     }
 
     fn hit(&self, x: f32, y: f32) -> Option<usize> {
         let (pl, pt, pw, ph) = self.imp().geom.get();
+        let scale = self.imp().scale.get();
         let c = self.imp().curve.borrow();
         // Nærmeste punkt innenfor 14 px.
         c.iter()
             .enumerate()
             .map(|(i, (t, f))| {
-                let px = pl + ((t - AXIS_T.0) / (AXIS_T.1 - AXIS_T.0)) as f32 * pw;
-                let py = pt + ph - (*f / 100.0) as f32 * ph;
+                let (tx, fy) = scale.position(*t, *f);
+                let px = pl + tx as f32 * pw;
+                let py = pt + ph - fy as f32 * ph;
                 (i, (px - x).hypot(py - y))
             })
             .filter(|(_, d)| *d < 14.0)
@@ -873,7 +955,8 @@ impl CurveEdit {
         self.add_controller(keys);
     }
 
-    pub fn set_points(&self, pts: Vec<(f64, f64)>, empty: &str) {
+    pub fn set_points(&self, mut pts: Vec<(f64, f64)>, empty: &str) {
+        pts.retain(|(t, f)| t.is_finite() && f.is_finite());
         *self.imp().median.borrow_mut() = median_per_degree(&pts);
         *self.imp().pts.borrow_mut() = pts;
         *self.imp().empty.borrow_mut() = empty.to_string();
@@ -881,6 +964,7 @@ impl CurveEdit {
     }
 
     pub fn set_now(&self, now: Option<(f64, f64)>) {
+        let now = now.filter(|(t, f)| t.is_finite() && f.is_finite());
         if self.imp().now.get() != now {
             self.imp().now.set(now);
             self.queue_draw();
@@ -2203,8 +2287,9 @@ impl Viftekurve {
         self.stat_strip.balance(6);
         let s = &self.stats;
         s[0].set(&F::temp_num(r.temp, 0), F::temp_label(), &r.temp_target.map(|g| format!("mål {}", F::temp(Some(g), 0))).unwrap_or_default());
-        s[0].meter.set(r.temp.map(|t| (t - 20.0) / 80.0), Some((txn::EMERGENCY_FAN_C - 20.0) / 80.0), if r.temp.is_some_and(|t| t >= txn::EMERGENCY_FAN_C) { 2 } else { 0 });
-        s[0].set_tip(&format!("GPU-temperaturen. Merket er nødregelen ({}).", F::temp(Some(txn::EMERGENCY_FAN_C), 0)));
+        let scale = self.editor.update_scale(r.temp.into_iter().map(|t| (t, 0.0)));
+        s[0].meter.set(r.temp.map(|t| scale.position(t, 0.0).0), Some(scale.position(txn::EMERGENCY_FAN_C, 0.0).0), if r.temp.is_some_and(|t| t >= txn::EMERGENCY_FAN_C) { 2 } else { 0 });
+        s[0].set_tip(&format!("GPU-temperaturen. Måleren går fra {} til {}. Merket er nødregelen ({}).", F::temp(Some(scale.temp.0), 0), F::temp(Some(scale.temp.1), 0), F::temp(Some(txn::EMERGENCY_FAN_C), 0)));
         for i in 0..2 {
             let pct = r.fans.get(i).cloned().flatten();
             let rpm = r.rpm.get(i).cloned().flatten();
@@ -2525,6 +2610,47 @@ mod tests {
     use super::*;
 
     const C: [(f64, f64); 4] = [(30.0, 35.0), (50.0, 40.0), (70.0, 65.0), (90.0, 100.0)];
+
+    #[test]
+    fn maaleaksen_utvides_uten_aa_endre_normalomraadet_eller_pumpe() {
+        let normal = CurveScale::default();
+        assert_eq!(normal.expanded(C.into_iter()), normal);
+        let wide = normal.expanded([(12.0, 35.0), (110.0, 108.0)].into_iter());
+        assert_eq!(wide.temp, (10.0, 120.0));
+        assert_eq!(wide.fan, (0.0, 125.0));
+        for (t, f) in [(12.0, 35.0), (110.0, 108.0)] {
+            let (x, y) = wide.position(t, f);
+            assert!((0.0..1.0).contains(&x) && (0.0..1.0).contains(&y), "maalt punkt har plass innenfor aksene");
+        }
+        assert_eq!(wide.expanded(C.into_iter()), wide, "aksene krymper ikke ved neste normale prøve");
+        let peaks = [(110.0, 108.0), (120.0, 125.0)];
+        assert_eq!(normal.expanded(peaks.into_iter()), normal.expanded(peaks.into_iter().rev()), "rekkefølgen på målingene endrer ikke skalaen");
+        assert_eq!(normal.expanded([(f64::NAN, f64::INFINITY)].into_iter()), normal);
+        assert_eq!(curve_ticks(normal.temp, 10.0), vec![20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0]);
+        assert!(curve_ticks((-1000.0, 5000.0), 10.0).len() <= 11);
+    }
+
+    #[test]
+    fn peker_og_punktinnsetting_foelger_maaleaksen_men_beholder_inputgrensene() {
+        let scale = CurveScale::default().expanded([(12.0, 35.0), (110.0, 108.0)].into_iter());
+        let (x, y) = scale.position(60.0, 53.0);
+        let (t, f) = scale.input_at(x, y);
+        assert!((t - 60.0).abs() < 1e-9 && (f - 53.0).abs() < 1e-9);
+        let (inserted, i) = add_point(&C, t, 35.0).unwrap();
+        assert_eq!(inserted[i], (60.0, 53.0), "nytt punkt settes der pekeren viser 60 grader");
+        assert_eq!(scale.input_at(-1.0, -1.0), (20.0, 0.0));
+        assert_eq!(scale.input_at(2.0, 2.0), (100.0, 100.0));
+        let (t, f) = scale.input_at(1.0, 1.0);
+        let moved = move_point(&C, 3, t, f, 35.0);
+        assert_eq!(moved[3], (100.0, 100.0));
+        let (left, _) = add_point(&C, scale.input_at(0.0, 0.0).0, 35.0).unwrap();
+        assert_eq!(left[0], (20.0, 35.0));
+        for c in [inserted, moved, left] {
+            let (checked, lifted) = txn::check_curve(&json!(c)).expect("utvidet visning gir fortsatt gyldig input");
+            assert_eq!(checked, c);
+            assert!(!lifted);
+        }
+    }
 
     #[test]
     fn median_og_andel() {

@@ -6,9 +6,13 @@ Agentic Rigg er et overvåkingsverktøy for skjermkort og maskin på Ubuntu, skr
 - **Sensorer**: alle verdier i én tabell, med min, maks og snitt, sparklinjer og logging til CSV.
 - **Grafer**: opptil elleve grafer med felles markør, pause og CSV-eksport.
 - **Grafikkort**, **Prosessor**, **Disker** og **System**: alt NVML, sysfs, `/proc` og UDisks2 kan si om kortet, prosessoren (klokke og last per tråd, cache, sårbarheter), diskene (SMART-helse, temperatur, MB/s, partisjoner, som CrystalDiskInfo) og maskinen, og rapport som tekst eller Markdown.
-- **Skjermkortstyring:** **Klokker og effekt** (effektgrense, klokke-offset, temperaturmål, vifte), **Vifter** (viftekurve som i Afterburner, med egen kurve per vifte, hysterese, rampe, utjevning og «hold minimum til») og **RGB-lys**: kortets ekte innstillinger. Endringer blir et utkast i appen og sendes ikke til kortet i denne versjonen (se «Endring av skjermkortet» under).
+- **Skjermkortstyring:** **Klokker og effekt** (effektgrense, klokke-offset, temperaturmål, vifte), **Vifter** (viftekurve som i Afterburner, med egen kurve per vifte, hysterese, rampe, utjevning og «hold minimum til») og **RGB-lys**. Klokker og Vifter viser målte GPU-data; RGB er en forhåndsvisning. Endringer blir utkast og profiler i appen og sendes ikke til kortet i denne versjonen (se «Endring av skjermkortet» under).
 
-Sidefeltet har et maskinhode med skjermkortet og prosessoren, og tastene 1–9 og 0 går til de ti sidene. Versjon og byggnummer står i Innstillinger › Om, sammen med signaturen Code Pro. Grafene kutter aldri en verdi: aksen utvides når temperaturen går over 100 °C eller under 20 °C, og krymper først når kurven har roet seg. Denne fila gjelder 1.3.0 · bygg 19.
+Sidefeltet har et maskinhode med skjermkortet og prosessoren, og tastene 1–9 og 0 går til de ti sidene. Klikk på skjermkortet øverst åpner Grafikkort direkte. Kortet under Skjermkortstyring åpner en smal detaljmeny i sidefeltets bredde, med kortvalg når det finnes flere kort. Ikonene står sentrert også når sidefeltet er lagt sammen. Versjon og byggnummer står i Innstillinger › Om, sammen med signaturen Code Pro. Grafene kutter aldri en verdi: aksen utvides når temperaturen går over 100 °C eller under 20 °C, og krymper først når kurven har roet seg. Denne fila gjelder 1.3.3 · bygg 22.
+
+Prosessor viser også lanseringsdato når den konkrete modellen er i det lokale oppslaget. Ryzen 7 2700X viser 19. april 2018, med AMD som kilde. Ukjente modeller får ingen antatt dato. Gjennomgangen av øvrige spesifikasjoner og mangler står i `docs/produksjon/spesifikasjoner-revisjon-2026-11-14.md`.
+
+Måleaksene utvides også for 110 °C og klokker over kortets oppgitte maksimum. Ferske topper i langtidsvinduer og viftekurvens målte punkter tas med; lovlige redigeringsgrenser og 0–100 % for last og brukt minne beholdes.
 
 ## Bygge
 
@@ -104,9 +108,9 @@ Agentic Rigg leser bare, til du selv slår på endring. I 1.3.0 endrer appen for
 
 **Trinnene er av.** Bryteren gir ingen lov til å endre noe. Hvert trinn godkjennes for seg under bryteren, med et eget spørsmål og passordet ditt, i denne rekkefølgen: **Effekt** (effektgrense og temperaturmål), **Vifter** (modus, fast fart og viftekurve), **Klokker** (kjerne- og minneklokke-offset) og **RGB-lys**. Alle fire er av når bryteren slås på, og et trinn kan trekkes tilbake når som helst.
 
-**Det ekte kortet er fortsatt sperret i 1.3.0.** Hjelperen er bygget og testet mot et simulert kort. Mot det ekte kortet kan trinnene ikke godkjennes ennå (de står som «Kommer senere»), og skrivekoden for kortet er ikke engang bygget inn i binæren. Klokker og effekt, Vifter og RGB-lys viser kortets ekte verdier, og det du endrer, blir et utkast i appen med «Tilbakestill» og Ctrl+Z / Ctrl+Shift+Z. Du kan lagre profiler, men ingenting sendes til kortet. Første trinn mot det ekte kortet (effektgrense) kommer i en senere versjon, og prøves med deg til stede.
+**Det ekte kortet er fortsatt sperret i 1.3.3.** Hjelperen er bygget og testet mot et simulert kort. Mot det ekte kortet kan trinnene ikke godkjennes ennå (de står som «Kommer senere»), og skrivekoden for kortet er ikke bygget inn i binæren. Klokker og effekt og Vifter viser målte GPU-data; RGB-lys er en forhåndsvisning. Det du endrer, blir et utkast i appen med «Tilbakestill» og Ctrl+Z / Ctrl+Shift+Z. Du kan lagre profiler, men ingenting sendes til kortet. Ekte styring krever en senere, separat implementasjon og kontroll på maskinvaren.
 
-**Vernet som gjelder når trinnene kommer:** Hver endring må bekreftes med **Behold** innen fristen (15 s som standard), ellers rulles den tilbake av seg selv. Over 85 °C går viftene alltid til 100 %, til kortet er under 80 °C. Lukkes Agentic Rigg helt, eller stopper hjelperen, går kortet tilbake til standard med viftene på Auto. Viftene kan ikke gå under 35 %: fastvaren på dette kortet tillater ikke viftestopp, heller ikke i Afterburner.
+**Vernet som er prøvd i simulering:** Hver endring må bekreftes med **Behold** innen fristen (15 s som standard), ellers rulles den tilbake. Nødregelen setter viftene til 100 % over 85 °C, til kortet er under 80 °C. Frakobling og stopp skal gjenopprette standard med Auto. Dette må bekreftes på ekte maskinvare før styring aktiveres. Dette RTX 2080-kortet rapporterer 35–100 % som vifteområde; fysisk viftestopp er ikke prøvd her.
 
 Detaljene og sikkerhetsgjennomgangen står i `docs/produksjon/hjelper-sikkerhet.md`.
 

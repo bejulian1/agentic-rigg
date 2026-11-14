@@ -7,6 +7,11 @@ node_modules/
 .idea/
 .vscode/
 
+# Lokale samtaler og utgivelsesartefakter
+/System meldinger/
+/dist/
+/artifacts/
+
 # Gamle sikkerhetskopier av demoen
 .backup-*/
 

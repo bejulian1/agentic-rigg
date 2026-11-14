@@ -305,6 +305,7 @@ impl SettingsView {
         search.add_css_class("set-search");
         search.set_hexpand(true);
         search.set_placeholder_text(Some("Søk i innstillinger"));
+        search.set_tooltip_text(Some("Søk i alle innstillingene. Ctrl+F eller / søker, Esc avslutter søket."));
         search.update_property(&[gtk::accessible::Property::Label("Søk i innstillinger"), gtk::accessible::Property::KeyShortcuts("Control+F /")]);
         let overlay = gtk::Overlay::new();
         overlay.set_child(Some(&search));
@@ -421,6 +422,20 @@ impl SettingsView {
     }
 
     fn wire(self: &Rc<Self>) {
+        // Et klikk på tekst eller tomrom flytter ikke GTK-fokus av seg selv.
+        // Slipp søkefokuset før målet behandler klikket, uten å spise hendelsen.
+        let click = gtk::GestureClick::new();
+        click.set_button(1);
+        click.set_propagation_phase(gtk::PropagationPhase::Capture);
+        let me = Rc::downgrade(self);
+        click.connect_pressed(move |_, _, x, y| {
+            let Some(v) = me.upgrade() else { return };
+            let inside = v.root.pick(x, y, gtk::PickFlags::DEFAULT).is_some_and(|w| w == v.search.clone().upcast::<gtk::Widget>() || w.is_ancestor(&v.search));
+            if !inside {
+                v.release_search_focus();
+            }
+        });
+        self.root.add_controller(click);
         for (id, b, _, _) in &self.tabs {
             let me = Rc::downgrade(self);
             let id = *id;
@@ -456,6 +471,20 @@ impl SettingsView {
             self.back.connect_clicked(move |_| app.shell().close_settings());
         }
         {
+            // Kryssknappen og sletting til tomt felt oppdaterer treffene straks.
+            let me = Rc::downgrade(self);
+            self.search.connect_changed(move |e| {
+                let Some(v) = me.upgrade() else { return };
+                v.slash.set_visible(e.text().is_empty() && !e.state_flags().contains(gtk::StateFlags::FOCUS_WITHIN) && !v.top.get());
+                if e.text().trim().is_empty() && !v.query.borrow().is_empty() {
+                    v.query.borrow_mut().clear();
+                    if v.visible.get() {
+                        v.render(true);
+                    }
+                }
+            });
+        }
+        {
             let me = Rc::downgrade(self);
             self.search.connect_search_changed(move |e| {
                 let Some(v) = me.upgrade() else { return };
@@ -465,7 +494,17 @@ impl SettingsView {
                     return;
                 }
                 *v.query.borrow_mut() = q;
-                v.render(true);
+                if v.visible.get() {
+                    v.render(true);
+                }
+            });
+        }
+        {
+            let me = Rc::downgrade(self);
+            self.search.connect_stop_search(move |_| {
+                if let Some(v) = me.upgrade() {
+                    v.finish_search();
+                }
             });
         }
         {
@@ -566,8 +605,7 @@ impl SettingsView {
         self.visible.set(true);
         if let Some(s) = section.filter(|s| SECTIONS.iter().any(|x| x.id == *s)) {
             *self.section.borrow_mut() = s.to_string();
-            self.search.set_text("");
-            self.query.borrow_mut().clear();
+            self.clear_search();
         }
         crate::app::ping(&self.app);
         self.render(true);
@@ -579,18 +617,38 @@ impl SettingsView {
 
     pub fn hide(&self) {
         self.visible.set(false);
+        self.clear_search();
+    }
+
+    /// Tøm både teksten og det forsinkede søket før en ny del åpnes.
+    fn clear_search(&self) -> bool {
+        let active = !self.search.text().is_empty() || !self.query.borrow().is_empty();
+        self.query.borrow_mut().clear();
         if !self.search.text().is_empty() {
             self.search.set_text("");
-            self.query.borrow_mut().clear();
+        }
+        active
+    }
+
+    fn release_search_focus(&self) {
+        if self.search.state_flags().contains(gtk::StateFlags::FOCUS_WITHIN)
+            && let Some(win) = self.app.window()
+        {
+            gtk::prelude::GtkWindowExt::set_focus(&win, None::<&gtk::Widget>);
+        }
+    }
+
+    fn finish_search(self: &Rc<Self>) {
+        self.clear_search();
+        self.release_search_focus();
+        if self.visible.get() {
+            self.render(true);
         }
     }
 
     fn select(self: &Rc<Self>, id: &str, flash_group: Option<&str>) {
-        let from_search = !self.query.borrow().is_empty();
-        if from_search {
-            self.search.set_text("");
-            self.query.borrow_mut().clear();
-        }
+        let from_search = self.clear_search();
+        self.release_search_focus();
         let same = *self.section.borrow() == id;
         *self.section.borrow_mut() = id.to_string();
         if self.app.settings().settings_section != id {
@@ -663,9 +721,8 @@ impl SettingsView {
         }
     }
 
-    /// Taster mens Innstillinger vises: Ctrl+F og / søker, Esc tømmer søket
-    /// eller går tilbake.
-    pub fn on_key(&self, k: &crate::pages::Key) -> bool {
+    /// Ctrl+F og / søker. Esc avslutter et søk først; neste Esc går tilbake.
+    pub fn on_key(self: &Rc<Self>, k: &crate::pages::Key) -> bool {
         use gtk::gdk::Key as K;
         if (k.ctrl && !k.shift && !k.alt && (k.key == K::f || k.key == K::F)) || (k.key == K::slash && !k.ctrl && !k.alt && !k.typing) {
             self.search.grab_focus();
@@ -673,11 +730,10 @@ impl SettingsView {
             return true;
         }
         if k.key == K::Escape {
-            if self.search.state_flags().contains(gtk::StateFlags::FOCUS_WITHIN) && !self.search.text().is_empty() {
-                self.search.set_text("");
+            if self.search.state_flags().contains(gtk::StateFlags::FOCUS_WITHIN) || !self.search.text().is_empty() || !self.query.borrow().is_empty() {
+                self.finish_search();
                 return true;
             }
-            // Esc i et tomt søkefelt lukker Innstillinger, som Esc ellers.
             self.app.shell().close_settings();
             return true;
         }

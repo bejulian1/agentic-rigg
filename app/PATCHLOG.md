@@ -1,5 +1,28 @@
 # Patchlog
 
+## 1.3.3 · bygg 22 – 14. november 2026: CPU-lanseringsdato og spesifikasjonsrevisjon
+
+- Prosessor og rapport får lanseringsdato fra et lokalt modelloppslag med kilde. Ryzen 7 2700X viser 19. april 2018 fra AMD. Datoen bestemmes ikke av CPUID-familien og arves ikke av ukjente CPU-modeller.
+- Komponentenes viste, skjulte og manglende opplysninger er kartlagt i `docs/produksjon/spesifikasjoner-revisjon-2026-11-14.md`. RAM-moduler, skjerm og nettverksdetaljer har størst behov for utvidelse. Øvrige funn er ikke implementert i denne versjonen.
+- Ingen endring av maskinvaretilgang eller GPU-styring.
+
+## 1.3.2 · bygg 21 – 14. november 2026: adaptive måleakser og gjennomgang
+
+- Ferske ytterverdier tas med før midtpunktet i en åpen langtidsbøtte er synlig. Interpolerte linjer og bånd ved vinduets kanter tas med i akseberegningen. Tegningen bruker lineær verdiavbildning og klipper først på tegneflaten, slik at en topp som forlater vinduet ikke endrer kurvens helning.
+- Viftekurvens målte punkter og «Nå»-punkt får plass også ved 110 °C, under 20 °C og vifteverdier over 100 %. Tegning, rutenett og peker bruker samme visningsskala. Redigerbare punkter beholder de lovlige grensene, og aksen fryses under dragging før ventende ytterverdier tas med etter slipp.
+- Forklaringen til «Tilpass / Fast» sier at begge utvider området når verdiene går utenfor. Bare last og brukt minne i prosent har hard grense 0–100.
+- Nye regresjonstester dekker 110 °C, kjerneklokke 2500 MHz mot oppgitt maks 2190, minneklokke 10000 MHz, CPU-klokke 6000 MHz, effekt 400 W, disk på 90 °C og høye disk-/nettrater, med «Tilpass» og «Fast».
+- Kodegjennomgang og UI/UX-runde er dokumentert i `docs/produksjon/kritikk-1.3.2.md`. Åpne reviewfunn er skilt fra grafrettingene. Ingen installasjon eller endring av ekte maskinvare.
+
+## 1.3.1 · bygg 20 – 13. november 2026: kortmeny, sidefelt og søkefokus
+
+- Kortet under Skjermkortstyring åpner detaljene ved raden du trykker på. Menyen følger sidefeltets bredde, med kort navn, tydelige grupper og tekst som brytes ved behov. Driver/CUDA står side om side; VBIOS, PCIe, oppdatering og tjeneste har egne felt. Med flere kort er det valgte merket.
+- Klikk på skjermkortet øverst under appnavnet åpner Grafikkort direkte, også i ikonlista. Pil og verktøytips følger handlingen.
+- Ikonene i sammenlagt sidefelt er sentrert. Innstillinger, hjelp og utviding har samme bredde og plassering som navigasjonsknappene; maskinhodet og appikonet følger samme midtlinje.
+- «Mer om kortet» og kortvalg lukker menyen før handlingen. Skjermbildeplanen `kortmeny` kontrollerer menybredde, stor skrift, lang drivertekst, temaer, kortvalg, navigasjon og sentrering av Innstillinger.
+- Innstillinger: klikk utenfor søket slipper fokus og den blå rammen. Første Esc avslutter søket og beholder Innstillinger; neste Esc går tilbake. Kryssknappen oppdaterer treffene straks. Et raskt seksjonsbytte tømmer også tekst som ennå ikke er behandlet av søkeforsinkelsen, slik at gamle treff ikke dukker opp igjen. Ctrl+F, / og tastaturfokus er bevart.
+- Ingen endring i maskinvaretilgang. Det ekte kortet er fortsatt sperret. Webdemoen har sin egen versjon og er uendret.
+
 ## 1.3.0 · bygg 19 – 9. november 2026: Oversikt over hele maskinen, grafer som ikke kutter
 
 Etter brukerens ønsker: grafene skal stige naturlig når temperaturen går mot 80, 95 eller 110 °C, Oversikt skal vise hele systemet som GNOME Resources, Disker skal ikke ha tomrom, og Styring skal tydelig handle om skjermkortet. Runde 8A gjorde alt (`docs/produksjon/LOGG.md`). Det ekte kortet er fortsatt sperret: ingenting skrives dit i 1.3.0.

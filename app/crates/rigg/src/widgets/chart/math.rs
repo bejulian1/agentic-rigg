@@ -37,6 +37,12 @@ pub struct Scale {
     pub step: f64,
 }
 
+/// Lineær overføring til plottet. Klipp først ved tegning, ellers endres
+/// helningen når et endepunkt ligger like utenfor tids- eller verdiaksen.
+pub fn y_position(value: f64, scale: Scale, top: f32, height: f32) -> f32 {
+    top + height - ((value - scale.lo) / (scale.hi - scale.lo).max(1e-9)) as f32 * height
+}
+
 /// Pene aksemerker (1-2-2,5-5 × 10ⁿ), som demoens `niceScale`.
 pub fn nice_scale(mut min: f64, mut max: f64, max_ticks: usize) -> Scale {
     if !min.is_finite() || !max.is_finite() {
@@ -647,20 +653,65 @@ pub fn band_runs(band: &[(f32, f32, f32)], plot_h: f32) -> Vec<(usize, usize, f3
 
 /// Laveste og høyeste verdi i vinduet (med båndet), for y-aksen og «min ·
 /// maks» i overskriften.
+///
+/// Området som faktisk kan tegnes i vinduet. Punktene utenfor brukes bare
+/// til interpolasjon ved kanten, med samme hullgrense som [`segments`].
+/// Framtidsbøttas snitt kan bidra fram til «nå», men ikke hele toppen eller
+/// båndet: `segments` forlenger bare snittlinja ved høyre kant.
 #[allow(clippy::needless_range_loop)] // samme indeks i tid, snitt, min og maks
-pub fn window_range(t: &[i64], s: &SeriesView, t0: i64, t_now: i64, val: &dyn Fn(f64) -> f64) -> Option<(f64, f64)> {
+pub fn window_range(t: &[i64], s: &SeriesView, t0: i64, t_now: i64, gap: i64, val: &dyn Fn(f64) -> f64) -> Option<(f64, f64)> {
+    if t_now < t0 {
+        return None;
+    }
     let (mut lo, mut hi) = (f64::INFINITY, f64::NEG_INFINITY);
-    let start = first_index(t, t0 - 2000);
+    let mut include = |v: f64| {
+        if v.is_finite() {
+            lo = lo.min(v);
+            hi = hi.max(v);
+        }
+    };
+    let interpolate = |ta: i64, tb: i64, a: f64, b: f64, at: i64| a + (b - a) * ((at - ta) as f64 / (tb - ta).max(1) as f64);
+    let mut prev: Option<(i64, f64)> = None;
+    let mut band_prev: Option<(i64, f64, f64)> = None;
+    let start = first_index(t, t0.saturating_sub(gap));
     for i in start..t.len().min(s.avg.len()) {
-        if t[i] > t_now + 2000 {
+        let Some(raw) = s.avg[i] else { continue };
+        let a = val(raw);
+        let ti = t[i];
+        let connected = prev.is_some_and(|(p, _)| ti - p <= gap);
+        if !connected {
+            band_prev = None;
+        }
+        if ti > t_now {
+            if connected && let Some((p, pv)) = prev {
+                for at in [t0.max(p), t_now] {
+                    include(if s.step { pv } else { interpolate(p, ti, pv, a, at) });
+                }
+            }
             break;
         }
-        let Some(a) = s.avg[i] else { continue };
-        let l = if s.band { s.lo.and_then(|x| x.get(i).copied().flatten()).unwrap_or(a) } else { a };
-        let h = if s.band { s.hi.and_then(|x| x.get(i).copied().flatten()).unwrap_or(a) } else { a };
-        let (l, h) = (val(l), val(h));
-        lo = lo.min(l.min(h));
-        hi = hi.max(l.max(h));
+        if ti >= t0 {
+            include(a);
+            if connected && let Some((p, pv)) = prev && p < t0 {
+                include(if s.step { pv } else { interpolate(p, ti, pv, a, t0) });
+            }
+        }
+        if s.band {
+            let l = s.lo.and_then(|x| x.get(i).copied().flatten()).map(val);
+            let h = s.hi.and_then(|x| x.get(i).copied().flatten()).map(val);
+            if let (Some(l), Some(h)) = (l, h) {
+                if ti >= t0 {
+                    include(l);
+                    include(h);
+                    if let Some((p, pl, ph)) = band_prev && p < t0 {
+                        include(interpolate(p, ti, pl, l, t0));
+                        include(interpolate(p, ti, ph, h, t0));
+                    }
+                }
+                band_prev = Some((ti, l, h));
+            }
+        }
+        prev = Some((ti, a));
     }
     lo.is_finite().then_some((lo, hi))
 }

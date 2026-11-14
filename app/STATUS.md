@@ -1,5 +1,19 @@
 # Status
 
+**1.3.3 · bygg 22** – 14. november 2026: CPU-lanseringsdato fra et kildebelagt lokalt modelloppslag, delt av Prosessor og rapport. Ryzen 7 2700X viser 19. april 2018. Ingen dato gjettes fra familie eller kodenavn. Revisjonen av komponentenes spesifikasjoner står i `docs/produksjon/spesifikasjoner-revisjon-2026-11-14.md`; øvrige utvidelser og korrekthetsfunn er fortsatt åpne. Produksjonsbygget er installert for brukeren 14. november etter uttrykkelig ønske.
+
+Verifisert: workspace-clippy på alle mål er ren; 350 tester bestått, 4 ignorert, 0 feilet. Aliasoppslag, nabomodeller, feil leverandør og dato/kilde i tekst- og Markdown-rapport er dekket. Alle workspace-binærene er bygget lokalt.
+
+Installasjonskontroll: alle tre installerte binærer viser 1.3.3 · bygg 22 og har samme SHA-256 som release-bygget. Kjørende NVML-tjeneste annonserer bygg 22 og låst skriving; appen er startet på Prosessor. Innstillingsfilene er uendret ved installasjon, og CPU-historikk fra før omstart er lest tilbake. Brukertjenesten er aktiv, men fortsatt ikke aktivert ved innlogging. Sikkerhetskopi av gammel installasjon, innstillinger og historikk er bevart lokalt.
+
+**1.3.2 · bygg 21** – 14. november 2026: kontroll og retting av adaptive akser. Vanlige målegrafer utvides for temperatur, klokker, effekt og hastigheter utenfor normalområdet; også ferske langtidsverdier og synlig interpolasjon ved vinduskanter tas med. Viftekurvens målte punkter har adaptive visningsakser, mens lovlige redigeringsgrenser er beholdt.
+
+Verifisert: ren workspace-clippy på alle mål, 347 beståtte tester, 4 ignorerte og 0 feil. Skjermbildeplanen `adaptive-akser` viser 110 °C, 2500/10000 MHz, 400 W, 108 % vifte og 90 °C disk, med «Fast», «Tilpass», °F og 48-timersvindu. Ekte klikk gjennom ti sider og ni innstillingsdeler samt smal visning, søk, Esc, simulert Bruk/Behold/Rull tilbake og RGB-forhåndsvisning er gjennomført. Gjennomgangen har åpne funn i `docs/produksjon/kritikk-1.3.2.md`; dette er en testutgave før installasjon, og det er ikke gjort nye ytelsesmålinger.
+
+**1.3.1 · bygg 20** – 13. november 2026: kortmenyen under Skjermkortstyring følger sidefeltets bredde. Maskinhodets skjermkort åpner Grafikkort direkte. Sammenlagt sidefelt har sentrerte ikoner, også Innstillinger. Søket slipper fokus ved klikk utenfor, og Esc avslutter søket før Innstillinger lukkes. Se `PATCHLOG.md`. Dette er en testutgave før installasjon; funksjonsstatusen under gjelder fortsatt.
+
+Verifisert: `cargo clippy --workspace --all-targets -- -D warnings` uten advarsler; `cargo test --workspace`: 338 bestått, 4 ignorert, 0 feilet. De nye skjermbildeplanene `kortmeny` (også med to kort) og `innstillinger-sok` er kjørt med layout- og funksjonskontroller. Ekte museklikk i en privat GNOME-økt bekrefter menyplassering, sentrerte ikoner og at søkefokusrammen forsvinner ved klikk utenfor. Ingen nye ytelsesmålinger er gjort.
+
 **1.3.0 · bygg 19** – 9. november 2026: klar til å installeres når hovedøkta sier ja. Nytt siden 1.2.0:
 - **Oversikt over hele maskinen:** fliser for prosessor, skjermkort, minne, VRAM, disker og nettverk, en tilstand-linje når noe er verdt å se, seks grafer, og skjermkortets målere nederst.
 - **Ingen graf kutter verdier:** aksene utvides over og under det foretrukne området (110 °C, under 20 °C, 330 W, disk på 65 °C), uten å pumpe, med nedklokking og avstenging som streker.

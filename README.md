@@ -1,29 +1,66 @@
 # Agentic Rigg
 
-**1.3.0 · bygg 19** · Code Pro
+**1.3.3 · bygg 22** · Rust og GTK 4 · Ubuntu · Code Pro
 
-Agentic Rigg er et raskt og lett verktøy for skjermkort og maskin på Ubuntu, skrevet i Rust og GTK 4. Det samler det du ellers bruker MSI Afterburner, HWiNFO, GPU-Z, CPU-Z og CrystalDiskInfo til på Windows, i én rolig og tett app i HWiNFO-stil.
+Et lett maskinvareverktøy for Ubuntu: sensorer, grafer, CPU- og GPU-spesifikasjoner og diskhelse i én norsk desktop-app. Inspirert av MSI Afterburner, HWiNFO, GPU-Z, CPU-Z og CrystalDiskInfo.
 
-Appen åpner på under 0,25 s, lukker på under 0,01 s og bruker rundt 15 MB minne og under 2 % av én kjerne når den står i ro. Den vekker ikke skjermkortet fra hvilemodus.
+[Last ned siste utgave](https://github.com/bejulian1/agentic-rigg/releases/latest) · [Versjonslogg](CHANGELOG.md) · [Bidragsytere](CONTRIBUTORS.md)
 
-## Hva den viser
+<table>
+  <tr><th>Oversikt</th><th>Prosessor</th><th>Disker og SMART</th></tr>
+  <tr>
+    <td><a href="docs/images/oversikt.png"><img src="docs/images/oversikt.png" alt="Oversikt med komponenter, sensorer og grafer" width="320"></a></td>
+    <td><a href="docs/images/prosessor.png"><img src="docs/images/prosessor.png" alt="Prosessorsiden med spesifikasjoner og lanseringsdato" width="320"></a></td>
+    <td><a href="docs/images/disker.png"><img src="docs/images/disker.png" alt="Diskhelse og SMART-tabell" width="320"></a></td>
+  </tr>
+</table>
+
+*Skjermbilder fra GTK-appen 1.3.3 i en testøkt. Skjermkort- og diskdata er simulerte. Klikk på bildene for full størrelse.*
+
+## Nytt i 1.3.3
+
+- CPU-lanseringsdato med produsent som kilde; Ryzen 7 2700X viser 19. april 2018.
+- Alle forbedringene fra 1.3.1 og 1.3.2: ryddigere sidefelt og kortmeny, direkte navigasjon til Grafikkort, bedre innstillingssøk og adaptive måleakser.
+- Gjennomgang av komponentenes spesifikasjoner og videre forbedringsbehov.
+
+**Ekte GPU-styring er fortsatt låst.** Klokker, effekt og viftekurver kan redigeres som utkast og profiler. RGB er en forhåndsvisning; denne utgaven endrer ikke kortets innstillinger.
+
+## Hva appen viser
 
 | Side | Innhold |
 |---|---|
-| **Oversikt** | Hele maskinen på ett sted: prosessor, skjermkort, minne, VRAM, disker og nettverk som fliser, en tilstandslinje når noe er verdt å se, og grafer fra siste minutt til 48 timer |
-| **Sensorer** | Alle verdier i én tabell med min, maks og snitt, sparklinjer og logging til CSV |
-| **Grafer** | Opptil elleve grafer med felles markør, pause og eksport |
-| **Grafikkort** | Alt NVML vet om kortet (som GPU-Z): klokker, effekt, PCIe, VBIOS, prosesser |
-| **Prosessor** | Klokke og last per tråd og kjerne, cache, instruksjonssett og sårbarheter (som CPU-Z) |
-| **Disker** | SMART-helse, temperatur, driftstid, slitasje, MB/s og partisjoner (som CrystalDiskInfo), uten root |
-| **System** | Hovedkort, BIOS, minne, operativsystem og kontrollere |
-| **Skjermkortstyring** | Klokker og effekt, Vifter (viftekurve som i Afterburner, med hysterese, rampe og egen kurve per vifte) og RGB-lys |
+| Oversikt | CPU, GPU, RAM, VRAM, disker og nettverk; tilstand og grafer fra ett minutt til 48 timer |
+| Sensorer | Måleverdier med min, maks og snitt, sparklinjer og CSV-logging |
+| Grafer | Felles markør, pause, eksport og adaptive akser |
+| Grafikkort | NVML-data: klokker, effekt, PCIe, VBIOS, vifter, grenser og prosesser; separat referansetabell |
+| Prosessor | Klokke og last per tråd/kjerne, cache, instruksjonssett, sårbarheter og lanseringsdato for kjente modeller |
+| Disker | SMART/NVMe-helse, temperatur, driftstid, slitasje, I/O og partisjoner |
+| System | Hovedkort, BIOS, minnebruk, operativsystem og kontrollere |
+| Skjermkortstyring | Utkast/profiler for klokker, effekt og vifter; RGB-forhåndsvisning |
 
-Grafene kutter aldri en verdi: aksen utvides når temperaturen går over 100 °C eller under 20 °C.
+Tilgjengelige felt avhenger av komponentene og driverne. Referanseopplysninger er merket og skal ikke forveksles med målinger. RAM-moduldetaljer, skjerminformasjon og nettverkskortets spesifikasjoner er områder for videre utvidelse.
 
-## Installasjon
+## Last ned og installer
 
-Klon repoet og kjør installasjonsskriptet:
+Den ferdigbygde pakken ligger under [Releases](https://github.com/bejulian1/agentic-rigg/releases). Den er laget for **Ubuntu 26.04, amd64/x86-64, GTK ≥ 4.22 og glibc ≥ 2.39**. Eldre Ubuntu-utgaver er ikke bekreftet støttet.
+
+Last ned `agentic-rigg-1.3.3-build22-ubuntu26.04-amd64.tar.gz` og `SHA256SUMS` fra samme Release:
+
+```bash
+sha256sum --check SHA256SUMS
+tar -xzf agentic-rigg-1.3.3-build22-ubuntu26.04-amd64.tar.gz
+cd agentic-rigg-1.3.3
+./install.sh --bin-dir "$PWD/bin"
+~/.local/bin/agentic-rigg
+```
+
+Installereren bruker ikke sudo. Den installerer for den innloggede brukeren under `~/.local`, legger appen i programmenyen og beholder innstillinger og historikk. Kjør som vanlig bruker. Automatisk oppstart ved innlogging og GPU-hjelperen aktiveres ikke av installasjonen.
+
+GitHub Packages er et register for bestemte pakkeformater og containere. Denne desktop-utgaven distribueres som en nedlastbar pakke under Releases.
+
+### Bygg fra kildekoden
+
+Det trengs Rust ≥ 1.92, GTK-utviklingspakker ≥ 4.22, `pkgconf` og `libglib2.0-dev-bin`. NVIDIA-driveren trengs for GPU-data, men ikke for å bygge appen. Uten den fungerer CPU, minne og øvrige tilgjengelige systemdata. SMART bruker UDisks2.
 
 ```bash
 git clone https://github.com/bejulian1/agentic-rigg.git
@@ -31,69 +68,22 @@ cd agentic-rigg
 ./install.sh
 ```
 
-Skriptet sjekker at pakkene finnes, bygger appen og installerer den for deg under `~/.local`. Mangler noe, skriver det ut én `sudo apt install …`-linje du kan kjøre. Etterpå ligger Agentic Rigg i «Vis programmer».
+Mer om bygging og innstillinger står i [app/README.md](app/README.md).
 
-Det som trengs for å bygge:
+### Oppdatering og avinstallering
 
-- Rust 1.92 eller nyere (`rustup`)
-- `libgtk-4-dev` (GTK 4.22), `pkgconf` og `libglib2.0-dev-bin`
-- NVIDIA-driveren for skjermkortdelen (ikke for å bygge). Uten den viser appen fortsatt prosessor, minne, disker og sensorer.
+Lukk appen før oppdatering. Pakk ut neste Release og kjør installereren på nytt. Fra en kildeklone: `git pull` og `./install.sh`.
 
-Skriptet bruker aldri `sudo` og slår ingenting på ved innlogging.
+Kjør `./uninstall.sh` fra den utpakkede pakken eller repoet for å avinstallere. Innstillinger og historikk beholdes.
 
-### Oppdatering
+## Personvern og støtte
 
-```bash
-cd agentic-rigg
-git pull
-./install.sh
-```
+Sensorer og historikk behandles lokalt. Appen sender ingen telemetri. GPU-overvåking bruker NVIDIA NVML; AMD- og Intel-GPU-er har ikke egen backend ennå. Utviklet på Ubuntu/GNOME/Wayland med RTX 2080 og Ryzen 7 2700X. Andre NVIDIA-kort kan ha andre tilgjengelige felt.
 
-### Avinstallering
+## Contributors
 
-```bash
-./uninstall.sh
-```
-
-Innstillinger og historikk blir liggende. Skriptet sier hvor de er.
-
-## Endring av skjermkortet
-
-Agentic Rigg leser bare, til du selv slår på endring i Innstillinger › Skjermkortstyring. Da legges en liten hjelper med root-rettigheter inn bak Ubuntus passorddialog, og hvert trinn (effekt, vifter, klokker, lys) må godkjennes for seg. I 1.3.0 er det ekte kortet fortsatt sperret: endringer blir et utkast i appen. Første trinn mot kortet (effektgrense) kommer i 1.4.0.
-
-Hver endring rulles tilbake av seg selv hvis du ikke trykker Behold, viftene går til 100 % over 85 °C, og en omstart gir alltid kortets egne standardverdier tilbake. Detaljene står i [`app/README.md`](app/README.md) og [`docs/produksjon/hjelper-sikkerhet.md`](docs/produksjon/hjelper-sikkerhet.md).
-
-## Personvern
-
-Alt blir på maskinen. Appen har ingen nettverkskode og sender ingenting noe sted.
-
-## Laget for
-
-Utviklet og målt på Ubuntu med GNOME (Wayland), Palit GeForce RTX 2080, NVIDIA-driver 610 og AMD Ryzen 7 2700X. Den virker med andre NVIDIA-kort. AMD- og Intel-skjermkort er ikke støttet ennå.
-
-## Mappene
-
-| Mappe | Innhold |
-|---|---|
-| `app/` | Selve appen: Rust-arbeidsområdet (`crates/`), ikoner, temaer, hjelperfiler og skript |
-| `app/crates/rigg` | Vinduet (GTK 4) |
-| `app/crates/riggd` | Tjenesten som leser kortet og maskinen og holder historikken |
-| `app/crates/rigg-helper` | Hjelperen for endring av kortet (av som standard) |
-| `app/crates/rigg-core`, `rigg-hw` | Felles logikk, protokoll og maskinvarelesing |
-| `docs/produksjon/` | Arkitektur, protokoll, målinger, sikkerhet, kritikkrunder og planer |
-| `web/`, `server/`, `daemon-mock/` | Den første localhost-demoen (se [`docs/DEMO.md`](docs/DEMO.md)) |
-
-Endringer per versjon står i [`app/PATCHLOG.md`](app/PATCHLOG.md), og hva som virker nå i [`app/STATUS.md`](app/STATUS.md).
-
-## Utvikling
-
-```bash
-cd app
-CARGO_TARGET_DIR=~/.cache/rigg-build cargo build --release --workspace
-cargo clippy --workspace --all-targets -- -D warnings
-cargo test --workspace
-```
+Utviklet av [Julian / bejulian1](https://github.com/bejulian1), med AI-assistanse fra **Claude Code (Anthropic)** og **Codex (OpenAI)**. Se [bidragsoversikten](CONTRIBUTORS.md) for roller og kreditering.
 
 ## Lisens
 
-MIT. Ikonene er fra Lucide (ISC). Se [`app/data/LISENSER.md`](app/data/LISENSER.md).
+[MIT](LICENSE). Ikonene er fra Lucide (ISC), med enkelte Feather-elementer (MIT). Fullstendige merknader følger i [app/data/LISENSER.md](app/data/LISENSER.md) og i nedlastingspakken.

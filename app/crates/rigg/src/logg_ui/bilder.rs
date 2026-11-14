@@ -256,11 +256,10 @@ fn run(app: Rc<App>, steps: Rc<Vec<Step>>, i: usize, dir: PathBuf) {
         }
         Step::DevicePopover(name) => {
             if let Some(win) = &win
-                && let Some(t) = find(win.upcast_ref(), &|w| w.is::<gtk::ToggleButton>() && w.is_drawable() && w.has_css_class("device-card"))
-                    .or_else(|| find(win.upcast_ref(), &|w| w.is::<gtk::ToggleButton>() && w.is_drawable()))
+                && let Some(t) = find(win.upcast_ref(), &|w| w.is::<gtk::Button>() && w.is_drawable() && w.has_css_class("nav-target"))
             {
-                let t = t.downcast::<gtk::ToggleButton>().unwrap();
-                t.set_active(true);
+                let t = t.downcast::<gtk::Button>().unwrap();
+                t.emit_clicked();
                 let (d, name, w2) = (dir.clone(), *name, win.clone());
                 gtk::glib::timeout_add_local_once(Duration::from_millis(700), move || {
                     if let Some(p) = find(w2.upcast_ref(), &|w| w.is::<gtk::Popover>() && w.is_visible())
@@ -269,7 +268,6 @@ fn run(app: Rc<App>, steps: Rc<Vec<Step>>, i: usize, dir: PathBuf) {
                         shot_widget(&p, &r, &d.join(format!("{name}.png")));
                         p.downcast::<gtk::Popover>().unwrap().popdown();
                     }
-                    t.set_active(false);
                 });
                 wait = 1200;
             }

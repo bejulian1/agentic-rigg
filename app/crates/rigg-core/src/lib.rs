@@ -3,6 +3,7 @@
 //! Brukes av tjenesten (`riggd`) og vinduet (`rigg`). Alt her er ren Rust og
 //! kan testes på under ett sekund (`cargo test -p rigg-core`).
 
+pub mod cpu_specs;
 pub mod csv;
 pub mod disk;
 pub mod downsample;
