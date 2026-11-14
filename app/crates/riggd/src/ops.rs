@@ -204,7 +204,8 @@ impl Daemon {
             v["disks"] = serde_json::to_value(d).unwrap_or(Value::Null);
         }
         if let Some(s) = self.latest.as_ref() {
-            v["threads"] = json!(s.sys.cpu.core_load.len());
+            // CPU-vektorene bruker faktiske Linux-ID-er; hull er ikke tråder.
+            v["threads"] = v["cpu"]["threads"].clone();
             v["memTotalKB"] = json!(s.sys.mem.total_kb);
         }
         v

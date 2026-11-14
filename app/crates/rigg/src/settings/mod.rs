@@ -270,7 +270,7 @@ pub struct SettingsView {
     slash: gtk::Label,
     nav: gtk::Box,
     tabs: Vec<(&'static str, gtk::Button, gtk::Label, gtk::Label)>,
-    foot: gtk::Box,
+    saved_line: gtk::Box,
     heading: gtk::Label,
     lead: gtk::Label,
     count: gtk::Label,
@@ -346,9 +346,18 @@ impl SettingsView {
             tabs.push((s.id, b, nm, n));
         }
         side.append(&nav);
-        let foot = hbox(8, &["set-side-foot"]);
-        foot.append(&Icon::new("check", 14));
-        foot.append(&label("Endringer lagres straks.", &[]));
+        let foot = vbox(8, &["set-side-foot"]);
+        let saved_line = hbox(8, &[]);
+        saved_line.append(&Icon::new("check", 14));
+        saved_line.append(&label("Endringer lagres straks.", &[]));
+        foot.append(&saved_line);
+        let version_log = crate::widgets::button(Some("rotate-ccw"), Some("Versjonslogg"), &["flat"]);
+        version_log.set_halign(gtk::Align::Start);
+        {
+            let a = app.clone();
+            version_log.connect_clicked(move |_| crate::widgets::version_log::show(&a));
+        }
+        foot.append(&version_log);
         side.append(&foot);
         let side_fixed = crate::widgets::fixed::Fixed::new(&side, crate::sidebar::SIDE_W);
         root.append(&side_fixed);
@@ -402,7 +411,7 @@ impl SettingsView {
             slash,
             nav,
             tabs,
-            foot,
+            saved_line,
             heading,
             lead,
             count,
@@ -594,7 +603,7 @@ impl SettingsView {
             let name = SECTIONS.iter().find(|s| s.id == *id).map(|s| s.name).unwrap_or("");
             b.set_tooltip_text(if top { Some(name) } else { None });
         }
-        self.foot.set_visible(!top);
+        self.saved_line.set_visible(!top);
         self.lead.set_visible(!top);
         self.slash.set_visible(!top && self.search.text().is_empty());
         self.search.set_placeholder_text(Some(if top { "Søk" } else { "Søk i innstillinger" }));

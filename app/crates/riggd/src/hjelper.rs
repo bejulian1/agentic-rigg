@@ -4,7 +4,7 @@
 //! (`rigg_core::hjelper::Paths`; `/` på et ekte system, en falsk rot med
 //! `--hjelper-rot` i testene og `RIGG_HJELPER_ROT` i utviklerprofilen), spør om
 //! `status`, og sender `apply`, `confirm`, `revert` og `reset` videre når
-//! hjelperen er på, er fra samme bygg, har samme backend, global autorisasjon
+//! hjelperen er på, har kompatibelt bygg/protokoll, samme backend, global autorisasjon
 //! og samsvarende kortidentitet. Ellers svarer `ops.rs` med `write_locked` og en
 //! presis grunn i `details.reason` (`helper_off`, `helper_error`,
 //! `helper_outdated`, `backend_mismatch` eller `identity_mismatch`).
@@ -34,12 +34,28 @@ const TIMEOUT: Duration = Duration::from_secs(2);
 pub enum State {
     /// Ikke aktivert (ingen `helper.json`).
     Off,
-    /// På og fra samme bygg.
+    /// På og med kompatibelt bygg/protokoll.
     On,
     /// Aktivert, men svarer ikke (eller svarte feil).
     Error(String),
-    /// På, men fra et annet bygg: bryteren må slås av og på (ny binær).
+    /// På, men med inkompatibelt bygg/protokoll: hjelperen må oppdateres.
     Outdated(u32),
+}
+
+fn state_for_status(status: &Value) -> State {
+    let build = status["helper"]["build"]
+        .as_u64()
+        .and_then(|v| u32::try_from(v).ok());
+    let protocol = status["helper"]["protocol"]
+        .as_u64()
+        .and_then(|v| u32::try_from(v).ok());
+    if let (Some(protocol), Some(build)) = (protocol, build)
+        && hjelper::compatible(protocol, build)
+    {
+        State::On
+    } else {
+        State::Outdated(build.unwrap_or(0))
+    }
 }
 
 struct Conn {
@@ -230,13 +246,7 @@ impl Hjelper {
         }
         match self.request("status", json!({})) {
             Ok(s) => {
-                let build = s["helper"]["build"].as_u64().unwrap_or(0) as u32;
-                let proto_ok = s["helper"]["protocol"].as_u64() == Some(hjelper::PROTOCOL as u64);
-                self.state = if build == rigg_core::version::build() && proto_ok {
-                    State::On
-                } else {
-                    State::Outdated(build)
-                };
+                self.state = state_for_status(&s);
                 self.status = s;
                 if !self.pending() {
                     self.owner = None;
@@ -274,8 +284,11 @@ impl Hjelper {
             State::Outdated(b) => (
                 "outdated",
                 Some(format!(
-                    "Hjelperen er fra bygg {b}, appen fra bygg {}.",
-                    rigg_core::version::build()
+                    "Hjelperens bygg {b} eller protokoll er inkompatibel. Appbygg {} støtter hjelperbygg {}–{} med protokoll {}. Oppdater hjelperen via bryteren.",
+                    rigg_core::version::build(),
+                    hjelper::MIN_COMPATIBLE_BUILD,
+                    rigg_core::version::build(),
+                    hjelper::PROTOCOL
                 )),
             ),
         };
@@ -453,6 +466,7 @@ impl Daemon {
         }
         if let Ok(s) = self.hjelper.request("status", json!({})) {
             let events = s["events"].as_array().cloned().unwrap_or_default();
+            self.hjelper.state = state_for_status(&s);
             self.hjelper.status = s;
             if !self.hjelper.pending() {
                 self.hjelper.owner = None;
@@ -507,5 +521,46 @@ impl Daemon {
         v["gpu"] = json!(gpu);
         v["write"] = self.write_caps();
         Some(v)
+    }
+}
+
+#[cfg(test)]
+mod compatibility_tests {
+    use super::*;
+
+    #[test]
+    fn app24_kan_bruke_autorisert_hjelper23_med_samme_protokoll() {
+        assert!(rigg_core::version::build() >= 24);
+        assert_eq!(
+            state_for_status(&json!({"helper":{"build":23,"protocol":2}})),
+            State::On
+        );
+        assert_eq!(
+            state_for_status(&json!({"helper":{"build":22,"protocol":2}})),
+            State::Outdated(22)
+        );
+        assert_eq!(
+            state_for_status(&json!({"helper":{"build":23,"protocol":1}})),
+            State::Outdated(23)
+        );
+    }
+
+    #[test]
+    fn manglende_ugyldig_eller_fremtidig_identifikasjon_gir_ikke_klarstatus() {
+        assert_ne!(state_for_status(&json!({"helper":{"build":23}})), State::On);
+        assert_ne!(
+            state_for_status(&json!({"helper":{"build":4_294_967_319_u64,"protocol":2}})),
+            State::On
+        );
+        assert_ne!(
+            state_for_status(&json!({"helper":{"build":23,"protocol":4_294_967_298_u64}})),
+            State::On
+        );
+        assert_ne!(
+            state_for_status(
+                &json!({"helper":{"build":rigg_core::version::build()+1,"protocol":2}})
+            ),
+            State::On
+        );
     }
 }

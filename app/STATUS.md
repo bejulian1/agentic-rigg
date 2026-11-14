@@ -1,4 +1,22 @@
-# Status
+# Status · Agentic Rigg
+
+**1.4.1 · bygg 24.** Vifter har Enkel/Avansert visning, og Behold/Rull tilbake ligger synlig på Vifter og Klokker og effekt under rulling. Målt klokke nå, rapportert maksimum og justerbart offset skilles. Effektgrensen viser W og prosent; temperaturmål, vifter og detaljerte grenser ligger under Avansert. Et felles utkast oppsummeres før Bruk, også når noen felt er skjult.
+
+- **CPU på den faktiske maskinen:** Linux-CPU-ID-er beholdes ved hull i nummerrekken og hotplug. Prosessor, Sensorer og rapport bruker de aktive ID-ene; flere sokler og ulike cachegrupper behandles separat. Cachevarianter og antall bygger på sysfs-identitet og deling, og ukjent antall vises som ukjent. Temperatur bruker sensorens navn; L3-grupper kalles ikke automatisk CCX.
+- **GPU etter funksjonsstøtte:** Klokker, effekt og vifter bruker valgt korts tilgjengelige felt og rapporterte grenser. Viftevisningen skiller ukjent antall, null vifter og én til flere vifter, uten å finne på et kort med to vifter. Kontroller og kurvevalg følger det rapporterte antallet og støtten.
+- **Versjonslogg og bidrag:** Innstillinger og Om åpner en innebygd logg med de ni dokumenterte desktoputgavene, nyeste først. Om krediterer Julian, Anthropic Claude Opus 5.5 (Claude Code) og OpenAI GPT 6.1 Sol (Codex).
+
+GPU-backenden er NVIDIA NVML; AMD-/Intel-GPU-backender er ikke implementert. CPU-, RAM-, hovedkort- og diskdata kommer fra tilgjengelige `/proc`-, sysfs/DMI-, hwmon- og UDisks2-kilder. Manglende data og funksjoner erstattes ikke med spesifikasjoner fra utviklingsmaskinen. Dette er generell håndtering av maskinvaredata, ikke fysisk verifikasjon av alle komponenter og kort.
+
+Den autoriserte GPU-hjelperen fra bygg 23 kan brukes av app/daemon bygg 24 med protokoll 2. Eldre bygg, ukjent nyere hjelper og ugyldige metadata avvises. Kortbinding, baseline, frister, tilbakelesing og recovery gjelder fortsatt. En lesende vertsprøve bekreftet daemon 24 mot eksisterende root-hjelper 23 som On/ready uten GPU-skriving.
+
+Driverens manuelle vifteområde er ikke bevis på automatisk viftestopp. Automatisk Zero RPM på det undersøkte kortet er ubekreftet. RGB er fortsatt forhåndsvisning; kontrolleren er ikke identifisert.
+
+**Sluttkontroll for 1.4.1:** 410 tester bestått, 4 ignorert og ingen feil; ren workspace-clippy. Private GTK-planer bestod for versjonsloggens to innganger og rekkefølge, fast Behold etter rulling, ukjent/0/1/3 vifter og smal visning, samt Prosessor, System og Disker i lyst/mørkt. Manuell 55 % forble bekreftet etter 71 s i simulering. Produksjonsbinærene oppgir 1.4.1 bygg 24. Ingen nye GPU-skriveprøver er utført; HW-sikkerhetsmotoren er uendret.
+
+Installasjon av 1.4.1 bygg 24 på utviklingsmaskinen er verifisert med samsvarende binærhash og uendrede innstillinger under installasjonen. Historikken er sikkerhetskopiert. Installert daemon bygg 24 leser den allerede godkjente hjelperen fra bygg 23 som klar, med riktig kortbinding og uten maskinvarefeil; oppstart ved innlogging er fortsatt av.
+
+## Historikk · 1.4.0 og eldre
 
 **1.4.0 · bygg 23** – 14. november 2026: NVML-skrivestien er implementert med én administratoraktivering, binding til valgt PCI/UUID og støtte per felt. Effekt, kjerne-/minneoffset og GPU-vifter kan rutes gjennom hjelperen når de støttes; temperaturmål kontrolleres separat. Fangede opprinnelige innstillinger lagres før skriving og brukes ved Standard/gjenoppretting. Delvise feil, uverifiserte reset og gamle klokkegettere gir ærlig feilstatus fremfor påstått suksess. Installasjon alene aktiverer ingen styring.
 

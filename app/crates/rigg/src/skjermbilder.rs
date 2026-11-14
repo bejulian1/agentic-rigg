@@ -103,7 +103,7 @@ fn inject_extremes(app: &Rc<App>) {
 fn plan_adaptive_akser() -> Vec<Step> {
     use Step::*;
     let all: Vec<_> = crate::widgets::chart::DEFS.iter().map(|d| d.id).collect();
-    let mut v = vec![Size(1920, 1080), Set(base()), Set(json!({"chartWindow": 60, "chartScale": "auto", "charts": all})), Go("grafer"), Wait(1500), Eval(|app| {
+    let mut v = vec![Size(1920, 1080), Set(base()), Eval(|app| crate::widgets::locked::set_fan_advanced(app, true)), Set(json!({"chartWindow": 60, "chartScale": "auto", "charts": all})), Go("grafer"), Wait(1500), Eval(|app| {
         let weak = Rc::downgrade(app);
         let busy = Rc::new(std::cell::Cell::new(false));
         // Erstatt prøven i testvisningen én gang per ekte sim-prøve.

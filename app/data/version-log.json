@@ -1,0 +1,103 @@
+[
+  {
+    "version": "1.4.1",
+    "build": 24,
+    "date": "2026-11-14",
+    "title": "Enklere styring og tydeligere maskinvaredata",
+    "changes": [
+      "Vifter har Enkel og Avansert visning, med tydelig oversikt over hele endringsutkastet.",
+      "Behold og Rull tilbake står synlig mens innholdet på Vifter og Klokker og effekt rulles.",
+      "Aktuelle klokker, rapportert maksimum og klokkejustering vises hver for seg. Funksjoner og grenser følger kortets støtte.",
+      "CPU-visning og rapport bruker faktiske tråd-ID-er og sensornavn fremfor å anta én bestemt prosessormodell.",
+      "Versjonslogg og bidragsytere finnes i Innstillinger. Kompatibel, allerede godkjent GPU-hjelper kan beholdes."
+    ]
+  },
+  {
+    "version": "1.4.0",
+    "build": 23,
+    "date": "2026-11-14",
+    "title": "Kortbundet GPU-styring",
+    "changes": [
+      "Én administratoraktivering åpner støttet NVML-styring av effektgrense, GPU-vifter, klokkejustering og temperaturmål.",
+      "Hjelperen bindes til valgt kort. Opprinnelige verdier lagres og brukes ved tilbakerulling, med tilbakelesing og tydelig feilstatus.",
+      "Bruk og Behold bekrefter endringer; ubekreftede endringer rulles tilbake. RGB er fortsatt forhåndsvisning.",
+      "PCIe-modellen, nedtrekksmenyer, søkefokus og oppdagelse av hjelperaktivering er forbedret."
+    ]
+  },
+  {
+    "version": "1.3.3",
+    "build": 22,
+    "date": "2026-11-14",
+    "title": "CPU-lanseringsdato og spesifikasjonsrevisjon",
+    "changes": [
+      "Prosessor viser lanseringsdato fra kildebelagt modelloppslag når modellen er kjent.",
+      "Spesifikasjoner og begrensninger er gjennomgått. Manglende modellinformasjon fylles ikke med gjetninger."
+    ]
+  },
+  {
+    "version": "1.3.2",
+    "build": 21,
+    "date": "2026-11-14",
+    "title": "Grafer som følger målingene",
+    "changes": [
+      "Måleaksene tar med ferske ytterverdier og kurven ved tidsvinduets kanter.",
+      "Temperatur-, klokke-, effekt- og ratekurver utvider området når målingene krever det, også med Fast valgt.",
+      "Viftekurvens målte punkter, rutenett og peker bruker samme skala."
+    ]
+  },
+  {
+    "version": "1.3.1",
+    "build": 20,
+    "date": "2026-11-13",
+    "title": "Kortmeny, sidefelt og søkefokus",
+    "changes": [
+      "Kortmenyen åpner riktige detaljer og følger sidefeltets bredde, med tydelig valgt kort.",
+      "Ikoner og navigasjon i sammenlagt sidefelt er justert.",
+      "Innstillingssøk slipper fokus ved klikk utenfor og håndterer Esc, tømming og raske seksjonsbytter bedre."
+    ]
+  },
+  {
+    "version": "1.3.0",
+    "build": 19,
+    "date": "2026-11-09",
+    "title": "Oversikt over hele maskinen",
+    "changes": [
+      "Oversikt samler skjermkort, prosessor, minne og disker i samme side.",
+      "Grafer utvider måleområdet slik at verdier utenfor det opprinnelige området får plass.",
+      "Styrer-linja viser kort og driver tydeligere, med valgfritt eget produsentnavn per kort."
+    ]
+  },
+  {
+    "version": "1.2.0",
+    "build": 18,
+    "date": "2026-11-09",
+    "title": "Styringsoppsett og fleksible viftekurver",
+    "changes": [
+      "Innstillinger får styringsbryter og en separat hjelper med begrensede operasjoner.",
+      "Viftekurver får mer fleksibel redigering og oppførsel inspirert av Afterburner.",
+      "Denne historiske utgaven styrte bare simulering; ekte GPU-skriving var sperret."
+    ]
+  },
+  {
+    "version": "1.1.0",
+    "build": 17,
+    "date": "2026-11-09",
+    "title": "Disker, Prosessor og nytt skall",
+    "changes": [
+      "Disker viser helse, SMART-data, temperatur, aktivitet og partisjoner via UDisks2.",
+      "Prosessor får egen side med last, temperatur, trådklokker, cache og instruksjonssett.",
+      "Vindusknapper, maskinhode, sidenavn og tastaturnavigasjon er fornyet."
+    ]
+  },
+  {
+    "version": "1.0.0",
+    "build": 16,
+    "date": "2026-11-07",
+    "title": "Første desktoputgave",
+    "changes": [
+      "Rust/GTK-appen samler overvåking, sensorer, grafer og logging i et eget Linux-vindu.",
+      "Bakgrunnsdrift, oppstart ved innlogging og varsler er valgfrie.",
+      "Lys åpner med 2D-kortet; 3D velges ved behov. Maskinoversikten fungerer også uten NVIDIA-driver."
+    ]
+  }
+]

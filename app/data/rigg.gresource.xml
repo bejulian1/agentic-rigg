@@ -4,6 +4,7 @@
 <gresources>
   <gresource prefix="/io/github/AgenticRigg">
     <file>LISENSER.md</file>
+    <file>version-log.json</file>
     <file>theme/tokens.css</file>
     <file>theme/base.css</file>
     <file>theme/skall.css</file>

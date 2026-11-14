@@ -32,6 +32,7 @@ pub mod spark;
 pub mod styrer;
 pub mod switchrow;
 pub mod trader;
+pub mod version_log;
 
 /// Tegner vinduet med cairo (`GSK_RENDERER=cairo`, standard fra runde 3C)?
 /// Da tegnes sparklinjene med cairo direkte i stedet for som GSK-stier.

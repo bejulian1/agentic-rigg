@@ -203,14 +203,20 @@ fn ekte_ui_port_krever_tilkobling_og_valgt_pci_og_uuid() {
         "ifg!=Gate::Real{returng;}",
         "!app.client.is_connected()",
         "app.gpu_info().is_none_or(|i|i.state!=rigg_core::model::DeviceState::Ok)",
-        "app.gpu_id().as_deref()!=h[\"identity\"][\"pci\"].as_str()",
-        "st.uuid.as_deref().is_none()",
-        "st.uuid.as_deref()!=h[\"identity\"][\"uuid\"].as_str()",
+        "!helper_targets_selected(app)",
     ] {
         assert!(gate.contains(guard), "UI-porten mangler {guard}");
     }
     assert_eq!(gate.matches("returnGate::Locked(").count(), 2);
     assert!(gate.ends_with("Gate::Real"));
+    let selected = function_body(&source, "pub fn helper_targets_selected(").replace(char::is_whitespace, "");
+    assert!(selected.contains("app.statics().and_then(|st|st.uuid)"));
+    assert!(selected.contains("target_matches(&helper(app),app.gpu_id().as_deref(),uuid.as_deref())"));
+    let matches = function_body(&source, "fn target_matches(").replace(char::is_whitespace, "");
+    assert!(matches.contains("helper[\"identity\"][\"pci\"].as_str()"));
+    assert!(matches.contains("helper[\"identity\"][\"uuid\"].as_str()"));
+    assert!(matches.contains("(Some(p),Some(u),Some(hp),Some(hu))=>p==hp&&u==hu"));
+    assert!(matches.contains("_=>false"));
 }
 
 /// Vanlige skriver går gjennom porten. Det eneste direkte unntaket er

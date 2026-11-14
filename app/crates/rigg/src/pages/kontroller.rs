@@ -6,7 +6,7 @@
 //!   begrenser kortet nå (fra NVMLs klokkebegrensninger).
 //! - **Klokker og effekt:** én rad per kontroll med verdi, enhet, område,
 //!   standardmerke, Tilbakestill, en kort forklaring, nå-linje og (i).
-//!   «Tilbakestill alt til standard» står i panelhodet.
+//!   «Gjenopprett utgangspunkt» står i panelhodet.
 //! - **Til høyre:** utkastet, profilene, begrensningene som liste (som
 //!   HWiNFO) og det kortet ikke kan.
 //! - **Under:** kjerneklokke, temperatur og effekt for de siste minuttene.
@@ -95,9 +95,9 @@ pub fn read(app: &App) -> Read {
     Read {
         t: app.telemetry().map(|t| t.t).unwrap_or(0),
         power: s.power,
-        limit: s.power_limit,
-        p_min: st.power_min,
-        p_max: st.power_max,
+        limit: s.power_limit.or_else(|| observed["powerLimitW"].as_f64()),
+        p_min: cap_range("power").map(|r| r.0).or(st.power_min),
+        p_max: cap_range("power").map(|r| r.1).or(st.power_max),
         p_def: st.power_default,
         core_off: if observed.is_object() { observed["coreOffsetMhz"].as_f64() } else { x["coreOffsetMHz"]["value"].as_f64() },
         core_rng: cap_range("core_clock").or_else(|| range_of(&sx["coreOffsetMHz"])),
@@ -120,7 +120,7 @@ pub fn read(app: &App) -> Read {
         } else {
             x["fanTarget"].as_array().map(|a| a.iter().filter_map(Value::as_f64).collect()).unwrap_or_default()
         },
-        fan_min: st.fan_min,
+        fan_min: cap_range("fan_manual").map(|r| r.0).or(st.fan_min),
         temp: s.temp,
         core: s.core_clock,
         mem: s.mem_clock,
@@ -153,7 +153,7 @@ impl Read {
         }
     }
 
-    /// Minste viftefart (VBIOS): 35 % på dette kortet.
+    /// Driverens rapporterte minste manuelle viftefart: 35 % på dette kortet.
     pub fn floor(&self) -> f64 {
         self.fan_min.unwrap_or(txn::HW_FAN.min)
     }
@@ -378,38 +378,38 @@ struct Doc {
 }
 
 const DOC_POWER: Doc = Doc {
-    desc: "Øker grensen for hvor mye strøm kortet kan trekke. Høyere gir mer ytelse og varme.",
+    desc: "Hvor mye strøm kortet får bruke. 100 % er kortets oppgitte standardgrense.",
     paras: &[
-        "Kortet holder seg under grensen ved å senke klokken. Under tung last er det oftest effekten som begrenser et RTX 2080, så en høyere grense gir høyere boost.",
+        "Kortet holder seg under grensen ved å senke klokken. Under tung last kan effektgrensen begrense GPU-boost; en høyere grense kan da gi høyere klokke.",
         "Prisen er mer varme, mer viftestøy og høyere strømforbruk. En lavere grense gir et kjøligere og stillere kort med litt lavere ytelse.",
     ],
 };
 const DOC_CORE: Doc = Doc {
-    desc: "Flytter hele klokkekurven opp eller ned. Pluss gir høyere klokke ved samme spenning, men kan gjøre kortet ustabilt.",
+    desc: "Justering av GPU-klokken. 0 MHz betyr ingen justering; faktisk hastighet vises over.",
     paras: &[
         "Offset legges på hvert punkt på klokkekurven (spenning mot klokke). Kortet booster fortsatt selv, men lander høyere. Spenningen endres ikke.",
         "For høy offset gir krasj, feil i bildet eller at driveren starter på nytt. Prøv i steg på 15–25 MHz og test under last.",
     ],
 };
 const DOC_MEM: Doc = Doc {
-    desc: "Øker minneklokken. Gir mer minnebåndbredde; for høyt gir feil eller lavere ytelse.",
+    desc: "Justering av minneklokken. 0 MHz betyr ingen justering, ikke at minnet står stille.",
     paras: &[
-        "Oppgitt i effektiv MHz, som i Afterburner: +1\u{a0}000 her er +500 i NVML.",
-        "GDDR6 retter feil selv. For høy offset kan derfor gi lavere ytelse før det synes i bildet. Mål ytelsen, ikke bare om det krasjer.",
+        "Dette er en justering i MHz, ikke en fast sluttklokke eller minnebåndbredde i Gb/s. Kortets målte hastighet vises separat. Appen regner om til driverens skala når verdien sendes.",
+        "En høyere justering er bare nyttig hvis programmer faktisk kjører raskere. For høy justering kan gi bildefeil, lavere ytelse eller ustabilitet.",
     ],
 };
 const DOC_TEMP: Doc = Doc {
     desc: "Temperaturen kortet holder seg under. Lavere gir et kjøligere kort og lavere klokke.",
     paras: &[
         "Når temperaturen når målet, senker kortet klokken (begrensningen «Temperaturmål»). Viftene styres fortsatt av viftemodusen.",
-        "Nedklokking og avstenging lenger opp er faste og kan ikke endres. NVIDIA har ikke bekreftet at målet virker på GeForce-kort.",
+        "Nedklokking og avstenging er egne maskinvaregrenser. Temperaturmålet kan endres når kortet og driveren støtter det; grensen og støtten leses fra kortet.",
     ],
 };
 const DOC_FAN: Doc = Doc {
     desc: "Hvem som styrer viftene: driveren, viftekurven eller en fast fart.",
     paras: &[
         "Auto: driveren styrer etter temperaturen, som uten appen. Kurve: tjenesten setter farten fra viftekurven hvert sekund. Manuell: fast fart, uansett temperatur.",
-        "Viftene går aldri under 35 % på dette kortet (grensen ligger i VBIOS), så viftestopp i tomgang er ikke mulig. Lukkes Agentic Rigg helt, går viftene tilbake til Auto.",
+        "Manuell fart følger grensene NVIDIA-driveren rapporterer. Automatisk viftestopp kan avhenge av kortmodell og driver; støtte for det er ikke bekreftet på dette kortet.",
     ],
 };
 
@@ -420,6 +420,7 @@ const ROWS: [Field; 5] = [Field::Power, Field::Core, Field::Mem, Field::Temp, Fi
 
 pub struct Kontroller {
     app: Rc<App>,
+    outer: gtk::Box,
     root: gtk::Box,
     actions: gtk::Box,
     strip: Rc<LockStrip>,
@@ -474,11 +475,19 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     let strip = LockStrip::new(app, "Viser det kortet har nå. Det du endrer, blir et utkast som lagres i appen og ikke sendes til kortet.");
     root.append(&strip.root);
     let confirm = ConfirmBar::new(app);
-    root.append(&confirm.root);
+    let outer = vbox(0, &["control-page-shell"]);
+    confirm.root.add_css_class("sticky-confirm");
+    outer.append(&confirm.root);
+    let scroll = gtk::ScrolledWindow::new();
+    scroll.set_hscrollbar_policy(gtk::PolicyType::Never);
+    scroll.set_vexpand(true);
+    scroll.set_hexpand(true);
+    scroll.set_child(Some(&root));
+    outer.append(&scroll);
 
     // ---- Tallene øverst ----
     let strip_stats = StatStrip::new(8);
-    let names = ["Kjerneklokke", "Minneklokke", "Temperatur", "Effekt", "Last", "Vifte", "P-tilstand", "Begrenset av"];
+    let names = ["GPU-klokke nå", "Minneklokke nå", "Temperatur nå", "Forbruk nå", "GPU-last", "Viftefart nå", "P-tilstand", "Begrenset av"];
     let stats: Vec<Rc<Stat>> = names.iter().map(|n| Stat::new(app, n)).collect();
     for s in &stats {
         strip_stats.add(s);
@@ -492,10 +501,10 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
 
     // ---- Klokker og effekt ----
     let main = vbox(8, &[]);
-    let setup = Panel::new("Innstillinger for kortet");
+    let setup = Panel::new("Juster klokker og effekt");
     let draft_tag = tag("Utkast · ikke sendt til kortet", Some("pencil"), "accent");
     draft_tag.set_visible(false);
-    let reset_all = button(Some("rotate-ccw"), Some("Tilbakestill alt til standard"), &["sm"]);
+    let reset_all = button(Some("rotate-ccw"), Some("Gjenopprett utgangspunkt"), &["sm"]);
     setup.aside.append(&draft_tag);
     setup.aside.append(&reset_all);
     let rows_box = vbox(0, &["oc-rows"]);
@@ -508,15 +517,29 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     };
     let rows: Vec<Rc<OcRow>> = vec![
         mk("Effektgrense", "W", &DOC_POWER, Field::Power, false),
-        mk("Kjerneklokke-offset", "MHz", &DOC_CORE, Field::Core, true),
-        mk("Minneklokke-offset", "MHz", &DOC_MEM, Field::Mem, true),
+        mk("GPU-justering", "MHz", &DOC_CORE, Field::Core, true),
+        mk("Minnejustering", "MHz", &DOC_MEM, Field::Mem, true),
         mk("Temperaturmål", F::temp_label(), &DOC_TEMP, Field::Temp, false),
         mk("Vifte", "%", &DOC_FAN, Field::Fan, false),
     ];
-    for (r, doc) in rows.iter().zip([&DOC_POWER, &DOC_CORE, &DOC_MEM, &DOC_TEMP, &DOC_FAN]) {
+    let extra_rows = vbox(0, &["oc-rows"]);
+    for (i, (r, doc)) in rows.iter().zip([&DOC_POWER, &DOC_CORE, &DOC_MEM, &DOC_TEMP, &DOC_FAN]).enumerate() {
         set_text(&r.desc, doc.desc);
-        rows_box.append(&r.root);
+        if i < 3 { rows_box.append(&r.root); } else { extra_rows.append(&r.root); }
     }
+    let advanced = gtk::Expander::new(Some("Avansert · temperaturmål og vifter"));
+    advanced.set_child(Some(&extra_rows));
+    setup.body.append(&advanced);
+    let fans_link = hbox(8, &[]);
+    let fans_note = label("Auto, fast viftefart og egen kurve", &["muted", "sm"]);
+    fans_note.set_wrap(true);
+    fans_note.set_hexpand(true);
+    fans_link.append(&fans_note);
+    let open_fans = button(Some("arrow-right"), Some("Åpne Vifter"), &["sm", "flat"]);
+    let a = app.clone();
+    open_fans.connect_clicked(move |_| a.go("viftekurve"));
+    fans_link.append(&open_fans);
+    setup.body.append(&fans_link);
     rows[0].slider.set_fmt(|v| F::watt(Some(v), 0));
     rows[1].slider.set_fmt(|v| signed(v, "MHz"));
     rows[2].slider.set_fmt(|v| signed(v, "MHz"));
@@ -588,20 +611,25 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     let limit_note = label("", &["muted", "sm", "lim-note"]);
     limit_note.set_wrap(true);
     lim_p.body.append(&limit_note);
-    side.append(&lim_p.root);
 
-    let nos = Panel::new("Ikke mulig på dette kortet");
+
+    let nos = Panel::new("Funksjonsstøtte på kortet");
     let nl = KvList::new();
     nos.body.append(&nl.grid);
     for (k, v) in [
-        ("Spenningsoffset", "NVIDIA har ingen spenningsoffset på Linux."),
-        ("Klokkekurven (V/F)", "Kan ikke leses eller redigeres med NVML på Turing. Offset flytter hele kurven."),
-        ("Låst minneklokke", "Krever Ampere eller nyere."),
-        ("Viftestopp (0 %)", "Minste fart er 35 % (VBIOS)."),
+        ("Spenningsoffset", "Spenningsstyring er ikke implementert i appen."),
+        ("Klokkekurven (V/F)", "Redigering av spennings-/klokkekurven er ikke implementert. GPU-justering bruker offset der driveren støtter det."),
+        ("Låst minneklokke", "Fastlåsing av minneklokken er ikke implementert. Minnejustering bruker offset der driveren støtter det."),
+        ("Viftestopp (0 %)", "Egen viftestopp er ikke implementert. Manuell fart følger driverens område; automatisk viftestopp avhenger av kort og driver."),
     ] {
         nl.add(k, v).add_css_class("muted");
     }
-    side.append(&nos.root);
+    let extra_details = vbox(8, &[]);
+    extra_details.append(&lim_p.root);
+    extra_details.append(&nos.root);
+    let details = gtk::Expander::new(Some("Avansert · kortets grenser og funksjoner"));
+    details.set_child(Some(&extra_details));
+    side.append(&details);
 
     let cols = Columns::new(&main, &side, 340, 1040);
     cols.set_row_breakpoint(700);
@@ -621,6 +649,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
 
     let page = Rc::new(Kontroller {
         app: app.clone(),
+        outer,
         root,
         actions,
         strip,
@@ -669,49 +698,57 @@ const LIMIT_ROWS: [(&str, u64, &str); 6] = [
 /// (i)-innholdet for en kontroll, med tallene fra kortet nå.
 fn info_for(app: &Rc<App>, title: &str, doc: &Doc, f: Field) -> gtk::Box {
     let r = read(app);
-    let st = stock(&r);
+    let st = locked::stock_values(app).unwrap_or_else(|| stock(&r));
     let paras: Vec<String> = doc.paras.iter().map(|s| s.to_string()).collect();
     let fx = |k: &str, v: String| (k.to_string(), v);
     let pol = |p: txn::Range| format!("{} til {}", signed(p.min, "MHz"), signed(p.max, "MHz"));
-    let facts: Vec<(String, String)> = match f {
+    let mut facts: Vec<(String, String)> = match f {
         Field::Power => vec![
-            fx("Standard", F::watt(Some(st.power_limit_w), 0)),
+            fx("Lagret utgangspunkt", F::watt(Some(st.power_limit_w), 0)),
             fx("Område", format!("{} til {} (fra kortet)", F::watt(r.p_min, 0), F::watt(r.p_max, 0))),
             fx("Nå", format!("grense {}, trekker {}", F::watt(r.limit, 0), F::watt(r.power, 0))),
             fx("Påvirker", "Kjerneklokken under last, temperatur, viftestøy og strømforbruk".into()),
-            fx("NVML", "nvmlDeviceGetEnforcedPowerLimit (leses). Skriving er låst.".into()),
+            fx("NVML", "nvmlDeviceGetEnforcedPowerLimit (avlesning).".into()),
         ],
         Field::Core => vec![
-            fx("Standard", signed(0.0, "MHz")),
+            fx("Lagret utgangspunkt", signed(st.core_offset_mhz, "MHz")),
             fx("Kortet tillater", r.core_rng.map(|(a, b)| format!("{} til {}", signed(a, "MHz"), signed(b, "MHz"))).unwrap_or_else(|| "leses ikke".into())),
             fx("Tjenesten tillater", pol(txn::POLICY_CORE)),
-            fx("Nå", format!("kjerneklokke {}, høyest {}", F::mhz(r.core), F::mhz(r.core_max))),
+            fx("Nå", format!("kjerneklokke {}, rapportert maks {}", F::mhz(r.core), F::mhz(r.core_max))),
             fx("Påvirker", "Kjerneklokken på hele kurven og stabiliteten. Ikke spenningen.".into()),
-            fx("NVML", "nvmlDeviceGetClockOffsets (leses). Skriving er låst.".into()),
+            fx("NVML", "nvmlDeviceGetClockOffsets (avlesning).".into()),
         ],
         Field::Mem => vec![
-            fx("Standard", signed(0.0, "MHz")),
+            fx("Lagret utgangspunkt", signed(st.mem_offset_mhz, "MHz")),
             fx("Kortet tillater", r.mem_rng.map(|(a, b)| format!("{} til {}", signed(a, "MHz"), signed(b, "MHz"))).unwrap_or_else(|| "leses ikke".into())),
             fx("Tjenesten tillater", pol(txn::POLICY_MEM)),
-            fx("Nå", format!("minneklokke {}, høyest {}", F::mhz(r.mem), F::mhz(r.mem_max))),
+            fx("Nå", format!("minneklokke {}, rapportert maks {}", F::mhz(r.mem), F::mhz(r.mem_max))),
             fx("Påvirker", "Minnebåndbredden. Ikke kjerneklokken.".into()),
-            fx("NVML", "nvmlDeviceGetClockOffsets (leses). Skriving er låst.".into()),
+            fx("NVML", "nvmlDeviceGetClockOffsets (avlesning).".into()),
         ],
         Field::Temp => vec![
-            fx("Standard", F::temp(Some(st.temp_target_c), 0)),
+            fx("Lagret utgangspunkt", F::temp(Some(st.temp_target_c), 0)),
             fx("Område", r.temp_rng.map(|(a, b)| format!("{} til {} (fra kortet)", F::temp(Some(a), 0), F::temp(Some(b), 0))).unwrap_or_else(|| "leses ikke".into())),
             fx("Faste grenser", format!("nedklokking ved {}, avstenging ved {}", F::temp(r.slowdown, 0), F::temp(r.shutdown, 0))),
             fx("Nå", F::temp(r.temp, 0)),
-            fx("NVML", "nvmlDeviceGetTemperatureThreshold, ACOUSTIC_CURR (leses). Skriving er låst.".into()),
+            fx("NVML", "nvmlDeviceGetTemperatureThreshold, ACOUSTIC_CURR (avlesning).".into()),
         ],
         Field::Fan | Field::Curve => vec![
-            fx("Standard", "Auto (driveren styrer)".into()),
-            fx("Minste fart", format!("{} (VBIOS)", F::pct(Some(r.floor()), 0))),
+            fx("Lagret utgangspunkt", "Auto (driveren styrer)".into()),
+            fx("Manuelt minimum", r.fan_min.map(|v| format!("{} (rapportert av driveren)", F::pct(Some(v), 0))).unwrap_or_else(|| "Ikke rapportert av driveren".into())),
             fx("Nå", r.fans_line().replace('\u{2060}', "")),
             fx("Modus nå", r.fan_mode_text()),
-            fx("NVML", "nvmlDeviceGetFanControlPolicy_v2 (leses). Skriving er låst.".into()),
+            fx("NVML", "nvmlDeviceGetFanControlPolicy_v2 (avlesning).".into()),
         ],
     };
+    let key = match f { Field::Power => "power", Field::Core => "core_clock", Field::Mem => "mem_clock", Field::Temp => "temp_target", Field::Fan | Field::Curve => "fan_manual" };
+    let status = match locked::gate(app) {
+        Gate::Real if locked::supports(app, key) => "Klar. Bruk prøver endringen; Behold lar den fortsette.".to_string(),
+        Gate::Real => locked::capability_reason(app, key),
+        Gate::Sim => "Simulert kort. Ekte maskinvare endres ikke.".into(),
+        Gate::Locked(why) => why.to_string(),
+    };
+    facts.push(fx("Styring", status));
     info_content(title, &paras, &facts)
 }
 
@@ -720,7 +757,10 @@ struct Wrap(Rc<Kontroller>);
 
 impl Page for Wrap {
     fn widget(&self) -> gtk::Widget {
-        self.0.root.clone().upcast()
+        self.0.outer.clone().upcast()
+    }
+    fn scrolls(&self) -> bool {
+        false
     }
     fn actions(&self) -> Option<gtk::Widget> {
         Some(self.0.actions.clone().upcast())
@@ -980,11 +1020,9 @@ impl Kontroller {
         set_text(
             &self.safety,
             &format!(
-                "Når endring er slått på: hver endring må beholdes innen {}{}s, ellers rulles den tilbake. Over {} går viftene alltid til {}. Lukkes Agentic Rigg helt, går kortet tilbake til standard og viftene til Auto.",
+                "Bruk prøver endringen i {}{}s. Trykk Behold i det faste feltet øverst for å fortsette; uten svar går kortet tilbake til forrige oppsett.",
                 self.app.settings().confirm_sec,
                 F::NNBSP,
-                F::temp(Some(txn::EMERGENCY_FAN_C), 0),
-                F::pct(Some(100.0), 0),
             ),
         );
     }
@@ -995,13 +1033,13 @@ impl Kontroller {
             (Some(v), Some(m)) if m > 0.0 => Some(v / m),
             _ => None,
         };
-        // Kjerneklokke og minneklokke: nå, og høyeste kortet kan.
-        s[0].set(&F::num(r.core, 0), "MHz", &r.core_max.map(|m| format!("høyest {}", F::mhz(Some(m)))).unwrap_or_default());
+        // Målte klokker og NVIDIA-driverens rapporterte maksimum; ingen spådd sluttklokke.
+        s[0].set(&F::num(r.core, 0), "MHz", &r.core_max.map(|m| format!("maks {}", F::mhz(Some(m)))).unwrap_or_default());
         s[0].meter.set(frac(r.core, r.core_max), None, 0);
-        s[0].set_tip("Kjerneklokken nå. Måleren: andel av det høyeste kortet kan.");
-        s[1].set(&F::num(r.mem, 0), "MHz", &r.mem_max.map(|m| format!("høyest {}", F::mhz(Some(m)))).unwrap_or_default());
+        s[0].set_tip("Målt GPU-klokke nå. Maks er rapportert av NVIDIA-driveren, ikke en beregnet sluttklokke etter justering. GPU-boost, temperatur og effekt påvirker den faktiske hastigheten.");
+        s[1].set(&F::num(r.mem, 0), "MHz", &r.mem_max.map(|m| format!("maks {}", F::mhz(Some(m)))).unwrap_or_default());
         s[1].meter.set(frac(r.mem, r.mem_max), None, 0);
-        s[1].set_tip("Minneklokken nå. NVML oppgir den uten dobbel dataklokke.");
+        s[1].set_tip("Målt minneklokke nå. Maks er rapportert av NVIDIA-driveren. MHz-justeringen under er et tillegg, ikke en fast minnefrekvens eller båndbredde i Gb/s.");
         // Temperatur mot målet (merket) og nedklokkingen.
         let top = r.slowdown.unwrap_or(97.0);
         let t_tone = match (r.temp, r.temp_target) {
@@ -1028,8 +1066,8 @@ impl Kontroller {
         s[4].set_tip("GPU-last nå.");
         let rpm = r.rpm.iter().flatten().cloned().fold(None, |m: Option<f64>, v| Some(m.map_or(v, |m| m.max(v))));
         s[5].set(&F::num(r.fan_max_now(), 0), "%", &rpm.map(|x| F::rpm(Some(x))).unwrap_or_default());
-        s[5].meter.set(r.fan_max_now().map(|f| f / 100.0), Some(r.floor() / 100.0), 0);
-        s[5].set_tip(&format!("Den raskeste viften nå. Merket er minste fart ({}).", F::pct(Some(r.floor()), 0)));
+        s[5].meter.set(r.fan_max_now().map(|f| f / 100.0), r.fan_min.map(|v| v / 100.0), 0);
+        s[5].set_tip(&r.fan_min.map(|v| format!("Den raskeste viften nå. Merket er driverens rapporterte manuelle minimum ({}).", F::pct(Some(v), 0))).unwrap_or_else(|| "Den raskeste viften nå. Driverens manuelle minimum er ikke rapportert.".into()));
         let p = r.pstate.clone().unwrap_or_else(|| F::DASH.into());
         s[6].set(&p, "", pstate_text(&p));
         s[6].set_tip("P-tilstanden. P0 er full ytelse, P8 er dyp tomgang.");
@@ -1041,11 +1079,15 @@ impl Kontroller {
 
     fn render_rows(&self, r: &Read, draft: Option<&Values>) {
         let st = locked::stock_values(&self.app).unwrap_or_else(|| stock(r));
-        for (row, key) in self.rows.iter().zip(["power", "core_clock", "mem_clock", "temp_target", "fan_manual"]) {
-            let enabled = !locked::control_ready(&self.app) || locked::supports(&self.app, key);
+        let ranges = [r.p_min.zip(r.p_max), r.core_rng, r.mem_rng, r.temp_rng];
+        for (i, (row, key)) in self.rows.iter().zip(["power", "core_clock", "mem_clock", "temp_target", "fan_manual"]).enumerate() {
+            let limits_known = if i >= ranges.len() { self.app.statics().and_then(|s| s.fan_count).is_some_and(|n| n > 0) || !r.fans.is_empty() } else { ranges[i].is_some() };
+            let enabled = limits_known && (!locked::control_ready(&self.app) || locked::supports(&self.app, key));
             row.root.set_sensitive(enabled);
-            if !enabled { row.root.set_tooltip_text(Some(&locked::capability_reason(&self.app, key))); }
+            if !limits_known { row.root.set_tooltip_text(Some("Kortets tillatte område er ikke lest. Ingen modellspesifikke grenser antas.")); }
+            else if !enabled { row.root.set_tooltip_text(Some(&locked::capability_reason(&self.app, key))); }
             else { row.root.set_tooltip_text(None); }
+            if i < ranges.len() { row.slider.set_visible(ranges[i].is_some_and(|(lo, hi)| hi > lo)); }
         }
         let base = self.base();
         let shown = draft.cloned().unwrap_or_else(|| base.clone());
@@ -1055,15 +1097,14 @@ impl Kontroller {
 
         // Effektgrense
         let row = &self.rows[0];
-        let (lo, hi) = (r.p_min.unwrap_or(txn::HW_POWER.min), r.p_max.unwrap_or(txn::HW_POWER.max));
+        // Et ukjent område skal aldri vises som RTX 2080s 105–275 W.
+        let (lo, hi) = r.p_min.zip(r.p_max).unwrap_or((0.0, r.limit.unwrap_or(shown.power_limit_w).max(shown.power_limit_w).max(1.0)));
         row.set_range(lo, hi, (lo, hi), 1.0, 5.0);
-        row.show(if na && draft.is_none() { None } else { Some(shown.power_limit_w) }, r.limit, Some(st.power_limit_w));
-        set_text(&row.now, &match (r.power, r.limit) {
-            (Some(p), Some(l)) => format!("Trekker nå {} ({} av grensen)", F::watt(Some(p), 0), F::pct(Some(p / l * 100.0), 0)),
-            _ => format!("Trekker nå {}", F::watt(r.power, 0)),
-        });
+        row.show(if (na || r.limit.is_none()) && draft.is_none() { None } else { Some(shown.power_limit_w) }, r.limit, r.p_def.map(|_| st.power_limit_w));
+        let percent = r.p_def.filter(|p| *p > 0.0).map(|p| shown.power_limit_w / p * 100.0);
+        set_text(&row.now, &format!("Valgt grense: {} av kortets standard · trekker nå {}", F::pct(percent, 0), F::watt(r.power, 0)));
         row.set_changed(changed("powerLimitW"));
-        row.set_reset_tip(&format!("Tilbake til standard ({})", F::watt(Some(st.power_limit_w), 0)));
+        row.set_reset_tip(&format!("Tilbake til lagret utgangspunkt ({})", F::watt(Some(st.power_limit_w), 0)));
 
         // Klokke-offset: hele området kortet tillater tegnes; glideren holder seg
         // innenfor det tjenesten tillater.
@@ -1072,14 +1113,20 @@ impl Kontroller {
             (2, r.mem_off, r.mem_rng, txn::POLICY_MEM, r.mem, r.mem_max, "clockOffsets.memMhz", 10.0, 100.0),
         ] {
             let row = &self.rows[i];
-            let (lo, hi) = rng.unwrap_or((pol.min, pol.max));
-            row.set_range(lo.min(pol.min), hi.max(pol.max), (pol.min.max(lo), pol.max.min(hi)), step, big);
+            let shown_offset = if i == 1 { shown.core_offset_mhz } else { shown.mem_offset_mhz };
+            let (lo, hi) = rng.unwrap_or((pol.min.min(shown_offset), pol.max.max(shown_offset)));
+            let allowed = if rng.is_some() { (pol.min.max(lo), pol.max.min(hi)) } else { (lo, hi) };
+            let policy_overlap = allowed.0 <= allowed.1;
+            row.set_range(lo, hi, if policy_overlap { allowed } else { (lo, hi) }, step, big);
+            if !policy_overlap {
+                row.root.set_sensitive(false);
+                row.root.set_tooltip_text(Some("Kortets område overlapper ikke appens tillatte justeringer. Avlest verdi vises uten å anta et annet korts grenser."));
+            }
             let v = if i == 1 { shown.core_offset_mhz } else { shown.mem_offset_mhz };
             // Leses ikke (og ikke i utkast): «–», ikke en gjettet 0.
             let baseline_offset = if i == 1 { st.core_offset_mhz } else { st.mem_offset_mhz };
             row.show(if (off.is_none() || na) && draft.is_none() { None } else { Some(v) }, off, Some(baseline_offset));
-            let what = if i == 1 { "Kjerneklokke" } else { "Minneklokke" };
-            set_text(&row.now, &format!("{what} nå {}, høyest {}{}", F::mhz(now), F::mhz(max), if off.is_none() && !na { " · offset leses ikke ennå" } else { "" }));
+            set_text(&row.now, &format!("Målt nå: {} · rapportert maks: {}{}", F::mhz(now), F::mhz(max), if off.is_none() && !na { " · gjeldende justering er ukjent" } else { "" }));
             row.set_changed(changed(key));
             row.set_reset_tip(&format!("Tilbake til grunnverdi ({})", signed(baseline_offset, "MHz")));
             let t = format!("Tjenesten tillater {} til {} når endring er slått på. Kortet tillater {} til {}.", signed(pol.min, "MHz"), signed(pol.max, "MHz"), signed(lo, "MHz"), signed(hi, "MHz"));
@@ -1090,7 +1137,7 @@ impl Kontroller {
 
         // Temperaturmål
         let row = &self.rows[3];
-        let (lo, hi) = r.temp_rng.unwrap_or((txn::HW_TEMP.min, txn::HW_TEMP.max));
+        let (lo, hi) = r.temp_rng.unwrap_or((0.0, r.temp_target.unwrap_or(shown.temp_target_c).max(shown.temp_target_c).max(1.0)));
         row.set_range(lo, hi, (lo, hi), 1.0, 5.0);
         row.show(if (na || r.temp_target.is_none()) && draft.is_none() { None } else { Some(shown.temp_target_c) }, r.temp_target, Some(st.temp_target_c));
         set_text(&row.now, &match (r.slowdown, r.shutdown) {
@@ -1100,7 +1147,7 @@ impl Kontroller {
         set_text(&row.unit, F::temp_label());
         crate::widgets::oc::temp_spin_refresh(&row.spin);
         row.set_changed(changed("tempTargetC"));
-        row.set_reset_tip(&format!("Tilbake til standard ({})", F::temp(Some(st.temp_target_c), 0)));
+        row.set_reset_tip(&format!("Tilbake til lagret utgangspunkt ({})", F::temp(Some(st.temp_target_c), 0)));
 
         // Vifte: modus, og fast fart i Manuell.
         let row = &self.rows[4];

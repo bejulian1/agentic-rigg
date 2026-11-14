@@ -315,6 +315,8 @@ struct Inner {
     reset: gtk::Button,
     groups: RefCell<Vec<Rc<Group>>>,
     sig: RefCell<String>,
+    system: RefCell<serde_json::Value>,
+    system_loading: Cell<bool>,
     filter: RefCell<String>,
     collapsed: RefCell<HashSet<String>>,
     threads_open: Cell<bool>,
@@ -391,7 +393,8 @@ pub fn short_name(key: &str) -> Option<String> {
 /// `None` når nøkkelen ikke er for én disk, eller disken ikke er i lista.
 pub fn disk_name(key: &str, disks: &[rigg_core::disk::DiskSample]) -> Option<(String, String)> {
     let parts: Vec<&str> = key.split('/').collect();
-    let ["disk", id, what] = parts.as_slice() else { return None };
+    let ["disk", id, what] = parts.as_slice() else { return None;
+    };
     let d = disks.iter().find(|d| d.id == *id)?;
     let (short, long) = match *what {
         "temp" => ("temp", "temperatur"),
@@ -446,7 +449,9 @@ fn resolve(app: &App, id: &str) -> String {
         "cpuLoad" => "cpu/load".into(),
         "mem" => "mem/usedPct".into(),
         x if x.starts_with("gpu/") => g(&x[4..]),
-        x if x.starts_with("cpu/t") && x[5..].chars().all(|c| c.is_ascii_digit()) => format!("cpu/thread/{}/load", &x[5..]),
+        x if x.starts_with("cpu/t") && x[5..].chars().all(|c| c.is_ascii_digit()) => {
+            format!("cpu/thread/{}/load", &x[5..])
+        }
         x => x.into(),
     }
 }
@@ -508,8 +513,9 @@ fn gpu_rows_source(app: &App, tel: &rigg_core::model::Telemetry) -> Vec<(String,
 }
 
 /// Rad-definisjonene for prøven som er kommet. Rekkefølgen er tabellens.
-fn row_defs(app: &App) -> Vec<(String, String, String, Vec<RowDef>)> {
-    let Some(tel) = app.telemetry() else { return vec![] };
+fn row_defs(app: &App, system: &serde_json::Value) -> Vec<(String, String, String, Vec<RowDef>)> {
+    let Some(tel) = app.telemetry() else { return vec![];
+    };
     let mut out = Vec::new();
     let cards = gpu_rows_source(app, &tel);
     let multi = cards.len() > 1;
@@ -582,12 +588,12 @@ fn row_defs(app: &App) -> Vec<(String, String, String, Vec<RowDef>)> {
             }
             let (f, serie) = hwmon_fmt(&x.kind);
             let r = if Some(&x.id) == ct.as_ref() {
-                let label = if x.label == "Tdie" { "Temperatur (Tdie)".to_string() } else { "Temperatur".into() };
-                RowDef::new("cpu/temp", &label, Fmt::Temp, "temp").span(20.0).lvl(Lvl::CpuTemp).tip("Tdie er den faktiske brikketemperaturen. Den brukes i sidefeltet, på Oversikt og i Grafer.")
+                let label = if !x.label.is_empty() && x.label != x.key { format!("Temperatur ({})", x.label) } else { "CPU-temperatur".into() };
+                RowDef::new("cpu/temp", &label, Fmt::Temp, "temp").span(20.0).lvl(Lvl::CpuTemp).tip("Temperatur fra den valgte CPU-sensoren. Samme verdi brukes i sidefeltet, på Oversikt og i Grafer.")
             } else if x.label == "Tctl" {
                 RowDef::new("cpu/tctl", "Temperatur (Tctl)", Fmt::Temp, "temp")
                     .span(20.0)
-                    .tip("Tctl er styringstemperaturen som viftestyringen bruker. På Ryzen 2000 X-modeller ligger den 10 °C over Tdie.")
+                    .tip("Tctl rapporteres av CPU-driveren. Eventuell forskyvning fra brikketemperaturen avhenger av CPU-modellen.")
             } else {
                 let (n, _) = SM::sensor_name(d, x);
                 let mut r = RowDef::new(&format!("hwmon/{}/{}", d.name, x.key), n.trim_start_matches("Prosessor · "), f, serie);
@@ -600,7 +606,7 @@ fn row_defs(app: &App) -> Vec<(String, String, String, Vec<RowDef>)> {
         }
     }
     cpu.push(RowDef::new("cpu/load", "Total last", Fmt::Pct, "load").pct().lvl(Lvl::Load).raw("/proc/stat"));
-    for i in 0..sys.cpu.core_load.len() {
+    for i in rigg_core::report::system::cpu_thread_ids(&system["cpu"]) {
         let mut r = RowDef::new(&format!("cpu/thread/{i}/load"), &format!("Tråd {i}"), Fmt::Pct, "load").pct().lvl(Lvl::Load).raw("/proc/stat · cpufreq");
         r.thread = Some(i);
         cpu.push(r);
@@ -623,7 +629,9 @@ fn row_defs(app: &App) -> Vec<(String, String, String, Vec<RowDef>)> {
     for d in &sys.disks {
         // «sda · lesing · ST2000DM008-2FR102»: kjernenavnet og verdien først, så
         // de fire radene for én disk skilles også når navnet kuttes (640 px).
-        let lbl = |what: &str| if d.model.is_empty() { format!("{} · {what}", d.name) } else { format!("{} · {what} · {}", d.name, d.model) };
+        let lbl = |what: &str| {
+            if d.model.is_empty() { format!("{} · {what}", d.name) } else { format!("{} · {what} · {}", d.name, d.model) }
+        };
         if d.temp.is_some() {
             dk.push(
                 RowDef::new(&format!("disk/{}/temp", d.id), &lbl("temperatur"), Fmt::Temp, "temp")
@@ -696,13 +704,14 @@ fn row_defs(app: &App) -> Vec<(String, String, String, Vec<RowDef>)> {
     out
 }
 
-fn signature(app: &App) -> String {
-    let Some(tel) = app.telemetry() else { return String::new() };
+fn signature(app: &App, system: &serde_json::Value) -> String {
+    let Some(tel) = app.telemetry() else { return String::new();
+    };
     let mut s = String::new();
     for (id, g) in &gpu_rows_source(app, &tel) {
         s.push_str(&format!("{id}:{}:{}:{:?};", g.fans.len(), g.fan_rpm.len(), g.na));
     }
-    s.push_str(&format!("|{}|", tel.sys.cpu.core_load.len()));
+    s.push_str(&format!("|{:?}|", rigg_core::report::system::cpu_thread_ids(&system["cpu"])));
     for (n, x) in &tel.sys.net {
         s.push_str(&format!("{n}:{:?},", x.state));
     }
@@ -737,6 +746,7 @@ impl Page for Sensorer {
         let i = &self.inner;
         i.visible.set(true);
         i.set.set_visible(true);
+        i.load_system();
         i.rebuild_if_needed();
         i.apply_filter();
         i.prefill();
@@ -860,6 +870,8 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         reset: reset.clone(),
         groups: RefCell::new(vec![]),
         sig: RefCell::new(String::new()),
+        system: RefCell::new(serde_json::Value::Null),
+        system_loading: Cell::new(false),
         filter: RefCell::new(String::new()),
         collapsed: RefCell::new(HashSet::new()),
         threads_open: Cell::new(false),
@@ -995,7 +1007,9 @@ impl Inner {
                 && let Some(s) = w.upgrade()
             {
                 s.prefilled.set(false);
+                *s.system.borrow_mut() = serde_json::Value::Null;
                 if s.visible.get() {
+                    s.load_system();
                     s.prefill();
                 }
             }
@@ -1110,8 +1124,28 @@ impl Inner {
 
     // ------------------------------------------------------------ Bygging
 
+    fn load_system(self: &Rc<Self>) {
+        if self.system_loading.replace(true) {
+            return;
+        }
+        let w = Rc::downgrade(self);
+        self.app.client.request("get_system", json!({}), move |res| {
+            let Some(s) = w.upgrade() else { return };
+            s.system_loading.set(false);
+            if let Ok(system) = res {
+                *s.system.borrow_mut() = system;
+                s.prefilled.set(false);
+                if s.visible.get() {
+                    s.rebuild_if_needed();
+                    s.paint();
+                    s.prefill();
+                }
+            }
+        });
+    }
+
     fn rebuild_if_needed(self: &Rc<Self>) {
-        let sig = signature(&self.app);
+        let sig = signature(&self.app, &self.system.borrow());
         if sig.is_empty() || *self.sig.borrow() == sig {
             return;
         }
@@ -1125,7 +1159,7 @@ impl Inner {
         crate::widgets::clear(&self.groups_box);
         let sparks = self.app.settings().sensor_sparks;
         let mut groups = Vec::new();
-        for (gi, (id, title, note, defs)) in row_defs(&self.app).into_iter().enumerate() {
+        for (gi, (id, title, note, defs)) in row_defs(&self.app, &self.system.borrow()).into_iter().enumerate() {
             let root = vbox(0, &["sn-group"]);
             if gi == 0 {
                 root.add_css_class("first");
@@ -1152,9 +1186,10 @@ impl Inner {
             let mut rows = Vec::new();
             let mut threads = None;
             let mut first_focus = true;
+            let thread_count = defs.iter().filter(|d| d.thread.is_some()).count();
             for d in defs {
-                if d.thread == Some(0) {
-                    let n = self.app.telemetry().map(|t| t.sys.cpu.core_load.len()).unwrap_or(0);
+                if d.thread.is_some() && threads.is_none() {
+                    let n = thread_count;
                     let sb = gtk::Button::new();
                     sb.add_css_class("sub-btn");
                     let sbx = hbox(8, &[]);
@@ -1483,9 +1518,7 @@ impl Inner {
         // rulles fram (vadjustment). Med cairo kostet tabellen 19 ms per
         // sekund, mest sparklinjene i rader ingen så (runde 3C).
         let view_h = self.scroller.height() as f32;
-        let in_view = |r: &Row| {
-            view_h <= 0.0 || r.root.compute_bounds(&self.scroller).is_none_or(|b| b.y() + b.height() >= -40.0 && b.y() <= view_h + 40.0)
-        };
+        let in_view = |r: &Row| view_h <= 0.0 || r.root.compute_bounds(&self.scroller).is_none_or(|b| b.y() + b.height() >= -40.0 && b.y() <= view_h + 40.0);
         for g in self.groups.borrow().iter() {
             if self.collapsed.borrow().contains(&g.id) && self.filter.borrow().is_empty() {
                 continue;
@@ -2060,15 +2093,15 @@ impl Inner {
         let backend = self.app.data.borrow().backend.clone();
         let has_gpu = self.app.telemetry().is_some_and(|t| !t.gpus.is_empty());
         if has_gpu && backend != "sim" {
-            let why = "Ikke støttet av kortet og driveren. NVML har bare én temperatursensor på dette kortet.";
+            let why = "Ikke innsamlet av appen. Tilgjengelighet for dette kortet og denne driveren er ikke verifisert her.";
             notes.push(("circle-slash", "Skjermkort · Hotspot-temperatur".into(), why.into()));
             notes.push(("circle-slash", "Skjermkort · Minnetemperatur".into(), why.into()));
-            notes.push(("circle-slash", "Skjermkort · Kjernespenning".into(), "Ikke støttet: NVML oppgir ikke spenning.".into()));
+            notes.push(("circle-slash", "Skjermkort · Kjernespenning".into(), "Ikke innsamlet: appen samler ikke inn GPU-kjernespenning.".into()));
         }
         if let Some(tel) = self.app.telemetry() {
-            notes.push(("lock", "Prosessor · Kjernespenning".into(), "Krever root (MSR) eller driveren zenpower, som ikke er i kjernen.".into()));
+            notes.push(("circle-slash", "Prosessor · Kjernespenning".into(), "Ikke innsamlet av appen. Målekilde og tilgang avhenger av CPU, hovedkort og driver.".into()));
             if !tel.sys.hwmon.iter().any(|d| SM::device_name(&d.name) == "Hovedkort") {
-                notes.push(("circle-slash", "Hovedkort · vifter, spenninger og temperaturer".into(), "Krever kjernedriveren for sensorbrikken (nct6775), som ikke er lastet. Appen laster ikke kjernemoduler.".into()));
+                notes.push(("circle-slash", "Hovedkort · vifter, spenninger og temperaturer".into(), "Ingen gjenkjent hovedkortsensor er tilgjengelig i hwmon. Sensorbrikke og driverstøtte er ikke verifisert; appen laster ikke kjernemoduler.".into()));
             }
             for d in &tel.sys.hwmon {
                 for x in &d.sensors {

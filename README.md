@@ -1,23 +1,40 @@
 # Agentic Rigg
 
-**1.4.0 · bygg 23** · Rust og GTK 4 · Ubuntu · Code Pro
+**1.4.1 · bygg 24** · Rust og GTK 4 · Ubuntu · Code Pro
 
 Et lett maskinvareverktøy for Ubuntu: sensorer, grafer, CPU- og GPU-spesifikasjoner og diskhelse i én norsk desktop-app. Inspirert av MSI Afterburner, HWiNFO, GPU-Z, CPU-Z og CrystalDiskInfo.
 
 [Last ned siste utgave](https://github.com/bejulian1/agentic-rigg/releases/latest) · [Versjonslogg](CHANGELOG.md) · [Bidragsytere](CONTRIBUTORS.md)
 
 <table>
-  <tr><th>Oversikt</th><th>Prosessor</th><th>RGB og PCIe-modell</th></tr>
+  <tr><th>Vifter</th><th>Klokker og effekt</th><th>RGB</th></tr>
   <tr>
-    <td><a href="docs/images/oversikt.png"><img src="docs/images/oversikt.png" alt="Oversikt med komponenter, sensorer og grafer" width="320"></a></td>
-    <td><a href="docs/images/prosessor.png"><img src="docs/images/prosessor.png" alt="Prosessorsiden med spesifikasjoner og lanseringsdato" width="320"></a></td>
+    <td><a href="docs/images/vifter.png"><img src="docs/images/vifter.png" alt="Vifter med Enkel og Avansert visning" width="320"></a></td>
+    <td><a href="docs/images/klokker.png"><img src="docs/images/klokker.png" alt="Klokker og effekt med målinger og GPU-justering" width="320"></a></td>
     <td><a href="docs/images/rgb.png"><img src="docs/images/rgb.png" alt="RGB-forhåndsvisning med PCIe x16-modell" width="320"></a></td>
   </tr>
 </table>
 
-*Oversikt og Prosessor fra GTK-appen 1.3.3; RGB-modellen fra 1.4.0. Bildene er fra private testøkter med simulerte skjermkortdata. Klikk for full størrelse.*
+*Vifter, Klokker og effekt og RGB fra private testøkter med simulerte data i GTK-appen 1.4.1. Klikk for full størrelse.*
 
-## Nytt i 1.4.0
+## Nytt i 1.4.1
+
+- Enkel/Avansert Vifter viser vanlige modusvalg først og samler kurver og fininnstilling under Avansert. En aktiv kurve fortsetter i Enkel visning.
+- Behold/Rull tilbake er synlig også når siden er rullet ned, på både Vifter og Klokker og effekt.
+- Klokker viser GPU-/minneklokke nå og rapportert maksimum, med egne GPU-/minnejusteringer der 0 betyr ingen justering. Effektgrensen vises i W og prosent; temperaturmål, vifter og grenser ligger under Avansert.
+- Eksisterende GPU-autorisasjon fra hjelperbygg 23 beholdes med protokoll 2; denne UI-patchen trenger ikke ny aktivering.
+
+**Sluttkontroll for 1.4.1:** 410 tester bestått, 4 ignorert og ingen feil; ren workspace-clippy. Private GTK-planer bestod for versjonsloggens to innganger og rekkefølge, fast Behold etter rulling, ukjent/0/1/3 vifter og smal visning, samt Prosessor, System og Disker i lyst/mørkt. Manuell 55 % forble bekreftet etter 71 s i simulering. Produksjonsbinærene oppgir 1.4.1 bygg 24. Ingen nye GPU-skriveprøver er utført; HW-sikkerhetsmotoren er uendret.
+
+- **CPU på den faktiske maskinen:** Linux-CPU-ID-er beholdes ved hull i nummerrekken og hotplug. Prosessor, Sensorer og rapport bruker de aktive ID-ene; flere sokler og ulike cachegrupper behandles separat. Cachevarianter og antall bygger på sysfs-identitet og deling, og ukjent antall vises som ukjent. Temperatur bruker sensorens navn; L3-grupper kalles ikke automatisk CCX.
+- **GPU etter funksjonsstøtte:** Klokker, effekt og vifter bruker valgt korts tilgjengelige felt og rapporterte grenser. Viftevisningen skiller ukjent antall, null vifter og én til flere vifter, uten å finne på et kort med to vifter. Kontroller og kurvevalg følger det rapporterte antallet og støtten.
+- **Versjonslogg og bidrag:** Innstillinger og Om åpner en innebygd logg med de ni dokumenterte desktoputgavene, nyeste først. Om krediterer Julian, Anthropic Claude Opus 5.5 (Claude Code) og OpenAI GPT 6.1 Sol (Codex).
+
+GPU-backenden er NVIDIA NVML; AMD-/Intel-GPU-backender er ikke implementert. CPU-, RAM-, hovedkort- og diskdata kommer fra tilgjengelige `/proc`-, sysfs/DMI-, hwmon- og UDisks2-kilder. Manglende data og funksjoner erstattes ikke med spesifikasjoner fra utviklingsmaskinen. Dette er generell håndtering av maskinvaredata, ikke fysisk verifikasjon av alle komponenter og kort.
+
+Installasjon av 1.4.1 bygg 24 på utviklingsmaskinen er verifisert med samsvarende binærhash og uendrede innstillinger under installasjonen. Historikken er sikkerhetskopiert. Installert daemon bygg 24 leser den allerede godkjente hjelperen fra bygg 23 som klar, med riktig kortbinding og uten maskinvarefeil; oppstart ved innlogging er fortsatt av.
+
+## Verifisert i 1.4.0
 
 - Implementert NVML-styring av effekt, klokkeoffset og GPU-vifter med én administratoraktivering og separat støtte per felt.
 - Kortbinding med PCI/UUID, lagret utgangspunkt, tilbakelesing og tilbakerulling som rapporterer feil ærlig.
@@ -25,7 +42,7 @@ Et lett maskinvareverktøy for Ubuntu: sensorer, grafer, CPU- og GPU-spesifikasj
 
 **Polkit-aktivering og begrenset GPU-skriving er verifisert på RTX 2080:** effekt 245 → 240 W, begge vifter til 50 %, kjerneoffset −15 MHz og minneoffset −10 MHz, med fersk NVML-tilbakelesing og gjenoppretting. Gjennom installert daemon er også 240 W + Behold, reset til 245 W og automatisk tilbakerulling etter 10 s uten Behold verifisert med fersk NVML-getter. En flat 50 %-viftekurve holdt begge vifter på målet i 4 s, og temperaturmål 83 → 82 °C med revert/reset er også verifisert. Alle grenser, positiv overklokking og stress-/feiltilfeller er ikke prøvd. Overvåking krever ingen administratoraktivering. Styring blir først tilgjengelig når den kortbundne hjelperen er klar; endringer krever Bruk og Behold. RGB er fortsatt en forhåndsvisning, og lyskontrolleren er ikke identifisert.
 
-Sluttkontroll: **388 bestått, 4 ignorert, 0 feil**, ren workspace-clippy og bestått native UI-plan. Installert app er kontrollert med klar hjelper og samsvarende kortidentitet.
+Sluttkontroll for 1.4.0: **388 bestått, 4 ignorert, 0 feil**, ren workspace-clippy og bestått native UI-plan. Installert app er kontrollert med klar hjelper og samsvarende kortidentitet.
 
 ## Hva appen viser
 
@@ -40,18 +57,18 @@ Sluttkontroll: **388 bestått, 4 ignorert, 0 feil**, ren workspace-clippy og bes
 | System | Hovedkort, BIOS, minnebruk, operativsystem og kontrollere |
 | Skjermkortstyring | NVML-styring av støttede klokker, effekt og vifter etter aktivering; utkast/profiler og RGB-forhåndsvisning |
 
-Tilgjengelige felt avhenger av komponentene og driverne. Referanseopplysninger er merket og skal ikke forveksles med målinger. RAM-moduldetaljer, skjerminformasjon og nettverkskortets spesifikasjoner er områder for videre utvidelse.
+Appen leser maskinens tilgjengelige data fra `/proc`, sysfs/DMI og hwmon; diskhelse kommer fra UDisks2, og NVIDIA-GPU-data fra NVML. CPU-, RAM- og hovedkortvisning er ikke et fast oppsett for RTX 2080-maskinen. Videre utvidelser skal følge faktisk maskinvare, kilder og funksjonsstøtte, med manglende opplysninger vist som ukjente eller utilgjengelige. GPU-styring må bruke valgt korts identitet, tilgjengelige felt og rapporterte grenser. NVML-backenden gjelder NVIDIA; GPU-backender for AMD og Intel er ikke implementert. Tilgjengelige felt avhenger av komponentene og driverne. Referanseopplysninger er merket og skal ikke forveksles med målinger. RAM-moduldetaljer, skjerminformasjon og nettverkskortets spesifikasjoner er områder for videre utvidelse.
 
 ## Last ned og installer
 
 Den ferdigbygde pakken ligger under [Releases](https://github.com/bejulian1/agentic-rigg/releases). Den er laget for **Ubuntu 26.04, amd64/x86-64, GTK ≥ 4.22 og glibc ≥ 2.39**. Eldre Ubuntu-utgaver er ikke bekreftet støttet.
 
-Last ned `agentic-rigg-1.4.0-build23-ubuntu26.04-amd64.tar.gz` og `SHA256SUMS` fra samme Release:
+Last ned `agentic-rigg-1.4.1-build24-ubuntu26.04-amd64.tar.gz` og `SHA256SUMS` fra samme Release:
 
 ```bash
 sha256sum --check SHA256SUMS
-tar -xzf agentic-rigg-1.4.0-build23-ubuntu26.04-amd64.tar.gz
-cd agentic-rigg-1.4.0
+tar -xzf agentic-rigg-1.4.1-build24-ubuntu26.04-amd64.tar.gz
+cd agentic-rigg-1.4.1
 ./install.sh --bin-dir "$PWD/bin"
 ~/.local/bin/agentic-rigg
 ```
@@ -84,7 +101,7 @@ Sensorer og historikk behandles lokalt. Appen sender ingen telemetri. GPU-overv�
 
 ## Contributors
 
-Utviklet av [Julian / bejulian1](https://github.com/bejulian1), med AI-assistanse fra **Claude Code (Anthropic)** og **Codex (OpenAI)**. Se [bidragsoversikten](CONTRIBUTORS.md) for roller og kreditering.
+Utviklet av [Julian / bejulian1](https://github.com/bejulian1), med AI-assistanse fra **Anthropic Claude Opus 5.5 (Claude Code)** og **OpenAI GPT 6.1 Sol (Codex)**. Se [bidragsoversikten](CONTRIBUTORS.md) for roller og kreditering.
 
 ## Lisens
 

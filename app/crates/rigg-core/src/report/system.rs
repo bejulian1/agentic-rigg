@@ -3,7 +3,7 @@
 //! og kontrollere (System-siden, [`SYSTEM`]), og diskene (rapporten). Rapporten
 //! tar med alt. Port av
 //! `web/js/pages/system.js`, med rettingene fra maskinvare-revisjon kap. 7 og 11
-//! (Tdie som CPU-temperatur, `Shmem` skilt ut, SPD som et valg som krever
+//! (CPU-sensorens temperatur, `Shmem` skilt ut, SPD som et valg som krever
 //! godkjenning, disker).
 //!
 //! Dataene er `get_system` (fra `rigg-hw/src/sys/{cpuinfo,dmi,os,pci}.rs`) og
@@ -146,6 +146,15 @@ fn cpu_list(s: &str) -> String {
     s.split(',').map(|p| p.replace('-', "–")).collect::<Vec<_>>().join(", ")
 }
 
+/// Linux-CPU-ID-ene som er online. En eksplisitt tom liste betyr ingen tråder;
+/// bare eldre tjenestesvar uten feltet bruker det sammenhengende trådtallet.
+pub fn cpu_thread_ids(cpu: &Value) -> Vec<usize> {
+    match cpu.get("threadIds") {
+        Some(ids) => ids.as_array().map(|ids| ids.iter().filter_map(|v| v.as_u64().and_then(|v| usize::try_from(v).ok())).collect()).unwrap_or_default(),
+        None => (0..cpu["threads"].as_u64().and_then(|n| usize::try_from(n).ok()).unwrap_or(0)).collect(),
+    }
+}
+
 pub fn sections(i: &SysInput) -> Vec<Section> {
     let cpu = &i.system["cpu"];
     let board = &i.system["board"];
@@ -200,7 +209,7 @@ pub fn sections(i: &SysInput) -> Vec<Section> {
     ));
     if let Some(g) = cpu["l3Groups"].as_array().filter(|g| g.len() > 1) {
         let list: Vec<String> = g.iter().filter_map(Value::as_str).map(cpu_list).collect();
-        c.kv(Kv::new("ccx", "CCX-er", Some(format!("{} · tråd {}", g.len(), list.join(" og ")))).info("Trådene som deler L3-cache. På Zen deler hver CCX sin egen L3."));
+        c.kv(Kv::new("ccx", "L3-grupper", Some(format!("{} · tråd {}", g.len(), list.join(" og ")))).info("Grupper av tråder som deler L3-cache, slik kjernen rapporterer dem. Gruppene er ikke nødvendigvis CCX-er."));
     }
     let fq = &cpu["freq"];
     c.kv(
@@ -228,18 +237,21 @@ pub fn sections(i: &SysInput) -> Vec<Section> {
         Some([sys.cpu.governor.clone(), st(&fq["driver"])].into_iter().flatten().collect::<Vec<_>>().join(" · ")).filter(|s| !s.is_empty()),
     ));
     c.kv(Kv::new("boost", "Boost", sys.cpu.boost.map(|b| if b { "På".into() } else { "Av".into() })).na("Ikke oppgitt"));
+    let temp_source = crate::sensormeta::cpu_temp_sensor(&sys).filter(|s| s.value.is_some() && !s.label.is_empty() && s.label != s.key).map(|s| s.label.as_str());
     c.kv(
-        Kv::new("temp", "Temperatur", crate::sensormeta::cpu_temp(&sys).map(|t| format!("{} (Tdie)", F::temp(Some(t), 1))))
-            .info_opt(sys.cpu.tctl.map(|t| format!("Tdie er brikkens egen temperatur. Tctl, som viftestyringen bruker, er {}.", F::temp(Some(t), 1)))),
+        Kv::new("temp", "CPU-temperatur", crate::sensormeta::cpu_temp(&sys).map(|t| match temp_source {
+            Some(source) => format!("{} ({source})", F::temp(Some(t), 1)),
+            None => F::temp(Some(t), 1),
+        }))
+        .info_opt(sys.cpu.tctl.map(|t| format!("Tctl rapporteres separat: {}. Sensorbetydningen avhenger av CPU-modellen og driveren.", F::temp(Some(t), 1)))),
     );
     c.kv(Kv::new(
         "adresser",
         "Adresser",
-        st(&cpu["addressSizes"]).map(|a| a.replace(" bits physical", &format!("{}bit fysisk", F::NNBSP)).replace(" bits virtual", &format!("{}bit virtuelt", F::NNBSP))),
-    ));
-    c.kv(Kv::new("spenning", "Kjernespenning", None).na("Krever root").info("Spenningen (SVI2) ligger i MSR-registrene, som bare root kan lese."));
-    c.kv(Kv::new("effekt", "Pakkeeffekt", None).na("Krever root").info("RAPL-telleren (energy_uj) er bare lesbar for root, og perf er sperret."));
-    c.kv(Kv::new("multiplikator", "Multiplikator og bussklokke", None).na("Krever root").info("Ligger i MSR-registrene. Klokken per tråd under er snittet fra APERF/MPERF."));
+        st(&cpu["addressSizes"]).map(|a| a.replace(" bits physical", &format!("{}bit fysisk", F::NNBSP)).replace(" bits virtual", &format!("{}bit virtuelt", F::NNBSP)))));
+    c.kv(Kv::new("spenning", "Kjernespenning", None).na("Ikke innsamlet").info("Appen samler ikke inn CPU-kjernespenning. Tilgang og målekilde avhenger av CPU, hovedkort og driver; SVI2-støtte er ikke verifisert her."));
+    c.kv(Kv::new("effekt", "Pakkeeffekt", None).na("Ikke innsamlet").info("Appen samler ikke inn CPU-pakkeeffekt. Tilgjengelige energitellere, eventuell RAPL-støtte og lesetilgang avhenger av maskinen og kjernen."));
+    c.kv(Kv::new("multiplikator", "Multiplikator og bussklokke", None).na("Ikke innsamlet").info("Appen samler ikke inn multiplikator og bussklokke. Trådklokken leses separat fra cpufreq; målekilden avhenger av driveren."));
     if i.report
         && let Some(source) = launch_source
     {
@@ -262,7 +274,7 @@ pub fn sections(i: &SysInput) -> Vec<Section> {
                     format!("L{}", x["level"].as_u64().unwrap_or(0)),
                     CACHE_TYPE.iter().find(|(a, _)| *a == ty).map(|(_, b)| b.to_string()).unwrap_or_else(|| ty.to_string()),
                     F::bytes(x["size"].as_f64(), 0),
-                    format!("×{}{}", F::NNBSP, x["instances"].as_u64().unwrap_or(1)),
+                    x["instances"].as_u64().map(|n| format!("×{}{n}", F::NNBSP)).unwrap_or_else(|| F::DASH.into()),
                     F::bytes(x["total"].as_f64(), 0),
                     x["ways"].as_u64().map(|w| format!("{w}-veis")).unwrap_or_else(|| F::DASH.into()),
                 ]
@@ -330,10 +342,7 @@ pub fn sections(i: &SysInput) -> Vec<Section> {
         _ => None,
     };
     m.kv(
-        Kv::new("cache", "Buffer og cache", cache.map(|c| F::kb(Some(c), 1))).info_opt(mem.shmem_kb.map(|s| {
-            format!("Buffer, cache og frigjørbar slab, uten delt minne (Shmem, tmpfs: {}). Delt minne kan ikke frigjøres og er regnet med i Brukt.", F::kb(Some(s), 1))
-        })),
-    );
+        Kv::new("cache", "Buffer og cache", cache.map(|c| F::kb(Some(c), 1))).info_opt(mem.shmem_kb.map(|s| format!("Buffer, cache og frigjørbar slab, uten delt minne (Shmem, tmpfs: {}). Delt minne kan ikke frigjøres og er regnet med i Brukt.", F::kb(Some(s), 1)))));
     m.kv(Kv::new(
         "swap",
         "Swap",
@@ -361,9 +370,7 @@ pub fn sections(i: &SysInput) -> Vec<Section> {
     let mut o = Section::new("os", "Operativsystem");
     o.kv(Kv::new("distro", "Distribusjon", st(&os["distro"])));
     o.kv(Kv::new("kjerne", "Kjerne", st(&os["kernel"])));
-    o.kv(Kv::new("kjernebygg", "Kjernebygg", st(&os["kernelBuild"]).map(|k| kernel_build(&k))).info_opt(st(&os["kernelBuild"]).map(|k| {
-        if k.contains("PREEMPT_DYNAMIC") { format!("{k}\nPREEMPT_DYNAMIC: hvor ofte kjernen kan avbryte seg selv, velges ved oppstart.") } else { k }
-    })));
+    o.kv(Kv::new("kjernebygg", "Kjernebygg", st(&os["kernelBuild"]).map(|k| kernel_build(&k))).info_opt(st(&os["kernelBuild"]).map(|k| if k.contains("PREEMPT_DYNAMIC") { format!("{k}\nPREEMPT_DYNAMIC: hvor ofte kjernen kan avbryte seg selv, velges ved oppstart.") } else { k })));
     o.kv(Kv::new("arkitektur", "Arkitektur", st(&os["arch"])));
     let desk = i.desktop.clone().or_else(|| st(&os["desktop"]));
     let sess = i.session.clone().or_else(|| st(&os["session"]));
@@ -412,18 +419,15 @@ pub fn sections(i: &SysInput) -> Vec<Section> {
     }
 
     // ---- Klokke og last per tråd (bare i rapporten; siden har rutenettet) ----
-    if i.report && !sys.cpu.core_load.is_empty() {
+    let thread_ids = cpu_thread_ids(cpu);
+    if i.report && !thread_ids.is_empty() {
         let mut t = Section::new("trader", "Klokke og last per tråd");
         t.items.push(Item::Table(Table {
             id: "trader",
             head: ["Tråd", "Klokke", "Last"].map(String::from).to_vec(),
             end: vec![false, true, true],
-            rows: sys
-                .cpu
-                .core_load
-                .iter()
-                .enumerate()
-                .map(|(n, l)| vec![format!("T{n}"), F::mhz(sys.cpu.core_mhz.get(n).copied().flatten()), F::pct(*l, 0)])
+            rows: thread_ids.iter()
+                .map(|&n| vec![format!("T{n}"), F::mhz(sys.cpu.core_mhz.get(n).copied().flatten()), F::pct(sys.cpu.core_load.get(n).copied().flatten(), 0)])
                 .collect(),
         }));
         out.push(t);
@@ -494,6 +498,41 @@ fn disks_section(system: &Value) -> Section {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn cpu_metadata_beholder_sensor_og_faktiske_trad_ider() {
+        let mut system = serde_json::json!({"cpu": {"threads": 4, "threadIds": [2, 3, 8, 11], "l3Groups": ["2-3", "8,11"]}});
+        let mut sys: SysSample = serde_json::from_value(serde_json::json!({
+            "cpu": {"temp": 42.0, "coreLoad": [null, null, 10.0, 20.0, null, null, null, null, 30.0, null, null, 40.0]},
+            "hwmon": [{"name": "coretemp", "sensors": [{"kind": "temp", "key": "temp1", "label": "Package id 0", "value": 42.0}]}]
+        }))
+        .unwrap();
+        let render = |system: &Value, sys: &SysSample| sections(&SysInput { system, sys: Some(sys), show_hostname: false, desktop: None, session: None, report: true, max_thread_mhz: None });
+        let sections = render(&system, &sys);
+        let text = crate::report::render_sections(&sections, crate::report::ReportFormat::Text, 2);
+        assert!(text.contains("(Package id 0)") && text.contains("L3-grupper"), "{text}");
+        assert!(!text.contains("Tdie") && !text.contains("CCX-er:"), "{text}");
+        let rows = sections
+            .iter()
+            .find(|s| s.id == "trader")
+            .unwrap()
+            .items
+            .iter()
+            .find_map(|item| match item {
+                Item::Table(t) => Some(&t.rows),
+                _ => None,
+            })
+            .unwrap();
+        assert_eq!(rows.iter().map(|r| r[0].as_str()).collect::<Vec<_>>(), vec!["T2", "T3", "T8", "T11"]);
+        system["cpu"]["threadIds"] = serde_json::json!([]);
+        assert!(cpu_thread_ids(&system["cpu"]).is_empty());
+        assert!(!render(&system, &sys).iter().any(|s| s.id == "trader"));
+        system["cpu"].as_object_mut().unwrap().remove("threadIds");
+        assert_eq!(cpu_thread_ids(&system["cpu"]), vec![0, 1, 2, 3]);
+        sys.hwmon.clear();
+        let text = crate::report::render_sections(&render(&system, &sys), crate::report::ReportFormat::Text, 2);
+        assert!(text.contains("CPU-temperatur:") && !text.contains("Tdie"), "{text}");
+    }
 
     #[test]
     fn datoer_og_tekster() {

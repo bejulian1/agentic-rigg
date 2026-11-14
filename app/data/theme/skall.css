@@ -278,6 +278,28 @@ window.rigg dropdown.win-select popover listview > row:focus:focus-visible {
 .content.stale, .side-status.stale { opacity: 0.5; }
 .page { padding: var(--content-pad); border-spacing: var(--gap); }
 
+/* Bekreftelsen ligger utenfor sidenes rulleområde. En skjult Revealer
+ * tar ingen plass; plasseringen endrer ingen transaksjonslogikk. */
+.fan-page-shell > revealer.sticky-confirm,
+.control-page-shell > revealer.sticky-confirm {
+  margin: var(--content-pad) var(--content-pad) 0;
+}
+.viftekurve .fan-view-switch { margin-bottom: var(--sp-1); }
+.viftekurve .fan-view-switch > button { padding: var(--sp-2) var(--sp-3); }
+.viftekurve .fan-mode-card .manual-row { margin-top: var(--sp-2); }
+.viftekurve .fan-curve-notice {
+  padding: var(--sp-2);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-sm);
+  background-color: var(--card-alt);
+}
+.viftekurve .fan-apply-note { margin-top: var(--sp-2); }
+.viftekurve .fan-readings {
+  margin-top: var(--sp-2);
+  margin-bottom: var(--sp-1);
+}
+.viftekurve .fan-reading-value { font-size: var(--fs-title); font-weight: 600; }
+
 /* -- Stubbene for sidene som kommer i neste runde -- */
 
 /* -- Oversikt i runde 1: fliser og to paneler -- */

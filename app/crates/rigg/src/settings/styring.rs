@@ -172,7 +172,7 @@ pub(crate) fn set_step(app: &Rc<App>, _step: Step, _on: bool) {
 
 fn capabilities_group(app: &Rc<App>) -> Group {
     let caps = locked::capabilities(app);
-    let known = locked::helper_state(app) != "off";
+    let known = caps.is_object();
     let mut rows = Vec::new();
     for (key, name) in [("power", "Effektgrense"), ("fan_manual", "Manuell viftefart og Auto"), ("fan_curve", "Viftekurve"), ("core_clock", "Kjerneklokke"), ("mem_clock", "Minneklokke"), ("temp_target", "Temperaturmål"), ("rgb", "RGB-lys")] {
         let available = locked::supports(app, key);

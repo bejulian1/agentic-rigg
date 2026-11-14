@@ -36,12 +36,7 @@ pub fn gate(app: &App) -> Gate {
     if !app.client.is_connected() || app.gpu_info().is_none_or(|i| i.state != rigg_core::model::DeviceState::Ok) {
         return Gate::Locked("Skjermkortet eller tjenesten svarer ikke. Endringer er låst.");
     }
-    let h = helper(app);
-    let st = app.statics().unwrap_or_default();
-    if app.gpu_id().as_deref() != h["identity"]["pci"].as_str()
-        || st.uuid.as_deref().is_none()
-        || st.uuid.as_deref() != h["identity"]["uuid"].as_str()
-    {
+    if !helper_targets_selected(app) {
         return Gate::Locked("Hjelperen er aktivert for et annet kort. Aktiver styring for kortet som vises.");
     }
     Gate::Real
@@ -58,9 +53,22 @@ pub fn helper_state(app: &App) -> String {
     helper(app)["state"].as_str().unwrap_or("off").to_string()
 }
 
+/// Funksjonsgrenser tilhører ett konkret kort, også før skriveporten åpnes.
+pub fn helper_targets_selected(app: &App) -> bool {
+    let uuid = app.statics().and_then(|st| st.uuid);
+    target_matches(&helper(app), app.gpu_id().as_deref(), uuid.as_deref())
+}
+
+fn target_matches(helper: &Value, pci: Option<&str>, uuid: Option<&str>) -> bool {
+    match (pci, uuid, helper["identity"]["pci"].as_str(), helper["identity"]["uuid"].as_str()) {
+        (Some(p), Some(u), Some(hp), Some(hu)) => p == hp && u == hu,
+        _ => false,
+    }
+}
+
 pub fn capabilities(app: &App) -> Value {
     let h = helper(app);
-    if h["capabilities"].is_object() { return h["capabilities"].clone(); }
+    if h["capabilities"].is_object() && (gate(app) == Gate::Sim || helper_targets_selected(app)) { return h["capabilities"].clone(); }
     if gate(app) == Gate::Sim {
         return app.data.borrow().hello.as_ref().map(|v| v["capabilities"]["write"]["fields"].clone()).unwrap_or(Value::Null);
     }
@@ -382,6 +390,8 @@ pub struct Stored {
     /// Opprinnelig grunnlag og kortidentitet; mangler for eldre utkast.
     pub utkast_base: Option<txn::Values>,
     pub utkast_gpu: Option<String>,
+    /// Visningsnivå på Vifter. Endrer aldri kortet eller utkastet.
+    pub fan_advanced: bool,
     /// Lysvalget («Lagre i appen»).
     pub rgb: Value,
     /// 3D-visningen på Lys: vinkel, zoom, lagtrinn, skill lagene, 2D/3D, sone.
@@ -396,6 +406,7 @@ impl Stored {
             "utkast": self.utkast.as_ref().map_or(Value::Null, |u| serde_json::to_value(u).unwrap_or(Value::Null)),
             "utkastBase": self.utkast_base,
             "utkastGpu": self.utkast_gpu,
+            "fanAdvanced": self.fan_advanced,
             "rgb": self.rgb,
             "lys": self.lys,
         })
@@ -407,6 +418,7 @@ impl Stored {
             utkast: serde_json::from_value(v["utkast"].clone()).ok(),
             utkast_base: serde_json::from_value(v["utkastBase"].clone()).ok(),
             utkast_gpu: v["utkastGpu"].as_str().map(str::to_string),
+            fan_advanced: v["fanAdvanced"].as_bool().unwrap_or(false),
             rgb: if v["rgb"].is_object() { v["rgb"].clone() } else { Value::Null },
             lys: if v["lys"].is_object() { v["lys"].clone() } else { Value::Null },
         };
@@ -437,6 +449,13 @@ fn load(app: &App) -> Stored {
 /// Leser det som er lagret (fra disk første gang).
 pub fn stored(app: &App) -> Stored {
     STORE.with(|st| st.borrow_mut().get_or_insert_with(|| load(app)).clone())
+}
+
+pub fn fan_advanced(app: &App) -> bool { stored(app).fan_advanced }
+
+/// Bare lokal visning; bruker den vanlige lagringen uten endring i utkast.
+pub fn set_fan_advanced(app: &Rc<App>, advanced: bool) {
+    update(app, "fan-view", |s| s.fan_advanced = advanced);
 }
 
 /// Endrer det som er lagret, sier fra til sidene (`what`: «utkast»,
@@ -1134,6 +1153,19 @@ mod tests {
     }
 
     #[test]
+    fn viftevisning_er_enkel_som_standard_og_lagres_uten_aa_endre_utkast() {
+        let legacy = Stored::from_json(&json!({"utkast": v(200.0)}));
+        assert!(!legacy.fan_advanced);
+        let mut advanced = legacy.clone();
+        advanced.fan_advanced = true;
+        let saved = Stored::from_json(&advanced.to_json());
+        assert!(saved.fan_advanced);
+        assert_eq!(saved.utkast, legacy.utkast);
+        assert_eq!(saved.utkast_base, legacy.utkast_base);
+        assert_eq!(saved.utkast_gpu, legacy.utkast_gpu);
+    }
+
+    #[test]
     fn aktivering_rebaser_bare_brukerens_endring() {
         let original = txn::Values::default();
         let draft = txn::Values { power_limit_w: 200.0, ..original.clone() };
@@ -1221,5 +1253,19 @@ mod helper_watch_tests {
         assert!(!helper_status_changed(&on, &sample));
         sample["capabilities"] = json!({"rgb":{"available":false}});
         assert!(helper_status_changed(&on, &sample));
+    }
+}
+
+#[cfg(test)]
+mod selected_capability_tests {
+    use super::*;
+    #[test]
+    fn grenser_fra_et_annet_kort_skal_aldri_brukes_som_valgt_kort() {
+        let helper = json!({"identity":{"pci":"0000:01:00.0","uuid":"GPU-a"}});
+        assert!(target_matches(&helper, Some("0000:01:00.0"), Some("GPU-a")));
+        assert!(!target_matches(&helper, Some("0000:02:00.0"), Some("GPU-b")));
+        assert!(!target_matches(&helper, Some("0000:01:00.0"), Some("GPU-b")));
+        assert!(!target_matches(&helper, Some("0000:01:00.0"), None));
+        assert!(!target_matches(&Value::Null, None, None));
     }
 }

@@ -108,9 +108,16 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     let whisper = label("", &["egg-whisper"]);
     whisper.set_visible(false);
     text.append(&whisper);
-    let line = label("Overvåking av skjermkort og maskin for Linux. Appen leser bare, og ingenting sendes til skjermkortet.", &["about-line"]);
+    let line = label("Overvåking av skjermkort og maskin for Linux, med GPU-styring der kortet og driveren støtter det. Styring krever egen administratoraktivering.", &["about-line"]);
     line.set_wrap(true);
     text.append(&line);
+    let history = crate::widgets::button(Some("rotate-ccw"), Some("Vis versjonslogg …"), &[]);
+    history.set_halign(gtk::Align::Start);
+    {
+        let a = app.clone();
+        history.connect_clicked(move |_| crate::widgets::version_log::show(&a));
+    }
+    text.append(&history);
     card.append(&text);
     let hero = group(rigg_core::version::NAME, GroupOpts { whole: true, k: "versjon bygg om code pro signatur byggeserie", ..Default::default() }, vec![]);
     hero.head.set_visible(false);
@@ -136,6 +143,16 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
         help_rows.push(r);
     }
     let help = group("Hjelp", GroupOpts::default(), help_rows);
+
+    // ---- Bidrag ----
+    let credits = KvList::new();
+    credits.grid.add_css_class("about-debug");
+    credits.add("Prosjekteier", "Julian · produktidé, prioriteringer og utprøving");
+    credits.add("Claude Code", "Anthropic Claude Opus 5.5");
+    credits.add("Codex", "OpenAI GPT 6.1 Sol");
+    let mut contributions = group("Bidrag", GroupOpts { whole: true, k: "julian claude code anthropic opus 5.5 openai gpt 6.1 sol codex ai bidragsytere", ..Default::default() }, vec![]);
+    contributions.widget.append(&credits.grid);
+    contributions.rows.push(custom_row(&gtk::Box::new(gtk::Orientation::Horizontal, 0), "Julian Anthropic Claude Opus 5.5 Claude Code OpenAI GPT 6.1 Sol Codex"));
 
     // ---- Feilsøking ----
     let kv = KvList::new();
@@ -184,7 +201,7 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     );
     dbg.widget.insert_child_after(&debug_box, dbg.widget.first_child().as_ref());
     dbg.rows.push(custom_row(&gtk::Box::new(gtk::Orientation::Horizontal, 0), &format!("{} {}", service_line(app), source_line(app))));
-    vec![hero, help, dbg]
+    vec![hero, help, contributions, dbg]
 }
 
 /// Lisensene (`data/LISENSER.md`, kompilert inn) i et eget vindu: avsnitt

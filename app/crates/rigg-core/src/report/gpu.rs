@@ -229,9 +229,7 @@ pub fn sections(g: &GpuInput) -> Vec<Section> {
 
     // ---- Minne og buss ----
     let mut b = Section::new("buss", "Minne og buss");
-    b.kv(Kv::new("vram", "Videominne", st.vram_total.or(smp.vram_total).map(|v| F::mib(Some(v), None, None))).info_opt(smp.vram_reserved.map(|r| {
-        format!("{} er reservert av driveren og regnes ikke som brukt (MemoryInfo_v2).", F::mib(Some(r), None, None))
-    })));
+    b.kv(Kv::new("vram", "Videominne", st.vram_total.or(smp.vram_total).map(|v| F::mib(Some(v), None, None))).info_opt(smp.vram_reserved.map(|r| format!("{} er reservert av driveren og regnes ikke som brukt (MemoryInfo_v2).", F::mib(Some(r), None, None)))));
     b.kv(Kv::new("minnebuss", "Minnebuss", ex(st, "busWidth").as_u64().map(|w| F::with_unit(w.to_string(), "bit"))).info("Lest fra driveren, ikke fra referansetabellen."));
     b.kv(Kv::new("cuda-kjerner", "CUDA-kjerner", ex(st, "cudaCores").as_f64().map(|c| F::num(Some(c), 0))).info("Lest fra driveren."));
     let pcie = pcie_text(st.pcie_width_max, st.pcie_gen_max, smp.pcie_width, smp.pcie_gen);
@@ -368,8 +366,7 @@ pub fn sections(g: &GpuInput) -> Vec<Section> {
     l.kv(Kv::new("avstenging", "Avstenging", temp_c(st.temp_shutdown)));
     l.kv(
         Kv::new("avstand", "Avstand til nedklokking", st.temp_slowdown.zip(smp.temp).map(|(a, t)| F::temp_delta(a - t, 0)))
-            .info("Utregnet: nedklokkingsgrensen minus temperaturen nå. NVML oppgir ikke T.Limit på dette kortet."),
-    );
+            .info("Utregnet: nedklokkingsgrensen minus temperaturen nå. Dette er ikke en direkte måling av T.Limit."));
     let off = |k: &str, div: f64| -> Option<String> {
         let o = ex(st, k);
         let (n, a, b) = (o["now"].as_f64()? / div, o["min"].as_f64()? / div, o["max"].as_f64()? / div);
@@ -437,10 +434,8 @@ pub fn sections(g: &GpuInput) -> Vec<Section> {
         Kv::new(
             "styring",
             "Styring",
-            (!policies.is_empty()).then(|| if policies.iter().all(|p| *p == 0) { "Auto · driveren styrer".into() } else { "Manuell · satt utenfor appen".into() }),
-        )
-        .info("Lest med NVML (viftepolicy). Appen endrer ikke viftene."),
-    );
+            (!policies.is_empty()).then(|| if policies.iter().all(|p| *p == 0) { "Auto · driveren styrer".into() } else { "Manuell · rapportert av driveren".into() }))
+        .info("Lest med NVML (viftepolicy). Viser driverens rapporterte modus; angir ikke hvilket program som satte den."));
     let th = ex(st, "thermal").as_array().cloned().unwrap_or_default();
     f.kv(Kv::new(
         "sensorer",
@@ -459,15 +454,15 @@ pub fn sections(g: &GpuInput) -> Vec<Section> {
     out.push(f);
 
     // ---- Ikke støttet ----
-    let mut n = Section::new("ikke-stottet", "Ikke støttet");
-    n.aside = Some("av kortet og driveren".into());
-    n.kv(Kv::new("hotspot", "Hotspot-temperatur", None).na("Ikke støttet").info("NVML har bare én termisk sensor på dette kortet, den interne GPU-kontrolleren."));
-    let (mna, mwhy) = unsupported(st, "memMax", "Terskelen og feltet for minnetemperatur gir «ikke støttet».");
-    n.kv(Kv { id: "minnetemp", k: "Minnetemperatur".into(), v: None, na: Some(mna.unwrap_or_else(|| "Ikke støttet".into())), info: Some(mwhy) });
-    let (tna, twhy) = unsupported(st, "margin", "NVML oppgir ikke marginen. Avstanden til nedklokking under Grenser er regnet ut av appen.");
-    n.kv(Kv { id: "tlimit", k: "T.Limit (margin)".into(), v: None, na: Some(tna.unwrap_or_else(|| "Ikke støttet".into())), info: Some(twhy) });
-    n.kv(Kv::new("spenning", "Kjernespenning", None).na("Ikke støttet").info("NVML har ingen funksjon for spenning på Turing."));
-    n.kv(Kv::new("snitteffekt", "Gjennomsnittseffekt fra driveren", None).na("Ikke støttet").info("Driveren oppgir ikke snitt. Effekten på sidene er regnet fra energitelleren."));
+    let mut n = Section::new("ikke-stottet", "Datatilgjengelighet");
+    n.aside = Some("ikke innsamlet eller utilgjengelig".into());
+    n.kv(Kv::new("hotspot", "Hotspot-temperatur", None).na("Ikke innsamlet").info("Appen samler ikke inn en egen hotspot-temperatur. De termiske sensorene som driveren rapporterer, vises over; dette avklarer ikke alene om kortet har en hotspot-sensor."));
+    let (mna, mwhy) = unsupported(st, "memMax", "Appen har ingen tilgjengelig minnetemperatur fra NVML for denne prøven. Tilgjengelighet avhenger av kortet og driveren.");
+    n.kv(Kv { id: "minnetemp", k: "Minnetemperatur".into(), v: None, na: Some(mna.unwrap_or_else(|| "Ikke verifisert".into())), info: Some(mwhy) });
+    let (tna, twhy) = unsupported(st, "margin", "Appen har ingen tilgjengelig T.Limit-margin fra NVML for denne prøven. Avstanden til nedklokking under Grenser er regnet ut av appen.");
+    n.kv(Kv { id: "tlimit", k: "T.Limit (margin)".into(), v: None, na: Some(tna.unwrap_or_else(|| "Ikke verifisert".into())), info: Some(twhy) });
+    n.kv(Kv::new("spenning", "Kjernespenning", None).na("Ikke innsamlet").info("Appen samler ikke inn GPU-kjernespenning. Tilgang for dette kortet og denne driveren er ikke verifisert."));
+    n.kv(Kv::new("snitteffekt", "Gjennomsnittseffekt fra driveren", None).na("Ikke innsamlet").info("Appen samler ikke inn driverens eget effektgjennomsnitt. Effekten beregnes fra energitelleren når den finnes, ellers brukes den rapporterte øyeblikksverdien."));
     if na_code(st, "defaultAppClockGfx").is_some() || na_code(st, "customerBoostGfx").is_some() {
         n.kv(Kv::new("appklokker", "Standardklokker (applications clocks)", None).na("Avviklet").info("Avviklet i driveren for dette kortet."));
     }

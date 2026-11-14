@@ -247,6 +247,8 @@ fn plan_7b_sim() -> Vec<Step> {
 
 fn no_draft(app: &Rc<App>) {
     locked::update(app, "utkast", |s| s.utkast = None);
+    // Disse eldre planene prøver eksplisitt hele kurveverktøyet.
+    locked::set_fan_advanced(app, true);
 }
 
 /// Det ekte kortet: låst. Bilder og CPU i ro.
@@ -272,7 +274,7 @@ fn plan_ekte() -> Vec<Step> {
         Set(json!({"theme": "light"})),
         Wait(700),
         Shot("kontroller-utkast-1920-lys"),
-        Click("Tilbakestill alt til standard"),
+        Click("Gjenopprett utgangspunkt"),
         Wait(900),
         Shot("kontroller-tilbakestill-alt-1920-lys"),
         Eval(no_draft),
@@ -343,7 +345,7 @@ fn plan_sim() -> Vec<Step> {
         Click("Behold*"),
         Wait(3000),
         Shot("sim-kontroller-beholdt-1920-lys"),
-        Click("Tilbakestill alt til standard"),
+        Click("Gjenopprett utgangspunkt"),
         Wait(900),
         Shot("sim-kontroller-tilbakestill-alt-1920-lys"),
         Set(json!({"theme": "dark"})),

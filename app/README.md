@@ -10,11 +10,47 @@ Agentic Rigg er et overvåkingsverktøy for skjermkort og maskin på Ubuntu, skr
 
 En allerede åpen app følger nå `--innstillinger DEL`. Hjelperstatus sjekkes også mens styring er låst, slik at ny administratoraktivering oppdages uten å starte vinduet på nytt.
 
-Sidefeltet har et maskinhode med skjermkortet og prosessoren, og tastene 1–9 og 0 går til de ti sidene. Klikk på skjermkortet øverst åpner Grafikkort direkte. Kortet under Skjermkortstyring åpner en smal detaljmeny i sidefeltets bredde, med kortvalg når det finnes flere kort. Ikonene står sentrert også når sidefeltet er lagt sammen. Versjon og byggnummer står i Innstillinger › Om, sammen med signaturen Code Pro. Grafene kutter aldri en verdi: aksen utvides når temperaturen går over 100 °C eller under 20 °C, og krymper først når kurven har roet seg. Denne fila gjelder 1.4.0 · bygg 23. Sensorfilteret slipper fokus ved klikk utenfor og ved sideskifte; Esc tømmer/avslutter søket. Nedtrekksmenyene har tydelige tilstander for valgt rad og tastaturfokus. PCIe-kanten i kortillustrasjonen deler riktige x16-kontaktmål mellom 2D og 3D; modellen er fortsatt en illustrasjon.
+Sidefeltet har et maskinhode med skjermkortet og prosessoren, og tastene 1–9 og 0 går til de ti sidene. Klikk på skjermkortet øverst åpner Grafikkort direkte. Kortet under Skjermkortstyring åpner en smal detaljmeny i sidefeltets bredde, med kortvalg når det finnes flere kort. Ikonene står sentrert også når sidefeltet er lagt sammen. Versjon og byggnummer står i Innstillinger › Om, sammen med signaturen Code Pro. Grafene kutter aldri en verdi: aksen utvides når temperaturen går over 100 °C eller under 20 °C, og krymper først når kurven har roet seg. Denne fila gjelder 1.4.1 · bygg 24. Sensorfilteret slipper fokus ved klikk utenfor og ved sideskifte; Esc tømmer/avslutter søket. Nedtrekksmenyene har tydelige tilstander for valgt rad og tastaturfokus. PCIe-kanten i kortillustrasjonen deler riktige x16-kontaktmål mellom 2D og 3D; modellen er fortsatt en illustrasjon.
 
 Prosessor viser også lanseringsdato når den konkrete modellen er i det lokale oppslaget. Ryzen 7 2700X viser 19. april 2018, med AMD som kilde. Ukjente modeller får ingen antatt dato. Gjennomgangen av øvrige spesifikasjoner og mangler står i `docs/produksjon/spesifikasjoner-revisjon-2026-11-14.md`.
 
 Måleaksene utvides også for 110 °C og klokker over kortets oppgitte maksimum. Ferske topper i langtidsvinduer og viftekurvens målte punkter tas med; lovlige redigeringsgrenser og 0–100 % for last og brukt minne beholdes.
+
+## Nytt i 1.4.1
+
+- **CPU på den faktiske maskinen:** Linux-CPU-ID-er beholdes ved hull i nummerrekken og hotplug. Prosessor, Sensorer og rapport bruker de aktive ID-ene; flere sokler og ulike cachegrupper behandles separat. Cachevarianter og antall bygger på sysfs-identitet og deling, og ukjent antall vises som ukjent. Temperatur bruker sensorens navn; L3-grupper kalles ikke automatisk CCX.
+- **GPU etter funksjonsstøtte:** Klokker, effekt og vifter bruker valgt korts tilgjengelige felt og rapporterte grenser. Viftevisningen skiller ukjent antall, null vifter og én til flere vifter, uten å finne på et kort med to vifter. Kontroller og kurvevalg følger det rapporterte antallet og støtten.
+- **Versjonslogg og bidrag:** Innstillinger og Om åpner en innebygd logg med de ni dokumenterte desktoputgavene, nyeste først. Om krediterer Julian, Anthropic Claude Opus 5.5 (Claude Code) og OpenAI GPT 6.1 Sol (Codex).
+
+GPU-backenden er NVIDIA NVML; AMD-/Intel-GPU-backender er ikke implementert. CPU-, RAM-, hovedkort- og diskdata kommer fra tilgjengelige `/proc`-, sysfs/DMI-, hwmon- og UDisks2-kilder. Manglende data og funksjoner erstattes ikke med spesifikasjoner fra utviklingsmaskinen. Dette er generell håndtering av maskinvaredata, ikke fysisk verifikasjon av alle komponenter og kort.
+
+Utviklet av Julian / bejulian1, med AI-assistanse fra **Anthropic Claude Opus 5.5 (Claude Code)** og **OpenAI GPT 6.1 Sol (Codex)**.
+
+Vifter har Enkel/Avansert visning: Auto og Manuell står først, mens kurve og fininnstillinger samles under Avansert. En aktiv kurve fortsetter uavhengig av visningsvalget. På Vifter og Klokker og effekt ligger Behold/Rull tilbake utenfor den rullende delen, så bekreftelsen fortsatt er synlig etter Bruk. Klokker og effekt følger samme funksjonsrekkefølge: målinger og vanlige justeringer først, avanserte valg under.
+
+| Del | Betydning |
+|---|---|
+| GPU-klokke nå / Minneklokke nå | Faktisk målt klokke; maksimum ved siden av er rapportert av NVIDIA-driveren |
+| GPU-justering / Minnejustering | Offset i MHz. 0 betyr ingen justering, ikke at klokken er 0 MHz |
+| Effektgrense | Både W og prosent av kortets standard |
+| Avansert · temperaturmål og vifter | Temperaturmål, viftevalg og lenken Åpne Vifter |
+| Avansert · kortets grenser og funksjoner | Rapporterbare grenser og forklaringer på utilgjengelig støtte |
+
+Rapportert maksimum og referanseverdier er separate fra klokken som måles nå. Boost, temperatur og effekt påvirker den faktiske hastigheten; appen beregner ingen fremtidig sluttklokke fra maksimum pluss justering. Minnejusteringen er et offset, ikke en fast minnefrekvens eller en båndbredde i Gb/s. Hjelp følger faktisk styringsstatus; endret forklaring i hjelp endrer ikke NVML-omregningen.
+
+Den allerede autoriserte GPU-hjelperen fra bygg 23 kan brukes videre av app/daemon bygg 24 med protokoll 2. Minimumsbygget er eksplisitt; eldre bygg, ukjent nyere hjelper og annen protokoll avvises. Dette endrer ikke HW-sikkerhetsmotoren og krever ingen ny aktivering bare for UI-oppdateringen. Ved senere sikkerhetsretting økes minimumsbygget og ved behov protokollen.
+
+**Viftestopp / Zero RPM:** På det undersøkte kortet rapporterer driveren 35–100 % som manuelt innstillingsområde. Det vises som «Minst 35 % (driver)». Dette avgjør ikke om automatisk styring kan stoppe viftene: NVML-funksjonen beskriver grensene brukeren kan sette. Automatisk Zero RPM er fortsatt ubekreftet, og appen har ikke fått en slik funksjon eller prøvd 0 %. Grenser og backend er uendret. Se [NVIDIAs NVML-referanse](https://docs.nvidia.com/deploy/nvml-api/latest/api/group__nvmlDeviceQueries.html). [Forumtråden om minimumshastighet](https://forums.developer.nvidia.com/t/any-workaround-to-the-30-fan-speed-limitation-on-newer-nvidia-gpus/291486) inneholder brukererfaringer med forskjellige kort/drivere; disse er ikke bevis for dette kortets støtte.
+
+**Sluttkontroll for 1.4.1:** 410 tester bestått, 4 ignorert og ingen feil; ren workspace-clippy. Private GTK-planer bestod for versjonsloggens to innganger og rekkefølge, fast Behold etter rulling, ukjent/0/1/3 vifter og smal visning, samt Prosessor, System og Disker i lyst/mørkt. Manuell 55 % forble bekreftet etter 71 s i simulering. Produksjonsbinærene oppgir 1.4.1 bygg 24. Ingen nye GPU-skriveprøver er utført; HW-sikkerhetsmotoren er uendret.
+
+## Data fra maskinen og støtteomfang
+
+Appen samler CPU-identitet og last fra `/proc/cpuinfo` og `/proc/stat`, tilgjengelige klokke-/cacheopplysninger fra sysfs og sensorer fra hwmon. RAM-bruk kommer fra `/proc/meminfo`; hovedkort og BIOS fra lesbare DMI-felt. Disk-I/O kommer fra `/proc/diskstats`, mens tilgjengelig SMART-/NVMe-helse leses gjennom UDisks2. Disse kildene beskriver den aktuelle maskinen og er ikke et fast Ryzen-/RTX 2080-oppsett.
+
+Dette gir ikke automatisk alle spesifikasjoner: RAM-modulenes EEPROM/timinger leses ikke, root-beskyttede DMI-felt åpnes ikke, og sensorer avhenger av drivere og hva kjernen eksponerer. Hovedkortets modellnavn betyr ikke at appen kan styre hovedkortvifter eller RGB. Kildemerkede referansetabeller må holdes atskilt fra avleste verdier; en ukjent modell skal ikke få RTX 2080-spesifikasjoner som erstatning.
+
+GPU-overvåking og -styring har foreløpig NVIDIA NVML-backend. AMD-/Intel-GPU-backender er ikke implementert. Styringssider og kommende utvidelser skal følge valgt korts faktiske funksjoner, områder og enheter. Manglende støtte på ett felt skal forklares for det feltet. Det er ingen påstand om at alle NVIDIA-modeller, CPU-er, RAM-oppsett eller hovedkort er fysisk testet.
 
 ## Bygge
 
@@ -121,7 +157,7 @@ Agentic Rigg overvåker uten administratorrettigheter. I 1.4.0 er NVML-styring i
 
 Til slutt bekreftet reset 245 W, offset 0/0 MHz, temperaturmål 83 °C og Auto på begge viftene. Temperaturmålet ble først bare lest; en senere enkeltprøve verifiserte også 83 → 82 °C med revert og reset. En flat 50 %-kurve holdt begge vifter på målet i 4 s; avsluttende reset bekreftet igjen utgangspunktet. Appen 1.4.0 · bygg 23 er installert; binærhash og uendrede innstillinger er kontrollert, og historikken er sikret. En etterfølgende prøve gikk gjennom den installerte NVML-daemonen: `hello`, `get_helper` og `get_state` bekreftet kortbindingen; 240 W ble brukt og beholdt med `confirm`, lest tilbake og resatt til 245 W. En ny 240 W-endring med 10 s frist uten Behold ga en autoritativ `rolled_back`/`timeout`-hendelse, og fersk NVML-getter viste 245 W før noe ekstra reset-kall. Avsluttende reset bekreftet `stock: true`. Dette verifiserer daemonvideresending og transaksjonsflyt for effektgrensen, ikke alle GUI-handlinger mot fysisk GPU. Alle grenser, positiv overklokking, stresstest, drivertap og strømbrudd er heller ikke prøvd.
 
-**Sluttkontroll:** 388 bestått, 4 ignorert og 0 feilet; workspace-clippy på alle mål er ren. Den endelige native UI-planen bestod, inkludert klokkesiden med den nye statusvakten. Den oppdaterte installerte appen startet på Klokker og effekt; klar hjelper og samsvarende kortidentitet er bekreftet.
+**Sluttkontroll for 1.4.0:** 388 bestått, 4 ignorert og 0 feilet; workspace-clippy på alle mål er ren. Den endelige native UI-planen bestod, inkludert klokkesiden med den nye statusvakten. Den oppdaterte installerte appen startet på Klokker og effekt; klar hjelper og samsvarende kortidentitet er bekreftet.
 
 **Viftevern:** Nødregelen over 85 °C bruker bare faktisk tilgjengelig viftestyring og slipper under 80 °C. Temperaturbortfall under Manuell utløser gjenoppretting. Kurvemotoren har utjevning, hysterese, rampe og feilhåndtering; feil ved skriving meldes videre og behandles som gjenopprettingsbehov. Dette er implementert og dekket av sim-/mocktester, men ikke bekreftet på fysisk GPU ennå.
 

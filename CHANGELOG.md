@@ -1,6 +1,20 @@
 # Versjonslogg
 
-Nyeste utgave: **1.4.0 · bygg 23**. Nedlastinger og utgivelsesnotater ligger under [Releases](https://github.com/bejulian1/agentic-rigg/releases).
+Gjeldende versjon: **1.4.1 · bygg 24**. Nedlastinger og utgivelsesnotater ligger under [Releases](https://github.com/bejulian1/agentic-rigg/releases).
+
+## 1.4.1 · bygg 24 – 14. november 2026
+
+- Vifter får Enkel/Avansert visning: vanlig valg av Auto/Manuell først, kurver og detaljert oppførsel under Avansert. En aktiv kurve fortsetter i Enkel visning og forklares der.
+- Behold/Rull tilbake ligger fast synlig på Vifter og Klokker og effekt mens innholdet rulles.
+- Klokker viser GPU-/minneklokke nå med NVIDIA-driverens rapporterte maksimum, mens GPU-justering og Minnejustering forklares som offset der 0 betyr ingen justering. Effektgrensen vises i W og prosent av kortets standard; temperaturmål, vifter og grensestøtte samles under Avansert. Hjelp følger faktisk styringsstatus.
+- Oppdateringen kan bruke allerede autorisert GPU-hjelper fra bygg 23 med protokoll 2. Eldre, ukjent nyere eller annen protokoll avvises. Sikkerhetsmotoren endres ikke.
+- Vifteminimum omtales som driverens manuelle område, ikke et bevis på fysisk umulig viftestopp. Automatisk Zero RPM er fortsatt ubekreftet; presiseringen innfører ingen ny styringsgrense eller Zero RPM-funksjon.
+
+- **CPU på den faktiske maskinen:** Linux-CPU-ID-er beholdes ved hull i nummerrekken og hotplug. Prosessor, Sensorer og rapport bruker de aktive ID-ene; flere sokler og ulike cachegrupper behandles separat. Cachevarianter og antall bygger på sysfs-identitet og deling, og ukjent antall vises som ukjent. Temperatur bruker sensorens navn; L3-grupper kalles ikke automatisk CCX.
+- **GPU etter funksjonsstøtte:** Klokker, effekt og vifter bruker valgt korts tilgjengelige felt og rapporterte grenser. Viftevisningen skiller ukjent antall, null vifter og én til flere vifter, uten å finne på et kort med to vifter. Kontroller og kurvevalg følger det rapporterte antallet og støtten.
+- **Versjonslogg og bidrag:** Innstillinger og Om åpner en innebygd logg med de ni dokumenterte desktoputgavene, nyeste først. Om krediterer Julian, Anthropic Claude Opus 5.5 (Claude Code) og OpenAI GPT 6.1 Sol (Codex).
+
+- **Sluttkontroll:** 410 tester bestått, 4 ignorert og ingen feil; ren workspace-clippy. Private GTK-planer bestod for versjonsloggens to innganger og rekkefølge, fast Behold etter rulling, ukjent/0/1/3 vifter og smal visning, samt Prosessor, System og Disker i lyst/mørkt. Manuell 55 % forble bekreftet etter 71 s i simulering. Produksjonsbinærene oppgir 1.4.1 bygg 24. Ingen nye GPU-skriveprøver er utført; HW-sikkerhetsmotoren er uendret.
 
 ## 1.4.0 · bygg 23 – 14. november 2026
 

@@ -1,8 +1,8 @@
 //! Prosessor (1.1.0, runde 6A): CPU-Z-delen som lå på System, gjort om til en
-//! CPU-Z/HWiNFO-side. Øverst de levende tallene (Tdie og Tctl, total last,
+//! CPU-Z/HWiNFO-side. Øverst de levende tallene (CPU-temperatur, total last,
 //! snitt- og toppklokke, governor og boost), så prosessoren, cachen,
 //! instruksjonssettene og sårbarhetene, og nederst klokke og last per tråd
-//! gruppert etter CCX og kjerne (trådene som deler en kjerne, står sammen).
+//! gruppert etter L3-gruppe og kjerne (trådene som deler en kjerne, står sammen).
 //!
 //! De faste dataene hentes én gang (`get_system`); de levende tallene kommer
 //! fra prøvene og oppdateres bare mens siden vises. Rekkefølgen: Nå, klokke
@@ -11,8 +11,8 @@
 use super::{Key, Page};
 use crate::rapport_ui::Sections;
 use crate::state::App;
-use crate::widgets::trader::{GroupDef, ThreadGrid};
 use crate::widgets::spark::SparkOpts;
+use crate::widgets::trader::{GroupDef, ThreadGrid};
 use crate::widgets::{Icon, Panel, Spark, class, hbox, label, set_text, vbox};
 use gtk::glib;
 use gtk::prelude::*;
@@ -158,13 +158,19 @@ pub fn cpu_list(s: &str) -> Vec<usize> {
 /// Én kjerne og trådene den har.
 pub type CoreThreads = (Option<u32>, Vec<usize>);
 
-/// Gruppene på siden: (CCX-navn, [(kjerne, [tråder])]). Trådene som deler en
-/// kjerne (`core_id`), står sammen; uten L3-gruppene er det én gruppe.
-pub fn groups(threads: usize, l3: &[String], core_of: &[Option<u32>]) -> Vec<(String, Vec<CoreThreads>)> {
-    let mut sets: Vec<Vec<usize>> = l3.iter().map(|g| cpu_list(g).into_iter().filter(|t| *t < threads).collect::<Vec<_>>()).filter(|g| !g.is_empty()).collect();
-    let covered: usize = sets.iter().map(Vec::len).sum();
-    if sets.len() < 2 || covered != threads {
-        sets = vec![(0..threads).collect()];
+/// Gruppene på siden: (L3-gruppenavn, [(kjerne, [tråder])]). Trådene som deler en
+/// kjerne (pakke + `core_id`), står sammen; uten L3-gruppene er det én gruppe.
+pub fn groups(thread_ids: &[usize], l3: &[String], core_of: &[Option<u32>], package_of: &[Option<u32>]) -> Vec<(String, Vec<CoreThreads>)> {
+    if thread_ids.is_empty() {
+        return Vec::new();
+    }
+    let mut sets: Vec<Vec<usize>> = l3.iter().map(|g| cpu_list(g).into_iter().filter(|t| thread_ids.contains(t)).collect::<Vec<_>>()).filter(|g| !g.is_empty()).collect();
+    let mut covered: Vec<usize> = sets.iter().flatten().copied().collect();
+    covered.sort_unstable();
+    let mut expected = thread_ids.to_vec();
+    expected.sort_unstable();
+    if sets.len() < 2 || covered != expected {
+        sets = vec![thread_ids.to_vec()];
     }
     let many = sets.len() > 1;
     sets.into_iter()
@@ -173,15 +179,24 @@ pub fn groups(threads: usize, l3: &[String], core_of: &[Option<u32>]) -> Vec<(St
             let mut cores: Vec<CoreThreads> = Vec::new();
             for t in set {
                 let c = core_of.get(t).copied().flatten();
-                match cores.iter_mut().find(|(k, _)| c.is_some() && *k == c) {
+                let package = package_of.get(t).copied().flatten();
+                match cores.iter_mut().find(|(k, ts)| c.is_some() && package.is_some() && *k == c && package_of.get(ts[0]).copied().flatten() == package) {
                     Some((_, v)) => v.push(t),
                     None => cores.push((c, vec![t])),
                 }
             }
-            cores.sort_by_key(|(c, v)| (c.unwrap_or(u32::MAX), v[0]));
-            (if many { format!("CCX {i}") } else { "Alle kjerner".to_string() }, cores)
+            cores.sort_by_key(|(c, v)| (package_of.get(v[0]).copied().flatten().unwrap_or(u32::MAX), c.unwrap_or(u32::MAX), v[0]));
+            (if many { format!("L3-gruppe {i}") } else { "Alle kjerner".to_string() }, cores)
         })
         .collect()
+}
+
+fn core_label(core: Option<u32>, thread: usize, package_of: &[Option<u32>], many_packages: bool) -> String {
+    match (core, package_of.get(thread).copied().flatten()) {
+        (Some(c), Some(p)) if many_packages => format!("Pakke {p} · kjerne {c}"),
+        (Some(c), Some(_)) => format!("Kjerne {c}"),
+        _ => format!("T{thread}"),
+    }
 }
 
 struct Flags {
@@ -364,9 +379,10 @@ impl State {
             }
         }
         let sys = self.app.sys().unwrap_or_default();
+        let thread_ids = report::system::cpu_thread_ids(&self.system.borrow()["cpu"]);
         let now = self.app.telemetry().map(|t| t.t).unwrap_or_else(rigg_core::now_ms);
         let th = self.app.settings().thresholds.clone();
-        // Temperatur: Tdie, med Tctl under.
+        // Temperatur med navnet fra den valgte CPU-sensoren.
         let t = rigg_core::sensormeta::cpu_temp(&sys);
         set_text(&self.live.temp.value, &F::temp(t, 1));
         let lvl = match t {
@@ -377,27 +393,34 @@ impl State {
         for c in ["warn", "danger"] {
             class(&self.live.temp.value, c, c == lvl);
         }
-        set_text(&self.live.temp.sub, &sys.cpu.tctl.map(|c| format!("Tctl {}", F::temp(Some(c), 1))).unwrap_or_else(|| "Tdie".into()));
+        let source = rigg_core::sensormeta::cpu_temp_sensor(&sys).filter(|s| s.value.is_some() && !s.label.is_empty() && s.label != s.key).map(|s| s.label.clone()).unwrap_or_else(|| "CPU-temperatur".into());
+        let detail = match sys.cpu.tctl.filter(|_| source != "Tctl") {
+            Some(c) => format!("{source} · Tctl {}", F::temp(Some(c), 1)),
+            None => source,
+        };
+        set_text(&self.live.temp.sub, &detail);
         if let Some(sp) = &self.live.temp.spark {
             sp.set_points(&self.app.recent("cpu/temp").iter().map(|(t, v)| (*t, F::temp_out(Some(*v)).unwrap_or(*v))).collect::<Vec<_>>(), now, SparkOpts { span_ms: 60_000, fixed: None, min_span: 10.0 });
             sp.set_level(lvl);
         }
         // Last: total, og den travleste tråden.
         set_text(&self.live.load.value, &F::pct(sys.cpu.load, 1));
-        let busiest = sys.cpu.core_load.iter().enumerate().filter_map(|(i, l)| l.map(|l| (i, l))).max_by(|a, b| a.1.total_cmp(&b.1));
+        let busiest = thread_ids.iter().filter_map(|&i| sys.cpu.core_load.get(i).copied().flatten().map(|l| (i, l))).max_by(|a, b| a.1.total_cmp(&b.1));
         set_text(&self.live.load.sub, &busiest.map(|(i, l)| format!("travlest T{i} {}", F::pct(Some(l), 0))).unwrap_or_default());
         if let Some(sp) = &self.live.load.spark {
             sp.set_points(&self.app.recent("cpu/load"), now, SparkOpts { span_ms: 60_000, fixed: Some((0.0, 100.0)), min_span: 0.0 });
         }
         // Klokke: snitt og høyeste tråd nå, og høyeste som er målt.
-        let mhz: Vec<(usize, f64)> = sys.cpu.core_mhz.iter().enumerate().filter_map(|(i, m)| m.map(|m| (i, m))).collect();
+        let mhz: Vec<(usize, f64)> = thread_ids.iter().filter_map(|&i| sys.cpu.core_mhz.get(i).copied().flatten().map(|m| (i, m))).collect();
         let avg = (!mhz.is_empty()).then(|| mhz.iter().map(|m| m.1).sum::<f64>() / mhz.len() as f64);
         set_text(&self.live.clock.value, &F::mhz(avg));
         let top = mhz.iter().max_by(|a, b| a.1.total_cmp(&b.1));
         let max_seen = self.max_thread_mhz();
         // «T14 3 950 · maks 4 125 MHz»: høyeste tråd nå, og høyeste målt.
         let sub = match (top, max_seen) {
-            (Some((i, m)), Some(x)) => format!("T{i} {} · maks {}", F::num(Some(*m), 0), F::mhz(Some(x))),
+            (Some((i, m)), Some(x)) => {
+                format!("T{i} {} · maks {}", F::num(Some(*m), 0), F::mhz(Some(x)))
+            }
             (Some((i, m)), None) => format!("T{i} {}", F::mhz(Some(*m))),
             _ => String::new(),
         };
@@ -405,8 +428,7 @@ impl State {
         self.live.clock.sub.set_tooltip_text(Some("Tråden med høyest klokke nå, og den høyeste trådklokken tjenesten har målt siden min og maks ble nullstilt."));
         if let Some(sp) = &self.live.clock.spark {
             // Snittet over trådene per prøve, fra sparklinjene til hver tråd.
-            let n = sys.cpu.core_mhz.len();
-            let series: Vec<Vec<(i64, f64)>> = (0..n).map(|i| self.app.recent(&format!("cpu/thread/{i}/mhz"))).collect();
+            let series: Vec<Vec<(i64, f64)>> = thread_ids.iter().map(|i| self.app.recent(&format!("cpu/thread/{i}/mhz"))).collect();
             let pts: Vec<(i64, f64)> = series.first().map(|first| {
                 first.iter().enumerate().filter_map(|(j, (t, _))| {
                     let vals: Vec<f64> = series.iter().filter_map(|s| s.get(j).filter(|p| p.0 == *t).map(|p| p.1)).collect();
@@ -485,23 +507,27 @@ impl State {
         }
     }
 
-    /// Grupperer trådene etter CCX og kjerne når tallet på tråder eller topologien endres.
-    fn build_groups(&self, threads: usize) {
+    /// Grupperer trådene etter L3-gruppe og kjerne når tallet på tråder eller topologien endres.
+    fn build_groups(&self, thread_ids: &[usize]) {
         let system = self.system.borrow();
         let cpu = &system["cpu"];
         let l3: Vec<String> = cpu["l3Groups"].as_array().map(|a| a.iter().filter_map(|x| x.as_str().map(str::to_string)).collect()).unwrap_or_default();
         let core_of: Vec<Option<u32>> = cpu["coreOf"].as_array().map(|a| a.iter().map(|x| x.as_u64().map(|v| v as u32)).collect()).unwrap_or_default();
-        let sig = format!("{threads}|{l3:?}|{core_of:?}");
+        let package_of: Vec<Option<u32>> = cpu["packageOf"].as_array().map(|a| a.iter().map(|x| x.as_u64().and_then(|v| u32::try_from(v).ok())).collect()).unwrap_or_default();
+        let many_packages = package_of.iter().flatten().collect::<std::collections::BTreeSet<_>>().len() > 1;
+        let sig = format!("{thread_ids:?}|{l3:?}|{core_of:?}|{package_of:?}");
         if *self.groups_sig.borrow() == sig {
             return;
         }
         *self.groups_sig.borrow_mut() = sig;
-        let l3_size = cpu["caches"].as_array().and_then(|c| c.iter().find(|x| x["level"].as_u64() == Some(3))).and_then(|x| x["size"].as_f64());
-        let defs = groups(threads, &l3, &core_of)
+        let l3_size = cpu["caches"].as_array().filter(|c| c.iter().filter(|x| x["level"].as_u64() == Some(3)).count() == 1).and_then(|c| c.iter().find(|x| x["level"].as_u64() == Some(3))).and_then(|x| x["size"].as_f64());
+        let defs = groups(thread_ids, &l3, &core_of, &package_of)
             .into_iter()
             .map(|(name, cores)| {
-                let info = [Some(F::plural(cores.len() as i64, "kjerne", "kjerner")), l3_size.filter(|_| name.starts_with("CCX")).map(|s| format!("{} L3", F::bytes(Some(s), 0)))].into_iter().flatten().collect::<Vec<_>>().join(" · ");
-                let cores = cores.into_iter().map(|(c, ts)| (c.map(|c| format!("Kjerne {c}")).unwrap_or_else(|| format!("T{}", ts[0])), ts)).collect();
+                let known = cores.iter().all(|(core, ts)| core.is_some() && package_of.get(ts[0]).is_some_and(Option::is_some));
+                let count = if known { F::plural(cores.len() as i64, "kjerne", "kjerner") } else { F::plural(cores.len() as i64, "trådgruppe", "trådgrupper") };
+                let info = [Some(count), l3_size.filter(|_| name.starts_with("L3-gruppe ")).map(|s| format!("{} L3", F::bytes(Some(s), 0)))].into_iter().flatten().collect::<Vec<_>>().join(" · ");
+                let cores = cores.into_iter().map(|(c, ts)| (core_label(c, ts[0], &package_of, many_packages), ts)).collect();
                 GroupDef { name, info, cores }
             })
             .collect();
@@ -509,16 +535,14 @@ impl State {
     }
 
     fn render_cores(&self) {
-        // Topologien (CCX og kjerner) kommer med get_system; vent på den.
+        // Topologien (L3-grupper og kjerner) kommer med get_system; vent på den.
         if self.system.borrow().is_null() {
             return;
         }
         let sys = self.app.sys().unwrap_or_default();
         let n = sys.cpu.core_load.len().max(sys.cpu.core_mhz.len());
-        if n == 0 {
-            return;
-        }
-        self.build_groups(n);
+        let thread_ids = report::system::cpu_thread_ids(&self.system.borrow()["cpu"]);
+        self.build_groups(&thread_ids);
         // Klokkene til nærmeste 25 MHz (trinnet P-tilstandene har), så tallene
         // står roligere; widgeten tegner bare når noe som vises, har endret seg.
         let vals = (0..n).map(|i| (sys.cpu.core_mhz.get(i).copied().flatten().map(|m| (m / 25.0).round() * 25.0), sys.cpu.core_load.get(i).copied().flatten())).collect();
@@ -563,14 +587,14 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     tiles.add_css_class("pr-tiles");
     tiles.set_column_homogeneous(true);
     let live = Live {
-        temp: tile(&tiles, "Temperatur (Tdie)", "Tdie er brikkens egen temperatur. Tctl, som viftestyringen bruker, ligger 10 °C over på Ryzen 2000 X-modeller.", Some("temp")),
+        temp: tile(&tiles, "CPU-temperatur", "Temperatur fra CPU-sensoren. Sensorens navn står under verdien når det er tilgjengelig; det kan for eksempel være Tdie, Tctl eller Package id 0.", Some("temp")),
         load: tile(&tiles, "Last", "Total last fra /proc/stat, siste minutt i linja.", Some("load")),
         clock: tile(&tiles, "Klokke (snitt)", "Snittet over alle trådene (APERF/MPERF fra cpufreq). Med boost går enkelttråder over maks.", Some("clock")),
         gov: tile(&tiles, "Governor", "Strategien kjernen bruker for klokken, og driveren (cpufreq).", None),
     };
     now_panel.body.append(&tiles);
     root.append(&now_panel.root);
-    // ---- Klokke og last per tråd, gruppert etter CCX og kjerne ----
+    // ---- Klokke og last per tråd, gruppert etter L3-gruppe og kjerne ----
     let cores_panel = Panel::new("Klokke og last per tråd");
     cores_panel.root.add_css_class("sec");
     cores_panel.root.add_css_class("pr-cores");
@@ -679,23 +703,65 @@ mod tests {
     use super::*;
 
     #[test]
-    fn ccx_og_kjerner_på_2700x() {
-        // Ryzen 7 2700X: to CCX-er, tråd i og i + 8 deler kjerne.
+    fn spredte_cpu_ider_beholdes_uten_oppfunne_trader() {
+        let ids = [2, 3, 8, 11];
+        let mut core_of = vec![None; 12];
+        core_of[2] = Some(0);
+        core_of[3] = Some(1);
+        core_of[8] = Some(0);
+        core_of[11] = Some(1);
+        let package_of = vec![Some(0); 12];
+        let g = groups(&ids, &["0-3,8".into(), "4-7,11".into()], &core_of, &package_of);
+        assert_eq!(g[0].0, "L3-gruppe 0");
+        assert_eq!(g.iter().flat_map(|g| &g.1).flat_map(|c| &c.1).copied().collect::<Vec<_>>(), vec![2, 8, 3, 11]);
+        let g = groups(&ids, &["0-3".into()], &core_of, &package_of);
+        assert_eq!(g.len(), 1);
+        assert_eq!(g[0].1, vec![(Some(0), vec![2, 8]), (Some(1), vec![3, 11])]);
+        assert!(groups(&[], &["0-3".into()], &core_of, &package_of).is_empty());
+    }
+
+    #[test]
+    fn l3_grupper_og_kjerner() {
+        // To L3-grupper; tråd i og i + 8 deler kjerne. Gruppenavnet antar ingen CPU-modell.
         let core_of: Vec<Option<u32>> = (0..16).map(|t| Some(t % 8)).collect();
-        let g = groups(16, &["0-3,8-11".into(), "4-7,12-15".into()], &core_of);
+        let package_of = vec![Some(0); 16];
+        let g = groups(&(0..16).collect::<Vec<_>>(), &["0-3,8-11".into(), "4-7,12-15".into()], &core_of, &package_of);
         assert_eq!(g.len(), 2);
-        assert_eq!(g[0].0, "CCX 0");
+        assert_eq!(g[0].0, "L3-gruppe 0");
         assert_eq!(g[0].1.len(), 4);
         assert_eq!(g[0].1[0], (Some(0), vec![0, 8]));
         assert_eq!(g[1].1[3], (Some(7), vec![7, 15]));
         // Uten L3-grupper: én gruppe.
-        let g = groups(4, &[], &[Some(0), Some(1), Some(0), Some(1)]);
+        let g = groups(&[0, 1, 2, 3], &[], &[Some(0), Some(1), Some(0), Some(1)], &package_of);
         assert_eq!(g.len(), 1);
         assert_eq!(g[0].0, "Alle kjerner");
         assert_eq!(g[0].1, vec![(Some(0), vec![0, 2]), (Some(1), vec![1, 3])]);
         // Uten topologi: én flis per tråd.
-        let g = groups(2, &[], &[]);
+        let g = groups(&[0, 1], &[], &[], &[]);
         assert_eq!(g[0].1, vec![(None, vec![0]), (None, vec![1])]);
         assert_eq!(cpu_list("0-3,8-11"), vec![0, 1, 2, 3, 8, 9, 10, 11]);
+    }
+
+    #[test]
+    fn to_pakker_med_likt_core_id_holdes_adskilt_uten_full_l3_topologi() {
+        let ids = [0, 1, 8, 9];
+        let mut core_of = vec![None; 10];
+        let mut package_of = vec![None; 10];
+        for id in ids {
+            core_of[id] = Some(0);
+            package_of[id] = Some(if id < 8 { 0 } else { 1 });
+        }
+        for l3 in [vec![], vec!["0-1".into()]] {
+            let g = groups(&ids, &l3, &core_of, &package_of);
+            assert_eq!(g.len(), 1);
+            assert_eq!(g[0].1, vec![(Some(0), vec![0, 1]), (Some(0), vec![8, 9])]);
+        }
+        assert_eq!(core_label(Some(0), 0, &package_of, true), "Pakke 0 · kjerne 0");
+        assert_eq!(core_label(Some(0), 8, &package_of, true), "Pakke 1 · kjerne 0");
+        package_of[8] = None;
+        package_of[9] = None;
+        let g = groups(&ids, &[], &core_of, &package_of);
+        assert_eq!(g[0].1.len(), 3, "ukjent pakke beviser ikke at to tråder deler kjerne");
+        assert_eq!(core_label(Some(0), 8, &package_of, true), "T8");
     }
 }

@@ -12,7 +12,7 @@
 //!    vinduet kontrollerer også at valgt kort samsvarer med bindingen.
 //!
 //! `riggd` sender en skriveoperasjon videre bare når hjelperen svarer, er fra
-//! samme bygg, har samme backend som tjenesten og stemmer med kortidentiteten.
+//! kompatibelt bygg/protokoll, samme backend og samsvarende kortidentitet.
 //! Ellers svarer den `write_locked` med `details.reason`. Trinn beholdes som
 //! feltgrupper og for eldre simulerte tester, ikke som separate godkjenninger.
 
@@ -22,6 +22,15 @@ use std::path::{Path, PathBuf};
 
 /// Protokollen mellom `riggd` og hjelperen (NDJSON, som `proto`).
 pub const PROTOCOL: u32 = 2;
+/// Gjennomgått sikkerhetsmotor. Øk ved sikkerhetsrettinger som eldre hjelpere
+/// ikke må få omgå; rene UI-patcher kan beholde autorisasjonen fra dette bygget.
+pub const MIN_COMPATIBLE_BUILD: u32 = 23;
+
+/// Bare kjente hjelpere innen samme protokoll godtas. En nyere hjelper enn
+/// appen krever også oppdatering; ingen fremtidig kompatibilitet antas.
+pub fn compatible(protocol: u32, build: u32) -> bool {
+    protocol == PROTOCOL && (MIN_COMPATIBLE_BUILD..=crate::version::build()).contains(&build)
+}
 /// Største melding til hjelperen (byte per linje).
 pub const MAX_LINE: usize = 16_384;
 /// Høyst så mange samtidige forbindelser til hjelperen.
@@ -375,6 +384,17 @@ pub fn locked(reason: &str) -> ProtoError {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn uioppdatering_beholder_kompatibel_hjelper_men_ikke_eldre_motor() {
+        assert!(crate::version::build() >= 24);
+        assert!(compatible(PROTOCOL, 23));
+        assert!(compatible(PROTOCOL, crate::version::build()));
+        assert!(!compatible(PROTOCOL, 22));
+        assert!(!compatible(PROTOCOL - 1, 23));
+        assert!(!compatible(PROTOCOL + 1, 23));
+        assert!(!compatible(PROTOCOL, crate::version::build() + 1));
+    }
 
     #[test]
     fn helper_json_tolkes_strengt() {

@@ -727,6 +727,7 @@ pub struct OcRow {
     /// Over glideren (viftemodus på Vifte-raden).
     pub top: gtk::Box,
     right_stack: gtk::Stack,
+    signed: bool,
     text: gtk::Box,
     pub mid: gtk::Box,
     right: gtk::Box,
@@ -822,6 +823,7 @@ impl OcRow {
             reset_text,
             top,
             right_stack,
+            signed,
             text,
             mid,
             right,
@@ -877,6 +879,13 @@ impl OcRow {
         self.slider.set_card(card);
         self.slider.set_value(value);
         match value {
+            Some(v) if v < self.spin.range().0 || v > self.spin.range().1 => {
+                // En faktisk verdi utenfor appens redigeringspolicy må ikke
+                // bli klampet til en annen verdi av GtkSpinButton.
+                let text = if matches!(self.unit.text().as_str(), "°C" | "°F") { temp_spin_text(v) } else { rigg_core::fmt::num(Some(v), self.spin.digits() as usize) };
+                set_text(&self.value, &if self.signed && v > 0.0 { format!("+{text}") } else { text });
+                self.right_stack.set_visible_child_name("les");
+            }
             Some(v) => {
                 if self.right_stack.visible_child_name().as_deref() != Some("spin") {
                     self.right_stack.set_visible_child_name("spin");
@@ -885,7 +894,7 @@ impl OcRow {
                     self.spin.set_value(v);
                 }
             }
-            None => self.right_stack.set_visible_child_name("les"),
+            None => { set_text(&self.value, "–"); self.right_stack.set_visible_child_name("les"); },
         }
         self.quiet.set(false);
         let at_stock = match (value, stock) {

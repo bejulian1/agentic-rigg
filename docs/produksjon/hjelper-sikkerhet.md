@@ -1,5 +1,13 @@
 # Root-hjelperen · sikkerhet og begrensninger
 
+## UI-kompatibilitet · 1.4.1, bygg 24
+
+1.4.1 endrer brukerflaten og lar app/daemon bygg 24 bruke brukerens allerede autoriserte hjelper fra bygg 23. HW-sikkerhetsmotor, baseline, frister og recovery er uendret. `MIN_COMPATIBLE_BUILD = 23` og eksakt protokoll 2 kontrolleres både ved oppdagelse og løpende status. Bare bygg fra minimum til appens eget bygg godtas; ukjent nyere hjelper, eldre bygg, feil protokoll og ugyldige metadata avvises. Kortbinding, uid og faktisk klarstatus kreves fortsatt.
+
+Ved sikkerhetsrettinger som eldre hjelpere ikke må få omgå, skal minimumsbygget økes; inkompatibel protokoll eller endrede sikkerhetsforutsetninger krever ved behov protokolløkning. Dette følger nå av AGENTS.md. Denne snevre kompatibiliteten gjelder ikke automatisk alle senere oppdateringer. Kompatibilitetskontrollen inngår i en full workspace-kjøring med 396 bestått, 4 ignorert og 0 feil samt ren clippy. En lesende kontroll med daemon 24 og eksisterende root-hjelper 23 bekreftet On/ready uten HW-skriving eller ny aktivering. 1.4.1 er ikke bekreftet installert/publisert. Detaljer står i `kritikk-1.4.1.md`; maskinvareprøvene nedenfor gjelder 1.4.0.
+
+**Presisering om viftestopp i 1.4.1:** Det rapporterte manuelle området 35–100 % avgjør ikke om automatisk styring kan stoppe viftene. [NVIDIAs beskrivelse av `nvmlDeviceGetMinMaxFanSpeed`](https://docs.nvidia.com/deploy/nvml-api/latest/api/group__nvmlDeviceQueries.html) gjelder hva brukeren kan sette. Automatisk Zero RPM er ubekreftet på dette kortet. Eldre historikk nedenfor som tilskriver 35 %-grensen en fysisk VBIOS-begrensning er derfor for bastant og skal ikke brukes som gjeldende konklusjon. Teksten er korrigert uten backend-/grenseendring, nye skrivekall eller 0 %-prøve.
+
 ## Gjeldende modell · 1.4.0, bygg 23 · 14. november 2026
 
 Dette avsnittet erstatter den tidligere modellens fire godkjenningstrinn og absolutte NVML-skrivelås. Historikken fra 1.2.0 er bevart lenger ned. Brukeren har autorisert implementasjon av kortbundet GPU-styring gjennom én administratoraktivering. RGB/I2C, CPU, hovedkortvifter, systempakker og kjernemoduler inngår ikke i denne styringen.
