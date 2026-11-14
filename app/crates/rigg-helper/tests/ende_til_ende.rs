@@ -1,6 +1,6 @@
 //! Hjelperen som vanlig bruker, ende til ende: `agentic-rigg-helper
 //! --backend sim --socket <tmp> --config <tmp>/helper.json` som barneprosess.
-//! Ingen root, ingen systemd, ingen NVML (sim, og `nvml` er sperret).
+//! Ingen root, ingen systemd og ingen NVML (sim eller avvist legacy-oppsett).
 #![allow(clippy::disallowed_methods)] // testene starter hjelperen som barneprosess
 
 use serde_json::{Value, json};
@@ -14,7 +14,11 @@ use std::time::{Duration, Instant};
 fn tmpdir(tag: &str) -> PathBuf {
     use std::sync::atomic::{AtomicU32, Ordering};
     static N: AtomicU32 = AtomicU32::new(0);
-    let d = std::env::temp_dir().join(format!("hjelper-{tag}-{}-{}", std::process::id(), N.fetch_add(1, Ordering::Relaxed)));
+    let d = std::env::temp_dir().join(format!(
+        "hjelper-{tag}-{}-{}",
+        std::process::id(),
+        N.fetch_add(1, Ordering::Relaxed)
+    ));
     let _ = std::fs::remove_dir_all(&d);
     std::fs::create_dir_all(&d).unwrap();
     std::fs::set_permissions(&d, std::fs::Permissions::from_mode(0o755)).unwrap();
@@ -30,7 +34,12 @@ pub fn write_config(dir: &Path, uid: u32, steps: &[&str]) {
     std::fs::create_dir_all(&etc).unwrap();
     std::fs::set_permissions(&etc, std::fs::Permissions::from_mode(0o755)).unwrap();
     let tmp = etc.join(".helper.json.tmp");
-    std::fs::write(&tmp, json!({"versjon": 1, "uid": uid, "trinn": steps, "bygg": 17, "aktivert": "test"}).to_string()).unwrap();
+    std::fs::write(
+        &tmp,
+        json!({"versjon": 1, "uid": uid, "trinn": steps, "bygg": 17, "aktivert": "test"})
+            .to_string(),
+    )
+    .unwrap();
     std::fs::set_permissions(&tmp, std::fs::Permissions::from_mode(0o644)).unwrap();
     std::fs::rename(&tmp, etc.join("helper.json")).unwrap();
 }
@@ -55,6 +64,8 @@ impl Helper {
             .arg(&socket)
             .arg("--config")
             .arg(dir.join("etc/agentic-rigg/helper.json"))
+            .arg("--baseline")
+            .arg(dir.join("var/lib/agentic-rigg/baseline.json"))
             .env_remove("NOTIFY_SOCKET")
             .env_remove("JOURNAL_STREAM")
             .stdout(Stdio::null())
@@ -104,13 +115,19 @@ impl Conn {
     fn new(p: &Path) -> Conn {
         let s = UnixStream::connect(p).unwrap();
         s.set_read_timeout(Some(Duration::from_secs(5))).unwrap();
-        Conn { w: s.try_clone().unwrap(), r: BufReader::new(s), next: 1 }
+        Conn {
+            w: s.try_clone().unwrap(),
+            r: BufReader::new(s),
+            next: 1,
+        }
     }
 
     fn call(&mut self, op: &str, args: Value) -> Value {
         let id = self.next;
         self.next += 1;
-        self.w.write_all(format!("{}\n", json!({"id": id, "op": op, "args": args})).as_bytes()).unwrap();
+        self.w
+            .write_all(format!("{}\n", json!({"id": id, "op": op, "args": args})).as_bytes())
+            .unwrap();
         let mut line = String::new();
         self.r.read_line(&mut line).unwrap();
         serde_json::from_str(&line).unwrap_or(Value::Null)
@@ -140,11 +157,18 @@ fn trinn_som_ikke_er_godkjent_avvises() {
     let s = c.ok("status", json!({}));
     assert_eq!(s["steps"], json!([]));
     assert_eq!(s["uid"], my_uid());
-    for p in [json!({"powerLimitW": 200}), json!({"fan": {"mode": "manual", "manualPercent": 60}}), json!({"clockOffsets": {"coreMhz": 50}})] {
+    for p in [
+        json!({"powerLimitW": 200}),
+        json!({"fan": {"mode": "manual", "manualPercent": 60}}),
+        json!({"clockOffsets": {"coreMhz": 50}}),
+    ] {
         let e = c.err("apply", json!({"settings": p}));
         assert_eq!(e["code"], "step_not_enabled", "{p}");
     }
-    assert_eq!(c.err("rgb_set", json!({"rgb": {}}))["code"], "step_not_enabled");
+    assert_eq!(
+        c.err("rgb_set", json!({"rgb": {}}))["code"],
+        "step_not_enabled"
+    );
     assert_eq!(c.hw()["stock"], true);
     assert_eq!(c.hw()["writes"], 0, "ingenting er skrevet");
 }
@@ -153,16 +177,31 @@ fn trinn_som_ikke_er_godkjent_avvises() {
 fn godkjent_trinn_gir_bruk_og_behold() {
     let h = Helper::start("behold", my_uid(), &["effekt"], "sim");
     let mut c = h.connect();
-    let r = c.ok("apply", json!({"settings": {"powerLimitW": 200, "tempTargetC": 80}}));
+    let r = c.ok(
+        "apply",
+        json!({"settings": {"powerLimitW": 200, "tempTargetC": 80}}),
+    );
     let txn = r["txn"].as_str().unwrap().to_string();
     assert_eq!(c.hw()["applied"]["powerLimitW"], 200.0);
     c.ok("confirm", json!({"txn": txn}));
     let s = c.ok("status", json!({}));
     assert_eq!(s["state"]["confirmed"]["powerLimitW"], 200.0);
     assert!(s["state"]["pending"].is_null());
-    assert!(s["events"].as_array().unwrap().iter().any(|e| e["status"] == "confirmed"));
+    assert!(
+        s["events"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|e| e["status"] == "confirmed")
+    );
     // Et trinn som ikke er godkjent, kommer ikke med selv sammen med et som er det.
-    assert_eq!(c.err("apply", json!({"settings": {"powerLimitW": 210, "fan": {"mode": "manual"}}}))["code"], "step_not_enabled");
+    assert_eq!(
+        c.err(
+            "apply",
+            json!({"settings": {"powerLimitW": 210, "fan": {"mode": "manual"}}})
+        )["code"],
+        "step_not_enabled"
+    );
     // Tilbakestill alt: standard med en gang.
     c.ok("reset", json!({}));
     assert_eq!(c.hw()["stock"], true);
@@ -178,11 +217,24 @@ fn fristen_ruller_tilbake() {
     loop {
         let s = c.ok("status", json!({}));
         if s["state"]["pending"].is_null() {
-            assert!(s["events"].as_array().unwrap().iter().any(|e| e["reason"] == "timeout"), "{s}");
-            assert!(s["hardware"]["fanNow"].is_null(), "viftene tilbake til Auto");
+            assert!(
+                s["events"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .any(|e| e["reason"] == "timeout"),
+                "{s}"
+            );
+            assert!(
+                s["hardware"]["fanNow"].is_null(),
+                "viftene tilbake til Auto"
+            );
             break;
         }
-        assert!(t0.elapsed() < Duration::from_secs(14), "fristen gikk ikke ut");
+        assert!(
+            t0.elapsed() < Duration::from_secs(14),
+            "fristen gikk ikke ut"
+        );
         std::thread::sleep(Duration::from_millis(250));
     }
     assert!(t0.elapsed() >= Duration::from_secs(9));
@@ -222,22 +274,37 @@ fn verdier_utenfor_kortets_omrade_avvises() {
     assert_eq!(e["details"]["max"], 275.0);
     assert_eq!(c.hw()["writes"], 0);
     // Ingen vilkårlige operasjoner, stier eller felt.
-    assert_eq!(c.err("exec", json!({"cmd": "/bin/sh"}))["code"], "unknown_op");
-    assert_eq!(c.err("apply", json!({"settings": {"i2c": {"bus": 3, "addr": 73}}}))["code"], "invalid_argument");
+    assert_eq!(
+        c.err("exec", json!({"cmd": "/bin/sh"}))["code"],
+        "unknown_op"
+    );
+    assert_eq!(
+        c.err(
+            "apply",
+            json!({"settings": {"i2c": {"bus": 3, "addr": 73}}})
+        )["code"],
+        "invalid_argument"
+    );
 }
 
 #[test]
 fn klienten_borte_gir_standard() {
     let h = Helper::start("borte", my_uid(), &["effekt", "vifter"], "sim");
     let mut a = h.connect();
-    let r = a.ok("apply", json!({"settings": {"powerLimitW": 220, "fan": {"mode": "manual", "manualPercent": 65}}}));
+    let r = a.ok(
+        "apply",
+        json!({"settings": {"powerLimitW": 220, "fan": {"mode": "manual", "manualPercent": 65}}}),
+    );
     a.ok("confirm", json!({"txn": r["txn"]}));
     let mut b = h.connect();
     assert_eq!(b.hw()["stock"], false);
     drop(a);
     let t0 = Instant::now();
     while b.hw()["stock"] != true {
-        assert!(t0.elapsed() < Duration::from_secs(3), "kortet gikk ikke til standard");
+        assert!(
+            t0.elapsed() < Duration::from_secs(3),
+            "kortet gikk ikke til standard"
+        );
         std::thread::sleep(Duration::from_millis(50));
     }
     assert!(b.hw()["fanNow"].is_null());
@@ -247,12 +314,18 @@ fn klienten_borte_gir_standard() {
 fn nodregelen_over_85_grader() {
     let h = Helper::start("nod", my_uid(), &["vifter"], "sim");
     let mut c = h.connect();
-    c.ok("apply", json!({"settings": {"fan": {"mode": "manual", "manualPercent": 40}}}));
+    c.ok(
+        "apply",
+        json!({"settings": {"fan": {"mode": "manual", "manualPercent": 40}}}),
+    );
     let r = c.ok("sim_temp", json!({"celsius": 87}));
     assert_eq!(r["emergency"], true);
     let s = c.ok("status", json!({}));
     assert_eq!(s["hardware"]["fanNow"], 100.0);
-    assert!(s["state"]["pending"].is_null(), "ventende endring rullet tilbake");
+    assert!(
+        s["state"]["pending"].is_null(),
+        "ventende endring rullet tilbake"
+    );
     c.ok("sim_temp", json!({"celsius": 70}));
     assert!(c.hw()["fanNow"].is_null());
 }
@@ -261,7 +334,10 @@ fn nodregelen_over_85_grader() {
 fn trinn_leses_pa_nytt_og_kan_trekkes_tilbake() {
     let mut h = Helper::start("reload", my_uid(), &[], "sim");
     let mut c = h.connect();
-    assert_eq!(c.err("apply", json!({"settings": {"powerLimitW": 200}}))["code"], "step_not_enabled");
+    assert_eq!(
+        c.err("apply", json!({"settings": {"powerLimitW": 200}}))["code"],
+        "step_not_enabled"
+    );
     write_config(&h.dir, my_uid(), &["effekt"]);
     // Skrivende operasjoner leser helper.json før de svarer.
     let r = c.ok("apply", json!({"settings": {"powerLimitW": 200}}));
@@ -269,7 +345,10 @@ fn trinn_leses_pa_nytt_og_kan_trekkes_tilbake() {
     write_config(&h.dir, my_uid(), &[]);
     let t0 = Instant::now();
     while c.hw()["stock"] != true {
-        assert!(t0.elapsed() < Duration::from_secs(3), "trinnet ble ikke trukket tilbake");
+        assert!(
+            t0.elapsed() < Duration::from_secs(3),
+            "trinnet ble ikke trukket tilbake"
+        );
         std::thread::sleep(Duration::from_millis(100));
     }
     // SIGTERM: socketen fjernes.
@@ -297,28 +376,50 @@ fn socketen_er_privat_og_meldinger_har_grense() {
 fn oppsett_andre_kan_skrive_i_avvises() {
     let dir = tmpdir("modus");
     write_config(&dir, my_uid(), &["effekt"]);
-    std::fs::set_permissions(dir.join("etc/agentic-rigg/helper.json"), std::fs::Permissions::from_mode(0o666)).unwrap();
+    std::fs::set_permissions(
+        dir.join("etc/agentic-rigg/helper.json"),
+        std::fs::Permissions::from_mode(0o666),
+    )
+    .unwrap();
     let out = Command::new(env!("CARGO_BIN_EXE_agentic-rigg-helper"))
         .args(["--backend", "sim", "--socket"])
         .arg(dir.join("run/agentic-rigg/helper.sock"))
         .arg("--config")
         .arg(dir.join("etc/agentic-rigg/helper.json"))
+        .arg("--baseline")
+        .arg(dir.join("var/lib/agentic-rigg/baseline.json"))
         .output()
         .unwrap();
     assert!(!out.status.success());
     assert!(String::from_utf8_lossy(&out.stderr).contains("kan skrives av andre"));
     // Ukjent trinn i fila: starter ikke.
-    std::fs::set_permissions(dir.join("etc/agentic-rigg/helper.json"), std::fs::Permissions::from_mode(0o644)).unwrap();
-    std::fs::write(dir.join("etc/agentic-rigg/helper.json"), r#"{"versjon":1,"uid":1000,"trinn":["alt"]}"#).unwrap();
-    let out = Command::new(env!("CARGO_BIN_EXE_agentic-rigg-helper")).args(["--backend", "sim", "--config"]).arg(dir.join("etc/agentic-rigg/helper.json")).arg("--socket").arg(dir.join("s.sock")).output().unwrap();
+    std::fs::set_permissions(
+        dir.join("etc/agentic-rigg/helper.json"),
+        std::fs::Permissions::from_mode(0o644),
+    )
+    .unwrap();
+    std::fs::write(
+        dir.join("etc/agentic-rigg/helper.json"),
+        r#"{"versjon":1,"uid":1000,"trinn":["alt"]}"#,
+    )
+    .unwrap();
+    let out = Command::new(env!("CARGO_BIN_EXE_agentic-rigg-helper"))
+        .args(["--backend", "sim", "--config"])
+        .arg(dir.join("etc/agentic-rigg/helper.json"))
+        .arg("--baseline")
+        .arg(dir.join("var/lib/agentic-rigg/baseline.json"))
+        .arg("--socket")
+        .arg(dir.join("s.sock"))
+        .output()
+        .unwrap();
     assert!(!out.status.success());
     let _ = std::fs::remove_dir_all(&dir);
 }
 
-/// Med `--backend nvml` er det ekte kortet sperret: hjelperen svarer på
-/// `status`, men laster ikke NVML, og all skriving gir `write_locked`.
+/// Eldre v1-oppsett kan ikke gi full GPU-autorisasjon. Hjelperen svarer på
+/// `status`, men åpner ikke NVML og avviser skriving.
 #[test]
-fn ekte_kort_er_sperret_i_denne_versjonen() {
+fn legacyoppsett_gir_ikke_ekte_skrivetilgang() {
     let h = Helper::start("nvml", my_uid(), &["effekt", "vifter", "klokker"], "nvml");
     let mut c = h.connect();
     let s = c.ok("status", json!({}));
@@ -328,18 +429,29 @@ fn ekte_kort_er_sperret_i_denne_versjonen() {
     let e = c.err("apply", json!({"settings": {"powerLimitW": 200}}));
     assert_eq!(e["code"], "write_locked");
     assert_eq!(e["details"]["reason"], "real_writes_off");
-    assert_eq!(c.err("sim_temp", json!({"celsius": 90}))["code"], "unknown_op");
+    assert_eq!(
+        c.err("sim_temp", json!({"celsius": 90}))["code"],
+        "unknown_op"
+    );
     // Prosessen har ikke lastet NVML.
     let maps = std::fs::read_to_string(format!("/proc/{}/maps", h.child.id())).unwrap();
     assert!(!maps.contains("libnvidia-ml"), "NVML er lastet");
 }
 
 #[test]
-fn tilbakestill_gjor_ingenting_uten_trinn() {
+fn tilbakestill_gjor_ingenting_uten_registrerte_endringer() {
     let dir = tmpdir("tilb");
     write_config(&dir, my_uid(), &[]);
-    let out = Command::new(env!("CARGO_BIN_EXE_agentic-rigg-helper")).args(["--backend", "nvml", "--tilbakestill", "--config"]).arg(dir.join("etc/agentic-rigg/helper.json")).output().unwrap();
+    let out = Command::new(env!("CARGO_BIN_EXE_agentic-rigg-helper"))
+        .args(["--backend", "nvml", "--tilbakestill", "--config"])
+        .arg(dir.join("etc/agentic-rigg/helper.json"))
+        .arg("--baseline")
+        .arg(dir.join("baseline.json"))
+        .output()
+        .unwrap();
     assert!(out.status.success());
-    assert!(String::from_utf8_lossy(&out.stderr).contains("Ingenting å tilbakestille"));
+    assert!(String::from_utf8_lossy(&out.stderr).contains("Ingen GPU-kall utføres"));
+    assert!(!dir.join("baseline.json").exists());
+    assert!(!dir.join("dirty.json").exists());
     let _ = std::fs::remove_dir_all(&dir);
 }

@@ -373,9 +373,10 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     let root = vbox(8, &["page", "styring", "lys", "fill"]);
     root.append(&crate::widgets::styrer::TargetLine::new(app).root);
     // Samme rolige låst-linje som Klokker og effekt og Vifter (runde 6D).
-    let banner = crate::widgets::locked::LockStrip::new(
+    let banner = crate::widgets::locked::LockStrip::new_for(
         app,
-        "Lyskontrolleren leses ikke ennå: lys er siste trinn og kommer i en senere versjon. Effektene vises i forhåndsvisningen, og valget kan lagres i appen.",
+        "Lyskontrolleren er ikke identifisert. Effektene vises i forhåndsvisningen og kan lagres i appen; de sendes ikke til kortet.",
+        Some("rgb"),
     );
     root.append(&banner.root);
 
@@ -997,6 +998,16 @@ impl Lys {
                 p.kick();
             }
         });
+        for hub in [&self.app.on_service, &self.app.on_devices] {
+            let w = Rc::downgrade(self);
+            hub.connect(move |_| {
+                if let Some(p) = w.upgrade() {
+                    p.ui._banner.sync(&p.app, p.app.gpu_info().is_some_and(|i| i.state == rigg_core::model::DeviceState::Lost), false);
+                    locked::sync_topbar(&p.app, "lys");
+                    p.render();
+                }
+            });
+        }
         let w = Rc::downgrade(self);
         self.app.on_theme.connect(move |_| {
             if let Some(p) = w.upgrade() {
@@ -1577,6 +1588,8 @@ impl Lys {
     // ---------------------------------------------------------------- tegning av kontrollene
 
     fn render(self: &Rc<Self>) {
+        self.ui._banner.sync(&self.app, self.app.gpu_info().is_some_and(|i| i.state == rigg_core::model::DeviceState::Lost), false);
+        locked::sync_topbar(&self.app, "lys");
         let d = self.draft.borrow().clone();
         self.quiet.set(true);
         {

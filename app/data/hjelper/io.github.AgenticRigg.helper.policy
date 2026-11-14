@@ -16,7 +16,7 @@
 
   <action id="io.github.AgenticRigg.helper.aktiver">
     <description>Slå på endring av skjermkortet</description>
-    <message>Agentic Rigg vil legge inn en liten hjelpeprosess med root-tilgang, så appen kan endre skjermkortet. Ingenting endres før du godkjenner et trinn.</message>
+    <message>Agentic Rigg vil legge inn en liten hjelpeprosess med root-tilgang, så appen kan endre skjermkortet. Bare støttede funksjoner på det identifiserte kortet blir tilgjengelige. Endringer brukes først når du trykker Bruk.</message>
     <defaults>
       <allow_any>no</allow_any>
       <allow_inactive>no</allow_inactive>
@@ -27,7 +27,7 @@
 
   <action id="io.github.AgenticRigg.helper.deaktiver">
     <description>Slå av endring av skjermkortet</description>
-    <message>Agentic Rigg vil stoppe og fjerne hjelpeprosessen. Skjermkortet går tilbake til standard.</message>
+    <message>Agentic Rigg vil stoppe og fjerne hjelpeprosessen. Gjenoppretting kontrolleres før filene fjernes. Ved feil beholdes hjelperen for feilsøking.</message>
     <defaults>
       <allow_any>no</allow_any>
       <allow_inactive>no</allow_inactive>
@@ -36,51 +36,4 @@
     <annotate key="org.freedesktop.policykit.exec.path">/usr/local/libexec/agentic-rigg/deaktiver.sh</annotate>
   </action>
 
-  <action id="io.github.AgenticRigg.helper.trinn.effekt">
-    <description>Godkjenn trinnet Effekt (effektgrense og temperaturmål)</description>
-    <message>Agentic Rigg vil få lov til å endre effektgrensen og temperaturmålet på skjermkortet. Hver endring må beholdes innen fristen, ellers rulles den tilbake.</message>
-    <defaults>
-      <allow_any>no</allow_any>
-      <allow_inactive>no</allow_inactive>
-      <allow_active>auth_admin</allow_active>
-    </defaults>
-    <annotate key="org.freedesktop.policykit.exec.path">/usr/local/libexec/agentic-rigg/trinn.sh</annotate>
-    <annotate key="org.freedesktop.policykit.exec.argv1">effekt</annotate>
-  </action>
-
-  <action id="io.github.AgenticRigg.helper.trinn.vifter">
-    <description>Godkjenn trinnet Vifter (viftemodus, fast fart og kurve)</description>
-    <message>Agentic Rigg vil få lov til å styre viftene på skjermkortet. Over 85 °C går viftene alltid til 100 %.</message>
-    <defaults>
-      <allow_any>no</allow_any>
-      <allow_inactive>no</allow_inactive>
-      <allow_active>auth_admin</allow_active>
-    </defaults>
-    <annotate key="org.freedesktop.policykit.exec.path">/usr/local/libexec/agentic-rigg/trinn.sh</annotate>
-    <annotate key="org.freedesktop.policykit.exec.argv1">vifter</annotate>
-  </action>
-
-  <action id="io.github.AgenticRigg.helper.trinn.klokker">
-    <description>Godkjenn trinnet Klokker (kjerne- og minneklokke-offset)</description>
-    <message>Agentic Rigg vil få lov til å endre klokkene på skjermkortet. For høye klokker kan gi krasj; hver endring må beholdes innen fristen.</message>
-    <defaults>
-      <allow_any>no</allow_any>
-      <allow_inactive>no</allow_inactive>
-      <allow_active>auth_admin</allow_active>
-    </defaults>
-    <annotate key="org.freedesktop.policykit.exec.path">/usr/local/libexec/agentic-rigg/trinn.sh</annotate>
-    <annotate key="org.freedesktop.policykit.exec.argv1">klokker</annotate>
-  </action>
-
-  <action id="io.github.AgenticRigg.helper.trinn.lys">
-    <description>Godkjenn trinnet RGB-lys</description>
-    <message>Agentic Rigg vil få lov til å endre lyset på skjermkortet. Dette er ikke laget ennå.</message>
-    <defaults>
-      <allow_any>no</allow_any>
-      <allow_inactive>no</allow_inactive>
-      <allow_active>auth_admin</allow_active>
-    </defaults>
-    <annotate key="org.freedesktop.policykit.exec.path">/usr/local/libexec/agentic-rigg/trinn.sh</annotate>
-    <annotate key="org.freedesktop.policykit.exec.argv1">lys</annotate>
-  </action>
 </policyconfig>

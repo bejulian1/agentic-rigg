@@ -21,6 +21,9 @@ use std::path::PathBuf;
 use std::rc::Rc;
 use std::time::Duration;
 
+#[path = "skjermbilder_ui140.rs"]
+mod ui140;
+
 enum Step {
     Set(Value),
     Size(i32, i32),
@@ -63,6 +66,7 @@ fn plan() -> Vec<Step> {
         Ok("kortmeny") => plan_kortmeny(),
         Ok("innstillinger-sok") => plan_innstillinger_sok(),
         Ok("adaptive-akser") => plan_adaptive_akser(),
+        Ok("1.4.0-ui") => ui140::plan(),
         _ => plan_grunnmur(),
     }
 }

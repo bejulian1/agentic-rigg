@@ -6,6 +6,7 @@
 //! etter viftefarten bare ved full bevegelse; lysdiodene får fargene fra
 //! RGB-motoren, med pust, sonedemping og bakgrunnslys.
 
+use super::layout;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::{gdk, glib, graphene, gsk};
@@ -191,8 +192,15 @@ mod imp {
                 // Kretskortkant og kontaktfingre
                 rr(34.0, 214.0, 580.0, 16.0, 2.0);
                 fill(0x0d1a14);
-                for i in 0..38 {
-                    rr(112.0 + i as f64 * 7.0 + if i > 10 { 8.0 } else { 0.0 }, 230.0, 4.5, 18.0, 0.8);
+                let sx = 580.0 / layout::PCB.1;
+                let edge = layout::FINGERS;
+                for (x0, x1) in [edge.tab_a, edge.tab_b] {
+                    rr(34.0 + x0 * sx, 228.0, (x1 - x0) * sx, 2.0 - edge.y0 * sx, 0.8);
+                    fill(0x0d1a14);
+                }
+                for x in layout::finger_xs() {
+                    let [x0, y0, x1, y1] = layout::finger_rect(x);
+                    rr(34.0 + x0 * sx, 230.0 - y1 * sx, (x1 - x0) * sx, (y1 - y0) * sx, 0.25);
                     fill(0xb08a3e);
                 }
                 // Strømkontakter

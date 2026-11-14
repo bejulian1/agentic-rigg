@@ -46,7 +46,7 @@ pub const SECTIONS: [SectionDef; 9] = [
     SectionDef { id: "sidefelt", name: "Sidefelt", icon: "panel-left", lead: "Statusblokken, bredden og sidene i sidefeltet", build: sidefelt::build },
     SectionDef { id: "grafer", name: "Grafer og sensorer", icon: "chart-area", lead: "Tidsvindu, grafer, sensorer og varselfarger", build: grafer::build },
     SectionDef { id: "logging", name: "Logging og varsler", icon: "activity", lead: "Logg til fil og skrivebordsvarsler", build: logging::build },
-    SectionDef { id: "styring", name: "Skjermkortstyring", icon: "shield", lead: "Endring av skjermkortet: bryteren, hjelperen og trinnene", build: styring::build },
+    SectionDef { id: "styring", name: "Skjermkortstyring", icon: "shield", lead: "Tillatelse, funksjonsstøtte og trygg gjenoppretting", build: styring::build },
     SectionDef { id: "data", name: "Data og tilbakestilling", icon: "database", lead: "Mappene, eksport, import og tilbakestilling", build: data::build },
     SectionDef { id: "om", name: "Om", icon: "info", lead: "Versjon, hjelp og feilsøking", build: om::build },
 ];

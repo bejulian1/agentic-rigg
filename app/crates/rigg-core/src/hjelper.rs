@@ -1,30 +1,27 @@
 //! Det felles for root-hjelperen (`agentic-rigg-helper`), klienten i
-//! `riggd` og Innstillinger › Styring (runde 7A, 1.2.0): trinnene,
-//! `helper.json`, hvilke felt hvert trinn dekker, og stiene.
+//! `riggd` og Innstillinger › Styring: global autorisasjon, kortbinding,
+//! `helper.json`, feltgruppene og stiene.
 //!
-//! **Tre lås mot det ekte kortet** (se `docs/produksjon/hjelper-sikkerhet.md`):
+//! **Låser mot det ekte kortet**:
 //!
-//! 1. **Trinnlisten** i `/etc/agentic-rigg/helper.json` (eies av root). Tom ved
-//!    aktivering. Et felt hvis trinn ikke står der, avvises av hjelperen med
-//!    `step_not_enabled`. Bare root (via `pkexec` og polkit) kan endre lista.
-//! 2. **Sperren i `rigg-hw`** (`gpu::skriv::EKTE_SKRIVING`, og cargo-funksjonen
-//!    `ekte-skriving` som er av): uten den kan hjelperen ikke åpne NVML for
-//!    skriving i det hele tatt, og svarer `write_locked` med grunnen
-//!    `real_writes_off`. I 1.2.0 er begge av.
-//! 3. **`write_gate` i vinduet** (`txn::write_gate`): Bruk er bare aktiv mot den
-//!    simulerte backenden i en utviklerforekomst. Den åpnes for det ekte kortet
-//!    først når et trinn er godkjent og sperren er av (trinn 2 i planen).
+//! 1. Root-eid konfigurasjon v2 gir én global tillatelse for én PCI/UUID.
+//!    Eldre trinnoppsett oppgraderes aldri stilltiende til global tillatelse.
+//! 2. Bare hjelperen kompileres med HW-skriveren; oppdagelse leser kun.
+//!    Hvert endret felt krever tilgjengelig funksjon og et lagret grunnopptak.
+//! 3. `txn::write_gate` krever at hjelperen faktisk er klar og autorisert;
+//!    vinduet kontrollerer også at valgt kort samsvarer med bindingen.
 //!
 //! `riggd` sender en skriveoperasjon videre bare når hjelperen svarer, er fra
-//! samme bygg, har samme backend som tjenesten og har trinnet godkjent. Ellers
-//! svarer den `write_locked` (eller `step_not_enabled`) med `details.reason`.
+//! samme bygg, har samme backend som tjenesten og stemmer med kortidentiteten.
+//! Ellers svarer den `write_locked` med `details.reason`. Trinn beholdes som
+//! feltgrupper og for eldre simulerte tester, ikke som separate godkjenninger.
 
 use crate::proto::{ErrorCode, ProtoError};
 use serde_json::{Value, json};
 use std::path::{Path, PathBuf};
 
 /// Protokollen mellom `riggd` og hjelperen (NDJSON, som `proto`).
-pub const PROTOCOL: u32 = 1;
+pub const PROTOCOL: u32 = 2;
 /// Største melding til hjelperen (byte per linje).
 pub const MAX_LINE: usize = 16_384;
 /// Høyst så mange samtidige forbindelser til hjelperen.
@@ -37,9 +34,11 @@ pub const BINARY_PATH: &str = "/usr/local/libexec/agentic-rigg-helper";
 pub const LIBEXEC_DIR: &str = "/usr/local/libexec/agentic-rigg";
 
 /// Operasjonene hjelperen kjenner. Ingen andre finnes.
-pub const OPS: &[&str] = &["status", "apply", "confirm", "revert", "reset", "rgb_get", "rgb_set"];
+pub const OPS: &[&str] = &[
+    "status", "apply", "confirm", "revert", "reset", "rgb_get", "rgb_set",
+];
 
-/// Et trinn som brukeren godkjenner for seg (rekkefølgen i trinnplanen).
+/// Eldre feltgrupper; produksjonen bruker én global autorisasjon.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Step {
     Effekt,
@@ -109,10 +108,17 @@ pub fn step_for_field(top: &str) -> Option<Step> {
 /// Trinnene en delvis `GpuSettings` trenger. Ukjente felt gir feil (de
 /// avvises uansett av `txn::merge`, men her før noe annet).
 pub fn steps_for_patch(patch: &Value) -> Result<Vec<Step>, ProtoError> {
-    let o = patch.as_object().ok_or_else(|| ProtoError::msg(ErrorCode::InvalidArgument, "settings må være et objekt"))?;
+    let o = patch
+        .as_object()
+        .ok_or_else(|| ProtoError::msg(ErrorCode::InvalidArgument, "settings må være et objekt"))?;
     let mut out = Vec::new();
     for k in o.keys() {
-        let s = step_for_field(k).ok_or_else(|| ProtoError::msg(ErrorCode::InvalidArgument, format!("Ukjent felt: {}", k.chars().take(40).collect::<String>())))?;
+        let s = step_for_field(k).ok_or_else(|| {
+            ProtoError::msg(
+                ErrorCode::InvalidArgument,
+                format!("Ukjent felt: {}", k.chars().take(40).collect::<String>()),
+            )
+        })?;
         if !out.contains(&s) {
             out.push(s);
         }
@@ -145,6 +151,38 @@ pub fn patch_for_op(op: &str, args: &Value) -> Option<Value> {
     }
 }
 
+/// Valider identitet uten oppslag eller maskinvaretilgang.
+pub fn valid_pci(pci: &str) -> bool {
+    let b = pci.as_bytes();
+    b.len() == 12
+        && b[4] == b':'
+        && b[7] == b':'
+        && b[10] == b'.'
+        && b.iter()
+            .enumerate()
+            .all(|(i, c)| matches!(i, 4 | 7 | 10) || c.is_ascii_hexdigit())
+        && b[11] <= b'7'
+}
+
+pub fn valid_uuid(uuid: &str) -> bool {
+    uuid.starts_with("GPU-")
+        && (8..=80).contains(&uuid.len())
+        && uuid.bytes().all(|c| c.is_ascii_alphanumeric() || c == b'-')
+}
+
+pub fn hardware_error(message: String) -> ProtoError {
+    let prefix = message.split(':').next().unwrap_or("");
+    let code = match prefix {
+        "not_supported" => ErrorCode::NotSupported,
+        "no_permission" => ErrorCode::PermissionDenied,
+        "identity_mismatch" => ErrorCode::UnknownGpu,
+        "gpu_lost" | "readback_mismatch" | "baseline_required" => ErrorCode::Unavailable,
+        _ => ErrorCode::Internal,
+    };
+    ProtoError::msg(code, message.clone())
+        .details(json!({"reason": prefix, "hardwareError": message}))
+}
+
 // ---------------------------------------------------------------- helper.json
 
 /// Innholdet i `helper.json`. Skrives av `aktiver.sh` (uid, tom trinnliste)
@@ -153,6 +191,11 @@ pub fn patch_for_op(op: &str, args: &Value) -> Option<Value> {
 pub struct Config {
     /// Brukeren som aktiverte hjelperen. Bare den får koble til.
     pub uid: u32,
+    pub enabled: bool,
+    /// Versjon 1 beholdes kun for eldre sim-fixtures, aldri som NVML-tillatelse.
+    pub legacy: bool,
+    pub pci: Option<String>,
+    pub uuid: Option<String>,
     /// Godkjente trinn. Tom ved aktivering.
     pub steps: Vec<Step>,
     /// Bygget som ble aktivert (fra `--version` på binæren).
@@ -164,37 +207,97 @@ impl Config {
     /// Tolker fila strengt: ukjente felt og ukjente trinn er feil, så en
     /// skrivefeil aldri gir et trinn ingen har godkjent.
     pub fn parse(text: &str) -> Result<Config, String> {
-        let v: Value = serde_json::from_str(text).map_err(|e| format!("helper.json er ikke gyldig JSON: {e}"))?;
+        let v: Value = serde_json::from_str(text)
+            .map_err(|e| format!("helper.json er ikke gyldig JSON: {e}"))?;
         let o = v.as_object().ok_or("helper.json må være et objekt")?;
         for k in o.keys() {
-            if !matches!(k.as_str(), "versjon" | "uid" | "trinn" | "bygg" | "aktivert") {
+            if !matches!(
+                k.as_str(),
+                "versjon" | "uid" | "trinn" | "bygg" | "aktivert" | "enabled" | "pci" | "uuid"
+            ) {
                 return Err(format!("Ukjent felt i helper.json: {k}"));
             }
         }
-        if o.get("versjon").and_then(Value::as_u64) != Some(1) {
-            return Err("helper.json: versjon må være 1".into());
+        let schema = o
+            .get("versjon")
+            .and_then(Value::as_u64)
+            .ok_or("helper.json: versjon mangler")?;
+        if !matches!(schema, 1 | 2) {
+            return Err("helper.json: versjon må være 1 eller 2".into());
         }
-        let uid = o.get("uid").and_then(Value::as_u64).filter(|u| *u > 0 && *u < u32::MAX as u64).ok_or("helper.json: uid mangler eller er 0 (root får ikke være klient)")? as u32;
-        let list = o.get("trinn").and_then(Value::as_array).ok_or("helper.json: trinn må være en liste")?;
+        let legacy = schema == 1;
+        let enabled = if legacy {
+            false
+        } else {
+            o.get("enabled")
+                .and_then(Value::as_bool)
+                .ok_or("helper.json: enabled må være boolsk")?
+        };
+        let pci = o.get("pci").and_then(Value::as_str).map(str::to_string);
+        let uuid = o.get("uuid").and_then(Value::as_str).map(str::to_string);
+        if !legacy
+            && (!pci.as_deref().is_some_and(valid_pci) || !uuid.as_deref().is_some_and(valid_uuid))
+        {
+            return Err("helper.json: gyldig pci og uuid kreves".into());
+        }
+        if !legacy && o.contains_key("trinn") {
+            return Err("helper.json: trinn hører bare til eldre format".into());
+        }
+        let uid = o
+            .get("uid")
+            .and_then(Value::as_u64)
+            .filter(|u| *u > 0 && *u < u32::MAX as u64)
+            .ok_or("helper.json: uid mangler eller er 0 (root får ikke være klient)")?
+            as u32;
+        let empty = Vec::new();
+        let list = if legacy {
+            o.get("trinn")
+                .and_then(Value::as_array)
+                .ok_or("helper.json: trinn må være en liste")?
+        } else {
+            &empty
+        };
         let mut steps = Vec::new();
         for s in list {
-            let s = s.as_str().and_then(Step::parse).ok_or_else(|| format!("helper.json: ukjent trinn {s}"))?;
+            let s = s
+                .as_str()
+                .and_then(Step::parse)
+                .ok_or_else(|| format!("helper.json: ukjent trinn {s}"))?;
             if !steps.contains(&s) {
                 steps.push(s);
             }
         }
         steps.sort();
         let build = o.get("bygg").and_then(Value::as_u64).unwrap_or(0) as u32;
-        let activated = o.get("aktivert").and_then(Value::as_str).unwrap_or("").chars().take(40).collect();
-        Ok(Config { uid, steps, build, activated })
+        let activated = o
+            .get("aktivert")
+            .and_then(Value::as_str)
+            .unwrap_or("")
+            .chars()
+            .take(40)
+            .collect();
+        Ok(Config {
+            uid,
+            enabled,
+            legacy,
+            pci,
+            uuid,
+            steps,
+            build,
+            activated,
+        })
     }
 
     pub fn to_json(&self) -> Value {
-        json!({"versjon": 1, "uid": self.uid, "trinn": self.steps.iter().map(|s| s.id()).collect::<Vec<_>>(), "bygg": self.build, "aktivert": self.activated})
+        if self.legacy {
+            json!({"versjon": 1, "uid": self.uid, "trinn": self.steps.iter().map(|s| s.id()).collect::<Vec<_>>(), "bygg": self.build, "aktivert": self.activated})
+        } else {
+            json!({"versjon": 2, "uid": self.uid, "enabled": self.enabled, "pci": self.pci, "uuid": self.uuid, "bygg": self.build, "aktivert": self.activated})
+        }
     }
 
     pub fn enabled(&self, s: Step) -> bool {
-        self.steps.contains(&s)
+        self.enabled || self.legacy && self.steps.contains(&s)
     }
 }
 
@@ -234,20 +337,35 @@ impl Paths {
 pub fn step_not_enabled(steps: &[Step]) -> ProtoError {
     let names: Vec<&str> = steps.iter().map(|s| s.name()).collect();
     let msg = match names.as_slice() {
-        [one] => format!("Trinnet «{one}» er ikke godkjent. Godkjenn det i Innstillinger › Styring først."),
-        _ => format!("Trinnene {} er ikke godkjent. Godkjenn dem i Innstillinger › Styring først.", names.join(", ")),
+        [one] => format!(
+            "Trinnet «{one}» er ikke godkjent. Godkjenn det i Innstillinger › Styring først."
+        ),
+        _ => format!(
+            "Trinnene {} er ikke godkjent. Godkjenn dem i Innstillinger › Styring først.",
+            names.join(", ")
+        ),
     };
-    ProtoError::msg(ErrorCode::StepNotEnabled, msg).details(json!({"steps": steps.iter().map(|s| s.id()).collect::<Vec<_>>()}))
+    ProtoError::msg(ErrorCode::StepNotEnabled, msg)
+        .details(json!({"steps": steps.iter().map(|s| s.id()).collect::<Vec<_>>()}))
 }
 
 /// `write_locked` med en presis grunn (`details.reason`).
 pub fn locked(reason: &str) -> ProtoError {
     let msg = match reason {
-        "helper_off" => "Endringer er låst: endring av skjermkortet er ikke slått på. Slå på «Tillat endring av skjermkortet» i Innstillinger › Styring.",
+        "helper_off" => {
+            "Endringer er låst: endring av skjermkortet er ikke slått på. Slå på «Tillat endring av skjermkortet» i Innstillinger › Styring."
+        }
         "helper_error" => "Hjelperen for endring svarer ikke. Se Innstillinger › Styring.",
-        "helper_outdated" => "Hjelperen er fra en annen versjon av appen. Slå bryteren i Innstillinger › Styring av og på igjen.",
-        "backend_mismatch" => "Hjelperen og tjenesten bruker ulike kort (simulert og ekte). Ingenting er sendt.",
-        "real_writes_off" => "Denne versjonen skriver ikke til det ekte kortet ennå. Trinnene slås på i senere versjoner.",
+        "helper_outdated" => {
+            "Hjelperen er fra en annen versjon av appen. Slå bryteren i Innstillinger › Styring av og på igjen."
+        }
+        "backend_mismatch" => {
+            "Hjelperen og tjenesten bruker ulike kort (simulert og ekte). Ingenting er sendt."
+        }
+        "real_writes_off" => "NVML-hjelperen er ikke klar til å endre dette kortet.",
+        "authorization_required" => "Skjermkortstyring må aktiveres med bryteren i Innstillinger.",
+        "identity_mismatch" => "Det valgte kortet er ikke kortet hjelperen er aktivert for.",
+        "recovery_failed" => "Gjenoppretting kunne ikke bekreftes. Nye endringer er sperret.",
         "rgb_not_implemented" => "Lys er ikke laget ennå.",
         _ => "Endringer er låst. Skriving til skjermkortet er ikke slått på.",
     };
@@ -260,10 +378,14 @@ mod tests {
 
     #[test]
     fn helper_json_tolkes_strengt() {
-        let c = Config::parse(r#"{"versjon":1,"uid":1000,"trinn":[],"bygg":18,"aktivert":"2026-11-09T10:00:00Z"}"#).unwrap();
+        let c = Config::parse(
+            r#"{"versjon":1,"uid":1000,"trinn":[],"bygg":18,"aktivert":"2026-11-09T10:00:00Z"}"#,
+        )
+        .unwrap();
         assert_eq!(c.uid, 1000);
         assert!(c.steps.is_empty());
-        let c = Config::parse(r#"{"versjon":1,"uid":1000,"trinn":["vifter","effekt","effekt"]}"#).unwrap();
+        let c = Config::parse(r#"{"versjon":1,"uid":1000,"trinn":["vifter","effekt","effekt"]}"#)
+            .unwrap();
         assert_eq!(c.steps, vec![Step::Effekt, Step::Vifter]);
         for bad in [
             r#"{"versjon":1,"uid":0,"trinn":[]}"#,
@@ -281,13 +403,44 @@ mod tests {
     }
 
     #[test]
+    fn global_tillatelse_er_bundet_og_eldre_trinn_eskalerer_ikke() {
+        let legacy = Config::parse(
+            r#"{"versjon":1,"uid":1000,"trinn":["effekt","vifter","klokker","lys"]}"#,
+        )
+        .unwrap();
+        assert!(!legacy.enabled && legacy.legacy);
+        let c = Config::parse(r#"{"versjon":2,"uid":1000,"enabled":true,"pci":"0000:01:00.0","uuid":"GPU-kort-test","bygg":23}"#).unwrap();
+        assert!(c.enabled && !c.legacy);
+        assert_eq!(Config::parse(&c.to_json().to_string()).unwrap(), c);
+        for bad in [
+            r#"{"versjon":2,"uid":1000,"enabled":true,"pci":"../../dev/i2c-0","uuid":"GPU-kort-test"}"#,
+            r#"{"versjon":2,"uid":1000,"enabled":true,"pci":"0000:01:00.0","uuid":"GPU-kort-test","trinn":[]}"#,
+            r#"{"versjon":2,"uid":1000,"enabled":true,"pci":"0000:01:00.0"}"#,
+        ] {
+            assert!(Config::parse(bad).is_err());
+        }
+    }
+
+    #[test]
     fn feltene_har_hvert_sitt_trinn() {
-        assert_eq!(steps_for_patch(&json!({"powerLimitW": 200, "tempTargetC": 80})).unwrap(), vec![Step::Effekt]);
-        assert_eq!(steps_for_patch(&json!({"fan": {"mode": "manual"}, "clockOffsets": {}})).unwrap(), vec![Step::Vifter, Step::Klokker]);
+        assert_eq!(
+            steps_for_patch(&json!({"powerLimitW": 200, "tempTargetC": 80})).unwrap(),
+            vec![Step::Effekt]
+        );
+        assert_eq!(
+            steps_for_patch(&json!({"fan": {"mode": "manual"}, "clockOffsets": {}})).unwrap(),
+            vec![Step::Vifter, Step::Klokker]
+        );
         assert!(steps_for_patch(&json!({"voltMv": 900})).is_err());
         assert!(steps_for_patch(&json!(3)).is_err());
-        assert_eq!(patch_for_op("set_power_limit", &json!({"watts": 200})).unwrap(), json!({"powerLimitW": 200}));
-        assert_eq!(patch_for_op("set_fan", &json!({"mode": "auto", "tull": 1})).unwrap(), json!({"fan": {"mode": "auto"}}));
+        assert_eq!(
+            patch_for_op("set_power_limit", &json!({"watts": 200})).unwrap(),
+            json!({"powerLimitW": 200})
+        );
+        assert_eq!(
+            patch_for_op("set_fan", &json!({"mode": "auto", "tull": 1})).unwrap(),
+            json!({"fan": {"mode": "auto"}})
+        );
         assert!(patch_for_op("confirm", &json!({})).is_none());
     }
 
@@ -298,7 +451,13 @@ mod tests {
         assert_eq!(p.socket(), Path::new("/tmp/x/run/agentic-rigg/helper.sock"));
         assert!(!p.is_real());
         assert_eq!(Paths::new("/").binary(), Path::new(BINARY_PATH));
-        assert_eq!(step_not_enabled(&[Step::Effekt]).code, ErrorCode::StepNotEnabled);
-        assert_eq!(locked("helper_off").details.unwrap()["reason"], "helper_off");
+        assert_eq!(
+            step_not_enabled(&[Step::Effekt]).code,
+            ErrorCode::StepNotEnabled
+        );
+        assert_eq!(
+            locked("helper_off").details.unwrap()["reason"],
+            "helper_off"
+        );
     }
 }

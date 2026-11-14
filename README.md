@@ -1,29 +1,31 @@
 # Agentic Rigg
 
-**1.3.3 · bygg 22** · Rust og GTK 4 · Ubuntu · Code Pro
+**1.4.0 · bygg 23** · Rust og GTK 4 · Ubuntu · Code Pro
 
 Et lett maskinvareverktøy for Ubuntu: sensorer, grafer, CPU- og GPU-spesifikasjoner og diskhelse i én norsk desktop-app. Inspirert av MSI Afterburner, HWiNFO, GPU-Z, CPU-Z og CrystalDiskInfo.
 
 [Last ned siste utgave](https://github.com/bejulian1/agentic-rigg/releases/latest) · [Versjonslogg](CHANGELOG.md) · [Bidragsytere](CONTRIBUTORS.md)
 
 <table>
-  <tr><th>Oversikt</th><th>Prosessor</th><th>Disker og SMART</th></tr>
+  <tr><th>Oversikt</th><th>Prosessor</th><th>RGB og PCIe-modell</th></tr>
   <tr>
     <td><a href="docs/images/oversikt.png"><img src="docs/images/oversikt.png" alt="Oversikt med komponenter, sensorer og grafer" width="320"></a></td>
     <td><a href="docs/images/prosessor.png"><img src="docs/images/prosessor.png" alt="Prosessorsiden med spesifikasjoner og lanseringsdato" width="320"></a></td>
-    <td><a href="docs/images/disker.png"><img src="docs/images/disker.png" alt="Diskhelse og SMART-tabell" width="320"></a></td>
+    <td><a href="docs/images/rgb.png"><img src="docs/images/rgb.png" alt="RGB-forhåndsvisning med PCIe x16-modell" width="320"></a></td>
   </tr>
 </table>
 
-*Skjermbilder fra GTK-appen 1.3.3 i en testøkt. Skjermkort- og diskdata er simulerte. Klikk på bildene for full størrelse.*
+*Oversikt og Prosessor fra GTK-appen 1.3.3; RGB-modellen fra 1.4.0. Bildene er fra private testøkter med simulerte skjermkortdata. Klikk for full størrelse.*
 
-## Nytt i 1.3.3
+## Nytt i 1.4.0
 
-- CPU-lanseringsdato med produsent som kilde; Ryzen 7 2700X viser 19. april 2018.
-- Alle forbedringene fra 1.3.1 og 1.3.2: ryddigere sidefelt og kortmeny, direkte navigasjon til Grafikkort, bedre innstillingssøk og adaptive måleakser.
-- Gjennomgang av komponentenes spesifikasjoner og videre forbedringsbehov.
+- Implementert NVML-styring av effekt, klokkeoffset og GPU-vifter med én administratoraktivering og separat støtte per felt.
+- Kortbinding med PCI/UUID, lagret utgangspunkt, tilbakelesing og tilbakerulling som rapporterer feil ærlig.
+- Korrigert PCIe-modell, bedre sensorfilter/fokus og tydeligere nedtrekksmenyer.
 
-**Ekte GPU-styring er fortsatt låst.** Klokker, effekt og viftekurver kan redigeres som utkast og profiler. RGB er en forhåndsvisning; denne utgaven endrer ikke kortets innstillinger.
+**Polkit-aktivering og begrenset GPU-skriving er verifisert på RTX 2080:** effekt 245 → 240 W, begge vifter til 50 %, kjerneoffset −15 MHz og minneoffset −10 MHz, med fersk NVML-tilbakelesing og gjenoppretting. Gjennom installert daemon er også 240 W + Behold, reset til 245 W og automatisk tilbakerulling etter 10 s uten Behold verifisert med fersk NVML-getter. En flat 50 %-viftekurve holdt begge vifter på målet i 4 s, og temperaturmål 83 → 82 °C med revert/reset er også verifisert. Alle grenser, positiv overklokking og stress-/feiltilfeller er ikke prøvd. Overvåking krever ingen administratoraktivering. Styring blir først tilgjengelig når den kortbundne hjelperen er klar; endringer krever Bruk og Behold. RGB er fortsatt en forhåndsvisning, og lyskontrolleren er ikke identifisert.
+
+Sluttkontroll: **388 bestått, 4 ignorert, 0 feil**, ren workspace-clippy og bestått native UI-plan. Installert app er kontrollert med klar hjelper og samsvarende kortidentitet.
 
 ## Hva appen viser
 
@@ -36,7 +38,7 @@ Et lett maskinvareverktøy for Ubuntu: sensorer, grafer, CPU- og GPU-spesifikasj
 | Prosessor | Klokke og last per tråd/kjerne, cache, instruksjonssett, sårbarheter og lanseringsdato for kjente modeller |
 | Disker | SMART/NVMe-helse, temperatur, driftstid, slitasje, I/O og partisjoner |
 | System | Hovedkort, BIOS, minnebruk, operativsystem og kontrollere |
-| Skjermkortstyring | Utkast/profiler for klokker, effekt og vifter; RGB-forhåndsvisning |
+| Skjermkortstyring | NVML-styring av støttede klokker, effekt og vifter etter aktivering; utkast/profiler og RGB-forhåndsvisning |
 
 Tilgjengelige felt avhenger av komponentene og driverne. Referanseopplysninger er merket og skal ikke forveksles med målinger. RAM-moduldetaljer, skjerminformasjon og nettverkskortets spesifikasjoner er områder for videre utvidelse.
 
@@ -44,12 +46,12 @@ Tilgjengelige felt avhenger av komponentene og driverne. Referanseopplysninger e
 
 Den ferdigbygde pakken ligger under [Releases](https://github.com/bejulian1/agentic-rigg/releases). Den er laget for **Ubuntu 26.04, amd64/x86-64, GTK ≥ 4.22 og glibc ≥ 2.39**. Eldre Ubuntu-utgaver er ikke bekreftet støttet.
 
-Last ned `agentic-rigg-1.3.3-build22-ubuntu26.04-amd64.tar.gz` og `SHA256SUMS` fra samme Release:
+Last ned `agentic-rigg-1.4.0-build23-ubuntu26.04-amd64.tar.gz` og `SHA256SUMS` fra samme Release:
 
 ```bash
 sha256sum --check SHA256SUMS
-tar -xzf agentic-rigg-1.3.3-build22-ubuntu26.04-amd64.tar.gz
-cd agentic-rigg-1.3.3
+tar -xzf agentic-rigg-1.4.0-build23-ubuntu26.04-amd64.tar.gz
+cd agentic-rigg-1.4.0
 ./install.sh --bin-dir "$PWD/bin"
 ~/.local/bin/agentic-rigg
 ```
@@ -74,7 +76,7 @@ Mer om bygging og innstillinger står i [app/README.md](app/README.md).
 
 Lukk appen før oppdatering. Pakk ut neste Release og kjør installereren på nytt. Fra en kildeklone: `git pull` og `./install.sh`.
 
-Kjør `./uninstall.sh` fra den utpakkede pakken eller repoet for å avinstallere. Innstillinger og historikk beholdes.
+Slå av en aktivert GPU-hjelper i Innstillinger › Skjermkortstyring før avinstallasjon. Egne GPU-endringer gjenopprettes til det lagrede utgangspunktet; ved uverifisert gjenoppretting beholdes hjelpefilene og feilen vises. Kjør deretter `./uninstall.sh` fra pakken eller repoet. Innstillinger og historikk beholdes.
 
 ## Personvern og støtte
 

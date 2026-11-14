@@ -66,6 +66,10 @@ fn activate(gapp: &gtk::Application, state: &Rc<std::cell::RefCell<Option<Rc<App
         if let Some(p) = &cli.page {
             app.go(p);
         }
+        if let Some(section) = &cli.settings {
+            app.open_settings(section);
+        }
+        crate::widgets::locked::poll_helper(app);
         if let Some(w) = app.window() {
             w.present();
         }
@@ -108,6 +112,7 @@ fn activate(gapp: &gtk::Application, state: &Rc<std::cell::RefCell<Option<Rc<App
     shell.window.present();
     crate::timing::mark("present");
     crate::logg_ui::attach(&app);
+    crate::widgets::locked::watch_helper(&app);
     crate::skjermbilder::start(&app);
 
     // Etter første bilde: tilkobling, hilsen og meldinger fra oppstarten.
@@ -240,6 +245,7 @@ fn on_conn(app: &Rc<App>, up: bool) {
 }
 
 fn after_hello(app: &Rc<App>) {
+    crate::widgets::locked::poll_helper(app);
     let iv = app.settings().interval_ms;
     app.client.request("subscribe", json!({"topics": crate::client::TOPICS, "intervalMs": iv}), |_| {});
     if let Some(s) = app.shell.get() {

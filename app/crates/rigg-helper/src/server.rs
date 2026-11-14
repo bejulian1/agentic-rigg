@@ -49,23 +49,43 @@ pub fn load_config(path: &Path) -> Result<(Config, i64), String> {
     if !meta.file_type().is_file() {
         return Err(format!("{} er ikke en vanlig fil", path.display()));
     }
-    for (what, m) in [("fila", meta.clone()), ("mappa", std::fs::metadata(path.parent().unwrap_or(Path::new("/"))).map_err(|e| e.to_string())?)] {
+    for (what, m) in [
+        ("fila", meta.clone()),
+        (
+            "mappa",
+            std::fs::metadata(path.parent().unwrap_or(Path::new("/")))
+                .map_err(|e| e.to_string())?,
+        ),
+    ] {
         if m.uid() != euid {
-            return Err(format!("{} {what} eies av uid {}, ikke {euid}", path.display(), m.uid()));
+            return Err(format!(
+                "{} {what} eies av uid {}, ikke {euid}",
+                path.display(),
+                m.uid()
+            ));
         }
         if m.mode() & 0o022 != 0 {
-            return Err(format!("{} {what} kan skrives av andre (modus {:o})", path.display(), m.mode() & 0o777));
+            return Err(format!(
+                "{} {what} kan skrives av andre (modus {:o})",
+                path.display(),
+                m.mode() & 0o777
+            ));
         }
     }
     if meta.len() > 4096 {
         return Err("helper.json er for stor".into());
     }
     let text = std::fs::read_to_string(path).map_err(|e| e.to_string())?;
-    Ok((Config::parse(&text)?, meta.mtime() * 1_000_000_000 + meta.mtime_nsec()))
+    Ok((
+        Config::parse(&text)?,
+        meta.mtime() * 1_000_000_000 + meta.mtime_nsec(),
+    ))
 }
 
 fn mtime(path: &Path) -> Option<i64> {
-    std::fs::symlink_metadata(path).ok().map(|m| m.mtime() * 1_000_000_000 + m.mtime_nsec())
+    std::fs::symlink_metadata(path)
+        .ok()
+        .map(|m| m.mtime() * 1_000_000_000 + m.mtime_nsec())
 }
 
 /// Binder socketen. En gammel socket fjernes; alt annet på stien er en feil.
@@ -94,10 +114,15 @@ pub fn bind(path: &Path, uid: Option<u32>) -> Result<UnixListener, String> {
     if let Some(uid) = uid
         && unsafe { libc::geteuid() } == 0
     {
-        let c = std::ffi::CString::new(path.as_os_str().as_encoded_bytes()).map_err(|e| e.to_string())?;
+        let c = std::ffi::CString::new(path.as_os_str().as_encoded_bytes())
+            .map_err(|e| e.to_string())?;
         // SAFETY: lchown på en sti vi nettopp har laget.
         if unsafe { libc::lchown(c.as_ptr(), uid, u32::MAX) } != 0 {
-            return Err(format!("chown {}: {}", path.display(), std::io::Error::last_os_error()));
+            return Err(format!(
+                "chown {}: {}",
+                path.display(),
+                std::io::Error::last_os_error()
+            ));
         }
     }
     l.set_nonblocking(true).map_err(|e| e.to_string())?;
@@ -105,14 +130,27 @@ pub fn bind(path: &Path, uid: Option<u32>) -> Result<UnixListener, String> {
 }
 
 fn peer_uid(s: &UnixStream) -> Option<(u32, i32)> {
-    let mut c = libc::ucred { pid: 0, uid: 0, gid: 0 };
+    let mut c = libc::ucred {
+        pid: 0,
+        uid: 0,
+        gid: 0,
+    };
     let mut len = std::mem::size_of::<libc::ucred>() as libc::socklen_t;
     // SAFETY: getsockopt med riktig størrelse på ucred.
-    let r = unsafe { libc::getsockopt(s.as_raw_fd(), libc::SOL_SOCKET, libc::SO_PEERCRED, &mut c as *mut _ as *mut libc::c_void, &mut len) };
+    let r = unsafe {
+        libc::getsockopt(
+            s.as_raw_fd(),
+            libc::SOL_SOCKET,
+            libc::SO_PEERCRED,
+            &mut c as *mut _ as *mut libc::c_void,
+            &mut len,
+        )
+    };
     (r == 0).then_some((c.uid, c.pid))
 }
 
 struct Conn {
+    uid: u32,
     stream: UnixStream,
     buf: LineBuffer,
 }
@@ -127,8 +165,20 @@ pub struct Server {
 }
 
 impl Server {
-    pub fn new(listener: UnixListener, socket: PathBuf, config: PathBuf, cfg_mtime: Option<i64>) -> Server {
-        Server { listener, socket, config, cfg_mtime, conns: BTreeMap::new(), seq: 0 }
+    pub fn new(
+        listener: UnixListener,
+        socket: PathBuf,
+        config: PathBuf,
+        cfg_mtime: Option<i64>,
+    ) -> Server {
+        Server {
+            listener,
+            socket,
+            config,
+            cfg_mtime,
+            conns: BTreeMap::new(),
+            seq: 0,
+        }
     }
 
     /// `helper.json` på nytt når den er endret (trinn godkjent eller trukket).
@@ -150,10 +200,18 @@ impl Server {
         while !STOP.load(Ordering::SeqCst) {
             let now = rigg_core::now_ms();
             let wait = (1000 - (now - last_tick)).clamp(0, 1000) as i32;
-            let mut fds = vec![libc::pollfd { fd: self.listener.as_raw_fd(), events: libc::POLLIN, revents: 0 }];
+            let mut fds = vec![libc::pollfd {
+                fd: self.listener.as_raw_fd(),
+                events: libc::POLLIN,
+                revents: 0,
+            }];
             let ids: Vec<u64> = self.conns.keys().copied().collect();
             for id in &ids {
-                fds.push(libc::pollfd { fd: self.conns[id].stream.as_raw_fd(), events: libc::POLLIN, revents: 0 });
+                fds.push(libc::pollfd {
+                    fd: self.conns[id].stream.as_raw_fd(),
+                    events: libc::POLLIN,
+                    revents: 0,
+                });
             }
             // SAFETY: fds er en gyldig liste med pollfd.
             let n = unsafe { libc::poll(fds.as_mut_ptr(), fds.len() as libc::nfds_t, wait) };
@@ -189,19 +247,42 @@ impl Server {
             let ok = matches!((peer, allowed), (Some((u, _)), Some(a)) if u == a);
             let _ = s.set_write_timeout(Some(Duration::from_secs(1)));
             if !ok {
-                journal::warn(&format!("Avviste en forbindelse fra uid {} (pid {}); bare uid {} er tillatt.", peer.map_or(-1, |p| p.0 as i64), peer.map_or(-1, |p| p.1), allowed.map_or("ingen".into(), |a| a.to_string())));
-                let _ = Self::reply(&mut s, &serde_json::Value::Null, &Err(ProtoError::msg(ErrorCode::PermissionDenied, "Bare brukeren som aktiverte hjelperen, får koble til.")));
+                journal::warn(&format!(
+                    "Avviste en forbindelse fra uid {} (pid {}); bare uid {} er tillatt.",
+                    peer.map_or(-1, |p| p.0 as i64),
+                    peer.map_or(-1, |p| p.1),
+                    allowed.map_or("ingen".into(), |a| a.to_string())
+                ));
+                let _ = Self::reply(
+                    &mut s,
+                    &serde_json::Value::Null,
+                    &Err(ProtoError::msg(
+                        ErrorCode::PermissionDenied,
+                        "Bare brukeren som aktiverte hjelperen, får koble til.",
+                    )),
+                );
                 continue;
             }
             if self.conns.len() >= hjelper::MAX_CLIENTS {
-                let _ = Self::reply(&mut s, &serde_json::Value::Null, &Err(ProtoError::new(ErrorCode::TooManyClients)));
+                let _ = Self::reply(
+                    &mut s,
+                    &serde_json::Value::Null,
+                    &Err(ProtoError::new(ErrorCode::TooManyClients)),
+                );
                 continue;
             }
             if s.set_nonblocking(true).is_err() {
                 continue;
             }
             self.seq += 1;
-            self.conns.insert(self.seq, Conn { stream: s, buf: LineBuffer::new() });
+            self.conns.insert(
+                self.seq,
+                Conn {
+                    uid: peer.map(|p| p.0).unwrap_or(u32::MAX),
+                    stream: s,
+                    buf: LineBuffer::new(),
+                },
+            );
         }
     }
 
@@ -211,7 +292,9 @@ impl Server {
         let mut lines = Vec::new();
         let mut closed = false;
         {
-            let Some(c) = self.conns.get_mut(&id) else { return false };
+            let Some(c) = self.conns.get_mut(&id) else {
+                return false;
+            };
             let mut chunk = [0u8; 4096];
             loop {
                 match c.stream.read(&mut chunk) {
@@ -224,7 +307,11 @@ impl Server {
                             match ev {
                                 LineEvent::Line(l) => lines.push(l),
                                 LineEvent::TooLarge => {
-                                    let _ = Self::reply(&mut c.stream, &serde_json::Value::Null, &Err(ProtoError::new(ErrorCode::MessageTooLarge)));
+                                    let _ = Self::reply(
+                                        &mut c.stream,
+                                        &serde_json::Value::Null,
+                                        &Err(ProtoError::new(ErrorCode::MessageTooLarge)),
+                                    );
                                     return false;
                                 }
                             }
@@ -247,11 +334,22 @@ impl Server {
                 Ok(req) => {
                     // Trinnene kan være endret siden forrige runde (én stat).
                     self.reload(m, now);
-                    (req.id.clone(), m.handle(id, &req.op, &req.args, now))
+                    let allowed = self
+                        .conns
+                        .get(&id)
+                        .is_some_and(|c| m.cfg.as_ref().is_some_and(|cfg| cfg.uid == c.uid));
+                    let result = if allowed {
+                        m.handle(id, &req.op, &req.args, now)
+                    } else {
+                        Err(ProtoError::new(ErrorCode::PermissionDenied))
+                    };
+                    (req.id.clone(), result)
                 }
                 Err((rid, e)) => (rid, Err(e)),
             };
-            let Some(c) = self.conns.get_mut(&id) else { return false };
+            let Some(c) = self.conns.get_mut(&id) else {
+                return false;
+            };
             if !Self::reply(&mut c.stream, &rid, &r) {
                 return false;
             }

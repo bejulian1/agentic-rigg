@@ -11,9 +11,9 @@
 //!   HWiNFO) og det kortet ikke kan.
 //! - **Under:** kjerneklokke, temperatur og effekt for de siste minuttene.
 //!
-//! Endringer er låst mot det ekte kortet. Glidere og tallfelt lager et
-//! utkast som lagres i appen og ikke sendes. Mot den simulerte backenden i
-//! en utviklerforekomst virker Bruk, Behold og Rull tilbake.
+//! Glidere og tallfelt lager et lagret utkast. Etter administratoraktivering
+//! sender Bruk bare endrede felt til den kortbundne hjelperen. Endringene
+//! må beholdes innen fristen, ellers gjenopprettes forrige tilstand.
 //!
 //! **Eies av 6C (Styring).**
 
@@ -86,9 +86,12 @@ pub fn read(app: &App) -> Read {
     let lost = app.gpu_info().is_some_and(|i| i.state == rigg_core::model::DeviceState::Lost);
     // Når kortet svarer ikke, er verdiene fra de faste dataene gamle: bare
     // grensene (område, standard) står igjen.
+    let uncertain = lost || locked::helper(app)["hardwareError"].is_string();
     let none = Value::Null;
     let sx = &st.extra["styring"];
-    let x = if lost { &none } else { sx };
+    let x = if uncertain { &none } else { sx };
+    let observed = locked::observed_control(app).unwrap_or(Value::Null);
+    let cap_range = |key| locked::capability_range(app, key);
     Read {
         t: app.telemetry().map(|t| t.t).unwrap_or(0),
         power: s.power,
@@ -96,12 +99,12 @@ pub fn read(app: &App) -> Read {
         p_min: st.power_min,
         p_max: st.power_max,
         p_def: st.power_default,
-        core_off: x["coreOffsetMHz"]["value"].as_f64(),
-        core_rng: range_of(&sx["coreOffsetMHz"]),
-        mem_off: x["memOffsetMHz"]["value"].as_f64(),
-        mem_rng: range_of(&sx["memOffsetMHz"]),
-        temp_target: x["tempTarget"]["value"].as_f64().or(st.temp_target.filter(|_| !lost)),
-        temp_rng: range_of(&sx["tempTarget"]),
+        core_off: if observed.is_object() { observed["coreOffsetMhz"].as_f64() } else { x["coreOffsetMHz"]["value"].as_f64() },
+        core_rng: cap_range("core_clock").or_else(|| range_of(&sx["coreOffsetMHz"])),
+        mem_off: if observed.is_object() { observed["memOffsetMhz"].as_f64() } else { x["memOffsetMHz"]["value"].as_f64() },
+        mem_rng: cap_range("mem_clock").or_else(|| range_of(&sx["memOffsetMHz"])),
+        temp_target: observed["tempTargetC"].as_f64().or_else(|| x["tempTarget"]["value"].as_f64()).or(st.temp_target.filter(|_| !uncertain)),
+        temp_rng: cap_range("temp_target").or_else(|| range_of(&sx["tempTarget"])),
         slowdown: st.temp_slowdown,
         shutdown: st.temp_shutdown,
         // Prøven (hvert 5. s) går foran de faste dataene, som bare leses ved oppstart.
@@ -738,11 +741,12 @@ impl Page for Wrap {
 
 impl Kontroller {
     fn draft(&self) -> Option<Values> {
-        locked::stored(&self.app).utkast
+        locked::validated_draft(&self.app, &self.base()).unwrap_or_else(|_| locked::stored(&self.app).utkast)
     }
 
     /// Det et nytt utkast begynner fra: kortet nå, eller siste lesing når kortet er borte.
     fn base(&self) -> Values {
+        if let Some(v) = locked::control_values(&self.app) { return v; }
         let r = read(&self.app);
         if r.lost { self.last_good.borrow().clone().unwrap_or_else(|| r.values()) } else { r.values() }
     }
@@ -832,11 +836,12 @@ impl Kontroller {
             if let Some(p) = w.upgrade() {
                 p.track_throttle();
                 if p.visible.get() {
+                    locked::refresh_control(&p.app, false);
                     p.refresh();
                 }
             }
         });
-        for hub in [&self.app.on_devices, &self.app.on_theme] {
+        for hub in [&self.app.on_devices, &self.app.on_theme, &self.app.on_service] {
             let w = Rc::downgrade(self);
             hub.connect(move |_| {
                 if let Some(p) = w.upgrade() {
@@ -874,6 +879,22 @@ impl Kontroller {
     }
 
     fn do_reset_all(self: &Rc<Self>) {
+        if locked::control_ready(&self.app) {
+            let w = Rc::downgrade(self);
+            locked::send_write(&self.app, "reset", json!({}), move |r| {
+                if let Some(p) = w.upgrade() {
+                    match r {
+                        Ok(_) => {
+                            locked::update(&p.app, "utkast", |s| s.utkast = None);
+                            p.app.toast(crate::toast::Toast::new("Kortets utgangspunkt er gjenopprettet"));
+                        }
+                        Err(e) => p.app.toast(crate::toast::Toast::new("Kunne ikke bekrefte gjenoppretting").body(&e.message).error()),
+                    }
+                    p.refresh();
+                }
+            });
+            return;
+        }
         let r = read(&self.app);
         let st = stock(&r);
         let cur = self.draft().unwrap_or_else(|| self.base());
@@ -882,7 +903,7 @@ impl Kontroller {
             self.app.toast(crate::toast::Toast::new("Kortet står allerede på standard"));
             return;
         }
-        locked::update(&self.app, "utkast", |s| s.utkast = Some(next));
+        locked::set_draft(&self.app, self.base(), next);
         let a = self.app.clone();
         self.app.toast(crate::toast::Toast::new("Utkastet har standardverdiene").body("Ingenting er sendt til kortet.").action("Angre", move || {
             locked::undo_draft(&a, false);
@@ -903,13 +924,31 @@ impl Kontroller {
     }
 
     fn do_apply(self: &Rc<Self>) {
-        let Some(d) = self.draft() else { return };
-        if locked::gate(&self.app) != Gate::Sim || self.confirm.active() {
+        let Some(_) = self.draft() else { return };
+        if matches!(locked::gate(&self.app), Gate::Locked(_)) || self.confirm.active() {
             return;
         }
+        if locked::control_ready(&self.app) && locked::control_values(&self.app).is_none() {
+            locked::refresh_control(&self.app, true);
+            self.app.toast(crate::toast::Toast::new("Leser kortets innstillinger …").body("Prøv Bruk igjen når innstillingene er lest."));
+            return;
+        }
+        let base = self.base();
+        let d = match locked::draft_for_apply(&self.app, &base) {
+            Ok(v) => v,
+            Err(why) => {
+                self.app.toast(crate::toast::Toast::new("Utkastet må oppdateres").body(&why).error());
+                return;
+            }
+        };
+        if let Some(why) = locked::patch_error(&self.app, &base, &d) {
+            self.app.toast(crate::toast::Toast::new("Funksjonen er utilgjengelig").body(&why).error());
+            return;
+        }
+        let patch = locked::changed_patch(&base, &d);
         let secs = self.app.settings().confirm_sec;
         let w = Rc::downgrade(self);
-        locked::send_write(&self.app, "apply", json!({"settings": d.to_json(), "confirmTimeoutS": secs}), move |res| {
+        locked::send_write(&self.app, "apply", json!({"settings": patch, "confirmTimeoutS": secs}), move |res| {
             let Some(p) = w.upgrade() else { return };
             match res {
                 Ok(v) if v["txn"].is_string() => p.confirm.start(&p.app, &v),
@@ -1001,8 +1040,14 @@ impl Kontroller {
     }
 
     fn render_rows(&self, r: &Read, draft: Option<&Values>) {
-        let st = stock(r);
-        let base = r.values();
+        let st = locked::stock_values(&self.app).unwrap_or_else(|| stock(r));
+        for (row, key) in self.rows.iter().zip(["power", "core_clock", "mem_clock", "temp_target", "fan_manual"]) {
+            let enabled = !locked::control_ready(&self.app) || locked::supports(&self.app, key);
+            row.root.set_sensitive(enabled);
+            if !enabled { row.root.set_tooltip_text(Some(&locked::capability_reason(&self.app, key))); }
+            else { row.root.set_tooltip_text(None); }
+        }
+        let base = self.base();
         let shown = draft.cloned().unwrap_or_else(|| base.clone());
         let diff = draft.map(|d| draft_diff(&base, d)).unwrap_or_default();
         let changed = |k: &str| diff.iter().any(|x| x == k);
@@ -1031,11 +1076,12 @@ impl Kontroller {
             row.set_range(lo.min(pol.min), hi.max(pol.max), (pol.min.max(lo), pol.max.min(hi)), step, big);
             let v = if i == 1 { shown.core_offset_mhz } else { shown.mem_offset_mhz };
             // Leses ikke (og ikke i utkast): «–», ikke en gjettet 0.
-            row.show(if (off.is_none() || na) && draft.is_none() { None } else { Some(v) }, off, Some(0.0));
+            let baseline_offset = if i == 1 { st.core_offset_mhz } else { st.mem_offset_mhz };
+            row.show(if (off.is_none() || na) && draft.is_none() { None } else { Some(v) }, off, Some(baseline_offset));
             let what = if i == 1 { "Kjerneklokke" } else { "Minneklokke" };
             set_text(&row.now, &format!("{what} nå {}, høyest {}{}", F::mhz(now), F::mhz(max), if off.is_none() && !na { " · offset leses ikke ennå" } else { "" }));
             row.set_changed(changed(key));
-            row.set_reset_tip(&format!("Tilbake til standard ({})", signed(0.0, "MHz")));
+            row.set_reset_tip(&format!("Tilbake til grunnverdi ({})", signed(baseline_offset, "MHz")));
             let t = format!("Tjenesten tillater {} til {} når endring er slått på. Kortet tillater {} til {}.", signed(pol.min, "MHz"), signed(pol.max, "MHz"), signed(lo, "MHz"), signed(hi, "MHz"));
             if row.slider.tooltip_text().as_deref() != Some(t.as_str()) {
                 row.slider.set_tooltip_text(Some(&t));
@@ -1046,7 +1092,7 @@ impl Kontroller {
         let row = &self.rows[3];
         let (lo, hi) = r.temp_rng.unwrap_or((txn::HW_TEMP.min, txn::HW_TEMP.max));
         row.set_range(lo, hi, (lo, hi), 1.0, 5.0);
-        row.show(if na && draft.is_none() { None } else { Some(shown.temp_target_c) }, r.temp_target, Some(st.temp_target_c));
+        row.show(if (na || r.temp_target.is_none()) && draft.is_none() { None } else { Some(shown.temp_target_c) }, r.temp_target, Some(st.temp_target_c));
         set_text(&row.now, &match (r.slowdown, r.shutdown) {
             (Some(a), Some(b)) => format!("GPU-temperatur nå {} · nedklokking ved {}, avstenging ved {}", F::temp(r.temp, 0), F::temp(Some(a), 0), F::temp(Some(b), 0)),
             _ => format!("GPU-temperatur nå {}", F::temp(r.temp, 0)),
@@ -1136,7 +1182,7 @@ impl Kontroller {
         };
         self.diff_panel.root.set_visible(true);
         crate::widgets::clear(&self.diff_kv);
-        let base = r.values();
+        let base = self.base();
         let diff = draft_diff(&base, d);
         if diff.is_empty() {
             let l = label("Utkastet er likt det kortet har nå.", &["muted", "sm"]);
@@ -1159,7 +1205,7 @@ impl Kontroller {
             row.append(&label(&to, &["bold", "num"]));
             self.diff_kv.append(&row);
         }
-        let note = label("Lagres i appen og sendes ikke til kortet. Ctrl+Z angrer.", &["muted", "sm", "diff-note"]);
+        let note = label(if locked::control_ready(&self.app) { "Sendes til kortet med Bruk. Behold innen fristen, ellers rulles endringen tilbake." } else { "Lagres i appen som utkast. Ctrl+Z angrer." }, &["muted", "sm", "diff-note"]);
         note.set_wrap(true);
         self.diff_kv.append(&note);
         let n = diff.len();
@@ -1173,10 +1219,14 @@ impl Kontroller {
         self.discard.set_visible(true);
         self.apply.set_visible(true);
         match locked::gate(&self.app) {
-            Gate::Sim => {
-                let ok = n > 0 && !self.confirm.active();
+            Gate::Sim | Gate::Real => {
+                let ok = n > 0 && !self.confirm.active()
+                    && (!locked::control_ready(&self.app) || locked::control_values(&self.app).is_some())
+                    && locked::validated_draft(&self.app, &self.base()).is_ok()
+                    && locked::patch_error(&self.app, &self.base(), d).is_none();
                 self.apply.set_sensitive(ok);
-                tip(&self.apply, if self.confirm.active() { "Endringen venter på Behold" } else if ok { "Bruk utkastet" } else { "Ingen endringer å bruke" }, Some("Ctrl+Enter"));
+                let reason = locked::validated_draft(&self.app, &base).err().or_else(|| locked::patch_error(&self.app, &base, d));
+                tip(&self.apply, reason.as_deref().unwrap_or(if self.confirm.active() { "Endringen venter på Behold" } else if ok { "Bruk utkastet" } else { "Ingen endringer å bruke" }), Some("Ctrl+Enter"));
             }
             Gate::Locked(t) => {
                 self.apply.set_sensitive(false);
@@ -1186,7 +1236,7 @@ impl Kontroller {
     }
 
     fn values_on_page(&self) -> Values {
-        self.draft().unwrap_or_else(|| read(&self.app).values())
+        self.draft().unwrap_or_else(|| self.base())
     }
 
     /// De fem profilplassene.
@@ -1275,7 +1325,7 @@ impl Kontroller {
             load.connect_clicked(move |_| {
                 if let Some(pg) = w.upgrade() {
                     let v = pv.values.clone();
-                    locked::update(&pg.app, "utkast", |s| s.utkast = Some(v));
+                    locked::set_draft(&pg.app, pg.base(), v);
                     pg.app.toast(crate::toast::Toast::new(&format!("Hentet «{}»", pv.name)).body("Utkastet har verdiene fra profilen. Ingenting er sendt til kortet."));
                 }
             });

@@ -2,13 +2,10 @@
 //! **Bare hjelperen bruker denne modulen.** Tjenesten og vinduet gjør det
 //! ikke (`tests/bare_lesing.rs` sjekker det).
 //!
-//! - [`SimSkriver`]: et simulert kort i minnet. Det eneste som kjøres i 1.2.0
-//!   (`agentic-rigg-helper --backend sim`, testene).
-//! - [`open_nvml`]: det ekte kortet. **Sperret** på to måter: cargo-funksjonen
-//!   `ekte-skriving` er av (koden i `skriv_nvml.rs` kompileres ikke inn), og
-//!   [`EKTE_SKRIVING`] er `false`. Uten begge svarer [`open_nvml`] med en feil,
-//!   og hjelperen åpner aldri NVML. Trinn 2 i planen (effektgrense) er å
-//!   slå på begge, etter brukerens ja.
+//! - [`SimSkriver`]: et simulert kort i minnet, til tester.
+//! - [`open_nvml_bound`]: kortbundet, valgfri NVML-backend. Åpning leser bare;
+//!   hjelperen må også kontrollere brukerens globale tillatelse og lagre
+//!   baseline før noe kan skrives. Ubundet [`open_nvml`] avvises alltid.
 //!
 //! Grensesnittet tar hele [`Values`] (det `txn::Book` har i bruk) og legger
 //! på det som er ulikt det forrige. Ingen vilkårlige kall, stier eller
@@ -16,9 +13,9 @@
 
 use rigg_core::txn::{self, FanMode, Range, Values};
 
-/// Den andre sperren mot det ekte kortet (den første er cargo-funksjonen).
-/// Endres bare i en egen runde etter brukerens ja (trinn 2).
-pub const EKTE_SKRIVING: bool = false;
+/// Bygget inneholder en implementasjon. Cargo-funksjonen og hjelperens
+/// root-eide autorisasjon, kortbinding og vedvarende baseline kreves i tillegg.
+pub const EKTE_SKRIVING: bool = true;
 
 /// Områdene kortet selv melder. Verdier utenfor avvises av hjelperen.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -38,19 +35,42 @@ pub struct Limits {
 pub struct StockValues {
     pub power_w: f64,
     pub temp_target_c: f64,
+    pub core_offset_mhz: f64,
+    pub mem_offset_mhz: f64,
+    pub fan_percent: f64,
 }
 
 impl Limits {
     /// RTX 2080 målt med NVML (maskinvare-revisjon kap. 8), som `txn`.
     pub fn rtx2080() -> Limits {
         let d = Values::default();
-        Limits { power_w: txn::HW_POWER, core_mhz: txn::HW_CORE, mem_mhz: txn::HW_MEM, temp_target_c: txn::HW_TEMP, fan_pct: txn::HW_FAN, default: StockValues { power_w: d.power_limit_w, temp_target_c: d.temp_target_c } }
+        Limits {
+            power_w: txn::HW_POWER,
+            core_mhz: txn::HW_CORE,
+            mem_mhz: txn::HW_MEM,
+            temp_target_c: txn::HW_TEMP,
+            fan_pct: txn::HW_FAN,
+            default: StockValues {
+                power_w: d.power_limit_w,
+                temp_target_c: d.temp_target_c,
+                core_offset_mhz: d.core_offset_mhz,
+                mem_offset_mhz: d.mem_offset_mhz,
+                fan_percent: d.fan_percent,
+            },
+        }
     }
 
     /// Standardoppsettet: kortets effekt og temperaturmål, ingen offset,
     /// driveren styrer viftene.
     pub fn stock(&self) -> Values {
-        Values { power_limit_w: self.default.power_w, temp_target_c: self.default.temp_target_c, ..Values::default() }
+        Values {
+            power_limit_w: self.default.power_w,
+            temp_target_c: self.default.temp_target_c,
+            core_offset_mhz: self.default.core_offset_mhz,
+            mem_offset_mhz: self.default.mem_offset_mhz,
+            fan_percent: self.default.fan_percent,
+            ..Values::default()
+        }
     }
 }
 
@@ -59,11 +79,34 @@ pub trait Skriver {
     /// «sim» eller «nvml».
     fn backend(&self) -> &'static str;
     fn limits(&self) -> Limits;
+    fn identity(&self) -> serde_json::Value {
+        serde_json::json!({"pci": "sim", "uuid": "sim", "driver": "sim", "vbios": "sim"})
+    }
+    /// Gettere og tilgjengelige symboler, aldri en automatisk skriveprøve.
+    fn capabilities(&self) -> serde_json::Value {
+        let l = self.limits();
+        let cap = |r: Range| serde_json::json!({"available": true, "min": r.min, "max": r.max, "readback": true});
+        serde_json::json!({"power": cap(l.power_w), "core_clock": cap(l.core_mhz), "mem_clock": cap(l.mem_mhz), "fan_manual": cap(l.fan_pct), "fan_curve": cap(l.fan_pct), "temp_target": cap(l.temp_target_c), "rgb": {"available": false, "reason": "not_implemented", "readback": false}})
+    }
+    fn current_values(&self) -> Values {
+        self.limits().stock()
+    }
+    /// Hjelperen må lagre dette atomisk før load_baseline og første skriving.
+    fn baseline(&self) -> serde_json::Value {
+        serde_json::json!({"version": 1, "identity": self.identity(), "captured": self.current_values().to_json(), "restore": self.limits().stock().to_json()})
+    }
+    fn load_baseline(&mut self, _baseline: &serde_json::Value) -> Result<(), String> {
+        Ok(())
+    }
     /// Temperaturen nå (°C), til nødregelen og viftekurven.
     fn temperature(&mut self) -> Option<f64>;
     /// Legger på `v` (det som er ulikt det forrige). Med `fan_mode = curve`
     /// settes ikke farten her; hjelperen kaller [`Skriver::set_fan_percent`].
     fn apply(&mut self, v: &Values) -> Result<(), String>;
+    /// Gjenoppretting etter en delvis feil må ikke stole på skrivecachen.
+    fn restore_values(&mut self, v: &Values) -> Result<(), String> {
+        self.apply(v)
+    }
     /// Fast fart på alle viftene (nødregelen og Manuell).
     fn set_fan_percent(&mut self, pct: f64) -> Result<(), String>;
     /// Fart per vifte (viftekurven fra `rigg_core::vifte`). Standard: den
@@ -117,13 +160,25 @@ impl Default for SimSkriver {
 impl SimSkriver {
     pub fn new() -> SimSkriver {
         let limits = Limits::rtx2080();
-        SimSkriver { applied: limits.stock(), fan_now: None, fans: None, temp_c: 45.0, writes: 0, limits }
+        SimSkriver {
+            applied: limits.stock(),
+            fan_now: None,
+            fans: None,
+            temp_c: 45.0,
+            writes: 0,
+            limits,
+        }
     }
 
     /// Er kortet på standard (effekt, offset, temperaturmål og Auto)?
     pub fn is_stock(&self) -> bool {
         let s = self.limits.stock();
-        self.fan_now.is_none() && self.applied.power_limit_w == s.power_limit_w && self.applied.core_offset_mhz == 0.0 && self.applied.mem_offset_mhz == 0.0 && self.applied.temp_target_c == s.temp_target_c && self.applied.fan_mode == FanMode::Auto
+        self.fan_now.is_none()
+            && self.applied.power_limit_w == s.power_limit_w
+            && self.applied.core_offset_mhz == 0.0
+            && self.applied.mem_offset_mhz == 0.0
+            && self.applied.temp_target_c == s.temp_target_c
+            && self.applied.fan_mode == FanMode::Auto
     }
 }
 
@@ -134,11 +189,16 @@ impl Skriver for SimSkriver {
     fn limits(&self) -> Limits {
         self.limits
     }
+    fn current_values(&self) -> Values {
+        self.applied.clone()
+    }
     fn temperature(&mut self) -> Option<f64> {
         Some(self.temp_c)
     }
     fn apply(&mut self, v: &Values) -> Result<(), String> {
-        if self.applied.diff(v).is_empty() && (v.fan_mode != FanMode::Manual || self.fan_now == Some(v.fan_percent)) {
+        if self.applied.diff(v).is_empty()
+            && (v.fan_mode != FanMode::Manual || self.fan_now == Some(v.fan_percent))
+        {
             return Ok(());
         }
         self.writes += 1;
@@ -160,7 +220,10 @@ impl Skriver for SimSkriver {
         Ok(())
     }
     fn set_fan_percents(&mut self, pct: &[f64]) -> Result<(), String> {
-        let p: Vec<f64> = pct.iter().map(|p| self.limits.fan_pct.clamp(p.round())).collect();
+        let p: Vec<f64> = pct
+            .iter()
+            .map(|p| self.limits.fan_pct.clamp(p.round()))
+            .collect();
         if p.is_empty() {
             return Ok(());
         }
@@ -201,20 +264,28 @@ impl Skriver for SimSkriver {
 
 // ---------------------------------------------------------------- det ekte kortet
 
-/// Er skriving til det ekte kortet bygget inn og slått på? `false` i 1.2.0.
+/// Er backenden kompilert inn? Dette er ingen runtime-tillatelse til skriving.
 pub fn real_writes_available() -> bool {
     cfg!(feature = "ekte-skriving") && EKTE_SKRIVING
 }
 
-/// Åpner det ekte kortet for skriving. **I 1.2.0 alltid en feil**: koden er
-/// ikke kompilert inn, og sperren er av. Da åpnes ikke NVML i det hele tatt.
+/// Den gamle, ubundne inngangen avvises uten å laste NVML.
 pub fn open_nvml() -> Result<Box<dyn Skriver>, String> {
+    Err("identity_required: NVML-skriving krever både PCI-adresse og UUID".into())
+}
+
+/// Åpner og leser bare. Første set-kall krever også load_baseline etter at
+/// hjelperen har lagret baseline på disk. Ingen reserve til indeks 0.
+pub fn open_nvml_bound(pci: &str, uuid: &str) -> Result<Box<dyn Skriver>, String> {
+    if !valid_binding(pci, uuid) {
+        return Err("identity_required: ugyldig PCI-adresse eller GPU-UUID".into());
+    }
     if !real_writes_available() {
         return Err("Skriving til det ekte kortet er sperret i denne versjonen (rigg-hw: ekte-skriving er av).".into());
     }
     #[cfg(feature = "ekte-skriving")]
     {
-        crate::gpu::skriv_nvml::open().map(|s| Box::new(s) as Box<dyn Skriver>)
+        crate::gpu::skriv_nvml::open(pci, uuid).map(|s| Box::new(s) as Box<dyn Skriver>)
     }
     #[cfg(not(feature = "ekte-skriving"))]
     {
@@ -222,22 +293,46 @@ pub fn open_nvml() -> Result<Box<dyn Skriver>, String> {
     }
 }
 
+pub fn valid_binding(pci: &str, uuid: &str) -> bool {
+    let b = pci.as_bytes();
+    b.len() == 12
+        && b[4] == b':'
+        && b[7] == b':'
+        && b[10] == b'.'
+        && b.iter()
+            .enumerate()
+            .all(|(i, c)| matches!(i, 4 | 7 | 10) || c.is_ascii_hexdigit())
+        && (b'0'..=b'7').contains(&b[11])
+        && uuid.starts_with("GPU-")
+        && uuid.len() <= 80
+        && uuid.len() > 4
+        && uuid[4..]
+            .bytes()
+            .all(|c| c.is_ascii_hexdigit() || c == b'-')
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn sperren_er_av_i_denne_versjonen() {
-        const { assert!(!EKTE_SKRIVING) };
-        assert!(!real_writes_available());
+    fn ubundet_eller_ugyldig_kort_kan_aldri_aapnes() {
         assert!(open_nvml().is_err());
+        assert!(open_nvml_bound("", "").is_err());
+        assert!(open_nvml_bound("../../gpu", "GPU-1234").is_err());
+        assert!(valid_binding("0000:1c:00.0", "GPU-1234-abcd"));
     }
 
     #[test]
     fn sim_husker_og_tilbakestiller() {
         let mut s = SimSkriver::new();
         assert!(s.is_stock());
-        let v = Values { power_limit_w: 200.0, fan_mode: FanMode::Manual, fan_percent: 60.0, ..s.limits().stock() };
+        let v = Values {
+            power_limit_w: 200.0,
+            fan_mode: FanMode::Manual,
+            fan_percent: 60.0,
+            ..s.limits().stock()
+        };
         s.apply(&v).unwrap();
         assert_eq!(s.fan_now, Some(60.0));
         assert!(!s.is_stock());

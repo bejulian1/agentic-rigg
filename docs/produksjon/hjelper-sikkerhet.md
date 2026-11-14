@@ -1,8 +1,76 @@
-# Root-hjelperen · sikkerhetsgjennomgang (runde 7A, 1.2.0)
+# Root-hjelperen · sikkerhet og begrensninger
+
+## Gjeldende modell · 1.4.0, bygg 23 · 14. november 2026
+
+Dette avsnittet erstatter den tidligere modellens fire godkjenningstrinn og absolutte NVML-skrivelås. Historikken fra 1.2.0 er bevart lenger ned. Brukeren har autorisert implementasjon av kortbundet GPU-styring gjennom én administratoraktivering. RGB/I2C, CPU, hovedkortvifter, systempakker og kjernemoduler inngår ikke i denne styringen.
+
+**Kontrollstatus:** siste fullførte workspace-kjøring har 388 bestått, 4 ignorert og 0 feilet; workspace-clippy på alle mål er ren. Native GTK-assertions bestod. Sluttkjøringen inkluderer CLI-/statusrettingene og isolerte testhjelper-røtter. Brukeren har fullført ekte polkit-aktivering; begrenset fysisk skriving, fersk tilbakelesing, revert og reset er verifisert mot den herdede NVML-hjelperen på RTX 2080. En etterfølgende prøve gjennom installert NVML-daemon verifiserer også effektgrensens confirm/Behold og 10 s-frist mot ekte GPU. Simulering og feilinjeksjon gir ikke bevis for at driveren tillater et bestemt kall. Det tidligere systemd-sikkerhetstallet, binærstørrelsen og ytelsestallene nedenfor gjelder 1.2.0 og er ikke nye målinger av 1.4.0.
+
+### Autorisasjon, identitet og funksjonsstøtte
+
+- `install.sh` installerer under brukerens hjemmemappe og aktiverer ingen GPU-styring. Bryteren i Innstillinger › Skjermkortstyring starter `pkexec aktiver.sh --pci PCI --uuid UUID`. Administratorpassordet skrives i polkit-dialogen.
+- Root-eid `helper.json` v2 inneholder uid, `enabled` og én PCI/UUID-binding. Eldre v1-trinn oppgraderes ikke automatisk til global tillatelse. `trinn.sh` gir ingen tillatelser; det er beholdt som en avvisende kompatibilitetskommando. Polkit har handlinger for aktivering og deaktivering, ikke fire funksjonsgodkjenninger.
+- Unix-socketen er `0600`, eid av den autoriserte brukeren. `SO_PEERCRED` kontrollerer uid; en åpen forbindelse kontrolleres også mot en endret konfigurasjon. Samme uid betyr fortsatt samme rettigheter: andre prosesser som brukeren kan sende de tillatte operasjonene.
+- Vindu, `riggd` og hjelper kontrollerer valgt PCI/UUID. NVML åpnes med den bundne PCI-adressen og sammenligner UUID; ubundet åpning av GPU-indeks 0 avvises. Grunnopptaket er dessuten bundet til driver og VBIOS.
+- Feltene `power`, `core_clock`, `mem_clock`, `fan_manual`, `fan_curve`, `temp_target` og `rgb` får separate egenskaper: tilgjengelighet, område, grunn og tilbakelesing. Oppdagelse gjør bare lesing og symbolsjekk, aldri en testskriving. Et tilgjengelig symbol beviser ikke at driveren vil tillate selve endringen. Manglende støtte på ett felt sperrer ikke uavhengige felt.
+- Bare endrede felt sendes til `apply`. Tall utenfor backendens oppgitte områder avvises uten klemming til en annen GPU-modells policy. Ukjente felt og operasjoner avvises. RGB-operasjonene returnerer utilgjengelig/ikke støttet; lyskontrolleren er ikke identifisert.
+
+### Grunnopptak, frister og feil
+
+| Tilstand | Implementert handling |
+|---|---|
+| Første åpning etter ren administratoraktivering | Fang gjeldende innstillinger uten skriving. Ny fangst krever Auto-vifte. Lagre atomisk som `baseline.json` under `/var/lib/agentic-rigg/` før backend får skrive. Filen har modus `0600` i beskyttet mappe `0700`. |
+| Vanlig oppstart eller recovery | Last det eksisterende opptaket og kontroller full identitet. Ikke erstatt det med verdier som kan stamme fra en avbrutt endring. En eksisterende Auto-baseline kan lastes selv om våre nåværende vifteverdier er manuelle. |
+| Ny, ren administratoraktivering | Stopp gammel hjelper og krev bekreftet gjenoppretting. Kontroller at `dirty.json` ikke finnes, heller ikke som symlink. Arkiver tidligere grunnopptak som `baseline-forrige-*.json`; ny backend fanger deretter dagens utgangspunkt. Uavklarte endringer stanser aktiveringen før installasjonen erstattes. |
+| Før endring | Lagre og synkroniser en beskyttet `dirty.json` bundet til identiteten før setter-kall. Et uendret Bruk oppretter ingen slik markør eller transaksjon. |
+| Bruk uten Behold | Hjelperens frist er 10–60 s (standard 15 s). Bare eieren kan bekrefte/rulle tilbake transaksjonen. Fristutløp forsøker å gjenopprette det bekreftede oppsettet. |
+| Delvis skrivefeil | Rapporter feilen. Forsøk tvungen gjenoppretting av bekreftet oppsett og deretter fangede grunnverdier. Gjenoppretting må ikke stole på en skrivecache etter en delvis feil. |
+| Uverifisert gjenoppretting | Behold dirty-markøren og feilstatusen, sperr videre vanlige endringer og meld transaksjonen som feil. `reset()` som returnerer Ok er alene utilstrekkelig: snapshot må bekrefte `stock == true`. `null` er ukjent, ikke suksess. |
+| Standard, frakobling eller stopp etter egne endringer | Gjenopprett fanget utgangspunkt, ikke en antatt fabrikkverdi. Opprinnelig effektgrense og klokkeoffset beholdes i grunnverdiene. Uberørt aktivering/stopp gjør ingen reset-kall. |
+| Manglende livssignal eller hvilegap | Forbindelsen som eier endringene må vedlikeholdes av `riggd`. Manglende livssignal over 65 s eller et tick-gap over 15 s utløser gjenoppretting etter egne endringer. |
+| Deaktivering eller utskifting av hjelper | Uavhengig `--tilbakestill` må lykkes før hjelpefiler fjernes eller gammel binær erstattes. Feil eller uverifisert tilstand beholder installasjonen/opptaket. Grunnverdifila og arkiver beholdes etter vellykket deaktivering. |
+
+Klokkegettere kan returnere gamle offset. Backend rapporterer dette som manglende fysisk tilbakelesing (`readback: false` / `offsetsVerified`) og må ikke likestille en akseptert setter med en måling. Konservativ ukjent status kan derfor hindre deaktivering selv om setter-kallene returnerte suksess. En endret driver/VBIOS kan også kreve særskilt recovery; grunnopptaket brukes ikke automatisk på en annen identitet.
+
+### Viftevern
+
+Nødregelen over 85 °C gjelder bare dersom faktisk viftestyring er tilgjengelig og hjelperen eier aktive innstillinger. Ventende endring rulles tilbake før nødviften brukes; regelen slipper under 80 °C. Manglende fan-støtte skal ikke ødelegge en uavhengig effektgrense. Ukjent temperatur under Manuell utløser gjenoppretting. Kurvemotoren bruker temperaturkontroll, hysterese, rampe og utjevning; feil ved viftedrift behandles som skrivefeil og oppdaterer ikke en falsk vellykket cache. Dette erstatter ikke driverens og fastvarens eget vern og er ikke fysisk verifisert ennå.
+
+### Systemtjenestens avgrensing
+
+Tjenesten kjører som root med `CAP_CHOWN` for socketen og `CAP_SYS_ADMIN` for NVML. Systemet er skrivebeskyttet utenom tjenestens runtime- og tilstandsmapper. `ProtectHome`, `NoNewPrivileges`, privat nett, Unix-adressefamilie og filtrerte systemkall er beholdt. Enhetsadgang begrenses til `/dev/nvidiactl` og ett `/dev/nvidiaN`; aktiveringsskriptet leser Device Minor for den bundne PCI-adressen fra driverens eksisterende proc-opplysning. Ingen `/dev/i2c-*` tillates. Ressursgrensene er 128 MiB og 32 oppgaver. `Restart=no` unngår automatisk ny start med gamle aktive verdier; `ExecStopPost` forsøker uavhengig recovery når dirty finnes.
+
+Protokollen har ingen generell shell-/programkjøring eller klientvalgte filstier. Den har fremdeles høyest fire forbindelser og 16 KiB per linje. `READY=1` krever at backend er åpnet og grunnopptaket er klart; en lyttende socket alene er ikke tilstrekkelig.
+
+Første aktivering og oppdatering bruker fortsatt et skript og en binær fra brukerens skrivbare installasjonsmappe. En prosess med samme uid kan bytte dem før brukeren godkjenner med passord. Dette er en eksisterende tillitsgrense; hardening av den kjørende tjenesten løser ikke den. Etter installasjon ligger tjenestens filer root-eid i `/usr/local/libexec/`. Ingen ny systemd-sikkerhetsskår er målt for 1.4.0.
+
+Den endelige native UI-planen bestod, inkludert klokkesiden med den nye statusvakten. Den oppdaterte installerte appen startet på Klokker og effekt; klar hjelper og samsvarende kortidentitet er bekreftet.
+
+### Gjennomført fysisk prøve · 14. november 2026
+
+Etter brukerens polkit-godkjenning meldte den herdede root-hjelperen klar NVML-backend. Enkeltprøver mot hjelperen verifiserte effekt 245 → 240 W, begge vifter Auto (35 %) → Manuell (50 %), kjerneoffset 0 → −15 MHz og minneoffset 0 → −10 MHz. Hvert felt ble kontrollert med fersk NVML-getter og revert. Avsluttende reset bekreftet 245 W, kjerne-/minneoffset 0/0 MHz, temperaturmål 83 °C og Auto på begge vifter. Alle tilbakelesinger stemte. En senere prøve verifiserte også flat 50 %-kurve med begge vifter på målet i 4 s og temperaturmål 83 → 82 °C med revert/reset. Avsluttende stock true bekreftet igjen 245 W, offset 0/0 MHz, 83 °C og Auto på begge vifter.
+
+1.4.0 · bygg 23 er installert med kontrollert binærhash, uendrede innstillinger og sikret historikk. Prøven verifiserer den faktiske hjelperen under tjenestens sandbox. Deretter bekreftet hello/get_helper/get_state gjennom installert NVML-daemon kortbindingen. Apply 240 W + confirm/Behold ga fersk 240 W og reset til 245 W. Ny apply 240 W uten Behold ga rolled_back/timeout etter 10 s og fersk 245 W før noe ekstra reset-kall; avsluttende reset bekreftet stock true. Dette er en daemonprøve av effektgrensen, ikke en fysisk gjennomgang av alle GUI-handlinger. Den verifiserer heller ikke alle grenser, positiv overklokking, stresstest, drivertap eller strømbrudd.
+
+### Tester og gjenstående kontroll
+
+- `rigg-helper/src/motor.rs`: rene sim-/mocktester for global tillatelse, feil identitet, uavhengig støtte per felt, andre GPU-områder, delvis feil, reset-/recoveryfeil, uverifisert stock, dirty, frist/nødregel, ukjent temperatur og livssignal.
+- `rigg-helper/src/main.rs` og `tests/skript.rs`: nye tester for bevaring av opptak ved oppstart/recovery, avvist ny Manuell-fangst, ren ny aktivering som arkiverer og dirty/symlink som stanser utskifting. Skripttestene bruker bare en falsk rot.
+- `rigg-hw/src/gpu/skriv_nvml.rs`: injisert API dekker faktisk setter-rekkefølge, funksjoner som mangler, delfeil, Auto-forsøk, gamle offsetgettere og gjenoppretting av fangede verdier uten NVML eller enheter.
+- `rigg-hw/tests/bare_lesing.rs`: skrivemodulen tilhører bare hjelperen; den vanlige datainnsamlingen skal fortsette å være lesende.
+- Lukkede reviewfunn og UI-avgrensninger står i `kritikk-1.4.0.md`. Fysisk Wayland-pekerbruk er ikke kontrollert i denne runden; GTK-planen bruker interne capture-/pick-tester. Installasjon og den begrensede fysiske prøven er bekreftet over; publisering er ikke bekreftet her. Alle GUI-handlinger, øvrige grenser og strøm-/driverfeil må fortsatt prøves separat. Ingen strømbruddsgaranti eller fysisk RGB-reset påstås.
+
+---
+
+## Historisk gjennomgang · 1.2.0, bygg 18
+
+Alt nedenfor er bevart som historikk fra 9. november. Versjonslåser, separate trinn, privilegier, testresultater, målinger og gjenstående plan gjelder den gamle implementasjonen; de beskriver ikke dagens 1.4.0-modell.
+
+## Root-hjelperen · sikkerhetsgjennomgang (runde 7A, 1.2.0)
 
 *Agent 7A, 9. november 2026. Gjelder `agentic-rigg-helper` (crate `app/crates/rigg-helper`), aktiveringen i `app/data/hjelper/`, klienten i `riggd/src/hjelper.rs` og bryteren i Innstillinger › Styring. Ingenting her er kjørt som root eller mot det ekte kortet: alt er testet som vanlig bruker mot det simulerte kortet og en falsk rot.*
 
-## 1. Hva som er laget
+### 1. Hva som er laget
 
 | Del | Hvor | Rolle |
 |---|---|---|
@@ -16,7 +84,7 @@
 
 Protokollen mellom `riggd` og hjelperen er NDJSON som mellom vinduet og `riggd` (`docs/produksjon/protokoll.md` kap. 12), høyst 16 KiB per linje og høyst fire forbindelser.
 
-## 2. Sikkerhetsmodellen i fem linjer
+### 2. Sikkerhetsmodellen i fem linjer
 
 1. Hjelperen tar bare imot fem faste operasjoner med tall; ingen kommandoer, stier, I2C-adresser eller fritekst finnes i protokollen.
 2. Bare uid-en i den root-eide `helper.json` slipper inn (`SO_PEERCRED`, og socketen er `0600` og eies av den uid-en).
@@ -24,7 +92,7 @@ Protokollen mellom `riggd` og hjelperen er NDJSON som mellom vinduet og `riggd` 
 4. Tall utenfor områdene kortet melder, avvises; alt som legges på, rulles tilbake uten `confirm` innen 10–60 s, når `riggd` forsvinner, når hjelperen stopper, og over 85 °C går viftene til 100 %.
 5. Det ekte kortet er i tillegg sperret i 1.2.0: NVML-skrivekoden er ikke kompilert inn, og sperren i `rigg-hw` er av, så hjelperen med `--backend nvml` laster ikke engang NVML.
 
-## 3. Låsene, og hvordan de henger sammen
+### 3. Låsene, og hvordan de henger sammen
 
 En skriveoperasjon fra vinduet må forbi alle disse, i denne rekkefølgen:
 
@@ -40,7 +108,7 @@ En skriveoperasjon fra vinduet må forbi alle disse, i denne rekkefølgen:
 
 **Trinn 2 (effektgrense mot det ekte kortet)** krever at lås 1 og 4 åpnes, og at brukeren godkjenner `effekt` (lås 3). Lås 2, 3 og 5 blir stående.
 
-## 4. Trusselbildet
+### 4. Trusselbildet
 
 Vi antar en Ubuntu-maskin med én menneskelig bruker, GNOME og polkit, og at hjelperen er aktivert. Det vi verner er **maskinvaren** (skjermkortet skal ikke bli ødelagt, overopphetet eller gjort ustabilt uten brukerens ja) og **root** (hjelperen skal ikke bli en vei til root).
 
@@ -51,7 +119,7 @@ Vi antar en Ubuntu-maskin med én menneskelig bruker, GNOME og polkit, og at hje
 | C. Nettverket | – |
 | D. Den som kan skrive i brukerens filer **før aktivering** | Samme som A, før brukeren slår på bryteren |
 
-### 4.1 Hva en ondsinnet prosess som samme bruker (A) kan
+#### 4.1 Hva en ondsinnet prosess som samme bruker (A) kan
 
 - **Koble til hjelperen** og sende de samme operasjonene som `riggd`. uid-sjekken skiller ikke mellom prosesser som samme bruker. Det kan ikke gjøres sikkert uten en egen bruker for `riggd` (se kap. 6).
 - **Endre det de godkjente trinnene tillater, innenfor kortets områder.** Med `effekt` godkjent: sette effektgrensen et sted i 105–275 W. Med `vifter`: sette viftene til minste fart (35 %, kortets eget minimum). Med `klokker`: offset i det tjenesten tillater (−200…+300 MHz kjerne, −1000…+1500 MHz minne).
@@ -59,7 +127,7 @@ Vi antar en Ubuntu-maskin med én menneskelig bruker, GNOME og polkit, og at hje
 - **Gjøre maskinen ustabil** med klokke-offset (bildefeil, krasj) når `klokker` er godkjent.
 - **Lure brukeren** til å godkjenne et trinn (falsk dialog), som den kan med alt annet som krever passord.
 
-### 4.2 Hva den ikke kan, og hvorfor
+#### 4.2 Hva den ikke kan, og hvorfor
 
 | Kan ikke | Hvorfor |
 |---|---|
@@ -72,12 +140,12 @@ Vi antar en Ubuntu-maskin med én menneskelig bruker, GNOME og polkit, og at hje
 | Overbelaste hjelperen | Høyst fire forbindelser og 16 KiB per linje (`message_too_large` og lukking), ett sekunds takt, `MemoryMax=64M`, `TasksMax=4` |
 | Gjøre endringen varig uten at noen er der | Hjelperen lagrer ingenting. Den bekreftede tilstanden lever bare så lenge forbindelsen som skrev, er åpen; lukkes den, går kortet til standard med viftene på Auto. Stopper hjelperen (eller krasjer), setter `ExecStopPost` kortet til standard |
 
-### 4.3 Andre brukere (B) og nettverket (C)
+#### 4.3 Andre brukere (B) og nettverket (C)
 
 - **Andre brukere** kommer ikke inn: socketen er `0600` og eies av brukeren i `helper.json`, og `SO_PEERCRED` sjekkes i tillegg ved hver forbindelse (`feil_uid_avvises`, `feil_uid_gir_feil_og_las`). root (uid 0) får aldri være klient (`aktiver.sh` og `Config::parse` avviser uid 0).
 - **Nettverket** er stengt: `PrivateNetwork=yes`, `IPAddressDeny=any`, `RestrictAddressFamilies=AF_UNIX`.
 
-### 4.4 Før aktivering (D): den svakeste lenken
+#### 4.4 Før aktivering (D): den svakeste lenken
 
 Bryteren kjører `pkexec ~/.local/share/agentic-rigg/hjelper/aktiver.sh`, og skriptet kopierer binæren fra samme mappe. Begge kan skrives av brukeren. En prosess som allerede kjører som brukeren, kan bytte dem ut **før** brukeren slår på bryteren, og få det brukeren godkjenner med passordet, kjørt som root.
 
@@ -85,7 +153,7 @@ Bryteren kjører `pkexec ~/.local/share/agentic-rigg/hjelper/aktiver.sh`, og skr
 - **Etter** aktivering kjører alt fra `/usr/local/libexec/` (eid av root): `deaktiver.sh` og `trinn.sh` startes derfra, og polkit-handlingene peker på de stiene (`exec.path`, og `exec.argv1` for trinnene). En ny versjon (status «Krever ny versjon») går gjennom `aktiver.sh` på nytt, og da gjelder det samme som første gang.
 - Tiltak senere: en distribusjonspakke (`.deb`) legger hjelperen og policyen i `/usr` ved installasjon, så ingen brukerskrivbar fil kjøres som root.
 
-## 5. Hva som er testet (som vanlig bruker)
+### 5. Hva som er testet (som vanlig bruker)
 
 | Test | Fil | Hva |
 |---|---|---|
@@ -112,7 +180,7 @@ Bryteren kjører `pkexec ~/.local/share/agentic-rigg/hjelper/aktiver.sh`, og skr
 
 Release-binæren `agentic-rigg-helper` er 668 KB, lenker bare mot `libc` og `libgcc_s` (GLib/GIO fra `rigg-hw` er fjernet av LTO), og inneholder ingen `nvmlDeviceSet*`-navn (`strings`).
 
-## 6. Kjente svakheter og hva som gjenstår før trinn 2
+### 6. Kjente svakheter og hva som gjenstår før trinn 2
 
 1. **Samme bruker = samme rettigheter.** Alle prosesser som brukeren kan snakke med hjelperen. Et eget systembrukernavn for `riggd` ville skille dem, men `riggd` er en `--user`-tjeneste. Det er et bevisst valg (som LACT med gruppa `wheel`/`lact`): trinnene og områdene er vernet, ikke hvem som bruker dem.
 2. **Polkit per skriving er ikke brukt.** `docs/daemon-api.md` kap. 9 foreslo `CheckAuthorization` for hver skriving. `riggd` kjører som systemd `--user`-tjeneste uten innloggingsøkt, så polkit ville sett den som «ikke aktiv» og avvist (eller krevd `allow_any`, som ikke verner noe). Samtykket ligger i stedet i trinnlisten, som bare kan endres med administratorpassord, ett trinn om gangen.

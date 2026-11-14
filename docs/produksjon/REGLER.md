@@ -25,6 +25,8 @@ Biblioteket `libnvidia-ml.so.1` finnes. Dette er installert: Rust 1.93.1, GTK 4.
 
 ## Sikkerhet
 
+**Brukeravklaring 14. november 2026:** Brukeren har nå uttrykkelig bestilt ekte GPU-styring med én administratoraktivering: effektgrense, GPU-vifter og klokkeoffset. Dette erstatter den eldre arbeidsfasens absolutte skrivelås og fire separate brukertrinn nedenfor for nettopp denne leveransen. Implementasjon og kontrollerte prøver skal bruke den kortbundne hjelperen, persistente grunnverdier, funksjonsgrenser og bekreftet tilbakerulling. Administratorpassord skrives av brukeren i polkit-dialogen. Godkjenningen gjelder GPU-styring; CPU, hovedkortvifter, systempakker og kjernemoduler inngår ikke. I2C/RGB-skriving er fortsatt ikke godkjent av denne avklaringen. De øvrige reglene gjelder fortsatt. Punkt 1–3 nedenfor beskriver den tidligere fasens standardbegrensninger, som nå har dette uttrykkelige unntaket for Agentic Riggs GPU-hjelper og nødvendig appoppdatering/omstart.
+
 Disse reglene kan ikke brytes.
 
 1. **Skriv aldri til skjermkortet.** Det gjelder NVML-set-kall, `nvidia-smi` med set-flagg, I2C og alt annet som endrer klokker, effekt, vifte eller RGB. Skrivestien kan bygges og testes mot en simulert backend, men den skal være avslått og låst mot ekte maskinvare. Brukeren skal godkjenne hvert steg selv, senere. Ikke åpne noen `/dev/i2c-*` i det hele tatt. I2C-bussnumrene flytter seg mellom oppstarter: 7. november 2026 lå USB-C-kontrolleren (`ccgx-ucsi`, 0x08) på `i2c-10`, ikke på `i2c-8`, og `i2c-8` var hovedkortets SMBus. Kode som senere skal bruke I2C, må finne bussen ut fra navn og sysfs-sti, aldri ut fra nummer. Den må aldri røre `ccgx-ucsi` eller SPD-brikkene (`ee1004`). Å lese navnene i `/sys/bus/i2c/devices/*/name` er trygt.

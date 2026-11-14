@@ -67,19 +67,40 @@ pub struct Fingers {
     pub pitch: f64,
     pub w: f64,
 }
-pub const FINGERS: Fingers = Fingers { tab_a: (48.0, 61.6), tab_b: (63.4, 138.0), y0: -8.2, pitch: 1.0, w: 0.68 };
+// Standard x16: 164 kontakter, fordelt 11 + 71 på hver side av nøkkelen.
+// Samtec PCIE-164: 1 mm deling, 11,65/71,65 mm kontaktrom og 1,78 mm nøkkel.
+// https://suddendocs.samtec.com/prints/pcie-xxx-02-x-d-th-mkt.pdf
+// Plasseringen på selve grafikkortet er illustrativ, ikke produsentens CAD.
+pub const FINGERS: Fingers = Fingers { tab_a: (48.0, 59.65), tab_b: (61.43, 133.08), y0: -8.2, pitch: 1.0, w: 0.68 };
+/// Fas ved innføringskanten; kortets tykkelse beholdes ved kontaktflatene.
+pub const FINGER_BEVEL: f64 = 0.6;
+pub const FINGER_BEVEL_Z: f64 = 0.35;
 
 /// Fingrene langs PCIe-kanten (x for hver), med åpningen mellom de to tungene.
 pub fn finger_xs() -> Vec<f64> {
-    let mut out = Vec::new();
-    let mut x = FINGERS.tab_a.0 + 1.4;
-    while x < FINGERS.tab_b.1 - 1.3 {
-        if !(x > FINGERS.tab_a.1 - 0.6 && x < FINGERS.tab_b.0 + 0.7) {
-            out.push(x);
+    let mut out = Vec::with_capacity(82);
+    for ((x0, x1), count) in [(FINGERS.tab_a, 11), (FINGERS.tab_b, 71)] {
+        let first = (x0 + x1 - (count - 1) as f64 * FINGERS.pitch) / 2.0;
+        for i in 0..count {
+            out.push(first + i as f64 * FINGERS.pitch);
         }
-        x += FINGERS.pitch;
     }
     out
+}
+
+/// Samme kontaktflate brukes av mesh, teksturer og 2D-reserven.
+pub fn finger_rect(x: f64) -> [f64; 4] {
+    [x - FINGERS.w / 2.0, FINGERS.y0 + FINGER_BEVEL + 0.15, x + FINGERS.w / 2.0, -0.6]
+}
+
+/// Sammenhengende PCB-kontur, med åpent nøkkelspor og avriss av fasen.
+pub fn pcb_outline() -> Vec<[f64; 2]> {
+    let mut p = vec![[PCB.0, PCB.2]];
+    for (x0, x1) in [FINGERS.tab_a, FINGERS.tab_b] {
+        p.extend_from_slice(&[[x0, 0.0], [x0, FINGERS.y0 + FINGER_BEVEL], [x0 + FINGER_BEVEL, FINGERS.y0], [x1 - FINGER_BEVEL, FINGERS.y0], [x1, FINGERS.y0 + FINGER_BEVEL], [x1, 0.0]]);
+    }
+    p.extend_from_slice(&[[PCB.1, PCB.2], [PCB.1, PCB.3], [PCB.0, PCB.3]]);
+    p
 }
 
 #[derive(Clone, Copy)]
@@ -406,6 +427,25 @@ mod tests {
         assert!(a.len() > 200, "{}", a.len());
         assert_eq!(back_caps().len(), 44 + 16);
         assert_eq!(ring_leds().len(), 36);
-        assert!(finger_xs().len() > 70);
+        assert_eq!(finger_xs().len(), 82);
+    }
+
+    #[test]
+    fn x16_fingre_ligger_paa_tungene_uten_aa_krysse_noekkelen() {
+        let xs = finger_xs();
+        for (pins, (x0, x1), count) in [(&xs[..11], FINGERS.tab_a, 11), (&xs[11..], FINGERS.tab_b, 71)] {
+            assert_eq!(pins.len(), count);
+            for pair in pins.windows(2) {
+                assert!((pair[1] - pair[0] - 1.0).abs() < 1e-9);
+            }
+            for &x in pins {
+                let [left, bottom, right, top] = finger_rect(x);
+                assert!(left > x0 && right < x1);
+                assert!(bottom > FINGERS.y0 + FINGER_BEVEL && bottom < top && top < 0.0);
+            }
+        }
+        assert!((FINGERS.tab_b.0 - FINGERS.tab_a.1 - 1.78).abs() < 1e-9);
+        let outline = pcb_outline();
+        assert!(outline.windows(2).any(|p| p == [[FINGERS.tab_a.1, 0.0], [FINGERS.tab_b.0, 0.0]]));
     }
 }

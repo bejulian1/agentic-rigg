@@ -38,8 +38,7 @@
 #   7a                skjermbilder.rs RIGG_PLAN=7a, sim: Innstillinger › Styring
 #                     med den falske pkexec (scripts/falsk-pkexec.sh) og en falsk
 #                     rot i ~/.cache/rigg-build: av, på, godkjenn, feil, av igjen
-#   7a-ekte           skjermbilder.rs RIGG_PLAN=7a-ekte: det samme mot det ekte
-#                     kortet (hjelperen har det sperret i 1.2.0)
+#   7a-ekte           utgått: falsk pkexec tillater nå bare sim; bruk 1.4.0-ui
 #   7b-ekte, 7b-sim   pages/styring_bilder.rs: Vifter med viftemotoren, låst mot
 #                     det ekte kortet og med kurven i bruk mot sim:spill
 #   8a                skjermbilder.rs RIGG_PLAN=8a, sim: den nye Oversikt i
@@ -51,6 +50,8 @@
 #   innstillinger-sok seksjonsbytte før søkeforsinkelsen, tømming og Esc
 #   adaptive-akser    110 °C, 2500/10000 MHz, 400 W og 108 % vifte, bare
 #                     simulerte verdier i testvinduet; fast/tilpass, °F og 48 t
+#   1.4.0-ui          sim/falsk pkexec: filter/fokus, tidsmeny, globalaktivering,
+#                     eksplisitt simulert klar-status og PCIe i 2D/3D (bruk gl)
 #
 # Binærene: $RIGG_BIN, ellers $CARGO_TARGET_DIR/release (eller debug). Planene
 # fra runde 2 finnes bare i debug-bygget (unntatt 2c), så 2a* og 2b* tar
@@ -70,7 +71,7 @@ while [ $# -gt 0 ]; do
     esac
 done
 all=(3c grunnmur 3a 3a-sim 3a-borte 3a-egg 2a 2a-historikk 2b-kort 2b-ingen-driver 2b-driver-oppdatert 2b-borte 2b-to-kort 2b-dvale 2b-bygg 2c
-    6a 6a-ekte 6b 6b-borte 6b-ingen-driver 6b-driver-oppdatert 6b-to-kort 6c-ekte 6c-lys 7a 7a-ekte 7b-ekte 7b-sim 8a 8a-hete kortmeny innstillinger-sok adaptive-akser)
+    6a 6a-ekte 6b 6b-borte 6b-ingen-driver 6b-driver-oppdatert 6b-to-kort 6c-ekte 6c-lys 7a 7b-ekte 7b-sim 8a 8a-hete kortmeny innstillinger-sok adaptive-akser)
 [ ${#plans[@]} -gt 0 ] || plans=(grunnmur)
 [ "${plans[0]}" = alle ] && plans=("${all[@]}")
 many=$([ ${#plans[@]} -gt 1 ] && echo 1 || true)
@@ -88,6 +89,11 @@ runner=$(mktemp)
 trap 'rm -f -- "$runner"' EXIT
 cat >"$runner" <<'RUN'
 set -u
+# Private UI-prøver får alltid egen hjelperrot, også når den ekte hjelperen
+# er aktivert på verten. NVML-lesing kan fortsatt brukes til sensordata.
+export RIGG_HJELPER_ROT="${RIGG_HJELPER_ROT:-$OKT_BASE/hjelper-rot}"
+[ "$RIGG_HJELPER_ROT" != / ] || { echo "Skjermbildeprøver kan ikke bruke vertens GPU-hjelper." >&2; exit 2; }
+mkdir -p "$RIGG_HJELPER_ROT"
 # Lengre frist enn 60 s, så tjenesten samler historikk under oppvarmingen i
 # stedet for å stoppe uten klienter. «Fortsett i bakgrunnen» står som standard (av).
 # shellcheck disable=SC2086
@@ -144,7 +150,8 @@ for plan in "${plans[@]}"; do
         ;;
     6c-ekte) vars=("RIGG_BILDER_2C=$dir" "RIGG_6C_PLAN=ekte") wargs="--side kontroller" ;;
     6c-lys) vars=("RIGG_BILDER_2C=$dir" "RIGG_6C_PLAN=lys") backend=sim wargs="--side kontroller" warm=${RIGG_OPPVARMING:-8} ;;
-    7a | 7a-ekte)
+    7a-ekte) echo "7a-ekte er utgått: falsk pkexec starter aldri NVML. Bruk --plan 1.4.0-ui." >&2; exit 2 ;;
+    7a | 1.4.0-ui)
         # Som docs/produksjon/verktoy/runde7a/bilder7a.sh: filene til
         # hjelperen i en egen mappe (som install.sh) og en falsk rot. Ingen
         # root, ingen polkit, ingen systemctl.
@@ -154,11 +161,7 @@ for plan in "${plans[@]}"; do
         cp "$here"/data/hjelper/* "$hdata/"
         cp "$bin/agentic-rigg-helper" "$hdata/"
         vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=$plan" "RIGG_PKEXEC=$here/scripts/falsk-pkexec.sh" "RIGG_HJELPER_DATA=$hdata" "RIGG_HJELPER_ROT=$fake")
-        if [ "$plan" = 7a ]; then
-            backend=sim vars+=("RIGG_FALSK_HJELPER_BACKEND=sim") warm=${RIGG_OPPVARMING:-8}
-        else
-            vars+=("RIGG_FALSK_HJELPER_BACKEND=nvml") warm=${RIGG_OPPVARMING:-12}
-        fi
+        backend=sim vars+=("RIGG_FALSK_HJELPER_BACKEND=sim") warm=${RIGG_OPPVARMING:-8}
         ;;
     8a) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=8a") backend=sim warm=${RIGG_OPPVARMING:-70} ;;
     kortmeny) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=kortmeny") backend=${RIGG_KORTMENY_BACKEND:-sim} warm=${RIGG_OPPVARMING:-8} ;;
@@ -190,7 +193,7 @@ for plan in "${plans[@]}"; do
     rc=$?
     set -e
     case "$plan" in
-    7a | 7a-ekte)
+    7a | 7a-ekte | 1.4.0-ui)
         # Hjelperen den falske pkexec startet, er stoppet av planen; sikre det.
         [ -f "$fake/run/agentic-rigg/falsk.pid" ] && { kill "$(cat "$fake/run/agentic-rigg/falsk.pid")" 2>/dev/null || true; }
         find "$fake" -type f | sed "s|$fake/||" | sort >"$dir/falsk-rot-etter.txt"

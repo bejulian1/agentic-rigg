@@ -17,6 +17,6 @@ gio.workspace = true
 
 [features]
 # Skriving til det ekte kortet (gpu/skriv_nvml.rs), bare for root-hjelperen.
-# AV i 1.2.0, og skal ikke slås på uten brukerens ja (trinn 2). Se
-# docs/produksjon/hjelper-sikkerhet.md.
+# Bare root-hjelperen ber om denne funksjonen. Kortidentitet, brukerens
+# globale tillatelse og vedvarende baseline kreves også ved kjøring.
 ekte-skriving = []

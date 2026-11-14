@@ -2,6 +2,7 @@
 # Kjører en kommando i en privat, hodeløs GNOME-økt: egen HOME, egne
 # XDG-mapper, egen D-Bus-økt og en egen `gnome-shell --headless` med egen
 # WAYLAND_DISPLAY. Brukerens skrivebord, økt-buss og innstillinger røres ikke.
+# GPU-hjelperen isoleres også: egen tom rot, eller planens uttrykkelige falske rot.
 #
 # Bruk: scripts/okt.sh [--bredde 1440x900] -- KOMMANDO …
 # Inne i kommandoen er WAYLAND_DISPLAY, HOME og XDG_* satt til økta, og alle
@@ -39,6 +40,11 @@ else
 fi
 mkdir -p "$base"/{home,run,config,data,state,cache}
 chmod 700 "$base/run"
+# Eget HOME og egen D-Bus isolerer ikke /etc og /run på verten. Aldri la
+# daemonen oppdage vertens aktiverte root-hjelper i en privat UI-/måleøkt.
+helper_root=$(realpath -m -- "${RIGG_HJELPER_ROT:-$base/hjelper-rot}")
+[ "$helper_root" != / ] || { echo "Private prøveøkter kan ikke bruke vertens GPU-hjelper." >&2; exit 2; }
+mkdir -p "$helper_root"
 display=rigg-okt-$$
 inner=$(mktemp "$base/inner.XXXX.sh")
 cat >"$inner" <<'INNER'
@@ -72,7 +78,7 @@ INNER
 pass=()
 while IFS='=' read -r k _; do
     case "$k" in
-    RIGG_OKT_*) ;;
+    RIGG_OKT_* | RIGG_HJELPER_ROT) ;;
     RIGG_* | GSK_* | RUST_BACKTRACE) pass+=("$k=${!k}") ;;
     esac
 done < <(env)
@@ -92,6 +98,7 @@ env -i \
     OKT_BASE="$base" OKT_SIZE="$size" OKT_WARMUP="${OKT_WARMUP:-3}" \
     "${pass[@]}" \
     RIGG_PROFIL=dev \
+    RIGG_HJELPER_ROT="$helper_root" \
     dbus-run-session -- bash "$inner" "$@"
 rc=$?
 # Dokumentportalen (FUSE i $XDG_RUNTIME_DIR/doc) kan henge igjen et øyeblikk

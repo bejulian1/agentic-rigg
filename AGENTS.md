@@ -23,3 +23,8 @@ Brukeren ga 14. november 2026 en stående instruks: **Alle nye, ferdige appversj
 - Desktop-pakken distribueres under Releases. GitHub Packages brukes bare dersom et reelt støttet pakkeformat og behov er innført.
 - Oppgi faktisk verifisert plattformstøtte; pakkeskriptet er nå for Ubuntu 26.04 amd64 med GTK ≥ 4.22 og glibc ≥ 2.39.
 - GitHub-publisering aktiverer ikke maskinvarestyring. Behold prosjektets sperrer og regler for GPU-/RGB-skriving og I2C.
+- Brukeravklaringen 14. november 2026 i `docs/produksjon/REGLER.md` autoriserer nå ekte, kortbundet NVML-styring av effekt, vifter og klokker gjennom én administratoraktivering. RGB/I2C og annen systemstyring krever fortsatt egen avklaring. Krediter Codex med navnet **Codex**, GitHub-kontoen `https://github.com/codex` og den verifiserte noreply-adressen `267193182+codex@users.noreply.github.com`; ikke bruk connector-botkontoen som Codex-identitet i nye commits.
+
+## Isolerte kontroller
+
+Automatiske tester og private skjermbildeøkter skal bruke egne hjelpermapper, konfigurasjon, socket og baseline. De skal fungere også når brukerens ekte GPU-hjelper er aktiv. Bruk aldri vertens `/run/agentic-rigg/helper.sock`, `/etc/agentic-rigg/helper.json` eller `/var/lib/agentic-rigg` som fallback i en testfixture. Kontrollerte fysiske GPU-prøver utføres separat, med uttrykkelig valgt kort og bekreftet gjenoppretting.

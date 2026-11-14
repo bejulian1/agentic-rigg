@@ -494,7 +494,8 @@ fn holes(g: &Context) {
 fn fingers(g: &Context) {
     hex(g, GOLD);
     for x in finger_xs() {
-        fill_rect(g, x - FINGERS.w / 2.0, FINGERS.y0 + 0.5, FINGERS.w, 7.1);
+        let [x0, y0, x1, y1] = finger_rect(x);
+        fill_rect(g, x0, y0, x1 - x0, y1 - y0);
     }
 }
 

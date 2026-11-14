@@ -15,7 +15,11 @@ use std::time::{Duration, Instant};
 fn tmpdir(tag: &str) -> PathBuf {
     use std::sync::atomic::{AtomicU32, Ordering};
     static N: AtomicU32 = AtomicU32::new(0);
-    let d = std::env::temp_dir().join(format!("riggd-hj-{tag}-{}-{}", std::process::id(), N.fetch_add(1, Ordering::Relaxed)));
+    let d = std::env::temp_dir().join(format!(
+        "riggd-hj-{tag}-{}-{}",
+        std::process::id(),
+        N.fetch_add(1, Ordering::Relaxed)
+    ));
     let _ = std::fs::remove_dir_all(&d);
     std::fs::create_dir_all(&d).unwrap();
     std::fs::set_permissions(&d, std::fs::Permissions::from_mode(0o755)).unwrap();
@@ -33,7 +37,12 @@ fn helper_bin() -> PathBuf {
     let p = Path::new(env!("CARGO_BIN_EXE_agentic-riggd")).with_file_name("agentic-rigg-helper");
     BUILT.call_once(|| {
         let target = p.parent().unwrap().parent().unwrap();
-        let ok = Command::new(env!("CARGO")).args(["build", "--quiet", "-p", "rigg-helper", "--target-dir"]).arg(target).current_dir(env!("CARGO_MANIFEST_DIR")).status().unwrap();
+        let ok = Command::new(env!("CARGO"))
+            .args(["build", "--quiet", "-p", "rigg-helper", "--target-dir"])
+            .arg(target)
+            .current_dir(env!("CARGO_MANIFEST_DIR"))
+            .status()
+            .unwrap();
         assert!(ok.success(), "kunne ikke bygge rigg-helper");
     });
     p
@@ -44,7 +53,11 @@ fn write_config(root: &Path, uid: u32, steps: &[&str]) {
     std::fs::create_dir_all(&etc).unwrap();
     std::fs::set_permissions(&etc, std::fs::Permissions::from_mode(0o755)).unwrap();
     let tmp = etc.join(".tmp");
-    std::fs::write(&tmp, json!({"versjon": 1, "uid": uid, "trinn": steps, "bygg": 17}).to_string()).unwrap();
+    std::fs::write(
+        &tmp,
+        json!({"versjon": 1, "uid": uid, "trinn": steps, "bygg": 17}).to_string(),
+    )
+    .unwrap();
     std::fs::set_permissions(&tmp, std::fs::Permissions::from_mode(0o644)).unwrap();
     std::fs::rename(&tmp, etc.join("helper.json")).unwrap();
 }
@@ -61,7 +74,11 @@ impl Drop for Proc {
 fn wait_for(p: &Path) {
     let t0 = Instant::now();
     while !p.exists() {
-        assert!(t0.elapsed() < Duration::from_secs(10), "{} kom ikke", p.display());
+        assert!(
+            t0.elapsed() < Duration::from_secs(10),
+            "{} kom ikke",
+            p.display()
+        );
         std::thread::sleep(Duration::from_millis(10));
     }
 }
@@ -73,6 +90,8 @@ fn start_helper(root: &Path, backend: &str) -> Proc {
         .arg(&sock)
         .arg("--config")
         .arg(root.join("etc/agentic-rigg/helper.json"))
+        .arg("--baseline")
+        .arg(root.join("var/lib/agentic-rigg/baseline.json"))
         .env_remove("JOURNAL_STREAM")
         .env_remove("NOTIFY_SOCKET")
         .stdout(Stdio::null())
@@ -114,7 +133,12 @@ impl Conn {
     fn new(p: &Path) -> Conn {
         let s = UnixStream::connect(p).unwrap();
         s.set_read_timeout(Some(Duration::from_secs(30))).unwrap();
-        let mut c = Conn { w: s.try_clone().unwrap(), r: BufReader::new(s), next: 1, events: vec![] };
+        let mut c = Conn {
+            w: s.try_clone().unwrap(),
+            r: BufReader::new(s),
+            next: 1,
+            events: vec![],
+        };
         c.ok("hello", json!({"protocol": [1], "client": "hjelper-test"}));
         c
     }
@@ -128,7 +152,9 @@ impl Conn {
     fn call(&mut self, op: &str, args: Value) -> Value {
         let id = self.next;
         self.next += 1;
-        self.w.write_all(format!("{}\n", json!({"id": id, "op": op, "args": args})).as_bytes()).unwrap();
+        self.w
+            .write_all(format!("{}\n", json!({"id": id, "op": op, "args": args})).as_bytes())
+            .unwrap();
         loop {
             let v = self.line();
             if v.get("event").is_some() {
@@ -155,7 +181,11 @@ impl Conn {
     fn wait_txn(&mut self, reason: &str, max: Duration) -> bool {
         let t0 = Instant::now();
         while t0.elapsed() < max {
-            if self.events.iter().any(|e| e["event"] == "txn" && e["data"]["reason"] == reason) {
+            if self
+                .events
+                .iter()
+                .any(|e| e["event"] == "txn" && e["data"]["reason"] == reason)
+            {
                 return true;
             }
             let v = self.line();
@@ -194,21 +224,41 @@ fn trinn_ikke_godkjent_avvises_og_godkjent_gir_bruk_og_behold() {
     assert_eq!(e["details"]["steps"], json!(["effekt"]));
     assert_eq!(helper_status(&root)["hardware"]["writes"], 0);
 
-    // Trinnet godkjennes (som trinn.sh gjør), og tjenesten ser det.
+    // Eldre sim-fixture gir ett felt lov. Produksjonen bruker globalt v2-oppsett.
     write_config(&root, uid(), &["effekt"]);
     let v = c.ok("get_helper", json!({"refresh": true}));
     assert_eq!(v["steps"], json!(["effekt"]));
     let h = c.ok("hello", json!({"protocol": [1]}));
     let steps = h["capabilities"]["write"]["steps"].as_array().unwrap();
-    assert_eq!(steps.iter().find(|s| s["id"] == "power").unwrap()["status"], "approved");
-    assert_eq!(steps.iter().find(|s| s["id"] == "clocks").unwrap()["status"], "not_approved");
+    // Støtte og autorisasjon er uavhengig: sim-backenden støtter begge.
+    assert_eq!(
+        steps.iter().find(|s| s["id"] == "power").unwrap()["status"],
+        "supported"
+    );
+    assert_eq!(
+        steps.iter().find(|s| s["id"] == "clocks").unwrap()["status"],
+        "supported"
+    );
+    assert_eq!(
+        c.err("set_clock_offsets", json!({"coreMhz":50}))["code"],
+        "step_not_enabled"
+    );
     let r = c.ok("set_power_limit", json!({"watts": 200}));
     let txn = r["txn"].as_str().unwrap().to_string();
-    assert_eq!(helper_status(&root)["hardware"]["applied"]["powerLimitW"], 200.0);
+    assert_eq!(
+        helper_status(&root)["hardware"]["applied"]["powerLimitW"],
+        200.0
+    );
     // En annen økt kan ikke beholde eller endre.
     let mut other = Conn::new(&sock);
-    assert_eq!(other.err("confirm", json!({"txn": txn}))["code"], "not_owner");
-    assert_eq!(other.err("set_power_limit", json!({"watts": 210}))["code"], "busy");
+    assert_eq!(
+        other.err("confirm", json!({"txn": txn}))["code"],
+        "not_owner"
+    );
+    assert_eq!(
+        other.err("set_power_limit", json!({"watts": 210}))["code"],
+        "busy"
+    );
     c.ok("confirm", json!({"txn": txn}));
     let st = c.ok("get_state", json!({}));
     assert_eq!(st["confirmed"]["powerLimitW"], 200.0);
@@ -229,9 +279,16 @@ fn fristen_ute_ruller_tilbake_gjennom_tjenesten() {
     let (_d, sock) = start_riggd(&dir, "sim");
     let mut c = Conn::new(&sock);
     c.ok("subscribe", json!({"topics": ["txn"]}));
-    c.ok("set_fan", json!({"mode": "manual", "manualPercent": 60, "confirmTimeoutS": 10}));
+    c.ok(
+        "set_fan",
+        json!({"mode": "manual", "manualPercent": 60, "confirmTimeoutS": 10}),
+    );
     assert_eq!(helper_status(&root)["hardware"]["fanNow"], 60.0);
-    assert!(c.wait_txn("timeout", Duration::from_secs(16)), "ingen txn-hendelse for fristen: {:?}", c.events);
+    assert!(
+        c.wait_txn("timeout", Duration::from_secs(16)),
+        "ingen txn-hendelse for fristen: {:?}",
+        c.events
+    );
     assert!(helper_status(&root)["hardware"]["fanNow"].is_null());
     let _ = std::fs::remove_dir_all(&dir);
 }
@@ -244,7 +301,10 @@ fn tjenesten_borte_gir_standard() {
     let _h = start_helper(&root, "sim");
     let (mut d, sock) = start_riggd(&dir, "sim");
     let mut c = Conn::new(&sock);
-    let r = c.ok("apply", json!({"settings": {"powerLimitW": 230, "fan": {"mode": "manual", "manualPercent": 55}}}));
+    let r = c.ok(
+        "apply",
+        json!({"settings": {"powerLimitW": 230, "fan": {"mode": "manual", "manualPercent": 55}}}),
+    );
     c.ok("confirm", json!({"txn": r["txn"]}));
     assert_eq!(helper_status(&root)["hardware"]["stock"], false);
     // Tjenesten krasjer (SIGKILL): hjelperen merker at forbindelsen er borte.
@@ -257,7 +317,10 @@ fn tjenesten_borte_gir_standard() {
             assert!(s["hardware"]["fanNow"].is_null(), "viftene på Auto");
             break;
         }
-        assert!(t0.elapsed() < Duration::from_secs(3), "kortet gikk ikke til standard: {s}");
+        assert!(
+            t0.elapsed() < Duration::from_secs(3),
+            "kortet gikk ikke til standard: {s}"
+        );
         std::thread::sleep(Duration::from_millis(50));
     }
     let _ = std::fs::remove_dir_all(&dir);
@@ -273,7 +336,10 @@ fn feil_uid_gir_feil_og_las() {
     let mut c = Conn::new(&sock);
     let v = c.ok("get_helper", json!({"refresh": true}));
     assert_eq!(v["state"], "error");
-    assert!(v["message"].as_str().unwrap().contains("annen bruker"), "{v}");
+    assert!(
+        v["message"].as_str().unwrap().contains("annen bruker"),
+        "{v}"
+    );
     let e = c.err("set_power_limit", json!({"watts": 200}));
     assert_eq!(e["code"], "write_locked");
     assert_eq!(e["details"]["reason"], "helper_error");

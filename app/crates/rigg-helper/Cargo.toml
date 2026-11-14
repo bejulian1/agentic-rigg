@@ -1,6 +1,6 @@
 [package]
 name = "rigg-helper"
-description = "Agentic Rigg: root-hjelperen som endrer skjermkortet, med trinn som godkjennes hver for seg"
+description = "Agentic Rigg: kortbundet administratorhjelper for GPU-effekt, vifter og klokker"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -12,10 +12,10 @@ name = "agentic-rigg-helper"
 path = "src/main.rs"
 
 # Så få avhengigheter som mulig: ingen GLib-løkke, ingen D-Bus, ingen tråder.
-# rigg-hw gir bare skrivedelen (gpu::skriv); NVML-delen er sperret.
+# Ekte NVML-skriving åpnes bare med autorisert, kortbundet helper-oppsett.
 [dependencies]
 rigg-core.workspace = true
-rigg-hw.workspace = true
+rigg-hw = { workspace = true, features = ["ekte-skriving"] }
 serde_json.workspace = true
 libc.workspace = true
 

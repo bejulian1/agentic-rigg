@@ -738,6 +738,7 @@ impl Page for Sensorer {
         i.visible.set(true);
         i.set.set_visible(true);
         i.rebuild_if_needed();
+        i.apply_filter();
         i.prefill();
         i.paint();
         i.render_notes();
@@ -776,9 +777,10 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     let search = gtk::SearchEntry::new();
     search.set_placeholder_text(Some("Filtrer"));
     search.add_css_class("search-field");
+    search.add_css_class("sensor-filter");
     search.set_width_chars(10);
     search.update_property(&[gtk::accessible::Property::Label("Filtrer sensorer")]);
-    tip(&search, "Filtrer sensorer", Some("Ctrl+F"));
+    tip(&search, "Filtrer sensorer. Esc tømmer filteret og avslutter søket.", Some("Ctrl+F"));
     search.set_valign(gtk::Align::Center);
     actions.append(&search);
     let since = label("–", &["head-note"]);
@@ -899,6 +901,23 @@ fn head_row(sparks: bool, sticky: bool) -> TRow {
 
 impl Inner {
     fn wire(self: &Rc<Self>, reset: &gtk::Button) {
+        // Filteret ligger i toppfeltets actions, utenfor sideroten. Lytt på
+        // vinduet så også tom toppstripe slipper fokus, uten å spise klikket
+        // på knapper, grafer eller vindusrammen.
+        if let Some(win) = self.app.window() {
+            let click = gtk::GestureClick::new();
+            click.set_button(gtk::gdk::BUTTON_PRIMARY);
+            click.set_propagation_phase(gtk::PropagationPhase::Capture);
+            let w = Rc::downgrade(self);
+            click.connect_pressed(move |g, _, x, y| {
+                let Some(s) = w.upgrade().filter(|s| s.visible.get()) else { return };
+                let inside = g.widget().and_then(|root| root.pick(x, y, gtk::PickFlags::DEFAULT)).is_some_and(|hit| hit == s.search.clone().upcast::<gtk::Widget>() || hit.is_ancestor(&s.search));
+                if !inside {
+                    s.release_filter_focus();
+                }
+            });
+            win.add_controller(click);
+        }
         // Rader som rulles fram, får ferske tall straks (paint tar bare de som synes).
         let w = Rc::downgrade(self);
         self.scroller.vadjustment().connect_value_changed(move |_| {
@@ -989,20 +1008,34 @@ impl Inner {
                 s.paint();
             }
         });
-        // Filter
+        // Tømming (kryssknapp eller Backspace) skjer straks. Selve tekstsøket
+        // beholder GtkSearchEntry sin korte forsinkelse.
         let w = Rc::downgrade(self);
-        self.search.connect_search_changed(move |e| {
-            if let Some(s) = w.upgrade() {
-                *s.filter.borrow_mut() = e.text().trim().to_lowercase();
-                s.apply_filter();
+        self.search.connect_changed(move |e| {
+            let Some(s) = w.upgrade() else { return };
+            if e.text().trim().is_empty() && !s.filter.borrow().is_empty() {
+                s.filter.borrow_mut().clear();
+                if s.visible.get() {
+                    s.apply_filter();
+                }
             }
         });
         let w = Rc::downgrade(self);
-        self.search.connect_stop_search(move |e| {
-            e.set_text("");
+        self.search.connect_search_changed(move |e| {
             if let Some(s) = w.upgrade() {
-                s.filter.borrow_mut().clear();
-                s.apply_filter();
+                let filter = e.text().trim().to_lowercase();
+                if filter != *s.filter.borrow() {
+                    *s.filter.borrow_mut() = filter;
+                    if s.visible.get() {
+                        s.apply_filter();
+                    }
+                }
+            }
+        });
+        let w = Rc::downgrade(self);
+        self.search.connect_stop_search(move |_| {
+            if let Some(s) = w.upgrade() {
+                s.finish_filter();
             }
         });
         let w = Rc::downgrade(self);
@@ -1338,6 +1371,31 @@ impl Inner {
     }
 
     // ------------------------------------------------------------ Filter
+
+    /// Tøm tilstanden før set_text kan utløse synkrone søkesignaler. Også
+    /// råteksten må tømmes når Esc kommer før den forsinkede søkehendelsen.
+    fn clear_filter(&self) {
+        self.filter.borrow_mut().clear();
+        if !self.search.text().is_empty() {
+            self.search.set_text("");
+        }
+    }
+
+    fn release_filter_focus(&self) {
+        if self.search.state_flags().contains(gtk::StateFlags::FOCUS_WITHIN)
+            && let Some(win) = self.app.window()
+        {
+            gtk::prelude::GtkWindowExt::set_focus(&win, None::<&gtk::Widget>);
+        }
+    }
+
+    fn finish_filter(self: &Rc<Self>) {
+        self.clear_filter();
+        self.release_filter_focus();
+        if self.visible.get() {
+            self.apply_filter();
+        }
+    }
 
     fn matches(&self, r: &Row) -> bool {
         let f = self.filter.borrow();
@@ -1905,22 +1963,8 @@ impl Inner {
         let win = self.app.window();
         let focus = win.as_ref().and_then(gtk::prelude::GtkWindowExt::focus);
         if k.key == K::Escape {
-            if let Some(f) = &focus
-                && f.is_ancestor(&self.search)
-                && !self.filter.borrow().is_empty()
-            {
-                self.search.set_text("");
-                return true;
-            }
-            // Tomt filter: Esc nummer to flytter fokus ut av feltet (til tabellen).
-            if let Some(f) = &focus
-                && f.is_ancestor(&self.search)
-            {
-                if !self.root.child_focus(gtk::DirectionType::TabForward)
-                    && let Some(w) = &win
-                {
-                    gtk::prelude::GtkWindowExt::set_focus(w, None::<&gtk::Widget>);
-                }
+            if self.search.state_flags().contains(gtk::StateFlags::FOCUS_WITHIN) || !self.search.text().is_empty() || !self.filter.borrow().is_empty() {
+                self.finish_filter();
                 return true;
             }
             if self.detail.borrow().is_some()
@@ -1975,9 +2019,8 @@ impl Inner {
     fn reveal(self: &Rc<Self>, key: &str) {
         self.rebuild_if_needed();
         let Some(r) = self.row(key) else { return };
-        if !self.filter.borrow().is_empty() {
-            self.search.set_text("");
-        }
+        self.clear_filter();
+        self.apply_filter();
         if let Some(g) = self.group_of(key)
             && self.collapsed.borrow().contains(&g.id)
         {

@@ -1,5 +1,19 @@
 # Status
 
+**1.4.0 · bygg 23** – 14. november 2026: NVML-skrivestien er implementert med én administratoraktivering, binding til valgt PCI/UUID og støtte per felt. Effekt, kjerne-/minneoffset og GPU-vifter kan rutes gjennom hjelperen når de støttes; temperaturmål kontrolleres separat. Fangede opprinnelige innstillinger lagres før skriving og brukes ved Standard/gjenoppretting. Delvise feil, uverifiserte reset og gamle klokkegettere gir ærlig feilstatus fremfor påstått suksess. Installasjon alene aktiverer ingen styring.
+
+Brukerflaten følger hjelperens kortbinding og aktive verdier, holder RGB utilgjengelig som fysisk styring, og får korrigert PCIe x16-illustrasjon, bedre sensorfilter/fokus og nedtrekksmenyer. Lyskontrolleren er fortsatt ikke identifisert; RGB er bare forhåndsvisning.
+
+**Kontrollstatus for 1.4.0:** sim-/mocktester er utvidet for feil identitet, manglende funksjonsstøtte, delvis skriving, frist/nødregel, resetfeil og uverifisert gjenoppretting. Siste fullførte workspace-kjøring gir **388 bestått, 4 ignorert, 0 feilet**, og workspace-clippy på alle mål er ren. Den native GTK-planens assertions for fokus, nedtrekksmenyer, global aktivering i testoppsettet, Bruk/Behold, status og PCIe 2D/3D bestod. Reviewfunn og avgrensninger står i `docs/produksjon/kritikk-1.4.0.md`. Etterfølgende rettinger håndterer `--innstillinger` i eksisterende forekomst og oppdager aktivering mens styringen er låst. Disse rettingene og isolerte testhjelper-røtter inngår i den fullførte workspace-kjøringen.
+
+**Fysisk prøve og installasjon:** Brukeren har nå fullført ekte polkit-aktivering, og den herdede root-hjelperen meldte NVML klar. Prøve mot hjelperen verifiserte 245 → 240 W, begge vifter Auto (35 %) → Manuell (50 %), kjerneoffset 0 → −15 MHz og minneoffset 0 → −10 MHz, hvert felt med fersk NVML-getter og revert. Avsluttende reset bekreftet 245 W, offset 0/0 MHz, temperaturmål 83 °C og Auto på begge vifter. En senere prøve verifiserte også flat 50 %-kurve med begge vifter på målet i 4 s og temperaturmål 83 → 82 °C, etterfulgt av revert/reset til bekreftet stock true. Prøve gjennom installert NVML-daemon bekreftet kortbinding via hello/get_helper/get_state, 240 W + confirm/Behold med fersk 240 W, og reset til 245 W. En ny 240 W-endring uten Behold ga rolled_back/timeout etter 10 s og fersk 245 W før noe ekstra reset-kall; avsluttende reset ga stock true. Alle grenser, positiv overklokking, stress, drivertap og strømbrudd er ikke prøvd. Fysisk Wayland-pekerbruk er ikke verifisert i denne runden; GTK-planen bruker interne capture-/pick-tester. 1.4.0 · bygg 23 er installert med sikkerhetskopi; binærhash og uendrede innstillinger er kontrollert, og historikken er sikret. Ingen nye ytelsesmålinger eller publisering av 1.4.0 er bekreftet her.
+
+Den endelige native UI-planen bestod, inkludert klokkesiden med den nye statusvakten. Den oppdaterte installerte appen startet på Klokker og effekt; klar hjelper og samsvarende kortidentitet er bekreftet.
+
+## Historikk til og med 1.3.3
+
+Oppføringene under beskriver kontrollert status for sine respektive versjoner. Tidligere omtale av fire godkjenningstrinn og permanent skrivelås gjelder ikke 1.4.0-modellen over.
+
 **1.3.3 · bygg 22** – 14. november 2026: CPU-lanseringsdato fra et kildebelagt lokalt modelloppslag, delt av Prosessor og rapport. Ryzen 7 2700X viser 19. april 2018. Ingen dato gjettes fra familie eller kodenavn. Revisjonen av komponentenes spesifikasjoner står i `docs/produksjon/spesifikasjoner-revisjon-2026-11-14.md`; øvrige utvidelser og korrekthetsfunn er fortsatt åpne. Produksjonsbygget er installert for brukeren 14. november etter uttrykkelig ønske.
 
 Verifisert: workspace-clippy på alle mål er ren; 350 tester bestått, 4 ignorert, 0 feilet. Aliasoppslag, nabomodeller, feil leverandør og dato/kilde i tekst- og Markdown-rapport er dekket. Alle workspace-binærene er bygget lokalt.

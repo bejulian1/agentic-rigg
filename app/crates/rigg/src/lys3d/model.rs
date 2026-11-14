@@ -207,7 +207,7 @@ pub fn build() -> Card {
         let u = ((x - PCB_TEX.x0) / (PCB_TEX.x1 - PCB_TEX.x0)) as f32;
         [if back { 1.0 - u } else { u }, ((y - PCB_TEX.y0) / (PCB_TEX.y1 - PCB_TEX.y0)) as f32]
     };
-    let board = [[PCB.0, PCB.2, PCB.1, PCB.3], [FINGERS.tab_a.0, FINGERS.y0, FINGERS.tab_a.1, 0.0], [FINGERS.tab_b.0, FINGERS.y0, FINGERS.tab_b.1, 0.0]];
+    let board = [[PCB.0, PCB.2, PCB.1, PCB.3], [FINGERS.tab_a.0, FINGERS.y0 + FINGER_BEVEL, FINGERS.tab_a.1, 0.0], [FINGERS.tab_b.0, FINGERS.y0 + FINGER_BEVEL, FINGERS.tab_b.1, 0.0]];
     part("pcb", "kretskort", pcb_front, o(), &mut |b| {
         for [x0, y0, x1, y1] in board {
             b.quad([x0, y0, 0.0], [x1, y0, 0.0], [x1, y1, 0.0], [x0, y1, 0.0], [0.0, 0.0, 1.0], Some([tex_uv(x0, y0, false), tex_uv(x1, y0, false), tex_uv(x1, y1, false), tex_uv(x0, y1, false)]));
@@ -220,16 +220,32 @@ pub fn build() -> Card {
         }
     });
     part("pcb", "kretskort", pcb_edge, o(), &mut |b| {
-        for [x0, y0, x1, y1] in board {
-            b.bx([(x0 + x1) / 2.0, (y0 + y1) / 2.0, -PCB_T / 2.0], [x1 - x0, y1 - y0, PCB_T], BoxUv { skip: &["pz", "nz"], ..Default::default() });
+        // Kun ytterkonturen: ingen vegg tvers gjennom roten av PCIe-tungene.
+        let outline = pcb_outline();
+        let inset = |y: f64| if y == FINGERS.y0 { FINGER_BEVEL_Z } else { 0.0 };
+        for i in 0..outline.len() {
+            let [x0, y0] = outline[i];
+            let [x1, y1] = outline[(i + 1) % outline.len()];
+            let len = (x1 - x0).hypot(y1 - y0);
+            b.quad([x0, y0, -PCB_T + inset(y0)], [x1, y1, -PCB_T + inset(y1)], [x1, y1, -inset(y1)], [x0, y0, -inset(y0)], [(y1 - y0) / len, (x0 - x1) / len, 0.0], None);
+        }
+        for (x0, x1) in [FINGERS.tab_a, FINGERS.tab_b] {
+            // Fas på begge sider av innføringskanten, uten gull på snittflaten.
+            let y0 = FINGERS.y0;
+            let y1 = y0 + FINGER_BEVEL;
+            let len = FINGER_BEVEL.hypot(FINGER_BEVEL_Z);
+            b.quad([x0 + FINGER_BEVEL, y0, -FINGER_BEVEL_Z], [x1 - FINGER_BEVEL, y0, -FINGER_BEVEL_Z], [x1, y1, 0.0], [x0, y1, 0.0], [0.0, -FINGER_BEVEL_Z / len, FINGER_BEVEL / len], None);
+            b.quad([x0, y1, -PCB_T], [x1, y1, -PCB_T], [x1 - FINGER_BEVEL, y0, -PCB_T + FINGER_BEVEL_Z], [x0 + FINGER_BEVEL, y0, -PCB_T + FINGER_BEVEL_Z], [0.0, -FINGER_BEVEL_Z / len, -FINGER_BEVEL / len], None);
         }
     });
     part("pcie", "kretskort", gold, o(), &mut |b| {
         for x in finger_xs() {
-            let long = if (x * 7.0).round() as i64 % 9 == 0 { 0.0 } else { 0.6 };
-            let cy = FINGERS.y0 + 0.5 + (7.1 - long) / 2.0 + long;
-            b.boxs([x, cy, 0.02], [FINGERS.w, 7.1 - long, 0.04]);
-            b.boxs([x, cy, -PCB_T - 0.02], [FINGERS.w, 7.1 - long, 0.04]);
+            let [x0, y0, x1, y1] = finger_rect(x);
+            // Små avfasede hjørner gir separate kontaktflater, ikke gullblokker.
+            let tip = 0.12;
+            let pad = [[x0 + tip, y0], [x1 - tip, y0], [x1, y0 + tip], [x1, y1], [x0, y1], [x0, y0 + tip]];
+            b.extrude_convex(&pad, 0.0, 0.025, true, false, true);
+            b.extrude_convex(&pad, -PCB_T - 0.025, -PCB_T, false, true, true);
         }
     });
     part("gpu", "kretskort", bga, o(), &mut |b| {

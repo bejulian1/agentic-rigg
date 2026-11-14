@@ -26,7 +26,10 @@ cpu_pct() { # pid sekunder
 mkdir -p "$XDG_CONFIG_HOME/agentic-rigg-dev"
 # «Fortsett i bakgrunnen» på, 2 s, så tjenesten lever uten vindu (målet i kap. 9).
 echo '{"background": true, "backgroundIntervalMs": 2000}' >"$XDG_CONFIG_HOME/agentic-rigg-dev/tjeneste.json"
-"$RIGG_BIN/agentic-riggd" 2>"$OKT_BASE/riggd.log" &
+# Målingen skal aldri kobles til en aktivert root-hjelper på verten.
+mkdir -p "$OKT_BASE/hjelper-rot"
+export RIGG_HJELPER_ROT="$OKT_BASE/hjelper-rot"
+"$RIGG_BIN/agentic-riggd" --hjelper-rot "$RIGG_HJELPER_ROT" 2>"$OKT_BASE/riggd.log" &
 d=$!
 sleep 4
 echo "uname: $(uname -r) · $(nproc) tråder"

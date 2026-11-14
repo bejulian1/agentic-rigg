@@ -83,7 +83,14 @@ pub const CURVE_MIN_POINTS: usize = 2;
 pub const CURVE_MAX_POINTS: usize = 10;
 
 /// Standardkurven (Balansert), som demoens `DEFAULT_CURVE`.
-pub const DEFAULT_CURVE: [(f64, f64); 6] = [(30.0, 35.0), (50.0, 40.0), (62.0, 50.0), (72.0, 65.0), (82.0, 85.0), (90.0, 100.0)];
+pub const DEFAULT_CURVE: [(f64, f64); 6] = [
+    (30.0, 35.0),
+    (50.0, 40.0),
+    (62.0, 50.0),
+    (72.0, 65.0),
+    (82.0, 85.0),
+    (90.0, 100.0),
+];
 
 // ---------------------------------------------------------------- oppsettet
 
@@ -177,26 +184,47 @@ impl Values {
             }
         };
         d(self.power_limit_w != o.power_limit_w, "powerLimitW");
-        d(self.core_offset_mhz != o.core_offset_mhz, "clockOffsets.coreMhz");
-        d(self.mem_offset_mhz != o.mem_offset_mhz, "clockOffsets.memMhz");
+        d(
+            self.core_offset_mhz != o.core_offset_mhz,
+            "clockOffsets.coreMhz",
+        );
+        d(
+            self.mem_offset_mhz != o.mem_offset_mhz,
+            "clockOffsets.memMhz",
+        );
         d(self.temp_target_c != o.temp_target_c, "tempTargetC");
         d(self.fan_mode != o.fan_mode, "fan.mode");
         d(self.fan_percent != o.fan_percent, "fan.manualPercent");
         d(self.fan_curve != o.fan_curve, "fan.curve");
         d(self.fan_per_fan != o.fan_per_fan, "fan.perFan");
         d(self.fan_curves != o.fan_curves, "fan.curves");
-        d(self.fan_hysteresis_c != o.fan_hysteresis_c, "fan.hysteresisC");
-        d(self.fan_ramp_up_pct_s != o.fan_ramp_up_pct_s, "fan.rampUpPctS");
-        d(self.fan_ramp_down_pct_s != o.fan_ramp_down_pct_s, "fan.rampDownPctS");
+        d(
+            self.fan_hysteresis_c != o.fan_hysteresis_c,
+            "fan.hysteresisC",
+        );
+        d(
+            self.fan_ramp_up_pct_s != o.fan_ramp_up_pct_s,
+            "fan.rampUpPctS",
+        );
+        d(
+            self.fan_ramp_down_pct_s != o.fan_ramp_down_pct_s,
+            "fan.rampDownPctS",
+        );
         d(self.fan_smoothing_s != o.fan_smoothing_s, "fan.smoothingS");
-        d(self.fan_quiet_until_c != o.fan_quiet_until_c, "fan.quietUntilC");
+        d(
+            self.fan_quiet_until_c != o.fan_quiet_until_c,
+            "fan.quietUntilC",
+        );
         out
     }
 
     /// Kurven vifte `i` følger (den felles uten `fan_per_fan`).
     pub fn curve_for(&self, i: usize) -> &[(f64, f64)] {
         if self.fan_per_fan {
-            self.fan_curves.get(i).filter(|c| !c.is_empty()).unwrap_or(&self.fan_curve)
+            self.fan_curves
+                .get(i)
+                .filter(|c| !c.is_empty())
+                .unwrap_or(&self.fan_curve)
         } else {
             &self.fan_curve
         }
@@ -251,8 +279,18 @@ fn clamp_num(field: &str, v: f64, eff: Range, hw: Range, out: &mut Vec<Clamped>)
     let c = eff.clamp(r);
     if c != r {
         let bound = if r > eff.max { "max" } else { "min" };
-        let from_hw = if bound == "max" { hw.max == eff.max } else { hw.min == eff.min };
-        out.push(Clamped { field: field.into(), requested: v, applied: c, bound, source: if from_hw { "hardware" } else { "policy" } });
+        let from_hw = if bound == "max" {
+            hw.max == eff.max
+        } else {
+            hw.min == eff.min
+        };
+        out.push(Clamped {
+            field: field.into(),
+            requested: v,
+            applied: c,
+            bound,
+            source: if from_hw { "hardware" } else { "policy" },
+        });
     }
     c
 }
@@ -260,9 +298,17 @@ fn clamp_num(field: &str, v: f64, eff: Range, hw: Range, out: &mut Vec<Clamped>)
 /// Viftekurven: 2–10 punkter, stigende temperatur, fart 35–100 % og aldri
 /// fallende (et punkt under forrige løftes, som demoen).
 pub fn check_curve(v: &Value) -> Result<(Vec<(f64, f64)>, bool), ProtoError> {
-    let a = v.as_array().ok_or_else(|| invalid("Viftekurven må være en liste med punkter"))?;
+    check_curve_in(v, HW_FAN)
+}
+
+fn check_curve_in(v: &Value, fan: Range) -> Result<(Vec<(f64, f64)>, bool), ProtoError> {
+    let a = v
+        .as_array()
+        .ok_or_else(|| invalid("Viftekurven må være en liste med punkter"))?;
     if a.len() < CURVE_MIN_POINTS || a.len() > CURVE_MAX_POINTS {
-        return Err(invalid(format!("Viftekurven må ha {CURVE_MIN_POINTS}–{CURVE_MAX_POINTS} punkter")));
+        return Err(invalid(format!(
+            "Viftekurven må ha {CURVE_MIN_POINTS}–{CURVE_MAX_POINTS} punkter"
+        )));
     }
     let mut lifted = false;
     let mut pts: Vec<(f64, f64)> = Vec::with_capacity(a.len());
@@ -275,9 +321,12 @@ pub fn check_curve(v: &Value) -> Result<(Vec<(f64, f64)>, bool), ProtoError> {
             _ => return Err(invalid(format!("Ugyldig punkt {} i viftekurven", i + 1))),
         };
         if !(0.0..=110.0).contains(&t) {
-            return Err(invalid(format!("Punkt {}: temperaturen må være 0–110 °C", i + 1)));
+            return Err(invalid(format!(
+                "Punkt {}: temperaturen må være 0–110 °C",
+                i + 1
+            )));
         }
-        let mut f2 = HW_FAN.clamp(f);
+        let mut f2 = fan.clamp(f);
         if let Some(prev) = pts.last() {
             if t <= prev.0 {
                 return Err(invalid("Temperaturene i viftekurven må stige"));
@@ -297,14 +346,24 @@ pub type Curve = Vec<(f64, f64)>;
 
 /// Kurvene per vifte (`fan.curves`): 0–8 kurver, hver som [`check_curve`].
 pub fn check_curves(v: &Value) -> Result<(Vec<Curve>, bool), ProtoError> {
-    let a = v.as_array().ok_or_else(|| invalid("fan.curves må være en liste med kurver"))?;
+    check_curves_in(v, HW_FAN)
+}
+
+fn check_curves_in(v: &Value, fan: Range) -> Result<(Vec<Curve>, bool), ProtoError> {
+    let a = v
+        .as_array()
+        .ok_or_else(|| invalid("fan.curves må være en liste med kurver"))?;
     if a.len() > crate::vifte::MAKS_VIFTER {
-        return Err(invalid(format!("fan.curves kan ha høyst {} kurver", crate::vifte::MAKS_VIFTER)));
+        return Err(invalid(format!(
+            "fan.curves kan ha høyst {} kurver",
+            crate::vifte::MAKS_VIFTER
+        )));
     }
     let mut lifted = false;
     let mut out = Vec::with_capacity(a.len());
     for (i, c) in a.iter().enumerate() {
-        let (pts, l) = check_curve(c).map_err(|e| invalid(format!("Vifte {}: {}", i + 1, e.message)))?;
+        let (pts, l) = check_curve_in(c, fan)
+            .map_err(|e| invalid(format!("Vifte {}: {}", i + 1, e.message)))?;
         lifted |= l;
         out.push(pts);
     }
@@ -313,61 +372,207 @@ pub fn check_curves(v: &Value) -> Result<(Vec<Curve>, bool), ProtoError> {
 
 /// Fletter en delvis `GpuSettings` inn i `base`. Ukjente felt og feil typer
 /// gir `invalid_argument`. Tall utenfor grensene klemmes.
+#[derive(Clone, Copy, Debug)]
+pub struct HardwareLimits {
+    pub power: Range,
+    pub core: Range,
+    pub memory: Range,
+    pub temperature: Range,
+    pub fan: Range,
+}
+
 pub fn merge(base: &Values, patch: &Value) -> Result<(Values, Vec<Clamped>), ProtoError> {
-    let o = patch.as_object().ok_or_else(|| invalid("settings må være et objekt"))?;
+    merge_in(base, patch, None)
+}
+
+fn merge_in(
+    base: &Values,
+    patch: &Value,
+    limits: Option<&HardwareLimits>,
+) -> Result<(Values, Vec<Clamped>), ProtoError> {
+    let power = limits.map_or(HW_POWER, |l| l.power);
+    let core = limits.map_or(HW_CORE, |l| l.core);
+    let memory = limits.map_or(HW_MEM, |l| l.memory);
+    let temperature = limits.map_or(HW_TEMP, |l| l.temperature);
+    let fan = limits.map_or(HW_FAN, |l| l.fan);
+    let o = patch
+        .as_object()
+        .ok_or_else(|| invalid("settings må være et objekt"))?;
     let mut out = base.clone();
     let mut cl = Vec::new();
-    let num = |v: &Value, name: &str| -> Result<f64, ProtoError> { v.as_f64().filter(|x| x.is_finite()).ok_or_else(|| invalid(format!("{name} må være et tall"))) };
+    let num = |v: &Value, name: &str| -> Result<f64, ProtoError> {
+        v.as_f64()
+            .filter(|x| x.is_finite())
+            .ok_or_else(|| invalid(format!("{name} må være et tall")))
+    };
     for (k, v) in o {
         match k.as_str() {
-            "powerLimitW" => out.power_limit_w = clamp_num("powerLimitW", num(v, "Effektgrensen")?, HW_POWER, HW_POWER, &mut cl),
-            "tempTargetC" => out.temp_target_c = clamp_num("tempTargetC", num(v, "Temperaturmålet")?, HW_TEMP, HW_TEMP, &mut cl),
+            "powerLimitW" => {
+                out.power_limit_w = clamp_num(
+                    "powerLimitW",
+                    num(v, "Effektgrensen")?,
+                    power,
+                    power,
+                    &mut cl,
+                )
+            }
+            "tempTargetC" => {
+                out.temp_target_c = clamp_num(
+                    "tempTargetC",
+                    num(v, "Temperaturmålet")?,
+                    temperature,
+                    temperature,
+                    &mut cl,
+                )
+            }
             "clockOffsets" => {
-                let c = v.as_object().ok_or_else(|| invalid("clockOffsets må være et objekt"))?;
+                let c = v
+                    .as_object()
+                    .ok_or_else(|| invalid("clockOffsets må være et objekt"))?;
                 for (ck, cv) in c {
                     match ck.as_str() {
-                        "coreMhz" => out.core_offset_mhz = clamp_num("clockOffsets.coreMhz", num(cv, "Kjerneklokke-offset")?, POLICY_CORE, HW_CORE, &mut cl),
-                        "memMhz" => out.mem_offset_mhz = clamp_num("clockOffsets.memMhz", num(cv, "Minneklokke-offset")?, POLICY_MEM, HW_MEM, &mut cl),
-                        other => return Err(invalid(format!("Ukjent felt: clockOffsets.{}", other.chars().take(40).collect::<String>()))),
+                        "coreMhz" => {
+                            out.core_offset_mhz = clamp_num(
+                                "clockOffsets.coreMhz",
+                                num(cv, "Kjerneklokke-offset")?,
+                                limits.map_or(POLICY_CORE, |l| l.core),
+                                core,
+                                &mut cl,
+                            )
+                        }
+                        "memMhz" => {
+                            out.mem_offset_mhz = clamp_num(
+                                "clockOffsets.memMhz",
+                                num(cv, "Minneklokke-offset")?,
+                                limits.map_or(POLICY_MEM, |l| l.memory),
+                                memory,
+                                &mut cl,
+                            )
+                        }
+                        other => {
+                            return Err(invalid(format!(
+                                "Ukjent felt: clockOffsets.{}",
+                                other.chars().take(40).collect::<String>()
+                            )));
+                        }
                     }
                 }
             }
             "fan" => {
-                let f = v.as_object().ok_or_else(|| invalid("fan må være et objekt"))?;
+                let f = v
+                    .as_object()
+                    .ok_or_else(|| invalid("fan må være et objekt"))?;
                 for (fk, fv) in f {
                     match fk.as_str() {
-                        "mode" => out.fan_mode = fv.as_str().and_then(FanMode::parse).ok_or_else(|| invalid("fan.mode må være auto, curve eller manual"))?,
-                        "manualPercent" => out.fan_percent = clamp_num("fan.manualPercent", num(fv, "Viftefarten")?, HW_FAN, HW_FAN, &mut cl),
+                        "mode" => {
+                            out.fan_mode =
+                                fv.as_str().and_then(FanMode::parse).ok_or_else(|| {
+                                    invalid("fan.mode må være auto, curve eller manual")
+                                })?
+                        }
+                        "manualPercent" => {
+                            out.fan_percent = clamp_num(
+                                "fan.manualPercent",
+                                num(fv, "Viftefarten")?,
+                                fan,
+                                fan,
+                                &mut cl,
+                            )
+                        }
                         "curve" => {
-                            let (pts, lifted) = check_curve(fv)?;
+                            let (pts, lifted) = check_curve_in(fv, fan)?;
                             if lifted {
-                                cl.push(Clamped { field: "fan.curve".into(), requested: 0.0, applied: 0.0, bound: "min", source: "hardware" });
+                                cl.push(Clamped {
+                                    field: "fan.curve".into(),
+                                    requested: 0.0,
+                                    applied: 0.0,
+                                    bound: "min",
+                                    source: "hardware",
+                                });
                             }
                             out.fan_curve = pts;
                         }
-                        "perFan" => out.fan_per_fan = fv.as_bool().ok_or_else(|| invalid("fan.perFan må være true eller false"))?,
+                        "perFan" => {
+                            out.fan_per_fan = fv
+                                .as_bool()
+                                .ok_or_else(|| invalid("fan.perFan må være true eller false"))?
+                        }
                         "curves" => {
-                            let (list, lifted) = check_curves(fv)?;
+                            let (list, lifted) = check_curves_in(fv, fan)?;
                             if lifted {
-                                cl.push(Clamped { field: "fan.curves".into(), requested: 0.0, applied: 0.0, bound: "min", source: "hardware" });
+                                cl.push(Clamped {
+                                    field: "fan.curves".into(),
+                                    requested: 0.0,
+                                    applied: 0.0,
+                                    bound: "min",
+                                    source: "hardware",
+                                });
                             }
                             out.fan_curves = list;
                         }
-                        "hysteresisC" => out.fan_hysteresis_c = clamp_num("fan.hysteresisC", num(fv, "Hysteresen")?, crate::vifte::HYSTERESE, crate::vifte::HYSTERESE, &mut cl),
-                        "rampUpPctS" => out.fan_ramp_up_pct_s = clamp_num("fan.rampUpPctS", num(fv, "Rampefarten opp")?, crate::vifte::RAMPE, crate::vifte::RAMPE, &mut cl),
-                        "rampDownPctS" => out.fan_ramp_down_pct_s = clamp_num("fan.rampDownPctS", num(fv, "Rampefarten ned")?, crate::vifte::RAMPE, crate::vifte::RAMPE, &mut cl),
-                        "smoothingS" => out.fan_smoothing_s = clamp_num("fan.smoothingS", num(fv, "Utjevningen")?, crate::vifte::UTJEVNING, crate::vifte::UTJEVNING, &mut cl),
+                        "hysteresisC" => {
+                            out.fan_hysteresis_c = clamp_num(
+                                "fan.hysteresisC",
+                                num(fv, "Hysteresen")?,
+                                crate::vifte::HYSTERESE,
+                                crate::vifte::HYSTERESE,
+                                &mut cl,
+                            )
+                        }
+                        "rampUpPctS" => {
+                            out.fan_ramp_up_pct_s = clamp_num(
+                                "fan.rampUpPctS",
+                                num(fv, "Rampefarten opp")?,
+                                crate::vifte::RAMPE,
+                                crate::vifte::RAMPE,
+                                &mut cl,
+                            )
+                        }
+                        "rampDownPctS" => {
+                            out.fan_ramp_down_pct_s = clamp_num(
+                                "fan.rampDownPctS",
+                                num(fv, "Rampefarten ned")?,
+                                crate::vifte::RAMPE,
+                                crate::vifte::RAMPE,
+                                &mut cl,
+                            )
+                        }
+                        "smoothingS" => {
+                            out.fan_smoothing_s = clamp_num(
+                                "fan.smoothingS",
+                                num(fv, "Utjevningen")?,
+                                crate::vifte::UTJEVNING,
+                                crate::vifte::UTJEVNING,
+                                &mut cl,
+                            )
+                        }
                         "quietUntilC" => {
                             out.fan_quiet_until_c = match fv {
                                 Value::Null => None,
-                                v => Some(clamp_num("fan.quietUntilC", num(v, "«Hold minimum til»")?, crate::vifte::STILLE, crate::vifte::STILLE, &mut cl)),
+                                v => Some(clamp_num(
+                                    "fan.quietUntilC",
+                                    num(v, "«Hold minimum til»")?,
+                                    crate::vifte::STILLE,
+                                    crate::vifte::STILLE,
+                                    &mut cl,
+                                )),
                             }
                         }
-                        other => return Err(invalid(format!("Ukjent felt: fan.{}", other.chars().take(40).collect::<String>()))),
+                        other => {
+                            return Err(invalid(format!(
+                                "Ukjent felt: fan.{}",
+                                other.chars().take(40).collect::<String>()
+                            )));
+                        }
                     }
                 }
             }
-            other => return Err(invalid(format!("Ukjent felt: {}", other.chars().take(40).collect::<String>()))),
+            other => {
+                return Err(invalid(format!(
+                    "Ukjent felt: {}",
+                    other.chars().take(40).collect::<String>()
+                )));
+            }
         }
     }
     Ok((out, cl))
@@ -419,7 +624,16 @@ impl Default for Book {
 
 impl Book {
     pub fn new() -> Book {
-        Book { confirmed: Values::default(), active: Values::default(), pending: None, seq: 0, confirm_s: CONFIRM_DEFAULT_S, rgb: json!({"effect": "static", "color": "#3a7bf0", "brightness": 80}), emergency: false, events: Vec::new() }
+        Book {
+            confirmed: Values::default(),
+            active: Values::default(),
+            pending: None,
+            seq: 0,
+            confirm_s: CONFIRM_DEFAULT_S,
+            rgb: json!({"effect": "static", "color": "#3a7bf0", "brightness": 80}),
+            emergency: false,
+            events: Vec::new(),
+        }
     }
 
     pub fn pending(&self) -> Option<&Txn> {
@@ -435,7 +649,10 @@ impl Book {
         match v {
             None | Some(Value::Null) => Ok(self.confirm_s.clamp(CONFIRM_MIN_S, CONFIRM_MAX_S)),
             Some(x) => {
-                let n = x.as_f64().filter(|n| n.is_finite()).ok_or_else(|| invalid("confirmTimeoutS må være et tall"))?;
+                let n = x
+                    .as_f64()
+                    .filter(|n| n.is_finite())
+                    .ok_or_else(|| invalid("confirmTimeoutS må være et tall"))?;
                 Ok((n.round() as i64).clamp(CONFIRM_MIN_S as i64, CONFIRM_MAX_S as i64) as u32)
             }
         }
@@ -465,23 +682,76 @@ impl Book {
         })
     }
 
+    /// Forhåndsvalider uten å endre transaksjonen eller kreve en HW-skriving.
+    pub fn validate_apply_with_limits(
+        &self,
+        owner: &str,
+        patch: &Value,
+        timeout: Option<&Value>,
+        limits: &HardwareLimits,
+    ) -> Result<bool, ProtoError> {
+        if self.pending.as_ref().is_some_and(|p| p.txn.owner != owner) {
+            return Err(ProtoError::new(ErrorCode::Busy));
+        }
+        self.timeout_for(timeout)?;
+        let (next, clamped) = merge_in(&self.active, patch, Some(limits))?;
+        if !clamped.is_empty() {
+            return Err(invalid(
+                "Oppsettet må være innenfor rapporterte grenser og viftekurven må være stigende.",
+            ));
+        }
+        Ok(next != self.active || self.pending.is_some())
+    }
+
     /// `apply`: ny eller forlenget txn. Uten faktisk endring gis ingen txn.
-    pub fn apply(&mut self, owner: &str, patch: &Value, timeout: Option<&Value>, now: i64) -> OpResult {
+    pub fn apply(
+        &mut self,
+        owner: &str,
+        patch: &Value,
+        timeout: Option<&Value>,
+        now: i64,
+    ) -> OpResult {
+        self.apply_with_limits(owner, patch, timeout, now, None)
+    }
+
+    /// Hjelperen har først validert støtte og kortets faktiske områder.
+    pub fn apply_with_limits(
+        &mut self,
+        owner: &str,
+        patch: &Value,
+        timeout: Option<&Value>,
+        now: i64,
+        limits: Option<&HardwareLimits>,
+    ) -> OpResult {
         if let Some(p) = &self.pending
             && p.txn.owner != owner
         {
-            return Err(ProtoError::new(ErrorCode::Busy).details(json!({"owner": p.txn.owner, "remainingMs": (p.txn.deadline - now).max(0)})));
+            return Err(ProtoError::new(ErrorCode::Busy).details(
+                json!({"owner": p.txn.owner, "remainingMs": (p.txn.deadline - now).max(0)}),
+            ));
         }
         let timeout_s = self.timeout_for(timeout)?;
-        let (next, clamped) = merge(&self.active, patch)?;
+        let (next, clamped) = merge_in(&self.active, patch, limits)?;
         let changed = self.confirmed.diff(&next);
         if self.pending.is_none() && changed.is_empty() {
-            return Ok(json!({"txn": null, "pending": null, "clamped": clamped, "changed": [], "active": self.active.to_json(), "confirmed": self.confirmed.to_json()}));
+            return Ok(
+                json!({"txn": null, "pending": null, "clamped": clamped, "changed": [], "active": self.active.to_json(), "confirmed": self.confirmed.to_json()}),
+            );
         }
         self.active = next;
         if self.pending.is_none() {
             self.seq += 1;
-            self.pending = Some(Pending { txn: Txn { id: format!("t{}", self.seq), owner: owner.into(), timeout_s, deadline: 0, changed: vec![], status: TxnStatus::Pending }, clamped: vec![] });
+            self.pending = Some(Pending {
+                txn: Txn {
+                    id: format!("t{}", self.seq),
+                    owner: owner.into(),
+                    timeout_s,
+                    deadline: 0,
+                    changed: vec![],
+                    status: TxnStatus::Pending,
+                },
+                clamped: vec![],
+            });
         }
         let p = self.pending.as_mut().expect("ventende endring");
         p.txn.timeout_s = timeout_s;
@@ -492,13 +762,20 @@ impl Book {
         p.clamped.retain(|c| !touched.contains(&c.field));
         p.clamped.extend(clamped.iter().cloned());
         let id = p.txn.id.clone();
-        Ok(json!({"txn": id, "pending": self.pending_view(now), "clamped": clamped, "changed": changed, "active": self.active.to_json(), "confirmed": self.confirmed.to_json()}))
+        Ok(
+            json!({"txn": id, "pending": self.pending_view(now), "clamped": clamped, "changed": changed, "active": self.active.to_json(), "confirmed": self.confirmed.to_json()}),
+        )
     }
 
     fn check(&self, owner: &str, txn: Option<&str>) -> Result<(), ProtoError> {
-        let p = self.pending.as_ref().ok_or_else(|| ProtoError::new(ErrorCode::NoPending))?;
+        let p = self
+            .pending
+            .as_ref()
+            .ok_or_else(|| ProtoError::new(ErrorCode::NoPending))?;
         if txn != Some(p.txn.id.as_str()) {
-            return Err(ProtoError::new(ErrorCode::TxnMismatch).details(json!({"pending": p.txn.id})));
+            return Err(
+                ProtoError::new(ErrorCode::TxnMismatch).details(json!({"pending": p.txn.id}))
+            );
         }
         if p.txn.owner != owner {
             return Err(ProtoError::new(ErrorCode::NotOwner));
@@ -510,7 +787,11 @@ impl Book {
         self.check(owner, txn)?;
         let p = self.pending.take().expect("ventende endring");
         self.confirmed = self.active.clone();
-        self.events.push(Event { txn: p.txn.id, status: TxnStatus::Confirmed, reason: "confirm" });
+        self.events.push(Event {
+            txn: p.txn.id,
+            status: TxnStatus::Confirmed,
+            reason: "confirm",
+        });
         Ok(self.state_view(now))
     }
 
@@ -522,9 +803,15 @@ impl Book {
 
     /// Tilbake til siste bekreftede oppsett. Gir `true` hvis noe ventet.
     pub fn rollback(&mut self, reason: &'static str) -> bool {
-        let Some(p) = self.pending.take() else { return false };
+        let Some(p) = self.pending.take() else {
+            return false;
+        };
         self.active = self.confirmed.clone();
-        self.events.push(Event { txn: p.txn.id, status: TxnStatus::RolledBack, reason });
+        self.events.push(Event {
+            txn: p.txn.id,
+            status: TxnStatus::RolledBack,
+            reason,
+        });
         true
     }
 
@@ -560,15 +847,32 @@ impl Book {
     /// Skriveoperasjonene. **Bare `backend == "sim"` kommer forbi første
     /// linje.** Med `nvml` og `ingen` svarer alt `write_locked`, også
     /// operasjoner som ellers ville vært ugyldige.
-    pub fn handle(&mut self, backend: &str, op: &str, args: &Value, owner: &str, now: i64) -> OpResult {
+    pub fn handle(
+        &mut self,
+        backend: &str,
+        op: &str,
+        args: &Value,
+        owner: &str,
+        now: i64,
+    ) -> OpResult {
         if backend != "sim" {
             return Err(ProtoError::new(ErrorCode::WriteLocked));
         }
         let txn = args.get("txn").and_then(Value::as_str);
         let num = |k: &str| args.get(k).cloned().unwrap_or(Value::Null);
         match op {
-            "apply" => self.apply(owner, args.get("settings").unwrap_or(&Value::Null), args.get("confirmTimeoutS"), now),
-            "set_power_limit" => self.apply(owner, &json!({"powerLimitW": num("watts")}), args.get("confirmTimeoutS"), now),
+            "apply" => self.apply(
+                owner,
+                args.get("settings").unwrap_or(&Value::Null),
+                args.get("confirmTimeoutS"),
+                now,
+            ),
+            "set_power_limit" => self.apply(
+                owner,
+                &json!({"powerLimitW": num("watts")}),
+                args.get("confirmTimeoutS"),
+                now,
+            ),
             "set_clock_offsets" => {
                 let mut c = serde_json::Map::new();
                 for k in ["coreMhz", "memMhz"] {
@@ -576,12 +880,33 @@ impl Book {
                         c.insert(k.into(), v.clone());
                     }
                 }
-                self.apply(owner, &json!({"clockOffsets": c}), args.get("confirmTimeoutS"), now)
+                self.apply(
+                    owner,
+                    &json!({"clockOffsets": c}),
+                    args.get("confirmTimeoutS"),
+                    now,
+                )
             }
-            "set_temp_target" => self.apply(owner, &json!({"tempTargetC": num("celsius")}), args.get("confirmTimeoutS"), now),
+            "set_temp_target" => self.apply(
+                owner,
+                &json!({"tempTargetC": num("celsius")}),
+                args.get("confirmTimeoutS"),
+                now,
+            ),
             "set_fan" => {
                 let mut f = serde_json::Map::new();
-                for k in ["mode", "manualPercent", "curve", "perFan", "curves", "hysteresisC", "rampUpPctS", "rampDownPctS", "smoothingS", "quietUntilC"] {
+                for k in [
+                    "mode",
+                    "manualPercent",
+                    "curve",
+                    "perFan",
+                    "curves",
+                    "hysteresisC",
+                    "rampUpPctS",
+                    "rampDownPctS",
+                    "smoothingS",
+                    "quietUntilC",
+                ] {
                     if let Some(v) = args.get(k) {
                         f.insert(k.into(), v.clone());
                     }
@@ -593,7 +918,10 @@ impl Book {
             "reset" => self.reset(owner, now),
             "rgb_get" => Ok(json!({"rgb": self.rgb, "controller": {"state": "not_connected"}})),
             "rgb_set" => {
-                let v = args.get("rgb").filter(|v| v.is_object()).ok_or_else(|| invalid("rgb må være et objekt"))?;
+                let v = args
+                    .get("rgb")
+                    .filter(|v| v.is_object())
+                    .ok_or_else(|| invalid("rgb må være et objekt"))?;
                 self.rgb = v.clone();
                 Ok(json!({"rgb": self.rgb, "controller": {"state": "not_connected"}}))
             }
@@ -605,14 +933,20 @@ impl Book {
 /// Viftefarten kurven gir ved en temperatur: rett linje mellom punktene,
 /// flat før første og etter siste (som `daemon-mock/card.js`).
 pub fn curve_at(curve: &[(f64, f64)], t: f64) -> f64 {
-    let Some(first) = curve.first() else { return HW_FAN.min };
+    let Some(first) = curve.first() else {
+        return HW_FAN.min;
+    };
     if t <= first.0 {
         return first.1;
     }
     for w in curve.windows(2) {
         let ((t0, p0), (t1, p1)) = (w[0], w[1]);
         if t <= t1 {
-            return if t1 > t0 { p0 + (p1 - p0) * (t - t0) / (t1 - t0) } else { p1 };
+            return if t1 > t0 {
+                p0 + (p1 - p0) * (t - t0) / (t1 - t0)
+            } else {
+                p1
+            };
         }
     }
     curve.last().map_or(HW_FAN.min, |p| p.1)
@@ -623,7 +957,11 @@ fn leaf_paths(v: &Value, at: &str) -> Vec<String> {
     let mut out = Vec::new();
     if let Some(o) = v.as_object() {
         for (k, x) in o {
-            let p = if at.is_empty() { k.clone() } else { format!("{at}.{k}") };
+            let p = if at.is_empty() {
+                k.clone()
+            } else {
+                format!("{at}.{k}")
+            };
             if x.is_object() {
                 out.extend(leaf_paths(x, &p));
             } else {
@@ -643,19 +981,35 @@ pub enum Gate {
     Locked(&'static str),
     /// Den simulerte backenden i en utviklerforekomst: flyten kan prøves.
     Sim,
+    /// Identifisert NVML-kort og globalt autorisert, klar hjelper.
+    Real,
 }
 
 /// Verktøytipset på Bruk. Gjelder både med og uten bryteren i 1.2.0.
-pub const LOCKED_TIP: &str = "Bruk er låst: denne versjonen endrer ikke det ekte kortet";
+pub const LOCKED_TIP: &str =
+    "Aktiver skjermkortstyring i Innstillinger, og vent til hjelperen er klar";
 
 /// `hello` fra tjenesten og om vinduet er en utviklerforekomst. Bare
 /// `backend: "sim"` **og** `capabilities.write.state: "sim"` **og** `dev`
 /// gir [`Gate::Sim`]. Alt annet, også et `hello` som mangler, er låst.
 pub fn write_gate(hello: Option<&Value>, dev: bool) -> Gate {
-    let Some(h) = hello else { return Gate::Locked(LOCKED_TIP) };
+    let Some(h) = hello else {
+        return Gate::Locked(LOCKED_TIP);
+    };
     let backend = h["daemon"]["backend"].as_str().unwrap_or("");
     let state = h["capabilities"]["write"]["state"].as_str().unwrap_or("");
-    if backend == "sim" && state == "sim" && dev { Gate::Sim } else { Gate::Locked(LOCKED_TIP) }
+    if backend == "sim" && state == "sim" && dev {
+        Gate::Sim
+    } else if backend == "nvml"
+        && state == "ready"
+        && h["capabilities"]["write"]["helper"]["enabled"] == true
+        && h["capabilities"]["write"]["helper"]["ready"] == true
+        && h["capabilities"]["write"]["helper"]["realWrites"] == true
+    {
+        Gate::Real
+    } else {
+        Gate::Locked(LOCKED_TIP)
+    }
 }
 
 /// Trinnene i «Hva skal til?» fra `capabilities.write.steps`, med teksten
@@ -667,16 +1021,29 @@ pub fn steps(hello: Option<&Value>) -> Vec<(&'static str, &'static str, String)>
         ("clocks", "Klokke-offset (kjerne og minne)", ""),
         ("fan_manual", "Vifte, manuell fart", ""),
         ("fan_curve", "Viftekurve", ""),
-        ("temp_target", "Temperaturmål", " (ikke verifisert på GeForce)"),
-        ("rgb", "RGB-lys (Palit-kontrolleren på I2C)", " (kontrolleren er ikke bekreftet)"),
+        (
+            "temp_target",
+            "Temperaturmål",
+            " (ikke verifisert på GeForce)",
+        ),
+        (
+            "rgb",
+            "RGB-lys (Palit-kontrolleren på I2C)",
+            " (kontrolleren er ikke bekreftet)",
+        ),
     ];
     let list = hello.and_then(|h| h["capabilities"]["write"]["steps"].as_array());
     NAMES
         .iter()
         .map(|(id, name, note)| {
-            let st = list.and_then(|l| l.iter().find(|s| s["id"] == *id)).and_then(|s| s["status"].as_str()).unwrap_or("not_approved");
+            let st = list
+                .and_then(|l| l.iter().find(|s| s["id"] == *id))
+                .and_then(|s| s["status"].as_str())
+                .unwrap_or("not_approved");
             let text = match st {
-                "approved" => "Godkjent".to_string(),
+                "supported" => "Tilgjengelig".to_string(),
+                "unavailable" => format!("Ikke tilgjengelig{note}"),
+                "approved" => "Godkjent (eldre protokoll)".to_string(),
                 _ => format!("Ikke godkjent{note}"),
             };
             (*id, *name, text)
@@ -687,6 +1054,14 @@ pub fn steps(hello: Option<&Value>) -> Vec<(&'static str, &'static str, String)>
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn ekte_gate_krever_global_tillatelse_og_faktisk_klar_hjelper() {
+        let mut h = json!({"daemon":{"backend":"nvml"},"capabilities":{"write":{"state":"ready","helper":{"enabled":true,"ready":true,"realWrites":true}}}});
+        assert_eq!(write_gate(Some(&h), false), Gate::Real);
+        h["capabilities"]["write"]["helper"]["ready"] = json!(false);
+        assert!(matches!(write_gate(Some(&h), false), Gate::Locked(_)));
+    }
 
     const T0: i64 = 1_000_000;
 
@@ -700,11 +1075,12 @@ mod tests {
         assert_eq!(curve_at(&[], 60.0), HW_FAN.min);
     }
 
-
     #[test]
     fn bruk_gir_txn_som_venter_og_kan_beholdes() {
         let mut b = Book::new();
-        let r = b.apply("s1", &json!({"powerLimitW": 200}), None, T0).unwrap();
+        let r = b
+            .apply("s1", &json!({"powerLimitW": 200}), None, T0)
+            .unwrap();
         assert_eq!(r["txn"], "t1");
         assert_eq!(r["changed"], json!(["powerLimitW"]));
         assert_eq!(b.active.power_limit_w, 200.0);
@@ -713,40 +1089,77 @@ mod tests {
         let s = b.confirm("s1", Some("t1"), T0 + 2000).unwrap();
         assert_eq!(s["confirmed"]["powerLimitW"], 200.0);
         assert!(b.pending().is_none());
-        assert_eq!(b.take_events(), vec![Event { txn: "t1".into(), status: TxnStatus::Confirmed, reason: "confirm" }]);
+        assert_eq!(
+            b.take_events(),
+            vec![Event {
+                txn: "t1".into(),
+                status: TxnStatus::Confirmed,
+                reason: "confirm"
+            }]
+        );
     }
 
     #[test]
     fn fristen_ruller_tilbake() {
         let mut b = Book::new();
-        b.apply("s1", &json!({"tempTargetC": 75}), Some(&json!(10)), T0).unwrap();
+        b.apply("s1", &json!({"tempTargetC": 75}), Some(&json!(10)), T0)
+            .unwrap();
         assert!(!b.tick(T0 + 9_999));
         assert!(b.tick(T0 + 10_000));
         assert_eq!(b.active.temp_target_c, 83.0);
         assert_eq!(b.take_events()[0].reason, "timeout");
-        assert_eq!(b.confirm("s1", Some("t1"), T0 + 11_000).unwrap_err().code, ErrorCode::NoPending);
+        assert_eq!(
+            b.confirm("s1", Some("t1"), T0 + 11_000).unwrap_err().code,
+            ErrorCode::NoPending
+        );
     }
 
     #[test]
     fn fristen_klemmes_til_10_60_s() {
         let mut b = Book::new();
-        b.apply("s1", &json!({"powerLimitW": 200}), Some(&json!(2)), T0).unwrap();
+        b.apply("s1", &json!({"powerLimitW": 200}), Some(&json!(2)), T0)
+            .unwrap();
         assert_eq!(b.pending().unwrap().timeout_s, 10);
-        b.apply("s1", &json!({"powerLimitW": 210}), Some(&json!(600)), T0).unwrap();
+        b.apply("s1", &json!({"powerLimitW": 210}), Some(&json!(600)), T0)
+            .unwrap();
         assert_eq!(b.pending().unwrap().timeout_s, 60);
-        assert_eq!(b.apply("s1", &json!({}), Some(&json!("lenge")), T0).unwrap_err().code, ErrorCode::InvalidArgument);
+        assert_eq!(
+            b.apply("s1", &json!({}), Some(&json!("lenge")), T0)
+                .unwrap_err()
+                .code,
+            ErrorCode::InvalidArgument
+        );
     }
 
     #[test]
     fn bare_eieren_kan_beholde_og_bare_en_venter() {
         let mut b = Book::new();
-        b.apply("s1", &json!({"powerLimitW": 200}), None, T0).unwrap();
-        assert_eq!(b.apply("s2", &json!({"powerLimitW": 220}), None, T0).unwrap_err().code, ErrorCode::Busy);
-        assert_eq!(b.confirm("s2", Some("t1"), T0).unwrap_err().code, ErrorCode::NotOwner);
-        assert_eq!(b.revert("s1", Some("t9"), T0).unwrap_err().code, ErrorCode::TxnMismatch);
+        b.apply("s1", &json!({"powerLimitW": 200}), None, T0)
+            .unwrap();
+        assert_eq!(
+            b.apply("s2", &json!({"powerLimitW": 220}), None, T0)
+                .unwrap_err()
+                .code,
+            ErrorCode::Busy
+        );
+        assert_eq!(
+            b.confirm("s2", Some("t1"), T0).unwrap_err().code,
+            ErrorCode::NotOwner
+        );
+        assert_eq!(
+            b.revert("s1", Some("t9"), T0).unwrap_err().code,
+            ErrorCode::TxnMismatch
+        );
         assert_eq!(b.reset("s2", T0).unwrap_err().code, ErrorCode::Busy);
         // Eieren kan bruke mer i samme txn; fristen starter på nytt.
-        let r = b.apply("s1", &json!({"clockOffsets": {"coreMhz": 100}}), None, T0 + 5000).unwrap();
+        let r = b
+            .apply(
+                "s1",
+                &json!({"clockOffsets": {"coreMhz": 100}}),
+                None,
+                T0 + 5000,
+            )
+            .unwrap();
         assert_eq!(r["txn"], "t1");
         assert_eq!(b.pending().unwrap().deadline, T0 + 20_000);
         assert_eq!(r["changed"], json!(["powerLimitW", "clockOffsets.coreMhz"]));
@@ -757,7 +1170,13 @@ mod tests {
     #[test]
     fn frakobling_ruller_tilbake() {
         let mut b = Book::new();
-        b.apply("s1", &json!({"fan": {"mode": "manual", "manualPercent": 60}}), None, T0).unwrap();
+        b.apply(
+            "s1",
+            &json!({"fan": {"mode": "manual", "manualPercent": 60}}),
+            None,
+            T0,
+        )
+        .unwrap();
         assert!(!b.disconnect("s2"));
         assert!(b.disconnect("s1"));
         assert_eq!(b.active.fan_mode, FanMode::Auto);
@@ -767,7 +1186,9 @@ mod tests {
     #[test]
     fn uten_endring_ingen_txn() {
         let mut b = Book::new();
-        let r = b.apply("s1", &json!({"powerLimitW": 245}), None, T0).unwrap();
+        let r = b
+            .apply("s1", &json!({"powerLimitW": 245}), None, T0)
+            .unwrap();
         assert!(r["txn"].is_null());
         assert!(b.pending().is_none());
     }
@@ -775,7 +1196,14 @@ mod tests {
     #[test]
     fn klemming_etter_kort_og_policy() {
         let mut b = Book::new();
-        let r = b.apply("s1", &json!({"powerLimitW": 300, "clockOffsets": {"coreMhz": 900, "memMhz": -2000}}), None, T0).unwrap();
+        let r = b
+            .apply(
+                "s1",
+                &json!({"powerLimitW": 300, "clockOffsets": {"coreMhz": 900, "memMhz": -2000}}),
+                None,
+                T0,
+            )
+            .unwrap();
         let cl = r["clamped"].as_array().unwrap();
         let by = |f: &str| cl.iter().find(|c| c["field"] == f).unwrap().clone();
         assert_eq!(by("powerLimitW")["applied"], 275.0);
@@ -790,8 +1218,18 @@ mod tests {
     #[test]
     fn ugyldige_felt_avvises() {
         let mut b = Book::new();
-        for bad in [json!({"tull": 1}), json!({"powerLimitW": "mye"}), json!({"fan": {"mode": "turbo"}}), json!({"clockOffsets": {"voltMv": 1}}), json!(3)] {
-            assert_eq!(b.apply("s1", &bad, None, T0).unwrap_err().code, ErrorCode::InvalidArgument, "{bad}");
+        for bad in [
+            json!({"tull": 1}),
+            json!({"powerLimitW": "mye"}),
+            json!({"fan": {"mode": "turbo"}}),
+            json!({"clockOffsets": {"voltMv": 1}}),
+            json!(3),
+        ] {
+            assert_eq!(
+                b.apply("s1", &bad, None, T0).unwrap_err().code,
+                ErrorCode::InvalidArgument,
+                "{bad}"
+            );
         }
         assert!(b.pending().is_none());
     }
@@ -809,9 +1247,11 @@ mod tests {
     #[test]
     fn tilbakestill_bekreftes_straks() {
         let mut b = Book::new();
-        b.apply("s1", &json!({"powerLimitW": 150}), None, T0).unwrap();
+        b.apply("s1", &json!({"powerLimitW": 150}), None, T0)
+            .unwrap();
         b.confirm("s1", Some("t1"), T0).unwrap();
-        b.apply("s1", &json!({"tempTargetC": 70}), None, T0).unwrap();
+        b.apply("s1", &json!({"tempTargetC": 70}), None, T0)
+            .unwrap();
         let s = b.reset("s1", T0).unwrap();
         assert!(s["pending"].is_null());
         assert_eq!(b.confirmed, Values::default());
@@ -837,24 +1277,54 @@ mod tests {
     #[test]
     fn sim_tar_imot_alle_skriveoperasjonene() {
         let mut b = Book::new();
-        let r = b.handle("sim", "set_power_limit", &json!({"watts": 200}), "s1", T0).unwrap();
+        let r = b
+            .handle("sim", "set_power_limit", &json!({"watts": 200}), "s1", T0)
+            .unwrap();
         let txn = r["txn"].as_str().unwrap().to_string();
-        b.handle("sim", "set_clock_offsets", &json!({"coreMhz": 50}), "s1", T0).unwrap();
-        b.handle("sim", "set_temp_target", &json!({"celsius": 80}), "s1", T0).unwrap();
-        b.handle("sim", "set_fan", &json!({"mode": "curve"}), "s1", T0).unwrap();
-        b.handle("sim", "confirm", &json!({"txn": txn}), "s1", T0).unwrap();
+        b.handle(
+            "sim",
+            "set_clock_offsets",
+            &json!({"coreMhz": 50}),
+            "s1",
+            T0,
+        )
+        .unwrap();
+        b.handle("sim", "set_temp_target", &json!({"celsius": 80}), "s1", T0)
+            .unwrap();
+        b.handle("sim", "set_fan", &json!({"mode": "curve"}), "s1", T0)
+            .unwrap();
+        b.handle("sim", "confirm", &json!({"txn": txn}), "s1", T0)
+            .unwrap();
         assert_eq!(b.confirmed.core_offset_mhz, 50.0);
         assert_eq!(b.confirmed.fan_mode, FanMode::Curve);
-        b.handle("sim", "rgb_set", &json!({"rgb": {"effect": "rainbow"}}), "s1", T0).unwrap();
-        assert_eq!(b.handle("sim", "rgb_get", &json!({}), "s1", T0).unwrap()["rgb"]["effect"], "rainbow");
-        assert_eq!(b.handle("sim", "tull", &json!({}), "s1", T0).unwrap_err().code, ErrorCode::UnknownOp);
+        b.handle(
+            "sim",
+            "rgb_set",
+            &json!({"rgb": {"effect": "rainbow"}}),
+            "s1",
+            T0,
+        )
+        .unwrap();
+        assert_eq!(
+            b.handle("sim", "rgb_get", &json!({}), "s1", T0).unwrap()["rgb"]["effect"],
+            "rainbow"
+        );
+        assert_eq!(
+            b.handle("sim", "tull", &json!({}), "s1", T0)
+                .unwrap_err()
+                .code,
+            ErrorCode::UnknownOp
+        );
     }
 
     #[test]
     fn vinduets_port_er_lukket_uten_sim_og_dev() {
-        let sim = json!({"daemon": {"backend": "sim"}, "capabilities": {"write": {"state": "sim"}}});
-        let nvml = json!({"daemon": {"backend": "nvml"}, "capabilities": {"write": {"state": "locked"}}});
-        let lie = json!({"daemon": {"backend": "nvml"}, "capabilities": {"write": {"state": "sim"}}});
+        let sim =
+            json!({"daemon": {"backend": "sim"}, "capabilities": {"write": {"state": "sim"}}});
+        let nvml =
+            json!({"daemon": {"backend": "nvml"}, "capabilities": {"write": {"state": "locked"}}});
+        let lie =
+            json!({"daemon": {"backend": "nvml"}, "capabilities": {"write": {"state": "sim"}}});
         assert_eq!(write_gate(Some(&sim), true), Gate::Sim);
         assert!(matches!(write_gate(Some(&sim), false), Gate::Locked(_)));
         assert!(matches!(write_gate(Some(&nvml), true), Gate::Locked(_)));
@@ -875,11 +1345,36 @@ mod tests {
         assert_eq!(v.fan_curve.len(), 6);
         let d = Values::default();
         assert!(!v.fan_per_fan && v.fan_curves.is_empty());
-        assert_eq!((v.fan_hysteresis_c, v.fan_ramp_up_pct_s, v.fan_ramp_down_pct_s, v.fan_smoothing_s, v.fan_quiet_until_c), (d.fan_hysteresis_c, d.fan_ramp_up_pct_s, d.fan_ramp_down_pct_s, d.fan_smoothing_s, None));
+        assert_eq!(
+            (
+                v.fan_hysteresis_c,
+                v.fan_ramp_up_pct_s,
+                v.fan_ramp_down_pct_s,
+                v.fan_smoothing_s,
+                v.fan_quiet_until_c
+            ),
+            (
+                d.fan_hysteresis_c,
+                d.fan_ramp_up_pct_s,
+                d.fan_ramp_down_pct_s,
+                d.fan_smoothing_s,
+                None
+            )
+        );
         // Et helt tomt objekt (og ukjente felt) gir standarden.
-        assert_eq!(serde_json::from_str::<Values>(r#"{"framtid": 1}"#).unwrap(), Values::default());
+        assert_eq!(
+            serde_json::from_str::<Values>(r#"{"framtid": 1}"#).unwrap(),
+            Values::default()
+        );
         // Og et nytt utkast leses tilbake likt.
-        let ny = Values { fan_per_fan: true, fan_curves: vec![DEFAULT_CURVE.to_vec(), vec![(30.0, 40.0), (80.0, 100.0)]], fan_hysteresis_c: 5.0, fan_quiet_until_c: Some(50.0), fan_smoothing_s: 5.0, ..v.clone() };
+        let ny = Values {
+            fan_per_fan: true,
+            fan_curves: vec![DEFAULT_CURVE.to_vec(), vec![(30.0, 40.0), (80.0, 100.0)]],
+            fan_hysteresis_c: 5.0,
+            fan_quiet_until_c: Some(50.0),
+            fan_smoothing_s: 5.0,
+            ..v.clone()
+        };
         let tekst = serde_json::to_string(&ny).unwrap();
         assert!(tekst.contains("\"fanPerFan\":true") && tekst.contains("\"fanQuietUntilC\":50.0"));
         assert_eq!(serde_json::from_str::<Values>(&tekst).unwrap(), ny);
@@ -887,8 +1382,16 @@ mod tests {
 
     #[test]
     fn gammel_gpusettings_endrer_ikke_de_nye_feltene() {
-        let base = Values { fan_hysteresis_c: 6.0, fan_quiet_until_c: Some(45.0), ..Default::default() };
-        let (v, cl) = merge(&base, &json!({"fan": {"mode": "curve", "curve": [[30, 35], [80, 100]]}})).unwrap();
+        let base = Values {
+            fan_hysteresis_c: 6.0,
+            fan_quiet_until_c: Some(45.0),
+            ..Default::default()
+        };
+        let (v, cl) = merge(
+            &base,
+            &json!({"fan": {"mode": "curve", "curve": [[30, 35], [80, 100]]}}),
+        )
+        .unwrap();
         assert!(cl.is_empty());
         assert_eq!(v.fan_hysteresis_c, 6.0);
         assert_eq!(v.fan_quiet_until_c, Some(45.0));
@@ -899,16 +1402,47 @@ mod tests {
         let patch = json!({"fan": {"perFan": true, "curves": [[[30, 35], [80, 100]], [[30, 20], [80, 90]]], "hysteresisC": 14, "rampUpPctS": 0, "rampDownPctS": 2.6, "smoothingS": 5, "quietUntilC": 20}});
         let (v, cl) = merge(&Values::default(), &patch).unwrap();
         assert!(v.fan_per_fan);
-        assert_eq!(v.fan_curves[1], vec![(30.0, 35.0), (80.0, 90.0)], "løftet til minimum");
-        assert_eq!((v.fan_hysteresis_c, v.fan_ramp_up_pct_s, v.fan_ramp_down_pct_s, v.fan_smoothing_s, v.fan_quiet_until_c), (10.0, 1.0, 3.0, 5.0, Some(30.0)));
+        assert_eq!(
+            v.fan_curves[1],
+            vec![(30.0, 35.0), (80.0, 90.0)],
+            "løftet til minimum"
+        );
+        assert_eq!(
+            (
+                v.fan_hysteresis_c,
+                v.fan_ramp_up_pct_s,
+                v.fan_ramp_down_pct_s,
+                v.fan_smoothing_s,
+                v.fan_quiet_until_c
+            ),
+            (10.0, 1.0, 3.0, 5.0, Some(30.0))
+        );
         let felt: Vec<&str> = cl.iter().map(|c| c.field.as_str()).collect();
         // (serde_json sorterer nøklene.)
-        assert_eq!(felt, vec!["fan.curves", "fan.hysteresisC", "fan.quietUntilC", "fan.rampUpPctS"]);
+        assert_eq!(
+            felt,
+            vec![
+                "fan.curves",
+                "fan.hysteresisC",
+                "fan.quietUntilC",
+                "fan.rampUpPctS"
+            ]
+        );
         // null slår av den stille flaten.
         let (v2, _) = merge(&v, &json!({"fan": {"quietUntilC": null}})).unwrap();
         assert_eq!(v2.fan_quiet_until_c, None);
         // diff har navnene fra protokollen.
-        assert_eq!(Values::default().diff(&v), vec!["fan.perFan", "fan.curves", "fan.hysteresisC", "fan.rampUpPctS", "fan.smoothingS", "fan.quietUntilC"]);
+        assert_eq!(
+            Values::default().diff(&v),
+            vec![
+                "fan.perFan",
+                "fan.curves",
+                "fan.hysteresisC",
+                "fan.rampUpPctS",
+                "fan.smoothingS",
+                "fan.quietUntilC"
+            ]
+        );
     }
 
     #[test]
@@ -923,16 +1457,34 @@ mod tests {
             json!({"fan": {"quietUntilC": "varmt"}}),
             json!({"fan": {"stopAtC": 40}}),
         ] {
-            assert_eq!(merge(&Values::default(), &bad).unwrap_err().code, ErrorCode::InvalidArgument, "{bad}");
+            assert_eq!(
+                merge(&Values::default(), &bad).unwrap_err().code,
+                ErrorCode::InvalidArgument,
+                "{bad}"
+            );
         }
-        let e = merge(&Values::default(), &json!({"fan": {"curves": [[[30, 35], [80, 100]], [[30, 35]]]}})).unwrap_err();
+        let e = merge(
+            &Values::default(),
+            &json!({"fan": {"curves": [[[30, 35], [80, 100]], [[30, 35]]]}}),
+        )
+        .unwrap_err();
         assert!(e.message.starts_with("Vifte 2:"), "{}", e.message);
     }
 
     #[test]
     fn to_json_gaar_rundt_gjennom_merge() {
         // Vinduet sender hele utkastet (`to_json`) med `apply`: det må tas imot uendret.
-        let v = Values { fan_mode: FanMode::Curve, fan_per_fan: true, fan_curves: vec![DEFAULT_CURVE.to_vec(), vec![(30.0, 45.0), (70.0, 80.0)]], fan_hysteresis_c: 4.0, fan_ramp_up_pct_s: 20.0, fan_ramp_down_pct_s: 5.0, fan_smoothing_s: 3.0, fan_quiet_until_c: Some(48.0), ..Default::default() };
+        let v = Values {
+            fan_mode: FanMode::Curve,
+            fan_per_fan: true,
+            fan_curves: vec![DEFAULT_CURVE.to_vec(), vec![(30.0, 45.0), (70.0, 80.0)]],
+            fan_hysteresis_c: 4.0,
+            fan_ramp_up_pct_s: 20.0,
+            fan_ramp_down_pct_s: 5.0,
+            fan_smoothing_s: 3.0,
+            fan_quiet_until_c: Some(48.0),
+            ..Default::default()
+        };
         let (back, cl) = merge(&Values::default(), &v.to_json()).unwrap();
         assert!(cl.is_empty());
         assert_eq!(back, v);
@@ -947,7 +1499,10 @@ mod tests {
         assert!(b.active.fan_per_fan);
         assert_eq!(b.active.curve_for(1), &[(30.0, 50.0), (80.0, 100.0)][..]);
         assert_eq!(b.active.fan_hysteresis_c, 2.0);
-        assert_eq!(b.pending().unwrap().changed, vec!["fan.mode", "fan.perFan", "fan.curves", "fan.hysteresisC"]);
+        assert_eq!(
+            b.pending().unwrap().changed,
+            vec!["fan.mode", "fan.perFan", "fan.curves", "fan.hysteresisC"]
+        );
         assert_eq!(b.state_view(T0)["emergency"], false);
         b.emergency = true;
         assert_eq!(b.state_view(T0)["emergency"], true);
@@ -959,10 +1514,11 @@ mod tests {
         let s = steps(Some(&h));
         assert_eq!(s.len(), 6);
         assert_eq!(s[0].1, "Effektgrense");
-        assert_eq!(s[4].2, "Ikke godkjent (ikke verifisert på GeForce)");
-        assert!(s.iter().all(|x| x.2.starts_with("Ikke godkjent")));
-        let ok = json!({"capabilities": {"write": {"steps": [{"id": "power", "status": "approved"}]}}});
-        assert_eq!(steps(Some(&ok))[0].2, "Godkjent");
+        assert_eq!(s[4].2, "Ikke tilgjengelig (ikke verifisert på GeForce)");
+        assert!(s.iter().all(|x| x.2.starts_with("Ikke tilgjengelig")));
+        let ok =
+            json!({"capabilities": {"write": {"steps": [{"id": "power", "status": "approved"}]}}});
+        assert_eq!(steps(Some(&ok))[0].2, "Godkjent (eldre protokoll)");
         assert_eq!(steps(None).len(), 6);
     }
 }

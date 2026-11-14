@@ -2130,6 +2130,9 @@ pub fn window_dropdown(value: i64, label_text: &str, on_pick: impl Fn(i64) + 'st
     let names: Vec<&str> = WINDOWS.iter().map(|w| w.1).collect();
     let dd = gtk::DropDown::from_strings(&names);
     dd.add_css_class("win-select");
+    // Den korte, faste listen trenger ikke et ekstra søkefelt. Behold
+    // GTKs native valg/check og tastaturnavigasjon i menyen.
+    dd.set_enable_search(false);
     dd.set_valign(gtk::Align::Center);
     dd.set_selected(WINDOWS.iter().position(|w| w.0 == value).unwrap_or(0) as u32);
     dd.update_property(&[gtk::accessible::Property::Label(label_text)]);

@@ -1,6 +1,18 @@
 # Versjonslogg
 
-Nyeste utgave: **1.3.3 · bygg 22**. Nedlastinger og utgivelsesnotater ligger under [Releases](https://github.com/bejulian1/agentic-rigg/releases).
+Nyeste utgave: **1.4.0 · bygg 23**. Nedlastinger og utgivelsesnotater ligger under [Releases](https://github.com/bejulian1/agentic-rigg/releases).
+
+## 1.4.0 · bygg 23 – 14. november 2026
+
+- Implementert kortbundet NVML-styring av effektgrense, kjerne-/minneoffset og GPU-vifter der driveren støtter funksjonen. Temperaturmål har egen støttekontroll.
+- Én administratoraktivering erstatter fire godkjenningstrinn. Installering alene aktiverer ingen styring; endringer krever Bruk og Behold.
+- PCI/UUID-binding, varig opptak av opprinnelige innstillinger, tilbakelesing og feilhåndtering ved delvis endring. Uverifisert gjenoppretting sperrer videre styring og beholder hjelpefilene.
+- Korrigert PCIe x16-kant i 2D/3D-modellen, ryddigere nedtrekksmenyer og bedre fokus/tømming i sensorfilteret.
+- En åpen app følger nå `--innstillinger DEL` og oppdager ny hjelperaktivering også mens styringen er låst.
+- Brukeren har gjennomført ekte polkit-aktivering. Begrenset prøve mot NVML-hjelperen verifiserer effekt 245 → 240 W, begge vifter til 50 %, kjerneoffset −15 MHz og minneoffset −10 MHz, med fersk tilbakelesing, revert og reset til utgangspunktet. Gjennom installert daemon er også 240 W + Behold, reset til 245 W og automatisk tilbakerulling etter 10 s uten Behold verifisert med fersk NVML-getter. En flat 50 %-kurve styrte begge vifter i 4 s; temperaturmål 83 → 82 °C med revert/reset er også verifisert. Belastnings-/feilprøver gjenstår.
+- RGB er fortsatt forhåndsvisning; lyskontrolleren er ikke identifisert.
+
+- Sluttkontroll: 388 beståtte tester, 4 ignorerte, ingen feil og ren workspace-clippy. Endelig native UI-plan bestod; installert app viser klar, riktig kortbundet hjelper.
 
 ## 1.3.3 · bygg 22 – 14. november 2026
 
@@ -43,4 +55,4 @@ Nyeste utgave: **1.3.3 · bygg 22**. Nedlastinger og utgivelsesnotater ligger un
 
 ## Begrensninger i denne utgaven
 
-Ekte endring av GPU-innstillinger og fysisk RGB er ikke aktivert. Utkast/profiler og RGB-forhåndsvisning er tilgjengelige. Støtte for sensorer og spesifikasjoner avhenger av maskinvare og driver. Detaljert utviklingslogg står i [app/PATCHLOG.md](app/PATCHLOG.md).
+Begrenset NVML-skriving og gjenoppretting er verifisert mot hjelperen på RTX 2080. Daemonvideresending, Behold og 10 s-frist er verifisert for effektgrensen. Alle grenser, positiv overklokking, stresstest, drivertap og strømbrudd er ikke verifisert. Tilgjengelighet av hvert felt avhenger av driver og kort, og oppdagelse utfører ingen testskriving. Fysisk RGB er utilgjengelig; utkast/profiler og RGB-forhåndsvisning er tilgjengelige. Støtte for sensorer og spesifikasjoner avhenger av maskinvare og driver. Detaljert utviklingslogg står i [app/PATCHLOG.md](app/PATCHLOG.md).

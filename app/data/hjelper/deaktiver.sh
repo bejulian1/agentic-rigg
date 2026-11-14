@@ -5,9 +5,9 @@
 #
 #     pkexec /usr/local/libexec/agentic-rigg/deaktiver.sh
 #
-# Stopper tjenesten (kortet går til standard, viftene til Auto), slår den av
-# ved oppstart og fjerner alt aktiver.sh la inn: hjelperen, skriptene,
-# polkit-handlingene, enheten og /etc/agentic-rigg/. Ingenting annet røres.
+# Stopper tjenesten og bekrefter gjenoppretting av egne endringer før den
+# slås av ved oppstart og installerte hjelpefiler fjernes. Fangede grunnverdier
+# i /var/lib/agentic-rigg beholdes. Ved feil beholdes også installasjonen.
 #
 # Valg:
 #   --root DIR   alt under DIR i stedet for /, uten systemctl (tester)
@@ -42,8 +42,13 @@ fi
 ENHET="$ROOT/etc/systemd/system/agentic-rigg-helper.service"
 if [ $EKTE -eq 1 ]; then
     if systemctl cat agentic-rigg-helper.service >/dev/null 2>&1; then
-        # Stopp først: ExecStopPost setter kortet til standard.
-        systemctl disable --now agentic-rigg-helper.service >/dev/null 2>&1 || systemctl stop agentic-rigg-helper.service || feil "Kunne ikke stoppe tjenesten. Se: journalctl -u agentic-rigg-helper"
+        # Ikke fjern noe før en uavhengig gjenoppretting har lyktes.
+        systemctl stop agentic-rigg-helper.service || feil "Kunne ikke stoppe tjenesten. Filene beholdes."
+        "$ROOT/usr/local/libexec/agentic-rigg-helper" --backend nvml --tilbakestill || feil "Kunne ikke bekrefte at kortet er gjenopprettet. Hjelperen og grunnverdifila beholdes."
+        systemctl disable agentic-rigg-helper.service >/dev/null 2>&1 || feil "Kunne ikke slå av tjenesten ved oppstart."
+
+    elif [ -f "$ROOT/etc/agentic-rigg/helper.json" ] && [ -x "$ROOT/usr/local/libexec/agentic-rigg-helper" ]; then
+        "$ROOT/usr/local/libexec/agentic-rigg-helper" --backend nvml --tilbakestill || feil "Gjenoppretting kunne ikke bekreftes; filene beholdes."
     fi
 else
     echo "(--root: hopper over systemctl disable --now)"
@@ -52,6 +57,7 @@ fi
 fjernet=0
 for f in \
     "$ENHET" \
+    "$ROOT/etc/systemd/system/agentic-rigg-helper.service.d/gpu.conf" \
     "$ROOT/etc/systemd/system/multi-user.target.wants/agentic-rigg-helper.service" \
     "$ROOT/usr/share/polkit-1/actions/io.github.AgenticRigg.helper.policy" \
     "$ROOT/etc/agentic-rigg/helper.json" \
@@ -64,8 +70,9 @@ for f in \
         fjernet=$((fjernet + 1))
     fi
 done
+# Grunnverdifila i /var/lib/agentic-rigg beholdes for sikker gjenoppretting.
 # Mappene bare når de er tomme (ingenting annet skal ligge der).
-for d in "$ROOT/etc/agentic-rigg" "$ROOT/usr/local/libexec/agentic-rigg" "$ROOT/run/agentic-rigg"; do
+for d in "$ROOT/etc/systemd/system/agentic-rigg-helper.service.d" "$ROOT/etc/agentic-rigg" "$ROOT/usr/local/libexec/agentic-rigg" "$ROOT/run/agentic-rigg"; do
     [ -d "$d" ] && rmdir --ignore-fail-on-non-empty -- "$d"
 done
 

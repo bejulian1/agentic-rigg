@@ -143,6 +143,7 @@ pub fn fan_shape_is(d: &Values, st: &Values) -> bool {
 /// og oppførselen som er i bruk (`extra.styring.fan`, runde 7B); det ekte
 /// kortet har ikke feltet, og da er det driverens Auto og standardkurven.
 pub fn card_values(app: &App) -> Values {
+    if let Some(v) = locked::control_values(app) { return v; }
     let b = read(app).values();
     let fan = app.statics().map(|s| s.extra["styring"]["fan"].clone()).filter(Value::is_object);
     match fan.map(|f| txn::merge(&b, &json!({"fan": f}))) {
@@ -1870,7 +1871,11 @@ fn fans_panel(app: &Rc<App>) -> Rc<ChartPanel> {
 
 impl Viftekurve {
     fn base(&self) -> Values {
-        card_values(&self.app)
+        locked::control_values(&self.app).unwrap_or_else(|| card_values(&self.app))
+    }
+
+    fn draft(&self) -> Option<Values> {
+        locked::validated_draft(&self.app, &self.base()).unwrap_or_else(|_| locked::stored(&self.app).utkast)
     }
 
     fn edit(&self, f: impl FnOnce(&mut Values)) {
@@ -1891,7 +1896,7 @@ impl Viftekurve {
 
     /// Det som vises: utkastet, ellers det kortet har.
     fn shown(&self) -> Values {
-        locked::stored(&self.app).utkast.unwrap_or_else(|| self.base())
+        self.draft().unwrap_or_else(|| self.base())
     }
 
     /// Kurven som redigeres (felles, eller viften som er valgt).
@@ -2074,10 +2079,11 @@ impl Viftekurve {
             if let Some(p) = w.upgrade()
                 && p.visible.get()
             {
+                locked::refresh_control(&p.app, false);
                 p.refresh();
             }
         });
-        for hub in [&self.app.on_devices, &self.app.on_theme] {
+        for hub in [&self.app.on_devices, &self.app.on_theme, &self.app.on_service] {
             let w = Rc::downgrade(self);
             hub.connect(move |_| {
                 if let Some(p) = w.upgrade() {
@@ -2255,13 +2261,31 @@ impl Viftekurve {
     }
 
     fn do_apply(self: &Rc<Self>) {
-        let Some(d) = locked::stored(&self.app).utkast else { return };
-        if locked::gate(&self.app) != Gate::Sim || self.confirm.active() {
+        let Some(_) = self.draft() else { return };
+        if matches!(locked::gate(&self.app), Gate::Locked(_)) || self.confirm.active() {
             return;
         }
+        if locked::control_ready(&self.app) && locked::control_values(&self.app).is_none() {
+            locked::refresh_control(&self.app, true);
+            self.app.toast(crate::toast::Toast::new("Leser kortets innstillinger …").body("Prøv Bruk igjen når innstillingene er lest."));
+            return;
+        }
+        let base = self.base();
+        let d = match locked::draft_for_apply(&self.app, &base) {
+            Ok(v) => v,
+            Err(why) => {
+                self.app.toast(crate::toast::Toast::new("Utkastet må oppdateres").body(&why).error());
+                return;
+            }
+        };
+        if let Some(why) = locked::patch_error(&self.app, &base, &d) {
+            self.app.toast(crate::toast::Toast::new("Funksjonen er utilgjengelig").body(&why).error());
+            return;
+        }
+        let patch = locked::changed_patch(&base, &d);
         let secs = self.app.settings().confirm_sec;
         let w = Rc::downgrade(self);
-        locked::send_write(&self.app, "apply", json!({"settings": d.to_json(), "confirmTimeoutS": secs}), move |res| {
+        locked::send_write(&self.app, "apply", json!({"settings": patch, "confirmTimeoutS": secs}), move |res| {
             let Some(p) = w.upgrade() else { return };
             match res {
                 Ok(v) if v["txn"].is_string() => p.confirm.start(&p.app, &v),
@@ -2275,7 +2299,7 @@ impl Viftekurve {
     fn refresh(self: &Rc<Self>) {
         let r = read(&self.app);
         let floor = r.floor();
-        let draft = locked::stored(&self.app).utkast;
+        let draft = self.draft();
         let editing = draft.is_some();
         let base = self.base();
         let shown = draft.clone().unwrap_or_else(|| base.clone());
@@ -2420,10 +2444,14 @@ impl Viftekurve {
         // Smalt vindu: toppfeltet får ikke plass til teksten.
         self.dirty.set_visible(!self.narrow.get());
         match locked::gate(&self.app) {
-            Gate::Sim => {
-                let ok = n > 0 && !self.confirm.active();
+            Gate::Sim | Gate::Real => {
+                let ok = n > 0 && !self.confirm.active()
+                    && (!locked::control_ready(&self.app) || locked::control_values(&self.app).is_some())
+                    && locked::validated_draft(&self.app, &self.base()).is_ok()
+                    && locked::patch_error(&self.app, &self.base(), &d).is_none();
                 self.apply.set_sensitive(ok);
-                tip(&self.apply, if ok { "Bruk utkastet" } else { "Ingen endringer å bruke" }, Some("Ctrl+Enter"));
+                let reason = locked::validated_draft(&self.app, &base).err().or_else(|| locked::patch_error(&self.app, &base, &d));
+                tip(&self.apply, reason.as_deref().unwrap_or(if self.confirm.active() { "Endringen venter på Behold" } else if ok { "Bruk utkastet" } else { "Ingen endringer å bruke" }), Some("Ctrl+Enter"));
             }
             Gate::Locked(t) => {
                 self.apply.set_sensitive(false);

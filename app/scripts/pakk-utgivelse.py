@@ -130,7 +130,11 @@ Installereren trenger bash, standard GNU-verktøy og python3. Den legger
 appen under ~/.local, med ikon i programmenyen. Den bygger ingenting.
 En allerede kjørende Agentic Rigg-brukertjeneste kan startes på nytt.
 Root-hjelperens filer følger med, men hjelperen aktiveres ikke av installasjonen.
-Appen endrer ikke det ekte skjermkortet i denne utgaven.
+Ekte GPU-styring aktiveres separat i Innstillinger › Skjermkortstyring,
+med én administratorgodkjenning. Støttede endringer i effekt, vifter og
+klokkeoffset sendes med Bruk og må beholdes innen fristen. Hjelperen bindes
+til kortet og lagrer utgangspunktet før skriving. RGB er bare forhåndsvisning;
+lyskontrolleren er ikke identifisert.
 
 Start «Agentic Rigg» fra programmenyen, eller ~/.local/bin/agentic-rigg.
 Versjon og bygg står i Innstillinger › Om og i binærenes --version.

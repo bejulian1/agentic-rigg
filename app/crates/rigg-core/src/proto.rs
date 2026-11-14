@@ -61,13 +61,37 @@ pub const WRITE_OPS: &[&str] = &[
 ];
 
 /// `txn` kommer bare med `--backend sim` (Behold eller Rull tilbake).
-pub const EVENTS: &[&str] = &["telemetry", "device", "stats", "log", "alarm", "settings", "txn", "shutdown"];
+pub const EVENTS: &[&str] = &[
+    "telemetry",
+    "device",
+    "stats",
+    "log",
+    "alarm",
+    "settings",
+    "txn",
+    "shutdown",
+];
 
 /// Emnene en klient kan abonnere på.
-pub const TOPICS: &[&str] = &["telemetry", "device", "stats", "log", "alarm", "settings", "txn"];
+pub const TOPICS: &[&str] = &[
+    "telemetry",
+    "device",
+    "stats",
+    "log",
+    "alarm",
+    "settings",
+    "txn",
+];
 
 /// Trinnene for skriving (produktspesifikasjonen 6.2), i rekkefølgen VEIKART har valgt.
-pub const WRITE_STEPS: &[&str] = &["power", "clocks", "fan_manual", "fan_curve", "temp_target", "rgb"];
+pub const WRITE_STEPS: &[&str] = &[
+    "power",
+    "clocks",
+    "fan_manual",
+    "fan_curve",
+    "temp_target",
+    "rgb",
+];
 
 /// Feilkodene (docs/daemon-api.md kap. 7, pluss `write_locked`).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -191,10 +215,18 @@ pub struct ProtoError {
 
 impl ProtoError {
     pub fn new(code: ErrorCode) -> Self {
-        ProtoError { code, message: code.message().to_string(), details: None }
+        ProtoError {
+            code,
+            message: code.message().to_string(),
+            details: None,
+        }
     }
     pub fn msg(code: ErrorCode, message: impl Into<String>) -> Self {
-        ProtoError { code, message: message.into(), details: None }
+        ProtoError {
+            code,
+            message: message.into(),
+            details: None,
+        }
     }
     pub fn details(mut self, d: Value) -> Self {
         self.details = Some(d);
@@ -208,9 +240,21 @@ impl ProtoError {
         e
     }
     pub fn from_json(v: &Value) -> ProtoError {
-        let code = v.get("code").and_then(Value::as_str).and_then(ErrorCode::from_code).unwrap_or(ErrorCode::Internal);
-        let message = v.get("message").and_then(Value::as_str).map(str::to_string).unwrap_or_else(|| code.message().into());
-        ProtoError { code, message, details: v.get("details").cloned() }
+        let code = v
+            .get("code")
+            .and_then(Value::as_str)
+            .and_then(ErrorCode::from_code)
+            .unwrap_or(ErrorCode::Internal);
+        let message = v
+            .get("message")
+            .and_then(Value::as_str)
+            .map(str::to_string)
+            .unwrap_or_else(|| code.message().into());
+        ProtoError {
+            code,
+            message,
+            details: v.get("details").cloned(),
+        }
     }
 }
 
@@ -232,7 +276,8 @@ pub struct Request {
 
 /// Tolker én linje. Feil gir `(id, feil)`; id er `null` når den ikke kunne leses.
 pub fn parse_request(line: &[u8]) -> Result<Request, (Value, ProtoError)> {
-    let v: Value = serde_json::from_slice(line).map_err(|_| (Value::Null, ProtoError::new(ErrorCode::BadJson)))?;
+    let v: Value = serde_json::from_slice(line)
+        .map_err(|_| (Value::Null, ProtoError::new(ErrorCode::BadJson)))?;
     let Some(obj) = v.as_object() else {
         return Err((Value::Null, ProtoError::new(ErrorCode::BadRequest)));
     };
@@ -245,7 +290,11 @@ pub fn parse_request(line: &[u8]) -> Result<Request, (Value, ProtoError)> {
     if !id_ok {
         return Err((Value::Null, ProtoError::new(ErrorCode::BadRequest)));
     }
-    let Some(op) = obj.get("op").and_then(Value::as_str).filter(|s| !s.is_empty() && s.len() <= 64) else {
+    let Some(op) = obj
+        .get("op")
+        .and_then(Value::as_str)
+        .filter(|s| !s.is_empty() && s.len() <= 64)
+    else {
         return Err((id, ProtoError::new(ErrorCode::BadRequest)));
     };
     let args = match obj.get("args") {
@@ -253,7 +302,11 @@ pub fn parse_request(line: &[u8]) -> Result<Request, (Value, ProtoError)> {
         Some(a @ Value::Object(_)) => a.clone(),
         Some(_) => return Err((id, ProtoError::new(ErrorCode::BadRequest))),
     };
-    Ok(Request { id, op: op.to_string(), args })
+    Ok(Request {
+        id,
+        op: op.to_string(),
+        args,
+    })
 }
 
 /// Svar som én linje med linjeskift.
@@ -284,14 +337,19 @@ pub enum Incoming {
 pub fn parse_incoming(line: &[u8]) -> Option<Incoming> {
     let v: Value = serde_json::from_slice(line).ok()?;
     if let Some(ev) = v.get("event").and_then(Value::as_str) {
-        return Some(Incoming::Event { event: ev.to_string(), data: v.get("data").cloned().unwrap_or(Value::Null) });
+        return Some(Incoming::Event {
+            event: ev.to_string(),
+            data: v.get("data").cloned().unwrap_or(Value::Null),
+        });
     }
     let id = v.get("id").cloned().unwrap_or(Value::Null);
     let ok = v.get("ok").and_then(Value::as_bool).unwrap_or(false);
     let result = if ok {
         Ok(v.get("result").cloned().unwrap_or(Value::Null))
     } else {
-        Err(ProtoError::from_json(v.get("error").unwrap_or(&Value::Null)))
+        Err(ProtoError::from_json(
+            v.get("error").unwrap_or(&Value::Null),
+        ))
     };
     Some(Incoming::Response { id, result })
 }
@@ -353,9 +411,21 @@ impl LineBuffer {
 /// `capabilities.write`: hvert trinn og om det er godkjent. Ingen trinn er
 /// godkjent i 1.0 (produktspesifikasjonen kap. 6).
 pub fn write_capabilities(backend: &str) -> Value {
-    let steps: Vec<Value> = WRITE_STEPS.iter().map(|s| json!({"id": s, "status": "not_approved"})).collect();
+    let steps: Vec<Value> = WRITE_STEPS
+        .iter()
+        .map(|s| json!({"id": s, "status": "unavailable"}))
+        .collect();
     let state = if backend == "sim" { "sim" } else { "locked" };
-    json!({"state": state, "steps": steps})
+    let fields = if backend == "sim" {
+        let cap = |r: crate::txn::Range| json!({"available": true, "min": r.min, "max": r.max, "readback": true});
+        json!({"power": cap(crate::txn::HW_POWER), "core_clock": cap(crate::txn::HW_CORE),
+            "mem_clock": cap(crate::txn::HW_MEM), "fan_manual": cap(crate::txn::HW_FAN),
+            "fan_curve": cap(crate::txn::HW_FAN), "temp_target": cap(crate::txn::HW_TEMP),
+            "rgb": {"available": false, "reason": "RGB-backenden er ikke laget", "readback": false}})
+    } else {
+        json!({})
+    };
+    json!({"state": state, "steps": steps, "fields": fields})
 }
 
 /// `ops` i `hello` for en backend: skriveoperasjonene bare med sim.
@@ -382,7 +452,9 @@ pub struct DaemonInfo {
 
 /// Tolker takten i `subscribe`: 500–2000 ms, ellers klemmes den.
 pub fn clamp_interval(ms: Option<u64>) -> u32 {
-    let v = ms.unwrap_or(1000).clamp(MIN_INTERVAL_MS as u64, MAX_INTERVAL_MS as u64);
+    let v = ms
+        .unwrap_or(1000)
+        .clamp(MIN_INTERVAL_MS as u64, MAX_INTERVAL_MS as u64);
     v as u32
 }
 
@@ -394,21 +466,51 @@ mod tests {
     fn linjer_deles_og_grensen_holder() {
         let mut lb = LineBuffer::new();
         assert!(lb.push(b"{\"a\":1}", 100).is_empty());
-        assert_eq!(lb.push(b"\n\n{\"b\":2}\r\n", 100), vec![LineEvent::Line(b"{\"a\":1}".to_vec()), LineEvent::Line(b"{\"b\":2}".to_vec())]);
+        assert_eq!(
+            lb.push(b"\n\n{\"b\":2}\r\n", 100),
+            vec![
+                LineEvent::Line(b"{\"a\":1}".to_vec()),
+                LineEvent::Line(b"{\"b\":2}".to_vec())
+            ]
+        );
         let big = vec![b'x'; 101];
         assert_eq!(lb.push(&big, 100), vec![LineEvent::TooLarge]);
-        assert!(lb.push(b"\n", 100).is_empty(), "etter for lang linje leses ingenting mer");
+        assert!(
+            lb.push(b"\n", 100).is_empty(),
+            "etter for lang linje leses ingenting mer"
+        );
     }
 
     #[test]
     fn forespørsler_tolkes_strengt() {
         let r = parse_request(br#"{"id":1,"op":"hello","args":{"protocol":[1]}}"#).unwrap();
         assert_eq!(r.op, "hello");
-        assert_eq!(parse_request(b"{ikke json").unwrap_err().1.code, ErrorCode::BadJson);
-        assert_eq!(parse_request(b"[1]").unwrap_err().1.code, ErrorCode::BadRequest);
-        assert_eq!(parse_request(br#"{"op":"ping"}"#).unwrap_err().1.code, ErrorCode::BadRequest);
-        assert_eq!(parse_request(br#"{"id":1,"op":"ping","args":3}"#).unwrap_err().1.code, ErrorCode::BadRequest);
-        assert_eq!(parse_request(br#"{"id":true,"op":"ping"}"#).unwrap_err().1.code, ErrorCode::BadRequest);
+        assert_eq!(
+            parse_request(b"{ikke json").unwrap_err().1.code,
+            ErrorCode::BadJson
+        );
+        assert_eq!(
+            parse_request(b"[1]").unwrap_err().1.code,
+            ErrorCode::BadRequest
+        );
+        assert_eq!(
+            parse_request(br#"{"op":"ping"}"#).unwrap_err().1.code,
+            ErrorCode::BadRequest
+        );
+        assert_eq!(
+            parse_request(br#"{"id":1,"op":"ping","args":3}"#)
+                .unwrap_err()
+                .1
+                .code,
+            ErrorCode::BadRequest
+        );
+        assert_eq!(
+            parse_request(br#"{"id":true,"op":"ping"}"#)
+                .unwrap_err()
+                .1
+                .code,
+            ErrorCode::BadRequest
+        );
         let r = parse_request(br#"{"id":"a","op":"ping"}"#).unwrap();
         assert!(r.args.is_object());
     }
@@ -419,7 +521,13 @@ mod tests {
         assert!(!nvml.iter().any(|o| WRITE_OPS.contains(o)));
         assert!(ops_for("sim").contains(&"apply"));
         assert_eq!(write_capabilities("nvml")["state"], "locked");
-        assert_eq!(write_capabilities("nvml")["steps"].as_array().unwrap().len(), 6);
+        assert_eq!(
+            write_capabilities("nvml")["steps"]
+                .as_array()
+                .unwrap()
+                .len(),
+            6
+        );
     }
 
     #[test]

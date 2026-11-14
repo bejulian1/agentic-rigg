@@ -6,9 +6,11 @@ Agentic Rigg er et overvåkingsverktøy for skjermkort og maskin på Ubuntu, skr
 - **Sensorer**: alle verdier i én tabell, med min, maks og snitt, sparklinjer og logging til CSV.
 - **Grafer**: opptil elleve grafer med felles markør, pause og CSV-eksport.
 - **Grafikkort**, **Prosessor**, **Disker** og **System**: alt NVML, sysfs, `/proc` og UDisks2 kan si om kortet, prosessoren (klokke og last per tråd, cache, sårbarheter), diskene (SMART-helse, temperatur, MB/s, partisjoner, som CrystalDiskInfo) og maskinen, og rapport som tekst eller Markdown.
-- **Skjermkortstyring:** **Klokker og effekt** (effektgrense, klokke-offset, temperaturmål, vifte), **Vifter** (viftekurve som i Afterburner, med egen kurve per vifte, hysterese, rampe, utjevning og «hold minimum til») og **RGB-lys**. Klokker og Vifter viser målte GPU-data; RGB er en forhåndsvisning. Endringer blir utkast og profiler i appen og sendes ikke til kortet i denne versjonen (se «Endring av skjermkortet» under).
+- **Skjermkortstyring:** **Klokker og effekt** (effektgrense, klokke-offset, temperaturmål, vifte), **Vifter** (viftekurve som i Afterburner, med egen kurve per vifte, hysterese, rampe, utjevning og «hold minimum til») og **RGB-lys**. Klokker og Vifter viser målte GPU-data; RGB er en forhåndsvisning. NVML-styring er implementert for funksjonene kortet støtter, etter én administratoraktivering (se «Endring av skjermkortet» under). Begrenset fysisk NVML-skriving og gjenoppretting er verifisert mot hjelperen på RTX 2080; RGB sendes ikke til kortet.
 
-Sidefeltet har et maskinhode med skjermkortet og prosessoren, og tastene 1–9 og 0 går til de ti sidene. Klikk på skjermkortet øverst åpner Grafikkort direkte. Kortet under Skjermkortstyring åpner en smal detaljmeny i sidefeltets bredde, med kortvalg når det finnes flere kort. Ikonene står sentrert også når sidefeltet er lagt sammen. Versjon og byggnummer står i Innstillinger › Om, sammen med signaturen Code Pro. Grafene kutter aldri en verdi: aksen utvides når temperaturen går over 100 °C eller under 20 °C, og krymper først når kurven har roet seg. Denne fila gjelder 1.3.3 · bygg 22.
+En allerede åpen app følger nå `--innstillinger DEL`. Hjelperstatus sjekkes også mens styring er låst, slik at ny administratoraktivering oppdages uten å starte vinduet på nytt.
+
+Sidefeltet har et maskinhode med skjermkortet og prosessoren, og tastene 1–9 og 0 går til de ti sidene. Klikk på skjermkortet øverst åpner Grafikkort direkte. Kortet under Skjermkortstyring åpner en smal detaljmeny i sidefeltets bredde, med kortvalg når det finnes flere kort. Ikonene står sentrert også når sidefeltet er lagt sammen. Versjon og byggnummer står i Innstillinger › Om, sammen med signaturen Code Pro. Grafene kutter aldri en verdi: aksen utvides når temperaturen går over 100 °C eller under 20 °C, og krymper først når kurven har roet seg. Denne fila gjelder 1.4.0 · bygg 23. Sensorfilteret slipper fokus ved klikk utenfor og ved sideskifte; Esc tømmer/avslutter søket. Nedtrekksmenyene har tydelige tilstander for valgt rad og tastaturfokus. PCIe-kanten i kortillustrasjonen deler riktige x16-kontaktmål mellom 2D og 3D; modellen er fortsatt en illustrasjon.
 
 Prosessor viser også lanseringsdato når den konkrete modellen er i det lokale oppslaget. Ryzen 7 2700X viser 19. april 2018, med AMD som kilde. Ukjente modeller får ingen antatt dato. Gjennomgangen av øvrige spesifikasjoner og mangler står i `docs/produksjon/spesifikasjoner-revisjon-2026-11-14.md`.
 
@@ -92,27 +94,40 @@ Alt blir på maskinen. Appen har ingen nettverkskode, laster ikke ned noe og sen
 
 ## Endring av skjermkortet
 
-Agentic Rigg leser bare, til du selv slår på endring. I 1.3.0 endrer appen fortsatt ingenting på det ekte kortet.
+Agentic Rigg overvåker uten administratorrettigheter. I 1.4.0 er NVML-styring implementert for effektgrense, kjerne-/minneoffset og GPU-vifter, med egen støttekontroll for temperaturmål. **Ekte polkit-aktivering og begrenset fysisk skriving gjennom hjelperen er nå verifisert på RTX 2080.** Installasjon og oppdagelse prøver ingen endringer automatisk.
 
-**Hvilket kort styres?** Skjermkortstyring i sidefeltet viser kortet under tittelen, og øverst på Klokker og effekt, Vifter og RGB-lys står en «Styrer»-linje med navnet, produsenten, PCI-adressen, VBIOS og driveren, funnet av seg selv. Produsenten leses fra PCI-subsystemet når kortprodusenten har satt sin egen ID (for eksempel 1569 Palit, 1462 MSI, 1043 ASUS). Står NVIDIAs egen (10de), som på Palit RTX 2080 Rev. A, står det «NVIDIA-referansekort», og du kan sette produsenten selv med blyanten («Produsent (valgfritt)»). Den lagres per kort og vises bare i appen. Med flere kort velger du kortet i linja. Er kortet borte eller driveren mangler, sier linja det, og styringen er utilgjengelig.
+**Hvilket kort styres?** Skjermkortstyring i sidefeltet viser kortet under tittelen. «Styrer»-linja viser navn, produsent, PCI-adresse, VBIOS og driver. Hjelperen bindes til det valgte kortets PCI-adresse og NVML-UUID; hvert skrivekall kontrollerer samme identitet. Den åpner aldri ubundet kortindeks 0. Et annet valgt kort får ikke bruke bindingen. Et produsentnavn du setter selv er bare en etikett og påvirker ikke bindingen eller funksjonsstøtten.
 
-**Hva er hjelperen?** For å endre effektgrense, vifter eller klokker trenger en Linux-app administratorrettigheter (root). Agentic Rigg ber ikke om det selv. Den har i stedet en liten hjelper (`agentic-rigg-helper`) som kjører i bakgrunnen med de rettighetene, og som bare kan gjøre fem faste ting med tall: lese status, legge på en endring, beholde den, rulle den tilbake og gå til standard. Den tar ikke imot kommandoer eller filstier, og bare brukeren din kan snakke med den.
+**Én aktivering:** Gå til Innstillinger › Skjermkortstyring og slå på **«Tillat endring av skjermkortet»**. Brukeren skriver administratorpassord i polkit-dialogen. Hjelperen installeres i `/usr/local/libexec/`, oppsettet i `/etc/agentic-rigg/helper.json`, og en herdet systemtjeneste startes. Fire separate godkjenningstrinn brukes ikke lenger. Et eldre trinnoppsett gir ikke automatisk global tillatelse og må aktiveres på nytt. `install.sh` legger bare hjelpefilene under `~/.local/share/agentic-rigg/hjelper/` og aktiverer dem ikke.
 
-**Den er av til du slår den på.** `install.sh` legger bare filene i `~/.local/share/agentic-rigg/hjelper/`. Ingenting kjører, og ingenting er installert utenfor hjemmemappa, før du slår på bryteren.
+**Støtte per funksjon:** Innstillinger viser effekt, kjerneoffset, minneoffset, manuell vifte, viftekurve, temperaturmål og RGB separat. Manglende temperaturmål sperrer for eksempel ikke effektgrensen. Områdene hentes fra kortet; tall utenfor avvises fremfor å klemmes. Tilgjengelighet betyr at nødvendige gettere og setter-symboler finnes, ikke at driveren har godkjent et skriveforsøk. «Klar» krever at hjelperens backend og kortidentitet er klare; en socket alene er ikke nok.
 
-**Slik slår du den på og av:**
+**Bruk og Behold:** Et utkast blir sendt som bare de endrede feltene når du trykker Bruk. Behold innen fristen (15 s som standard), ellers forsøkes det bekreftede oppsettet gjenopprettet. Frist og eierskap håndteres i hjelperen. Tjenesten holdes i live mens den eier aktive GPU-innstillinger, også om vinduet lukkes. Manglende livssignal, frakobling, hvilegap og stopp utløser gjenoppretting etter egne endringer.
 
-1. Gå til Innstillinger › Skjermkortstyring og slå på **«Tillat endring av skjermkortet»**.
-2. Skriv passordet ditt i vinduet som kommer opp (polkit). Hjelperen legges da i `/usr/local/libexec/`, oppsettet i `/etc/agentic-rigg/helper.json`, og den startes som systemtjenesten `agentic-rigg-helper`. Statusen ved bryteren sier «På».
-3. Slår du bryteren av (passordet igjen), stoppes hjelperen og fjernes helt, og kortet går tilbake til standard. Skal du avinstallere appen, slår du bryteren av først.
+**Lagret utgangspunkt:** Før skriving lagres kortets fangede innstillinger atomisk under `/var/lib/agentic-rigg/`, bundet til PCI/UUID, driver og VBIOS. «Standard» gjenoppretter disse opprinnelige verdiene, også eventuelle eksisterende effektgrenser og klokkeoffset. Det er ikke en antatt fabrikkverdi. Ny fangst krever Auto-vifte; tidligere fangst kan brukes under recovery mens våre egne manuelle verdier er aktive. Vanlig oppstart og recovery bevarer opptaket. En ren ny administratoraktivering arkiverer først det gamle opptaket etter bekreftet gjenoppretting og fravær av uavklarte endringer, slik at dagens utgangspunkt fanges på nytt.
 
-**Trinnene er av.** Bryteren gir ingen lov til å endre noe. Hvert trinn godkjennes for seg under bryteren, med et eget spørsmål og passordet ditt, i denne rekkefølgen: **Effekt** (effektgrense og temperaturmål), **Vifter** (modus, fast fart og viftekurve), **Klokker** (kjerne- og minneklokke-offset) og **RGB-lys**. Alle fire er av når bryteren slås på, og et trinn kan trekkes tilbake når som helst.
+**Feil vises:** En delvis endring forsøkes først gjenopprettet til bekreftet oppsett og deretter til det fangede utgangspunktet. Endringsmerkøren beholdes og videre styring sperres når tilstanden er ukjent. Gjenoppretting godtas først når den kan bekreftes. Klokkegettere kan returnere gamle offset; et setter-svar regnes derfor ikke alene som fysisk tilbakelesing. Slår du bryteren av, fjernes ikke hjelperen hvis gjenoppretting feiler eller er uverifisert. Grunnverdifila beholdes også etter vellykket deaktivering.
 
-**Det ekte kortet er fortsatt sperret i 1.3.3.** Hjelperen er bygget og testet mot et simulert kort. Mot det ekte kortet kan trinnene ikke godkjennes ennå (de står som «Kommer senere»), og skrivekoden for kortet er ikke bygget inn i binæren. Klokker og effekt og Vifter viser målte GPU-data; RGB-lys er en forhåndsvisning. Det du endrer, blir et utkast i appen med «Tilbakestill» og Ctrl+Z / Ctrl+Shift+Z. Du kan lagre profiler, men ingenting sendes til kortet. Ekte styring krever en senere, separat implementasjon og kontroll på maskinvaren.
+**Gjennomført maskinvareprøve 14. november 2026:** Brukeren fullførte polkit-dialogen, og den herdede root-hjelperen meldte klar NVML-backend. Følgende ble prøvd enkeltvis mot hjelperen med fersk NVML-getter og revert etter hvert felt:
 
-**Vernet som er prøvd i simulering:** Hver endring må bekreftes med **Behold** innen fristen (15 s som standard), ellers rulles den tilbake. Nødregelen setter viftene til 100 % over 85 °C, til kortet er under 80 °C. Frakobling og stopp skal gjenopprette standard med Auto. Dette må bekreftes på ekte maskinvare før styring aktiveres. Dette RTX 2080-kortet rapporterer 35–100 % som vifteområde; fysisk viftestopp er ikke prøvd her.
+| Felt | Prøvd endring |
+|---|---|
+| Effektgrense | 245 → 240 W |
+| Begge GPU-vifter | Auto (35 %) → Manuell (50 %) |
+| Kjerneoffset | 0 → −15 MHz |
+| Minneoffset | 0 → −10 MHz |
+| Viftekurve | Flat 50 %-kurve, begge vifter på målet i 4 s |
+| Temperaturmål | 83 → 82 °C |
 
-Detaljene og sikkerhetsgjennomgangen står i `docs/produksjon/hjelper-sikkerhet.md`.
+Til slutt bekreftet reset 245 W, offset 0/0 MHz, temperaturmål 83 °C og Auto på begge viftene. Temperaturmålet ble først bare lest; en senere enkeltprøve verifiserte også 83 → 82 °C med revert og reset. En flat 50 %-kurve holdt begge vifter på målet i 4 s; avsluttende reset bekreftet igjen utgangspunktet. Appen 1.4.0 · bygg 23 er installert; binærhash og uendrede innstillinger er kontrollert, og historikken er sikret. En etterfølgende prøve gikk gjennom den installerte NVML-daemonen: `hello`, `get_helper` og `get_state` bekreftet kortbindingen; 240 W ble brukt og beholdt med `confirm`, lest tilbake og resatt til 245 W. En ny 240 W-endring med 10 s frist uten Behold ga en autoritativ `rolled_back`/`timeout`-hendelse, og fersk NVML-getter viste 245 W før noe ekstra reset-kall. Avsluttende reset bekreftet `stock: true`. Dette verifiserer daemonvideresending og transaksjonsflyt for effektgrensen, ikke alle GUI-handlinger mot fysisk GPU. Alle grenser, positiv overklokking, stresstest, drivertap og strømbrudd er heller ikke prøvd.
+
+**Sluttkontroll:** 388 bestått, 4 ignorert og 0 feilet; workspace-clippy på alle mål er ren. Den endelige native UI-planen bestod, inkludert klokkesiden med den nye statusvakten. Den oppdaterte installerte appen startet på Klokker og effekt; klar hjelper og samsvarende kortidentitet er bekreftet.
+
+**Viftevern:** Nødregelen over 85 °C bruker bare faktisk tilgjengelig viftestyring og slipper under 80 °C. Temperaturbortfall under Manuell utløser gjenoppretting. Kurvemotoren har utjevning, hysterese, rampe og feilhåndtering; feil ved skriving meldes videre og behandles som gjenopprettingsbehov. Dette er implementert og dekket av sim-/mocktester, men ikke bekreftet på fysisk GPU ennå.
+
+**RGB forblir forhåndsvisning:** Lyskontrolleren er ikke identifisert. Lysvalg kan lagres og vises, men sendes ikke til kortet selv om NVML-styring er klar. Ingen kontrollerstøtte utledes bare fra Palit-navnet eller PCI-ID.
+
+Detaljene, gjenværende begrensninger og den historiske sikkerhetsgjennomgangen står i `docs/produksjon/hjelper-sikkerhet.md`.
 
 Appen åpner aldri `/dev/i2c-*` eller `/dev/sd*`. Lyskontrolleren på kortet leses derfor ikke, og RGB-lys er en forhåndsvisning. Diskene leses bare gjennom UDisks2 (uten root) og `/proc/diskstats`, og appen starter aldri en SMART-selvtest.
 
@@ -121,7 +136,7 @@ Appen åpner aldri `/dev/i2c-*` eller `/dev/sd*`. Lyskontrolleren på kortet les
 - **Bare NVIDIA.** Kortet leses med NVML. AMD og Intel er ikke støttet ennå.
 - **Det NVML ikke kan på Turing:** hotspot- og minnetemperatur, kjernespenning, spennings- og klokkekurve og årsakene til nedklokking i P8 vises som «Ikke støttet» med forklaring.
 - **Hovedkortsensorer** (`nct6775` o.l.) vises bare hvis kjernemodulen er lastet. Appen laster ingen moduler.
-- **Det som krever root** (multiplikator, pakkeeffekt, serienumre i DMI, SPD på minnet) leses ikke.
+- **Systemdata som krever root** (multiplikator, pakkeeffekt, serienumre i DMI, SPD på minnet) leses ikke. GPU-hjelperen utvider ikke tilgangen til CPU, RAM eller hovedkort.
 - **RGB-lys i 3D** bruker GL: første gang vekker det skjermkortet i ca. 4 s, og vinduet bruker ca. 120 MB mer minne. RGB-lys åpner derfor med 2D-kortet. Velger du 3D, huskes det (Innstillinger › Utseende › Lys › «3D-kortet»).
 - **Systemfeltet** krever AppIndicator-utvidelsen, som Ubuntu har på som standard. I ren GNOME vises ikke ikonet; appen virker likt uten.
 - **Wayland:** vindusposisjonen huskes ikke, bare størrelsen.

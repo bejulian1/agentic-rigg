@@ -4,18 +4,16 @@
 //! (`rigg_core::hjelper::Paths`; `/` på et ekte system, en falsk rot med
 //! `--hjelper-rot` i testene og `RIGG_HJELPER_ROT` i utviklerprofilen), spør om
 //! `status`, og sender `apply`, `confirm`, `revert` og `reset` videre når
-//! hjelperen er på, er fra samme bygg, har samme backend og har trinnet
-//! godkjent. Ellers svarer `ops.rs` som før med `write_locked`, nå med en
+//! hjelperen er på, er fra samme bygg, har samme backend, global autorisasjon
+//! og samsvarende kortidentitet. Ellers svarer `ops.rs` med `write_locked` og en
 //! presis grunn i `details.reason` (`helper_off`, `helper_error`,
-//! `helper_outdated`, `backend_mismatch`), eller `step_not_enabled`.
+//! `helper_outdated`, `backend_mismatch` eller `identity_mismatch`).
 //!
-//! **Låsene mot det ekte kortet** (`rigg_core::hjelper`, toppen av fila):
-//! trinnlisten i hjelperen, sperren i `rigg-hw` (`ekte-skriving`, av), og
-//! `write_gate` i vinduet (Bruk bare mot sim i dev). `write_locked` her er
-//! fortsatt svaret for alt som ikke går til hjelperen.
+//! Bare den separat kompilerte root-hjelperen bruker HW-skriveren. NVML
+//! oppdages uten testskriving, og hvert eksplisitt endret felt må støttes.
 //!
 //! Forbindelsen holdes åpen mens hjelperen er på: lukkes den (tjenesten
-//! stopper eller krasjer), setter hjelperen kortet til standard. Samtalen er
+//! stopper eller krasjer), gjenoppretter hjelperen egne endringer. Samtalen er
 //! blokkerende med 2 s frist, men hjelperen svarer på under ett millisekund.
 
 use crate::daemon::Daemon;
@@ -63,7 +61,15 @@ pub struct Hjelper {
 
 impl Hjelper {
     pub fn new(paths: Paths) -> Hjelper {
-        Hjelper { paths, state: State::Off, status: Value::Null, owner: None, conn: None, seq: 0, last_probe: 0 }
+        Hjelper {
+            paths,
+            state: State::Off,
+            status: Value::Null,
+            owner: None,
+            conn: None,
+            seq: 0,
+            last_probe: 0,
+        }
     }
 
     /// Stiene: `--hjelper-rot` (testene) eller `RIGG_HJELPER_ROT` i
@@ -86,7 +92,14 @@ impl Hjelper {
         if !self.is_on() {
             return vec![];
         }
-        self.status["steps"].as_array().map(|l| l.iter().filter_map(|s| s.as_str().and_then(Step::parse)).collect()).unwrap_or_default()
+        self.status["steps"]
+            .as_array()
+            .map(|l| {
+                l.iter()
+                    .filter_map(|s| s.as_str().and_then(Step::parse))
+                    .collect()
+            })
+            .unwrap_or_default()
     }
 
     pub fn backend(&self) -> &str {
@@ -104,7 +117,13 @@ impl Hjelper {
     /// Har hjelperen verdier som ikke er standard? Da holdes tjenesten i
     /// live, for når forbindelsen lukkes, går kortet til standard.
     pub fn holds_values(&self) -> bool {
-        self.is_on() && (self.pending() || self.status["state"]["confirmed"] != self.status["state"]["active"] || self.status["hardware"]["stock"] == json!(false))
+        if !self.is_on() {
+            return false;
+        }
+        if let Some(holding) = self.status["holding"].as_bool() {
+            return holding || self.pending() || self.status["state"]["hardwareKnown"] == false;
+        }
+        self.pending() || self.status["hardware"]["stock"] == false
     }
 
     fn drop_conn(&mut self) {
@@ -117,10 +136,16 @@ impl Hjelper {
         if self.conn.is_some() {
             return Ok(());
         }
-        let s = UnixStream::connect(self.paths.socket()).map_err(|e| format!("Fikk ikke kontakt med hjelperen ({e})"))?;
-        s.set_read_timeout(Some(TIMEOUT)).map_err(|e| e.to_string())?;
-        s.set_write_timeout(Some(TIMEOUT)).map_err(|e| e.to_string())?;
-        self.conn = Some(Conn { stream: s, buf: LineBuffer::new() });
+        let s = UnixStream::connect(self.paths.socket())
+            .map_err(|e| format!("Fikk ikke kontakt med hjelperen ({e})"))?;
+        s.set_read_timeout(Some(TIMEOUT))
+            .map_err(|e| e.to_string())?;
+        s.set_write_timeout(Some(TIMEOUT))
+            .map_err(|e| e.to_string())?;
+        self.conn = Some(Conn {
+            stream: s,
+            buf: LineBuffer::new(),
+        });
         Ok(())
     }
 
@@ -131,7 +156,8 @@ impl Hjelper {
             Err(e) => {
                 self.drop_conn();
                 self.state = State::Error(e.clone());
-                Err(hjelper::locked("helper_error").details(json!({"reason": "helper_error", "error": e})))
+                Err(hjelper::locked("helper_error")
+                    .details(json!({"reason": "helper_error", "error": e})))
             }
         }
     }
@@ -141,7 +167,8 @@ impl Hjelper {
         self.seq += 1;
         let id = self.seq;
         let c = self.conn.as_mut().expect("forbindelsen");
-        let mut line = serde_json::to_vec(&json!({"id": id, "op": op, "args": args})).map_err(|e| e.to_string())?;
+        let mut line = serde_json::to_vec(&json!({"id": id, "op": op, "args": args}))
+            .map_err(|e| e.to_string())?;
         line.push(b'\n');
         if let Err(e) = c.stream.write_all(&line) {
             // Hjelperen kan ha avvist forbindelsen (feil bruker) og lukket den
@@ -153,7 +180,8 @@ impl Hjelper {
             {
                 for ev in c.buf.push(&chunk[..n], 1 << 20) {
                     if let LineEvent::Line(l) = ev
-                        && let Some(Incoming::Response { id: rid, result }) = proto::parse_incoming(&l)
+                        && let Some(Incoming::Response { id: rid, result }) =
+                            proto::parse_incoming(&l)
                         && rid.is_null()
                     {
                         return Ok(result);
@@ -164,12 +192,17 @@ impl Hjelper {
         }
         let mut chunk = [0u8; 8192];
         loop {
-            let n = c.stream.read(&mut chunk).map_err(|e| format!("Hjelperen svarte ikke ({e})"))?;
+            let n = c
+                .stream
+                .read(&mut chunk)
+                .map_err(|e| format!("Hjelperen svarte ikke ({e})"))?;
             if n == 0 {
                 return Err("Hjelperen lukket forbindelsen".into());
             }
             for ev in c.buf.push(&chunk[..n], 1 << 20) {
-                let LineEvent::Line(l) = ev else { return Err("For stort svar fra hjelperen".into()) };
+                let LineEvent::Line(l) = ev else {
+                    return Err("For stort svar fra hjelperen".into());
+                };
                 if let Some(Incoming::Response { id: rid, result }) = proto::parse_incoming(&l) {
                     if rid == json!(id) {
                         return Ok(result);
@@ -199,7 +232,11 @@ impl Hjelper {
             Ok(s) => {
                 let build = s["helper"]["build"].as_u64().unwrap_or(0) as u32;
                 let proto_ok = s["helper"]["protocol"].as_u64() == Some(hjelper::PROTOCOL as u64);
-                self.state = if build == rigg_core::version::build() && proto_ok { State::On } else { State::Outdated(build) };
+                self.state = if build == rigg_core::version::build() && proto_ok {
+                    State::On
+                } else {
+                    State::Outdated(build)
+                };
                 self.status = s;
                 if !self.pending() {
                     self.owner = None;
@@ -208,10 +245,21 @@ impl Hjelper {
             Err(e) => {
                 self.drop_conn();
                 let msg = match e.code {
-                    ErrorCode::PermissionDenied => "Hjelperen er aktivert for en annen bruker.".to_string(),
-                    _ => e.details.as_ref().and_then(|d| d["error"].as_str()).map(str::to_string).unwrap_or(e.message),
+                    ErrorCode::PermissionDenied => {
+                        "Hjelperen er aktivert for en annen bruker.".to_string()
+                    }
+                    _ => e
+                        .details
+                        .as_ref()
+                        .and_then(|d| d["error"].as_str())
+                        .map(str::to_string)
+                        .unwrap_or(e.message),
                 };
-                self.state = State::Error(if cfg.exists() { msg } else { "Hjelperen kjører, men helper.json mangler.".into() });
+                self.state = State::Error(if cfg.exists() {
+                    msg
+                } else {
+                    "Hjelperen kjører, men helper.json mangler.".into()
+                });
                 self.status = Value::Null;
             }
         }
@@ -223,7 +271,13 @@ impl Hjelper {
             State::Off => ("off", None),
             State::On => ("on", None),
             State::Error(e) => ("error", Some(e.clone())),
-            State::Outdated(b) => ("outdated", Some(format!("Hjelperen er fra bygg {b}, appen fra bygg {}.", rigg_core::version::build()))),
+            State::Outdated(b) => (
+                "outdated",
+                Some(format!(
+                    "Hjelperen er fra bygg {b}, appen fra bygg {}.",
+                    rigg_core::version::build()
+                )),
+            ),
         };
         let h = &self.status["helper"];
         json!({
@@ -234,6 +288,13 @@ impl Hjelper {
             "version": h["version"],
             "build": h["build"],
             "realWrites": h["realWrites"].as_bool().unwrap_or(false),
+            "enabled": self.is_on() && self.status["enabled"] == true,
+            "ready": self.is_on() && self.status["ready"] == true,
+            "identity": self.status["identity"],
+            "capabilities": self.status["capabilities"],
+            "hardware": self.status["hardware"],
+            "hardwareError": self.status["state"]["hardwareError"],
+            "legacyConfig": self.status["legacyConfig"],
             "emergency": self.emergency(),
             "pending": self.pending(),
             "paths": {"config": self.paths.config(), "socket": self.paths.socket()},
@@ -246,15 +307,41 @@ impl Daemon {
     /// hjelperen, og `helper` med tilstanden.
     pub fn write_caps(&self) -> Value {
         let mut w = proto::write_capabilities(&self.opts.backend);
-        let on: Vec<&str> = self.hjelper.steps().iter().flat_map(|s| s.write_steps().iter().copied()).collect();
+        let fields = if self.hjelper.is_on() {
+            self.hjelper.status["capabilities"].clone()
+        } else {
+            w["fields"].clone()
+        };
         if let Some(list) = w["steps"].as_array_mut() {
-            for s in list {
-                if s["id"].as_str().is_some_and(|id| on.contains(&id)) {
-                    s["status"] = json!("approved");
-                }
+            for step in list {
+                let id = step["id"].as_str().unwrap_or("").to_string();
+                let keys: Vec<&str> = match id.as_str() {
+                    "clocks" => vec!["core_clock", "mem_clock"],
+                    _ => vec![id.as_str()],
+                };
+                let available = keys.iter().any(|key| fields[*key]["available"] == true);
+                step["status"] = json!(if available {
+                    "supported"
+                } else {
+                    "unavailable"
+                });
+                step["reason"] = json!(
+                    keys.iter()
+                        .filter_map(|key| fields[*key]["reason"].as_str())
+                        .collect::<Vec<_>>()
+                        .join(" · ")
+                );
             }
         }
         w["helper"] = self.hjelper.view();
+        w["fields"] = fields;
+        w["identity"] = self.hjelper.status["identity"].clone();
+        if self.opts.backend == "nvml"
+            && w["helper"]["ready"] == true
+            && w["helper"]["enabled"] == true
+        {
+            w["state"] = json!("ready");
+        }
         w
     }
 
@@ -284,38 +371,65 @@ impl Daemon {
         if self.hjelper.backend() != self.opts.backend {
             return Some(Err(hjelper::locked("backend_mismatch").details(json!({"reason": "backend_mismatch", "helper": self.hjelper.backend(), "service": self.opts.backend}))));
         }
+        let mut identity = json!({});
+        if self.opts.backend == "nvml" {
+            let Some(pci) = a["gpu"].as_str() else {
+                return Some(Err(ProtoError::msg(
+                    ErrorCode::InvalidArgument,
+                    "gpu og uuid må oppgis ved styring",
+                )));
+            };
+            let Some(uuid) = a["uuid"].as_str() else {
+                return Some(Err(ProtoError::msg(
+                    ErrorCode::InvalidArgument,
+                    "uuid må oppgis ved styring",
+                )));
+            };
+            let bound = &self.hjelper.status["identity"];
+            let known_uuid = self.statics.get(pci).and_then(|(s, _)| s.uuid.as_deref());
+            if bound["pci"] != pci || bound["uuid"] != uuid || known_uuid != Some(uuid) {
+                return Some(Err(hjelper::locked("identity_mismatch")));
+            }
+            if self.hjelper.status["enabled"] != true
+                || (op != "reset" && self.hjelper.status["ready"] != true)
+            {
+                return Some(Err(hjelper::locked("recovery_failed")));
+            }
+            identity = json!({"gpu": pci, "uuid": uuid});
+        }
         let pending_owner = self.hjelper.owner.filter(|_| self.hjelper.pending());
         let r = match op {
             "confirm" | "revert" => {
                 if pending_owner.is_some_and(|o| o != sid) {
                     return Some(Err(ProtoError::new(ErrorCode::NotOwner)));
                 }
-                self.hjelper.request(op, json!({"txn": a.get("txn").cloned().unwrap_or(Value::Null)}))
+                {
+                    let mut args = identity.clone();
+                    args["txn"] = a.get("txn").cloned().unwrap_or(Value::Null);
+                    self.hjelper.request(op, args)
+                }
             }
             "reset" => {
                 if pending_owner.is_some_and(|o| o != sid) {
                     return Some(Err(ProtoError::new(ErrorCode::Busy)));
                 }
-                self.hjelper.request("reset", json!({}))
+                self.hjelper.request("reset", identity.clone())
             }
             "rgb_get" | "rgb_set" => self.hjelper.request(op, a.clone()),
             _ => {
-                let Some(patch) = hjelper::patch_for_op(op, a) else { return Some(Err(ProtoError::new(ErrorCode::UnknownOp))) };
-                let need = match hjelper::steps_for_patch(&patch) {
-                    Ok(n) => n,
-                    Err(e) => return Some(Err(e)),
+                let Some(patch) = hjelper::patch_for_op(op, a) else {
+                    return Some(Err(ProtoError::new(ErrorCode::UnknownOp)));
                 };
-                let enabled = self.hjelper.steps();
-                let missing: Vec<Step> = need.into_iter().filter(|s| !enabled.contains(s)).collect();
-                if !missing.is_empty() {
-                    return Some(Err(hjelper::step_not_enabled(&missing)));
+                if let Err(e) = hjelper::steps_for_patch(&patch) {
+                    return Some(Err(e));
                 }
                 if let Some(o) = pending_owner
                     && o != sid
                 {
                     return Some(Err(ProtoError::new(ErrorCode::Busy)));
                 }
-                let mut args = json!({"settings": patch});
+                let mut args = identity.clone();
+                args["settings"] = patch;
                 if let Some(t) = a.get("confirmTimeoutS") {
                     args["confirmTimeoutS"] = t.clone();
                 } else {
@@ -373,7 +487,7 @@ impl Daemon {
     pub fn hjelper_session_closed(&mut self, sid: u64) {
         if self.hjelper.owner == Some(sid) && self.hjelper.pending() {
             let txn = self.hjelper.status["state"]["pending"]["txn"].clone();
-            let _ = self.hjelper.request("revert", json!({"txn": txn}));
+            let _ = self.hjelper.request("revert", json!({"txn": txn, "gpu": self.hjelper.status["identity"]["pci"], "uuid": self.hjelper.status["identity"]["uuid"]}));
             self.hjelper.owner = None;
             self.hjelper_poll();
         }
@@ -385,7 +499,11 @@ impl Daemon {
             return None;
         }
         self.hjelper_poll();
+        if self.opts.backend == "nvml" && self.hjelper.status["identity"]["pci"] != gpu {
+            return None;
+        }
         let mut v = self.hjelper.status["state"].clone();
+        v["hardware"] = self.hjelper.status["hardware"].clone();
         v["gpu"] = json!(gpu);
         v["write"] = self.write_caps();
         Some(v)

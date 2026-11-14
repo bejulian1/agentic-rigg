@@ -8,8 +8,8 @@
 //! diskret, i linja under navnet (og som et lite merke i ikonlista). Under
 //! [`COMPACT_H`] px høyde skjules linjene under navnene.
 //!
-//! Styring-seksjonen har merket «Bare visning» med forklaringen i
-//! verktøytipset, og hver side har en kort undertekst i verktøytipset.
+//! Styring-seksjonen viser status når den ikke er klar til å endre det ekte
+//! kortet. Merket skjules først når den autoritative skriveporten er klar.
 //!
 //! Ikonlista (rail): når brukeren har lagt sidefeltet sammen (Ctrl+B,
 //! `sideCollapsed`), og alltid under 860 px. Navnene står i verktøytipset.
@@ -49,14 +49,21 @@ fn lock_badge(app: &crate::state::App) -> gtk::Box {
     let kind = if icon == "triangle-alert" || icon == "circle-alert" { "warn" } else { "quiet" };
     let t = crate::widgets::rows::tag(&text, Some(icon), kind);
     t.add_css_class("nav-lock");
+    t.set_visible(!crate::widgets::locked::control_ready(app));
     t.set_tooltip_text(Some(&tiptext));
     t.set_can_target(true);
     t.update_property(&[gtk::accessible::Property::Label(&text), gtk::accessible::Property::Description(&tiptext)]);
     t
 }
 
-/// Hvorfor Styring er låst (merket ved seksjonen og verktøytipsene).
-pub const LOCKED_TIP: &str = "Agentic Rigg leser bare. Endringer på skjermkortet er låst til du slår dem på selv, ett steg om gangen.";
+/// Underteksten følger samme status som merket, også ved kortbytte og feil.
+fn control_description(app: &App, hint: &str) -> String {
+    if crate::widgets::locked::control_ready(app) {
+        hint.to_string()
+    } else {
+        format!("{hint}. {}", crate::widgets::locked::badge(app).2)
+    }
+}
 
 /// Hva en side på Styring styrer (verktøytipset i sidefeltet).
 pub fn page_hint(id: &str) -> Option<&'static str> {
@@ -706,6 +713,7 @@ impl Sidebar {
         app.on_devices.connect(move |_| {
             if let Some(s) = me.upgrade() {
                 s.render_device();
+                s.sync_lock_badge();
             }
         });
         // Merket ved Styring: «Bare visning» eller «Endring på · …» (7A).
@@ -737,6 +745,17 @@ impl Sidebar {
 
     /// Bytter merket ved Styring når hjelperens tilstand er endret.
     fn sync_lock_badge(&self) {
+        let ready = crate::widgets::locked::control_ready(&self.app);
+        for (id, b, _, _) in self.nav_items.borrow().iter() {
+            if let Some(hint) = page_hint(id)
+                && let Some(page) = crate::pages::def(id)
+            {
+                let desc = control_description(&self.app, hint);
+                let key = PAGES.iter().position(|p| p.id == id.as_str()).and_then(page_key);
+                tip(b, &format!("{}\n{desc}", page.title), key.as_deref());
+                b.update_property(&[gtk::accessible::Property::Description(&desc)]);
+            }
+        }
         let (text, _, _) = crate::widgets::locked::badge(&self.app);
         for (sec, w, _) in self.sec_labels.borrow().iter() {
             if *sec != Section::Control {
@@ -747,6 +766,7 @@ impl Sidebar {
             while let Some(ch) = c {
                 c = ch.next_sibling();
                 if ch.has_css_class("nav-lock") {
+                    ch.set_visible(!ready);
                     let same = ch.first_child().and_then(|i| i.next_sibling()).and_then(|l| l.downcast::<gtk::Label>().ok()).is_some_and(|l| l.text() == text);
                     if same {
                         return;
@@ -843,15 +863,12 @@ impl Sidebar {
                 _ => None,
             };
             b.set_child(Some(&bx));
-            // Styring: hva siden styrer, og at den bare viser (seksjonsmerket).
-            let tiptext = match page_hint(p.id) {
-                Some(h) => format!("{}\n{h} · bare visning", p.title),
-                None => p.title.to_string(),
-            };
+            let description = page_hint(p.id).map(|h| control_description(&self.app, h));
+            let tiptext = description.as_ref().map(|d| format!("{}\n{d}", p.title)).unwrap_or_else(|| p.title.to_string());
             tip(&b, &tiptext, num.as_deref());
             b.update_property(&[gtk::accessible::Property::Label(p.title)]);
-            if let Some(h) = page_hint(p.id) {
-                b.update_property(&[gtk::accessible::Property::Description(&format!("{h}. {LOCKED_TIP}"))]);
+            if let Some(desc) = description {
+                b.update_property(&[gtk::accessible::Property::Description(&desc)]);
             }
             let app = self.app.clone();
             let id = p.id;

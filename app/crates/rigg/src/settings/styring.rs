@@ -1,5 +1,4 @@
-//! Innstillinger › Skjermkortstyring (runde 7A, 1.2.0): bryteren «Tillat endring av
-//! skjermkortet», status for root-hjelperen og trinnene.
+//! Innstillinger › Skjermkortstyring: én administratoraktivering og støtte per funksjon.
 //!
 //! Bryteren kjører `pkexec <mappe>/aktiver.sh` eller `deaktiver.sh`. Det er
 //! brukerens egen handling: passordvinduet kommer fra polkit, og skriptene
@@ -9,20 +8,15 @@
 //! skriptene og `RIGG_HJELPER_ROT` på en falsk rot. Utenfor `dev` brukes de
 //! aldri.
 //!
-//! Et trinn godkjennes bare etter et eget spørsmål med advarsel, og så med
-//! passordet (`pkexec /usr/local/libexec/agentic-rigg/trinn.sh <trinn> på`).
-//! Mot det ekte kortet er knappene av i 1.2.0: hjelperen kan ikke skrive dit
-//! ennå (`rigg-hw`: `ekte-skriving` er av).
-
 use super::{Group, GroupOpts, custom_row, group, live, request_render, row};
 use crate::state::App;
 use crate::toast::Toast;
 use crate::widgets::locked;
 use crate::widgets::rows::KvList;
-use crate::widgets::{button, hbox, label, vbox};
+use crate::widgets::{button, hbox, label};
 use gtk::glib;
 use gtk::prelude::*;
-use rigg_core::hjelper::{Paths, STEPS, Step};
+use rigg_core::hjelper::{Paths, Step};
 use std::cell::Cell;
 use std::path::PathBuf;
 use std::rc::Rc;
@@ -67,35 +61,21 @@ fn deactivate_script(app: &App) -> PathBuf {
     if own.exists() { own } else { data_dir(app).join("deaktiver.sh") }
 }
 
-use locked::{real_card_locked, steps_later};
+
 
 /// Statusen i klartekst. Merket foran sier tilstanden (Av, På, Feil), så
 /// teksten gjentar den ikke. Det tekniske står i verktøytipset ([`state_tip`]).
 fn state_text(app: &App) -> String {
-    if BUSY.with(Cell::get) {
-        return "Venter på passordet …".into();
-    }
-    if !app.client.is_connected() {
-        return "Tjenesten svarer ikke, så statusen er ukjent.".into();
-    }
+    if BUSY.with(Cell::get) { return "Venter på administratorgodkjenning …".into(); }
+    if !app.client.is_connected() { return "Tjenesten svarer ikke. Endringer er låst.".into(); }
     let h = locked::helper(app);
-    let steps = locked::helper_steps(app);
     match locked::helper_state(app).as_str() {
-        "on" => {
-            let sim = if h["backend"] == "sim" { " (simulert kort)" } else { "" };
-            if real_card_locked(app) {
-                "Hjelperen kjører. Denne versjonen endrer ikke det ekte kortet ennå, så alt står som før.".into()
-            } else if steps.is_empty() {
-                format!("Hjelperen kjører{sim}. Ingen trinn er godkjent ennå, så ingenting kan endres.")
-            } else {
-                format!("Hjelperen kjører{sim}. Godkjent: {}.", steps.join(", ").to_lowercase())
-            }
-        }
-        "error" if h["message"].as_str().is_some_and(|m| m.contains("annen bruker")) => "Hjelperen er slått på for en annen bruker på maskinen. Slå bryteren av og på for å bruke den selv.".into(),
-        "error" => "Hjelperen svarer ikke. Den kan ha stoppet. Trykk Sjekk igjen, eller slå bryteren av og på.".into(),
-        "outdated" => "Hjelperen er fra en annen versjon av appen. Slå bryteren av og på igjen for å oppdatere den.".into(),
-        _ if !data_dir(app).join("aktiver.sh").exists() => "Filene til hjelperen mangler. Installer appen på nytt med install.sh.".into(),
-        _ => "Appen leser bare. Ingenting på skjermkortet kan endres.".into(),
+        "on" if locked::control_ready(app) => "Styring er klar for det valgte skjermkortet. Endringer brukes først når du trykker Bruk.".into(),
+        "on" if locked::gate(app) == rigg_core::txn::Gate::Sim => "Simulert styring. Det ekte skjermkortet endres ikke.".into(),
+        "on" | "error" => h["message"].as_str().unwrap_or("Hjelperen er ikke klar for kortet som vises. Se funksjonsstøtten under, eller trykk Sjekk igjen.").into(),
+        "outdated" => "Hjelperen må oppdateres. Slå bryteren av og på igjen for å aktivere denne versjonen.".into(),
+        _ if !data_dir(app).join("aktiver.sh").exists() => "Hjelperfilene mangler. Installer den nye appversjonen først.".into(),
+        _ => "Bare visning. Endring av skjermkortet er slått av.".into(),
     }
 }
 
@@ -150,159 +130,78 @@ fn failure(code: i32, err: &str, what: &str) -> Option<Toast> {
 }
 
 pub(crate) fn toggle(app: &Rc<App>, on: bool) {
-    if BUSY.with(Cell::get) {
-        return;
-    }
+    if BUSY.with(Cell::get) { return; }
+    let args = if on {
+        let Some(pci) = app.gpu_id() else {
+            app.toast(Toast::new("Ingen skjermkort valgt").error());
+            return;
+        };
+        let Some(uuid) = app.statics().and_then(|s| s.uuid) else {
+            app.toast(Toast::new("Kortidentiteten er ikke klar").body("Vent til driveren har lest UUID, og prøv igjen.").error());
+            return;
+        };
+        vec!["--pci".into(), pci, "--uuid".into(), uuid]
+    } else { Vec::new() };
     BUSY.with(|b| b.set(true));
     request_render();
-    let (program, what) = if on { (data_dir(app).join("aktiver.sh"), "slå på endring") } else { (deactivate_script(app), "slå av endring") };
+    let (program, what) = if on { (data_dir(app).join("aktiver.sh"), "aktivere styring") } else { (deactivate_script(app), "slå av styring") };
     let a = app.clone();
-    run_pkexec(app, program, vec![], move |code, err| {
+    run_pkexec(app, program, args, move |code, err| {
         BUSY.with(|b| b.set(false));
         let a2 = a.clone();
         locked::refresh_helper(&a, move || {
             request_render();
             match failure(code, &err, what) {
                 Some(t) => a2.toast(t),
-                None if on && locked::helper_state(&a2) == "error" => a2.toast(Toast::new("Hjelperen svarer ikke").body("Bryteren er på, men hjelperen startet ikke. Se statusen i Innstillinger › Skjermkortstyring.").error()),
-                None if on && real_card_locked(&a2) => a2.toast(Toast::new("Endring er slått på").body("Hjelperen kjører. Denne versjonen endrer ikke det ekte kortet ennå, så alt står som før.").ms(5000)),
-                None if on => a2.toast(Toast::new("Endring er slått på").body("Hjelperen kjører. Godkjenn et trinn under før noe kan endres.").ms(5000)),
-                None => a2.toast(Toast::new("Endring er slått av").body("Hjelperen er fjernet, og kortet er tilbake på standard.").ms(4000)),
+                None if on && matches!(locked::gate(&a2), rigg_core::txn::Gate::Real | rigg_core::txn::Gate::Sim) => a2.toast(Toast::new("Skjermkortstyring er aktivert").body("Velg endringer og trykk Bruk. Behold dem innen fristen, ellers rulles de tilbake.").ms(5000)),
+                None if on => a2.toast(Toast::new("Hjelperen er installert, men styring er ikke klar").body(&state_text(&a2)).error()),
+                None => a2.toast(Toast::new("Skjermkortstyring er slått av").body("Hjelperen har gjenopprettet utgangspunktet og er fjernet.").ms(4000)),
             }
         });
     });
 }
 
-/// Eget spørsmål med advarsel før et trinn godkjennes.
-pub(crate) fn confirm_step(app: &Rc<App>, step: Step) {
-    let title = format!("Godkjenne trinnet {}?", step.name());
-    let Some((w, root_box)) = crate::shortcuts::dialog(app, &title, 460, 340) else { return };
-    let body = vbox(10, &["dialog-body", "helper-confirm"]);
-    let head = hbox(10, &["helper-warn"]);
-    head.append(&crate::widgets::Icon::new("triangle-alert", 18));
-    let lead = label(&format!("Agentic Rigg får lov til å endre {} på skjermkortet.", step.covers().to_lowercase()), &["helper-warn-title"]);
-    lead.set_wrap(true);
-    lead.set_hexpand(true);
-    head.append(&lead);
-    body.append(&head);
-    let risk = match step {
-        Step::Effekt => "En høyere effektgrense gir mer varme og strømtrekk. En lavere gir litt lavere ytelse.",
-        Step::Vifter => "Lavere viftefart gir et varmere kort. Over 85 °C går viftene alltid til 100 %, uansett hva du har valgt.",
-        Step::Klokker => "For høye klokker kan gi bildefeil, at spill krasjer eller at maskinen henger. Gå opp i små steg.",
-        Step::Lys => "Lyset er ikke laget ennå.",
-    };
-    for t in [
-        risk,
-        "Hver endring må bekreftes med Behold innen fristen, ellers rulles den tilbake av seg selv. Lukkes Agentic Rigg helt, går kortet tilbake til standard.",
-        "Du blir spurt om passordet ditt. Trinnet kan trekkes tilbake her når som helst.",
-    ] {
-        let l = label(t, &["helper-confirm-text"]);
-        l.set_wrap(true);
-        l.set_xalign(0.0);
-        body.append(&l);
-    }
-    let buttons = hbox(8, &["helper-confirm-buttons"]);
-    buttons.set_halign(gtk::Align::End);
-    let cancel = gtk::Button::with_label("Avbryt");
-    let ok = gtk::Button::with_label(&format!("Godkjenn {} …", step.name().to_lowercase()));
-    ok.add_css_class("destructive");
-    buttons.append(&cancel);
-    buttons.append(&ok);
-    body.append(&buttons);
-    root_box.append(&body);
-    {
-        let w = w.clone();
-        cancel.connect_clicked(move |_| w.close());
-    }
-    {
-        let (w, a) = (w.clone(), app.clone());
-        ok.connect_clicked(move |_| {
-            w.close();
-            set_step(&a, step, true);
-        });
-    }
-    w.present();
-    cancel.grab_focus();
+// Eldre interne skjermbildeplaner har disse inngangene. Ingen separat
+// trinngodkjenning utføres; den nye brukerflyten har bare én aktivering.
+pub(crate) fn confirm_step(app: &Rc<App>, _step: Step) {
+    app.toast(Toast::new("Én aktivering").body("Bruk Tillat endring av skjermkortet. Funksjonsstøtten bestemmes av kortet og driveren."));
+}
+pub(crate) fn set_step(app: &Rc<App>, _step: Step, _on: bool) {
+    locked::refresh_helper(app, request_render);
 }
 
-pub(crate) fn set_step(app: &Rc<App>, step: Step, on: bool) {
-    let program = root(app).libexec("trinn.sh");
-    let a = app.clone();
-    let what = if on { "godkjenne trinnet" } else { "trekke tilbake trinnet" };
-    run_pkexec(app, program, vec![step.id().into(), if on { "på" } else { "av" }.into()], move |code, err| {
-        let a2 = a.clone();
-        // Hjelperen leser helper.json på nytt innen ett sekund.
-        glib::timeout_add_local_once(std::time::Duration::from_millis(1200), move || {
-            let a3 = a2.clone();
-            locked::refresh_helper(&a2, move || {
-                request_render();
-                match failure(code, &err, what) {
-                    Some(t) => a3.toast(t),
-                    None => a3.toast(Toast::new(&format!("Trinnet {} er {}", step.name(), if on { "godkjent" } else { "trukket tilbake" })).ms(3500)),
-                }
-            });
-        });
-    });
-}
-
-/// Hvorfor et trinn ikke kan godkjennes nå (`None`: det kan det).
-fn step_blocked(app: &App, step: Step) -> Option<&'static str> {
-    let h = locked::helper(app);
-    if locked::helper_state(app) != "on" {
-        return Some("Slå på «Tillat endring av skjermkortet» først.");
-    }
-    if step == Step::Lys {
-        return Some("Lys er ikke laget ennå.");
-    }
-    if h["backend"] != "sim" && !h["realWrites"].as_bool().unwrap_or(false) {
-        return Some("Kommer i en senere versjon. Denne versjonen endrer ikke det ekte kortet, så trinnene kan ikke godkjennes ennå.");
-    }
-    None
-}
-
-fn steps_group(app: &Rc<App>) -> Group {
-    let enabled: Vec<String> = locked::helper(app)["steps"].as_array().map(|l| l.iter().filter_map(|s| s.as_str().map(str::to_string)).collect()).unwrap_or_default();
+fn capabilities_group(app: &Rc<App>) -> Group {
+    let caps = locked::capabilities(app);
+    let known = locked::helper_state(app) != "off";
     let mut rows = Vec::new();
-    for (i, step) in STEPS.iter().copied().enumerate() {
-        let on = enabled.iter().any(|s| s == step.id());
-        let ctrl = hbox(8, &[]);
-        let blocked = if on { None } else { step_blocked(app, step) };
-        // Samme ord som i «Hva skal til?»: Godkjent, Ikke godkjent eller
-        // Kommer senere (lys, og alle trinn mot det ekte kortet i 1.2.0).
-        let status = match locked::step_status(app, step) {
-            (text, true) => crate::widgets::rows::tag(text, Some("check"), "ok"),
-            (text, false) => crate::widgets::rows::tag(text, None, "quiet"),
-        };
-        ctrl.append(&status);
-        let b = if on { button(None, Some("Trekk tilbake"), &["sm"]) } else { button(None, Some("Godkjenn …"), &["sm"]) };
-        b.set_sensitive(blocked.is_none() && !BUSY.with(Cell::get));
-        if let Some(why) = blocked {
-            // Verktøytipset må nå fram selv om knappen er av: på raden.
-            ctrl.set_tooltip_text(Some(why));
-        }
-        b.update_property(&[gtk::accessible::Property::Label(&format!("{} {}", if on { "Trekk tilbake" } else { "Godkjenn" }, step.name()))]);
-        {
-            let a = app.clone();
-            b.connect_clicked(move |_| if on { set_step(&a, step, false) } else { confirm_step(&a, step) });
-        }
-        ctrl.append(&b);
-        let title = format!("{}. {}", i + 1, step.name());
-        rows.push(row(&title, Some(step.covers()), &ctrl, "trinn godkjenn effekt vifter klokker lys rgb"));
+    for (key, name) in [("power", "Effektgrense"), ("fan_manual", "Manuell viftefart og Auto"), ("fan_curve", "Viftekurve"), ("core_clock", "Kjerneklokke"), ("mem_clock", "Minneklokke"), ("temp_target", "Temperaturmål"), ("rgb", "RGB-lys")] {
+        let available = locked::supports(app, key);
+        let status = if available { "Tilgjengelig" } else if !known { "Ikke undersøkt" } else { "Utilgjengelig" };
+        let tag = crate::widgets::rows::tag(status, available.then_some("check"), if available { "ok" } else { "quiet" });
+        let detail = if !known {
+            "Leses når administratorhjelperen aktiveres for dette kortet.".to_string()
+        } else if available {
+            match (caps[key]["min"].as_f64(), caps[key]["max"].as_f64()) {
+                (Some(lo), Some(hi)) => {
+                    let span = if key == "temp_target" {
+                        format!("{}–{}", rigg_core::fmt::temp(Some(lo), 0), rigg_core::fmt::temp(Some(hi), 0))
+                    } else {
+                        let unit = match key { "power" => "W", "core_clock" | "mem_clock" => "MHz", _ => "%" };
+                        format!("{}–{} {unit}", rigg_core::fmt::num(Some(lo), 0), rigg_core::fmt::num(Some(hi), 0))
+                    };
+                    format!("Kortets rapporterte område: {span}.")
+                },
+                _ => "Støttes av den tilkoblede hjelperen.".into(),
+            }
+        } else { locked::capability_reason(app, key) };
+        rows.push(row(name, Some(&detail), &tag, &format!("funksjonsstøtte {key} {status}")));
     }
-    group(
-        "Trinn",
-        GroupOpts {
-            desc: Some("Hvert trinn godkjennes for seg, med et eget spørsmål og passordet ditt. De kommer i denne rekkefølgen: effekt, vifter, klokker og til slutt lys."),
-            note: Some(if steps_later(app) {
-                "I denne versjonen er hjelperen bare prøvd mot et simulert kort. Den endrer ikke det ekte kortet ennå, så trinnene kan ikke godkjennes. Det kommer i en senere versjon."
-            } else {
-                "Trekker du et trinn tilbake, går kortet til standard med en gang."
-            }),
-            k: "trinn godkjenning steg",
-            ..Default::default()
-        },
-        rows,
-    )
+    group("Tilgjengelige funksjoner", GroupOpts {
+        desc: Some("Én administratoraktivering gjelder støttede funksjoner på det valgte kortet. Listen er status, ikke ekstra godkjenninger."),
+        note: Some("RGB krever en egen identifisert lyskontroller. Funksjoner uten støtte kan ikke brukes på kortet."),
+        k: "funksjoner støtte effekt vifter klokker temperatur rgb",
+        ..Default::default()
+    }, rows)
 }
 
 pub fn build(app: &Rc<App>) -> Vec<Group> {
@@ -343,7 +242,7 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     }
     let main_row = row(
         "Tillat endring av skjermkortet",
-        Some("Legger inn en liten hjelper med administratorrettigheter, så Agentic Rigg senere kan endre effekt, vifter og klokker. Du blir spurt om passordet ditt. Ingenting endres før du har godkjent et trinn under."),
+        Some("Gir Agentic Rigg tilgang til støttede GPU-funksjoner via en administratorhjelper. Du blir spurt om passord. Ingen verdier endres før du trykker Bruk på en styringsside."),
         &sw,
         "root polkit pkexec hjelper skriving endre overklokking",
     );
@@ -352,14 +251,18 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     let status_box = hbox(8, &["helper-status"]);
     let (kind, icon) = match state.as_str() {
         _ if busy => ("quiet", "timer"),
-        "on" => ("ok", "shield"),
+        "on" if locked::control_ready(app) => ("ok", "shield"),
+        "on" if locked::gate(app) == rigg_core::txn::Gate::Sim => ("quiet", "shield"),
+        "on" => ("warn", "circle-alert"),
         "error" => ("danger", "triangle-alert"),
         "outdated" => ("warn", "circle-alert"),
         _ => ("quiet", "lock"),
     };
     let word = match state.as_str() {
         _ if busy => "Venter",
-        "on" => "På",
+        "on" if locked::control_ready(app) => "Klar",
+        "on" if locked::gate(app) == rigg_core::txn::Gate::Sim => "Simulert",
+        "on" => "Ikke klar",
         "error" => "Feil",
         "outdated" => "Slå på igjen",
         _ => "Av",
@@ -373,6 +276,12 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     live(&status, state_text);
     status.set_tooltip_text(state_tip(app).as_deref());
     status_box.append(&status);
+    if locked::control_ready(app) || locked::gate(app) == rigg_core::txn::Gate::Sim {
+        let open = button(Some("arrow-right"), Some("Åpne styring"), &["sm"]);
+        let a = app.clone();
+        open.connect_clicked(move |_| { a.shell().close_settings(); a.go("kontroller"); });
+        status_box.append(&open);
+    }
     if matches!(state.as_str(), "error" | "outdated") {
         let again = button(Some("refresh-cw"), Some("Sjekk igjen"), &["sm"]);
         let a = app.clone();
@@ -386,7 +295,7 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     let toggle_group = group(
         "Endring av skjermkortet",
         GroupOpts {
-            note: Some("Slår du bryteren av, stoppes hjelperen og fjernes helt, og kortet går tilbake til standard. Skal du avinstallere appen, slår du bryteren av først."),
+            note: Some("Slår du bryteren av, gjenopprettes det lagrede utgangspunktet før hjelperen fjernes. En feil vises hvis gjenopprettingen ikke kan bekreftes. Slå av styring før avinstallasjon."),
             k: "bryter av på status",
             ..Default::default()
         },
@@ -397,10 +306,10 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     let kv = KvList::new();
     kv.grid.add_css_class("helper-kv");
     kv.add("Hjelperen", "Et lite program som kjører i bakgrunnen med administratorrettigheter. Det kan bare endre effekt, vifter og klokker, innenfor det kortet selv tillater");
-    kv.add("Passord", "Du blir spurt når du slår på bryteren, og hver gang du godkjenner et trinn");
+    kv.add("Passord", "Én administratorgodkjenning ved aktivering. Vanlige endringer bruker Bruk og Behold");
     kv.add("Hvem", "Bare brukeren din. Andre brukere på maskinen slipper ikke til");
-    kv.add("Vern", "Hver endring rulles tilbake hvis du ikke trykker Behold innen fristen. Over 85 °C går viftene alltid til 100 %. Lukkes Agentic Rigg helt, går kortet til standard");
-    let files = kv.add("Filene", "/usr/local/libexec/agentic-rigg-helper\n/etc/agentic-rigg/helper.json (brukeren din og trinnene)");
+    kv.add("Vern", "Endringer rulles tilbake uten Behold innen fristen. Viftekurven har nødregel ved høy temperatur. Frakobling og stopp gjenoppretter utgangspunktet; eventuelle feil rapporteres");
+    let files = kv.add("Filene", "/usr/local/libexec/agentic-rigg-helper\n/etc/agentic-rigg/helper.json (bruker, kort og aktivering)");
     files.add_css_class("mono");
     let paths = kv.add("Skriptene", &rigg_core::paths::tilde(&data_dir(app)));
     paths.add_css_class("mono");
@@ -408,5 +317,5 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     what.widget.append(&kv.grid);
     what.rows.push(custom_row(&gtk::Box::new(gtk::Orientation::Horizontal, 0), "hjelper root polkit systemd passord vern frist nødregel"));
 
-    vec![toggle_group, steps_group(app), what]
+    vec![toggle_group, capabilities_group(app), what]
 }

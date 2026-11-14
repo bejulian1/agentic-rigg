@@ -20,7 +20,11 @@ struct Daemon {
 fn tmpdir(tag: &str) -> PathBuf {
     use std::sync::atomic::{AtomicU32, Ordering};
     static N: AtomicU32 = AtomicU32::new(0);
-    let d = std::env::temp_dir().join(format!("riggd-logg-{tag}-{}-{}", std::process::id(), N.fetch_add(1, Ordering::Relaxed)));
+    let d = std::env::temp_dir().join(format!(
+        "riggd-logg-{tag}-{}-{}",
+        std::process::id(),
+        N.fetch_add(1, Ordering::Relaxed)
+    ));
     let _ = std::fs::remove_dir_all(&d);
     std::fs::create_dir_all(&d).unwrap();
     d
@@ -30,9 +34,13 @@ impl Daemon {
     fn start(backend: &str, grace_ms: u32) -> Daemon {
         let dir = tmpdir("d");
         let socket = dir.join("run/riggd.sock");
+        let helper_root = dir.join("tom-hjelper-rot");
+        std::fs::create_dir_all(&helper_root).unwrap();
         let child = Command::new(env!("CARGO_BIN_EXE_agentic-riggd"))
             .args(["--backend", backend, "--socket"])
             .arg(&socket)
+            .arg("--hjelper-rot")
+            .arg(&helper_root)
             .args(["--grace-ms", &grace_ms.to_string()])
             .env("RIGG_CONFIG_DIR", dir.join("config"))
             .env("RIGG_STATE_DIR", dir.join("state"))
@@ -40,6 +48,7 @@ impl Daemon {
             .env("DBUS_SESSION_BUS_ADDRESS", "unix:path=/finnes-ikke")
             .env_remove("NOTIFY_SOCKET")
             .env_remove("RIGG_PROFIL")
+            .env_remove("RIGG_HJELPER_ROT")
             .stdout(Stdio::null())
             .stderr(Stdio::null())
             .spawn()
@@ -55,8 +64,18 @@ impl Daemon {
     fn connect(&self) -> Conn {
         let s = UnixStream::connect(&self.socket).unwrap();
         s.set_read_timeout(Some(Duration::from_secs(5))).unwrap();
-        let mut c = Conn { w: s.try_clone().unwrap(), r: BufReader::new(s), part: String::new(), next: 1, events: vec![] };
-        c.ok("hello", json!({"protocol": [1], "client": "logg-test"}));
+        let mut c = Conn {
+            w: s.try_clone().unwrap(),
+            r: BufReader::new(s),
+            part: String::new(),
+            next: 1,
+            events: vec![],
+        };
+        let hello = c.ok("hello", json!({"protocol": [1], "client": "logg-test"}));
+        assert_eq!(
+            hello["capabilities"]["write"]["helper"]["state"], "off",
+            "Loggtesten skal bare se sin tomme hjelperrot"
+        );
         c
     }
 
@@ -111,7 +130,9 @@ impl Conn {
     fn call(&mut self, op: &str, args: Value) -> Value {
         let id = self.next;
         self.next += 1;
-        self.w.write_all(format!("{}\n", json!({"id": id, "op": op, "args": args})).as_bytes()).unwrap();
+        self.w
+            .write_all(format!("{}\n", json!({"id": id, "op": op, "args": args})).as_bytes())
+            .unwrap();
         loop {
             let v = self.reply();
             if v.get("event").is_some() {
@@ -128,10 +149,19 @@ impl Conn {
         v["result"].clone()
     }
 
-    fn wait_event(&mut self, name: &str, pred: impl Fn(&Value) -> bool, max: Duration) -> Option<Value> {
+    fn wait_event(
+        &mut self,
+        name: &str,
+        pred: impl Fn(&Value) -> bool,
+        max: Duration,
+    ) -> Option<Value> {
         let t0 = Instant::now();
         loop {
-            if let Some(i) = self.events.iter().position(|e| e["event"] == name && pred(&e["data"])) {
+            if let Some(i) = self
+                .events
+                .iter()
+                .position(|e| e["event"] == name && pred(&e["data"]))
+            {
                 return Some(self.events.remove(i)["data"].clone());
             }
             if t0.elapsed() > max {
@@ -147,20 +177,32 @@ impl Conn {
 }
 
 fn read_csv(path: &str) -> Vec<String> {
-    std::fs::read_to_string(path).unwrap().lines().map(str::to_string).collect()
+    std::fs::read_to_string(path)
+        .unwrap()
+        .lines()
+        .map(str::to_string)
+        .collect()
 }
 
 #[test]
 fn loggen_skriver_begge_formatene_og_stopper_rent() {
     let d = Daemon::start("sim", 60_000);
     let mut c = d.connect();
-    c.ok("subscribe", json!({"topics": ["telemetry", "log"], "intervalMs": 500}));
+    c.ok(
+        "subscribe",
+        json!({"topics": ["telemetry", "log"], "intervalMs": 500}),
+    );
     for (format, sep) in [("standard", ','), ("norsk", ';')] {
         let dir = d.dir.join(format!("logg-{format}"));
-        let st = c.ok("log_start", json!({"dir": dir.display().to_string(), "format": format, "intervalMs": 500}));
+        let st = c.ok(
+            "log_start",
+            json!({"dir": dir.display().to_string(), "format": format, "intervalMs": 500}),
+        );
         assert_eq!(st["active"], true);
         assert_eq!(st["format"], format);
-        let ev = c.wait_event("log", |e| e["active"] == true, Duration::from_secs(2)).expect("log-hendelse ved start");
+        let ev = c
+            .wait_event("log", |e| e["active"] == true, Duration::from_secs(2))
+            .expect("log-hendelse ved start");
         assert_eq!(ev["file"], st["file"]);
         std::thread::sleep(Duration::from_millis(2600));
         let s = c.ok("log_status", json!({}));
@@ -168,8 +210,17 @@ fn loggen_skriver_begge_formatene_og_stopper_rent() {
         let st = c.ok("log_stop", json!({}));
         assert_eq!(st["active"], false);
         let file = st["file"].as_str().unwrap().to_string();
-        let name = Path::new(&file).file_name().unwrap().to_string_lossy().to_string();
-        assert!(name.starts_with("rigg-") && name.ends_with(".csv") && name.len() == "rigg-2026-11-07_14-32-10.csv".len(), "{name}");
+        let name = Path::new(&file)
+            .file_name()
+            .unwrap()
+            .to_string_lossy()
+            .to_string();
+        assert!(
+            name.starts_with("rigg-")
+                && name.ends_with(".csv")
+                && name.len() == "rigg-2026-11-07_14-32-10.csv".len(),
+            "{name}"
+        );
         let lines = read_csv(&file);
         assert!(lines.len() >= 4, "{lines:?}");
         let head: Vec<&str> = lines[0].split(sep).collect();
@@ -180,15 +231,25 @@ fn loggen_skriver_begge_formatene_og_stopper_rent() {
             assert_eq!(l.split(sep).count(), n, "kolonnene ligger fast: {l}");
         }
         let row: Vec<&str> = lines[1].split(sep).collect();
-        assert!(row[0].len() >= "2026-11-07T14:32:10.000+01:00".len() - 1, "ISO-tid med sone og millisekunder: {}", row[0]);
-        let ti = head.iter().position(|h| *h == "GPU · Temperatur [°C]").unwrap();
+        assert!(
+            row[0].len() >= "2026-11-07T14:32:10.000+01:00".len() - 1,
+            "ISO-tid med sone og millisekunder: {}",
+            row[0]
+        );
+        let ti = head
+            .iter()
+            .position(|h| *h == "GPU · Temperatur [°C]")
+            .unwrap();
         assert!(row[ti].parse::<f64>().is_ok(), "{}", row[ti]);
         if format == "norsk" {
             assert!(row[1].contains(','), "desimalkomma i Sekunder: {}", row[1]);
         } else {
             assert!(row[1].contains('.'), "{}", row[1]);
         }
-        assert_eq!(st["bytes"].as_u64().unwrap(), std::fs::metadata(&file).unwrap().len());
+        assert_eq!(
+            st["bytes"].as_u64().unwrap(),
+            std::fs::metadata(&file).unwrap().len()
+        );
     }
 }
 
@@ -212,7 +273,10 @@ fn loggen_holder_tjenesten_i_live_uten_klienter() {
     while d.running() && t0.elapsed() < Duration::from_secs(5) {
         std::thread::sleep(Duration::from_millis(50));
     }
-    assert!(!d.running(), "uten logg og klienter stopper tjenesten etter fristen");
+    assert!(
+        !d.running(),
+        "uten logg og klienter stopper tjenesten etter fristen"
+    );
 }
 
 #[test]
@@ -223,15 +287,29 @@ fn ugyldige_valg_gir_norske_feil() {
     assert_eq!(v["error"]["code"], "invalid_argument");
     assert!(v["error"]["message"].as_str().unwrap().contains("full sti"));
     let v = c.call("log_start", json!({"dir": "/tmp", "intervalMs": 3000}));
-    assert!(v["error"]["message"].as_str().unwrap().contains("0,5, 1, 2, 5 eller 10 s"));
+    assert!(
+        v["error"]["message"]
+            .as_str()
+            .unwrap()
+            .contains("0,5, 1, 2, 5 eller 10 s")
+    );
     let v = c.call("log_start", json!({"dir": "/tmp", "keys": []}));
-    assert!(v["error"]["message"].as_str().unwrap().contains("minst én sensor"));
+    assert!(
+        v["error"]["message"]
+            .as_str()
+            .unwrap()
+            .contains("minst én sensor")
+    );
     assert_eq!(c.ok("log_status", json!({}))["active"], false);
 }
 
 #[test]
 fn tilstandene_fra_sim_scenariene() {
-    for (scenario, state, detail) in [("sim:driver-oppdatert", "driver_updated", "610.51"), ("sim:ingen-driver", "no_driver", "libnvidia-ml"), ("sim:to-kort", "ok", "")] {
+    for (scenario, state, detail) in [
+        ("sim:driver-oppdatert", "driver_updated", "610.51"),
+        ("sim:ingen-driver", "no_driver", "libnvidia-ml"),
+        ("sim:to-kort", "ok", ""),
+    ] {
         let d = Daemon::start(scenario, 60_000);
         let mut c = d.connect();
         // Tilstanden settes i første runde. Under høy last kan den komme etter
@@ -248,7 +326,10 @@ fn tilstandene_fra_sim_scenariene() {
         };
         let list = g["gpus"].as_array().unwrap();
         if !detail.is_empty() {
-            assert!(list[0]["detail"].as_str().unwrap().contains(detail), "{scenario}: {g}");
+            assert!(
+                list[0]["detail"].as_str().unwrap().contains(detail),
+                "{scenario}: {g}"
+            );
         }
         if scenario == "sim:to-kort" {
             assert_eq!(list.len(), 2);
@@ -269,7 +350,10 @@ fn tilstandene_fra_sim_scenariene() {
                     assert!(t["gpus"].as_object().unwrap().is_empty());
                     break;
                 }
-                assert!(t0.elapsed() < Duration::from_secs(20), "ingen prøve fra prosessoren");
+                assert!(
+                    t0.elapsed() < Duration::from_secs(20),
+                    "ingen prøve fra prosessoren"
+                );
                 std::thread::sleep(Duration::from_millis(50));
             }
         }
@@ -282,7 +366,17 @@ fn kortet_forsvinner_og_kommer_tilbake() {
     let d = Daemon::start("sim:borte", 60_000);
     let mut c = d.connect();
     c.ok("subscribe", json!({"topics": ["telemetry", "device"]}));
-    let ev = c.wait_event("device", |e| e["changed"].as_array().is_some_and(|l| l.iter().any(|g| g["state"] == "lost")), Duration::from_secs(25)).expect("device-hendelse med lost");
+    let ev = c
+        .wait_event(
+            "device",
+            |e| {
+                e["changed"]
+                    .as_array()
+                    .is_some_and(|l| l.iter().any(|g| g["state"] == "lost"))
+            },
+            Duration::from_secs(25),
+        )
+        .expect("device-hendelse med lost");
     let g = &ev["gpus"][0];
     assert_eq!(g["state"], "lost");
     assert!(g["since"].as_i64().unwrap() > 0);
