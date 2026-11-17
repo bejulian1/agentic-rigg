@@ -344,17 +344,30 @@ fn ekte_skriving_er_kortbundet_og_bare_for_hjelperen() {
 }
 
 #[test]
-fn i2c_bussene_åpnes_ikke() {
-    // Å lese navnene i /sys/bus/i2c/devices/*/name er trygt, men koden gjør
-    // ikke det heller i 1.0. Ingen kode skal nevne i2c-dev eller ioctl.
+fn i2c_er_avgrenset_til_eksplisitt_kortbundet_rgb_identifikasjon() {
+    // RGB-bestillingen 17. november åpner én eksplisitt identifikasjonssti,
+    // ikke I2C i innsamlingen, vinduet eller den vanlige GPU-hjelperflyten.
     let mut files = Vec::new();
     rust_files(&crates_dir(), &mut files);
     for f in &files {
         let c = code(f);
-        assert!(
-            !c.contains("i2c-dev") && !c.contains("I2C_SLAVE") && !c.contains("libc::ioctl"),
-            "{}",
-            rel(f)
-        );
+        let name = rel(f);
+        if name == "rigg-hw/src/gpu/palit_rgb.rs" {
+            for forbidden in ["I2C_SLAVE_FORCE", "I2C_RDWR", "I2C_SMBUS_WRITE", "write_byte", "write_register"] {
+                assert!(!c.contains(forbidden), "{name} har en ikke godkjent skrivesti: {forbidden}");
+            }
+            continue;
+        }
+        assert!(!c.contains("i2c-dev") && !c.contains("I2C_SLAVE") && !c.contains("libc::ioctl"), "{}", name);
+        if !name.starts_with("rigg-helper/") && !name.contains("/tests/") {
+            assert!(
+                !c.contains("palit_rgb::identify") && !c.contains("palit_rgb::metadata_preview"),
+                "{name} starter RGB-oppdagelse utenfor den eksplisitte hjelperstien"
+            );
+        }
+    }
+    for manifest in ["rigg", "riggd"] {
+        let c = std::fs::read_to_string(crates_dir().join(manifest).join("Cargo.toml")).unwrap();
+        assert!(!c.contains("palit-rgb"), "Bare hjelperen skal be om RGB-transporten");
     }
 }

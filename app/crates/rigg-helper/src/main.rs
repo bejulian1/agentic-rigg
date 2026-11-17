@@ -4,6 +4,7 @@
 //! ```text
 //! agentic-rigg-helper [--backend nvml|sim] [--socket STI] [--config STI]
 //! agentic-rigg-helper --tilbakestill [--backend nvml|sim] [--config STI]
+//! agentic-rigg-helper --rgb-identifiser --pci PCI --uuid UUID
 //! ```
 //!
 //! - Kjører som systemd-systemtjeneste (`agentic-rigg-helper.service`) etter
@@ -20,6 +21,7 @@
 
 mod journal;
 mod motor;
+mod rgb_probe;
 mod server;
 
 use rigg_core::hjelper;
@@ -28,11 +30,15 @@ use std::path::PathBuf;
 
 const HELP: &str =
     "Bruk: agentic-rigg-helper [--backend nvml|sim] [--socket STI] [--config STI] [--tilbakestill]
+      agentic-rigg-helper --rgb-identifiser --pci PCI --uuid UUID
 
 Root-hjelperen til Agentic Rigg. Startes av systemd etter at du har slått på
 «Tillat endring av skjermkortet» i Innstillinger › Styring, og fjernes når du
 slår den av. Tar bare imot faste operasjoner fra tjenesten din, og bare for
-trinnene du har godkjent.";
+trinnene du har godkjent.
+
+--rgb-identifiser er en separat, lesende administratorprøve for ett valgt
+skjermkort. Den gir JSON uten å starte tjenesten eller endre oppsettet.";
 
 struct Args {
     backend: String,
@@ -195,6 +201,11 @@ fn sd_notify(state: &str) {
 }
 
 fn main() {
+    // Den avgrensede RGB-prøven må avsluttes før vanlig tjeneroppsett,
+    // NVML-åpning, grunnverdifiler, socket eller recovery kan bli berørt.
+    if let Some(code) = rgb_probe::dispatch() {
+        std::process::exit(code);
+    }
     let args = match parse_args() {
         Ok(a) => a,
         Err(e) => {

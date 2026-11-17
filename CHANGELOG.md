@@ -2,6 +2,11 @@
 
 Gjeldende versjon: **1.4.1 · bygg 24**. Nedlastinger og utgivelsesnotater ligger under [Releases](https://github.com/bejulian1/agentic-rigg/releases).
 
+## Under arbeid · feature/palit-rgb
+
+- Kildeundersøkelse og første kortbundne, lesende Palit-identifikasjon for RTX 2080 Super JetStream. Fysisk fargestyring, gjenoppretting og RGB-brukerflate er fortsatt under arbeid, og er ikke utgitt.
+- [Faktisk status, kontrollerprotokoll og verifikasjon](docs/produksjon/palit-rgb-2026-11-17.md). Eksisterende GPU-autorisasjon og installasjon endres ikke av dette forarbeidet.
+
 ## 1.4.1 · bygg 24 – 14. november 2026
 
 - Vifter får Enkel/Avansert visning: vanlig valg av Auto/Manuell først, kurver og detaljert oppførsel under Avansert. En aktiv kurve fortsetter i Enkel visning og forklares der.

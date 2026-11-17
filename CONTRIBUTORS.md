@@ -5,6 +5,7 @@
 | [Julian / bejulian1](https://github.com/bejulian1) | Prosjekteier, produktidé, prioriteringer, maskinvaregrunnlag og utprøving. |
 | [Claude Code · Anthropic Claude Opus 5.5](https://github.com/apps/claude) | AI-assistanse til den opprinnelige applikasjonen, Rust/GTK-grunnlaget, funksjoner og dokumentasjon frem til 1.3.0. |
 | [Codex · OpenAI GPT 6.1 Sol](https://github.com/codex) | AI-assistanse til sidefelt, navigasjon og søk, adaptive grafer, CPU-lanseringsdato, kode-/UI-gjennomgang, NVML-styring i 1.4.0, maskinvaretilpasning og brukerflate i 1.4.1, og GitHub-utgivelser. |
+| [Codex · OpenAI GPT 6 Astra](https://github.com/codex) | AI-assistanse til kildeundersøkelse, sikkerhetsgjennomgang og pågående implementasjon av kortbundet Palit-RGB. |
 
 Claude Code og Codex er AI-verktøy, ikke menneskelige prosjektmedlemmer. Prosjekteieren bestemmer funksjoner og godkjenner publisering.
 

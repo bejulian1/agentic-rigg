@@ -1,5 +1,12 @@
 # Patchlog
 
+## Pågående · Palit-RGB på feature/palit-rgb
+
+- Eget kildegrunnlag fra ThunderMaster-opptak og installert NVIDIA-driver; eksakte Palit 100/150-signaturer, faktisk fargeprotokoll og begrensninger ved ukjent effektmodus.
+- Typet RGB-identitet, observasjon og baseline skiller registerverdier, brukerbekreftelse og faktisk avlest modus. Forhåndsvisningens tegnede soner blir ikke fysisk maskinvare.
+- Separat, lesende `--rgb-identifiser --pci PCI --uuid UUID` i hjelperen. Streng GPU-/adapterbinding, én adresse og et fast lesesett; ingen registerskriving, skanning, konfigurasjonsendring eller omstart av GPU-hjelperen.
+- Nye isolerte modell-/transport-/argumenttester og snevert oppdaterte sikkerhetskontroller. Faktisk fargeendring, gjenoppretting og RGB-brukerflate gjenstår før modulen er ferdig. [Status og kilder](../docs/produksjon/palit-rgb-2026-11-17.md).
+
 ## 1.4.1 · bygg 24 – 14. november 2026: enklere viftestyring og synlig bekreftelse
 
 - **Versjonslogg og bidrag:** Innstillinger har en fast Versjonslogg-knapp, og Om har Vis versjonslogg. Dialogen viser de ni dokumenterte desktoputgavene fra 1.4.1 bygg 24 til 1.0.0 bygg 16, nyeste først, med korte endringer og uten løpende testtall. Historikken ligger som en egen innebygd ressurs. Om krediterer Julian, Anthropic Claude Opus 5.5 (Claude Code) og OpenAI GPT 6.1 Sol (Codex), og den gamle påstanden om at appen bare leser er erstattet med presis tekst om overvåking og støttet GPU-styring.

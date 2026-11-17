@@ -15,6 +15,7 @@ pub mod model;
 pub mod paths;
 pub mod proto;
 pub mod report;
+pub mod rgb;
 pub mod sensor_key;
 pub mod sensormeta;
 pub mod settings;

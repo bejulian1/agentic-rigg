@@ -16,6 +16,8 @@
 
 pub mod nvml;
 pub mod nvml_info;
+#[cfg(feature = "palit-rgb")]
+pub mod palit_rgb;
 pub mod sim;
 /// Viftesløyfen mot det simulerte kortet (7B), felles for `riggd` og hjelperens tester.
 pub mod sim_vifter;
