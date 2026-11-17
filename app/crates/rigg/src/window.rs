@@ -263,6 +263,9 @@ impl Shell {
     /// Sier til tjenesten hvilke sider som synes (`[]` når vinduet er minimert).
     pub fn send_focus(&self, hidden: bool) {
         let app = self.app();
+        if let Some(p) = self.pages.borrow().get(app.page.borrow().as_str()) {
+            p.window_hidden(hidden);
+        }
         let pages: Vec<String> = if hidden { vec![] } else { vec![app.page.borrow().clone()] };
         app.client.request("set_focus", serde_json::json!({"pages": pages}), |_| {});
     }

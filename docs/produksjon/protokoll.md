@@ -1,5 +1,7 @@
 # Agentic Rigg 1.0 · protokollen mellom vinduet og tjenesten
 
+Oppgaver-utvidelsen på `feature/task-manager` beskrives i kapittel 13. Den endrer ikke GPU-hjelperens protokoll eller skriveoperasjoner.
+
 *Grunnmuragenten (runde 1), 7. november 2026, med diskene fra runde 6A (8. november 2026, 1.1.0 · bygg 17) og root-hjelperen fra runde 7A (9. november 2026, 1.2.0, kap. 12). Gjelder `agentic-riggd` og `agentic-rigg` 1.0.0 · bygg 16 og nyere. Typene står ett sted, i `app/crates/rigg-core/src/proto.rs`, og brukes av begge sider. Kontrakttestene er `app/crates/riggd/tests/kontrakt.rs`.*
 
 Protokollen er fortsatt **1** fra `docs/daemon-api.md`. Alt under er nye operasjoner, felt og hendelser, som kontrakten sier ikke er brudd. Det som ikke står her, gjelder som i `docs/daemon-api.md`.
@@ -206,3 +208,17 @@ Historikken har plass til 112 serier (96 til 1.1.0): fire per disk og summen, h�
 | `sim_temp` | `celsius` | Bare med `--backend sim` (testene): holder temperaturen fast |
 
 Hjelperen setter kortet til standard (viftene på Auto) når forbindelsen som skrev, lukkes (`riggd` stopper eller krasjer), når et trinn trekkes tilbake, og når den selv stopper. Over 85 °C rulles ventende endring tilbake og viftene går til 100 % til kortet er under 80 °C. Viftekurven kjøres i hjelperen med viftemotoren fra 7B (`rigg_core::vifte`), på samme måte som tjenestens sim-sløyfe: `med_start` fra farten viftene har når Kurve slås på, nytt oppsett bare når det er endret, og ett steg per runde, også under nødregelen (7C). `status.emergency` er også sann når motoren har gått til 100 % fordi temperaturen ikke kan leses. Hver endring logges til journalen (`journalctl -u agentic-rigg-helper`).
+
+## 13. Oppgaver · feature/task-manager (ikke utgitt)
+
+`get_tasks` annonseres blant leseoperasjonene. `terminate_task` annonseres separat fra GPU-skriveoperasjonene, også uten GPU/backend. Ingen av dem bruker root-hjelperen. Eldre tjenester uten disse operasjonene må oppdateres før Oppgaver kan brukes.
+
+`get_tasks` tar `filter` (maksimalt 128 tegn), `sort` (`name`, `pid`, `user`, `cpu`, `memory`, `gpuMemory`, `state`), `descending`, `tree`, `offset` og `limit` (1–100). `snapshotId` kan utelates eller være null for nyeste prøve; et tidligere ID kan brukes for sammenhengende sidevisning. Tjenesten beholder nåværende og to tidligere prosessøyeblikk. Er ønsket ID utløpt, returneres nyeste prøve med `snapshotChanged: true`.
+
+Svaret inneholder `rows`, `total`, `matched`, `offset`, `nextOffset`, `sampledAtMs`, `snapshotId`, `snapshotChanged`, `ageMs`, `loading`, `stale`, `intervalMs`, `unreadable` og `error`. GPU-dekning forklares med `gpuSource`, `gpuSampledAtMs` og `gpuNote`. Prosessidene begrenses til 48 KiB før små statusmetadata/protokollkonvolutten legges til, innen dagens grense på 64 KiB.
+
+Hver rad har `pid`, `startTicks`, `ppid`, `name`, `state`, `uid`, `user`, `effectiveUid`, `rssBytes`, `cpuPercent`, `gpuVramBytes`, `depth`, `canTerminate` og `protectedReason`. Manglende verdier er null, ikke nullmålinger. Prosess-CPU har 100 % per logisk CPU; RAM er ikke-additiv RSS. GPU-minne er et samlet, avrundet NVML-bidrag fra kortene med dekning; ufullstendige/ukjente bidrag vises ikke som en fullstendig sum. Per-prosess GPU-prosent er ikke levert av denne modulen.
+
+Forespørslene holder behovet aktivt i fem sekunder. Prøvetråden samler høyst hvert andre sekund, og nullstiller CPU-baseline etter opphold. Første forespørsel kan gi `loading: true`; klienten må hente igjen for å motta prøven. Et prøvetidspunkt gjør ikke `/proc`-gjennomlesingen atomisk.
+
+`terminate_task` tar `pid`, `expectedStartTicks` og `confirmed: true`. Alle verdier kontrolleres på nytt før et pidfd-bundet SIGTERM til én prosess. Ugyldige argumenter avvises; utilstrekkelige rettigheter, beskyttede mål og utgått identitet gir norsk forklaring. `sent: true` og `signal: "SIGTERM"` bekrefter signalutsending, ikke at prosessen allerede er avsluttet. Ingen SIGKILL, gruppeavslutning, administratoropptrapping eller automatisk avslutning finnes.

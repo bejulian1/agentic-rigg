@@ -65,6 +65,8 @@ impl Daemon {
             "get_stats" => Ok(self.stats.to_json(keys_arg(a, 4096)?.as_deref())),
             "reset_stats" => self.op_reset_stats(a),
             "get_processes" => self.op_get_processes(a),
+            "get_tasks" => self.op_get_tasks(a),
+            "terminate_task" => self.op_terminate_task(a),
             "get_disks" => Ok(self.op_get_disks()),
             "log_start" => self.op_log_start(a),
             "log_stop" => self.op_log_stop(),

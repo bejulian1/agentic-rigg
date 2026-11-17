@@ -791,7 +791,9 @@ impl Sidebar {
         let hidden = self.app.settings().hidden_pages.clone();
         let show_kbd = self.app.settings().show_kbd;
         let mut last: Option<Section> = None;
-        for (i, p) in PAGES.iter().enumerate() {
+        let ordered = [Section::Monitor, Section::Hardware, Section::Control].into_iter()
+            .flat_map(|section| PAGES.iter().enumerate().filter(move |(_, p)| p.section == section));
+        for (i, p) in ordered {
             if hidden.iter().any(|h| h == p.id) {
                 continue;
             }
@@ -864,8 +866,8 @@ impl Sidebar {
             };
             b.set_child(Some(&bx));
             let description = page_hint(p.id).map(|h| control_description(&self.app, h));
-            let tiptext = description.as_ref().map(|d| format!("{}\n{d}", p.title)).unwrap_or_else(|| p.title.to_string());
-            tip(&b, &tiptext, num.as_deref());
+            let tiptext = description.as_ref().map(|d| format!("{}\n{d}", p.title)).unwrap_or_else(|| if p.id == "oppgaver" { "Oppgavebehandling · CPU, minne og prosesser".into() } else { p.title.to_string() });
+            tip(&b, &tiptext, if p.id == "oppgaver" { Some("Ctrl+Shift+Esc") } else { num.as_deref() });
             b.update_property(&[gtk::accessible::Property::Label(p.title)]);
             if let Some(desc) = description {
                 b.update_property(&[gtk::accessible::Property::Description(&desc)]);

@@ -13,6 +13,7 @@ pub mod hjelper;
 pub mod history;
 pub mod model;
 pub mod paths;
+pub mod process;
 pub mod proto;
 pub mod report;
 pub mod sensor_key;

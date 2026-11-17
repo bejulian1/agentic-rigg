@@ -19,7 +19,7 @@ use std::cell::RefCell;
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 use std::rc::{Rc, Weak};
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 pub struct Options {
     pub backend: String,
@@ -70,6 +70,12 @@ pub struct Daemon {
     pub processes: BTreeMap<String, Value>,
     /// Til når prøvetråden skal lese prosesslista (ms). 0 = av.
     pub processes_until: i64,
+    /// Oppgavelista har egen etterspørsel og egen CPU-baseline.
+    pub tasks: Option<crate::tasks::TaskSnapshot>,
+    pub tasks_previous: std::collections::VecDeque<(u64, crate::tasks::TaskSnapshot)>,
+    pub tasks_until: Option<Instant>,
+    pub tasks_generation: u64,
+    pub tasks_snapshot_id: u64,
     /// Disklista fra prøvetråden (`get_disks`, runde 6A).
     pub disks: Option<rigg_core::disk::DiskList>,
     /// Sist `get_disks` ba prøvetråden om en ny liste (ms).
@@ -133,6 +139,11 @@ impl Daemon {
             txn: rigg_core::txn::Book::new(),
             processes: BTreeMap::new(),
             processes_until: 0,
+            tasks: None,
+            tasks_previous: Default::default(),
+            tasks_until: None,
+            tasks_generation: 0,
+            tasks_snapshot_id: 0,
             disks: None,
             disks_asked: 0,
             disk_alarm: false,
@@ -317,7 +328,10 @@ impl Daemon {
 
     /// Ny takt når klientene eller innstillingene endres.
     pub fn reschedule(&mut self) {
-        let iv = crate::schedule::interval(self.sessions.values(), self.settings.background_interval_ms, self.logger.interval_ms());
+        let mut iv = crate::schedule::interval(self.sessions.values(), self.settings.background_interval_ms, self.logger.interval_ms());
+        if self.tasks_until.is_some_and(|until| Instant::now() < until) {
+            iv = iv.min(crate::tasks::TASK_INTERVAL_MS);
+        }
         if iv != self.interval_ms {
             self.interval_ms = iv;
             self.sampler.send(Cmd::Interval(iv));
@@ -475,6 +489,23 @@ impl Daemon {
         }
         for (id, p) in r.processes {
             self.processes.insert(id, p);
+        }
+        if let Some((generation, tasks)) = r.tasks
+            && generation == self.tasks_generation
+            && self.tasks_until.is_some_and(|until| Instant::now() < until)
+        {
+            if let Some(previous) = self.tasks.take() {
+                self.tasks_previous.push_back((self.tasks_snapshot_id, previous));
+                while self.tasks_previous.len() > 2 {
+                    self.tasks_previous.pop_front();
+                }
+            }
+            self.tasks_snapshot_id = self.tasks_snapshot_id.wrapping_add(1);
+            self.tasks = Some(tasks);
+        }
+        if self.tasks_until.is_some_and(|until| Instant::now() >= until) {
+            self.tasks_until = None;
+            self.reschedule();
         }
         let mut disk_alarms = Vec::new();
         if let Some(list) = r.disks {

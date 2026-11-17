@@ -824,6 +824,80 @@ fn prosesslista_leses_mens_den_er_bedt_om() {
     );
 }
 
+/// Oppgaver har egen etterspørsel, avgrensede sider og frisk CPU-baseline
+/// når vinduet kommer tilbake. Testen bruker aldri vertens GPU-hjelper.
+#[test]
+fn oppgaver_har_egne_sider_og_nullstilles_etter_skjult_vindu() {
+    let d = Daemon::start("ingen");
+    let mut c = d.connect();
+    let h = c.hello();
+    let ops = h["capabilities"]["ops"].as_array().unwrap();
+    assert!(ops.iter().any(|op| op == "get_tasks"));
+    assert!(ops.iter().any(|op| op == "terminate_task"));
+    assert_eq!(c.err("get_tasks", json!({"limit": 101})), "invalid_argument");
+    assert_eq!(c.err("get_tasks", json!({"sort": "ukjent"})), "invalid_argument");
+    let query = json!({"filter": std::process::id().to_string(), "sort": "pid", "limit": 100, "snapshotId": null});
+    assert_eq!(c.ok("get_tasks", query.clone())["loading"], true);
+    let wait = |c: &mut Conn| {
+        let start = Instant::now();
+        loop {
+            let page = c.ok("get_tasks", query.clone());
+            assert!(serde_json::to_vec(&page).unwrap().len() < rigg_core::proto::MAX_LINE - 256);
+            if page["loading"] == false { break page; }
+            assert!(start.elapsed() < Duration::from_secs(8), "oppgavelista kom ikke");
+            std::thread::sleep(Duration::from_millis(100));
+        }
+    };
+    let first = wait(&mut c);
+    let row = first["rows"].as_array().unwrap().iter().find(|row| row["pid"] == std::process::id()).expect("testprosessen finnes");
+    assert!(row["cpuPercent"].is_null(), "første rate trenger to prøver");
+    assert!(row["gpuVramBytes"].is_null());
+    assert_eq!(row["canTerminate"], false, "tilkoblet klient er beskyttet");
+    assert_eq!(first["gpuSource"], "unavailable");
+    assert_eq!(first["stale"], false);
+    let frozen = c.ok("get_tasks", json!({"snapshotId": first["snapshotId"], "limit": 1}));
+    assert_eq!(frozen["snapshotId"], first["snapshotId"]);
+    assert_eq!(frozen["sampledAtMs"], first["sampledAtMs"]);
+    std::thread::sleep(Duration::from_millis(5_300));
+    assert_eq!(c.ok("get_tasks", query.clone())["loading"], true);
+    let resumed = wait(&mut c);
+    assert!(resumed["snapshotId"].as_u64() > first["snapshotId"].as_u64());
+    let row = resumed["rows"].as_array().unwrap().iter().find(|row| row["pid"] == std::process::id()).unwrap();
+    assert!(row["cpuPercent"].is_null(), "skjult tid skal ikke bli en CPU-rate");
+}
+
+/// Bare vår egen sovende barneprosess er signalmål. PID-gjenbruk og
+/// manglende bekreftelse må feile før SIGTERM sendes.
+#[test]
+fn avslutt_oppgave_krever_bekreftet_identitet() {
+    struct ChildGuard(Child);
+    impl Drop for ChildGuard {
+        fn drop(&mut self) { let _ = self.0.kill(); let _ = self.0.wait(); }
+    }
+    let mut child = ChildGuard(Command::new("sleep").arg("30").spawn().unwrap());
+    let identity = rigg_hw::sys::process::read_identity(Path::new("/"), child.0.id()).unwrap();
+    let d = Daemon::start("ingen");
+    let mut c = d.connect();
+    c.hello();
+    let args = json!({"pid": identity.pid, "expectedStartTicks": identity.start_ticks});
+    assert_eq!(c.err("terminate_task", args.clone()), "invalid_argument");
+    let mut wrong = args.clone();
+    wrong["confirmed"] = json!(true);
+    wrong["expectedStartTicks"] = json!(identity.start_ticks + 1);
+    assert_eq!(c.err("terminate_task", wrong), "permission_denied");
+    assert!(child.0.try_wait().unwrap().is_none(), "feil identitet får aldri signal");
+    let mut confirmed = args;
+    confirmed["confirmed"] = json!(true);
+    assert_eq!(c.ok("terminate_task", confirmed)["signal"], "SIGTERM");
+    let start = Instant::now();
+    while child.0.try_wait().unwrap().is_none() {
+        assert!(start.elapsed() < Duration::from_secs(5), "barnet avsluttet ikke");
+        std::thread::sleep(Duration::from_millis(10));
+    }
+    let own = rigg_hw::sys::process::read_identity(Path::new("/"), std::process::id()).unwrap();
+    assert_eq!(c.err("terminate_task", json!({"pid": own.pid, "expectedStartTicks": own.start_ticks, "confirmed": true})), "permission_denied");
+}
+
 /// Mens loggen går, er takten minst så rask som loggintervallet, også uten
 /// vindu (ønske fra 2B). Etter stopp gjelder bakgrunnstakten igjen.
 #[test]

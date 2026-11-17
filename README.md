@@ -2,6 +2,8 @@
 
 **1.4.1 · bygg 24** · Rust og GTK 4 · Ubuntu · Code Pro
 
+På `feature/task-manager` utvikles **Oppgaver** for gjennomgang i en Draft PR: prosesser med CPU, RSS-minne, tilgjengelig GPU-minne, prosesstre, søk, sortering og bekreftet normal avslutning. Systemgrafene gjenbruker appens målinger. [Måledefinisjoner, sikkerhet og verifikasjon](docs/produksjon/oppgavebehandling.md). Dette forslaget er ikke en ny stabil Release; nedlastingene under gjelder 1.4.1.
+
 Et lett maskinvareverktøy for Ubuntu: sensorer, grafer, CPU- og GPU-spesifikasjoner og diskhelse i én norsk desktop-app. Inspirert av MSI Afterburner, HWiNFO, GPU-Z, CPU-Z og CrystalDiskInfo.
 
 [Last ned siste utgave](https://github.com/bejulian1/agentic-rigg/releases/latest) · [Versjonslogg](CHANGELOG.md) · [Bidragsytere](CONTRIBUTORS.md)

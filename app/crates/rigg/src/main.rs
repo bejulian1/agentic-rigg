@@ -34,7 +34,7 @@ mod window;
 const HELP: &str = "Bruk: agentic-rigg [--side SIDE] [--innstillinger DEL] [--hint] [--version]
 
   --side SIDE           åpne en side: oversikt, sensorer, grafer, grafikkort,
-                        prosessor, disker, system, kontroller (Klokker og
+                        oppgaver, prosessor, disker, system, kontroller (Klokker og
                         effekt), viftekurve (Vifter) eller lys (RGB-lys)
   --innstillinger DEL   åpne Innstillinger (generelt, utseende, format,
                         sidefelt, grafer, logging, data eller om)

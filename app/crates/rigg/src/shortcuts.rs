@@ -82,6 +82,10 @@ pub fn attach(app: &Rc<App>, window: &gtk::ApplicationWindow) {
         // ---- Skallet ----
         if ctrl && !alt {
             match key {
+                K::Escape if shift => {
+                    shell.go("oppgaver");
+                    return gtk::glib::Propagation::Stop;
+                }
                 K::comma => {
                     shell.toggle_settings();
                     return gtk::glib::Propagation::Stop;
@@ -170,7 +174,8 @@ pub const KEYS: &[(&str, &[(&str, &str)])] = &[
     (
         "Navigasjon",
         &[
-            ("1–9 0", "Gå til side 1–9, og 0 for side 10 (i rekkefølgen i sidefeltet)"),
+            ("1–9 0", "Åpne de ti opprinnelige sidene; 0 åpner RGB-lys"),
+            ("Ctrl+Shift+Esc", "Åpne Oppgaver"),
             ("↑ ↓", "Flytt i sidefeltet"),
             ("Ctrl+,", "Åpne og lukk Innstillinger"),
             ("Ctrl+?", "Denne oversikten"),
@@ -181,7 +186,7 @@ pub const KEYS: &[(&str, &[(&str, &str)])] = &[
     (
         "Sider",
         &[
-            ("Ctrl+F", "Filtrer sensorer (Sensorer) eller søk (Innstillinger)"),
+            ("Ctrl+F", "Søk i Oppgaver, Sensorer eller Innstillinger"),
             ("/", "Søk i Innstillinger"),
             ("Alt+↑ / Alt+↓", "Flytt en verdi i statusblokken (Innstillinger › Sidefelt)"),
             ("Mellomrom", "Pause og fortsett (Grafer)"),
@@ -369,7 +374,7 @@ mod tests {
     #[test]
     fn sifrene_gir_alle_ti_sidene() {
         use super::page_index;
-        assert_eq!(crate::pages::PAGES.len(), 10);
+        assert_eq!(crate::pages::PAGES.len(), 11);
         assert_eq!(page_index(1), Some(0));
         assert_eq!(page_index(9), Some(8));
         assert_eq!(page_index(0), Some(9));

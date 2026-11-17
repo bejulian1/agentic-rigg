@@ -42,6 +42,11 @@ pub enum Cmd {
     Pause(bool),
     /// Prosesslista (`get_processes`): les den hvert 5. s så lenge den er på.
     Processes(bool),
+    /// Oppgaver leses bare mens en synlig side fornyer fristen.
+    Tasks {
+        generation: u64,
+        until: Instant,
+    },
     /// Et vindu viser verdiene eller loggen går ([`crate::schedule::detailed`]):
     /// de trege verdiene hvert 2. og 5. s. Ellers hvert 10. og 30. s.
     Detailed(bool),
@@ -63,6 +68,7 @@ pub struct Round {
     pub statics: Vec<(GpuStatic, bool)>,
     /// Prosesslista per kort, når den er bedt om og lest denne runden.
     pub processes: Vec<(String, serde_json::Value)>,
+    pub tasks: Option<(u64, crate::tasks::TaskSnapshot)>,
     /// Disklista (`get_disks`), når den er laget denne runden.
     pub disks: Option<rigg_core::disk::DiskList>,
     /// Tid brukt på runden (feilsøking, `maal.sh`).
@@ -89,7 +95,14 @@ impl Sampler {
         let handle = std::thread::Builder::new()
             .name("rigg-prøver".into())
             .spawn(move || {
-                let mut st = State { interval: interval_ms.max(MIN_INTERVAL_MS), paused: false, processes: false, detailed: false, disk_alarm: false };
+                let mut st = State {
+                    interval: interval_ms.max(MIN_INTERVAL_MS),
+                    paused: false,
+                    processes: false,
+                    tasks: None,
+                    detailed: false,
+                    disk_alarm: false,
+                };
                 loop {
                     let res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| run(&kind, &root, &rx, &out, &mut st)));
                     match res {
@@ -123,6 +136,7 @@ struct State {
     interval: u32,
     paused: bool,
     processes: bool,
+    tasks: Option<(u64, Instant)>,
     detailed: bool,
     disk_alarm: bool,
 }
@@ -163,8 +177,17 @@ pub fn slow_periods(detailed: bool) -> (i64, i64) {
 const PROCESSES_MS: i64 = 5_000;
 
 fn run(kind: &BackendKind, root: &std::path::Path, rx: &mpsc::Receiver<Cmd>, out: &async_channel::Sender<Round>, st: &mut State) {
-    let State { interval, paused, processes: want_proc, detailed, disk_alarm } = st;
+    let State {
+        interval,
+        paused,
+        processes: want_proc,
+        tasks: task_demand,
+        detailed,
+        disk_alarm,
+    } = st;
     let mut last_proc = i64::MIN / 2;
+    let mut last_task: Option<Instant> = None;
+    let mut task_reader = rigg_hw::sys::process::ProcessReader::new(root);
     let mut backend = make_backend(kind, root);
     let mut sys = SysReader::new(root);
     let mut disks = make_disks(kind, root);
@@ -205,6 +228,13 @@ fn run(kind: &BackendKind, root: &std::path::Path, rx: &mpsc::Receiver<Cmd>, out
                     }
                     *want_proc = on;
                 }
+                Ok(Cmd::Tasks { generation, until }) => {
+                    if task_demand.is_none_or(|(previous, deadline)| previous != generation || Instant::now() >= deadline) {
+                        task_reader.reset();
+                        last_task = None;
+                    }
+                    *task_demand = Some((generation, until));
+                }
                 Ok(Cmd::Detailed(on)) => {
                     if on && !*detailed {
                         // Vinduet kom fram: les alt i neste runde, så tallene er ferske.
@@ -217,6 +247,9 @@ fn run(kind: &BackendKind, root: &std::path::Path, rx: &mpsc::Receiver<Cmd>, out
                 Ok(Cmd::Disks) => want_disks = true,
                 Ok(Cmd::DiskAlarm(on)) => *disk_alarm = on,
                 Ok(Cmd::Pause(p)) => {
+                    // Dvalen må ikke bli del av neste CPU-rate.
+                    task_reader.reset();
+                    last_task = None;
                     if *paused && !p {
                         // Etter oppvåkning: 2 s pause før første runde.
                         next = Instant::now() + Duration::from_secs(2);
@@ -228,6 +261,11 @@ fn run(kind: &BackendKind, root: &std::path::Path, rx: &mpsc::Receiver<Cmd>, out
             }
         }
         let t0 = Instant::now();
+        if task_demand.is_some_and(|(_, until)| t0 >= until) {
+            *task_demand = None;
+            task_reader.reset();
+            last_task = None;
+        }
         let now = rigg_core::now_ms();
         if now - last_check >= 10_000 {
             last_check = now;
@@ -274,8 +312,11 @@ fn run(kind: &BackendKind, root: &std::path::Path, rx: &mpsc::Receiver<Cmd>, out
                 statics.push((st, done));
             }
         }
+        let tasks_due = task_demand.is_some() && last_task.is_none_or(|last| t0.saturating_duration_since(last) >= Duration::from_millis((crate::tasks::TASK_INTERVAL_MS - 50) as u64));
+        // Les identiteten før NVML, og bekreft den igjen ved sammenkobling.
+        let task_processes = tasks_due.then(|| task_reader.sample(now));
         let mut processes = Vec::new();
-        if *want_proc && now - last_proc >= PROCESSES_MS - 50 {
+        if tasks_due || *want_proc && now - last_proc >= PROCESSES_MS - 50 {
             last_proc = now;
             for g in &infos {
                 if let Some(p) = (!g.id.is_empty()).then(|| backend.processes(&g.id)).flatten() {
@@ -283,8 +324,32 @@ fn run(kind: &BackendKind, root: &std::path::Path, rx: &mpsc::Receiver<Cmd>, out
                 }
             }
         }
+        let tasks = task_processes.map(|snapshot| {
+            last_task = Some(t0);
+            let snapshot = crate::tasks::with_gpu(
+                snapshot,
+                &processes,
+                matches!(kind, BackendKind::Nvml),
+                infos.iter().filter(|gpu| !gpu.id.is_empty()).count(),
+                root,
+                t0,
+                rigg_core::now_ms(),
+            );
+            (task_demand.as_ref().expect("etterspørsel kontrollert over").0, snapshot)
+        });
         let cost_us = t0.elapsed().as_micros() as u64;
-        let round = Round { t: now, interval_ms: *interval, gpus: r.samples, sys: sys_sample, infos, statics, processes, disks: disk_list, cost_us };
+        let round = Round {
+            t: now,
+            interval_ms: *interval,
+            gpus: r.samples,
+            sys: sys_sample,
+            infos,
+            statics,
+            processes,
+            tasks,
+            disks: disk_list,
+            cost_us,
+        };
         if out.send_blocking(round).is_err() {
             backend.shutdown();
             return;
