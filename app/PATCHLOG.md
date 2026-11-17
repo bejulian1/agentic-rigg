@@ -4,6 +4,9 @@
 
 - Eget kildegrunnlag fra ThunderMaster-opptak og installert NVIDIA-driver; eksakte Palit 100/150-signaturer, faktisk fargeprotokoll og begrensninger ved ukjent effektmodus.
 - Typet RGB-identitet, observasjon og baseline skiller registerverdier, brukerbekreftelse og faktisk avlest modus. Forhåndsvisningens tegnede soner blir ikke fysisk maskinvare.
+- Egen, streng RGB-tillatelsesmodell uten klientvalgte enhetsstier. Eksisterende v2-GPU-tillatelse gir ikke RGB; eldre eksplisitte simulerte trinn beholdes.
+- Smal statisk/av-skrivetransport med fersk kort-/signatur-/fd-kontroll, fem faste registerskrivinger, avvisning av endrede fargefelt før skriving og separat gjenopprettingssti. Feil etter et forsøkt skrivekall behandles som mulig delvis endring.
+- Selvstendig RGB-transaksjon med varig-journal-kontrakt, klientbinding, Behold, frist og tilbakerulling, testet mot falsk backend. Samsvarende farge/lysstyrke oppgraderes aldri til avlest effektmodus eller full gjenopprettingsbekreftelse. Tjeneste, aktivering og brukerflate er ikke koblet til denne skrivestien ennå.
 - Separat, lesende `--rgb-identifiser --pci PCI --uuid UUID` i hjelperen. Streng GPU-/adapterbinding, én adresse og et fast lesesett; ingen registerskriving, skanning, konfigurasjonsendring eller omstart av GPU-hjelperen.
 - Nye isolerte modell-/transport-/argumenttester og snevert oppdaterte sikkerhetskontroller. Faktisk fargeendring, gjenoppretting og RGB-brukerflate gjenstår før modulen er ferdig. [Status og kilder](../docs/produksjon/palit-rgb-2026-11-17.md).
 
