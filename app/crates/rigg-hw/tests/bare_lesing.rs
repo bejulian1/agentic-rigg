@@ -93,9 +93,12 @@ fn ingen_skriving_til_kortet_i_koden() {
     };
     // NVML-skrivekallene: bare den sperrede fila. pkexec: bare bryteren.
     let gated = |f: &str, pat: &str| {
-        (f.ends_with("gpu/skriv_nvml.rs") && pat.starts_with("nvmlDevice")) || (f.ends_with("rigg/src/settings/styring.rs") && pat == "pkexec")
+        (f.ends_with("gpu/skriv_nvml.rs") && pat.starts_with("nvmlDevice")) || ((f.ends_with("rigg/src/settings/styring.rs") || f.ends_with("rigg/src/pages/lys_kort.rs")) && pat == "pkexec")
         // Skripttestene nevner PKEXEC_UID (som pkexec setter); de kjører aldri pkexec.
         || (f.starts_with("rigg-helper/tests/") && pat == "pkexec")
+        // JSON-rapport og forventet systemd-regel i en ren --root-filfixture.
+        // Testen kjører aldri helper/systemctl eller åpner en I2C-enhet.
+        || (f == "rigg-helper/tests/rgb_skript.rs" && pat == "/dev/i2c")
     };
     let mut hits = Vec::new();
     for f in &files {
@@ -135,7 +138,7 @@ fn ingen_programmer_startes() {
         }
         let c = code(f);
         // Bryteren i Innstillinger › Styring starter pkexec (brukerens handling, 7A).
-        if name.ends_with("rigg/src/settings/styring.rs") {
+        if name.ends_with("rigg/src/settings/styring.rs") || name.ends_with("rigg/src/pages/lys_kort.rs") {
             assert!(
                 c.contains("/usr/bin/pkexec") && !c.contains("Command::new"),
                 "styring.rs skal bare starte pkexec med gio::Subprocess"

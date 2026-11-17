@@ -71,3 +71,11 @@ window.rigg .lys button.part .n { font-weight: 600; }
 window.rigg .lys button.part:checked { background-color: var(--accent-soft); box-shadow: inset 2px 0 0 var(--accent); }
 window.rigg .lys button.zone-item.selected { background-color: var(--accent-soft); }
 .lys .group.grow { min-height: 140px; }
+
+/* Fysisk kortlys har egne valg og egen bekreftelse. FlowBox lar knappene
+ * flyte også ved 640 px og stor skrift, uten horisontal rulling. */
+.lys .rgb-card-control > .group-body { border-spacing: var(--sp-2); }
+.lys .rgb-card-flow > flowboxchild { padding: 0; }
+.lys .rgb-card-flow entry { min-height: var(--h-sm); }
+.lys .rgb-card-pending { padding: var(--sp-2); border: 1px solid var(--accent); border-radius: var(--r); background-color: var(--accent-soft); }
+.rgb-card-dialog { padding: 16px; }

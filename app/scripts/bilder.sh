@@ -52,6 +52,8 @@
 #                     simulerte verdier i testvinduet; fast/tilpass, °F og 48 t
 #   1.4.0-ui          sim/falsk pkexec: filter/fokus, tidsmeny, globalaktivering,
 #                     eksplisitt simulert klar-status og PCIe i 2D/3D (bruk gl)
+#   rgb-ui            fysisk RGB-panel med merkede simulerte visningstilstander;
+#                     alle administratorhandlinger og RGB-RPC-er er blokkert
 #
 # Binærene: $RIGG_BIN, ellers $CARGO_TARGET_DIR/release (eller debug). Planene
 # fra runde 2 finnes bare i debug-bygget (unntatt 2c), så 2a* og 2b* tar
@@ -94,6 +96,21 @@ set -u
 export RIGG_HJELPER_ROT="${RIGG_HJELPER_ROT:-$OKT_BASE/hjelper-rot}"
 [ "$RIGG_HJELPER_ROT" != / ] || { echo "Skjermbildeprøver kan ikke bruke vertens GPU-hjelper." >&2; exit 2; }
 mkdir -p "$RIGG_HJELPER_ROT"
+rgb_fake_pid=
+if [ "${RIGG_PLAN:-}" = rgb-flow ]; then
+    /usr/bin/python3 -I "$RIGG_RGB_FAKE_SCRIPT" --root "$RIGG_HJELPER_ROT" --build "$RIGG_RGB_FAKE_BUILD" >"$OKT_BASE/rgb-fake.log" 2>&1 &
+    rgb_fake_pid=$!
+    for _ in $(seq 1 50); do
+        [ -S "$RIGG_HJELPER_ROT/run/agentic-rigg-rgb/helper.sock" ] && break
+        sleep 0.05
+    done
+    if [ ! -S "$RIGG_HJELPER_ROT/run/agentic-rigg-rgb/helper.sock" ]; then
+        kill -TERM "$rgb_fake_pid" 2>/dev/null || true
+        wait "$rgb_fake_pid" 2>/dev/null || true
+        echo "Den private RGB-fixturen startet ikke." >&2
+        exit 2
+    fi
+fi
 # Lengre frist enn 60 s, så tjenesten samler historikk under oppvarmingen i
 # stedet for å stoppe uten klienter. «Fortsett i bakgrunnen» står som standard (av).
 # shellcheck disable=SC2086
@@ -105,6 +122,10 @@ timeout "${RIGG_PLAN_FRIST:-900}" "$RIGG_BIN/agentic-rigg" $RIGG_VINDU_ARGS 2>"$
 rc=$?
 kill -TERM "$d" 2>/dev/null
 wait "$d" 2>/dev/null
+if [ -n "$rgb_fake_pid" ]; then
+    kill -TERM "$rgb_fake_pid" 2>/dev/null || true
+    wait "$rgb_fake_pid" 2>/dev/null || true
+fi
 grep -E "CSS|CRITICAL|WARNING|panicked|RIGG_KORTMENY|kortmenyen er bredere|RIGG_SKJERMBILDE|RIGG_BILDER_2C|RIGG_BREDDE|RIGG_2C_MAAL|RIGG_2C_KLAR|fant ikke|mangler kroken" "$OKT_BASE/rigg.log" | head -80 >&2
 exit $rc
 RUN
@@ -157,7 +178,7 @@ for plan in "${plans[@]}"; do
         # root, ingen polkit, ingen systemctl.
         fake=$target/7a-rot-$plan hdata=$target/7a-hjelper-$plan
         rm -rf -- "$fake" "$hdata"
-        mkdir -p "$fake" "$hdata"
+        mkdir -m 700 -p "$fake" "$hdata"
         cp "$here"/data/hjelper/* "$hdata/"
         cp "$bin/agentic-rigg-helper" "$hdata/"
         vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=$plan" "RIGG_PKEXEC=$here/scripts/falsk-pkexec.sh" "RIGG_HJELPER_DATA=$hdata" "RIGG_HJELPER_ROT=$fake")
@@ -167,6 +188,21 @@ for plan in "${plans[@]}"; do
     kortmeny) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=kortmeny") backend=${RIGG_KORTMENY_BACKEND:-sim} warm=${RIGG_OPPVARMING:-8} ;;
     innstillinger-sok) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=innstillinger-sok") backend=sim warm=${RIGG_OPPVARMING:-4} ;;
     adaptive-akser) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=adaptive-akser") backend=sim warm=${RIGG_OPPVARMING:-4} ;;
+    rgb-ui | rgb-flow)
+        fake=$(mktemp -d /tmp/rigg-rgb-ui-root.XXXXXX)
+        hdata=$(mktemp -d /tmp/rigg-rgb-ui-data.XXXXXX)
+        cp "$here"/data/hjelper/* "$hdata/"
+        cp "$bin/agentic-rigg-helper" "$hdata/"
+        vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=$plan" "RIGG_PKEXEC=$here/scripts/falsk-pkexec.sh" "RIGG_HJELPER_DATA=$hdata" "RIGG_HJELPER_ROT=$fake" "RIGG_FALSK_HJELPER_BACKEND=sim")
+        if [ "$plan" = rgb-flow ]; then
+            printf 'agentic-rigg-rgb-fake-v1\n' >"$fake/rgb-flow.fake"
+            chmod 600 "$fake/rgb-flow.fake"
+            rgb_build=$("$bin/agentic-rigg-helper" --version | sed -n 's/.*bygg \([0-9]\+\).*/\1/p')
+            [[ "$rgb_build" =~ ^[0-9]+$ ]] || { echo "Ukjent testbygg." >&2; exit 2; }
+            vars+=("RIGG_RGB_FLOW=sim" "RIGG_RGB_FAKE_SCRIPT=$here/scripts/falsk-rgb.py" "RIGG_RGB_FAKE_BUILD=$rgb_build")
+        fi
+        backend=sim wargs="--side lys" warm=${RIGG_OPPVARMING:-3}
+        ;;
     # Hete-syklusen: 125 s, så 5 min-vinduet har kaldt, 95 °C og 110 °C nå.
     8a-hete) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=8a-hete") backend=sim:hete warm=${RIGG_OPPVARMING:-125} ;;
     7b-ekte) vars=("RIGG_BILDER_2C=$dir" "RIGG_6C_PLAN=7b-ekte") wargs="--side kontroller" ;;
@@ -193,10 +229,11 @@ for plan in "${plans[@]}"; do
     rc=$?
     set -e
     case "$plan" in
-    7a | 7a-ekte | 1.4.0-ui)
+    7a | 7a-ekte | 1.4.0-ui | rgb-ui | rgb-flow)
         # Hjelperen den falske pkexec startet, er stoppet av planen; sikre det.
         [ -f "$fake/run/agentic-rigg/falsk.pid" ] && { kill "$(cat "$fake/run/agentic-rigg/falsk.pid")" 2>/dev/null || true; }
         find "$fake" -type f | sed "s|$fake/||" | sort >"$dir/falsk-rot-etter.txt"
+        if [ -f "$fake/rgb-flow.trace" ]; then cp "$fake/rgb-flow.trace" "$dir/rgb-flow.trace"; fi
         rm -rf -- "$fake" "$hdata"
         ;;
     esac

@@ -1,10 +1,9 @@
-//! Lys (produktspesifikasjonen 6.6): 3D-kortet og effektene som
-//! forhåndsvisning. Lyskontrolleren kan ikke leses uten I2C, som ikke er
-//! slått på, og banneret sier det rett ut. Valget lagres i appen («Lagre i
-//! appen»), så det er klart den dagen lys blir godkjent.
+//! Lys: egen fysisk kortstyring og en tydelig atskilt lokal modell.
+//! Kortlyset bruker sin egen RGB-tillatelse og bekreftelsesflyt i lys_kort.
+//! «Lagre i appen» lagrer bare modellens valg og sender aldri maskinvarekall.
 //!
 //! Forhåndsvisningen fyller høyden til venstre; til høyre står Effekt,
-//! Farge og (i 3D) Deler, eller (i 2D) Soner og Lyskontrolleren. 3D-kortet
+//! Farge og (i 3D) Deler, eller (i 2D) modellens soner. 3D-kortet
 //! er `lys3d::CardView` (GtkGLArea); det flate kortet er reserven når GL
 //! mangler, og når du velger 2D. Vinkel, zoom, lagtrinn og «Skill lagene»
 //! huskes mellom økter (`profiler.json`). Nordlys (påskeegg 10): skriv
@@ -18,7 +17,7 @@ use crate::motion::Level;
 use crate::rgb::{self, EFFECTS, Engine, RgbConfig, SWATCHES, ZONES};
 use crate::state::App;
 use crate::widgets::locked::{self, Columns};
-use crate::widgets::rows::{KvList, tag};
+use crate::widgets::rows::tag;
 use crate::widgets::{Icon, Panel, Seg, button, class, hbox, label, set_text, tip, vbox};
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
@@ -163,8 +162,7 @@ impl Dot {
 // ================================================================ siden
 
 struct Ui {
-    /// Holder banneret (og knappene i det) i live så lenge siden lever.
-    _banner: Rc<crate::widgets::locked::LockStrip>,
+    card_light: Rc<super::lys_kort::CardLight>,
     stack: gtk::Stack,
     overlay: gtk::Overlay,
     flat: FlatCard,
@@ -210,7 +208,6 @@ struct Ui {
     parts_count: gtk::Label,
     zones_panel: Panel,
     zone_rows: Vec<(gtk::Button, Dot, gtk::Label)>,
-    ctrl_panel: Panel,
     dirty: gtk::Label,
     discard: gtk::Button,
     save: gtk::Button,
@@ -372,22 +369,16 @@ fn adj_row(name: &str, lo: f64, hi: f64, unit: &str) -> (gtk::Box, gtk::Scale, g
 pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     let root = vbox(8, &["page", "styring", "lys", "fill"]);
     root.append(&crate::widgets::styrer::TargetLine::new(app).root);
-    // Samme rolige låst-linje som Klokker og effekt og Vifter (runde 6D).
-    let banner = crate::widgets::locked::LockStrip::new_for(
-        app,
-        "Lyskontrolleren er ikke identifisert. Effektene vises i forhåndsvisningen og kan lagres i appen; de sendes ikke til kortet.",
-        Some("rgb"),
-    );
-    root.append(&banner.root);
+    let card_light = super::lys_kort::CardLight::new(app);
 
     // ---- Forhåndsvisningen ----
-    let prev = Panel::new("Skjermkortet");
+    let prev = Panel::new("Lokal lysmodell");
     prev.root.add_css_class("rgb-preview");
     prev.root.set_vexpand(true);
     let ptag = tag("Forhåndsvisning", None, "quiet");
     prev.head.insert_child_after(&ptag, Some(&prev.title));
     let info_btn = button(Some("circle-help"), None, &["flat", "sm"]);
-    info_btn.update_property(&[gtk::accessible::Property::Label("Om lyskontrolleren")]);
+    info_btn.update_property(&[gtk::accessible::Property::Label("Om den lokale lysmodellen")]);
     prev.head.insert_child_after(&info_btn, Some(&ptag));
     let angle_seg = Seg::new(&VIEWS.map(|v| (v.0, v.1)), "skraatt", "Vinkel").small();
     let reset_btn = button(Some("rotate-ccw"), None, &["flat", "sm"]);
@@ -483,18 +474,18 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
 
     // ---- Sidekolonnen ----
     let side = vbox(8, &["rgb-side"]);
-    let fx = Panel::new("Effekt");
+    let fx = Panel::new("Effekt i modellen");
     let legend = hbox(5, &["fx-legend", "muted", "sm"]);
     legend.append(&Icon::new("circle-help", 14));
-    legend.append(&label("ikke dokumentert", &[]));
-    legend.set_tooltip_text(Some("Effekter med spørsmålstegnet er ikke dokumentert for lyskontrolleren. De vises bare i forhåndsvisningen."));
+    legend.append(&label("lokalt", &[]));
+    legend.set_tooltip_text(Some("Alle effektene her tegnes lokalt. Kortlyset styres i den separate seksjonen over."));
     fx.aside.append(&legend);
     let effects_box = vbox(0, &["effects"]);
     effects_box.set_accessible_role(gtk::AccessibleRole::RadioGroup);
     effects_box.update_property(&[gtk::accessible::Property::Label("Effekt")]);
     let mut effects = Vec::new();
     let mut first: Option<gtk::CheckButton> = None;
-    for (id, name, ok, d) in EFFECTS {
+    for (id, name, _, d) in EFFECTS {
         let row = hbox(8, &["effect"]);
         let radio = gtk::CheckButton::new();
         if let Some(f) = &first {
@@ -509,12 +500,6 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         let inner = hbox(8, &[]);
         inner.append(&dot);
         inner.append(&nl);
-        if !ok {
-            let e = Icon::new("circle-help", 14);
-            e.add_css_class("dim");
-            e.set_tooltip_text(Some("Ikke dokumentert for lyskontrolleren. Vises bare i forhåndsvisningen."));
-            inner.append(&e);
-        }
         radio.set_child(Some(&inner));
         radio.set_hexpand(true);
         row.append(&radio);
@@ -564,7 +549,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     fx.body.append(&adjust);
     side.append(&fx.root);
 
-    let color = Panel::new("Farge");
+    let color = Panel::new("Farge i modellen");
     let color_title = color.title.clone();
     let temp_seg = Seg::new(&[("cold", "Kald"), ("hot", "Varm")], "cold", "Hvilken farge").small();
     color.aside.append(&temp_seg.root);
@@ -611,7 +596,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     color.body.append(&picker);
     side.append(&color.root);
 
-    let parts_panel = Panel::new("Deler");
+    let parts_panel = Panel::new("Deler i modellen");
     let parts_count = label("", &["muted", "sm"]);
     parts_panel.aside.append(&parts_count);
     let parts_list = vbox(0, &["rgb-parts"]);
@@ -620,8 +605,8 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     parts_panel.root.set_vexpand(true);
     side.append(&parts_panel.root);
 
-    let zones_panel = Panel::new("Soner");
-    zones_panel.aside.append(&label("56 lysdioder", &["muted", "sm"]));
+    let zones_panel = Panel::new("Soner i modellen");
+    zones_panel.aside.append(&label("56 tegnede punkter", &["muted", "sm"]));
     let mut zone_rows = Vec::new();
     for (_, name, a, b) in ZONES.iter() {
         let btn = gtk::Button::new();
@@ -633,7 +618,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         let n = label(name, &[]);
         n.set_hexpand(true);
         r.append(&n);
-        r.append(&label(&format!("{} lysdioder", b - a), &["muted", "sm"]));
+        r.append(&label(&format!("{} punkter", b - a), &["muted", "sm"]));
         let hx = label("", &["mono", "muted", "sm"]);
         hx.set_width_chars(8);
         hx.set_xalign(1.0);
@@ -644,22 +629,6 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         zone_rows.push((btn, d, hx));
     }
     side.append(&zones_panel.root);
-    let ctrl_panel = Panel::new("Lyskontrolleren på kortet");
-    ctrl_panel.aside.append(&tag("Ikke lest", Some("lock"), "quiet"));
-    let ck = KvList::new();
-    ctrl_panel.body.append(&ck.grid);
-    for (k, v) in [
-        ("Kontroller", "Palit, sannsynligvis på adresse 0x49 (ikke bekreftet)"),
-        ("Buss", "«NVIDIA i2c adapter 1» på skjermkortet"),
-        ("Tilgang", "Kommer i en senere versjon, som trinnet RGB-lys i Innstillinger › Skjermkortstyring"),
-        ("I kontrolleren", "Statisk, pust og av"),
-        ("Bare her", "Regnbue, fargesyklus og temperatur (ville krevd mange skriv per sekund)"),
-    ] {
-        ck.add(k, v);
-    }
-    ctrl_panel.root.add_css_class("grow");
-    ctrl_panel.root.set_vexpand(true);
-    side.append(&ctrl_panel.root);
     let side_scroll = gtk::ScrolledWindow::new();
     side_scroll.set_hscrollbar_policy(gtk::PolicyType::Never);
     side_scroll.set_propagate_natural_height(true);
@@ -670,7 +639,10 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     cols.set_vexpand(true);
     let outer = gtk::ScrolledWindow::new();
     outer.set_hscrollbar_policy(gtk::PolicyType::Never);
-    outer.set_child(Some(&cols));
+    let content = vbox(8, &[]);
+    content.append(&card_light.root);
+    content.append(&cols);
+    outer.set_child(Some(&content));
     outer.set_vexpand(true);
     root.append(&outer);
 
@@ -691,7 +663,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     let zone = zone_index(stored.lys["zone"].as_str().unwrap_or("all"));
 
     let ui = Ui {
-        _banner: banner,
+        card_light,
         stack,
         overlay,
         flat,
@@ -737,7 +709,6 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         parts_count,
         zones_panel,
         zone_rows,
-        ctrl_panel,
         dirty,
         discard,
         save,
@@ -963,11 +934,14 @@ impl Lys {
         });
         let w = Rc::downgrade(self);
         ui.info_btn.connect_clicked(move |b| {
-            if let Some(p) = w.upgrade() {
-                locked::what_it_takes(&p.app, b);
+            if w.upgrade().is_some() {
+                let text = label("Denne modellen tegner lokale effekter og tre illustrerte soner. Den er ikke en avlesning av kortet. Kortlyset har én sone og styres bare fra «Lys på kortet» over modellen.", &["pop-foot"]);
+                text.set_wrap(true);
+                text.set_max_width_chars(42);
+                crate::widgets::popover::popover(b, &text).popup();
             }
         });
-        ui.info_btn.set_tooltip_text(Some("Lyskontrolleren er ikke koblet til. Endringer vises bare i forhåndsvisningen. Klikk for hva som skal til."));
+        ui.info_btn.set_tooltip_text(Some("Modellen og lagringen er lokale. De viser ikke den avleste effekten på kortet."));
         let w = Rc::downgrade(self);
         ui.discard.connect_clicked(move |_| {
             if let Some(p) = w.upgrade() {
@@ -1002,8 +976,7 @@ impl Lys {
             let w = Rc::downgrade(self);
             hub.connect(move |_| {
                 if let Some(p) = w.upgrade() {
-                    p.ui._banner.sync(&p.app, p.app.gpu_info().is_some_and(|i| i.state == rigg_core::model::DeviceState::Lost), false);
-                    locked::sync_topbar(&p.app, "lys");
+                    p.ui.card_light.render();
                     p.render();
                 }
             });
@@ -1215,7 +1188,6 @@ impl Lys {
         }
         self.ui.parts_panel.root.set_visible(three);
         self.ui.zones_panel.root.set_visible(!three);
-        self.ui.ctrl_panel.root.set_visible(!three);
         if let Some(b) = self.ui.mode_seg.button("3d") {
             let t = match self.gl_error.borrow().as_ref() {
                 Some(e) => format!("3D kan ikke tegnes her ({e}). Klikk for å prøve igjen."),
@@ -1364,6 +1336,7 @@ impl Lys {
 
     fn show(self: &Rc<Self>) {
         self.visible.set(true);
+        self.ui.card_light.show();
         if let Some(t) = self.release.borrow_mut().take() {
             t.remove();
         }
@@ -1380,6 +1353,7 @@ impl Lys {
     fn hide(self: &Rc<Self>) {
         // Ingenting tegnes eller roteres mens siden ikke vises. 3D frigjøres etter 30 s.
         self.visible.set(false);
+        self.ui.card_light.hide();
         if self.egg.get() {
             self.set_egg(false);
         }
@@ -1559,7 +1533,7 @@ impl Lys {
         self.render();
     }
 
-    /// «Lagre i appen»: valget huskes til lys blir godkjent.
+    /// «Lagre i appen»: husker bare den lokale modellen.
     fn save(self: &Rc<Self>) {
         if self.egg.get() {
             self.set_egg(false);
@@ -1582,14 +1556,13 @@ impl Lys {
         locked::update(&self.app, "rgb", |s| s.rgb = v);
         *self.draft.borrow_mut() = d.clone();
         self.render();
-        self.app.toast(crate::toast::Toast::new("Lysvalget er lagret i appen").body(&format!("{}, {} %. Lyskontrolleren er ikke koblet til.", rgb::effect_name(&d.effect), d.brightness)));
+        self.app.toast(crate::toast::Toast::new("Forhåndsvisningen er lagret").body(&format!("{}, {} %. Dette endrer ikke lyset på kortet.", rgb::effect_name(&d.effect), d.brightness)));
     }
 
     // ---------------------------------------------------------------- tegning av kontrollene
 
     fn render(self: &Rc<Self>) {
-        self.ui._banner.sync(&self.app, self.app.gpu_info().is_some_and(|i| i.state == rigg_core::model::DeviceState::Lost), false);
-        locked::sync_topbar(&self.app, "lys");
+        self.ui.card_light.render();
         let d = self.draft.borrow().clone();
         self.quiet.set(true);
         {
@@ -1625,11 +1598,11 @@ impl Lys {
         set_text(
             &self.ui.color_title,
             &if temp {
-                "Farge · temperatur".to_string()
+                "Modellfarge · temperatur".to_string()
             } else if self.zone.get() == 0 {
-                format!("Farge{}", if mixed { " · ulike soner" } else { "" })
+                format!("Modellfarge{}", if mixed { " · ulike soner" } else { "" })
             } else {
-                format!("Farge · {}", zone_name(self.zone.get()))
+                format!("Modellfarge · {}", zone_name(self.zone.get()))
             },
         );
         self.ui.color_title.set_tooltip_text(match eff {
@@ -1717,7 +1690,7 @@ impl Lys {
         set_text(&self.ui.dirty, &if dirty { "Forhåndsvisning – ikke lagret".to_string() } else { format!("Lagret: {}", rgb::effect_name(&saved.effect)) });
         self.ui.discard.set_sensitive(dirty);
         self.ui.save.set_sensitive(dirty);
-        tip(&self.ui.save, if dirty { "Lagre lysvalget i appen. Lyskontrolleren er ikke koblet til." } else { "Ingen endringer å lagre" }, Some("Ctrl+Enter"));
+        tip(&self.ui.save, if dirty { "Lagre forhåndsvisningen lokalt. Dette endrer ikke kortlyset." } else { "Ingen endringer å lagre" }, Some("Ctrl+Enter"));
         tip(&self.ui.discard, if dirty { "Forkast endringene" } else { "Ingen endringer å forkaste" }, Some("Ctrl+Z"));
         self.quiet.set(false);
         self.describe_soon();

@@ -146,10 +146,10 @@ fi
 #    kjører «pkexec $hjelper_dir/aktiver.sh», som kopierer dem dit bare root
 #    kan skrive (docs/produksjon/hjelper-sikkerhet.md).
 install -Dm755 "$bin_src/agentic-rigg-helper" "$hjelper_dir/agentic-rigg-helper"
-for f in aktiver.sh deaktiver.sh trinn.sh; do
+for f in aktiver.sh deaktiver.sh trinn.sh rgb-aktiver.sh rgb-deaktiver.sh rgb-avklar.sh rgb-gjenopprett.sh rgb-admin.py; do
     install -Dm755 "$here/data/hjelper/$f" "$hjelper_dir/$f"
 done
-for f in agentic-rigg-helper.service io.github.AgenticRigg.helper.policy; do
+for f in agentic-rigg-helper.service io.github.AgenticRigg.helper.policy agentic-rigg-rgb.service io.github.AgenticRigg.rgb.policy; do
     install -Dm644 "$here/data/hjelper/$f" "$hjelper_dir/$f"
 done
 

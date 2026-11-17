@@ -13,6 +13,7 @@ pub mod grafer;
 pub mod grafikkort;
 pub mod kontroller;
 pub mod lys;
+pub(crate) mod lys_kort;
 pub mod oversikt;
 pub mod prosessor;
 pub mod sensorer;

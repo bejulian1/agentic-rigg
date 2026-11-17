@@ -85,6 +85,25 @@ pub trait Backend {
     ) -> Result<Observed, WriteError>;
     /// Kalles bare etter full tilbakelesing av det opprinnelige grunnopptaket.
     fn clear_dirty(&mut self, binding: &Binding) -> Result<(), String>;
+    /// Særskilt menneskelig bekreftelse etter fersk feltavlesning. Backend
+    /// lagrer varig userVisual-bevis før eventuell rydding av journalen.
+    /// Bare et mål lik originalbaseline rydder eget skriveansvar. Dette er
+    /// aldri maskinvarebevis på effektmodus eller en erstatning for read.
+    fn ack_recovery(
+        &mut self,
+        _binding: &Binding,
+        _target: &Request,
+        _observed: &Observed,
+        _baseline: &Baseline,
+    ) -> Result<(), String> {
+        Err("Denne RGB-adapteren støtter ikke lagret brukerbekreftelse.".into())
+    }
+}
+
+#[derive(Clone, Copy, Debug, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub enum RecoveryConfirmationSource {
+    UserVisual,
 }
 
 #[derive(Clone, Debug, Serialize, PartialEq, Eq)]
@@ -112,6 +131,7 @@ pub struct Snapshot {
     pub may_have_written: bool,
     pub recovery: Option<RecoveryReadback>,
     pub recovery_needs_confirmation: bool,
+    pub recovery_confirmation_source: Option<RecoveryConfirmationSource>,
     pub error: Option<String>,
 }
 
@@ -125,6 +145,7 @@ pub enum Status {
     BaselineRestored,
     RecoveryNeedsConfirmation,
     RecoveryFailed,
+    UserConfirmed,
 }
 
 #[derive(Clone, Copy, Debug, Serialize, PartialEq, Eq)]
@@ -140,6 +161,7 @@ pub enum Reason {
     ApplyFailed,
     KeepFailed,
     ClockReversed,
+    UserConfirmed,
 }
 
 #[derive(Clone, Debug, Serialize, PartialEq, Eq)]
@@ -217,6 +239,7 @@ pub struct Book {
     dirty: bool,
     may_have_written: bool,
     recovery: Option<RecoveryReadback>,
+    recovery_confirmation_source: Option<RecoveryConfirmationSource>,
     error: Option<String>,
     next_txn: u64,
     last_ms: Option<u64>,
@@ -280,6 +303,7 @@ impl Book {
             dirty: false,
             may_have_written: false,
             recovery: None,
+            recovery_confirmation_source: None,
             error: None,
             next_txn: 1,
             last_ms: None,
@@ -297,26 +321,40 @@ impl Book {
             may_have_written: self.may_have_written,
             recovery: self.recovery,
             recovery_needs_confirmation: self.recovery
-                == Some(RecoveryReadback::ReadableFieldsMatch),
+                == Some(RecoveryReadback::ReadableFieldsMatch)
+                && self.recovery_confirmation_source.is_none(),
+            recovery_confirmation_source: self.recovery_confirmation_source,
             error: self.error.clone(),
         }
     }
 
     fn blocked(&self) -> bool {
         self.error.is_some()
-            || self
-                .recovery
-                .is_some_and(|r| r != RecoveryReadback::Verified)
+            || self.recovery.is_some_and(|r| {
+                r != RecoveryReadback::Verified && self.recovery_confirmation_source.is_none()
+            })
     }
 
     fn observe<B: Backend>(&mut self, backend: &mut B) -> Result<(), Error> {
         match backend.read(self.baseline.binding()) {
             Ok(observed) => {
+                if self.recovery_confirmation_source.is_some()
+                    && !matched(request_readback(&self.confirmed, &observed))
+                {
+                    self.recovery_confirmation_source = None;
+                    self.recovery = Some(request_readback(&self.confirmed, &observed));
+                    self.error =
+                        Some("Lyset har endret seg etter den visuelle bekreftelsen.".into());
+                }
                 self.observed = observed;
                 Ok(())
             }
             Err(message) => {
                 self.observed = Observed::default();
+                if self.recovery_confirmation_source.take().is_some() {
+                    self.recovery = Some(RecoveryReadback::Unknown);
+                    self.error = Some("Fersk lesing etter visuell bekreftelse feilet.".into());
+                }
                 Err(Error::Backend {
                     operation: "lesing",
                     message,
@@ -392,6 +430,7 @@ impl Book {
         self.next_txn = next;
         self.pending = Some(pending.clone());
         self.recovery = None;
+        self.recovery_confirmation_source = None;
         let result = backend.apply(
             self.baseline.binding(),
             &request,
@@ -583,6 +622,75 @@ impl Book {
         })
     }
 
+    /// Kalles bare etter eksplisitt visuell bekreftelse fra autorisert UID.
+    /// En eier må være samme forbindelse; en forlatt recovery kan bekreftes
+    /// av en ny forbindelse for samme UID, som runtime kontrollerer.
+    pub fn ack_recovery<B: Backend>(
+        &mut self,
+        backend: &mut B,
+        owner: u64,
+        now_ms: u64,
+    ) -> Result<Outcome, Error> {
+        if owner == 0 {
+            return Err(Error::InvalidOwner);
+        }
+        if self.owner.is_some_and(|held| held != owner) {
+            return Err(Error::NotOwner);
+        }
+        if !self.dirty
+            || self.pending.is_some()
+            || self.error.is_some()
+            || self.recovery != Some(RecoveryReadback::ReadableFieldsMatch)
+            || self.recovery_confirmation_source.is_some()
+        {
+            return Err(Error::RecoveryRequired);
+        }
+        self.tick(backend, now_ms)?;
+        if let Err(error) = self.observe(backend) {
+            self.recovery = Some(RecoveryReadback::Unknown);
+            self.error = Some(error.to_string());
+            return Err(error);
+        }
+        let original = self.confirmed == self.initial;
+        let readback = if original {
+            self.baseline
+                .recovery_readback(self.baseline.binding(), &self.observed)
+        } else {
+            request_readback(&self.confirmed, &self.observed)
+        };
+        if readback != RecoveryReadback::ReadableFieldsMatch {
+            self.recovery = Some(readback);
+            self.error = Some("Lyset endret seg før brukerbekreftelsen kunne lagres.".into());
+            return Err(Error::Readback(readback));
+        }
+        if let Err(message) = backend.ack_recovery(
+            self.baseline.binding(),
+            &self.confirmed,
+            &self.observed,
+            &self.baseline,
+        ) {
+            self.error = Some(format!("Brukerbekreftelsen kunne ikke lagres: {message}"));
+            return Err(Error::Backend {
+                operation: "brukerbekreftelse",
+                message,
+            });
+        }
+        self.recovery_confirmation_source = Some(RecoveryConfirmationSource::UserVisual);
+        if original {
+            self.dirty = false;
+            self.may_have_written = false;
+            self.owner = None;
+        } else {
+            self.owner = Some(owner);
+        }
+        Ok(Outcome {
+            txn: None,
+            status: Status::UserConfirmed,
+            reason: Reason::UserConfirmed,
+            readback,
+        })
+    }
+
     fn recover<B: Backend>(
         &mut self,
         backend: &mut B,
@@ -592,6 +700,7 @@ impl Book {
     ) -> Outcome {
         self.pending = None;
         self.recovery = Some(RecoveryReadback::Unknown);
+        self.recovery_confirmation_source = None;
         let baseline_target = target == self.initial;
         // `dirty` var satt etter varig journalføring, før opprinnelig apply.
         let readback = match backend.recover(self.baseline.binding(), &target, &self.baseline) {
@@ -709,6 +818,9 @@ mod tests {
         mismatch_write_numbers: Vec<usize>,
         fail_clear: bool,
         drift_after_read: bool,
+        fail_ack: bool,
+        fail_read: bool,
+        acknowledgments: Vec<Request>,
     }
 
     impl Fake {
@@ -745,6 +857,9 @@ mod tests {
         fn read(&mut self, expected: &Binding) -> Result<Observed, String> {
             assert_eq!(expected, &binding());
             self.calls.push("read");
+            if self.fail_read {
+                return Err("simulert lesefeil".into());
+            }
             let result = self.observed.clone();
             if self.drift_after_read {
                 self.observed.color = Some([42, 43, 44]);
@@ -790,6 +905,24 @@ mod tests {
             self.journal = None;
             Ok(())
         }
+        fn ack_recovery(
+            &mut self,
+            expected: &Binding,
+            target: &Request,
+            observed: &Observed,
+            baseline: &Baseline,
+        ) -> Result<(), String> {
+            assert_eq!(expected, baseline.binding());
+            self.calls.push("visual");
+            if self.fail_ack || observed != &self.observed {
+                return Err("visuell kvittering kunne ikke lagres".into());
+            }
+            self.acknowledgments.push(target.clone());
+            if target == &Book::new(baseline.clone()).unwrap().initial {
+                self.journal = None;
+            }
+            Ok(())
+        }
     }
 
     fn setup(known_mode: bool) -> (Book, Fake) {
@@ -808,6 +941,104 @@ mod tests {
                 ..Default::default()
             },
         )
+    }
+
+    #[test]
+    fn visuell_originalbekreftelse_er_fersk_og_ikke_maskinvaremodus() {
+        let (mut book, mut hw) = setup(false);
+        assert_eq!(
+            book.ack_recovery(&mut hw, 7, 0),
+            Err(Error::RecoveryRequired)
+        );
+        let initial = book.baseline.clone();
+        let pending = book
+            .apply(&mut hw, 7, color([9, 8, 7]), 10, 10_000)
+            .unwrap();
+        book.revert(&mut hw, 7, pending.txn.unwrap(), 20).unwrap();
+        let calls = hw.calls.len();
+        assert_eq!(book.ack_recovery(&mut hw, 8, 25), Err(Error::NotOwner));
+        assert_eq!(hw.calls.len(), calls);
+        let result = book.ack_recovery(&mut hw, 7, 30).unwrap();
+        assert_eq!(result.status, Status::UserConfirmed);
+        assert_eq!(result.reason, Reason::UserConfirmed);
+        assert_eq!(result.readback, RecoveryReadback::ReadableFieldsMatch);
+        assert_eq!(&hw.calls[calls..], ["read", "visual"]);
+        assert_eq!(book.snapshot().observed.mode, None);
+        assert_eq!(
+            book.snapshot().recovery_confirmation_source,
+            Some(RecoveryConfirmationSource::UserVisual)
+        );
+        assert!(!book.snapshot().recovery_needs_confirmation);
+        assert!(!book.snapshot().dirty);
+        assert!(!book.snapshot().may_have_written);
+        assert_eq!(book.snapshot().owner, None);
+        assert_eq!(book.baseline, initial);
+        assert!(hw.journal.is_none());
+        assert_eq!(hw.writes.len(), 2);
+        assert_eq!(
+            book.ack_recovery(&mut hw, 7, 31),
+            Err(Error::RecoveryRequired)
+        );
+    }
+
+    #[test]
+    fn visuell_forrigebekreftelse_beholder_ansvar_og_apner_ny_apply() {
+        let (mut book, mut hw) = setup(false);
+        let kept = color([10, 20, 30]);
+        let first = book.apply(&mut hw, 7, kept.clone(), 10, 10_000).unwrap();
+        book.keep(&mut hw, 7, first.txn.unwrap(), 20).unwrap();
+        let second = book
+            .apply(&mut hw, 7, color([40, 50, 60]), 30, 10_000)
+            .unwrap();
+        book.revert(&mut hw, 7, second.txn.unwrap(), 40).unwrap();
+        book.ack_recovery(&mut hw, 7, 50).unwrap();
+        assert_eq!(book.snapshot().confirmed, kept);
+        assert!(book.snapshot().dirty && book.snapshot().may_have_written);
+        assert_eq!(book.snapshot().owner, Some(7));
+        assert!(hw.journal.is_some());
+        book.apply(&mut hw, 7, color([70, 80, 90]), 60, 10_000)
+            .unwrap();
+        assert_eq!(book.snapshot().recovery_confirmation_source, None);
+        book.release(&mut hw).unwrap();
+        assert_eq!(book.snapshot().recovery_confirmation_source, None);
+        assert!(book.snapshot().recovery_needs_confirmation);
+    }
+
+    #[test]
+    fn forlatt_recovery_kan_bekreftes_av_ny_autorisert_forbindelse() {
+        let (mut book, mut hw) = setup(false);
+        book.apply(&mut hw, 7, color([9, 8, 7]), 10, 10_000)
+            .unwrap();
+        book.disconnect(&mut hw, 7).unwrap();
+        assert_eq!(book.snapshot().owner, None);
+        let writes = hw.writes.len();
+        book.ack_recovery(&mut hw, 8, 20).unwrap();
+        assert_eq!(hw.writes.len(), writes);
+        assert!(!book.snapshot().dirty);
+    }
+
+    #[test]
+    fn drift_ufullstendig_lesing_og_io_gir_ingen_visuell_kvittering() {
+        for fault in 0..4 {
+            let (mut book, mut hw) = setup(false);
+            let pending = book
+                .apply(&mut hw, 7, color([9, 8, 7]), 10, 10_000)
+                .unwrap();
+            book.revert(&mut hw, 7, pending.txn.unwrap(), 20).unwrap();
+            match fault {
+                0 => hw.observed.color = Some([5, 5, 5]),
+                1 => hw.observed.brightness_raw = None,
+                2 => hw.fail_read = true,
+                _ => hw.fail_ack = true,
+            }
+            assert!(book.ack_recovery(&mut hw, 7, 30).is_err());
+            assert!(book.snapshot().dirty);
+            assert!(book.snapshot().may_have_written);
+            assert_eq!(book.snapshot().recovery_confirmation_source, None);
+            assert!(hw.journal.is_some());
+            assert!(hw.acknowledgments.is_empty());
+            assert_eq!(hw.writes.len(), 2);
+        }
     }
 
     #[test]

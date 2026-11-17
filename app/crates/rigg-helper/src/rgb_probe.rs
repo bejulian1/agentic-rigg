@@ -64,7 +64,7 @@ fn value<'a>(it: &mut impl Iterator<Item = &'a OsString>, flag: &str) -> Result<
     Ok(value.into())
 }
 
-fn valid_pci(value: &str) -> bool {
+pub(crate) fn valid_pci(value: &str) -> bool {
     let b = value.as_bytes();
     b.len() == 12
         && b[4] == b':'
@@ -78,7 +78,7 @@ fn valid_pci(value: &str) -> bool {
             .all(|(_, c)| c.is_ascii_hexdigit())
 }
 
-fn valid_uuid(value: &str) -> bool {
+pub(crate) fn valid_uuid(value: &str) -> bool {
     let Some(body) = value.strip_prefix("GPU-") else {
         return false;
     };

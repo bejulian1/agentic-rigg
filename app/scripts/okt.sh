@@ -44,7 +44,10 @@ chmod 700 "$base/run"
 # daemonen oppdage vertens aktiverte root-hjelper i en privat UI-/måleøkt.
 helper_root=$(realpath -m -- "${RIGG_HJELPER_ROT:-$base/hjelper-rot}")
 [ "$helper_root" != / ] || { echo "Private prøveøkter kan ikke bruke vertens GPU-hjelper." >&2; exit 2; }
-mkdir -p "$helper_root"
+if [ ! -e "$helper_root" ]; then mkdir -p -m 700 "$helper_root"; fi
+[ "$(stat -c %u "$helper_root")" = "$(id -u)" ] && [ "$(stat -c %a "$helper_root")" = 700 ] || {
+    echo "Private prøveøkter trenger en egen hjelperrot med modus 0700." >&2; exit 2;
+}
 display=rigg-okt-$$
 inner=$(mktemp "$base/inner.XXXX.sh")
 cat >"$inner" <<'INNER'

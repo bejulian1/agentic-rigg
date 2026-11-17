@@ -67,8 +67,43 @@ fn plan() -> Vec<Step> {
         Ok("innstillinger-sok") => plan_innstillinger_sok(),
         Ok("adaptive-akser") => plan_adaptive_akser(),
         Ok("1.4.0-ui") => ui140::plan(),
+        Ok("rgb-ui") => plan_rgb(),
+        Ok("rgb-flow") => plan_rgb_flow(),
         _ => plan_grunnmur(),
     }
+}
+
+/// Ekte GTK-handlinger og daemon-IPC, utelukkende mot en merket privat fake.
+fn plan_rgb_flow() -> Vec<Step> {
+    use Step::*;
+    use crate::pages::lys_kort::debug_flow as flow;
+    vec![
+        Size(1440, 1000), Set(base()), Set(json!({"lys3d":"2d"})), Go("lys"), Wait(1800),
+        Eval(|_| flow("ready")), Eval(|_| flow("edit")), Wait(700), Eval(|_| flow("unchanged")),
+        Eval(|_| flow("apply")), Wait(1000), Eval(|_| flow("pending")), Shot("rgb-flow-pending-sim"),
+        Eval(|_| flow("keep")), Wait(1000), Eval(|_| flow("kept")), Shot("rgb-flow-beholdt-sim"),
+        Eval(|_| flow("reset")), Wait(1000), Eval(|_| flow("recovery")),
+        Eval(|_| flow("stale_ack")), Wait(1000), Eval(|_| flow("stale_rejected")), Shot("rgb-flow-gammel-bekreftelse-avvist-sim"),
+        Eval(|_| flow("ack")), Wait(1000), Eval(|_| flow("acknowledged")), Shot("rgb-flow-brukerbekreftet-sim"),
+        Eval(|_| flow("off")), Eval(|_| flow("apply")), Wait(1000), Eval(|_| flow("off_pending")),
+        Eval(|_| flow("release")), Wait(1000), Eval(|_| flow("released")), Shot("rgb-flow-frigitt-sim"),
+    ]
+}
+
+/// Privat visningskontroll. All fysisk RGB-status er tydelig merket fixture;
+/// ingen knapper for apply, admin eller recovery kjøres av denne planen.
+fn plan_rgb() -> Vec<Step> {
+    use Step::*;
+    vec![
+        Size(1920, 1080), Set(base()), Set(json!({"lys3d":"2d"})), Go("lys"), Wait(1200),
+        Eval(|_| crate::pages::lys_kort::debug_fixture("off")), Wait(400), Shot("rgb-1920-av-sim"),
+        Eval(|_| crate::pages::lys_kort::debug_fixture("stored")), Wait(400), Shot("rgb-1920-lagret-sim"),
+        Eval(|_| crate::pages::lys_kort::debug_fixture("pending")), Wait(400), Shot("rgb-1920-pending-sim"),
+        Size(640, 900), Eval(|_| crate::pages::lys_kort::debug_fixture("pending")), Wait(500), Shot("rgb-640-pending-sim"),
+        Set(json!({"theme":"dark"})), Eval(|_| crate::pages::lys_kort::debug_fixture("recovery")), Wait(500), Shot("rgb-640-recovery-sim"),
+        Set(json!({"fontScale":116,"highContrast":true})), Eval(|_| crate::pages::lys_kort::debug_fixture("confirmed")), Wait(500), Shot("rgb-640-brukerbekreftet-sim"),
+        Set(base()), Size(1920,1080), Eval(|_| crate::pages::lys_kort::debug_fixture("error")), Wait(500), Shot("rgb-1920-uavklart-sim"),
+    ]
 }
 
 fn base() -> Value {
@@ -1141,7 +1176,7 @@ fn scrollers(w: &gtk::Widget, f: &mut dyn FnMut(&gtk::ScrolledWindow)) {
 
 /// Første synlige knapp med teksten. `*` til slutt: teksten begynner med det
 /// foran («Behold*» finner «Behold (12)»).
-fn find_button(w: &gtk::Widget, text: &str) -> Option<gtk::Button> {
+pub(crate) fn find_button(w: &gtk::Widget, text: &str) -> Option<gtk::Button> {
     let matches = |s: &str| match text.strip_suffix('*') {
         Some(p) => s.starts_with(p),
         None => s == text,

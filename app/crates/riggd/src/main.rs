@@ -14,6 +14,7 @@
 mod daemon;
 mod devices;
 mod hjelper;
+mod rgb_hjelper;
 mod lifecycle;
 mod logg;
 mod ops;

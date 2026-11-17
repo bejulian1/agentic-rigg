@@ -65,6 +65,17 @@ struct TransactionArgs {
     txn: u64,
 }
 
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct RecoveryAckArgs {
+    gpu: String,
+    uuid: String,
+    confirmed_static: bool,
+    /// Echo fra dialogens hjelperstatus, bare en compare-and-swap-betingelse.
+    /// Dette blir aldri et nytt skrive- eller gjenopprettingsmål.
+    expected: Request,
+}
+
 enum Action {
     Status,
     Apply(ApplyArgs),
@@ -73,6 +84,7 @@ enum Action {
     Reset(IdentityArgs),
     Release(IdentityArgs),
     Heartbeat(IdentityArgs),
+    AckRecovery(RecoveryAckArgs),
 }
 
 fn parse<T: DeserializeOwned>(args: &Value) -> Result<T, ProtoError> {
@@ -118,6 +130,16 @@ impl Action {
             "rgb_reset" => Self::Reset(parse(args)?),
             "rgb_release" => Self::Release(parse(args)?),
             "rgb_heartbeat" => Self::Heartbeat(parse(args)?),
+            "rgb_ack_recovery" => {
+                let args: RecoveryAckArgs = parse(args)?;
+                if !args.confirmed_static {
+                    return Err(ProtoError::msg(
+                        ErrorCode::InvalidArgument,
+                        "Gjenopprettet statisk lys må være uttrykkelig bekreftet av brukeren.",
+                    ));
+                }
+                Self::AckRecovery(args)
+            }
             _ => return Err(ProtoError::new(ErrorCode::UnknownOp)),
         })
     }
@@ -126,6 +148,7 @@ impl Action {
         match self {
             Self::Status => None,
             Self::Apply(args) => Some((&args.gpu, &args.uuid)),
+            Self::AckRecovery(args) => Some((&args.gpu, &args.uuid)),
             Self::Confirm(args) | Self::Revert(args) => Some((&args.gpu, &args.uuid)),
             Self::Reset(args) | Self::Release(args) | Self::Heartbeat(args) => {
                 Some((&args.gpu, &args.uuid))
@@ -246,7 +269,14 @@ impl<B: Backend> Runtime<B> {
                 "RGB-klokken er utenfor gyldig område.",
             )
         })?;
+        let ack_before_tick =
+            matches!(action, Action::AckRecovery(_)).then(|| self.book.snapshot());
         self.tick(now_ms)?;
+        if ack_before_tick.is_some_and(|before| before != self.book.snapshot()) {
+            return Err(ProtoError::msg(ErrorCode::WriteLocked,
+                "RGB-tilstanden endret seg ved fristutløp. Se det nye målet før du bekrefter lyset.")
+                .details(json!({"status": self.status()})));
+        }
         let before_observation = self.book.snapshot().observed;
         let (result, renew) = match action {
             Action::Status => unreachable!("status ble håndtert uten sideeffekter"),
@@ -285,6 +315,20 @@ impl<B: Backend> Runtime<B> {
             Action::Reset(_) => {
                 self.require_owner(conn, true)?;
                 (Ok(self.book.restore_baseline(&mut self.backend)), false)
+            }
+            Action::AckRecovery(args) => {
+                self.require_owner(conn, true)?;
+                if args.expected != self.book.snapshot().confirmed {
+                    return Err(ProtoError::msg(ErrorCode::WriteLocked,
+                        "RGB-målet er endret siden dialogen ble åpnet. Se den nye tilstanden før du bekrefter.")
+                        .details(json!({"status": self.status()})));
+                }
+                (
+                    self.book
+                        .ack_recovery(&mut self.backend, conn, now_ms)
+                        .map(Some),
+                    true,
+                )
             }
         };
         // En feil kan ha etablert eget recoveryansvar. Gi en ny eier en
@@ -474,6 +518,8 @@ mod tests {
         reject_before_write: bool,
         partial_apply: bool,
         fail_recovery: bool,
+        acknowledgments: usize,
+        fail_ack: bool,
     }
 
     impl Backend for Fake {
@@ -534,6 +580,23 @@ mod tests {
         fn clear_dirty(&mut self, _: &Binding) -> Result<(), String> {
             panic!("Palit-fixturen beviser ikke modus og kan aldri rydde dirty")
         }
+        fn ack_recovery(
+            &mut self,
+            binding: &Binding,
+            target: &Request,
+            actual: &Observed,
+            baseline: &Baseline,
+        ) -> Result<(), String> {
+            assert_eq!(binding, baseline.binding());
+            if self.fail_ack || actual != &self.current {
+                return Err("simulert feil i visuell kvittering".into());
+            }
+            self.acknowledgments += 1;
+            if target == &Book::new(baseline.clone()).unwrap().snapshot().confirmed {
+                self.journal = None;
+            }
+            Ok(())
+        }
     }
 
     fn setup() -> Runtime<Fake> {
@@ -569,12 +632,165 @@ mod tests {
         args
     }
 
+    fn ack_args() -> Value {
+        ack_args_for(color([1, 2, 3]))
+    }
+
+    fn ack_args_for(expected: Request) -> Value {
+        let mut args = identity();
+        args["confirmedStatic"] = json!(true);
+        args["expected"] = serde_json::to_value(expected).unwrap();
+        args
+    }
+
     fn apply(runtime: &mut Runtime<Fake>, now: u64, request: Request, timeout: u64) -> u64 {
         runtime
             .handle(1000, 7, "rgb_apply", &apply_args(request, timeout), now)
             .unwrap()["outcome"]["txn"]
             .as_u64()
             .unwrap()
+    }
+
+    #[test]
+    fn ack_rpc_krever_aktiv_bekreftelse_egen_eier_og_fersk_lesing() {
+        let mut runtime = setup();
+        let txn = apply(&mut runtime, 10, color([4, 5, 6]), 10);
+        runtime
+            .handle(1000, 7, "rgb_revert", &txn_args(txn), 20)
+            .unwrap();
+        let reads = runtime.backend.reads;
+        for args in [
+            identity(),
+            {
+                let mut a = ack_args();
+                a["confirmedStatic"] = json!(false);
+                a
+            },
+            {
+                let mut a = ack_args();
+                a["target"] = json!([1, 2, 3]);
+                a
+            },
+        ] {
+            assert_eq!(
+                runtime
+                    .handle(1000, 7, "rgb_ack_recovery", &args, 30)
+                    .unwrap_err()
+                    .code,
+                ErrorCode::InvalidArgument
+            );
+        }
+        assert_eq!(
+            runtime
+                .handle(1001, 7, "rgb_ack_recovery", &ack_args(), 30)
+                .unwrap_err()
+                .code,
+            ErrorCode::PermissionDenied
+        );
+        assert_eq!(
+            runtime
+                .handle(1000, 8, "rgb_ack_recovery", &ack_args(), 30)
+                .unwrap_err()
+                .code,
+            ErrorCode::NotOwner
+        );
+        assert_eq!(runtime.backend.reads, reads);
+        let result = runtime
+            .handle(1000, 7, "rgb_ack_recovery", &ack_args(), 40)
+            .unwrap();
+        assert_eq!(result["outcome"]["status"], "user_confirmed");
+        assert_eq!(result["outcome"]["readback"], "readable_fields_match");
+        assert_eq!(
+            result["status"]["state"]["recoveryConfirmationSource"],
+            "userVisual"
+        );
+        assert!(result["status"]["state"]["observed"]["mode"].is_null());
+        assert!(result["status"]["holding"].is_null());
+        assert_eq!(runtime.backend.reads, reads + 1);
+        assert_eq!(runtime.backend.acknowledgments, 1);
+        assert_eq!(runtime.backend.writes.len(), 2);
+    }
+
+    #[test]
+    fn samme_uid_kan_bekrefte_etter_klienttap_men_ikke_drift_eller_io() {
+        for fault in 0..3 {
+            let mut runtime = setup();
+            apply(&mut runtime, 10, color([4, 5, 6]), 10);
+            runtime.disconnect(7).unwrap();
+            match fault {
+                1 => runtime.backend.current.color = Some([9, 9, 9]),
+                2 => runtime.backend.fail_ack = true,
+                _ => {}
+            }
+            let result = runtime.handle(1000, 8, "rgb_ack_recovery", &ack_args(), 30);
+            assert_eq!(result.is_ok(), fault == 0);
+            assert_eq!(runtime.backend.acknowledgments, usize::from(fault == 0));
+            assert_eq!(runtime.backend.writes.len(), 2);
+            assert_eq!(runtime.book.snapshot().dirty, fault != 0);
+        }
+    }
+
+    #[test]
+    fn ikkeoriginal_ack_beholder_lease_og_fristendret_mal_krever_ny_bekreftelse() {
+        let mut runtime = setup();
+        let first = apply(&mut runtime, 0, color([4, 5, 6]), 10);
+        runtime
+            .handle(1000, 7, "rgb_confirm", &txn_args(first), 1)
+            .unwrap();
+        let second = apply(&mut runtime, 2, color([7, 8, 9]), 10);
+        runtime
+            .handle(1000, 7, "rgb_revert", &txn_args(second), 3)
+            .unwrap();
+        let result = runtime
+            .handle(
+                1000,
+                7,
+                "rgb_ack_recovery",
+                &ack_args_for(color([4, 5, 6])),
+                4,
+            )
+            .unwrap();
+        assert_eq!(result["status"]["state"]["dirty"], true);
+        assert_eq!(result["status"]["state"]["mayHaveWritten"], true);
+        assert_eq!(result["status"]["holding"]["owner"], 7);
+        assert_eq!(result["status"]["holding"]["deadlineMs"], 4 + LEASE_MS);
+        let third = apply(&mut runtime, 5, color([10, 11, 12]), 10);
+        runtime
+            .handle(1000, 7, "rgb_revert", &txn_args(third), 6)
+            .unwrap();
+        let acknowledgments = runtime.backend.acknowledgments;
+        let error = runtime
+            .handle(
+                1000,
+                7,
+                "rgb_ack_recovery",
+                &ack_args_for(color([4, 5, 6])),
+                5 + LEASE_MS,
+            )
+            .unwrap_err();
+        assert_eq!(error.code, ErrorCode::WriteLocked);
+        assert_eq!(runtime.backend.acknowledgments, acknowledgments);
+        assert_eq!(runtime.book.snapshot().confirmed, color([1, 2, 3]));
+        assert_eq!(runtime.book.snapshot().owner, None);
+        let reads = runtime.backend.reads;
+        let writes = runtime.backend.writes.len();
+        // Gammel UI-bekreftelse avvises også når fristen ble behandlet
+        // FØR denne RPC-en kom frem, uten en ny feltlesing eller setter.
+        assert_eq!(
+            runtime
+                .handle(
+                    1000,
+                    8,
+                    "rgb_ack_recovery",
+                    &ack_args_for(color([4, 5, 6])),
+                    6 + LEASE_MS
+                )
+                .unwrap_err()
+                .code,
+            ErrorCode::WriteLocked
+        );
+        assert_eq!(runtime.backend.reads, reads);
+        assert_eq!(runtime.backend.writes.len(), writes);
     }
 
     #[test]

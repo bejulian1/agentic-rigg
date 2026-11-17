@@ -1,7 +1,7 @@
 //! Privat RGB-grunnopptak og skrivejournal. Ingen maskinvaretilgang.
 //! En journal ved oppstart krever særskilt avklaring, også i Prepared-fasen.
 
-use rigg_core::rgb::{Baseline, Binding, Request};
+use rigg_core::rgb::{Baseline, BaselineSource, Binding, Observed, Request};
 use rigg_core::rgb_auth::{self, Authorization};
 use rigg_core::rgb_txn::{Book, Journal};
 use serde::{Deserialize, Serialize};
@@ -17,6 +17,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 pub(crate) const STATE_DIR: &str = "/var/lib/agentic-rigg-rgb";
 const BASELINE: &str = "baseline.json";
 const JOURNAL: &str = "journal.json";
+const VISUAL: &str = "visual-confirmation.json";
 const LIMIT: u64 = 65_536;
 static TEMP_ID: AtomicU64 = AtomicU64::new(1);
 
@@ -75,10 +76,241 @@ impl StoredJournal {
     }
 }
 
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+enum EvidenceSource {
+    UserVisual,
+}
+
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub(crate) enum EvidenceContext {
+    LiveRecovery,
+    RestartBaseline,
+}
+
+/// Én siste kvittering, ikke en voksende logg. Effektmodus holdes ukjent;
+/// dette dokumenterer menneskets bekreftelse sammen med ferske lesbare felt.
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub(crate) struct VisualEvidence {
+    version: u32,
+    source: EvidenceSource,
+    context: EvidenceContext,
+    binding: Binding,
+    uid: u32,
+    journal_owner: u64,
+    journal_txn: u64,
+    target: Request,
+    observed: Observed,
+    original_baseline: bool,
+}
+
+pub(crate) fn fields_match(target: &Request, observed: &Observed) -> bool {
+    let (color, brightness) = match target {
+        Request::Static { color, brightness } => (*color, brightness.get()),
+        Request::Off {} => ([0, 0, 0], 100),
+    };
+    observed.color == Some(color)
+        && observed.brightness_raw == Some(brightness)
+        && observed.mode.is_none()
+}
+
+fn initial_request(baseline: &Baseline) -> Result<Request, String> {
+    Ok(Book::new(baseline.clone())
+        .map_err(|e| e.to_string())?
+        .snapshot()
+        .confirmed)
+}
+
+impl VisualEvidence {
+    pub fn new(
+        uid: u32,
+        baseline: &Baseline,
+        record: &StoredJournal,
+        target: &Request,
+        observed: &Observed,
+        context: EvidenceContext,
+    ) -> Result<Self, String> {
+        let evidence = Self {
+            version: 1,
+            source: EvidenceSource::UserVisual,
+            context,
+            binding: baseline.binding().clone(),
+            uid,
+            journal_owner: record.journal.owner,
+            journal_txn: record.journal.txn,
+            target: target.clone(),
+            observed: observed.clone(),
+            original_baseline: target == &initial_request(baseline)?,
+        };
+        evidence.validate_record(baseline, record)?;
+        Ok(evidence)
+    }
+
+    fn validate(&self, baseline: &Baseline) -> Result<(), String> {
+        if self.version != 1
+            || self.uid == 0
+            || self.uid == u32::MAX
+            || self.journal_owner == 0
+            || self.journal_txn == 0
+            || &self.binding != baseline.binding()
+            || !fields_match(&self.target, &self.observed)
+            || self.original_baseline != (self.target == initial_request(baseline)?)
+            || (self.context == EvidenceContext::RestartBaseline && !self.original_baseline)
+        {
+            return Err(
+                "Ugyldig visuell RGB-bekreftelse; avlesning, mål og binding må samsvare.".into(),
+            );
+        }
+        Ok(())
+    }
+
+    fn validate_record(&self, baseline: &Baseline, record: &StoredJournal) -> Result<(), String> {
+        self.validate(baseline)?;
+        record.validate(baseline)?;
+        if self.journal_owner != record.journal.owner
+            || self.journal_txn != record.journal.txn
+            || (self.context == EvidenceContext::LiveRecovery
+                && (record.operation != Operation::Recover
+                    || record.phase != Phase::Attempted
+                    || self.target != record.target))
+        {
+            return Err(
+                "Den visuelle RGB-bekreftelsen tilhører ikke denne gjenopprettingen.".into(),
+            );
+        }
+        Ok(())
+    }
+}
+
 /// Lastes også ved tilbakekallingskontroll. Ingen klientstyrt sti brukes av
 /// produksjonsserveren: den sender alltid rgb_auth::CONFIG_PATH.
 pub(crate) fn load_authorization(path: &Path) -> Result<Authorization, String> {
     load_authorization_owned(path, 0, true)
+}
+
+/// Bare eksplisitt administratoraktivering etter hjelperens egen ferske
+/// identifikasjon og menneskelig bekreftelse. Ingen automatisk capture her.
+/// Baseline skrives før tillatelsen; en eksisterende original erstattes aldri.
+pub(crate) fn prepare_production(auth: &Authorization, baseline: &Baseline) -> Result<(), String> {
+    require_root()?;
+    ensure_production_directory(Path::new(STATE_DIR), true)?;
+    let store = PrivateStore::open_production()?;
+    let parent = Path::new(rgb_auth::CONFIG_PATH)
+        .parent()
+        .ok_or("RGB-tillatelsen mangler mappe.")?;
+    ensure_production_directory(parent, false)?;
+    let dir = open_directory(parent, 0, true, false)?;
+    prepare_documents(auth, baseline, &store, parent, &dir)
+}
+
+fn prepare_documents(
+    auth: &Authorization,
+    baseline: &Baseline,
+    store: &PrivateStore,
+    auth_parent: &Path,
+    auth_directory: &File,
+) -> Result<(), String> {
+    if baseline.source() != BaselineSource::UserConfirmedStatic
+        || !rgb_auth::compatible_build(auth.build())
+        || !auth.allows(auth.uid(), baseline.binding())
+    {
+        return Err(
+            "RGB-forberedelse krever separat tillatelse og brukerbekreftet statisk original."
+                .into(),
+        );
+    }
+    // Kontroller eksisterende tillatelse FØR en ny original eventuelt lagres.
+    // En annen brukers/korts oppsett skal ikke etterlate en feil baseline.
+    let check_auth = || {
+        let current_dir = open_directory(auth_parent, store.owner, store.trusted_ancestors, false)?;
+        let old = auth_directory.metadata().map_err(|e| e.to_string())?;
+        let current = current_dir.metadata().map_err(|e| e.to_string())?;
+        if (old.dev(), old.ino()) != (current.dev(), current.ino()) {
+            return Err("RGB-tillatelsens mappe er byttet.".into());
+        }
+        if let Some(text) = read_private(auth_directory, "rgb.json", store.owner)? {
+            let old = Authorization::parse(&text)?;
+            if old.uid() != auth.uid() || old.binding() != auth.binding() {
+                return Err(
+                    "Eksisterende RGB-tillatelse tilhører en annen bruker eller et annet kort."
+                        .into(),
+                );
+            }
+        }
+        Ok(())
+    };
+    check_auth()?;
+    if read_private(&store.directory, JOURNAL, store.owner)?.is_some() {
+        return Err("RecoveryRequired: eksisterende RGB-journal må avklares særskilt.".into());
+    }
+    match store.baseline_optional()? {
+        Some(existing) if &existing != baseline => {
+            return Err(
+                "Det opprinnelige RGB-grunnopptaket kan ikke erstattes ved aktivering.".into(),
+            );
+        }
+        Some(_) => {}
+        None => {
+            let bytes = serde_json::to_vec(baseline).map_err(|e| e.to_string())?;
+            store.replace(BASELINE, &bytes, || {
+                store.revalidate()?;
+                if store.baseline_optional()?.is_some()
+                    || read_private(&store.directory, JOURNAL, store.owner)?.is_some()
+                {
+                    return Err("RGB-tilstanden endret seg under forberedelsen.".into());
+                }
+                Ok(())
+            })?;
+        }
+    }
+    let check = || {
+        store.validate_state(baseline, None)?;
+        check_auth()
+    };
+    check()?;
+    replace_private(
+        auth_directory,
+        store.owner,
+        "rgb.json",
+        &serde_json::to_vec(auth).map_err(|e| e.to_string())?,
+        check,
+        || Ok(()),
+    )
+}
+
+fn require_root() -> Result<(), String> {
+    // SAFETY: ren prosessidentitet, ingen endring av privilegier.
+    if unsafe { libc::geteuid() } == 0 {
+        Ok(())
+    } else {
+        Err(
+            "RGB-forberedelse og restartavklaring krever eksplisitt administratoraktivering."
+                .into(),
+        )
+    }
+}
+
+fn ensure_production_directory(path: &Path, private: bool) -> Result<(), String> {
+    let parent = path.parent().ok_or("RGB-mappen mangler forelder.")?;
+    let parent_fd = open_directory(parent, 0, true, false)?;
+    let name = path
+        .file_name()
+        .and_then(|v| v.to_str())
+        .ok_or("Ugyldig RGB-mappenavn.")?;
+    let name = filename(name).map_err(|e| e.to_string())?;
+    // SAFETY: fast enkeltkomponent under verifisert root-eid mappe. EEXIST
+    // følges alltid av ny no-follow kontroll, aldri chmod av eksisterende sti.
+    if unsafe { libc::mkdirat(parent_fd.as_raw_fd(), name.as_ptr(), 0o700) } != 0 {
+        let error = std::io::Error::last_os_error();
+        if error.kind() != std::io::ErrorKind::AlreadyExists {
+            return Err(format!("Opprett privat RGB-mappe: {error}"));
+        }
+    } else {
+        parent_fd.sync_all().map_err(|e| e.to_string())?;
+    }
+    open_directory(path, 0, true, private).map(|_| ())
 }
 
 fn load_authorization_owned(
@@ -179,10 +411,17 @@ impl PrivateStore {
     }
 
     pub fn baseline(&self) -> Result<Baseline, String> {
+        self.baseline_optional()?
+            .ok_or_else(|| "RGB mangler et særskilt lagret, brukerbekreftet grunnopptak.".into())
+    }
+
+    fn baseline_optional(&self) -> Result<Option<Baseline>, String> {
         self.revalidate()?;
-        let text = read_private(&self.directory, BASELINE, self.owner)?
-            .ok_or("RGB mangler et særskilt lagret, brukerbekreftet grunnopptak.")?;
-        serde_json::from_str(&text).map_err(|e| format!("Ugyldig RGB-grunnopptak: {e}"))
+        read_private(&self.directory, BASELINE, self.owner)?
+            .map(|text| {
+                serde_json::from_str(&text).map_err(|e| format!("Ugyldig RGB-grunnopptak: {e}"))
+            })
+            .transpose()
     }
 
     pub fn journal(&self, baseline: &Baseline) -> Result<Option<StoredJournal>, String> {
@@ -224,41 +463,86 @@ impl PrivateStore {
         if bytes.len() as u64 > LIMIT {
             return Err("RGB-journalen er for stor.".into());
         }
-        let temp = format!(
-            ".journal.{}.{}.tmp",
-            std::process::id(),
-            TEMP_ID.fetch_add(1, Ordering::Relaxed)
-        );
-        let mut file = open_at(
-            &self.directory,
-            &temp,
-            libc::O_WRONLY | libc::O_CREAT | libc::O_EXCL,
-            0o600,
-        )
-        .map_err(|e| format!("Opprett privat RGB-journal: {e}"))?;
-        let result = (|| {
-            validate_file(&file, self.owner)?;
-            file.write_all(&bytes).map_err(|e| e.to_string())?;
-            file.sync_all().map_err(|e| e.to_string())?;
-            // Siste kontroll gjelder samme låste mappe og uforanderlige baseline.
+        self.replace(JOURNAL, &bytes, || {
             self.validate_state(baseline, expected)?;
-            #[cfg(test)]
-            if self.fail_before_rename.load(Ordering::Relaxed) {
-                return Err("Simulert fsync/rename-feil.".into());
-            }
-            rename_at(&self.directory, &temp, JOURNAL)?;
-            #[cfg(test)]
-            if self.fail_directory_sync.load(Ordering::Relaxed) {
-                return Err("Simulert fsync-feil på journalmappen etter rename.".into());
-            }
-            self.directory.sync_all().map_err(|e| e.to_string())
-        })();
-        // Kun vår nye tempfil ryddes. En tidligere journal slettes aldri ved feil.
-        let _ = unlink_at(&self.directory, &temp);
-        result
+            Ok(())
+        })
     }
 
-    /// Bare Backend::clear_dirty etter verifisert opprinnelig baseline.
+    fn replace(
+        &self,
+        name: &str,
+        bytes: &[u8],
+        check: impl Fn() -> Result<(), String>,
+    ) -> Result<(), String> {
+        replace_private(
+            &self.directory,
+            self.owner,
+            name,
+            bytes,
+            || {
+                check()?;
+                #[cfg(test)]
+                if self.fail_before_rename.load(Ordering::Relaxed) {
+                    return Err("Simulert fsync/rename-feil.".into());
+                }
+                Ok(())
+            },
+            || {
+                #[cfg(test)]
+                if self.fail_directory_sync.load(Ordering::Relaxed) {
+                    return Err("Simulert fsync-feil på journalmappen etter rename.".into());
+                }
+                Ok(())
+            },
+        )
+    }
+
+    fn visual_evidence(&self, baseline: &Baseline) -> Result<Option<VisualEvidence>, String> {
+        self.revalidate()?;
+        read_private(&self.directory, VISUAL, self.owner)?
+            .map(|text| {
+                let evidence: VisualEvidence = serde_json::from_str(&text)
+                    .map_err(|e| format!("Ugyldig visuell RGB-kvittering: {e}"))?;
+                evidence.validate(baseline)?;
+                Ok(evidence)
+            })
+            .transpose()
+    }
+
+    pub fn acknowledge_visual(
+        &self,
+        baseline: &Baseline,
+        record: &StoredJournal,
+        evidence: &VisualEvidence,
+    ) -> Result<(), String> {
+        evidence.validate_record(baseline, record)?;
+        self.validate_state(baseline, Some(record))?;
+        let previous = self.visual_evidence(baseline)?;
+        self.replace(
+            VISUAL,
+            &serde_json::to_vec(evidence).map_err(|e| e.to_string())?,
+            || {
+                self.validate_state(baseline, Some(record))?;
+                if self.visual_evidence(baseline)? != previous {
+                    return Err("RGB-kvitteringen er endret under bekreftelsen.".into());
+                }
+                Ok(())
+            },
+        )?;
+        // replace har fsync-et både evidensfilen og mappen før journalen
+        // kan fjernes. Lesbare felt alene kommer aldri til denne ryddingen.
+        if evidence.original_baseline {
+            if self.visual_evidence(baseline)?.as_ref() != Some(evidence) {
+                return Err("RGB-kvitteringen kunne ikke kontrolleres etter lagring.".into());
+            }
+            self.clear_journal(baseline.binding(), baseline, record)?;
+        }
+        Ok(())
+    }
+
+    /// Bare etter full tilbakelesing eller varig, eksplisitt userVisual-
+    /// kvittering fra acknowledge_visual. Dette er to ulike beviskilder.
     pub fn clear_journal(
         &self,
         binding: &Binding,
@@ -392,6 +676,49 @@ fn read_private(dir: &File, name: &str, owner: u32) -> Result<Option<String>, St
         return Err("RGB-filen er for stor.".into());
     }
     Ok(Some(text))
+}
+
+/// Atomisk privat filbytte. Kalleren validerer det forventede dokumentet
+/// før innkalling og igjen gjennom check etter fsync, rett før rename.
+fn replace_private(
+    dir: &File,
+    owner: u32,
+    name: &str,
+    bytes: &[u8],
+    check: impl Fn() -> Result<(), String>,
+    after_rename: impl Fn() -> Result<(), String>,
+) -> Result<(), String> {
+    if bytes.len() as u64 > LIMIT {
+        return Err("RGB-dokumentet er for stort.".into());
+    }
+    // Eksisterende mål må fortsatt være en trygg regulær fil, også når
+    // operasjonen oppdaterer en tillatelse eller visuell kvittering.
+    read_private(dir, name, owner)?;
+    let temp = format!(
+        ".{name}.{}.{}.tmp",
+        std::process::id(),
+        TEMP_ID.fetch_add(1, Ordering::Relaxed)
+    );
+    let mut file = open_at(
+        dir,
+        &temp,
+        libc::O_WRONLY | libc::O_CREAT | libc::O_EXCL,
+        0o600,
+    )
+    .map_err(|e| format!("Opprett privat RGB-dokument: {e}"))?;
+    let result = (|| {
+        validate_file(&file, owner)?;
+        file.write_all(bytes).map_err(|e| e.to_string())?;
+        file.sync_all().map_err(|e| e.to_string())?;
+        check()?;
+        rename_at(dir, &temp, name)?;
+        after_rename()?;
+        dir.sync_all().map_err(|e| e.to_string())
+    })();
+    // Kun vår egen nye tempfil. Journal og tidligere dokumenter slettes
+    // aldri som feilhåndtering, heller ikke ved feil etter rename.
+    let _ = unlink_at(dir, &temp);
+    result
 }
 
 fn rename_at(dir: &File, from: &str, to: &str) -> Result<(), String> {
@@ -538,6 +865,197 @@ mod tests {
     use super::*;
     use std::fs;
     use std::os::unix::fs::{PermissionsExt, symlink};
+
+    #[test]
+    fn eksplisitt_forberedelse_lagrer_originalen_uforandret_for_tillatelsen() {
+        let f = Fixture::new();
+        let store = PrivateStore::open_fixture(&f.path).unwrap();
+        let baseline = baseline();
+        prepare_documents(
+            &authorization(),
+            &baseline,
+            &store,
+            &f.path,
+            &store.directory,
+        )
+        .unwrap();
+        assert_eq!(store.baseline().unwrap(), baseline);
+        let auth = read_private(&store.directory, "rgb.json", store.owner)
+            .unwrap()
+            .unwrap();
+        assert_eq!(Authorization::parse(&auth).unwrap(), authorization());
+        prepare_documents(
+            &authorization(),
+            &baseline,
+            &store,
+            &f.path,
+            &store.directory,
+        )
+        .unwrap();
+        let changed = Baseline::user_confirmed_static(
+            binding(),
+            Observed {
+                color: Some([9, 9, 9]),
+                ..observed()
+            },
+        )
+        .unwrap();
+        assert!(
+            prepare_documents(
+                &authorization(),
+                &changed,
+                &store,
+                &f.path,
+                &store.directory
+            )
+            .is_err()
+        );
+        assert_eq!(store.baseline().unwrap(), baseline);
+        let intent = record(&baseline);
+        store.write_journal(&baseline, None, &intent).unwrap();
+        assert!(
+            prepare_documents(
+                &authorization(),
+                &baseline,
+                &store,
+                &f.path,
+                &store.directory
+            )
+            .is_err()
+        );
+        assert_eq!(store.journal(&baseline).unwrap(), Some(intent));
+    }
+
+    #[test]
+    fn annen_autorisasjon_kan_ikke_opprette_eller_erstatte_originalen() {
+        let f = Fixture::new();
+        let store = PrivateStore::open_fixture(&f.path).unwrap();
+        let other = Authorization::new(1001, binding(), rgb_auth::MIN_COMPATIBLE_BUILD).unwrap();
+        f.write("rgb.json", &serde_json::to_vec(&other).unwrap());
+        assert!(
+            prepare_documents(
+                &authorization(),
+                &baseline(),
+                &store,
+                &f.path,
+                &store.directory
+            )
+            .is_err()
+        );
+        assert!(!f.path.join(BASELINE).exists());
+        assert_eq!(
+            Authorization::parse(&fs::read_to_string(f.path.join("rgb.json")).unwrap()).unwrap(),
+            other
+        );
+    }
+
+    #[test]
+    fn visuell_kvittering_er_varig_for_originaljournalen_kan_ryddes() {
+        let f = Fixture::new();
+        let baseline = baseline();
+        let store = f.store(&baseline);
+        let record = record(&baseline);
+        store.write_journal(&baseline, None, &record).unwrap();
+        let target = initial_request(&baseline).unwrap();
+        assert!(
+            VisualEvidence::new(
+                1000,
+                &baseline,
+                &record,
+                &target,
+                &observed(),
+                EvidenceContext::LiveRecovery
+            )
+            .is_err()
+        );
+        let evidence = VisualEvidence::new(
+            1000,
+            &baseline,
+            &record,
+            &target,
+            &observed(),
+            EvidenceContext::RestartBaseline,
+        )
+        .unwrap();
+        store.fail_before_rename.store(true, Ordering::Relaxed);
+        assert!(
+            store
+                .acknowledge_visual(&baseline, &record, &evidence)
+                .is_err()
+        );
+        assert!(store.journal(&baseline).unwrap().is_some());
+        assert!(store.visual_evidence(&baseline).unwrap().is_none());
+        store.fail_before_rename.store(false, Ordering::Relaxed);
+        store.fail_directory_sync.store(true, Ordering::Relaxed);
+        assert!(
+            store
+                .acknowledge_visual(&baseline, &record, &evidence)
+                .is_err()
+        );
+        assert!(store.journal(&baseline).unwrap().is_some());
+        store.fail_directory_sync.store(false, Ordering::Relaxed);
+        store
+            .acknowledge_visual(&baseline, &record, &evidence)
+            .unwrap();
+        assert!(store.journal(&baseline).unwrap().is_none());
+        assert_eq!(
+            store.visual_evidence(&baseline).unwrap(),
+            Some(evidence.clone())
+        );
+        assert_eq!(
+            fs::metadata(f.path.join(VISUAL)).unwrap().mode() & 0o7777,
+            0o600
+        );
+        let json = serde_json::to_value(evidence).unwrap();
+        assert_eq!(json["source"], "userVisual");
+        assert!(json["observed"]["mode"].is_null());
+        assert_eq!(store.baseline().unwrap(), baseline);
+    }
+
+    #[test]
+    fn visuell_forrigekvittering_beholder_journal_og_strengt_schema() {
+        let f = Fixture::new();
+        let baseline = baseline();
+        let store = f.store(&baseline);
+        let previous = Request::Static {
+            color: [7, 8, 9],
+            brightness: 70u8.try_into().unwrap(),
+        };
+        let actual = Observed {
+            color: Some([7, 8, 9]),
+            brightness_raw: Some(70),
+            mode: None,
+        };
+        let mut record = record(&baseline);
+        record.journal.before = previous.clone();
+        record.journal.before_observed = actual.clone();
+        record.target = previous.clone();
+        record.operation = Operation::Recover;
+        record.phase = Phase::Attempted;
+        store.write_journal(&baseline, None, &record).unwrap();
+        let evidence = VisualEvidence::new(
+            1000,
+            &baseline,
+            &record,
+            &previous,
+            &actual,
+            EvidenceContext::LiveRecovery,
+        )
+        .unwrap();
+        store
+            .acknowledge_visual(&baseline, &record, &evidence)
+            .unwrap();
+        assert_eq!(store.journal(&baseline).unwrap(), Some(record));
+        let good = fs::read_to_string(f.path.join(VISUAL)).unwrap();
+        for bad in [
+            good.replacen("\"version\":1", "\"version\":1,\"version\":1", 1),
+            good.replacen("\"userVisual\"", "\"hardwareVerified\"", 1),
+            good.replacen("{", "{\"unknown\":1,", 1),
+        ] {
+            fs::write(f.path.join(VISUAL), bad).unwrap();
+            assert!(store.visual_evidence(&baseline).is_err());
+        }
+    }
 
     #[test]
     fn private_mapper_filer_og_las_har_ingen_vert_fallback() {

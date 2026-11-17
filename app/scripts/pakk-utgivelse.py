@@ -133,8 +133,10 @@ Root-hjelperens filer følger med, men hjelperen aktiveres ikke av installasjone
 Ekte GPU-styring aktiveres separat i Innstillinger › Skjermkortstyring,
 med én administratorgodkjenning. Støttede endringer i effekt, vifter og
 klokkeoffset sendes med Bruk og må beholdes innen fristen. Hjelperen bindes
-til kortet og lagrer utgangspunktet før skriving. RGB er bare forhåndsvisning;
-lyskontrolleren er ikke identifisert.
+til kortet og lagrer utgangspunktet før skriving. Pågående RGB-arbeid krever
+egen aktivering og et visuelt bekreftet statisk utgangspunkt. Lokal lysmodell
+er forhåndsvisning. Fysisk RGB-kontroll og tilbakeføring er ikke verifisert;
+se PATCHLOG.md for status før bruk.
 
 Start «Agentic Rigg» fra programmenyen, eller ~/.local/bin/agentic-rigg.
 Versjon og bygg står i Innstillinger › Om og i binærenes --version.

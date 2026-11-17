@@ -2,7 +2,7 @@
 
 **1.4.1 · bygg 24** · Rust og GTK 4 · Ubuntu · Code Pro
 
-**Pågående RGB-arbeid på `feature/palit-rgb`:** Vi undersøker faktisk fargestyring for Palit GeForce RTX 2080 Super JetStream. [Kildegrunnlag og verifikasjon](docs/produksjon/palit-rgb-2026-11-17.md) beskriver kortbundet transport og en separat RGB-hjelper med privat journal, testet mot falske enheter. Aktivering fra appen, brukerflate og fysisk verifikasjon er ennå ikke ferdig eller utgitt.
+**Pågående RGB-arbeid på `feature/palit-rgb`:** Kortbundet Palit-transport, separat administratoraktivering, daemonkobling og appkontroller er implementert for fast farge/av. En privat GTK-prøve dekker betjeningsflyten mot en falsk RGB-arbeider. Kontrollersignatur, faktisk farge og synlig gjenoppretting på brukerens kort er fortsatt uverifisert. Arbeidet ligger i [Draft PR #2](https://github.com/bejulian1/agentic-rigg/pull/2), uten merge, Release eller installasjon. [Kildegrunnlag og verifikasjon](docs/produksjon/palit-rgb-2026-11-17.md).
 
 Et lett maskinvareverktøy for Ubuntu: sensorer, grafer, CPU- og GPU-spesifikasjoner og diskhelse i én norsk desktop-app. Inspirert av MSI Afterburner, HWiNFO, GPU-Z, CPU-Z og CrystalDiskInfo.
 
@@ -13,11 +13,11 @@ Et lett maskinvareverktøy for Ubuntu: sensorer, grafer, CPU- og GPU-spesifikasj
   <tr>
     <td><a href="docs/images/vifter.png"><img src="docs/images/vifter.png" alt="Vifter med Enkel og Avansert visning" width="320"></a></td>
     <td><a href="docs/images/klokker.png"><img src="docs/images/klokker.png" alt="Klokker og effekt med målinger og GPU-justering" width="320"></a></td>
-    <td><a href="docs/images/rgb.png"><img src="docs/images/rgb.png" alt="RGB-forhåndsvisning med PCIe x16-modell" width="320"></a></td>
+    <td><a href="docs/images/rgb.png"><img src="docs/images/rgb.png" alt="Pågående kortlys med simulerte RGB-data og separat lokal lysmodell" width="320"></a></td>
   </tr>
 </table>
 
-*Vifter, Klokker og effekt og RGB fra private testøkter med simulerte data i GTK-appen 1.4.1. Klikk for full størrelse.*
+*Faktiske GTK-bilder fra private testøkter med simulerte data. Vifter og Klokker og effekt viser 1.4.1; RGB viser den uutgitte featurebranchen. Klikk for full størrelse.*
 
 ## Nytt i 1.4.1
 

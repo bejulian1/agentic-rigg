@@ -80,6 +80,8 @@ pub struct Daemon {
     pub vifter: rigg_hw::gpu::sim_vifter::SimVifter,
     /// Klienten mot root-hjelperen (runde 7A, `hjelper.rs`).
     pub hjelper: crate::hjelper::Hjelper,
+    /// Separat RGB-IPC-tråd og UI-eierskap. Deler ingen GPU-lease.
+    pub rgb: crate::rgb_hjelper::RgbClient,
 }
 
 impl Daemon {
@@ -101,6 +103,7 @@ impl Daemon {
             eprintln!("{n}");
         }
         let hjelper = crate::hjelper::Hjelper::new(opts.hjelper.clone());
+        let (rgb, rgb_results) = crate::rgb_hjelper::RgbClient::start(rigg_core::rgb_auth::Paths::new(opts.hjelper.root.clone()));
         let d = Rc::new(RefCell::new(Daemon {
             me: Weak::new(),
             opts,
@@ -138,6 +141,7 @@ impl Daemon {
             disk_alarm: false,
             vifter: Default::default(),
             hjelper,
+            rgb,
         }));
         {
             let mut b = d.borrow_mut();
@@ -146,6 +150,22 @@ impl Daemon {
         d.borrow_mut().me = Rc::downgrade(&d);
         d.borrow_mut().sync_disk_alarm();
         d.borrow_mut().hjelper.probe(now);
+        let weak = Rc::downgrade(&d);
+        glib::MainContext::ref_thread_default().spawn_local(async move {
+            while let Ok(event) = rgb_results.recv().await {
+                let Some(d) = weak.upgrade() else { break };
+                let mut d = d.borrow_mut();
+                let sid = event.session();
+                if d.stopping || !d.sessions.get(&sid).is_some_and(|session| session.hello) {
+                    d.rgb.session_closed(sid);
+                    continue;
+                }
+                if let Some((sid, id, result)) = d.rgb.complete(event) {
+                    d.send(sid, &proto::response_line(&id, &result));
+                }
+                d.check_idle();
+            }
+        });
         d
     }
 
@@ -235,6 +255,20 @@ impl Daemon {
             Ok(r) => r,
             Err((rid, e)) => return Some(proto::response_line(&rid, &Err(e))),
         };
+        if crate::rgb_hjelper::RgbClient::is_operation(&req.op) {
+            let result = if !self.sessions.get(&id).is_some_and(|session| session.hello) {
+                Err(proto::ProtoError::new(proto::ErrorCode::HelloRequired))
+            } else if self.stopping {
+                Err(proto::ProtoError::new(proto::ErrorCode::ShuttingDown))
+            } else {
+                match self.rgb.enqueue(id, &req) {
+                    Ok(None) => return None,
+                    Ok(Some(value)) => Ok(value),
+                    Err(error) => Err(error),
+                }
+            };
+            return Some(proto::response_line(&req.id, &result));
+        }
         let res = self.handle(id, &req);
         Some(proto::response_line(&req.id, &res))
     }
@@ -288,6 +322,7 @@ impl Daemon {
             let _ = c.stream.shutdown(std::net::Shutdown::Both);
         }
         if self.sessions.remove(&id).is_some() {
+            self.rgb.session_closed(id);
             // Det klienten ikke har bekreftet, rulles tilbake straks (sim).
             if self.txn.disconnect(&format!("s{id}")) {
                 self.after_txn();
@@ -312,7 +347,7 @@ impl Daemon {
     pub fn keep_alive(&self) -> bool {
         // Hjelperen setter kortet til standard når tjenesten forsvinner, så
         // tjenesten blir værende mens hjelperen har andre verdier (7A).
-        (self.settings.background && !self.idle_shutdown) || self.logger.active() || self.hjelper.holds_values()
+        (self.settings.background && !self.idle_shutdown) || self.logger.active() || self.hjelper.holds_values() || self.rgb.holds_values()
     }
 
     /// Ny takt når klientene eller innstillingene endres.
@@ -369,6 +404,7 @@ impl Daemon {
             return;
         }
         self.stopping = true;
+        self.rgb.stop();
         crate::lifecycle::sd_notify("STOPPING=1");
         self.cancel_grace();
         self.broadcast("shutdown", &json!({"reason": reason}));

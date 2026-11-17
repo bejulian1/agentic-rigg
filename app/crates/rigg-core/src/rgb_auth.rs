@@ -7,8 +7,61 @@
 
 use crate::rgb::Binding;
 use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 
 pub const CONFIG_PATH: &str = "/etc/agentic-rigg/rgb.json";
+pub const SOCKET_PATH: &str = "/run/agentic-rigg-rgb/helper.sock";
+pub const STATE_DIR: &str = "/var/lib/agentic-rigg-rgb";
+pub const BINARY_PATH: &str = "/usr/local/libexec/agentic-rigg-rgb-helper";
+pub const LIBEXEC_DIR: &str = "/usr/local/libexec/agentic-rigg-rgb";
+pub const UNIT: &str = "agentic-rigg-rgb.service";
+pub const PROTOCOL: u32 = 1;
+pub const DOMAIN: &str = "palit_rgb";
+pub const HELPER_NAME: &str = "agentic-rigg-rgb-helper";
+pub const UI_OPS: &[&str] = &[
+    "rgb_apply",
+    "rgb_confirm",
+    "rgb_revert",
+    "rgb_reset",
+    "rgb_release",
+    "rgb_ack_recovery",
+];
+
+/// Faste RGB-stier under en uttrykkelig valgt rot. Ingen fallback til verten.
+#[derive(Clone, Debug)]
+pub struct Paths {
+    pub root: PathBuf,
+}
+
+impl Paths {
+    pub fn new(root: impl Into<PathBuf>) -> Self {
+        Self { root: root.into() }
+    }
+    fn at(&self, absolute: &str) -> PathBuf {
+        self.root.join(absolute.trim_start_matches('/'))
+    }
+    pub fn config(&self) -> PathBuf {
+        self.at(CONFIG_PATH)
+    }
+    pub fn socket(&self) -> PathBuf {
+        self.at(SOCKET_PATH)
+    }
+    pub fn state(&self) -> PathBuf {
+        self.at(STATE_DIR)
+    }
+    pub fn baseline(&self) -> PathBuf {
+        self.state().join("baseline.json")
+    }
+    pub fn journal(&self) -> PathBuf {
+        self.state().join("journal.json")
+    }
+    pub fn binary(&self) -> PathBuf {
+        self.at(BINARY_PATH)
+    }
+    pub fn libexec(&self, name: &str) -> PathBuf {
+        self.at(LIBEXEC_DIR).join(name)
+    }
+}
 /// Bare RGB-formatet og sikkerhetsmodellen fra dette bygget er gjennomgått.
 /// Dette er uavhengig av NVML-hjelperens kompatibilitet og autorisasjon.
 pub const MIN_COMPATIBLE_BUILD: u32 = 24;

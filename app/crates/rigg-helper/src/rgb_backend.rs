@@ -1,7 +1,10 @@
 //! Privilegert RGB-adapter. Oppstart leser bare private filer og tar en lås;
 //! ingen grunnverdier fanges automatisk og ingen journal gjenopprettes da.
 
-use crate::rgb_store::{Operation, Phase, PrivateStore, StoredJournal, load_authorization};
+use crate::rgb_store::{
+    EvidenceContext, Operation, Phase, PrivateStore, StoredJournal, VisualEvidence, fields_match,
+    load_authorization,
+};
 use rigg_core::rgb::{
     Baseline, BaselineSource, Binding, Discovery, DiscoveryState, Observed, RecoveryReadback,
     Request,
@@ -86,6 +89,7 @@ pub(crate) struct NativeBackend {
     record: Option<StoredJournal>,
     own_write_responsibility: bool,
     last_recovery: Option<Observed>,
+    last_read: Option<Observed>,
     hardware: Box<dyn Hardware>,
     production: bool,
 }
@@ -147,6 +151,7 @@ impl NativeBackend {
             record: None,
             own_write_responsibility: false,
             last_recovery: None,
+            last_read: None,
             hardware,
             production,
         })
@@ -169,6 +174,137 @@ impl NativeBackend {
             }
         }
         Ok(())
+    }
+
+    /// Bare eksplisitt root-CLI. Ingen startup-recovery: vanlig konstruktør
+    /// avviser fremdeles enhver journal før maskinvareåpning.
+    fn open_resolution(uid: u32, pci: &str, uuid: &str, confirmed: bool) -> Result<Self, String> {
+        // SAFETY: ren identitetslesing. Ingen fixture- eller brukerfallback.
+        if !confirmed || unsafe { libc::geteuid() } != 0 {
+            return Err("RGB-restartavklaring krever eksplisitt administratorbekreftelse.".into());
+        }
+        let authorization = load_authorization(Path::new(rgb_auth::CONFIG_PATH))?;
+        if uid == 0
+            || uid != authorization.uid()
+            || pci != authorization.binding().pci
+            || uuid != authorization.binding().uuid
+        {
+            return Err(
+                "RGB-avklaringen gjelder ikke den autoriserte brukeren og det valgte kortet."
+                    .into(),
+            );
+        }
+        Self::from_existing(
+            authorization,
+            PrivateStore::open_production()?,
+            Box::new(Physical),
+            true,
+        )
+    }
+
+    fn from_existing(
+        authorization: Authorization,
+        store: PrivateStore,
+        hardware: Box<dyn Hardware>,
+        production: bool,
+    ) -> Result<Self, String> {
+        let baseline = store.baseline()?;
+        if baseline.source() != BaselineSource::UserConfirmedStatic
+            || baseline.binding() != authorization.binding()
+            || !rgb_auth::compatible_build(authorization.build())
+        {
+            return Err(
+                "RGB-restartavklaring mangler samme brukerbekreftede original og kortbinding."
+                    .into(),
+            );
+        }
+        Book::new(baseline.clone()).map_err(|e| e.to_string())?;
+        let record = store
+            .journal(&baseline)?
+            .ok_or("Det finnes ingen RGB-journal å avklare.")?;
+        let own_write_responsibility = record.has_recorded_write_responsibility();
+        Ok(Self {
+            authorization,
+            baseline,
+            store,
+            record: Some(record),
+            own_write_responsibility,
+            last_recovery: None,
+            last_read: None,
+            hardware,
+            production,
+        })
+    }
+
+    /// Ingen setter. Brukeren bekrefter at ORIGINALEN allerede vises, og én
+    /// ny identifikasjon må gi samme binding og komplette originale felt.
+    pub fn resolve_production(
+        uid: u32,
+        pci: &str,
+        uuid: &str,
+        confirmed_static: bool,
+    ) -> Result<VisualEvidence, String> {
+        Self::open_resolution(uid, pci, uuid, confirmed_static)?.resolve_original()
+    }
+
+    fn resolve_original(&mut self) -> Result<VisualEvidence, String> {
+        let target = Book::new(self.baseline.clone())
+            .map_err(|e| e.to_string())?
+            .snapshot()
+            .confirmed;
+        let binding = self.baseline.binding().clone();
+        let observed = self.read(&binding)?;
+        if !fields_match(&target, &observed) {
+            return Err(
+                "Ferske RGB-felt samsvarer ikke med originalen; journalen er beholdt.".into(),
+            );
+        }
+        let record = self.record.as_ref().ok_or("RGB-journalen mangler.")?;
+        let evidence = VisualEvidence::new(
+            self.authorization.uid(),
+            &self.baseline,
+            record,
+            &target,
+            &observed,
+            EvidenceContext::RestartBaseline,
+        )?;
+        self.store
+            .acknowledge_visual(&self.baseline, record, &evidence)?;
+        self.record = None;
+        self.own_write_responsibility = false;
+        Ok(evidence)
+    }
+
+    /// Eksplisitt root-CLI for den lagrede ORIGINALEN, også når aktuelle
+    /// felt ikke kan leses. Én journalført recover; aldri automatisk oppstart,
+    /// journalrydding eller påstand om verifisert modus etter denne skrivingen.
+    pub fn restore_production(
+        uid: u32,
+        pci: &str,
+        uuid: &str,
+        restore_original: bool,
+    ) -> Result<Observed, String> {
+        Self::open_resolution(uid, pci, uuid, restore_original)?.restore_original()
+    }
+
+    fn restore_original(&mut self) -> Result<Observed, String> {
+        let baseline = self.baseline.clone();
+        let target = Book::new(baseline.clone())
+            .map_err(|e| e.to_string())?
+            .snapshot()
+            .confirmed;
+        let observed = self
+            .recover(baseline.binding(), &target, &baseline)
+            .map_err(|e| {
+                format!(
+                    "RGB-originalen er ikke avklart: {}; setterforsøk={}",
+                    e.message, e.write_attempted
+                )
+            })?;
+        if !fields_match(&target, &observed) {
+            return Err("Etter gjenopprettingsforsøket samsvarer ikke komplette RGB-felt med originalen; journalen er beholdt.".into());
+        }
+        Ok(observed)
     }
 
     fn persist(&mut self, next: StoredJournal) -> Result<(), String> {
@@ -234,6 +370,7 @@ fn no_write(message: impl Into<String>) -> WriteError {
 
 impl Backend for NativeBackend {
     fn read(&mut self, binding: &Binding) -> Result<Observed, String> {
+        self.last_read = None;
         self.binding(binding, &self.baseline)?;
         self.current_authorization()?;
         self.store
@@ -244,6 +381,7 @@ impl Backend for NativeBackend {
         {
             return Err("Fersk RGB-identifikasjon samsvarer ikke med hele kortbindingen.".into());
         }
+        self.last_read = Some(report.observed.clone());
         Ok(report.observed)
     }
 
@@ -259,6 +397,7 @@ impl Backend for NativeBackend {
                 .as_ref()
                 .is_some_and(StoredJournal::has_recorded_write_responsibility);
         self.last_recovery = None;
+        self.last_read = None;
         self.persist(StoredJournal {
             version: 1,
             journal: journal.clone(),
@@ -291,6 +430,7 @@ impl Backend for NativeBackend {
             ));
         }
         self.last_recovery = None;
+        self.last_read = None;
         let preflight = self.current_authorization().and_then(|_| {
             self.store
                 .validate_state(&self.baseline, self.record.as_ref())
@@ -322,6 +462,7 @@ impl Backend for NativeBackend {
         next.phase = Phase::Prepared;
         next.validate(baseline).map_err(no_write)?;
         self.last_recovery = None;
+        self.last_read = None;
         // Tilbakekalt tillatelse må ikke sperre gjenoppretting av egne endringer.
         // Kort/UUID/signatur kontrolleres ferskt av den egne recover-transporten.
         self.persist(next).map_err(no_write)?;
@@ -347,6 +488,48 @@ impl Backend for NativeBackend {
         self.last_recovery = None;
         Ok(())
     }
+
+    fn ack_recovery(
+        &mut self,
+        binding: &Binding,
+        target: &Request,
+        observed: &Observed,
+        baseline: &Baseline,
+    ) -> Result<(), String> {
+        self.binding(binding, baseline)?;
+        self.current_authorization()?;
+        if self.last_read.as_ref() != Some(observed)
+            || !self
+                .last_recovery
+                .as_ref()
+                .is_some_and(|value| fields_match(target, value))
+        {
+            return Err(
+                "RGB-bekreftelsen mangler fersk lesing av samme gjenopprettede mål.".into(),
+            );
+        }
+        let record = self.record.as_ref().ok_or("RGB-journalen mangler.")?;
+        let evidence = VisualEvidence::new(
+            self.authorization.uid(),
+            baseline,
+            record,
+            target,
+            observed,
+            EvidenceContext::LiveRecovery,
+        )?;
+        self.store.acknowledge_visual(baseline, record, &evidence)?;
+        let original = Book::new(baseline.clone())
+            .map_err(|e| e.to_string())?
+            .snapshot()
+            .confirmed;
+        if target == &original {
+            self.record = None;
+            self.own_write_responsibility = false;
+            self.last_recovery = None;
+            self.last_read = None;
+        }
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -363,6 +546,7 @@ mod tests {
         actions: Vec<&'static str>,
         binding: Binding,
         result: Result<Observed, WriteError>,
+        read_observed: Observed,
         fail_persistence_after_write: Option<Arc<AtomicBool>>,
     }
 
@@ -372,7 +556,7 @@ mod tests {
         fn read(&mut self, _: &Binding) -> Result<Discovery, String> {
             let mut state = self.0.lock().unwrap();
             state.actions.push("read");
-            Discovery::identified(state.binding.clone(), observed())
+            Discovery::identified(state.binding.clone(), state.read_observed.clone())
         }
 
         fn apply(
@@ -402,6 +586,9 @@ mod tests {
             if let Some(fault) = &state.fail_persistence_after_write {
                 fault.store(true, Ordering::Relaxed);
             }
+            if let Ok(value) = &state.result {
+                state.read_observed = value.clone();
+            }
             state.result.clone()
         }
     }
@@ -415,6 +602,7 @@ mod tests {
                 brightness_raw: Some(100),
                 mode: None,
             }),
+            read_observed: observed(),
             fail_persistence_after_write: None,
         }));
         (Box::new(Fake(state.clone())), state)
@@ -428,6 +616,122 @@ mod tests {
             NativeBackend::from_parts(authorization(), baseline.clone(), store, hardware, false)
                 .unwrap();
         (f, backend, state)
+    }
+
+    #[test]
+    fn live_visuell_kvittering_krever_fersk_lesing_og_bevarer_ukjent_modus() {
+        let baseline = baseline();
+        let (f, mut backend, state) = backend(&baseline);
+        backend.mark_dirty(&journal(&baseline)).unwrap();
+        state.lock().unwrap().result = Ok(observed());
+        let initial = journal(&baseline).before;
+        backend.recover(&binding(), &initial, &baseline).unwrap();
+        assert!(
+            backend
+                .ack_recovery(&binding(), &initial, &observed(), &baseline)
+                .is_err()
+        );
+        let actual = backend.read(&binding()).unwrap();
+        backend
+            .ack_recovery(&binding(), &initial, &actual, &baseline)
+            .unwrap();
+        assert!(backend.store.journal(&baseline).unwrap().is_none());
+        assert_eq!(actual.mode, None);
+        let receipt: serde_json::Value = serde_json::from_slice(
+            &std::fs::read(f.path.join("visual-confirmation.json")).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(receipt["source"], "userVisual");
+        assert_eq!(receipt["context"], "liveRecovery");
+        assert!(receipt["observed"]["mode"].is_null());
+        assert_eq!(state.lock().unwrap().actions, ["recover", "read"]);
+    }
+
+    #[test]
+    fn endret_binding_eller_felt_gir_ingen_visuell_rydding() {
+        for changed_binding in [false, true] {
+            let baseline = baseline();
+            let (_f, mut backend, state) = backend(&baseline);
+            backend.mark_dirty(&journal(&baseline)).unwrap();
+            state.lock().unwrap().result = Ok(observed());
+            let initial = journal(&baseline).before;
+            backend.recover(&binding(), &initial, &baseline).unwrap();
+            backend.read(&binding()).unwrap();
+            if changed_binding {
+                state.lock().unwrap().binding.signature = Signature::Palit100;
+                assert!(backend.read(&binding()).is_err());
+                assert!(
+                    backend
+                        .ack_recovery(&binding(), &initial, &observed(), &baseline)
+                        .is_err()
+                );
+            } else {
+                state.lock().unwrap().read_observed.color = Some([1, 1, 1]);
+                let changed = backend.read(&binding()).unwrap();
+                assert!(
+                    backend
+                        .ack_recovery(&binding(), &initial, &changed, &baseline)
+                        .is_err()
+                );
+            }
+            assert!(backend.store.journal(&baseline).unwrap().is_some());
+        }
+    }
+
+    #[test]
+    fn restartavklaring_er_bare_lesing_og_alltid_originalen() {
+        let f = Fixture::new();
+        let baseline = baseline();
+        let store = f.store(&baseline);
+        store
+            .write_journal(&baseline, None, &fixtures::record(&baseline))
+            .unwrap();
+        let (hardware, state) = hardware();
+        let mut backend =
+            NativeBackend::from_existing(authorization(), store, hardware, false).unwrap();
+        let evidence = backend.resolve_original().unwrap();
+        assert_eq!(state.lock().unwrap().actions, ["read"]);
+        assert!(backend.store.journal(&baseline).unwrap().is_none());
+        assert_eq!(backend.store.baseline().unwrap(), baseline);
+        let receipt = serde_json::to_value(evidence).unwrap();
+        assert_eq!(receipt["source"], "userVisual");
+        assert_eq!(receipt["context"], "restartBaseline");
+        assert_eq!(receipt["originalBaseline"], true);
+    }
+
+    #[test]
+    fn eksplisitt_originalrestore_etter_restart_skiller_skriving_fra_avklaring() {
+        for phase in [
+            Phase::Prepared,
+            Phase::RejectedBeforeWrite,
+            Phase::Attempted,
+        ] {
+            let f = Fixture::new();
+            let baseline = baseline();
+            let store = f.store(&baseline);
+            let mut record = fixtures::record(&baseline);
+            record.phase = phase;
+            store.write_journal(&baseline, None, &record).unwrap();
+            let (hardware, state) = hardware();
+            state.lock().unwrap().read_observed.color = Some([99, 98, 97]);
+            let mut backend =
+                NativeBackend::from_existing(authorization(), store, hardware, false).unwrap();
+            assert!(backend.resolve_original().is_err());
+            assert_eq!(state.lock().unwrap().actions, ["read"]);
+            assert!(backend.store.journal(&baseline).unwrap().is_some());
+            state.lock().unwrap().result = Ok(observed());
+            let result = backend.restore_original().unwrap();
+            assert_eq!(result.mode, None);
+            assert_eq!(state.lock().unwrap().actions, ["read", "recover"]);
+            let persisted = backend.store.journal(&baseline).unwrap().unwrap();
+            assert_eq!(persisted.operation, Operation::Recover);
+            assert_eq!(persisted.phase, Phase::Attempted);
+            assert_eq!(persisted.target, journal(&baseline).before);
+            assert!(!f.path.join("visual-confirmation.json").exists());
+            backend.resolve_original().unwrap();
+            assert!(backend.store.journal(&baseline).unwrap().is_none());
+            assert_eq!(state.lock().unwrap().actions, ["read", "recover", "read"]);
+        }
     }
 
     #[test]
