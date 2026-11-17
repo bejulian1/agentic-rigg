@@ -632,6 +632,7 @@ dependencies = [
  "libc",
  "rigg-core",
  "rigg-hw",
+ "serde",
  "serde_json",
 ]
 

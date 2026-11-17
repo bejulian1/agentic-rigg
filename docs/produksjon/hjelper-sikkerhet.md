@@ -1,5 +1,7 @@
 # Root-hjelperen · sikkerhet og begrensninger
 
+**Separat RGB-arbeid:** NVML-modellen nedenfor gir ingen RGB-tillatelse. Den pågående featurebranchen har en egen [RGB-hjelper med privat journal og protokoll](rgb-hjelper.md), uten delt socket, grunnopptak eller lease. Den er ikke installert eller fysisk verifisert; vanlig GPU-start aktiverer den ikke.
+
 ## UI-kompatibilitet · 1.4.1, bygg 24
 
 1.4.1 endrer brukerflaten og lar app/daemon bygg 24 bruke brukerens allerede autoriserte hjelper fra bygg 23. HW-sikkerhetsmotor, baseline, frister og recovery er uendret. `MIN_COMPATIBLE_BUILD = 23` og eksakt protokoll 2 kontrolleres både ved oppdagelse og løpende status. Bare bygg fra minimum til appens eget bygg godtas; ukjent nyere hjelper, eldre bygg, feil protokoll og ugyldige metadata avvises. Kortbinding, uid og faktisk klarstatus kreves fortsatt.

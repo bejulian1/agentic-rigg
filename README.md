@@ -2,7 +2,7 @@
 
 **1.4.1 · bygg 24** · Rust og GTK 4 · Ubuntu · Code Pro
 
-**Pågående RGB-arbeid på `feature/palit-rgb`:** Vi undersøker faktisk fargestyring for Palit GeForce RTX 2080 Super JetStream. [Kildegrunnlag og verifikasjon](docs/produksjon/palit-rgb-2026-11-17.md) beskriver kortbundet identifikasjon, en avgrenset skrivetransport og separat RGB-transaksjon testet mot falske enheter. Fysisk fargestyring og RGB-integrasjon er ennå ikke ferdig eller utgitt.
+**Pågående RGB-arbeid på `feature/palit-rgb`:** Vi undersøker faktisk fargestyring for Palit GeForce RTX 2080 Super JetStream. [Kildegrunnlag og verifikasjon](docs/produksjon/palit-rgb-2026-11-17.md) beskriver kortbundet transport og en separat RGB-hjelper med privat journal, testet mot falske enheter. Aktivering fra appen, brukerflate og fysisk verifikasjon er ennå ikke ferdig eller utgitt.
 
 Et lett maskinvareverktøy for Ubuntu: sensorer, grafer, CPU- og GPU-spesifikasjoner og diskhelse i én norsk desktop-app. Inspirert av MSI Afterburner, HWiNFO, GPU-Z, CPU-Z og CrystalDiskInfo.
 

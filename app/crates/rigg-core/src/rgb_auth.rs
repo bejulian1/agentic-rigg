@@ -9,6 +9,14 @@ use crate::rgb::Binding;
 use serde::{Deserialize, Serialize};
 
 pub const CONFIG_PATH: &str = "/etc/agentic-rigg/rgb.json";
+/// Bare RGB-formatet og sikkerhetsmodellen fra dette bygget er gjennomgått.
+/// Dette er uavhengig av NVML-hjelperens kompatibilitet og autorisasjon.
+pub const MIN_COMPATIBLE_BUILD: u32 = 24;
+
+pub fn compatible_build(build: u32) -> bool {
+    (MIN_COMPATIBLE_BUILD..=crate::version::build()).contains(&build)
+}
+
 const SCHEMA_VERSION: u32 = 1;
 const MAX_BYTES: usize = 16_384;
 
@@ -178,5 +186,13 @@ mod tests {
         let duplicate = text.replacen('{', "{\"uid\":1001,", 1);
         assert!(Authorization::parse(&duplicate).is_err());
         assert!(Authorization::parse(&" ".repeat(MAX_BYTES + 1)).is_err());
+    }
+
+    #[test]
+    fn rgb_har_egen_kompatibilitetsgrense() {
+        assert!(!compatible_build(23));
+        assert!(compatible_build(MIN_COMPATIBLE_BUILD));
+        assert!(compatible_build(crate::version::build()));
+        assert!(!compatible_build(crate::version::build() + 1));
     }
 }

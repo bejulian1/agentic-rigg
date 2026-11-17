@@ -16,6 +16,7 @@ path = "src/main.rs"
 [dependencies]
 rigg-core.workspace = true
 rigg-hw = { workspace = true, features = ["ekte-skriving", "palit-rgb"] }
+serde.workspace = true
 serde_json.workspace = true
 libc.workspace = true
 

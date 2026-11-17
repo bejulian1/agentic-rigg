@@ -5,7 +5,7 @@ Gjeldende versjon: **1.4.1 · bygg 24**. Nedlastinger og utgivelsesnotater ligge
 ## Under arbeid · feature/palit-rgb
 
 - Kildeundersøkelse og første kortbundne, lesende Palit-identifikasjon for RTX 2080 Super JetStream. Fysisk fargestyring, gjenoppretting og RGB-brukerflate er fortsatt under arbeid, og er ikke utgitt.
-- Avgrenset transport for statisk farge/av og en separat RGB-transaksjonsmodell med testet håndtering av delvis skriving, frist og ukjent effektmodus. Egen tillatelsesmodell; gammel GPU-godkjenning gir ikke RGB-tilgang. Ingen av disse skrivemetodene er koblet til appens tjeneste eller brukerflate ennå.
+- Avgrenset statisk farge/av og egen RGB-hjelper med separat tillatelse, privat journal, klientbinding og lease. Gammel GPU-godkjenning gir ikke RGB-tilgang. Appaktivering, daemonkobling, brukerflate og fysisk verifikasjon gjenstår.
 - [Faktisk status, kontrollerprotokoll og verifikasjon](docs/produksjon/palit-rgb-2026-11-17.md). Eksisterende GPU-autorisasjon og installasjon endres ikke av dette forarbeidet.
 
 ## 1.4.1 · bygg 24 – 14. november 2026
