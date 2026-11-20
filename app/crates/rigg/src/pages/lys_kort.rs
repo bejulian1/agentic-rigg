@@ -956,7 +956,7 @@ impl CardLight {
         let resolution = admin_paths(&self.app, &helper, AdminAction::Resolve);
         let restoration = admin_paths(&self.app, &helper, AdminAction::Restore);
         self.install_prompt.set_visible(
-            !self.app.profile.is_dev() && helper["systemAdmin"] == true && activation.is_err(),
+            !self.app.profile.is_dev() && helper["systemAdmin"] == true && (helper["state"] == "outdated" || activation.is_err()),
         );
         let deactivation = admin_paths(&self.app, &helper, AdminAction::Deactivate);
         let admin_available = connected
@@ -965,7 +965,7 @@ impl CardLight {
             && !other
             && selected_identity(&self.app).is_some();
         self.activate
-            .set_sensitive(admin_available && activation.is_ok());
+            .set_sensitive(admin_available && helper["state"] != "outdated" && activation.is_ok());
         self.activate.set_tooltip_text(activation.err().as_deref());
         self.resolve.set_visible(
             !bound && matches!(helper["state"].as_str(), Some("off" | "error" | "outdated")),
@@ -1202,7 +1202,7 @@ fn admin_paths(
     }
     let pkexec = PathBuf::from("/usr/bin/pkexec");
     let script = rgb_auth::Paths::new("/").libexec(action.script());
-    if !crate::system_install::ready()
+    if !crate::system_install::ready(action == AdminAction::Activate)
         || [
             pkexec.as_path(),
             &script,

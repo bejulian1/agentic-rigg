@@ -24,7 +24,7 @@ fn data_dir(app: &App) -> PathBuf {
     PathBuf::from("/usr/local/libexec/agentic-rigg")
 }
 
-fn admin(app: &App) -> Option<PathBuf> {
+fn admin(app: &App, activate: bool) -> Option<PathBuf> {
     if app.profile.is_dev() {
         let fake = PathBuf::from(std::env::var_os("RIGG_PKEXEC")?);
         let root = PathBuf::from(std::env::var_os("RIGG_HJELPER_ROT")?);
@@ -32,7 +32,7 @@ fn admin(app: &App) -> Option<PathBuf> {
             && data_dir(app).is_absolute() && app.data.borrow().backend.starts_with("sim")).then_some(fake);
     }
     let dir = data_dir(app);
-    (!app.data.borrow().backend.starts_with("sim") && crate::system_install::ready()
+    (!app.data.borrow().backend.starts_with("sim") && crate::system_install::ready(activate)
         && [PathBuf::from("/usr/local/libexec/agentic-rigg-helper"), dir.join("agentic-rigg-helper.service"), dir.join("aktiver.sh"), dir.join("deaktiver.sh"), dir.join("nvml-admin.py"),
             PathBuf::from("/usr/share/polkit-1/actions/io.github.AgenticRigg.helper.policy")]
             .iter().all(|path| crate::system_install::trusted(path))).then(|| "/usr/bin/pkexec".into())
@@ -48,8 +48,8 @@ fn state_text(app: &App) -> String {
         "on" if locked::control_ready(app) => "Styring er klar for det valgte skjermkortet. Endringer brukes først når du trykker Bruk.".into(),
         "on" if locked::gate(app) == rigg_core::txn::Gate::Sim => "Simulert styring. Det ekte skjermkortet endres ikke.".into(),
         "on" | "error" => h["message"].as_str().unwrap_or("Hjelperen er ikke klar for kortet som vises. Se funksjonsstøtten under, eller trykk Sjekk igjen.").into(),
-        "outdated" => "Hjelperen må oppdateres. Slå bryteren av og på igjen for å aktivere denne versjonen.".into(),
-        _ if admin(app).is_none() => "Systemkomponentene mangler eller må oppdateres.".into(),
+        "outdated" => "Hjelperen må oppdateres. Bruk kommandoen for systeminstallasjon.".into(),
+        _ if admin(app, true).is_none() => "Systemkomponentene mangler eller må oppdateres.".into(),
         _ => "Bare visning. Endring av skjermkortet er slått av.".into(),
     }
 }
@@ -106,7 +106,7 @@ fn failure(code: i32, err: &str, what: &str) -> Option<Toast> {
 
 pub(crate) fn toggle(app: &Rc<App>, on: bool) {
     if BUSY.with(Cell::get) { return; }
-    let Some(pkexec) = admin(app) else { return };
+    let Some(pkexec) = admin(app, on) else { return };
     if on && !app.profile.is_dev() && app.data.borrow().backend != "nvml" { return; }
     let args = if on {
         let Some(pci) = app.gpu_id() else {
@@ -205,7 +205,7 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     sw.set_state(active);
     sw.set_valign(gtk::Align::Center);
     sw.update_property(&[gtk::accessible::Property::Label("Tillat endring av skjermkortet")]);
-    let can = app.client.is_connected() && admin(app).is_some() && (active || app.profile.is_dev() || app.data.borrow().backend == "nvml");
+    let can = app.client.is_connected() && admin(app, !active).is_some() && (active || app.profile.is_dev() || app.data.borrow().backend == "nvml");
     sw.set_sensitive(can && !busy);
     {
         let a = app.clone();
@@ -241,7 +241,7 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
         "on" if locked::gate(app) == rigg_core::txn::Gate::Sim => "Simulert",
         "on" => "Ikke klar",
         "error" => "Feil",
-        "outdated" => "Slå på igjen",
+        "outdated" => "Oppdater hjelper",
         _ => "Av",
     };
     status_box.append(&crate::widgets::rows::tag(word, Some(icon), kind));
@@ -270,7 +270,7 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     status_row.widget.add_css_class("helper-status-row");
 
     let mut rows = vec![main_row, status_row];
-    if !app.profile.is_dev() && (active || app.data.borrow().backend == "nvml") && admin(app).is_none() {
+    if !app.profile.is_dev() && (state == "outdated" || ((active || app.data.borrow().backend == "nvml") && admin(app, true).is_none())) {
         rows.push(custom_row(&crate::system_install::prompt(), "systemkomponenter installasjon"));
     }
     let toggle_group = group(

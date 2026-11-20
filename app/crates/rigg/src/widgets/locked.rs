@@ -355,7 +355,7 @@ pub fn helper_line(app: &App) -> Option<String> {
         "on" if control_ready(app) || gate(app) == Gate::Sim => None,
         "on" => Some(h["message"].as_str().unwrap_or("Hjelperen er ikke skriveklar for kortet som vises.").into()),
         "error" => Some(h["message"].as_str().unwrap_or("Hjelperen svarer ikke. Endringer er låst.").into()),
-        "outdated" => Some("Hjelperen må oppdateres. Slå bryteren av og på i Innstillinger › Skjermkortstyring.".into()),
+        "outdated" => Some("Hjelperen må oppdateres. Oppdater systemkomponentene fra Innstillinger › Skjermkortstyring.".into()),
         _ => None,
     }
 }

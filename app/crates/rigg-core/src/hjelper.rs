@@ -24,7 +24,7 @@ use std::path::{Path, PathBuf};
 pub const PROTOCOL: u32 = 2;
 /// Gjennomgått sikkerhetsmotor. Øk ved sikkerhetsrettinger som eldre hjelpere
 /// ikke må få omgå; rene UI-patcher kan beholde autorisasjonen fra dette bygget.
-pub const MIN_COMPATIBLE_BUILD: u32 = 24;
+pub const MIN_COMPATIBLE_BUILD: u32 = 25;
 
 /// Bare kjente hjelpere innen samme protokoll godtas. En nyere hjelper enn
 /// appen krever også oppdatering; ingen fremtidig kompatibilitet antas.
@@ -368,7 +368,7 @@ pub fn locked(reason: &str) -> ProtoError {
         }
         "helper_error" => "Hjelperen for endring svarer ikke. Se Innstillinger › Styring.",
         "helper_outdated" => {
-            "Hjelperen er fra en annen versjon av appen. Slå bryteren i Innstillinger › Styring av og på igjen."
+            "Hjelperen er fra en annen versjon av appen. Oppdater systemkomponentene fra Innstillinger › Skjermkortstyring."
         }
         "backend_mismatch" => {
             "Hjelperen og tjenesten bruker ulike kort (simulert og ekte). Ingenting er sendt."
@@ -389,9 +389,10 @@ mod tests {
 
     #[test]
     fn uioppdatering_beholder_kompatibel_hjelper_men_ikke_eldre_motor() {
-        assert!(crate::version::build() >= 24);
+        assert!(crate::version::build() >= 25);
         assert!(!compatible(PROTOCOL, 23));
-        assert!(compatible(PROTOCOL, 24));
+        assert!(!compatible(PROTOCOL, 24));
+        assert!(compatible(PROTOCOL, 25));
         assert!(compatible(PROTOCOL, crate::version::build()));
         assert!(!compatible(PROTOCOL, 22));
         assert!(!compatible(PROTOCOL - 1, 23));

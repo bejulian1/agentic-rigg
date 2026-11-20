@@ -285,7 +285,7 @@ impl Hjelper {
             State::Outdated(b) => (
                 "outdated",
                 Some(format!(
-                    "Hjelperens bygg {b} eller protokoll er inkompatibel. Appbygg {} støtter hjelperbygg {}–{} med protokoll {}. Oppdater hjelperen via bryteren.",
+                    "Hjelperens bygg {b} eller protokoll er inkompatibel. Appbygg {} støtter hjelperbygg {}–{} med protokoll {}. Oppdater systemkomponentene fra Innstillinger › Skjermkortstyring.",
                     rigg_core::version::build(),
                     hjelper::MIN_COMPATIBLE_BUILD,
                     rigg_core::version::build(),
@@ -531,13 +531,17 @@ mod compatibility_tests {
 
     #[test]
     fn krever_rettet_binaer_ogsa_nar_byggnummeret_er_likt() {
-        assert!(rigg_core::version::build() >= 24);
+        assert!(rigg_core::version::build() >= 25);
         assert_eq!(
-            state_for_status(&json!({"helper":{"build":24,"protocol":2}})),
-            State::Outdated(24)
+            state_for_status(&json!({"helper":{"build":25,"protocol":2}})),
+            State::Outdated(25)
         );
         assert_eq!(
             state_for_status(&json!({"helper":{"build":24,"protocol":2,"strictRequests":true}})),
+            State::Outdated(24)
+        );
+        assert_eq!(
+            state_for_status(&json!({"helper":{"build":25,"protocol":2,"strictRequests":true}})),
             State::On
         );
         assert_eq!(

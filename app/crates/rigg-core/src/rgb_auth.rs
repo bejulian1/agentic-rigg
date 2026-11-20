@@ -66,7 +66,7 @@ impl Paths {
 }
 /// Bare RGB-formatet og sikkerhetsmodellen fra dette bygget er gjennomgått.
 /// Dette er uavhengig av NVML-hjelperens kompatibilitet og autorisasjon.
-pub const MIN_COMPATIBLE_BUILD: u32 = 24;
+pub const MIN_COMPATIBLE_BUILD: u32 = 25;
 
 pub fn compatible_build(build: u32) -> bool {
     (MIN_COMPATIBLE_BUILD..=crate::version::build()).contains(&build)
@@ -183,7 +183,7 @@ mod tests {
     }
 
     fn data() -> Value {
-        serde_json::to_value(Authorization::new(1000, binding(), 24).unwrap()).unwrap()
+        serde_json::to_value(Authorization::new(1000, binding(), 25).unwrap()).unwrap()
     }
 
     #[test]
@@ -201,7 +201,7 @@ mod tests {
         let gpu_config = r#"{"versjon":2,"uid":1000,"enabled":true,"pci":"0000:1c:00.0","uuid":"GPU-rgb-authorization-fixture","bygg":23}"#;
         assert!(Authorization::parse(gpu_config).is_err());
         assert_eq!(a.uid(), 1000);
-        assert_eq!(a.build(), 24);
+        assert_eq!(a.build(), 25);
     }
 
     #[test]
@@ -245,8 +245,8 @@ mod tests {
 
     #[test]
     fn rgb_har_egen_kompatibilitetsgrense() {
-        assert!(!compatible_build(23));
-        assert!(compatible_build(MIN_COMPATIBLE_BUILD));
+        assert!(!compatible_build(24));
+        assert!(compatible_build(25));
         assert!(compatible_build(crate::version::build()));
         assert!(!compatible_build(crate::version::build() + 1));
     }

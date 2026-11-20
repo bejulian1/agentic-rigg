@@ -19,7 +19,7 @@ pub fn trusted(path: &Path) -> bool {
     })
 }
 
-pub fn ready() -> bool {
+pub fn ready(activate: bool) -> bool {
     [
         MARK,
         "/usr/local/libexec/agentic-rigg-system/system-install",
@@ -27,7 +27,18 @@ pub fn ready() -> bool {
     ]
     .iter()
     .all(|path| trusted(Path::new(path)))
-        && std::fs::read_to_string(MARK).is_ok_and(|value| value == "1\n")
+        && std::fs::read_to_string(MARK).is_ok_and(|value| compatible_revision(&value, activate))
+}
+
+fn compatible_revision(value: &str, activate: bool) -> bool {
+    if value == "1\n" {
+        return !activate;
+    }
+    value.strip_prefix("2:").and_then(|v| v.trim_end().parse::<u32>().ok()).is_some_and(|build| {
+        build > 0 && build <= rigg_core::version::build() && (!activate ||
+            (rigg_core::hjelper::compatible(rigg_core::hjelper::PROTOCOL, build)
+             && rigg_core::rgb_auth::compatible_build(build)))
+    })
 }
 
 pub fn prompt() -> gtk::Box {
@@ -47,4 +58,21 @@ pub fn prompt() -> gtk::Box {
     box_.append(&command);
     box_.append(&copy);
     box_
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn gammel_installasjon_tillater_bare_opprydding() {
+        for old in ["1\n", "2:24\n"] {
+            assert!(!compatible_revision(old, true));
+            assert!(compatible_revision(old, false));
+        }
+        assert!(compatible_revision("2:25\n", true));
+        for unknown in ["", "3:25\n", "2:0\n", "2:4294967295\n"] {
+            assert!(!compatible_revision(unknown, false));
+        }
+    }
 }

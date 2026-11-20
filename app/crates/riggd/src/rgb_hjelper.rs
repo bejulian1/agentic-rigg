@@ -120,7 +120,7 @@ impl View {
         {
             return Err(Self {
                 state: "outdated",
-                message: Some("RGB-hjelperens bygg eller protokoll må oppdateres.".into()),
+                message: Some("Oppdater RGB-hjelperen med kommandoen for systeminstallasjon.".into()),
                 status: Value::Null,
             });
         }
