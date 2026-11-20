@@ -505,6 +505,8 @@ impl Daemon {
         }
         if self.tasks_until.is_some_and(|until| Instant::now() >= until) {
             self.tasks_until = None;
+            self.tasks = None;
+            self.tasks_previous.clear();
             self.reschedule();
         }
         let mut disk_alarms = Vec::new();

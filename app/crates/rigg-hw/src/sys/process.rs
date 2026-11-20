@@ -358,13 +358,13 @@ impl ProcessReader {
             let status = read_small(&entry.path().join("status"))
                 .ok()
                 .and_then(|s| parse_status(&s));
-            if status.is_none() {
-                result.unreadable = result.unreadable.saturating_add(1);
-            }
             // status kan ha blitt lest etter en PID-utskifting. Bland aldri UID
             // fra én instans med stat/CPU/minne fra en annen.
             if read_identity(&self.root, pid) != Some(stat.identity) {
                 continue;
+            }
+            if status.is_none() {
+                result.unreadable = result.unreadable.saturating_add(1);
             }
             let reason = if self.root != Path::new("/") {
                 Some("Avslutning er sperret for testdata".into())

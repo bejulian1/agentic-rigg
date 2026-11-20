@@ -872,11 +872,17 @@ fn oppgaver_har_egne_sider_og_nullstilles_etter_skjult_vindu() {
     assert_eq!(paused["sampledAtMs"], first["sampledAtMs"]);
     assert_eq!(paused["loading"], false);
     assert_eq!(paused["stale"], true);
-    assert_eq!(c.ok("get_tasks", json!({"newerThan": first["snapshotId"]}))["loading"], true);
-    let resumed = wait(&mut c);
+    drop(c);
+    let mut c2 = d.connect();
+    c2.hello();
+    let dropped = c2.ok("get_tasks", json!({"snapshotId": first["snapshotId"]}));
+    assert_eq!(dropped["snapshotChanged"], true);
+    assert_eq!(dropped["loading"], true);
+    let resumed = wait(&mut c2);
     assert!(resumed["snapshotId"].as_u64() > first["snapshotId"].as_u64());
     let row = resumed["rows"].as_array().unwrap().iter().find(|row| row["pid"] == std::process::id()).unwrap();
     assert!(row["cpuPercent"].is_null(), "skjult tid skal ikke bli en CPU-rate");
+    assert_eq!(c2.ok("get_tasks", json!({"newerThan": resumed["snapshotId"]}))["loading"], true);
 }
 
 #[test]

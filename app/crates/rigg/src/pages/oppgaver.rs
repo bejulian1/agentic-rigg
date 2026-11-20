@@ -521,7 +521,7 @@ impl State {
                     Err(e) => a.toast(crate::toast::Toast::new("Oppgaven ble ikke avsluttet").body(&e.message).error()),
                 }
                 if let Some(s) = weak.upgrade() {
-                    s.request_page(Load::Displayed(s.offset.get()));
+                    s.refresh_now();
                 }
             });
         });
