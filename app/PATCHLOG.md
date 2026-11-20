@@ -1,5 +1,21 @@
 # Patchlog
 
+## Pågående · Palit-RGB på feature/palit-rgb
+
+- Pusting, regnbue og fargesyklus i «Lys på kortet» bruker den egne RGB-hjelperen. Bruk viser startfargen, Behold starter animasjonen, og Stopp gjenoppretter lagret utgangspunkt. Fysisk verifikasjon av animasjonene på PALIT 100 gjenstår.
+
+- Eget kildegrunnlag fra ThunderMaster-opptak og installert NVIDIA-driver; eksakte Palit 100/150-signaturer, faktisk fargeprotokoll og begrensninger ved ukjent effektmodus.
+- Typet RGB-identitet, observasjon og baseline skiller registerverdier, brukerbekreftelse og faktisk avlest modus. Forhåndsvisningens tegnede soner blir ikke fysisk maskinvare.
+- Egen, streng RGB-tillatelsesmodell uten klientvalgte enhetsstier. Eksisterende v2-GPU-tillatelse gir ikke RGB; eldre eksplisitte simulerte trinn beholdes.
+- Smal statisk/av-skrivetransport med fersk kort-/signatur-/fd-kontroll, fem faste registerskrivinger, avvisning av endrede fargefelt før skriving og separat gjenopprettingssti. Feil etter et forsøkt skrivekall behandles som mulig delvis endring.
+- Selvstendig RGB-transaksjon med klientbinding, Behold, frist og tilbakerulling. Samsvarende farge/lysstyrke oppgraderes aldri til avlest effektmodus eller full gjenopprettingsbekreftelse.
+- Separat `--rgb-server` med egen socket, peer-UID, RGB-kompatibilitet, 15-sekunders lease og privat journal før setterkall. Oppstart/status åpner ikke I2C; eksisterende journal sperrer oppstart uten automatisk fargeendring. Avgrenset socketbehandling og stopp/klienttap er testet mot fakes. [Protokoll og begrensninger](../docs/produksjon/rgb-hjelper.md).
+- Egen administratoraktivering med brukerbekreftet statisk utgangspunkt, separate root-filer og systemd-tjeneste med kun ferskt identifisert I2C-enhet i DeviceAllow. Ingen automatisk oppstartsaktivering. Avklaring, eksplisitt tilbakeføring og deaktivering beholder journal ved uavklart tilstand; eksisterende NVML-hjelper endres ikke.
+- Asynkron, avgrenset RGB-klient i daemonen med egen eier, kø, tidsfrist inkludert hviletid og heartbeat. GUI-tråden blokkeres ikke av RGB-socketen. Bare en levende eierøkt fornyer leasen.
+- «Lys på kortet» har én fysisk sone, fast farge/av, lysstyrke, Bruk/Behold og gjenoppretting. Den lokale lysmodellen og lagring i appen sender ingen maskinvareendring. Visuell bekreftelse krever aktiv avkryssing og gjelder det bestemte gjenopprettingsmålet fra dialogåpning; den gir ikke en avlest effektmodus.
+- Separat, lesende `--rgb-identifiser --pci PCI --uuid UUID` i hjelperen. Streng GPU-/adapterbinding, én adresse og et fast lesesett; ingen registerskriving, skanning, konfigurasjonsendring eller omstart av GPU-hjelperen.
+- Nye isolerte modell-/transport-/argumenttester, private administrasjonsskriptprøver og GTK-betjening mot en eksplisitt merket falsk RGB-arbeider. På brukerens Palit RTX 2080 Super JetStream er fast blått og automatisk tilbakeføring til grønt fysisk bekreftet ved 100 % lysstyrke. [Status og kilder](../docs/produksjon/palit-rgb-2026-11-17.md).
+
 ## Ikke utgitt · Oppgaver på feature/task-manager
 
 - Egen side under Overvåking, med søk etter navn/PID/bruker, kolonnesortering, prosesstre og avgrensede sider med gjenbrukte rader. Ctrl+Shift+Esc åpner siden; de ti opprinnelige tallsnarveiene beholdes.

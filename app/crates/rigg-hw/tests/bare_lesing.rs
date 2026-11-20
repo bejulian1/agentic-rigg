@@ -95,9 +95,12 @@ fn ingen_skriving_til_kortet_i_koden() {
     };
     // NVML-skrivekallene: bare den sperrede fila. pkexec: bare bryteren.
     let gated = |f: &str, pat: &str| {
-        (f.ends_with("gpu/skriv_nvml.rs") && pat.starts_with("nvmlDevice")) || (f.ends_with("rigg/src/settings/styring.rs") && pat == "pkexec")
+        (f.ends_with("gpu/skriv_nvml.rs") && pat.starts_with("nvmlDevice")) || ((f.ends_with("rigg/src/settings/styring.rs") || f.ends_with("rigg/src/pages/lys_kort.rs")) && pat == "pkexec")
         // Skripttestene nevner PKEXEC_UID (som pkexec setter); de kjører aldri pkexec.
         || (f.starts_with("rigg-helper/tests/") && pat == "pkexec")
+        // JSON-rapport og forventet systemd-regel i en ren --root-filfixture.
+        // Testen kjører aldri helper/systemctl eller åpner en I2C-enhet.
+        || (f == "rigg-helper/tests/rgb_skript.rs" && pat == "/dev/i2c")
     };
     let mut hits = Vec::new();
     for f in &files {
@@ -137,7 +140,7 @@ fn ingen_programmer_startes() {
         }
         let c = code(f);
         // Bryteren i Innstillinger › Styring starter pkexec (brukerens handling, 7A).
-        if name.ends_with("rigg/src/settings/styring.rs") {
+        if name.ends_with("rigg/src/settings/styring.rs") || name.ends_with("rigg/src/pages/lys_kort.rs") {
             assert!(
                 c.contains("/usr/bin/pkexec") && !c.contains("Command::new"),
                 "styring.rs skal bare starte pkexec med gio::Subprocess"
@@ -362,17 +365,85 @@ fn ekte_skriving_er_kortbundet_og_bare_for_hjelperen() {
 }
 
 #[test]
-fn i2c_bussene_åpnes_ikke() {
-    // Å lese navnene i /sys/bus/i2c/devices/*/name er trygt, men koden gjør
-    // ikke det heller i 1.0. Ingen kode skal nevne i2c-dev eller ioctl.
+fn i2c_er_avgrenset_til_eksplisitt_kortbundet_rgb() {
+    // RGB-bestillingen 17. november åpner en egen, featurestyrt hjelpersti.
+    // Prøveinnsamling og vindu skal fortsatt ikke nå I2C-transporten.
     let mut files = Vec::new();
     rust_files(&crates_dir(), &mut files);
     for f in &files {
         let c = code(f);
+        let name = rel(f);
+        if name == "rigg-hw/src/gpu/palit_rgb.rs" {
+            for forbidden in [
+                "I2C_SLAVE_FORCE",
+                "I2C_RDWR",
+                "I2C_TIMEOUT",
+                "I2C_RETRIES",
+                "write_register",
+            ] {
+                assert!(
+                    !c.contains(forbidden),
+                    "{name} har en ikke godkjent skrivesti: {forbidden}"
+                );
+            }
+            assert!(!c.contains("pub trait WriteTransport"));
+            assert_eq!(
+                c.matches("read_write: 0").count(),
+                1,
+                "Kun én rå skrive-ioctl-sti er gjennomgått"
+            );
+            assert!(c.contains("(0x60, 0x01) | (0x6c..=0x6e, _) | (0x6f, 0..=100)"));
+            let execute = c
+                .split("fn execute_with<")
+                .nth(1)
+                .unwrap()
+                .split("fn verify_signature(")
+                .next()
+                .unwrap();
+            assert!(
+                execute.find("if baseline.binding() != expected").unwrap()
+                    < execute.find("let mut transport = open(&metadata)").unwrap()
+            );
+            let compact: String = execute.chars().filter(|c| !c.is_whitespace()).collect();
+            assert!(
+                compact.find("transport.revalidate(&metadata)").unwrap()
+                    < compact
+                        .find("transport.write_byte(register,value)")
+                        .unwrap()
+            );
+            for (start, end) in [
+                ("pub fn identify(", "fn identify_with<"),
+                ("fn identify_with<", "trait ReadTransport"),
+                ("fn probe(", "fn read_signature("),
+            ] {
+                let body = c.split(start).nth(1).unwrap().split(end).next().unwrap();
+                assert!(
+                    !body.contains("write_byte") && !body.contains("execute_with"),
+                    "Identifikasjon skal forbli lesende"
+                );
+            }
+            continue;
+        }
         assert!(
             !c.contains("i2c-dev") && !c.contains("I2C_SLAVE") && !c.contains("libc::ioctl"),
             "{}",
-            rel(f)
+            name
+        );
+        if !name.starts_with("rigg-helper/") && !name.contains("/tests/") {
+            assert!(
+                !c.contains("palit_rgb::identify")
+                    && !c.contains("palit_rgb::metadata_preview")
+                    && !c.contains("palit_rgb::apply")
+                    && !c.contains("palit_rgb::recover"),
+                "{name} starter RGB-oppdagelse utenfor den eksplisitte hjelperstien"
+            );
+        }
+    }
+    for manifest in ["rigg", "riggd"] {
+        let c = std::fs::read_to_string(crates_dir().join(manifest).join("Cargo.toml")).unwrap();
+        assert!(
+            !c.contains("palit-rgb"),
+            "Bare hjelperen skal be om RGB-transporten"
         );
     }
 }

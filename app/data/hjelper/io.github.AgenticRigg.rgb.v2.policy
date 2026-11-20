@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+  <vendor>Agentic Rigg</vendor>
+  <icon_name>io.github.AgenticRigg</icon_name>
+  <action id="io.github.AgenticRigg.rgb.v2.aktiver">
+    <description>Gi Agentic Rigg tilgang til kortets RGB-lys</description>
+    <message>Identifiser det valgte kortets lyskontroller og aktiver en separat RGB-hjelper. Utgangspunktet må være fast lys som du selv har bekreftet.</message>
+    <defaults><allow_any>no</allow_any><allow_inactive>no</allow_inactive><allow_active>auth_admin</allow_active></defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/local/libexec/agentic-rigg-rgb-v2/rgb-aktiver.sh</annotate>
+  </action>
+  <action id="io.github.AgenticRigg.rgb.v2.avklar">
+    <description>Bekreft gjenopprettet RGB-utgangspunkt</description>
+    <message>Vis lagret gjenopprettingsmål, eller registrer at du har sett det forventede faste lyset etter feltavlesing. Avklaringen skriver ingen farge.</message>
+    <defaults><allow_any>no</allow_any><allow_inactive>no</allow_inactive><allow_active>auth_admin</allow_active></defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/local/libexec/agentic-rigg-rgb-v2/rgb-avklar.sh</annotate>
+  </action>
+  <action id="io.github.AgenticRigg.rgb.v2.gjenopprett">
+    <description>Gjenopprett lagret RGB-utgangspunkt</description>
+    <message>Stopp RGB-arbeideren og gjenopprett det lagrede statiske utgangspunktet ved behov. Etterpå må du selv kontrollere lyset.</message>
+    <defaults><allow_any>no</allow_any><allow_inactive>no</allow_inactive><allow_active>auth_admin</allow_active></defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/local/libexec/agentic-rigg-rgb-v2/rgb-gjenopprett.sh</annotate>
+  </action>
+  <action id="io.github.AgenticRigg.rgb.v2.deaktiver">
+    <description>Slå av separat RGB-tilgang</description>
+    <message>Stopp RGB-arbeideren og fjern kortets tillatelse etter avklart gjenoppretting.</message>
+    <defaults><allow_any>no</allow_any><allow_inactive>no</allow_inactive><allow_active>auth_admin</allow_active></defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/local/libexec/agentic-rigg-rgb-v2/rgb-deaktiver.sh</annotate>
+  </action>
+</policyconfig>

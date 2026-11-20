@@ -125,6 +125,8 @@ impl Daemon {
         };
         let gpus: Vec<String> = self.devices.list.iter().filter(|g| !g.id.is_empty()).map(|g| g.id.clone()).collect();
         let mut ops = proto::ops_for(&self.opts.backend);
+        ops.push("get_rgb_helper");
+        ops.extend_from_slice(rigg_core::rgb_auth::UI_OPS);
         if self.hjelper.is_on() {
             for o in proto::WRITE_OPS {
                 if !ops.contains(o) {

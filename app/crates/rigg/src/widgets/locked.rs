@@ -328,7 +328,9 @@ pub fn mark_topbar(app: &Rc<App>, page: &'static str) {
 
 pub fn sync_topbar(app: &Rc<App>, page: &'static str) {
     if let Some(s) = app.shell.get() {
-        let open = !matches!(gate(app), Gate::Locked(_)) && (page != "lys" || supports(app, "rgb"));
+        // Lys har egen RGB-tillatelse og viser status ved sine kontroller.
+        // Den lokale forhåndsvisningen skal aldri arve NVML-låsemerket.
+        let open = page == "lys" || !matches!(gate(app), Gate::Locked(_));
         s.topbar.set_locked(page, !open);
     }
 }
@@ -353,7 +355,7 @@ pub fn helper_line(app: &App) -> Option<String> {
         "on" if control_ready(app) || gate(app) == Gate::Sim => None,
         "on" => Some(h["message"].as_str().unwrap_or("Hjelperen er ikke skriveklar for kortet som vises.").into()),
         "error" => Some(h["message"].as_str().unwrap_or("Hjelperen svarer ikke. Endringer er låst.").into()),
-        "outdated" => Some("Hjelperen må oppdateres. Slå bryteren av og på i Innstillinger › Skjermkortstyring.".into()),
+        "outdated" => Some("Hjelperen må oppdateres. Oppdater systemkomponentene fra Innstillinger › Skjermkortstyring.".into()),
         _ => None,
     }
 }

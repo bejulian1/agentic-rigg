@@ -279,9 +279,65 @@ pub struct Request {
     pub args: Value,
 }
 
+struct UniqueValue(Value);
+
+impl<'de> Deserialize<'de> for UniqueValue {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        struct Visitor;
+        impl<'de> serde::de::Visitor<'de> for Visitor {
+            type Value = Value;
+            fn expecting(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                fmt.write_str("JSON uten dupliserte felter")
+            }
+            fn visit_unit<E>(self) -> Result<Value, E> {
+                Ok(Value::Null)
+            }
+            fn visit_bool<E>(self, value: bool) -> Result<Value, E> {
+                Ok(value.into())
+            }
+            fn visit_i64<E>(self, value: i64) -> Result<Value, E> {
+                Ok(value.into())
+            }
+            fn visit_u64<E>(self, value: u64) -> Result<Value, E> {
+                Ok(value.into())
+            }
+            fn visit_f64<E>(self, value: f64) -> Result<Value, E> {
+                Ok(value.into())
+            }
+            fn visit_str<E>(self, value: &str) -> Result<Value, E> {
+                Ok(value.into())
+            }
+            fn visit_seq<A: serde::de::SeqAccess<'de>>(
+                self,
+                mut seq: A,
+            ) -> Result<Value, A::Error> {
+                let mut values = Vec::new();
+                while let Some(UniqueValue(value)) = seq.next_element()? {
+                    values.push(value);
+                }
+                Ok(Value::Array(values))
+            }
+            fn visit_map<A: serde::de::MapAccess<'de>>(
+                self,
+                mut map: A,
+            ) -> Result<Value, A::Error> {
+                let mut fields = serde_json::Map::new();
+                while let Some(key) = map.next_key::<String>()? {
+                    if fields.contains_key(&key) {
+                        return Err(serde::de::Error::custom("Duplisert felt"));
+                    }
+                    fields.insert(key, map.next_value::<UniqueValue>()?.0);
+                }
+                Ok(Value::Object(fields))
+            }
+        }
+        deserializer.deserialize_any(Visitor).map(UniqueValue)
+    }
+}
+
 /// Tolker én linje. Feil gir `(id, feil)`; id er `null` når den ikke kunne leses.
 pub fn parse_request(line: &[u8]) -> Result<Request, (Value, ProtoError)> {
-    let v: Value = serde_json::from_slice(line)
+    let UniqueValue(v) = serde_json::from_slice(line)
         .map_err(|_| (Value::Null, ProtoError::new(ErrorCode::BadJson)))?;
     let Some(obj) = v.as_object() else {
         return Err((Value::Null, ProtoError::new(ErrorCode::BadRequest)));
@@ -466,6 +522,17 @@ pub fn clamp_interval(ms: Option<u64>) -> u32 {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn dupliserte_felt_avvises_ogsa_i_nestede_argumenter() {
+        for line in [
+            r#"{"id":1,"op":"ping","op":"ping"}"#,
+            r#"{"id":1,"op":"status","args":{},"args":{}}"#,
+            r#"{"id":1,"op":"apply","args":{"liste":[{"felt":0,"f\u0065lt":1}]}}"#,
+        ] {
+            assert!(super::parse_request(line.as_bytes()).is_err());
+        }
+        assert!(super::parse_request(br#"{"id":1,"op":"status","args":{}}"#).is_ok());
+    }
     use super::*;
 
     #[test]

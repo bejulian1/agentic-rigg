@@ -25,7 +25,7 @@ use std::path::{Path, PathBuf};
 pub const PROTOCOL: u32 = 2;
 /// Gjennomgått sikkerhetsmotor. Øk ved sikkerhetsrettinger som eldre hjelpere
 /// ikke må få omgå; rene UI-patcher kan beholde autorisasjonen fra dette bygget.
-pub const MIN_COMPATIBLE_BUILD: u32 = 23;
+pub const MIN_COMPATIBLE_BUILD: u32 = 25;
 
 /// Bare kjente hjelpere innen samme protokoll godtas. En nyere hjelper enn
 /// appen krever også oppdatering; ingen fremtidig kompatibilitet antas.
@@ -307,7 +307,9 @@ impl Config {
     }
 
     pub fn enabled(&self, s: Step) -> bool {
-        self.enabled || self.legacy && self.steps.contains(&s)
+        // V2 gjelder bare NVML-styring. En gammel GPU-godkjenning skal
+        // aldri bli RGB-tillatelse når en ny backend kobles til.
+        self.enabled && s != Step::Lys || self.legacy && self.steps.contains(&s)
     }
 }
 
@@ -372,7 +374,7 @@ fn locked_message(reason: &str) -> &'static str {
         }
         "helper_error" => "Hjelperen for endring svarer ikke. Se Innstillinger › Styring.",
         "helper_outdated" => {
-            "Hjelperen er fra en annen versjon av appen. Slå bryteren i Innstillinger › Styring av og på igjen."
+            "Hjelperen er fra en annen versjon av appen. Oppdater systemkomponentene fra Innstillinger › Skjermkortstyring."
         }
         "backend_mismatch" => {
             "Hjelperen og tjenesten bruker ulike kort (simulert og ekte). Ingenting er sendt."
@@ -558,8 +560,10 @@ mod tests {
 
     #[test]
     fn uioppdatering_beholder_kompatibel_hjelper_men_ikke_eldre_motor() {
-        assert!(crate::version::build() >= 24);
-        assert!(compatible(PROTOCOL, 23));
+        assert!(crate::version::build() >= 25);
+        assert!(!compatible(PROTOCOL, 23));
+        assert!(!compatible(PROTOCOL, 24));
+        assert!(compatible(PROTOCOL, 25));
         assert!(compatible(PROTOCOL, crate::version::build()));
         assert!(!compatible(PROTOCOL, 22));
         assert!(!compatible(PROTOCOL - 1, 23));
@@ -602,6 +606,12 @@ mod tests {
         assert!(!legacy.enabled && legacy.legacy);
         let c = Config::parse(r#"{"versjon":2,"uid":1000,"enabled":true,"pci":"0000:01:00.0","uuid":"GPU-kort-test","bygg":23}"#).unwrap();
         assert!(c.enabled && !c.legacy);
+        for step in [Step::Effekt, Step::Vifter, Step::Klokker] {
+            assert!(c.enabled(step));
+        }
+        assert!(!c.enabled(Step::Lys));
+        // Eldre, eksplisitte sim-fixtures beholder sine trinn.
+        assert!(legacy.enabled(Step::Lys));
         assert_eq!(Config::parse(&c.to_json().to_string()).unwrap(), c);
         for bad in [
             r#"{"versjon":2,"uid":1000,"enabled":true,"pci":"../../dev/i2c-0","uuid":"GPU-kort-test"}"#,

@@ -87,6 +87,7 @@ def file_list(bin_dir):
         ("PATCHLOG.md", APP / "PATCHLOG.md", False),
         ("version.json", APP / "version.json", False),
         ("LISENSER.md", APP / "data/LISENSER.md", False),
+        ("RGB-HJELPER.md", APP.parent / "docs/produksjon/rgb-hjelper.md", False),
     ])
     data_dir = APP / "data"
     if not data_dir.is_dir() or data_dir.is_symlink():
@@ -100,7 +101,7 @@ def file_list(bin_dir):
             continue
         if not path.is_file():
             fail(f"Uventet filtype: {path}")
-        files.append((f"data/{relative.as_posix()}", path, path.suffix == ".sh"))
+        files.append((f"data/{relative.as_posix()}", path, path.suffix == ".sh" or path.name == "system-install"))
     for _, path, _ in files:
         if not path.is_file():
             fail(f"En påkrevd pakkefil mangler: {path}")
@@ -129,12 +130,16 @@ Pakk ut arkivet og åpne en terminal i denne mappa. Kjør som vanlig bruker:
 Installereren trenger bash, standard GNU-verktøy og python3. Den legger
 appen under ~/.local, med ikon i programmenyen. Den bygger ingenting.
 En allerede kjørende Agentic Rigg-brukertjeneste kan startes på nytt.
-Root-hjelperens filer følger med, men hjelperen aktiveres ikke av installasjonen.
+Root-komponentene følger med. Installer dem separat fra det verifiserte arkivet
+med kommandoen i RGB-HJELPER.md. Brukerinstallasjonen aktiverer ingen hjelpere.
 Ekte GPU-styring aktiveres separat i Innstillinger › Skjermkortstyring,
 med én administratorgodkjenning. Støttede endringer i effekt, vifter og
 klokkeoffset sendes med Bruk og må beholdes innen fristen. Hjelperen bindes
-til kortet og lagrer utgangspunktet før skriving. RGB er bare forhåndsvisning;
-lyskontrolleren er ikke identifisert.
+til kortet og lagrer utgangspunktet før skriving. Kortlys krever at en
+administrator setter opp de betrodde RGB-komponentene som beskrevet i
+RGB-HJELPER.md, og deretter en egen aktivering for kortet. Lokal lysmodell
+er forhåndsvisning. Fast blått og tilbakeføring til grønt er prøvd på ett Palit-kort.
+Se PATCHLOG.md for prøveresultat og omfang.
 
 Start «Agentic Rigg» fra programmenyen, eller ~/.local/bin/agentic-rigg.
 Versjon og bygg står i Innstillinger › Om og i binærenes --version.

@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 # Installerer Agentic Rigg for denne brukeren under ~/.local: begge binærene,
 # ikonene (alle variantene), .desktop-fila, systemd --user-enheten,
-# lisensene og README under ~/.local/share/doc/agentic-rigg/, og filene til
-# root-hjelperen under ~/.local/share/agentic-rigg/hjelper/ (1.2.0). Hjelperen
-# AKTIVERES IKKE her: det gjør du selv med bryteren i Innstillinger › Styring.
+# lisenser og dokumentasjon. Systemkomponentene installeres separat.
 # Skriptet bygger ingenting, bruker ikke sudo og slår ingenting på ved
 # innlogging (arkitektur.md kap. 12, docs/produksjon/ikon.md kap. 7).
 #
@@ -141,17 +139,16 @@ if [ -z "${RIGG_INSTALL_NO_SYSTEMD:-}" ] && command -v systemctl >/dev/null && s
     systemctl --user try-restart "$unit" || true
 fi
 
-# 5. Root-hjelperen: bare filene, til bryteren i Innstillinger › Styring.
-#    Ingenting legges utenfor ~/.local, og ingenting kjøres her. Bryteren
-#    kjører «pkexec $hjelper_dir/aktiver.sh», som kopierer dem dit bare root
-#    kan skrive (docs/produksjon/hjelper-sikkerhet.md).
-install -Dm755 "$bin_src/agentic-rigg-helper" "$hjelper_dir/agentic-rigg-helper"
-for f in aktiver.sh deaktiver.sh trinn.sh; do
-    install -Dm755 "$here/data/hjelper/$f" "$hjelper_dir/$f"
+# Fjern de kjente, utdaterte brukerkopiene. Ingen systemhandling her.
+for f in aktiver.sh deaktiver.sh trinn.sh agentic-rigg-helper agentic-rigg-helper.service io.github.AgenticRigg.helper.policy; do
+    rm -f -- "$hjelper_dir/$f"
 done
-for f in agentic-rigg-helper.service io.github.AgenticRigg.helper.policy; do
-    install -Dm644 "$here/data/hjelper/$f" "$hjelper_dir/$f"
-done
+rmdir --ignore-fail-on-non-empty -- "$hjelper_dir" 2>/dev/null || true
+if [ -f "$here/RGB-HJELPER.md" ]; then
+    install -Dm644 "$here/RGB-HJELPER.md" "$doc_dir/RGB-HJELPER.md"
+elif [ -f "$here/../docs/produksjon/rgb-hjelper.md" ]; then
+    install -Dm644 "$here/../docs/produksjon/rgb-hjelper.md" "$doc_dir/RGB-HJELPER.md"
+fi
 
 # 6. Programlisten.
 if command -v update-desktop-database >/dev/null; then
@@ -165,7 +162,7 @@ echo "  $desktop (Icon=$icon)"
 echo "  $hicolor/…/apps/$app_id*.svg ($n_variants varianter)"
 echo "  $unit_dir/$unit (ikke slått på ved innlogging)"
 echo "  $doc_dir/LISENSER.md"
-echo "  $hjelper_dir/ (hjelperen for endring, ikke aktivert)"
+echo "  Systemhjelperne er ikke aktivert av brukerinstallasjonen."
 case ":$PATH:" in
 *":$bin_dir:"*) ;;
 *) echo "Merk: $bin_dir er ikke i PATH, så «agentic-rigg» virker bare med full sti." ;;

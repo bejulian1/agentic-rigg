@@ -129,7 +129,7 @@ pub fn bind(path: &Path, uid: Option<u32>) -> Result<UnixListener, String> {
     Ok(l)
 }
 
-fn peer_uid(s: &UnixStream) -> Option<(u32, i32)> {
+pub(crate) fn peer_uid(s: &UnixStream) -> Option<(u32, i32)> {
     let mut c = libc::ucred {
         pid: 0,
         uid: 0,

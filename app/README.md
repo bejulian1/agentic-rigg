@@ -8,7 +8,7 @@ Agentic Rigg er et overvåkingsverktøy for skjermkort og maskin på Ubuntu, skr
 - **Sensorer**: alle verdier i én tabell, med min, maks og snitt, sparklinjer og logging til CSV.
 - **Grafer**: opptil elleve grafer med felles markør, pause og CSV-eksport.
 - **Grafikkort**, **Prosessor**, **Disker** og **System**: alt NVML, sysfs, `/proc` og UDisks2 kan si om kortet, prosessoren (klokke og last per tråd, cache, sårbarheter), diskene (SMART-helse, temperatur, MB/s, partisjoner, som CrystalDiskInfo) og maskinen, og rapport som tekst eller Markdown.
-- **Skjermkortstyring:** **Klokker og effekt** (effektgrense, klokke-offset, temperaturmål, vifte), **Vifter** (viftekurve som i Afterburner, med egen kurve per vifte, hysterese, rampe, utjevning og «hold minimum til») og **RGB-lys**. Klokker og Vifter viser målte GPU-data; RGB er en forhåndsvisning. NVML-styring er implementert for funksjonene kortet støtter, etter én administratoraktivering (se «Endring av skjermkortet» under). Begrenset fysisk NVML-skriving og gjenoppretting er verifisert mot hjelperen på RTX 2080; RGB sendes ikke til kortet.
+- **Skjermkortstyring:** **Klokker og effekt** (effektgrense, klokke-offset, temperaturmål, vifte), **Vifter** (viftekurve som i Afterburner, med egen kurve per vifte, hysterese, rampe, utjevning og «hold minimum til») og **RGB-lys**. Klokker og Vifter viser målte GPU-data; RGB har lokal forhåndsvisning og egne kortkontroller på den uutgitte featurebranchen. NVML-styring er implementert for funksjonene kortet støtter, etter én administratoraktivering (se «Endring av skjermkortet» under). Begrenset fysisk NVML-skriving og gjenoppretting er verifisert mot hjelperen på RTX 2080; fast blått og tilbakeføring til grønt er verifisert på PALIT 100.
 
 En allerede åpen app følger nå `--innstillinger DEL`. Hjelperstatus sjekkes også mens styring er låst, slik at ny administratoraktivering oppdages uten å starte vinduet på nytt.
 
@@ -163,11 +163,11 @@ Til slutt bekreftet reset 245 W, offset 0/0 MHz, temperaturmål 83 °C og Auto p
 
 **Viftevern:** Nødregelen over 85 °C bruker bare faktisk tilgjengelig viftestyring og slipper under 80 °C. Temperaturbortfall under Manuell utløser gjenoppretting. Kurvemotoren har utjevning, hysterese, rampe og feilhåndtering; feil ved skriving meldes videre og behandles som gjenopprettingsbehov. Dette er implementert og dekket av sim-/mocktester, men ikke bekreftet på fysisk GPU ennå.
 
-**RGB forblir forhåndsvisning:** Lyskontrolleren er ikke identifisert. Lysvalg kan lagres og vises, men sendes ikke til kortet selv om NVML-styring er klar. Ingen kontrollerstøtte utledes bare fra Palit-navnet eller PCI-ID.
+**Pågående RGB på featurebranchen:** Panelet «Lys på kortet» har egne kontroller for én fysisk sone, fast farge/av, lysstyrke og programvaredrevne effekter når hjelperen støtter dem. Det krever separat administratoraktivering, identifisert Palit 100/150-kontroller og et visuelt bekreftet statisk utgangspunkt. Bruk/Behold og gjenoppretting er atskilt fra lokal lysmodell og appens lagring. NVML-tillatelsen gir ikke RGB-tilgang. Betjeningen er prøvd i GTK mot en falsk RGB-arbeider. På brukerens Palit RTX 2080 Super JetStream er fast blått og automatisk tilbakeføring til grønt fysisk bekreftet ved 100 % lysstyrke. Dette er ikke utgitt eller installert. [Status og begrensninger](../docs/produksjon/rgb-hjelper.md).
 
 Detaljene, gjenværende begrensninger og den historiske sikkerhetsgjennomgangen står i `docs/produksjon/hjelper-sikkerhet.md`.
 
-Appen åpner aldri `/dev/i2c-*` eller `/dev/sd*`. Lyskontrolleren på kortet leses derfor ikke, og RGB-lys er en forhåndsvisning. Diskene leses bare gjennom UDisks2 (uten root) og `/proc/diskstats`, og appen starter aldri en SMART-selvtest.
+GUI og daemon åpner ikke `/dev/i2c-*` eller `/dev/sd*`. Den separate RGB-root-hjelperen kan etter egen aktivering åpne bare det valgte kortets ferskt identifiserte NVIDIA-port 1 og den gjennomgåtte Palit-adressen. Ingen skanning eller annen I2C-enhet inngår. Diskene leses bare gjennom UDisks2 (uten root) og `/proc/diskstats`, og appen starter aldri en SMART-selvtest.
 
 ## Kjente begrensninger
 

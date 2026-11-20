@@ -11,18 +11,20 @@ use crate::store::Store;
 use crate::varsler::Alarms;
 use rigg_core::history::History;
 use rigg_core::model::{GpuStatic, Telemetry};
+use rigg_core::paths::Profile;
 use rigg_core::proto::{self, LineEvent};
 use rigg_core::settings::ServiceSettings;
 use rigg_core::stats::Stats;
 use serde_json::{Value, json};
 use std::cell::RefCell;
 use std::collections::BTreeMap;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::rc::{Rc, Weak};
 use std::time::{Duration, Instant};
 
 pub struct Options {
     pub backend: String,
+    pub profile: Profile,
     pub root: PathBuf,
     pub grace_ms: u32,
     /// Stiene til root-hjelperen (`/`, eller en falsk rot i tester og dev).
@@ -30,6 +32,18 @@ pub struct Options {
     /// `--backend sim:hete` (runde 8A): prosessoren og diskene følger
     /// hete-syklusen også (`rigg_hw::gpu::sim::hete`). Bare skjermbilder.
     pub hete: bool,
+}
+
+impl Options {
+    fn rgb_paths(&self) -> Option<rigg_core::rgb_auth::Paths> {
+        let root = &self.hjelper.root;
+        if root == Path::new("/")
+            && (self.profile.is_dev() || self.backend != "nvml" || self.root != Path::new("/"))
+        {
+            return None;
+        }
+        Some(rigg_core::rgb_auth::Paths::new(root.clone()))
+    }
 }
 
 pub struct Daemon {
@@ -86,6 +100,8 @@ pub struct Daemon {
     pub vifter: rigg_hw::gpu::sim_vifter::SimVifter,
     /// Klienten mot root-hjelperen (runde 7A, `hjelper.rs`).
     pub hjelper: crate::hjelper::Hjelper,
+    /// Separat RGB-IPC-tråd og UI-eierskap. Deler ingen GPU-lease.
+    pub rgb: crate::rgb_hjelper::RgbClient,
 }
 
 impl Daemon {
@@ -107,6 +123,7 @@ impl Daemon {
             eprintln!("{n}");
         }
         let hjelper = crate::hjelper::Hjelper::new(opts.hjelper.clone());
+        let (rgb, rgb_results) = crate::rgb_hjelper::RgbClient::start(opts.rgb_paths());
         let d = Rc::new(RefCell::new(Daemon {
             me: Weak::new(),
             opts,
@@ -149,6 +166,7 @@ impl Daemon {
             disk_alarm: false,
             vifter: Default::default(),
             hjelper,
+            rgb,
         }));
         {
             let mut b = d.borrow_mut();
@@ -157,6 +175,22 @@ impl Daemon {
         d.borrow_mut().me = Rc::downgrade(&d);
         d.borrow_mut().sync_disk_alarm();
         d.borrow_mut().hjelper.probe(now);
+        let weak = Rc::downgrade(&d);
+        glib::MainContext::ref_thread_default().spawn_local(async move {
+            while let Ok(event) = rgb_results.recv().await {
+                let Some(d) = weak.upgrade() else { break };
+                let mut d = d.borrow_mut();
+                let sid = event.session();
+                if d.stopping || !d.sessions.get(&sid).is_some_and(|session| session.hello) {
+                    d.rgb.session_closed(sid);
+                    continue;
+                }
+                if let Some((sid, id, result)) = d.rgb.complete(event) {
+                    d.send(sid, &proto::response_line(&id, &result));
+                }
+                d.check_idle();
+            }
+        });
         d
     }
 
@@ -246,6 +280,20 @@ impl Daemon {
             Ok(r) => r,
             Err((rid, e)) => return Some(proto::response_line(&rid, &Err(e))),
         };
+        if crate::rgb_hjelper::RgbClient::is_operation(&req.op) {
+            let result = if !self.sessions.get(&id).is_some_and(|session| session.hello) {
+                Err(proto::ProtoError::new(proto::ErrorCode::HelloRequired))
+            } else if self.stopping {
+                Err(proto::ProtoError::new(proto::ErrorCode::ShuttingDown))
+            } else {
+                match self.rgb.enqueue(id, &req) {
+                    Ok(None) => return None,
+                    Ok(Some(value)) => Ok(value),
+                    Err(error) => Err(error),
+                }
+            };
+            return Some(proto::response_line(&req.id, &result));
+        }
         let res = self.handle(id, &req);
         Some(proto::response_line(&req.id, &res))
     }
@@ -299,6 +347,7 @@ impl Daemon {
             let _ = c.stream.shutdown(std::net::Shutdown::Both);
         }
         if self.sessions.remove(&id).is_some() {
+            self.rgb.session_closed(id);
             // Det klienten ikke har bekreftet, rulles tilbake straks (sim).
             if self.txn.disconnect(&format!("s{id}")) {
                 self.after_txn();
@@ -323,7 +372,7 @@ impl Daemon {
     pub fn keep_alive(&self) -> bool {
         // Hjelperen setter kortet til standard når tjenesten forsvinner, så
         // tjenesten blir værende mens hjelperen har andre verdier (7A).
-        (self.settings.background && !self.idle_shutdown) || self.logger.active() || self.hjelper.holds_values()
+        (self.settings.background && !self.idle_shutdown) || self.logger.active() || self.hjelper.holds_values() || self.rgb.holds_values()
     }
 
     /// Ny takt når klientene eller innstillingene endres.
@@ -383,6 +432,7 @@ impl Daemon {
             return;
         }
         self.stopping = true;
+        self.rgb.stop();
         crate::lifecycle::sd_notify("STOPPING=1");
         self.cancel_grace();
         self.broadcast("shutdown", &json!({"reason": reason}));
@@ -611,5 +661,46 @@ fn overlay_hete(gpus: &mut BTreeMap<String, rigg_core::model::GpuSample>, sys: &
     }
     if let Some(d) = sys.disks.get_mut(3) {
         d.temp = Some(h.disk_kald);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rigg_core::proto::{ErrorCode, Request};
+
+    #[test]
+    fn simulering_og_utvikling_uten_privat_rot_starter_ingen_rgb_klient() {
+        for (backend, profile) in [("sim", Profile::Prod), ("nvml", Profile::Dev)] {
+            let mut opts = Options {
+                backend: backend.into(),
+                profile,
+                root: "/".into(),
+                grace_ms: 0,
+                hjelper: rigg_core::hjelper::Paths::new("/"),
+                hete: false,
+            };
+            // Ingen sonde mot vertens socket. Manglende privat rot betyr at
+            // ingen RGB-IPC-tråd startes, også ved en eksplisitt refresh.
+            assert!(opts.rgb_paths().is_none());
+            let (mut client, events) = crate::rgb_hjelper::RgbClient::start(opts.rgb_paths());
+            let mut request = Request {
+                id: json!(1),
+                op: "get_rgb_helper".into(),
+                args: json!({"refresh": true}),
+            };
+            let view = client.enqueue(1, &request).unwrap().unwrap();
+            assert_eq!(view["state"], "disabled");
+            assert_eq!(view["systemAdmin"], false);
+            assert!(events.is_closed());
+            request.op = "rgb_reset".into();
+            request.args = json!({"gpu": "0000:1c:00.0", "uuid": "GPU-private-fixture"});
+            assert_eq!(
+                client.enqueue(1, &request).unwrap_err().code,
+                ErrorCode::WriteLocked
+            );
+            opts.hjelper = rigg_core::hjelper::Paths::new("/tmp/eksplisitt-rgb-fixture");
+            assert_eq!(opts.rgb_paths().unwrap().root, opts.hjelper.root);
+        }
     }
 }

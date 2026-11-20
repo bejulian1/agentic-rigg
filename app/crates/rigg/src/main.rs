@@ -20,6 +20,7 @@ mod prefs;
 mod rapport_ui;
 mod rgb;
 mod settings;
+mod system_install;
 mod shortcuts;
 mod skjermbilder;
 mod sidebar;

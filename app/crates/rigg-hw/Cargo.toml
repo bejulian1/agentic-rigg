@@ -20,3 +20,6 @@ gio.workspace = true
 # Bare root-hjelperen ber om denne funksjonen. Kortidentitet, brukerens
 # globale tillatelse og vedvarende baseline kreves også ved kjøring.
 ekte-skriving = []
+# Avgrenset Palit-identifikasjon, bare valgt eksplisitt av root-hjelperen.
+# Ingen registerskriving og ingen oppdagelse fra prøvetjenesten eller UI.
+palit-rgb = []

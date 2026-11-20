@@ -33,6 +33,17 @@ fn uid() -> u32 {
 /// Hjelperen ligger ved siden av tjenesten i målmappa. Den bygges (eller
 /// sjekkes) her én gang, så testen aldri kjører en gammel binær.
 fn helper_bin() -> PathBuf {
+    if let Some(path) = std::env::var_os("RIGG_TEST_HJELPER_BIN") {
+        use std::os::unix::fs::MetadataExt;
+        let path = PathBuf::from(path);
+        assert_eq!(path.canonicalize().unwrap(), path);
+        assert!(path.starts_with("/tmp") && path.ends_with("agentic-rigg-helper"));
+        let parent = path.parent().unwrap().metadata().unwrap();
+        let file = path.metadata().unwrap();
+        assert_eq!((parent.uid(), parent.mode() & 0o777), (uid(), 0o700));
+        assert!(file.is_file() && file.uid() == uid() && file.mode() & 0o022 == 0);
+        return path;
+    }
     static BUILT: std::sync::Once = std::sync::Once::new();
     let p = Path::new(env!("CARGO_BIN_EXE_agentic-riggd")).with_file_name("agentic-rigg-helper");
     BUILT.call_once(|| {

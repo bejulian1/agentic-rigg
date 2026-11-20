@@ -14,6 +14,7 @@
 mod daemon;
 mod devices;
 mod hjelper;
+mod rgb_hjelper;
 mod lifecycle;
 mod logg;
 mod ops;
@@ -140,7 +141,7 @@ fn main() {
     let main_loop = glib::MainLoop::new(None, false);
     let hjelper = hjelper::Hjelper::paths_from(args.hjelper_rot.clone(), profile.is_dev());
     let hete = matches!(kind, sampler::BackendKind::Sim(rigg_hw::gpu::sim::Scenario::Heat));
-    let opts = daemon::Options { backend: kind.name().to_string(), root: args.root.clone(), grace_ms: args.grace_ms, hjelper, hete };
+    let opts = daemon::Options { backend: kind.name().to_string(), profile, root: args.root.clone(), grace_ms: args.grace_ms, hjelper, hete };
     let srv = server::Server::new(socket.clone(), listener);
     let d = daemon::Daemon::new(opts, store, srv, sampler, interval, main_loop.clone(), now);
     if args.synthetic && kind.name() == "sim" {

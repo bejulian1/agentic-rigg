@@ -4,6 +4,8 @@
 //! ```text
 //! agentic-rigg-helper [--backend nvml|sim] [--socket STI] [--config STI]
 //! agentic-rigg-helper --tilbakestill [--backend nvml|sim] [--config STI]
+//! agentic-rigg-helper --rgb-identifiser --pci PCI --uuid UUID
+//! agentic-rigg-helper --rgb-server
 //! ```
 //!
 //! - Kjører som systemd-systemtjeneste (`agentic-rigg-helper.service`) etter
@@ -20,6 +22,12 @@
 
 mod journal;
 mod motor;
+mod rgb_activation;
+mod rgb_backend;
+mod rgb_probe;
+mod rgb_runtime;
+mod rgb_service;
+mod rgb_store;
 mod server;
 
 use rigg_core::hjelper;
@@ -28,11 +36,23 @@ use std::path::PathBuf;
 
 const HELP: &str =
     "Bruk: agentic-rigg-helper [--backend nvml|sim] [--socket STI] [--config STI] [--tilbakestill]
+      agentic-rigg-helper --rgb-identifiser --pci PCI --uuid UUID
+      agentic-rigg-helper --rgb-server
+      agentic-rigg-helper --rgb-forbered --pci PCI --uuid UUID --uid UID --static-confirmed
+      agentic-rigg-helper --rgb-avklaringsmal --pci PCI --uuid UUID --uid UID
+      agentic-rigg-helper --rgb-avklar --pci PCI --uuid UUID --uid UID --static-confirmed --recovery-id ID
+      agentic-rigg-helper --rgb-gjenopprett --pci PCI --uuid UUID --uid UID --restore-original
+      agentic-rigg-helper --rgb-adapter --pci PCI --uuid UUID --uid UID
 
 Root-hjelperen til Agentic Rigg. Startes av systemd etter at du har slått på
 «Tillat endring av skjermkortet» i Innstillinger › Styring, og fjernes når du
 slår den av. Tar bare imot faste operasjoner fra tjenesten din, og bare for
-trinnene du har godkjent.";
+trinnene du har godkjent.
+
+--rgb-identifiser er en separat, lesende administratorprøve for ett valgt
+skjermkort. Den gir JSON uten å starte tjenesten eller endre oppsettet.
+--rgb-server starter en separat RGB-tjeneste med egen tillatelse og journal;
+den bruker ikke GPU-hjelperens konfigurasjon eller autorisasjon.";
 
 struct Args {
     backend: String,
@@ -195,6 +215,17 @@ fn sd_notify(state: &str) {
 }
 
 fn main() {
+    // Den avgrensede RGB-prøven må avsluttes før vanlig tjeneroppsett,
+    // NVML-åpning, grunnverdifiler, socket eller recovery kan bli berørt.
+    if let Some(code) = rgb_probe::dispatch() {
+        std::process::exit(code);
+    }
+    if let Some(code) = rgb_activation::dispatch() {
+        std::process::exit(code);
+    }
+    if let Some(code) = rgb_service::dispatch() {
+        std::process::exit(code);
+    }
     let args = match parse_args() {
         Ok(a) => a,
         Err(e) => {

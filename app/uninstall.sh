@@ -2,9 +2,8 @@
 # Fjerner det install.sh la inn. Rører ikke innstillingene, historikken eller
 # loggene dine. Skriver ut hvor de ligger og hvordan de slettes for hånd.
 #
-# Root-hjelperen (1.2.0) fjernes IKKE herfra, for det krever root. Er den
-# fortsatt aktiv, sier skriptet fra og viser hvordan den slås av. Kopien av
-# deaktiver.sh i /usr/local/libexec/agentic-rigg/ blir liggende til da.
+# Aktive hjelpere må deaktiveres først. Inaktive systemkomponenter fjernes
+# separat av administrator; de hindrer ikke avinstallasjon av brukerappen.
 set -euo pipefail
 
 app_id=io.github.AgenticRigg
@@ -22,6 +21,37 @@ hjelper_aktiv=0
 if [ -e "$hjelper_rot/etc/agentic-rigg/helper.json" ] || [ -e "$hjelper_rot/etc/systemd/system/agentic-rigg-helper.service" ] || [ -S "$hjelper_rot/run/agentic-rigg/helper.sock" ]; then
     hjelper_aktiv=1
 fi
+if [ -e "$hjelper_rot/etc/agentic-rigg/rgb.json" ] ||
+   [ -e "$hjelper_rot/etc/systemd/system/agentic-rigg-rgb.service" ] ||
+   [ -e "$hjelper_rot/etc/systemd/system/agentic-rigg-rgb.service.d/card.conf" ] ||
+   [ -e "$hjelper_rot/run/systemd/system/agentic-rigg-rgb.service.d/card.conf" ] ||
+   [ -e "$hjelper_rot/run/systemd/system/agentic-rigg-rgb.service.d/50-agentic-rigg-card.conf" ] ||
+   [ -S "$hjelper_rot/run/agentic-rigg-rgb/helper.sock" ] ||
+   [ -e "$hjelper_rot/usr/local/libexec/agentic-rigg-rgb-helper" ] ||
+   { [ -d "$hjelper_rot/var/lib/agentic-rigg-rgb" ] &&
+     [ ! -f "$hjelper_rot/var/lib/agentic-rigg-rgb.inactive" ]; }; then
+    cat >&2 <<'EOF'
+Slå av RGB-tilgangen før du avinstallerer Agentic Rigg.
+Åpne Lys › Lys på kortet. Gjenopprett og bekreft lyset visuelt
+hvis en endring venter. Hvis arbeideren er stoppet eller utdatert, bruk
+«Gjenopprett lagret lys» ved behov, deretter «Avklar tidligere økt».
+Velg «Slå av RGB-tilgang» og kjør dette skriptet igjen. Se RGB-HJELPER.md
+i apppakken for administratorkommandoer ved fjernet kort. Etter deaktivering:
+sudo /usr/local/libexec/agentic-rigg-system/system-install --uninstall
+EOF
+    exit 3
+fi
+
+if [ "$hjelper_aktiv" -eq 1 ]; then
+    echo 'GPU-tilgangen er fortsatt aktiv. Slå den av i Innstillinger › Skjermkortstyring før avinstallasjon.' >&2
+    exit 3
+fi
+for rest in usr/local/libexec/agentic-rigg{,-system,-rgb-v2,-helper} usr/share/polkit-1/actions/io.github.AgenticRigg.{helper,rgb.v2}.policy var/lib/agentic-rigg{,-rgb}; do
+    if [ -e "$hjelper_rot/$rest" ]; then
+        printf '\nOBS: Systemkomponenter eller grunnopptak gjenstår. Fjern dem separat etter deaktivering:\n  sudo /usr/local/libexec/agentic-rigg-system/system-install --uninstall\n\n' >&2
+        break
+    fi
+done
 
 # 1. Tjenesten: stopp og slå av bare vår enhet.
 if [ -z "${RIGG_INSTALL_NO_SYSTEMD:-}" ] && command -v systemctl >/dev/null && systemctl --user show-environment >/dev/null 2>&1; then
@@ -51,11 +81,3 @@ echo "Innstillingene og historikken er ikke rørt:"
 printf '  %s\n' "$config_dir/agentic-rigg/" "$state_dir/agentic-rigg/"
 echo "Slett dem selv med:"
 printf '  rm -r %q %q\n' "$config_dir/agentic-rigg" "$state_dir/agentic-rigg"
-if [ $hjelper_aktiv -eq 1 ]; then
-    echo
-    echo "OBS: Hjelperen for endring av skjermkortet er fortsatt aktiv (root-tjenesten"
-    echo "agentic-rigg-helper). Den fjernes ikke av dette skriptet, fordi det krever root."
-    echo "Slå den av med:"
-    echo "  pkexec /usr/local/libexec/agentic-rigg/deaktiver.sh"
-    exit 3
-fi
