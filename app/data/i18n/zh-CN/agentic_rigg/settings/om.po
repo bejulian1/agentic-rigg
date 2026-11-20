@@ -8,163 +8,163 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg/src/settings/om.rs:32
+#: crates/rigg/src/settings/om.rs:30
 msgid "Navnet på byggeserien denne versjonen hører til"
 msgstr "此版本所属的构建系列名称"
 
-#: crates/rigg/src/settings/om.rs:44
+#: crates/rigg/src/settings/om.rs:42
 msgid "Svarer ikke"
 msgstr "无响应"
 
-#: crates/rigg/src/settings/om.rs:50
+#: crates/rigg/src/settings/om.rs:48
 msgid " · bygg {bygg}"
 msgstr " · 构建 {bygg}"
 
-#: crates/rigg/src/settings/om.rs:57
+#: crates/rigg/src/settings/om.rs:55
 msgid " · oppe {tid}"
 msgstr " · 已运行 {tid}"
 
-#: crates/rigg/src/settings/om.rs:60
+#: crates/rigg/src/settings/om.rs:58
 msgid " · {tall} MB privat minne"
 msgstr " · {tall} MB 私有内存"
 
-#: crates/rigg/src/settings/om.rs:71
+#: crates/rigg/src/settings/om.rs:69
 msgid "NVML {nvml} · driver {driver}"
 msgstr "NVML {nvml} · 驱动 {driver}"
 
-#: crates/rigg/src/settings/om.rs:73
+#: crates/rigg/src/settings/om.rs:71
 msgid "Testdata (agentic-riggd --backend sim)"
 msgstr "模拟数据 (agentic-riggd --backend sim)"
 
-#: crates/rigg/src/settings/om.rs:84
+#: crates/rigg/src/settings/om.rs:82
 msgid "programvare (Cairo)"
 msgstr "软件渲染 (Cairo)"
 
-#: crates/rigg/src/settings/om.rs:88
+#: crates/rigg/src/settings/om.rs:86
 msgid "GTK {major}.{minor}.{micro} · tegner {tegner}"
 msgstr "GTK {major}.{minor}.{micro} · 渲染器 {tegner}"
 
-#: crates/rigg/src/settings/om.rs:111
+#: crates/rigg/src/settings/om.rs:109
 msgid "Versjon {versjon} · bygg {bygg}"
 msgstr "版本 {versjon} · 构建 {bygg}"
 
-#: crates/rigg/src/settings/om.rs:112
+#: crates/rigg/src/settings/om.rs:110
 msgid "{navn} {versjon} · bygg {bygg}"
 msgstr "{navn} {versjon} · 构建 {bygg}"
 
-#: crates/rigg/src/settings/om.rs:121
+#: crates/rigg/src/settings/om.rs:119
 msgid "Overvåking av skjermkort og maskin for Linux, med GPU-styring der kortet og driveren støtter det. Styring krever egen administratoraktivering."
 msgstr "面向 Linux 的显卡与系统监控工具，在显卡和驱动支持时提供 GPU 控制。控制功能需单独以管理员权限启用。"
 
-#: crates/rigg/src/settings/om.rs:124
+#: crates/rigg/src/settings/om.rs:122
 msgid "Vis versjonslogg …"
 msgstr "查看版本记录…"
 
-#: crates/rigg/src/settings/om.rs:132
+#: crates/rigg/src/settings/om.rs:130
 msgctxt "søkeord"
 msgid "versjon bygg om code pro signatur byggeserie"
 msgstr "版本 构建 关于 code pro 签名 系列"
 
-#: crates/rigg/src/settings/om.rs:138
+#: crates/rigg/src/settings/om.rs:136
 msgid "Tastatursnarveier …"
 msgstr "键盘快捷键…"
 
-#: crates/rigg/src/settings/om.rs:143
+#: crates/rigg/src/settings/om.rs:141
 msgid "Lisenser …"
 msgstr "许可证…"
 
-#: crates/rigg/src/settings/om.rs:149
+#: crates/rigg/src/settings/om.rs:147
 msgid "Tastatursnarveier"
 msgstr "键盘快捷键"
 
-#: crates/rigg/src/settings/om.rs:149
+#: crates/rigg/src/settings/om.rs:147
 msgid "Alle hurtigtastene samlet. Også Ctrl+? og ?-knappen i sidefeltet."
 msgstr "集中查看所有快捷键。也可按 Ctrl+? 或点击侧边栏的 ? 按钮。"
 
-#: crates/rigg/src/settings/om.rs:149
+#: crates/rigg/src/settings/om.rs:147
 msgctxt "søkeord"
 msgid "taster hurtigtast snarvei"
 msgstr "按键 快捷键"
 
-#: crates/rigg/src/settings/om.rs:150 crates/rigg/src/settings/om.rs:220
+#: crates/rigg/src/settings/om.rs:148 crates/rigg/src/settings/om.rs:218
 msgid "Lisenser"
 msgstr "许可证"
 
-#: crates/rigg/src/settings/om.rs:150
+#: crates/rigg/src/settings/om.rs:148
 msgid "Ikonene (Lucide, ISC) og Rust-bibliotekene (MIT). Også i ~/.local/share/doc/agentic-rigg/LISENSER.md."
 msgstr "图标（Lucide，ISC）及 Rust 库（MIT）。亦见 ~/.local/share/doc/agentic-rigg/LISENSER.md。"
 
-#: crates/rigg/src/settings/om.rs:150
+#: crates/rigg/src/settings/om.rs:148
 msgctxt "søkeord"
 msgid "lisens isc mit lucide opphavsrett"
 msgstr "许可证 isc mit lucide 版权"
 
-#: crates/rigg/src/settings/om.rs:155
+#: crates/rigg/src/settings/om.rs:153
 msgid "Hjelp"
 msgstr "帮助"
 
-#: crates/rigg/src/settings/om.rs:160
+#: crates/rigg/src/settings/om.rs:158
 msgid "Prosjekteier"
 msgstr "项目负责人"
 
-#: crates/rigg/src/settings/om.rs:160
+#: crates/rigg/src/settings/om.rs:158
 msgid "Julian · produktidé, prioriteringer og utprøving"
 msgstr "Julian · 产品构想、优先级与测试"
 
-#: crates/rigg/src/settings/om.rs:163
+#: crates/rigg/src/settings/om.rs:161
 msgid "Bidrag"
 msgstr "致谢"
 
-#: crates/rigg/src/settings/om.rs:163
+#: crates/rigg/src/settings/om.rs:161
 msgctxt "søkeord"
 msgid "julian claude code anthropic opus 5.5 openai gpt 6.1 sol codex ai bidragsytere"
 msgstr "julian claude code anthropic opus 5.5 openai gpt 6.1 sol codex ai 贡献者 致谢"
 
-#: crates/rigg/src/settings/om.rs:170
+#: crates/rigg/src/settings/om.rs:168
 msgid "Versjon"
 msgstr "版本"
 
-#: crates/rigg/src/settings/om.rs:170
+#: crates/rigg/src/settings/om.rs:168
 msgid "{versjon} · bygg {bygg}"
 msgstr "{versjon} · 构建 {bygg}"
 
-#: crates/rigg/src/settings/om.rs:171
+#: crates/rigg/src/settings/om.rs:169
 msgid "Tjenesten"
 msgstr "服务"
 
-#: crates/rigg/src/settings/om.rs:173
+#: crates/rigg/src/settings/om.rs:171
 msgid "Kilde"
 msgstr "数据源"
 
-#: crates/rigg/src/settings/om.rs:182
+#: crates/rigg/src/settings/om.rs:180
 msgid "Økt"
 msgstr "会话"
 
-#: crates/rigg/src/settings/om.rs:183
+#: crates/rigg/src/settings/om.rs:181
 msgid "Vinduet"
 msgstr "窗口"
 
-#: crates/rigg/src/settings/om.rs:187
+#: crates/rigg/src/settings/om.rs:185
 msgid "Mapper"
 msgstr "文件夹"
 
-#: crates/rigg/src/settings/om.rs:190
+#: crates/rigg/src/settings/om.rs:188
 msgid "Profil"
 msgstr "配置"
 
-#: crates/rigg/src/settings/om.rs:190
+#: crates/rigg/src/settings/om.rs:188
 msgid "Utvikling (RIGG_PROFIL=dev)"
 msgstr "开发模式 (RIGG_PROFIL=dev)"
 
-#: crates/rigg/src/settings/om.rs:194 crates/rigg/src/settings/om.rs:200
+#: crates/rigg/src/settings/om.rs:192 crates/rigg/src/settings/om.rs:198
 msgid "Små overraskelser"
 msgstr "小彩蛋"
 
-#: crates/rigg/src/settings/om.rs:208
+#: crates/rigg/src/settings/om.rs:206
 msgid "Feilsøking"
 msgstr "故障排查"
 
-#: crates/rigg/src/settings/om.rs:209
+#: crates/rigg/src/settings/om.rs:207
 msgctxt "søkeord"
 msgid "debug versjon tjeneste pid"
 msgstr "调试 版本 服务 pid 故障排查"

@@ -8,163 +8,163 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg/src/settings/om.rs:32
+#: crates/rigg/src/settings/om.rs:30
 msgid "Navnet på byggeserien denne versjonen hører til"
 msgstr "Name der Build-Serie dieser Version"
 
-#: crates/rigg/src/settings/om.rs:44
+#: crates/rigg/src/settings/om.rs:42
 msgid "Svarer ikke"
 msgstr "Reagiert nicht"
 
-#: crates/rigg/src/settings/om.rs:50
+#: crates/rigg/src/settings/om.rs:48
 msgid " · bygg {bygg}"
 msgstr " · Build {bygg}"
 
-#: crates/rigg/src/settings/om.rs:57
+#: crates/rigg/src/settings/om.rs:55
 msgid " · oppe {tid}"
 msgstr " · Laufzeit {tid}"
 
-#: crates/rigg/src/settings/om.rs:60
+#: crates/rigg/src/settings/om.rs:58
 msgid " · {tall} MB privat minne"
 msgstr " · {tall} MB privater Speicher"
 
-#: crates/rigg/src/settings/om.rs:71
+#: crates/rigg/src/settings/om.rs:69
 msgid "NVML {nvml} · driver {driver}"
 msgstr "NVML {nvml} · Treiber {driver}"
 
-#: crates/rigg/src/settings/om.rs:73
+#: crates/rigg/src/settings/om.rs:71
 msgid "Testdata (agentic-riggd --backend sim)"
 msgstr "Testdaten (agentic-riggd --backend sim)"
 
-#: crates/rigg/src/settings/om.rs:84
+#: crates/rigg/src/settings/om.rs:82
 msgid "programvare (Cairo)"
 msgstr "Software (Cairo)"
 
-#: crates/rigg/src/settings/om.rs:88
+#: crates/rigg/src/settings/om.rs:86
 msgid "GTK {major}.{minor}.{micro} · tegner {tegner}"
 msgstr "GTK {major}.{minor}.{micro} · Renderer {tegner}"
 
-#: crates/rigg/src/settings/om.rs:111
+#: crates/rigg/src/settings/om.rs:109
 msgid "Versjon {versjon} · bygg {bygg}"
 msgstr "Version {versjon} · Build {bygg}"
 
-#: crates/rigg/src/settings/om.rs:112
+#: crates/rigg/src/settings/om.rs:110
 msgid "{navn} {versjon} · bygg {bygg}"
 msgstr "{navn} {versjon} · Build {bygg}"
 
-#: crates/rigg/src/settings/om.rs:121
+#: crates/rigg/src/settings/om.rs:119
 msgid "Overvåking av skjermkort og maskin for Linux, med GPU-styring der kortet og driveren støtter det. Styring krever egen administratoraktivering."
 msgstr "GPU- und Systemüberwachung für Linux, mit GPU-Steuerung sofern Karte und Treiber dies unterstützen. Die Steuerung erfordert eine eigene Administrator-Aktivierung."
 
-#: crates/rigg/src/settings/om.rs:124
+#: crates/rigg/src/settings/om.rs:122
 msgid "Vis versjonslogg …"
 msgstr "Versionsverlauf anzeigen …"
 
-#: crates/rigg/src/settings/om.rs:132
+#: crates/rigg/src/settings/om.rs:130
 msgctxt "søkeord"
 msgid "versjon bygg om code pro signatur byggeserie"
 msgstr "version build info code pro signatur serie"
 
-#: crates/rigg/src/settings/om.rs:138
+#: crates/rigg/src/settings/om.rs:136
 msgid "Tastatursnarveier …"
 msgstr "Tastenkürzel …"
 
-#: crates/rigg/src/settings/om.rs:143
+#: crates/rigg/src/settings/om.rs:141
 msgid "Lisenser …"
 msgstr "Lizenzen …"
 
-#: crates/rigg/src/settings/om.rs:149
+#: crates/rigg/src/settings/om.rs:147
 msgid "Tastatursnarveier"
 msgstr "Tastenkürzel"
 
-#: crates/rigg/src/settings/om.rs:149
+#: crates/rigg/src/settings/om.rs:147
 msgid "Alle hurtigtastene samlet. Også Ctrl+? og ?-knappen i sidefeltet."
 msgstr "Alle Tastenkürzel im Überblick. Auch über Strg+? und ? in der Seitenleiste."
 
-#: crates/rigg/src/settings/om.rs:149
+#: crates/rigg/src/settings/om.rs:147
 msgctxt "søkeord"
 msgid "taster hurtigtast snarvei"
 msgstr "tasten kürzel tastenkürzel"
 
-#: crates/rigg/src/settings/om.rs:150 crates/rigg/src/settings/om.rs:220
+#: crates/rigg/src/settings/om.rs:148 crates/rigg/src/settings/om.rs:218
 msgid "Lisenser"
 msgstr "Lizenzen"
 
-#: crates/rigg/src/settings/om.rs:150
+#: crates/rigg/src/settings/om.rs:148
 msgid "Ikonene (Lucide, ISC) og Rust-bibliotekene (MIT). Også i ~/.local/share/doc/agentic-rigg/LISENSER.md."
 msgstr "Symbole (Lucide, ISC) und Rust-Bibliotheken (MIT). Auch unter ~/.local/share/doc/agentic-rigg/LISENSER.md."
 
-#: crates/rigg/src/settings/om.rs:150
+#: crates/rigg/src/settings/om.rs:148
 msgctxt "søkeord"
 msgid "lisens isc mit lucide opphavsrett"
 msgstr "lizenz isc mit lucide urheberrecht"
 
-#: crates/rigg/src/settings/om.rs:155
+#: crates/rigg/src/settings/om.rs:153
 msgid "Hjelp"
 msgstr "Hilfe"
 
-#: crates/rigg/src/settings/om.rs:160
+#: crates/rigg/src/settings/om.rs:158
 msgid "Prosjekteier"
 msgstr "Projektleitung"
 
-#: crates/rigg/src/settings/om.rs:160
+#: crates/rigg/src/settings/om.rs:158
 msgid "Julian · produktidé, prioriteringer og utprøving"
 msgstr "Julian · Produktidee, Prioritäten und Tests"
 
-#: crates/rigg/src/settings/om.rs:163
+#: crates/rigg/src/settings/om.rs:161
 msgid "Bidrag"
 msgstr "Mitwirkende"
 
-#: crates/rigg/src/settings/om.rs:163
+#: crates/rigg/src/settings/om.rs:161
 msgctxt "søkeord"
 msgid "julian claude code anthropic opus 5.5 openai gpt 6.1 sol codex ai bidragsytere"
 msgstr "julian claude code anthropic opus 5.5 openai gpt 6.1 sol codex ki mitwirkende"
 
-#: crates/rigg/src/settings/om.rs:170
+#: crates/rigg/src/settings/om.rs:168
 msgid "Versjon"
 msgstr "Version"
 
-#: crates/rigg/src/settings/om.rs:170
+#: crates/rigg/src/settings/om.rs:168
 msgid "{versjon} · bygg {bygg}"
 msgstr "{versjon} · Build {bygg}"
 
-#: crates/rigg/src/settings/om.rs:171
+#: crates/rigg/src/settings/om.rs:169
 msgid "Tjenesten"
 msgstr "Dienst"
 
-#: crates/rigg/src/settings/om.rs:173
+#: crates/rigg/src/settings/om.rs:171
 msgid "Kilde"
 msgstr "Quelle"
 
-#: crates/rigg/src/settings/om.rs:182
+#: crates/rigg/src/settings/om.rs:180
 msgid "Økt"
 msgstr "Sitzung"
 
-#: crates/rigg/src/settings/om.rs:183
+#: crates/rigg/src/settings/om.rs:181
 msgid "Vinduet"
 msgstr "Fenster"
 
-#: crates/rigg/src/settings/om.rs:187
+#: crates/rigg/src/settings/om.rs:185
 msgid "Mapper"
 msgstr "Ordner"
 
-#: crates/rigg/src/settings/om.rs:190
+#: crates/rigg/src/settings/om.rs:188
 msgid "Profil"
 msgstr "Profil"
 
-#: crates/rigg/src/settings/om.rs:190
+#: crates/rigg/src/settings/om.rs:188
 msgid "Utvikling (RIGG_PROFIL=dev)"
 msgstr "Entwicklung (RIGG_PROFIL=dev)"
 
-#: crates/rigg/src/settings/om.rs:194 crates/rigg/src/settings/om.rs:200
+#: crates/rigg/src/settings/om.rs:192 crates/rigg/src/settings/om.rs:198
 msgid "Små overraskelser"
 msgstr "Kleine Überraschungen"
 
-#: crates/rigg/src/settings/om.rs:208
+#: crates/rigg/src/settings/om.rs:206
 msgid "Feilsøking"
 msgstr "Fehlerbehebung"
 
-#: crates/rigg/src/settings/om.rs:209
+#: crates/rigg/src/settings/om.rs:207
 msgctxt "søkeord"
 msgid "debug versjon tjeneste pid"
 msgstr "debug version dienst pid fehlerbehebung"

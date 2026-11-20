@@ -8,163 +8,163 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg/src/settings/om.rs:32
+#: crates/rigg/src/settings/om.rs:30
 msgid "Navnet på byggeserien denne versjonen hører til"
 msgstr "このバージョンが属するビルドシリーズ名"
 
-#: crates/rigg/src/settings/om.rs:44
+#: crates/rigg/src/settings/om.rs:42
 msgid "Svarer ikke"
 msgstr "応答なし"
 
-#: crates/rigg/src/settings/om.rs:50
+#: crates/rigg/src/settings/om.rs:48
 msgid " · bygg {bygg}"
 msgstr " · ビルド {bygg}"
 
-#: crates/rigg/src/settings/om.rs:57
+#: crates/rigg/src/settings/om.rs:55
 msgid " · oppe {tid}"
 msgstr " · 稼働 {tid}"
 
-#: crates/rigg/src/settings/om.rs:60
+#: crates/rigg/src/settings/om.rs:58
 msgid " · {tall} MB privat minne"
 msgstr " · プライベートメモリ {tall} MB"
 
-#: crates/rigg/src/settings/om.rs:71
+#: crates/rigg/src/settings/om.rs:69
 msgid "NVML {nvml} · driver {driver}"
 msgstr "NVML {nvml} · ドライバー {driver}"
 
-#: crates/rigg/src/settings/om.rs:73
+#: crates/rigg/src/settings/om.rs:71
 msgid "Testdata (agentic-riggd --backend sim)"
 msgstr "シミュレーションデータ (agentic-riggd --backend sim)"
 
-#: crates/rigg/src/settings/om.rs:84
+#: crates/rigg/src/settings/om.rs:82
 msgid "programvare (Cairo)"
 msgstr "ソフトウェア (Cairo)"
 
-#: crates/rigg/src/settings/om.rs:88
+#: crates/rigg/src/settings/om.rs:86
 msgid "GTK {major}.{minor}.{micro} · tegner {tegner}"
 msgstr "GTK {major}.{minor}.{micro} · レンダラー {tegner}"
 
-#: crates/rigg/src/settings/om.rs:111
+#: crates/rigg/src/settings/om.rs:109
 msgid "Versjon {versjon} · bygg {bygg}"
 msgstr "バージョン {versjon} · ビルド {bygg}"
 
-#: crates/rigg/src/settings/om.rs:112
+#: crates/rigg/src/settings/om.rs:110
 msgid "{navn} {versjon} · bygg {bygg}"
 msgstr "{navn} {versjon} · ビルド {bygg}"
 
-#: crates/rigg/src/settings/om.rs:121
+#: crates/rigg/src/settings/om.rs:119
 msgid "Overvåking av skjermkort og maskin for Linux, med GPU-styring der kortet og driveren støtter det. Styring krever egen administratoraktivering."
 msgstr "Linux 向けの GPU・システム監視アプリ。対応するカードとドライバーでは GPU 制御も行えます（制御には別途管理者による有効化が必要）。"
 
-#: crates/rigg/src/settings/om.rs:124
+#: crates/rigg/src/settings/om.rs:122
 msgid "Vis versjonslogg …"
 msgstr "バージョン履歴を表示…"
 
-#: crates/rigg/src/settings/om.rs:132
+#: crates/rigg/src/settings/om.rs:130
 msgctxt "søkeord"
 msgid "versjon bygg om code pro signatur byggeserie"
 msgstr "バージョン ビルド このアプリについて code pro 署名 シリーズ"
 
-#: crates/rigg/src/settings/om.rs:138
+#: crates/rigg/src/settings/om.rs:136
 msgid "Tastatursnarveier …"
 msgstr "キーボードショートカット…"
 
-#: crates/rigg/src/settings/om.rs:143
+#: crates/rigg/src/settings/om.rs:141
 msgid "Lisenser …"
 msgstr "ライセンス…"
 
-#: crates/rigg/src/settings/om.rs:149
+#: crates/rigg/src/settings/om.rs:147
 msgid "Tastatursnarveier"
 msgstr "キーボードショートカット"
 
-#: crates/rigg/src/settings/om.rs:149
+#: crates/rigg/src/settings/om.rs:147
 msgid "Alle hurtigtastene samlet. Også Ctrl+? og ?-knappen i sidefeltet."
 msgstr "すべてのショートカット一覧。Ctrl+? やサイドバーの ? ボタンでも開けます。"
 
-#: crates/rigg/src/settings/om.rs:149
+#: crates/rigg/src/settings/om.rs:147
 msgctxt "søkeord"
 msgid "taster hurtigtast snarvei"
 msgstr "キー ショートカット"
 
-#: crates/rigg/src/settings/om.rs:150 crates/rigg/src/settings/om.rs:220
+#: crates/rigg/src/settings/om.rs:148 crates/rigg/src/settings/om.rs:218
 msgid "Lisenser"
 msgstr "ライセンス"
 
-#: crates/rigg/src/settings/om.rs:150
+#: crates/rigg/src/settings/om.rs:148
 msgid "Ikonene (Lucide, ISC) og Rust-bibliotekene (MIT). Også i ~/.local/share/doc/agentic-rigg/LISENSER.md."
 msgstr "アイコン（Lucide、ISC）および Rust ライブラリ（MIT）。~/.local/share/doc/agentic-rigg/LISENSER.md にも記載。"
 
-#: crates/rigg/src/settings/om.rs:150
+#: crates/rigg/src/settings/om.rs:148
 msgctxt "søkeord"
 msgid "lisens isc mit lucide opphavsrett"
 msgstr "ライセンス isc mit lucide 著作権"
 
-#: crates/rigg/src/settings/om.rs:155
+#: crates/rigg/src/settings/om.rs:153
 msgid "Hjelp"
 msgstr "ヘルプ"
 
-#: crates/rigg/src/settings/om.rs:160
+#: crates/rigg/src/settings/om.rs:158
 msgid "Prosjekteier"
 msgstr "プロジェクトオーナー"
 
-#: crates/rigg/src/settings/om.rs:160
+#: crates/rigg/src/settings/om.rs:158
 msgid "Julian · produktidé, prioriteringer og utprøving"
 msgstr "Julian · プロダクト構想・優先順位・検証"
 
-#: crates/rigg/src/settings/om.rs:163
+#: crates/rigg/src/settings/om.rs:161
 msgid "Bidrag"
 msgstr "クレジット"
 
-#: crates/rigg/src/settings/om.rs:163
+#: crates/rigg/src/settings/om.rs:161
 msgctxt "søkeord"
 msgid "julian claude code anthropic opus 5.5 openai gpt 6.1 sol codex ai bidragsytere"
 msgstr "julian claude code anthropic opus 5.5 openai gpt 6.1 sol codex ai クレジット 貢献者"
 
-#: crates/rigg/src/settings/om.rs:170
+#: crates/rigg/src/settings/om.rs:168
 msgid "Versjon"
 msgstr "バージョン"
 
-#: crates/rigg/src/settings/om.rs:170
+#: crates/rigg/src/settings/om.rs:168
 msgid "{versjon} · bygg {bygg}"
 msgstr "{versjon} · ビルド {bygg}"
 
-#: crates/rigg/src/settings/om.rs:171
+#: crates/rigg/src/settings/om.rs:169
 msgid "Tjenesten"
 msgstr "サービス"
 
-#: crates/rigg/src/settings/om.rs:173
+#: crates/rigg/src/settings/om.rs:171
 msgid "Kilde"
 msgstr "ソース"
 
-#: crates/rigg/src/settings/om.rs:182
+#: crates/rigg/src/settings/om.rs:180
 msgid "Økt"
 msgstr "セッション"
 
-#: crates/rigg/src/settings/om.rs:183
+#: crates/rigg/src/settings/om.rs:181
 msgid "Vinduet"
 msgstr "ウィンドウ"
 
-#: crates/rigg/src/settings/om.rs:187
+#: crates/rigg/src/settings/om.rs:185
 msgid "Mapper"
 msgstr "フォルダ"
 
-#: crates/rigg/src/settings/om.rs:190
+#: crates/rigg/src/settings/om.rs:188
 msgid "Profil"
 msgstr "プロファイル"
 
-#: crates/rigg/src/settings/om.rs:190
+#: crates/rigg/src/settings/om.rs:188
 msgid "Utvikling (RIGG_PROFIL=dev)"
 msgstr "開発 (RIGG_PROFIL=dev)"
 
-#: crates/rigg/src/settings/om.rs:194 crates/rigg/src/settings/om.rs:200
+#: crates/rigg/src/settings/om.rs:192 crates/rigg/src/settings/om.rs:198
 msgid "Små overraskelser"
 msgstr "ちょっとしたお楽しみ"
 
-#: crates/rigg/src/settings/om.rs:208
+#: crates/rigg/src/settings/om.rs:206
 msgid "Feilsøking"
 msgstr "トラブルシューティング"
 
-#: crates/rigg/src/settings/om.rs:209
+#: crates/rigg/src/settings/om.rs:207
 msgctxt "søkeord"
 msgid "debug versjon tjeneste pid"
 msgstr "デバッグ バージョン サービス pid トラブルシューティング"

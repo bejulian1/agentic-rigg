@@ -18,8 +18,6 @@ use std::rc::Rc;
 
 /// Navnet på byggeserien appene hører til, likt i Klipp og Agentic Desktop.
 pub const SIGNATURE: &str = "Code Pro";
-/// Teksten under signaturen (samme ordlyd som i Klipp).
-pub const SIGNATURE_NOTE: &str = "Navnet på byggeserien denne versjonen hører til";
 
 /// Signaturen: navnet og en liten linje under, sentrert.
 fn signature() -> gtk::Box {
