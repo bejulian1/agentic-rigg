@@ -6,219 +6,220 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg/src/settings/data.rs:21
 msgid "Kunne ikke åpne mappa"
-msgstr ""
+msgstr "フォルダを開けませんでした"
 
 #: crates/rigg/src/settings/data.rs:28
 msgid "Stien er kopiert"
-msgstr ""
+msgstr "パスをコピーしました"
 
 #: crates/rigg/src/settings/data.rs:42 crates/rigg/src/settings/data.rs:43
 msgid "Kopier stien"
-msgstr ""
+msgstr "パスをコピー"
 
 #: crates/rigg/src/settings/data.rs:49
 msgid "Vis i Filer"
-msgstr ""
+msgstr "ファイルで表示"
 
 #: crates/rigg/src/settings/data.rs:66
 msgid "Eksporter innstillinger"
-msgstr ""
+msgstr "設定をエクスポート"
 
 #: crates/rigg/src/settings/data.rs:78
 msgid "Innstillingene er eksportert"
-msgstr ""
+msgstr "設定をエクスポートしました"
 
 #: crates/rigg/src/settings/data.rs:79
 msgid "Kunne ikke lagre fila"
-msgstr ""
+msgstr "ファイルを保存できませんでした"
 
 #: crates/rigg/src/settings/data.rs:93
 msgid "Importer innstillinger"
-msgstr ""
+msgstr "設定をインポート"
 
 #: crates/rigg/src/settings/data.rs:105
 msgid "Fila er for stor"
-msgstr ""
+msgstr "ファイルが大きすぎます"
 
 #: crates/rigg/src/settings/data.rs:105
 msgid "En innstillingsfil er bare noen få kB."
-msgstr ""
+msgstr "設定ファイルは通常数 kB 程度です。"
 
 #: crates/rigg/src/settings/data.rs:109 crates/rigg/src/settings/data.rs:113
 msgid "Kunne ikke lese fila"
-msgstr ""
+msgstr "ファイルを読み込めませんでした"
 
 #: crates/rigg/src/settings/data.rs:113
 msgid "Den er ikke gyldig JSON."
-msgstr ""
+msgstr "有効な JSON ではありません。"
 
 #: crates/rigg/src/settings/data.rs:124
 msgid "Innstillinger importert"
-msgstr ""
+msgstr "設定をインポートしました"
 
 #: crates/rigg/src/settings/data.rs:124 crates/rigg/src/settings/data.rs:163 crates/rigg/src/settings/data.rs:192
 msgid "Angre"
-msgstr ""
+msgstr "元に戻す"
 
 #: crates/rigg/src/settings/data.rs:126
 msgid "Importen ble avvist"
-msgstr ""
+msgstr "インポートが拒否されました"
 
 #: crates/rigg/src/settings/data.rs:133
 msgid "Eksporter …"
-msgstr ""
+msgstr "エクスポート…"
 
 #: crates/rigg/src/settings/data.rs:138
 msgid "Importer …"
-msgstr ""
+msgstr "インポート…"
 
 #: crates/rigg/src/settings/data.rs:144
 msgid "Vis igjen"
-msgstr ""
+msgstr "再表示"
 
 #: crates/rigg/src/settings/data.rs:147
 msgid "Ingen meldinger er skjult"
-msgstr ""
+msgstr "非表示の案内はありません"
 
 #: crates/rigg/src/settings/data.rs:156 crates/rigg/src/settings/data.rs:222
 msgid "Slett historikken"
-msgstr ""
+msgstr "履歴を消去"
 
 #: crates/rigg/src/settings/data.rs:163
 msgid "Historikken slettes"
-msgstr ""
+msgstr "履歴を消去しています"
 
 #: crates/rigg/src/settings/data.rs:163
 msgid "Grafene begynner på nytt om 5 s."
-msgstr ""
+msgstr "グラフは 5 s 後に最初から再開します。"
 
 #: crates/rigg/src/settings/data.rs:172
 msgid "Historikken er slettet"
-msgstr ""
+msgstr "履歴を消去しました"
 
 #: crates/rigg/src/settings/data.rs:174
 msgid "Kunne ikke slette historikken"
-msgstr ""
+msgstr "履歴を消去できませんでした"
 
 #: crates/rigg/src/settings/data.rs:174
 msgid "Tjenesten svarer ikke."
-msgstr ""
+msgstr "サービスが応答しません。"
 
 #: crates/rigg/src/settings/data.rs:180
 msgid "Tilbakestill"
-msgstr ""
+msgstr "リセット"
 
 #: crates/rigg/src/settings/data.rs:192
 msgid "Innstillingene er tilbakestilt"
-msgstr ""
+msgstr "設定をリセットしました"
 
 #: crates/rigg/src/settings/data.rs:196
 msgid "{antall} infomelding er skjult."
 msgid_plural "{antall} infomeldinger er skjult."
-msgstr[0] ""
+msgstr[0] "{antall} 件の情報バーが非表示です。"
 
 #: crates/rigg/src/settings/data.rs:198
 msgid "Ingen infomeldinger er skjult."
-msgstr ""
+msgstr "非表示の情報バーはありません。"
 
 #: crates/rigg/src/settings/data.rs:202
 msgid "Lagring"
-msgstr ""
+msgstr "保存先"
 
 #: crates/rigg/src/settings/data.rs:203
 msgid "Ingenting her leses eller sendes ut av maskinen."
-msgstr ""
+msgstr "このデータは外部に読み取られたり送信されたりしません。"
 
 #: crates/rigg/src/settings/data.rs:205
 msgid "Innstillinger"
-msgstr ""
+msgstr "設定"
 
 #: crates/rigg/src/settings/data.rs:205
 msgid "ui.json (vinduet) og tjeneste.json (tjenesten)."
-msgstr ""
+msgstr "ui.json（ウィンドウ）と tjeneste.json（サービス）。"
 
 #: crates/rigg/src/settings/data.rs:205
 msgctxt "søkeord"
 msgid "mappe sti lagring config"
-msgstr ""
+msgstr "フォルダ パス 保存 設定"
 
 #: crates/rigg/src/settings/data.rs:206
 msgid "Historikk og min/maks"
-msgstr ""
+msgstr "履歴と最小/最大"
 
 #: crates/rigg/src/settings/data.rs:206
 msgid "48 timer med historikk for grafene, og min og maks."
-msgstr ""
+msgstr "グラフの 48 時間履歴と最小/最大値。"
 
 #: crates/rigg/src/settings/data.rs:206
 msgctxt "søkeord"
 msgid "mappe sti historikk state"
-msgstr ""
+msgstr "フォルダ パス 履歴 状態"
 
 #: crates/rigg/src/settings/data.rs:210
 msgid "Innstillinger som fil"
-msgstr ""
+msgstr "設定ファイル"
 
 #: crates/rigg/src/settings/data.rs:213
 msgid "Eksporter"
-msgstr ""
+msgstr "エクスポート"
 
 #: crates/rigg/src/settings/data.rs:213
 msgid "Lagrer innstillingene som JSON, for sikkerhetskopi eller en annen maskin."
-msgstr ""
+msgstr "バックアップや別マシン用に設定を JSON で保存します。"
 
 #: crates/rigg/src/settings/data.rs:213
 msgctxt "søkeord"
 msgid "lagre fil json sikkerhetskopi"
-msgstr ""
+msgstr "保存 ファイル json バックアップ エクスポート"
 
 #: crates/rigg/src/settings/data.rs:214
 msgid "Importer"
-msgstr ""
+msgstr "インポート"
 
 #: crates/rigg/src/settings/data.rs:214
 msgid "Leser en eksportert fil. Er noe ugyldig, endres ingenting."
-msgstr ""
+msgstr "エクスポートしたファイルを読み込みます。無効な項目があれば何も変更されません。"
 
 #: crates/rigg/src/settings/data.rs:214
 msgctxt "søkeord"
 msgid "åpne fil json"
-msgstr ""
+msgstr "開く ファイル json インポート"
 
 #: crates/rigg/src/settings/data.rs:218
 msgid "Tilbakestilling"
-msgstr ""
+msgstr "リセット"
 
 #: crates/rigg/src/settings/data.rs:221
 msgid "Skjulte meldinger"
-msgstr ""
+msgstr "非表示の案内"
 
 #: crates/rigg/src/settings/data.rs:221
 msgctxt "søkeord"
 msgid "infolinje melding"
-msgstr ""
+msgstr "情報バー メッセージ 案内"
 
 #: crates/rigg/src/settings/data.rs:222
 msgid "Grafene og 48 timer med historikk begynner på nytt. Min og maks blir. Kan angres i noen sekunder."
-msgstr ""
+msgstr "グラフと 48 時間履歴を最初からやり直します。最小/最大は保持されます。数秒間は元に戻せます。"
 
 #: crates/rigg/src/settings/data.rs:222
 msgctxt "søkeord"
 msgid "historikk graf slett"
-msgstr ""
+msgstr "履歴 グラフ 消去 削除"
 
 #: crates/rigg/src/settings/data.rs:223
 msgid "Tilbakestill alle innstillinger"
-msgstr ""
+msgstr "すべての設定をリセット"
 
 #: crates/rigg/src/settings/data.rs:223
 msgid "Alt i Innstillinger går tilbake til standard. Profiler og lysvalg blir. Kan angres i noen sekunder."
-msgstr ""
+msgstr "設定をすべて既定値に戻します。プロファイルとライティング設定は保持されます。数秒間は元に戻せます。"
 
 #: crates/rigg/src/settings/data.rs:223
 msgctxt "søkeord"
 msgid "standard nullstill fabrikk"
-msgstr ""
+msgstr "既定 リセット 初期化"

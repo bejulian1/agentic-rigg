@@ -6,219 +6,220 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg/src/settings/data.rs:21
 msgid "Kunne ikke åpne mappa"
-msgstr ""
+msgstr "无法打开文件夹"
 
 #: crates/rigg/src/settings/data.rs:28
 msgid "Stien er kopiert"
-msgstr ""
+msgstr "已复制路径"
 
 #: crates/rigg/src/settings/data.rs:42 crates/rigg/src/settings/data.rs:43
 msgid "Kopier stien"
-msgstr ""
+msgstr "复制路径"
 
 #: crates/rigg/src/settings/data.rs:49
 msgid "Vis i Filer"
-msgstr ""
+msgstr "在文件管理器中显示"
 
 #: crates/rigg/src/settings/data.rs:66
 msgid "Eksporter innstillinger"
-msgstr ""
+msgstr "导出设置"
 
 #: crates/rigg/src/settings/data.rs:78
 msgid "Innstillingene er eksportert"
-msgstr ""
+msgstr "已导出设置"
 
 #: crates/rigg/src/settings/data.rs:79
 msgid "Kunne ikke lagre fila"
-msgstr ""
+msgstr "无法保存文件"
 
 #: crates/rigg/src/settings/data.rs:93
 msgid "Importer innstillinger"
-msgstr ""
+msgstr "导入设置"
 
 #: crates/rigg/src/settings/data.rs:105
 msgid "Fila er for stor"
-msgstr ""
+msgstr "文件过大"
 
 #: crates/rigg/src/settings/data.rs:105
 msgid "En innstillingsfil er bare noen få kB."
-msgstr ""
+msgstr "设置文件通常只有几 kB。"
 
 #: crates/rigg/src/settings/data.rs:109 crates/rigg/src/settings/data.rs:113
 msgid "Kunne ikke lese fila"
-msgstr ""
+msgstr "无法读取文件"
 
 #: crates/rigg/src/settings/data.rs:113
 msgid "Den er ikke gyldig JSON."
-msgstr ""
+msgstr "不是有效的 JSON 文件。"
 
 #: crates/rigg/src/settings/data.rs:124
 msgid "Innstillinger importert"
-msgstr ""
+msgstr "已导入设置"
 
 #: crates/rigg/src/settings/data.rs:124 crates/rigg/src/settings/data.rs:163 crates/rigg/src/settings/data.rs:192
 msgid "Angre"
-msgstr ""
+msgstr "撤销"
 
 #: crates/rigg/src/settings/data.rs:126
 msgid "Importen ble avvist"
-msgstr ""
+msgstr "导入被拒绝"
 
 #: crates/rigg/src/settings/data.rs:133
 msgid "Eksporter …"
-msgstr ""
+msgstr "导出…"
 
 #: crates/rigg/src/settings/data.rs:138
 msgid "Importer …"
-msgstr ""
+msgstr "导入…"
 
 #: crates/rigg/src/settings/data.rs:144
 msgid "Vis igjen"
-msgstr ""
+msgstr "重新显示"
 
 #: crates/rigg/src/settings/data.rs:147
 msgid "Ingen meldinger er skjult"
-msgstr ""
+msgstr "没有隐藏的提示"
 
 #: crates/rigg/src/settings/data.rs:156 crates/rigg/src/settings/data.rs:222
 msgid "Slett historikken"
-msgstr ""
+msgstr "清除历史记录"
 
 #: crates/rigg/src/settings/data.rs:163
 msgid "Historikken slettes"
-msgstr ""
+msgstr "正在清除历史记录"
 
 #: crates/rigg/src/settings/data.rs:163
 msgid "Grafene begynner på nytt om 5 s."
-msgstr ""
+msgstr "图表将在 5 s 后重新开始。"
 
 #: crates/rigg/src/settings/data.rs:172
 msgid "Historikken er slettet"
-msgstr ""
+msgstr "已清除历史记录"
 
 #: crates/rigg/src/settings/data.rs:174
 msgid "Kunne ikke slette historikken"
-msgstr ""
+msgstr "无法清除历史记录"
 
 #: crates/rigg/src/settings/data.rs:174
 msgid "Tjenesten svarer ikke."
-msgstr ""
+msgstr "服务无响应。"
 
 #: crates/rigg/src/settings/data.rs:180
 msgid "Tilbakestill"
-msgstr ""
+msgstr "重置"
 
 #: crates/rigg/src/settings/data.rs:192
 msgid "Innstillingene er tilbakestilt"
-msgstr ""
+msgstr "已重置设置"
 
 #: crates/rigg/src/settings/data.rs:196
 msgid "{antall} infomelding er skjult."
 msgid_plural "{antall} infomeldinger er skjult."
-msgstr[0] ""
+msgstr[0] "已隐藏 {antall} 条信息提示。"
 
 #: crates/rigg/src/settings/data.rs:198
 msgid "Ingen infomeldinger er skjult."
-msgstr ""
+msgstr "没有隐藏的信息提示。"
 
 #: crates/rigg/src/settings/data.rs:202
 msgid "Lagring"
-msgstr ""
+msgstr "存储位置"
 
 #: crates/rigg/src/settings/data.rs:203
 msgid "Ingenting her leses eller sendes ut av maskinen."
-msgstr ""
+msgstr "此处内容绝不会被外部读取或发送到本机之外。"
 
 #: crates/rigg/src/settings/data.rs:205
 msgid "Innstillinger"
-msgstr ""
+msgstr "设置"
 
 #: crates/rigg/src/settings/data.rs:205
 msgid "ui.json (vinduet) og tjeneste.json (tjenesten)."
-msgstr ""
+msgstr "ui.json（窗口）与 tjeneste.json（服务）。"
 
 #: crates/rigg/src/settings/data.rs:205
 msgctxt "søkeord"
 msgid "mappe sti lagring config"
-msgstr ""
+msgstr "文件夹 路径 存储 配置"
 
 #: crates/rigg/src/settings/data.rs:206
 msgid "Historikk og min/maks"
-msgstr ""
+msgstr "历史记录与最小/最大"
 
 #: crates/rigg/src/settings/data.rs:206
 msgid "48 timer med historikk for grafene, og min og maks."
-msgstr ""
+msgstr "48 小时图表历史记录以及最小值和最大值。"
 
 #: crates/rigg/src/settings/data.rs:206
 msgctxt "søkeord"
 msgid "mappe sti historikk state"
-msgstr ""
+msgstr "文件夹 路径 历史 状态"
 
 #: crates/rigg/src/settings/data.rs:210
 msgid "Innstillinger som fil"
-msgstr ""
+msgstr "设置文件"
 
 #: crates/rigg/src/settings/data.rs:213
 msgid "Eksporter"
-msgstr ""
+msgstr "导出"
 
 #: crates/rigg/src/settings/data.rs:213
 msgid "Lagrer innstillingene som JSON, for sikkerhetskopi eller en annen maskin."
-msgstr ""
+msgstr "将设置保存为 JSON，以便备份或迁移到其他电脑。"
 
 #: crates/rigg/src/settings/data.rs:213
 msgctxt "søkeord"
 msgid "lagre fil json sikkerhetskopi"
-msgstr ""
+msgstr "保存 文件 json 备份 导出"
 
 #: crates/rigg/src/settings/data.rs:214
 msgid "Importer"
-msgstr ""
+msgstr "导入"
 
 #: crates/rigg/src/settings/data.rs:214
 msgid "Leser en eksportert fil. Er noe ugyldig, endres ingenting."
-msgstr ""
+msgstr "读取导出的文件。若内容无效，则不会做任何更改。"
 
 #: crates/rigg/src/settings/data.rs:214
 msgctxt "søkeord"
 msgid "åpne fil json"
-msgstr ""
+msgstr "打开 文件 json 导入"
 
 #: crates/rigg/src/settings/data.rs:218
 msgid "Tilbakestilling"
-msgstr ""
+msgstr "重置"
 
 #: crates/rigg/src/settings/data.rs:221
 msgid "Skjulte meldinger"
-msgstr ""
+msgstr "已隐藏的提示"
 
 #: crates/rigg/src/settings/data.rs:221
 msgctxt "søkeord"
 msgid "infolinje melding"
-msgstr ""
+msgstr "提示栏 信息 通知"
 
 #: crates/rigg/src/settings/data.rs:222
 msgid "Grafene og 48 timer med historikk begynner på nytt. Min og maks blir. Kan angres i noen sekunder."
-msgstr ""
+msgstr "图表和 48 小时历史将重新开始，最小/最大值保留。数秒内可撤销。"
 
 #: crates/rigg/src/settings/data.rs:222
 msgctxt "søkeord"
 msgid "historikk graf slett"
-msgstr ""
+msgstr "历史 图表 清除 删除"
 
 #: crates/rigg/src/settings/data.rs:223
 msgid "Tilbakestill alle innstillinger"
-msgstr ""
+msgstr "重置所有设置"
 
 #: crates/rigg/src/settings/data.rs:223
 msgid "Alt i Innstillinger går tilbake til standard. Profiler og lysvalg blir. Kan angres i noen sekunder."
-msgstr ""
+msgstr "所有设置恢复为默认值，配置文件和灯光设置保留。数秒内可撤销。"
 
 #: crates/rigg/src/settings/data.rs:223
 msgctxt "søkeord"
 msgid "standard nullstill fabrikk"
-msgstr ""
+msgstr "默认 重置 恢复出厂"

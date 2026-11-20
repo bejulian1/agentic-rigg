@@ -6,6 +6,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg-core/src/easter.rs:102
 msgid "Noen koder husker man fra åttitallet. Opp, opp …"

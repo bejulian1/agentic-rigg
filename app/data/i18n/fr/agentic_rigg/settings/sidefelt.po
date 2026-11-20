@@ -6,172 +6,173 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg/src/settings/sidefelt.rs:31
 msgid "Verdier i statusblokken, i rekkefølge"
-msgstr ""
+msgstr "Valeurs du bloc d’état, dans l’ordre"
 
 #: crates/rigg/src/settings/sidefelt.rs:36
 msgid "Statusblokken er tom"
-msgstr ""
+msgstr "Le bloc d’état est vide"
 
 #: crates/rigg/src/settings/sidefelt.rs:37
 msgid "Legg til verdier her, eller fest sensorer med nålen på Sensorer."
-msgstr ""
+msgstr "Ajoutez des valeurs ici ou épinglez des capteurs depuis Capteurs."
 
 #: crates/rigg/src/settings/sidefelt.rs:54
 msgid "{nr} av {totalt}: {navn}. Alt+pil opp eller ned flytter."
-msgstr ""
+msgstr "{nr} sur {totalt} : {navn}. Alt+Haut ou Bas pour déplacer."
 
 #: crates/rigg/src/settings/sidefelt.rs:59
 msgid "Skjermkort"
-msgstr ""
+msgstr "GPU"
 
 #: crates/rigg/src/settings/sidefelt.rs:60
 msgid "Prosessor"
-msgstr ""
+msgstr "Processeur"
 
 #: crates/rigg/src/settings/sidefelt.rs:61
 msgid "Minne"
-msgstr ""
+msgstr "Mémoire"
 
 #: crates/rigg/src/settings/sidefelt.rs:62
 msgid "Nett (alle kort)"
-msgstr ""
+msgstr "Réseau (toutes interfaces)"
 
 #: crates/rigg/src/settings/sidefelt.rs:63
 msgid "Disker"
-msgstr ""
+msgstr "Disques"
 
 #: crates/rigg/src/settings/sidefelt.rs:64
 msgid "Andre sensorer"
-msgstr ""
+msgstr "Autres capteurs"
 
 #: crates/rigg/src/settings/sidefelt.rs:66
 msgid "{kilde} · i sidefeltet: {etikett}"
-msgstr ""
+msgstr "{kilde} · barre latérale : {etikett}"
 
 #: crates/rigg/src/settings/sidefelt.rs:71
 msgid "Fjern fra statusblokken"
-msgstr ""
+msgstr "Retirer du bloc d’état"
 
 #: crates/rigg/src/settings/sidefelt.rs:72
 msgid "Fjern {navn}"
-msgstr ""
+msgstr "Retirer {navn}"
 
 #: crates/rigg/src/settings/sidefelt.rs:136
 msgid "Legg til verdi …"
-msgstr ""
+msgstr "Ajouter une valeur…"
 
 #: crates/rigg/src/settings/sidefelt.rs:140
 msgid "Statusblokken er full ({antall} av {maks}). Fjern en verdi først."
-msgstr ""
+msgstr "Le bloc d’état est plein ({antall} sur {maks}). Retirez d’abord une valeur."
 
 #: crates/rigg/src/settings/sidefelt.rs:149
 msgid "{antall} av {maks}"
-msgstr ""
+msgstr "{antall} sur {maks}"
 
 #: crates/rigg/src/settings/sidefelt.rs:151
 msgid "Statusblokken"
-msgstr ""
+msgstr "Bloc d’état"
 
 #: crates/rigg/src/settings/sidefelt.rs:153
 msgid "Verdiene nederst i sidefeltet, i denne rekkefølgen. Velg en rad og bruk Alt+↑/↓ for å flytte. Fest flere fra Sensorer med nålen."
-msgstr ""
+msgstr "Valeurs en bas de la barre latérale, dans cet ordre. Sélectionnez une ligne et utilisez Alt+↑/↓ pour déplacer. Épinglez-en d’autres depuis Capteurs."
 
 #: crates/rigg/src/settings/sidefelt.rs:156
 msgctxt "søkeord"
 msgid "status nederst rekkefølge fest sensor verdier"
-msgstr ""
+msgstr "état bas ordre épingler capteur valeurs"
 
 #: crates/rigg/src/settings/sidefelt.rs:170
 msgid "Søk etter verdi"
-msgstr ""
+msgstr "Rechercher une valeur"
 
 #: crates/rigg/src/settings/sidefelt.rs:186
 msgid "Faste verdier"
-msgstr ""
+msgstr "Valeurs intégrées"
 
 #: crates/rigg/src/settings/sidefelt.rs:203
 msgid "Lagt til"
-msgstr ""
+msgstr "Ajouté"
 
 #: crates/rigg/src/settings/sidefelt.rs:219
 msgid "Ingen verdi heter «{sok}»"
-msgstr ""
+msgstr "Aucune valeur nommée « {sok} »"
 
 #: crates/rigg/src/settings/sidefelt.rs:235
 msgid "Full"
-msgstr ""
+msgstr "Complet"
 
 #: crates/rigg/src/settings/sidefelt.rs:235
 msgid "Ikonlist"
-msgstr ""
+msgstr "Barre d’icônes"
 
 #: crates/rigg/src/settings/sidefelt.rs:235
 msgid "Bredde på sidefeltet"
-msgstr ""
+msgstr "Largeur de la barre latérale"
 
 #: crates/rigg/src/settings/sidefelt.rs:244
 msgid "Vinduet er smalt, så sidefeltet er en ikonlist nå. Valget gjelder i bredere vinduer."
-msgstr ""
+msgstr "La fenêtre est étroite, la barre latérale est donc réduite en barre d’icônes. Ce choix s’applique aux fenêtres plus larges."
 
 #: crates/rigg/src/settings/sidefelt.rs:246
 msgid "Ikonlista viser bare ikoner og korte tall. Også Ctrl+B og knappen nederst i sidefeltet."
-msgstr ""
+msgstr "Affiche uniquement les icônes et valeurs courtes. Aussi via Ctrl+B ou le bouton en bas de la barre latérale."
 
 #: crates/rigg/src/settings/sidefelt.rs:264
 msgid "Minst én side må vises"
-msgstr ""
+msgstr "Au moins une page doit être visible"
 
 #: crates/rigg/src/settings/sidefelt.rs:279
 msgid "Visning"
-msgstr ""
+msgstr "Affichage"
 
 #: crates/rigg/src/settings/sidefelt.rs:282
 msgid "Bredde"
-msgstr ""
+msgstr "Largeur"
 
 #: crates/rigg/src/settings/sidefelt.rs:282
 msgctxt "søkeord"
 msgid "ikonlist legg sammen utvid smal"
-msgstr ""
+msgstr "icônes réduire développer étroit largeur"
 
 #: crates/rigg/src/settings/sidefelt.rs:283
 msgid "Sparklinjer"
-msgstr ""
+msgstr "Mini-courbes"
 
 #: crates/rigg/src/settings/sidefelt.rs:283
 msgid "Liten graf for siste minutt ved hver verdi i statusblokken."
-msgstr ""
+msgstr "Petit graphique de la dernière minute à côté de chaque valeur."
 
 #: crates/rigg/src/settings/sidefelt.rs:283
 msgctxt "søkeord"
 msgid "statusblokk graf"
-msgstr ""
+msgstr "bloc état graphique sparkline"
 
 #: crates/rigg/src/settings/sidefelt.rs:289
 msgid "Sider"
-msgstr ""
+msgstr "Pages"
 
 #: crates/rigg/src/settings/sidefelt.rs:290
 msgid "Sidene i sidefeltet. Skjulte sider kan fortsatt åpnes med hurtigtasten."
-msgstr ""
+msgstr "Pages de la barre latérale. Les pages masquées restent accessibles par raccourci."
 
 #: crates/rigg/src/settings/sidefelt.rs:290
 msgctxt "søkeord"
 msgid "skjul vis navigasjon"
-msgstr ""
+msgstr "masquer afficher navigation pages"
 
 #: crates/rigg/src/settings/sidefelt.rs:293
 msgid "Vis hurtigtaster"
-msgstr ""
+msgstr "Afficher les raccourcis"
 
 #: crates/rigg/src/settings/sidefelt.rs:293
 msgid "Tallene 1–8 ved sidene. Ellers står de i verktøytipset og under Tastatursnarveier."
-msgstr ""
+msgstr "Chiffres 1–8 près des pages. Sinon visibles dans les infobulles et Raccourcis clavier."
 
 #: crates/rigg/src/settings/sidefelt.rs:293
 msgctxt "søkeord"
 msgid "taster tall snarvei"
-msgstr ""
+msgstr "touches chiffres raccourcis"

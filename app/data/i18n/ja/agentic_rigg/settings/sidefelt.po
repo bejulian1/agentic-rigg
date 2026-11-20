@@ -6,172 +6,173 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg/src/settings/sidefelt.rs:31
 msgid "Verdier i statusblokken, i rekkefølge"
-msgstr ""
+msgstr "ステータス欄の項目（表示順）"
 
 #: crates/rigg/src/settings/sidefelt.rs:36
 msgid "Statusblokken er tom"
-msgstr ""
+msgstr "ステータス欄は空です"
 
 #: crates/rigg/src/settings/sidefelt.rs:37
 msgid "Legg til verdier her, eller fest sensorer med nålen på Sensorer."
-msgstr ""
+msgstr "ここで項目を追加するか、「センサー」ページでピン留めしてください。"
 
 #: crates/rigg/src/settings/sidefelt.rs:54
 msgid "{nr} av {totalt}: {navn}. Alt+pil opp eller ned flytter."
-msgstr ""
+msgstr "{totalt} 件中 {nr} 番目：{navn}。Alt+上/下キーで並べ替え。"
 
 #: crates/rigg/src/settings/sidefelt.rs:59
 msgid "Skjermkort"
-msgstr ""
+msgstr "GPU"
 
 #: crates/rigg/src/settings/sidefelt.rs:60
 msgid "Prosessor"
-msgstr ""
+msgstr "CPU"
 
 #: crates/rigg/src/settings/sidefelt.rs:61
 msgid "Minne"
-msgstr ""
+msgstr "メモリ"
 
 #: crates/rigg/src/settings/sidefelt.rs:62
 msgid "Nett (alle kort)"
-msgstr ""
+msgstr "ネットワーク（全アダプター）"
 
 #: crates/rigg/src/settings/sidefelt.rs:63
 msgid "Disker"
-msgstr ""
+msgstr "ドライブ"
 
 #: crates/rigg/src/settings/sidefelt.rs:64
 msgid "Andre sensorer"
-msgstr ""
+msgstr "その他のセンサー"
 
 #: crates/rigg/src/settings/sidefelt.rs:66
 msgid "{kilde} · i sidefeltet: {etikett}"
-msgstr ""
+msgstr "{kilde} · サイドバー表記：{etikett}"
 
 #: crates/rigg/src/settings/sidefelt.rs:71
 msgid "Fjern fra statusblokken"
-msgstr ""
+msgstr "ステータス欄から削除"
 
 #: crates/rigg/src/settings/sidefelt.rs:72
 msgid "Fjern {navn}"
-msgstr ""
+msgstr "{navn} を削除"
 
 #: crates/rigg/src/settings/sidefelt.rs:136
 msgid "Legg til verdi …"
-msgstr ""
+msgstr "項目を追加…"
 
 #: crates/rigg/src/settings/sidefelt.rs:140
 msgid "Statusblokken er full ({antall} av {maks}). Fjern en verdi først."
-msgstr ""
+msgstr "ステータス欄がいっぱいです（{antall} / {maks}）。先に項目を削除してください。"
 
 #: crates/rigg/src/settings/sidefelt.rs:149
 msgid "{antall} av {maks}"
-msgstr ""
+msgstr "{antall} / {maks}"
 
 #: crates/rigg/src/settings/sidefelt.rs:151
 msgid "Statusblokken"
-msgstr ""
+msgstr "ステータス欄"
 
 #: crates/rigg/src/settings/sidefelt.rs:153
 msgid "Verdiene nederst i sidefeltet, i denne rekkefølgen. Velg en rad og bruk Alt+↑/↓ for å flytte. Fest flere fra Sensorer med nålen."
-msgstr ""
+msgstr "サイドバー下部にこの順で表示されます。行を選んで Alt+↑/↓ で移動できます。「センサー」から追加固定も可能です。"
 
 #: crates/rigg/src/settings/sidefelt.rs:156
 msgctxt "søkeord"
 msgid "status nederst rekkefølge fest sensor verdier"
-msgstr ""
+msgstr "ステータス 下部 順序 ピン センサー 項目"
 
 #: crates/rigg/src/settings/sidefelt.rs:170
 msgid "Søk etter verdi"
-msgstr ""
+msgstr "項目を検索"
 
 #: crates/rigg/src/settings/sidefelt.rs:186
 msgid "Faste verdier"
-msgstr ""
+msgstr "組み込み項目"
 
 #: crates/rigg/src/settings/sidefelt.rs:203
 msgid "Lagt til"
-msgstr ""
+msgstr "追加済み"
 
 #: crates/rigg/src/settings/sidefelt.rs:219
 msgid "Ingen verdi heter «{sok}»"
-msgstr ""
+msgstr "「{sok}」に一致する項目はありません"
 
 #: crates/rigg/src/settings/sidefelt.rs:235
 msgid "Full"
-msgstr ""
+msgstr "フル"
 
 #: crates/rigg/src/settings/sidefelt.rs:235
 msgid "Ikonlist"
-msgstr ""
+msgstr "アイコンバー"
 
 #: crates/rigg/src/settings/sidefelt.rs:235
 msgid "Bredde på sidefeltet"
-msgstr ""
+msgstr "サイドバーの幅"
 
 #: crates/rigg/src/settings/sidefelt.rs:244
 msgid "Vinduet er smalt, så sidefeltet er en ikonlist nå. Valget gjelder i bredere vinduer."
-msgstr ""
+msgstr "ウィンドウが狭いためアイコンバーに折りたたまれています。この設定は広いウィンドウで適用されます。"
 
 #: crates/rigg/src/settings/sidefelt.rs:246
 msgid "Ikonlista viser bare ikoner og korte tall. Også Ctrl+B og knappen nederst i sidefeltet."
-msgstr ""
+msgstr "アイコンと短い数値のみ表示します。Ctrl+B やサイドバー下部のボタンでも切り替えられます。"
 
 #: crates/rigg/src/settings/sidefelt.rs:264
 msgid "Minst én side må vises"
-msgstr ""
+msgstr "少なくとも 1 つのページを表示する必要があります"
 
 #: crates/rigg/src/settings/sidefelt.rs:279
 msgid "Visning"
-msgstr ""
+msgstr "表示"
 
 #: crates/rigg/src/settings/sidefelt.rs:282
 msgid "Bredde"
-msgstr ""
+msgstr "幅"
 
 #: crates/rigg/src/settings/sidefelt.rs:282
 msgctxt "søkeord"
 msgid "ikonlist legg sammen utvid smal"
-msgstr ""
+msgstr "アイコンバー 折りたたむ 展開 狭い 幅"
 
 #: crates/rigg/src/settings/sidefelt.rs:283
 msgid "Sparklinjer"
-msgstr ""
+msgstr "スパークライン"
 
 #: crates/rigg/src/settings/sidefelt.rs:283
 msgid "Liten graf for siste minutt ved hver verdi i statusblokken."
-msgstr ""
+msgstr "ステータス欄の各項目の横に直近 1 分のミニグラフを表示します。"
 
 #: crates/rigg/src/settings/sidefelt.rs:283
 msgctxt "søkeord"
 msgid "statusblokk graf"
-msgstr ""
+msgstr "ステータス欄 グラフ スパークライン"
 
 #: crates/rigg/src/settings/sidefelt.rs:289
 msgid "Sider"
-msgstr ""
+msgstr "ページ"
 
 #: crates/rigg/src/settings/sidefelt.rs:290
 msgid "Sidene i sidefeltet. Skjulte sider kan fortsatt åpnes med hurtigtasten."
-msgstr ""
+msgstr "サイドバーに表示するページ。非表示のページもショートカットで開けます。"
 
 #: crates/rigg/src/settings/sidefelt.rs:290
 msgctxt "søkeord"
 msgid "skjul vis navigasjon"
-msgstr ""
+msgstr "非表示 表示 ナビゲーション ページ"
 
 #: crates/rigg/src/settings/sidefelt.rs:293
 msgid "Vis hurtigtaster"
-msgstr ""
+msgstr "ショートカット番号を表示"
 
 #: crates/rigg/src/settings/sidefelt.rs:293
 msgid "Tallene 1–8 ved sidene. Ellers står de i verktøytipset og under Tastatursnarveier."
-msgstr ""
+msgstr "ページ横に 1–8 の番号を表示します。オフ時もツールチップと「キーボードショートカット」で確認できます。"
 
 #: crates/rigg/src/settings/sidefelt.rs:293
 msgctxt "søkeord"
 msgid "taster tall snarvei"
-msgstr ""
+msgstr "キー 番号 ショートカット"

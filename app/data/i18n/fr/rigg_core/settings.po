@@ -10,99 +10,99 @@ msgstr ""
 
 #: crates/rigg-core/src/settings.rs:53
 msgid "Oversikt"
-msgstr ""
+msgstr "Vue d’ensemble"
 
 #: crates/rigg-core/src/settings.rs:54
 msgid "Sensorer"
-msgstr ""
+msgstr "Capteurs"
 
 #: crates/rigg-core/src/settings.rs:55
 msgid "Grafer"
-msgstr ""
+msgstr "Graphiques"
 
 #: crates/rigg-core/src/settings.rs:56
 msgid "Grafikkort"
-msgstr ""
+msgstr "Carte graphique"
 
 #: crates/rigg-core/src/settings.rs:57
 msgid "Prosessor"
-msgstr ""
+msgstr "Processeur"
 
 #: crates/rigg-core/src/settings.rs:58
 msgid "Disker"
-msgstr ""
+msgstr "Disques"
 
 #: crates/rigg-core/src/settings.rs:59
 msgid "System"
-msgstr ""
+msgstr "Système"
 
 #: crates/rigg-core/src/settings.rs:60
 msgid "Skjermkort › Klokker og effekt"
-msgstr ""
+msgstr "GPU › Fréquences et puissance"
 
 #: crates/rigg-core/src/settings.rs:61
 msgid "Skjermkort › Vifter"
-msgstr ""
+msgstr "GPU › Ventilateurs"
 
 #: crates/rigg-core/src/settings.rs:62
 msgid "Skjermkort › RGB-lys"
-msgstr ""
+msgstr "GPU › Éclairage RGB"
 
 #: crates/rigg-core/src/settings.rs:63
 msgid "Oppgaver"
-msgstr ""
+msgstr "Processus"
 
 #: crates/rigg-core/src/settings.rs:115
 msgid "thresholds må være et objekt"
-msgstr ""
+msgstr "thresholds doit être un objet"
 
 #: crates/rigg-core/src/settings.rs:119
 msgid "{felt} må være et tall"
-msgstr ""
+msgstr "{felt} doit être un nombre"
 
 #: crates/rigg-core/src/settings.rs:123
 msgid "Rød grense for GPU-temperatur må være over gul"
-msgstr ""
+msgstr "Le seuil rouge de température GPU doit dépasser le jaune"
 
 #: crates/rigg-core/src/settings.rs:126
 msgid "Rød grense for CPU-temperatur må være over gul"
-msgstr ""
+msgstr "Le seuil rouge de température CPU doit dépasser le jaune"
 
 #: crates/rigg-core/src/settings.rs:280
 msgid "{felt} må være true/false"
-msgstr ""
+msgstr "{felt} doit être true/false"
 
 #: crates/rigg-core/src/settings.rs:284
 msgid "{felt} må være en liste"
-msgstr ""
+msgstr "{felt} doit être une liste"
 
 #: crates/rigg-core/src/settings.rs:293
 msgid "Ukjent verdi i {felt}: {verdi}"
-msgstr ""
+msgstr "Valeur inconnue dans {felt} : {verdi}"
 
 #: crates/rigg-core/src/settings.rs:300
 msgid "{felt} må ha {min}–{max} valg"
-msgstr ""
+msgstr "{felt} doit contenir {min}–{max} éléments"
 
 #: crates/rigg-core/src/settings.rs:329
 msgid "statusItems må være en liste"
-msgstr ""
+msgstr "statusItems doit être une liste"
 
 #: crates/rigg-core/src/settings.rs:334
 msgid "Ukjent verdi i statusItems: {verdi}"
-msgstr ""
+msgstr "Valeur inconnue dans statusItems : {verdi}"
 
 #: crates/rigg-core/src/settings.rs:341
 msgid "Statusblokken kan ha høyst {maks} verdier"
-msgstr ""
+msgstr "Le bloc d’état peut contenir au plus {maks} valeurs"
 
 #: crates/rigg-core/src/settings.rs:349
 msgid "{felt} er ugyldig"
-msgstr ""
+msgstr "{felt} est invalide"
 
 #: crates/rigg-core/src/settings.rs:356 crates/rigg-core/src/settings.rs:581 crates/rigg-core/src/settings.rs:690
 msgid "Forventet et JSON-objekt"
-msgstr ""
+msgstr "Objet JSON attendu"
 
 #: crates/rigg-core/src/settings.rs:362
 msgid "Ukjent språkvalg"
@@ -110,148 +110,148 @@ msgstr "Langue sélectionnée inconnue"
 
 #: crates/rigg-core/src/settings.rs:364
 msgid "Ugyldig intervall"
-msgstr ""
+msgstr "Intervalle invalide"
 
 #: crates/rigg-core/src/settings.rs:365
 msgid "Enhet må være C eller F"
-msgstr ""
+msgstr "L’unité doit être C ou F"
 
 #: crates/rigg-core/src/settings.rs:366
 msgid "Tema må være system, light eller dark"
-msgstr ""
+msgstr "Le thème doit être system, light ou dark"
 
 #: crates/rigg-core/src/settings.rs:368
 msgid "Ukjent aksentfarge"
-msgstr ""
+msgstr "Couleur d’accentuation inconnue"
 
 #: crates/rigg-core/src/settings.rs:370
 msgid "Ukjent fargetema"
-msgstr ""
+msgstr "Thème de couleurs inconnu"
 
 #: crates/rigg-core/src/settings.rs:372
 msgid "Ukjent tetthet"
-msgstr ""
+msgstr "Densité inconnue"
 
 #: crates/rigg-core/src/settings.rs:373
 msgid "Ugyldig skriftstørrelse"
-msgstr ""
+msgstr "Taille de police invalide"
 
 #: crates/rigg-core/src/settings.rs:374
 msgid "Animasjoner må være system, full, reduced eller off"
-msgstr ""
+msgstr "Les animations doivent être system, full, reduced ou off"
 
 #: crates/rigg-core/src/settings.rs:378
 msgid "Ukjent startside"
-msgstr ""
+msgstr "Page de démarrage inconnue"
 
 #: crates/rigg-core/src/settings.rs:390 crates/rigg-core/src/settings.rs:395
 msgid "Tidsvindu må være en av {verdier} s"
-msgstr ""
+msgstr "La plage de temps doit être parmi {verdier} s"
 
 #: crates/rigg-core/src/settings.rs:394
 msgid "windows må være et objekt"
-msgstr ""
+msgstr "windows doit être un objet"
 
 #: crates/rigg-core/src/settings.rs:402
 msgid "Ukjent side i windows: {side}"
-msgstr ""
+msgstr "Page inconnue dans windows : {side}"
 
 #: crates/rigg-core/src/settings.rs:407
 msgid "chartScale må være auto eller fixed"
-msgstr ""
+msgstr "chartScale doit être auto ou fixed"
 
 #: crates/rigg-core/src/settings.rs:412
 msgid "Desimaler må være auto, 0 eller 1"
-msgstr ""
+msgstr "Les décimales doivent être auto, 0 ou 1"
 
 #: crates/rigg-core/src/settings.rs:413
 msgid "memUnit må være bin eller dec"
-msgstr ""
+msgstr "memUnit doit être bin ou dec"
 
 #: crates/rigg-core/src/settings.rs:414
 msgid "netUnit må være byte eller bit"
-msgstr ""
+msgstr "netUnit doit être byte ou bit"
 
 #: crates/rigg-core/src/settings.rs:415
 msgid "Klokke må være system, 24 eller 12"
-msgstr ""
+msgstr "L’horloge doit être system, 24 ou 12"
 
 #: crates/rigg-core/src/settings.rs:418
 msgid "Fristen må være {verdier} s"
-msgstr ""
+msgstr "Le délai doit être {verdier} s"
 
 #: crates/rigg-core/src/settings.rs:422
 msgid "lys3d må være auto, 3d eller 2d"
-msgstr ""
+msgstr "lys3d doit être auto, 3d ou 2d"
 
 #: crates/rigg-core/src/settings.rs:425
 msgid "Ukjent del av Innstillinger"
-msgstr ""
+msgstr "Section des Paramètres inconnue"
 
 #: crates/rigg-core/src/settings.rs:428
 msgid "Ukjent side"
-msgstr ""
+msgstr "Page inconnue"
 
 #: crates/rigg-core/src/settings.rs:431
 msgid "window må være et objekt"
-msgstr ""
+msgstr "window doit être un objet"
 
 #: crates/rigg-core/src/settings.rs:451
 msgid "gpuMakers må være et objekt"
-msgstr ""
+msgstr "gpuMakers doit être un objet"
 
 #: crates/rigg-core/src/settings.rs:453
 msgid "Høyst 16 kort i gpuMakers"
-msgstr ""
+msgstr "Au plus 16 cartes dans gpuMakers"
 
 #: crates/rigg-core/src/settings.rs:457
 msgid "Produsenten må være tekst"
-msgstr ""
+msgstr "Le fabricant doit être un texte"
 
 #: crates/rigg-core/src/settings.rs:460
 msgid "Ugyldig kort i gpuMakers"
-msgstr ""
+msgstr "Carte invalide dans gpuMakers"
 
 #: crates/rigg-core/src/settings.rs:463
 msgid "Produsenten kan ha høyst 40 tegn"
-msgstr ""
+msgstr "Le fabricant peut compter au plus 40 caractères"
 
 #: crates/rigg-core/src/settings.rs:586
 msgid "Takten i bakgrunnen må være 1, 2 eller 5 s"
-msgstr ""
+msgstr "La cadence en arrière-plan doit être 1, 2 ou 5 s"
 
 #: crates/rigg-core/src/settings.rs:589
 msgid "Fristen må være 10, 15, 30 eller 60 s"
-msgstr ""
+msgstr "Le délai doit être 10, 15, 30 ou 60 s"
 
 #: crates/rigg-core/src/settings.rs:591
 msgid "log må være et objekt"
-msgstr ""
+msgstr "log doit être un objet"
 
 #: crates/rigg-core/src/settings.rs:596
 msgid "log.keys må være en liste"
-msgstr ""
+msgstr "log.keys doit être une liste"
 
 #: crates/rigg-core/src/settings.rs:602
 msgid "Ukjent sensor i log.keys"
-msgstr ""
+msgstr "Capteur inconnu dans log.keys"
 
 #: crates/rigg-core/src/settings.rs:607
 msgid "Loggintervallet må være 0,5, 1, 2, 5 eller 10 s"
-msgstr ""
+msgstr "L’intervalle du journal doit être 0,5, 1, 2, 5 ou 10 s"
 
 #: crates/rigg-core/src/settings.rs:612
 msgid "Loggmappa må være en full sti"
-msgstr ""
+msgstr "Le dossier du journal doit être un chemin absolu"
 
 #: crates/rigg-core/src/settings.rs:615
 msgid "Formatet må være standard eller norsk"
-msgstr ""
+msgstr "Le format doit être standard ou norsk"
 
 #: crates/rigg-core/src/settings.rs:621
 msgid "alarms må være et objekt"
-msgstr ""
+msgstr "alarms doit être un objet"
 
 #: crates/rigg-core/src/settings.rs:686
 msgid "Fila har ingen innstillinger"
-msgstr ""
+msgstr "Le fichier ne contient aucun paramètre"

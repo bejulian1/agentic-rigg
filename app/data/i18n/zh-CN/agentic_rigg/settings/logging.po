@@ -6,244 +6,245 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg/src/settings/logging.rs:34
 msgid "Tjenesten svarer ikke"
-msgstr ""
+msgstr "服务无响应"
 
 #: crates/rigg/src/settings/logging.rs:38
 msgid "Logger siden {tid} · {rader}"
-msgstr ""
+msgstr "自 {tid} 起记录 · {rader}"
 
 #: crates/rigg/src/settings/logging.rs:41
 msgid "Av · siste: {fil}"
-msgstr ""
+msgstr "已关闭 · 上次：{fil}"
 
 #: crates/rigg/src/settings/logging.rs:42
 msgid "Av"
-msgstr ""
+msgstr "关闭"
 
 #: crates/rigg/src/settings/logging.rs:49 crates/rigg/src/settings/logging.rs:152
 msgid "Sensorer i loggen"
-msgstr ""
+msgstr "日志中的传感器"
 
 #: crates/rigg/src/settings/logging.rs:51
 msgid "Filtrer"
-msgstr ""
+msgstr "筛选"
 
 #: crates/rigg/src/settings/logging.rs:82
 msgid "Sensorene vises når tjenesten har sendt første prøve."
-msgstr ""
+msgstr "服务发送首次采样后将显示传感器列表。"
 
 #: crates/rigg/src/settings/logging.rs:91
 msgid "Trådene (last og klokke per tråd) er med når du logger alle sensorene."
-msgstr ""
+msgstr "记录全部传感器时会包含各线程的负载与频率。"
 
 #: crates/rigg/src/settings/logging.rs:109 crates/rigg/src/settings/logging.rs:144
 msgid "Stopp loggen"
-msgstr ""
+msgstr "停止记录"
 
 #: crates/rigg/src/settings/logging.rs:109 crates/rigg/src/settings/logging.rs:144
 msgid "Start loggen"
-msgstr ""
+msgstr "开始记录"
 
 #: crates/rigg/src/settings/logging.rs:115
 msgid "Vis i Filer"
-msgstr ""
+msgstr "在文件管理器中显示"
 
 #: crates/rigg/src/settings/logging.rs:152
 msgid "Alle"
-msgstr ""
+msgstr "全部"
 
 #: crates/rigg/src/settings/logging.rs:152
 msgid "Utvalgte"
-msgstr ""
+msgstr "自选"
 
 #: crates/rigg/src/settings/logging.rs:164 crates/rigg/src/settings/logging.rs:190
 msgid "Velg …"
-msgstr ""
+msgstr "选择…"
 
 #: crates/rigg/src/settings/logging.rs:164
 msgid "{antall} valgt …"
-msgstr ""
+msgstr "已选 {antall} 项…"
 
 #: crates/rigg/src/settings/logging.rs:173 crates/rigg/src/settings/logging.rs:240
 msgid "Intervall"
-msgstr ""
+msgstr "间隔"
 
 #: crates/rigg/src/settings/logging.rs:197
 msgid "Mappe for loggen"
-msgstr ""
+msgstr "日志文件夹"
 
 #: crates/rigg/src/settings/logging.rs:213
 msgid "Tilbake til ~/Dokumenter/Agentic Rigg"
-msgstr ""
+msgstr "恢复为 ~/Dokumenter/Agentic Rigg"
 
 #: crates/rigg/src/settings/logging.rs:214
 msgid "Tilbake til standardmappa"
-msgstr ""
+msgstr "恢复默认文件夹"
 
 #: crates/rigg/src/settings/logging.rs:223
 msgid "Standard CSV"
-msgstr ""
+msgstr "标准 CSV"
 
 #: crates/rigg/src/settings/logging.rs:223
 msgid "Norsk regneark"
-msgstr ""
+msgstr "挪威电子表格"
 
 #: crates/rigg/src/settings/logging.rs:223 crates/rigg/src/settings/logging.rs:242
 msgid "Format"
-msgstr ""
+msgstr "格式"
 
 #: crates/rigg/src/settings/logging.rs:230
 msgid "Logg til fil"
-msgstr ""
+msgstr "记录到文件"
 
 #: crates/rigg/src/settings/logging.rs:232
 msgctxt "søkeord"
 msgid "logg csv fil ctrl+l"
-msgstr ""
+msgstr "日志 csv 文件 ctrl+l"
 
 #: crates/rigg/src/settings/logging.rs:233
 msgid "Tjenesten skriver loggen, så den fortsetter når vinduet lukkes. Start og stopp også med knappen på Sensorer, eller Ctrl+L."
-msgstr ""
+msgstr "由服务写入日志，关闭窗口后仍会继续。也可在「传感器」页面或按 Ctrl+L 开关。"
 
 #: crates/rigg/src/settings/logging.rs:234
 msgid "Ny fil ved 100 MB. Loggen stopper med en melding hvis disken har under 500 MB ledig. Kolonnene ligger fast mens loggen går; nye sensorer tas med i neste logg."
-msgstr ""
+msgstr "达到 100 MB 时自动切分新文件；磁盘剩余空间低于 500 MB 时会提示并停止。记录期间列结构保持不变，新传感器将在下次记录时加入。"
 
 #: crates/rigg/src/settings/logging.rs:238
 msgid "Status"
-msgstr ""
+msgstr "状态"
 
 #: crates/rigg/src/settings/logging.rs:238
 msgctxt "søkeord"
 msgid "logg status start stopp vis i filer"
-msgstr ""
+msgstr "日志 状态 开始 停止 文件"
 
 #: crates/rigg/src/settings/logging.rs:239
 msgid "Sensorer"
-msgstr ""
+msgstr "传感器"
 
 #: crates/rigg/src/settings/logging.rs:239
 msgid "Alle sensorene, eller bare de du velger (også med høyreklikk på Sensorer › «Ta med i loggen»)."
-msgstr ""
+msgstr "全部传感器，或仅所选项目（也可在「传感器」页右键选择「加入日志」）。"
 
 #: crates/rigg/src/settings/logging.rs:239
 msgctxt "søkeord"
 msgid "sensorer utvalgte alle"
-msgstr ""
+msgstr "传感器 自选 全部"
 
 #: crates/rigg/src/settings/logging.rs:240
 msgid "Hvor ofte en rad skrives. Raskere enn takten tjenesten leser i, gir ikke flere rader."
-msgstr ""
+msgstr "写入每行数据的频率。高于服务采样频率不会增加额外行。"
 
 #: crates/rigg/src/settings/logging.rs:240
 msgctxt "søkeord"
 msgid "intervall sekunder"
-msgstr ""
+msgstr "间隔 秒"
 
 #: crates/rigg/src/settings/logging.rs:241
 msgid "Mappe"
-msgstr ""
+msgstr "文件夹"
 
 #: crates/rigg/src/settings/logging.rs:241
 msgid "Filnavn som rigg-2026-11-07_14-32-10.csv."
-msgstr ""
+msgstr "文件名格式如 rigg-2026-11-07_14-32-10.csv。"
 
 #: crates/rigg/src/settings/logging.rs:241
 msgctxt "søkeord"
 msgid "mappe dokumenter sti"
-msgstr ""
+msgstr "文件夹 文档 路径"
 
 #: crates/rigg/src/settings/logging.rs:242
 msgid "Standard CSV bruker komma og desimalpunktum. Norsk regneark bruker semikolon og desimalkomma, og åpnes rett i LibreOffice og Excel med norsk oppsett."
-msgstr ""
+msgstr "标准 CSV 使用逗号分隔和小数点。挪威电子表格使用分号和小数逗号，适合挪威语 LibreOffice 和 Excel。"
 
 #: crates/rigg/src/settings/logging.rs:242
 msgctxt "søkeord"
 msgid "format komma semikolon desimal regneark excel libreoffice"
-msgstr ""
+msgstr "格式 逗号 分号 小数 电子表格 excel libreoffice"
 
 #: crates/rigg/src/settings/logging.rs:251
 msgid "Varsle ved rød grense"
-msgstr ""
+msgstr "达到红色阈值时通知"
 
 #: crates/rigg/src/settings/logging.rs:252
 msgid "Et varsel på skrivebordet når en verdi har vært over den røde grensen i 10 s. Høyst ett varsel per verdi per 15 min. Virker også når vinduet er lukket og tjenesten går i bakgrunnen."
-msgstr ""
+msgstr "当指标超过红色阈值持续 10 s 时发送桌面通知。每项指标每 15 分钟最多一次。窗口关闭且后台运行时同样生效。"
 
 #: crates/rigg/src/settings/logging.rs:254
 msgctxt "søkeord"
 msgid "varsel skrivebord alarm rød grense"
-msgstr ""
+msgstr "警报 桌面 通知 红色 阈值"
 
 #: crates/rigg/src/settings/logging.rs:264
 msgid "GPU-temperatur"
-msgstr ""
+msgstr "GPU 温度"
 
 #: crates/rigg/src/settings/logging.rs:265
 msgid "Rød grense {grense}. Endres under Grafer og sensorer › Varselfarger."
-msgstr ""
+msgstr "红色阈值 {grense}。可在「图表和传感器 › 警告颜色」中更改。"
 
 #: crates/rigg/src/settings/logging.rs:267
 msgctxt "søkeord"
 msgid "gpu temperatur varsel"
-msgstr ""
+msgstr "gpu 温度 警报"
 
 #: crates/rigg/src/settings/logging.rs:275
 msgid "CPU-temperatur"
-msgstr ""
+msgstr "CPU 温度"
 
 #: crates/rigg/src/settings/logging.rs:276
 msgid "Rød grense {grense} (Tdie)."
-msgstr ""
+msgstr "红色阈值 {grense} (Tdie)。"
 
 #: crates/rigg/src/settings/logging.rs:278
 msgctxt "søkeord"
 msgid "cpu temperatur varsel tdie"
-msgstr ""
+msgstr "cpu 温度 警报 tdie"
 
 #: crates/rigg/src/settings/logging.rs:286
 msgid "Skjermkortet svarer ikke"
-msgstr ""
+msgstr "显卡无响应"
 
 #: crates/rigg/src/settings/logging.rs:287
 msgid "Også når driveren er oppdatert og maskinen må startes på nytt, eller driveren ikke kan leses."
-msgstr ""
+msgstr "也适用于驱动更新后需要重启，或无法读取驱动的情况。"
 
 #: crates/rigg/src/settings/logging.rs:289
 msgctxt "søkeord"
 msgid "skjermkort borte driver varsel"
-msgstr ""
+msgstr "显卡 驱动 警报"
 
 #: crates/rigg/src/settings/logging.rs:297
 msgid "Diskhelse"
-msgstr ""
+msgstr "磁盘健康"
 
 #: crates/rigg/src/settings/logging.rs:298
 msgid "Når SMART melder at en disk feiler, eller antallet dårlige sektorer øker. Tjenesten ser på SMART hvert 10. minutt når vinduet er lukket."
-msgstr ""
+msgstr "当 SMART 报告磁盘故障或坏道增加时提醒。窗口关闭时服务每 10 分钟检查一次 SMART。"
 
 #: crates/rigg/src/settings/logging.rs:300
 msgctxt "søkeord"
 msgid "disk helse smart sektorer varsel"
-msgstr ""
+msgstr "磁盘 健康 smart 扇区 警报"
 
 #: crates/rigg/src/settings/logging.rs:306
 msgid "Klikk på et varsel for å åpne appen på riktig side. Varslene sendes av tjenesten, uten lyd."
-msgstr ""
+msgstr "点击通知可打开对应页面。通知由服务静音发送。"
 
 #: crates/rigg/src/settings/logging.rs:308
 msgctxt "søkeord"
 msgid "klikk varsel lyd"
-msgstr ""
+msgstr "点击 通知 声音"
 
 #: crates/rigg/src/settings/logging.rs:309
 msgid "Skrivebordsvarsler"
-msgstr ""
+msgstr "桌面通知"
 
 #: crates/rigg/src/settings/logging.rs:309
 msgctxt "søkeord"
 msgid "varsler notification"
-msgstr ""
+msgstr "警报 通知"

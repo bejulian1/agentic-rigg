@@ -6,32 +6,33 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg/src/settings/search.rs:109
 msgid "Gå til {del}"
-msgstr ""
+msgstr "前往{del}"
 
 #: crates/rigg/src/settings/search.rs:130
 msgid "Søk"
-msgstr ""
+msgstr "搜索"
 
 #: crates/rigg/src/settings/search.rs:131
 msgid "«{sok}» i alle delene"
-msgstr ""
+msgstr "在所有分组中搜索「{sok}」"
 
 #: crates/rigg/src/settings/search.rs:132
 msgid "{antall} treff"
 msgid_plural "{antall} treff"
-msgstr[0] ""
+msgstr[0] "{antall} 个结果"
 
 #: crates/rigg/src/settings/search.rs:132
 msgid "Ingen treff"
-msgstr ""
+msgstr "无结果"
 
 #: crates/rigg/src/settings/search.rs:138
 msgid "Ingen innstillinger passer «{sok}»."
-msgstr ""
+msgstr "没有与「{sok}」匹配的设置。"
 
 #: crates/rigg/src/settings/search.rs:139
 msgid "Prøv et ord fra navnet eller forklaringen, for eksempel tema, enhet eller graf."
-msgstr ""
+msgstr "请尝试名称或说明中的词语，例如主题、单位或图表。"

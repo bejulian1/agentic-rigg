@@ -6,172 +6,173 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg/src/settings/sidefelt.rs:31
 msgid "Verdier i statusblokken, i rekkefølge"
-msgstr ""
+msgstr "状态栏项目（按顺序）"
 
 #: crates/rigg/src/settings/sidefelt.rs:36
 msgid "Statusblokken er tom"
-msgstr ""
+msgstr "状态栏为空"
 
 #: crates/rigg/src/settings/sidefelt.rs:37
 msgid "Legg til verdier her, eller fest sensorer med nålen på Sensorer."
-msgstr ""
+msgstr "在此添加项目，或在「传感器」页面使用图钉固定传感器。"
 
 #: crates/rigg/src/settings/sidefelt.rs:54
 msgid "{nr} av {totalt}: {navn}. Alt+pil opp eller ned flytter."
-msgstr ""
+msgstr "第 {nr} 项，共 {totalt} 项：{navn}。按 Alt+上/下方向键移动。"
 
 #: crates/rigg/src/settings/sidefelt.rs:59
 msgid "Skjermkort"
-msgstr ""
+msgstr "显卡"
 
 #: crates/rigg/src/settings/sidefelt.rs:60
 msgid "Prosessor"
-msgstr ""
+msgstr "处理器"
 
 #: crates/rigg/src/settings/sidefelt.rs:61
 msgid "Minne"
-msgstr ""
+msgstr "内存"
 
 #: crates/rigg/src/settings/sidefelt.rs:62
 msgid "Nett (alle kort)"
-msgstr ""
+msgstr "网络（全部网卡）"
 
 #: crates/rigg/src/settings/sidefelt.rs:63
 msgid "Disker"
-msgstr ""
+msgstr "磁盘"
 
 #: crates/rigg/src/settings/sidefelt.rs:64
 msgid "Andre sensorer"
-msgstr ""
+msgstr "其他传感器"
 
 #: crates/rigg/src/settings/sidefelt.rs:66
 msgid "{kilde} · i sidefeltet: {etikett}"
-msgstr ""
+msgstr "{kilde} · 侧边栏显示：{etikett}"
 
 #: crates/rigg/src/settings/sidefelt.rs:71
 msgid "Fjern fra statusblokken"
-msgstr ""
+msgstr "从状态栏移除"
 
 #: crates/rigg/src/settings/sidefelt.rs:72
 msgid "Fjern {navn}"
-msgstr ""
+msgstr "移除 {navn}"
 
 #: crates/rigg/src/settings/sidefelt.rs:136
 msgid "Legg til verdi …"
-msgstr ""
+msgstr "添加项目…"
 
 #: crates/rigg/src/settings/sidefelt.rs:140
 msgid "Statusblokken er full ({antall} av {maks}). Fjern en verdi først."
-msgstr ""
+msgstr "状态栏已满（{antall} / {maks}）。请先移除一项。"
 
 #: crates/rigg/src/settings/sidefelt.rs:149
 msgid "{antall} av {maks}"
-msgstr ""
+msgstr "{antall} / {maks}"
 
 #: crates/rigg/src/settings/sidefelt.rs:151
 msgid "Statusblokken"
-msgstr ""
+msgstr "状态栏"
 
 #: crates/rigg/src/settings/sidefelt.rs:153
 msgid "Verdiene nederst i sidefeltet, i denne rekkefølgen. Velg en rad og bruk Alt+↑/↓ for å flytte. Fest flere fra Sensorer med nålen."
-msgstr ""
+msgstr "侧边栏底部按此顺序显示的指标。选中某行后按 Alt+↑/↓ 调整顺序，也可在「传感器」页面固定更多项。"
 
 #: crates/rigg/src/settings/sidefelt.rs:156
 msgctxt "søkeord"
 msgid "status nederst rekkefølge fest sensor verdier"
-msgstr ""
+msgstr "状态 底部 顺序 固定 传感器 项目"
 
 #: crates/rigg/src/settings/sidefelt.rs:170
 msgid "Søk etter verdi"
-msgstr ""
+msgstr "搜索项目"
 
 #: crates/rigg/src/settings/sidefelt.rs:186
 msgid "Faste verdier"
-msgstr ""
+msgstr "内置项目"
 
 #: crates/rigg/src/settings/sidefelt.rs:203
 msgid "Lagt til"
-msgstr ""
+msgstr "已添加"
 
 #: crates/rigg/src/settings/sidefelt.rs:219
 msgid "Ingen verdi heter «{sok}»"
-msgstr ""
+msgstr "没有匹配「{sok}」的项目"
 
 #: crates/rigg/src/settings/sidefelt.rs:235
 msgid "Full"
-msgstr ""
+msgstr "完整"
 
 #: crates/rigg/src/settings/sidefelt.rs:235
 msgid "Ikonlist"
-msgstr ""
+msgstr "图标栏"
 
 #: crates/rigg/src/settings/sidefelt.rs:235
 msgid "Bredde på sidefeltet"
-msgstr ""
+msgstr "侧边栏宽度"
 
 #: crates/rigg/src/settings/sidefelt.rs:244
 msgid "Vinduet er smalt, så sidefeltet er en ikonlist nå. Valget gjelder i bredere vinduer."
-msgstr ""
+msgstr "窗口较窄，侧边栏当前已折叠为图标栏。此设置在较宽窗口中生效。"
 
 #: crates/rigg/src/settings/sidefelt.rs:246
 msgid "Ikonlista viser bare ikoner og korte tall. Også Ctrl+B og knappen nederst i sidefeltet."
-msgstr ""
+msgstr "仅显示图标和简短数值。也可使用 Ctrl+B 或侧边栏底部的按钮切换。"
 
 #: crates/rigg/src/settings/sidefelt.rs:264
 msgid "Minst én side må vises"
-msgstr ""
+msgstr "至少必须显示一个页面"
 
 #: crates/rigg/src/settings/sidefelt.rs:279
 msgid "Visning"
-msgstr ""
+msgstr "显示"
 
 #: crates/rigg/src/settings/sidefelt.rs:282
 msgid "Bredde"
-msgstr ""
+msgstr "宽度"
 
 #: crates/rigg/src/settings/sidefelt.rs:282
 msgctxt "søkeord"
 msgid "ikonlist legg sammen utvid smal"
-msgstr ""
+msgstr "图标栏 折叠 展开 窄 宽度"
 
 #: crates/rigg/src/settings/sidefelt.rs:283
 msgid "Sparklinjer"
-msgstr ""
+msgstr "迷你趋势图"
 
 #: crates/rigg/src/settings/sidefelt.rs:283
 msgid "Liten graf for siste minutt ved hver verdi i statusblokken."
-msgstr ""
+msgstr "在状态栏每个数值旁显示最近 1 分钟的迷你图。"
 
 #: crates/rigg/src/settings/sidefelt.rs:283
 msgctxt "søkeord"
 msgid "statusblokk graf"
-msgstr ""
+msgstr "状态栏 图表 趋势图"
 
 #: crates/rigg/src/settings/sidefelt.rs:289
 msgid "Sider"
-msgstr ""
+msgstr "页面"
 
 #: crates/rigg/src/settings/sidefelt.rs:290
 msgid "Sidene i sidefeltet. Skjulte sider kan fortsatt åpnes med hurtigtasten."
-msgstr ""
+msgstr "侧边栏中显示的页面。隐藏的页面仍可通过快捷键打开。"
 
 #: crates/rigg/src/settings/sidefelt.rs:290
 msgctxt "søkeord"
 msgid "skjul vis navigasjon"
-msgstr ""
+msgstr "隐藏 显示 导航 页面"
 
 #: crates/rigg/src/settings/sidefelt.rs:293
 msgid "Vis hurtigtaster"
-msgstr ""
+msgstr "显示数字快捷键"
 
 #: crates/rigg/src/settings/sidefelt.rs:293
 msgid "Tallene 1–8 ved sidene. Ellers står de i verktøytipset og under Tastatursnarveier."
-msgstr ""
+msgstr "在页面旁显示数字 1–8。关闭时仍可在提示和「键盘快捷键」中查看。"
 
 #: crates/rigg/src/settings/sidefelt.rs:293
 msgctxt "søkeord"
 msgid "taster tall snarvei"
-msgstr ""
+msgstr "按键 数字 快捷键"

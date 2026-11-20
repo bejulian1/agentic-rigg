@@ -6,241 +6,242 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg/src/settings/generelt.rs:21
 msgid "Sist brukte side"
-msgstr ""
+msgstr "上次访问的页面"
 
 #: crates/rigg/src/settings/generelt.rs:23 crates/rigg/src/settings/generelt.rs:55
 msgid "Startside"
-msgstr ""
+msgstr "启动页"
 
 #: crates/rigg/src/settings/generelt.rs:36
 msgid "0,5 s"
-msgstr ""
+msgstr "0.5 s"
 
 #: crates/rigg/src/settings/generelt.rs:36 crates/rigg/src/settings/generelt.rs:257
 msgid "1 s"
-msgstr ""
+msgstr "1 s"
 
 #: crates/rigg/src/settings/generelt.rs:36 crates/rigg/src/settings/generelt.rs:257
 msgid "2 s"
-msgstr ""
+msgstr "2 s"
 
 #: crates/rigg/src/settings/generelt.rs:36 crates/rigg/src/settings/generelt.rs:61
 msgid "Oppdateringsintervall"
-msgstr ""
+msgstr "刷新间隔"
 
 #: crates/rigg/src/settings/generelt.rs:39
 msgid "Noen få skjulte detaljer rundt om i appen. De endrer aldri tall, innstillinger eller kortet. Du har funnet {funnet} av {totalt}."
-msgstr ""
+msgstr "应用中藏着几个小彩蛋。它们绝不会改动读数、设置或显卡。已发现 {funnet} / {totalt} 个。"
 
 #: crates/rigg/src/settings/generelt.rs:45
 msgid "Noen få skjulte detaljer rundt om i appen. De endrer aldri tall, innstillinger eller kortet."
-msgstr ""
+msgstr "应用中藏着几个小彩蛋。它们绝不会改动读数、设置或显卡。"
 
 #: crates/rigg/src/settings/generelt.rs:53
 msgid "Oppstart"
-msgstr ""
+msgstr "启动"
 
 #: crates/rigg/src/settings/generelt.rs:55
 msgid "Siden som åpnes når appen starter."
-msgstr ""
+msgstr "启动应用时打开的页面。"
 
 #: crates/rigg/src/settings/generelt.rs:55
 msgctxt "søkeord"
 msgid "forside start"
-msgstr ""
+msgstr "首页 启动 默认页面"
 
 #: crates/rigg/src/settings/generelt.rs:58
 msgid "Skjermkortdata"
-msgstr ""
+msgstr "显卡数据"
 
 #: crates/rigg/src/settings/generelt.rs:59
 msgctxt "søkeord"
 msgid "gpu data nvml"
-msgstr ""
+msgstr "gpu 显卡 数据 nvml"
 
 #: crates/rigg/src/settings/generelt.rs:62
 msgid "Hvor ofte tallene og grafene får nye verdier mens vinduet er åpent. 0,5 s koster dobbelt så mye CPU som 1 s, og kortet spørres aldri oftere."
-msgstr ""
+msgstr "窗口打开时数值和图表的更新频率。0.5 s 的 CPU 占用是 1 s 的两倍，且绝不会以更高频率轮询显卡。"
 
 #: crates/rigg/src/settings/generelt.rs:64
 msgctxt "søkeord"
 msgid "intervall frekvens hastighet takt"
-msgstr ""
+msgstr "间隔 频率 速度 刷新率"
 
 #: crates/rigg/src/settings/generelt.rs:68
 msgid "Annet"
-msgstr ""
+msgstr "其他"
 
 #: crates/rigg/src/settings/generelt.rs:70
 msgid "Små overraskelser"
-msgstr ""
+msgstr "小彩蛋"
 
 #: crates/rigg/src/settings/generelt.rs:70
 msgctxt "søkeord"
 msgid "påskeegg egg"
-msgstr ""
+msgstr "彩蛋 惊喜"
 
 #: crates/rigg/src/settings/generelt.rs:84
 msgid "Svarer ikke. Appen prøver igjen av seg selv."
-msgstr ""
+msgstr "无响应。应用将自动重试。"
 
 #: crates/rigg/src/settings/generelt.rs:87 crates/rigg/src/settings/generelt.rs:99 crates/rigg/src/settings/generelt.rs:210 crates/rigg/src/settings/generelt.rs:218
 msgid "Kjører"
-msgstr ""
+msgstr "运行中"
 
 #: crates/rigg/src/settings/generelt.rs:94
 msgid "Kjører siden {tid} ({oppetid})"
-msgstr ""
+msgstr "自 {tid} 起运行 ({oppetid})"
 
 #: crates/rigg/src/settings/generelt.rs:96
 msgid "Kjører siden {tid}"
-msgstr ""
+msgstr "自 {tid} 起运行"
 
 #: crates/rigg/src/settings/generelt.rs:106
 msgid "{tall} MB minne"
-msgstr ""
+msgstr "{tall} MB 内存"
 
 #: crates/rigg/src/settings/generelt.rs:108
 msgid "opptak i bakgrunnen på"
-msgstr ""
+msgstr "后台记录已开启"
 
 #: crates/rigg/src/settings/generelt.rs:108
 msgid "opptak i bakgrunnen av"
-msgstr ""
+msgstr "后台记录已关闭"
 
 #: crates/rigg/src/settings/generelt.rs:110
 msgid "logger til fil"
-msgstr ""
+msgstr "正在记录到文件"
 
 #: crates/rigg/src/settings/generelt.rs:117
 msgid "Tjenesten heter agentic-riggd og kjører som systemd --user. Den leser bare, og skriver aldri til kortet. Alt blir på maskinen: ingenting sendes noe sted."
-msgstr ""
+msgstr "服务名为 agentic-riggd，通过 systemd --user 运行。仅执行只读采集，绝不写入显卡。所有数据留在本地，不会发送到任何地方。"
 
 #: crates/rigg/src/settings/generelt.rs:121
 msgid "Av: ingenting kjører når appen er lukket, og grafene får et hull for den tiden. På: historikken fortsetter til du logger ut, for ca. 21–28 MB og 0,85 % av én kjerne med 2 s‑takt, og ikonet vises i systemfeltet."
-msgstr ""
+msgstr "关闭：关闭窗口后停止运行，图表会出现空白段。开启：持续记录历史直到注销（2 s 间隔约占 21–28 MB 和单核 0.85 %），并在系统托盘显示图标。"
 
 #: crates/rigg/src/settings/generelt.rs:125
 msgid "Tjenesten starter når du logger inn og tar opp historikk før du åpner appen, med ca. 21–28 MB minne. Uten «Fortsett i bakgrunnen» stopper den igjen etter 60 s."
-msgstr ""
+msgstr "登录时自动启动服务，在打开应用前即开始记录历史（约占 21–28 MB 内存）。若未开启「在后台继续运行」，将在 60 s 后停止。"
 
 #: crates/rigg/src/settings/generelt.rs:129
 msgid "Hvor ofte kortet og maskinen leses uten vindu: 1,5 % av én kjerne med 1 s, 0,85 % med 2 s og 0,4 % med 5 s. Gjelder når bakgrunnsopptaket er på eller en logg går."
-msgstr ""
+msgstr "无窗口时的采集频率：1 s 约占单核 1.5 %，2 s 为 0.85 %，5 s 为 0.4 %。在后台记录或文件日志运行时生效。"
 
 #: crates/rigg/src/settings/generelt.rs:135
 msgid "Tjenesten er ikke installert som systemd-enhet, så den kan ikke startes ved innlogging. install.sh legger den inn."
-msgstr ""
+msgstr "服务未安装为 systemd 单元，因此无法随登录启动。可运行 install.sh 进行安装。"
 
 #: crates/rigg/src/settings/generelt.rs:136
 msgid "systemd --user svarer ikke, så tjenesten kan ikke startes ved innlogging."
-msgstr ""
+msgstr "systemd --user 无响应，无法设置随登录启动。"
 
 #: crates/rigg/src/settings/generelt.rs:137
 msgid "systemd sier at enheten er «{tilstand}», så den kan ikke slås av eller på herfra."
-msgstr ""
+msgstr "systemd 报告该单元状态为「{tilstand}」，因此无法在此切换。"
 
 #: crates/rigg/src/settings/generelt.rs:145
 msgid "Stopper når vinduet lukkes. Vinduet starter tjenesten igjen neste gang det åpnes."
-msgstr ""
+msgstr "关闭窗口时停止。下次打开窗口时会自动重新启动服务。"
 
 #: crates/rigg/src/settings/generelt.rs:148
 msgid "Stopper loggen til fil og opptaket i bakgrunnen. Tjenesten avslutter når vinduet lukkes, og vinduet starter den igjen neste gang det åpnes."
-msgstr ""
+msgstr "停止文件日志和后台记录。服务将在关闭窗口时退出，并在下次打开时重新启动。"
 
 #: crates/rigg/src/settings/generelt.rs:150
 msgid "Stopper opptaket i bakgrunnen. Tjenesten avslutter når vinduet lukkes, og vinduet starter den igjen neste gang det åpnes."
-msgstr ""
+msgstr "停止后台记录。服务将在关闭窗口时退出，并在下次打开时重新启动。"
 
 #: crates/rigg/src/settings/generelt.rs:157
 msgid "Stopp nå"
-msgstr ""
+msgstr "立即停止"
 
 #: crates/rigg/src/settings/generelt.rs:160
 msgid "Stopp tjenesten nå"
-msgstr ""
+msgstr "立即停止服务"
 
 #: crates/rigg/src/settings/generelt.rs:160
 msgctxt "søkeord"
 msgid "stopp avslutt tjeneste daemon logging opptak"
-msgstr ""
+msgstr "停止 退出 服务 守护进程 日志 记录"
 
 #: crates/rigg/src/settings/generelt.rs:180
 msgid "Loggen og tjenesten stoppes"
-msgstr ""
+msgstr "正在停止日志和服务"
 
 #: crates/rigg/src/settings/generelt.rs:180
 msgid "Tjenesten stoppes"
-msgstr ""
+msgstr "正在停止服务"
 
 #: crates/rigg/src/settings/generelt.rs:181
 msgid "Om 5 s. Tjenesten avslutter når vinduet lukkes."
-msgstr ""
+msgstr "5 s 后执行。服务将在关闭窗口时退出。"
 
 #: crates/rigg/src/settings/generelt.rs:182
 msgid "Angre"
-msgstr ""
+msgstr "撤销"
 
 #: crates/rigg/src/settings/generelt.rs:210 crates/rigg/src/settings/generelt.rs:218
 msgid "Svarer ikke"
-msgstr ""
+msgstr "无响应"
 
 #: crates/rigg/src/settings/generelt.rs:211
 msgid "Status"
-msgstr ""
+msgstr "状态"
 
 #: crates/rigg/src/settings/generelt.rs:211
 msgctxt "søkeord"
 msgid "tjeneste status daemon kjører minne pid oppetid"
-msgstr ""
+msgstr "服务 状态 守护进程 运行 内存 pid 运行时间"
 
 #: crates/rigg/src/settings/generelt.rs:245
 msgid "Fortsett i bakgrunnen"
-msgstr ""
+msgstr "在后台继续运行"
 
 #: crates/rigg/src/settings/generelt.rs:248
 msgctxt "søkeord"
 msgid "bakgrunn lukket opptak historikk systemfelt ikon"
-msgstr ""
+msgstr "后台 关闭 记录 历史 系统托盘 图标"
 
 #: crates/rigg/src/settings/generelt.rs:257
 msgid "5 s"
-msgstr ""
+msgstr "5 s"
 
 #: crates/rigg/src/settings/generelt.rs:257 crates/rigg/src/settings/generelt.rs:263
 msgid "Takt i bakgrunnen"
-msgstr ""
+msgstr "后台采样间隔"
 
 #: crates/rigg/src/settings/generelt.rs:266
 msgctxt "søkeord"
 msgid "takt intervall bakgrunn"
-msgstr ""
+msgstr "间隔 频率 后台"
 
 #: crates/rigg/src/settings/generelt.rs:306
 msgid "Bakgrunn"
-msgstr ""
+msgstr "后台"
 
 #: crates/rigg/src/settings/generelt.rs:307
 msgctxt "søkeord"
 msgid "tjeneste daemon systemd bakgrunn bakgrunnstjeneste"
-msgstr ""
+msgstr "服务 守护进程 systemd 后台"
 
 #: crates/rigg/src/settings/generelt.rs:321
 msgid "Start tjenesten ved innlogging"
-msgstr ""
+msgstr "登录时启动服务"
 
 #: crates/rigg/src/settings/generelt.rs:321
 msgctxt "søkeord"
 msgid "innlogging logg inn oppstart autostart systemd enable"
-msgstr ""
+msgstr "登录 开机自启 自启动 systemd"
 
 #: crates/rigg/src/settings/generelt.rs:330
 msgid "Kunne ikke slå på start ved innlogging"
-msgstr ""
+msgstr "无法开启随登录启动"
 
 #: crates/rigg/src/settings/generelt.rs:330
 msgid "Kunne ikke slå av start ved innlogging"
-msgstr ""
+msgstr "无法关闭随登录启动"

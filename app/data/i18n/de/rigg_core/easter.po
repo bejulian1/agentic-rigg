@@ -6,145 +6,146 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg-core/src/easter.rs:102
 msgid "Noen koder husker man fra åttitallet. Opp, opp …"
-msgstr ""
+msgstr "Manche Codes vergisst man seit den Achtzigern nicht. Hoch, hoch …"
 
 #: crates/rigg-core/src/easter.rs:103
 msgid "Appikonet har en vifte. Vifter samler støv."
-msgstr ""
+msgstr "Das App-Symbol hat einen Lüfter. Lüfter sammeln Staub."
 
 #: crates/rigg-core/src/easter.rs:104
 msgid "På telefoner blir man utvikler ved å trykke på byggnummeret. Hvor står versjonen her?"
-msgstr ""
+msgstr "Auf Smartphones wird man Entwickler durch Tippen auf die Build-Nummer. Wo steht hier die Version?"
 
 #: crates/rigg-core/src/easter.rs:105
 msgid "Ett tall er viktigere enn alle andre. Følg med på GPU-temperaturen."
-msgstr ""
+msgstr "Eine Zahl ist wichtiger als alle anderen. Behalte die GPU-Temperatur im Blick."
 
 #: crates/rigg-core/src/easter.rs:106
 msgid "Kortet har bursdag én gang i året. Se etter lanseringen på Grafikkort."
-msgstr ""
+msgstr "Die Karte hat einmal im Jahr Geburtstag. Schau nach dem Erscheinungsdatum unter Grafikkarte."
 
 #: crates/rigg-core/src/easter.rs:107
 msgid "Noen detaljer viser seg bare når resten av huset sover."
-msgstr ""
+msgstr "Manche Details zeigen sich erst, wenn der Rest des Hauses schläft."
 
 #: crates/rigg-core/src/easter.rs:108
 msgid "Filteret på Sensorer leter etter mer enn sensorer. Hva drikker du nå?"
-msgstr ""
+msgstr "Der Sensor-Filter sucht nach mehr als nur Sensoren. Was trinkst du gerade?"
 
 #: crates/rigg-core/src/easter.rs:109
 msgid "En viftekurve som står rett på taket, fortjener et navn."
-msgstr ""
+msgstr "Eine Lüfterkurve am Anschlag verdient einen eigenen Namen."
 
 #: crates/rigg-core/src/easter.rs:110
 msgid "Du fant denne. Godt jobbet."
-msgstr ""
+msgstr "Du hast dieses gefunden. Gut gemacht."
 
 #: crates/rigg-core/src/easter.rs:111
 msgid "På Lys finnes det en effekt som ikke står i lista. Den er norsk."
-msgstr ""
+msgstr "Unter RGB-Beleuchtung gibt es einen geheimen Effekt. Er heißt auf Norwegisch „nordlys“."
 
 #: crates/rigg-core/src/easter.rs:150
 msgid "Juksekode godtatt"
-msgstr ""
+msgstr "Cheatcode akzeptiert"
 
 #: crates/rigg-core/src/easter.rs:154
 msgid "+30 liv. Klokkene, effekten og viften er som før – kortet får aldri vite om dette."
-msgstr ""
+msgstr "+30 Leben. Takt, Leistung und Lüfter bleiben unberührt – die Karte erfährt nichts davon."
 
 #: crates/rigg-core/src/easter.rs:163
 msgid "Pff!"
-msgstr ""
+msgstr "Pust!"
 
 #: crates/rigg-core/src/easter.rs:167
 msgid "Støvet er blåst av viften. Bare på ikonet – den ekte viften går som før."
-msgstr ""
+msgstr "Staub vom Lüfter gepustet. Nur beim Symbol – der echte Lüfter dreht normal weiter."
 
 #: crates/rigg-core/src/easter.rs:191
 msgid "Du er allerede utvikler."
-msgstr ""
+msgstr "Du bist bereits Entwickler."
 
 #: crates/rigg-core/src/easter.rs:195
 msgid "Du er nå utvikler. Det var du nok fra før."
-msgstr ""
+msgstr "Du bist jetzt Entwickler. Warst du wohl eh schon."
 
 #: crates/rigg-core/src/easter.rs:196
 msgid "Ett klikk til, så er du utvikler."
-msgstr ""
+msgstr "Noch ein Klick bis zum Entwickler."
 
 #: crates/rigg-core/src/easter.rs:197
 msgid "To klikk til, så er du utvikler."
-msgstr ""
+msgstr "Noch zwei Klicks bis zum Entwickler."
 
 #: crates/rigg-core/src/easter.rs:198
 msgid "Tre klikk til, så er du utvikler."
-msgstr ""
+msgstr "Noch drei Klicks bis zum Entwickler."
 
 #: crates/rigg-core/src/easter.rs:199
 msgid "Fire klikk til, så er du utvikler."
-msgstr ""
+msgstr "Noch vier Klicks bis zum Entwickler."
 
 #: crates/rigg-core/src/easter.rs:200
 msgid "Fem klikk til, så er du utvikler."
-msgstr ""
+msgstr "Noch fünf Klicks bis zum Entwickler."
 
 #: crates/rigg-core/src/easter.rs:201
 msgid "Seks klikk til, så er du utvikler."
-msgstr ""
+msgstr "Noch sechs Klicks bis zum Entwickler."
 
 #: crates/rigg-core/src/easter.rs:215
 msgid "42 °C – svaret på livet, universet og alt. Målingen er ekte; det er bare tallet som er morsomt."
-msgstr ""
+msgstr "42 °C – die Antwort auf das Leben, das Universum und den ganzen Rest. Der Messwert ist echt; nur die Zahl ist witzig."
 
 #: crates/rigg-core/src/easter.rs:229
 msgid "{ar} år i dag"
 msgid_plural "{ar} år i dag"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Heute {ar} Jahr alt"
+msgstr[1] "Heute {ar} Jahre alt"
 
 #: crates/rigg-core/src/easter.rs:230
 msgid "Gratulerer med dagen! GeForce RTX 2080 kom i butikkene 20. september 2018."
-msgstr ""
+msgstr "Alles Gute! Die GeForce RTX 2080 erschien am 20. September 2018."
 
 #: crates/rigg-core/src/easter.rs:243
 msgid "Sent oppe? Skjermkortet er våkent det også."
-msgstr ""
+msgstr "Spät noch wach? Die Grafikkarte auch."
 
 #: crates/rigg-core/src/easter.rs:251
 msgid "Ingen sensor måler kaffe ennå. Det nærmeste er CPU-temperaturen."
-msgstr ""
+msgstr "Noch kein Sensor misst Kaffee. Am nächsten kommt die CPU-Temperatur."
 
 #: crates/rigg-core/src/easter.rs:254
 msgid "Hei! Ingen sensor heter det, men takk for at du spør."
-msgstr ""
+msgstr "Hallo! Kein Sensor heißt so, aber danke der Nachfrage."
 
 #: crates/rigg-core/src/easter.rs:267
 msgid "Jetmotor"
-msgstr ""
+msgstr "Düsentriebwerk"
 
 #: crates/rigg-core/src/easter.rs:267
 msgid "Alle punktene står på 100 %. Naboene hilser."
-msgstr ""
+msgstr "Alle Punkte auf 100 %. Schöne Grüße von den Nachbarn."
 
 #: crates/rigg-core/src/easter.rs:270
 msgid "Bibliotek"
-msgstr ""
+msgstr "Bibliothek"
 
 #: crates/rigg-core/src/easter.rs:270
 msgid "Alle punktene står på 35 %, så lavt kortet tillater. Hysj."
-msgstr ""
+msgstr "Alle Punkte auf 35 %, so leise wie die Karte es zulässt. Pssst."
 
 #: crates/rigg-core/src/easter.rs:278
 msgid "{navn} {versjon} · bygg {bygg}\nHei, nysgjerrige utvikler. Alt her leser bare; ingenting sendes til skjermkortet.\nDet finnes {antall} små overraskelser – agentic-rigg --hint gir et hint."
-msgstr ""
+msgstr "{navn} {versjon} · Build {bygg}\nHallo, neugieriger Entwickler. Hier wird nur gelesen; nichts geht an die Grafikkarte.\nEs gibt {antall} kleine Überraschungen – agentic-rigg --hint gibt einen Tipp."
 
 #: crates/rigg-core/src/easter.rs:291
 msgid "Du har funnet alle {antall}. Fasiten står i docs/paaskeegg.md."
-msgstr ""
+msgstr "Du hast alle {antall} gefunden. Die Auflösung steht in docs/paaskeegg.md."
 
 #: crates/rigg-core/src/easter.rs:294
 msgid "{hint} ({funnet} av {totalt} funnet)"
-msgstr ""
+msgstr "{hint} ({funnet} von {totalt} gefunden)"

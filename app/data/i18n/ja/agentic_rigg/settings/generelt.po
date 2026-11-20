@@ -6,241 +6,242 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg/src/settings/generelt.rs:21
 msgid "Sist brukte side"
-msgstr ""
+msgstr "最後に開いたページ"
 
 #: crates/rigg/src/settings/generelt.rs:23 crates/rigg/src/settings/generelt.rs:55
 msgid "Startside"
-msgstr ""
+msgstr "起動ページ"
 
 #: crates/rigg/src/settings/generelt.rs:36
 msgid "0,5 s"
-msgstr ""
+msgstr "0.5 s"
 
 #: crates/rigg/src/settings/generelt.rs:36 crates/rigg/src/settings/generelt.rs:257
 msgid "1 s"
-msgstr ""
+msgstr "1 s"
 
 #: crates/rigg/src/settings/generelt.rs:36 crates/rigg/src/settings/generelt.rs:257
 msgid "2 s"
-msgstr ""
+msgstr "2 s"
 
 #: crates/rigg/src/settings/generelt.rs:36 crates/rigg/src/settings/generelt.rs:61
 msgid "Oppdateringsintervall"
-msgstr ""
+msgstr "更新間隔"
 
 #: crates/rigg/src/settings/generelt.rs:39
 msgid "Noen få skjulte detaljer rundt om i appen. De endrer aldri tall, innstillinger eller kortet. Du har funnet {funnet} av {totalt}."
-msgstr ""
+msgstr "アプリ内に小さな隠し要素があります。数値・設定・GPU には一切影響しません。{totalt} 個中 {funnet} 個発見。"
 
 #: crates/rigg/src/settings/generelt.rs:45
 msgid "Noen få skjulte detaljer rundt om i appen. De endrer aldri tall, innstillinger eller kortet."
-msgstr ""
+msgstr "アプリ内に小さな隠し要素があります。数値・設定・GPU には一切影響しません。"
 
 #: crates/rigg/src/settings/generelt.rs:53
 msgid "Oppstart"
-msgstr ""
+msgstr "起動"
 
 #: crates/rigg/src/settings/generelt.rs:55
 msgid "Siden som åpnes når appen starter."
-msgstr ""
+msgstr "アプリ起動時に開くページ。"
 
 #: crates/rigg/src/settings/generelt.rs:55
 msgctxt "søkeord"
 msgid "forside start"
-msgstr ""
+msgstr "ホーム 起動 開始ページ"
 
 #: crates/rigg/src/settings/generelt.rs:58
 msgid "Skjermkortdata"
-msgstr ""
+msgstr "GPU データ"
 
 #: crates/rigg/src/settings/generelt.rs:59
 msgctxt "søkeord"
 msgid "gpu data nvml"
-msgstr ""
+msgstr "gpu データ nvml"
 
 #: crates/rigg/src/settings/generelt.rs:62
 msgid "Hvor ofte tallene og grafene får nye verdier mens vinduet er åpent. 0,5 s koster dobbelt så mye CPU som 1 s, og kortet spørres aldri oftere."
-msgstr ""
+msgstr "ウィンドウ表示中の数値とグラフの更新頻度。0.5 s は 1 s の約 2 倍の CPU を使い、GPU への問い合わせはそれ以上速くなりません。"
 
 #: crates/rigg/src/settings/generelt.rs:64
 msgctxt "søkeord"
 msgid "intervall frekvens hastighet takt"
-msgstr ""
+msgstr "間隔 頻度 速度 更新レート"
 
 #: crates/rigg/src/settings/generelt.rs:68
 msgid "Annet"
-msgstr ""
+msgstr "その他"
 
 #: crates/rigg/src/settings/generelt.rs:70
 msgid "Små overraskelser"
-msgstr ""
+msgstr "ちょっとしたお楽しみ"
 
 #: crates/rigg/src/settings/generelt.rs:70
 msgctxt "søkeord"
 msgid "påskeegg egg"
-msgstr ""
+msgstr "イースターエッグ 隠し要素"
 
 #: crates/rigg/src/settings/generelt.rs:84
 msgid "Svarer ikke. Appen prøver igjen av seg selv."
-msgstr ""
+msgstr "応答がありません。アプリが自動で再試行します。"
 
 #: crates/rigg/src/settings/generelt.rs:87 crates/rigg/src/settings/generelt.rs:99 crates/rigg/src/settings/generelt.rs:210 crates/rigg/src/settings/generelt.rs:218
 msgid "Kjører"
-msgstr ""
+msgstr "実行中"
 
 #: crates/rigg/src/settings/generelt.rs:94
 msgid "Kjører siden {tid} ({oppetid})"
-msgstr ""
+msgstr "{tid} から実行中 ({oppetid})"
 
 #: crates/rigg/src/settings/generelt.rs:96
 msgid "Kjører siden {tid}"
-msgstr ""
+msgstr "{tid} から実行中"
 
 #: crates/rigg/src/settings/generelt.rs:106
 msgid "{tall} MB minne"
-msgstr ""
+msgstr "メモリ {tall} MB"
 
 #: crates/rigg/src/settings/generelt.rs:108
 msgid "opptak i bakgrunnen på"
-msgstr ""
+msgstr "バックグラウンド記録オン"
 
 #: crates/rigg/src/settings/generelt.rs:108
 msgid "opptak i bakgrunnen av"
-msgstr ""
+msgstr "バックグラウンド記録オフ"
 
 #: crates/rigg/src/settings/generelt.rs:110
 msgid "logger til fil"
-msgstr ""
+msgstr "ファイルにログ記録中"
 
 #: crates/rigg/src/settings/generelt.rs:117
 msgid "Tjenesten heter agentic-riggd og kjører som systemd --user. Den leser bare, og skriver aldri til kortet. Alt blir på maskinen: ingenting sendes noe sted."
-msgstr ""
+msgstr "サービス名は agentic-riggd で、systemd --user 上で動作します。読み取り専用で GPU には書き込みません。すべてローカルに保存され外部送信されません。"
 
 #: crates/rigg/src/settings/generelt.rs:121
 msgid "Av: ingenting kjører når appen er lukket, og grafene får et hull for den tiden. På: historikken fortsetter til du logger ut, for ca. 21–28 MB og 0,85 % av én kjerne med 2 s‑takt, og ikonet vises i systemfeltet."
-msgstr ""
+msgstr "オフ：ウィンドウを閉じると停止し、グラフに空白ができます。オン：ログアウトまで履歴を記録し（2 s 間隔で約 21–28 MB・1 コアの 0.85 %）、トレイにアイコンを表示します。"
 
 #: crates/rigg/src/settings/generelt.rs:125
 msgid "Tjenesten starter når du logger inn og tar opp historikk før du åpner appen, med ca. 21–28 MB minne. Uten «Fortsett i bakgrunnen» stopper den igjen etter 60 s."
-msgstr ""
+msgstr "ログイン時にサービスを起動し、アプリを開く前から履歴を記録します（メモリ約 21–28 MB）。「バックグラウンドで継続」がオフの場合は 60 s 後に停止します。"
 
 #: crates/rigg/src/settings/generelt.rs:129
 msgid "Hvor ofte kortet og maskinen leses uten vindu: 1,5 % av én kjerne med 1 s, 0,85 % med 2 s og 0,4 % med 5 s. Gjelder når bakgrunnsopptaket er på eller en logg går."
-msgstr ""
+msgstr "ウィンドウ非表示時の取得間隔：1 s で 1 コアの 1.5 %、2 s で 0.85 %、5 s で 0.4 %。バックグラウンド記録またはログ記録中に適用されます。"
 
 #: crates/rigg/src/settings/generelt.rs:135
 msgid "Tjenesten er ikke installert som systemd-enhet, så den kan ikke startes ved innlogging. install.sh legger den inn."
-msgstr ""
+msgstr "サービスが systemd ユニットとして未導入のため、ログイン時起動できません。install.sh で導入できます。"
 
 #: crates/rigg/src/settings/generelt.rs:136
 msgid "systemd --user svarer ikke, så tjenesten kan ikke startes ved innlogging."
-msgstr ""
+msgstr "systemd --user が応答しないため、ログイン時起動を設定できません。"
 
 #: crates/rigg/src/settings/generelt.rs:137
 msgid "systemd sier at enheten er «{tilstand}», så den kan ikke slås av eller på herfra."
-msgstr ""
+msgstr "systemd のユニット状態が「{tilstand}」のため、ここからは切り替えできません。"
 
 #: crates/rigg/src/settings/generelt.rs:145
 msgid "Stopper når vinduet lukkes. Vinduet starter tjenesten igjen neste gang det åpnes."
-msgstr ""
+msgstr "ウィンドウを閉じると停止します。次回ウィンドウを開くとサービスが再起動します。"
 
 #: crates/rigg/src/settings/generelt.rs:148
 msgid "Stopper loggen til fil og opptaket i bakgrunnen. Tjenesten avslutter når vinduet lukkes, og vinduet starter den igjen neste gang det åpnes."
-msgstr ""
+msgstr "ファイルログとバックグラウンド記録を停止します。ウィンドウを閉じるとサービスが終了し、次回起動時に再開します。"
 
 #: crates/rigg/src/settings/generelt.rs:150
 msgid "Stopper opptaket i bakgrunnen. Tjenesten avslutter når vinduet lukkes, og vinduet starter den igjen neste gang det åpnes."
-msgstr ""
+msgstr "バックグラウンド記録を停止します。ウィンドウを閉じるとサービスが終了し、次回起動時に再開します。"
 
 #: crates/rigg/src/settings/generelt.rs:157
 msgid "Stopp nå"
-msgstr ""
+msgstr "今すぐ停止"
 
 #: crates/rigg/src/settings/generelt.rs:160
 msgid "Stopp tjenesten nå"
-msgstr ""
+msgstr "サービスを今すぐ停止"
 
 #: crates/rigg/src/settings/generelt.rs:160
 msgctxt "søkeord"
 msgid "stopp avslutt tjeneste daemon logging opptak"
-msgstr ""
+msgstr "停止 終了 サービス デーモン ログ 記録"
 
 #: crates/rigg/src/settings/generelt.rs:180
 msgid "Loggen og tjenesten stoppes"
-msgstr ""
+msgstr "ログとサービスを停止します"
 
 #: crates/rigg/src/settings/generelt.rs:180
 msgid "Tjenesten stoppes"
-msgstr ""
+msgstr "サービスを停止します"
 
 #: crates/rigg/src/settings/generelt.rs:181
 msgid "Om 5 s. Tjenesten avslutter når vinduet lukkes."
-msgstr ""
+msgstr "5 s 後に実行します。ウィンドウを閉じると終了します。"
 
 #: crates/rigg/src/settings/generelt.rs:182
 msgid "Angre"
-msgstr ""
+msgstr "元に戻す"
 
 #: crates/rigg/src/settings/generelt.rs:210 crates/rigg/src/settings/generelt.rs:218
 msgid "Svarer ikke"
-msgstr ""
+msgstr "応答なし"
 
 #: crates/rigg/src/settings/generelt.rs:211
 msgid "Status"
-msgstr ""
+msgstr "状態"
 
 #: crates/rigg/src/settings/generelt.rs:211
 msgctxt "søkeord"
 msgid "tjeneste status daemon kjører minne pid oppetid"
-msgstr ""
+msgstr "サービス 状態 デーモン 実行中 メモリ pid 稼働時間"
 
 #: crates/rigg/src/settings/generelt.rs:245
 msgid "Fortsett i bakgrunnen"
-msgstr ""
+msgstr "バックグラウンドで継続"
 
 #: crates/rigg/src/settings/generelt.rs:248
 msgctxt "søkeord"
 msgid "bakgrunn lukket opptak historikk systemfelt ikon"
-msgstr ""
+msgstr "バックグラウンド 閉じる 記録 履歴 トレイ アイコン"
 
 #: crates/rigg/src/settings/generelt.rs:257
 msgid "5 s"
-msgstr ""
+msgstr "5 s"
 
 #: crates/rigg/src/settings/generelt.rs:257 crates/rigg/src/settings/generelt.rs:263
 msgid "Takt i bakgrunnen"
-msgstr ""
+msgstr "バックグラウンド間隔"
 
 #: crates/rigg/src/settings/generelt.rs:266
 msgctxt "søkeord"
 msgid "takt intervall bakgrunn"
-msgstr ""
+msgstr "間隔 頻度 バックグラウンド"
 
 #: crates/rigg/src/settings/generelt.rs:306
 msgid "Bakgrunn"
-msgstr ""
+msgstr "バックグラウンド"
 
 #: crates/rigg/src/settings/generelt.rs:307
 msgctxt "søkeord"
 msgid "tjeneste daemon systemd bakgrunn bakgrunnstjeneste"
-msgstr ""
+msgstr "サービス デーモン systemd バックグラウンド"
 
 #: crates/rigg/src/settings/generelt.rs:321
 msgid "Start tjenesten ved innlogging"
-msgstr ""
+msgstr "ログイン時にサービスを起動"
 
 #: crates/rigg/src/settings/generelt.rs:321
 msgctxt "søkeord"
 msgid "innlogging logg inn oppstart autostart systemd enable"
-msgstr ""
+msgstr "ログイン 自動起動 起動 systemd"
 
 #: crates/rigg/src/settings/generelt.rs:330
 msgid "Kunne ikke slå på start ved innlogging"
-msgstr ""
+msgstr "ログイン時起動を有効にできませんでした"
 
 #: crates/rigg/src/settings/generelt.rs:330
 msgid "Kunne ikke slå av start ved innlogging"
-msgstr ""
+msgstr "ログイン時起動を無効にできませんでした"

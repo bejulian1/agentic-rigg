@@ -10,99 +10,99 @@ msgstr ""
 
 #: crates/rigg-core/src/settings.rs:53
 msgid "Oversikt"
-msgstr ""
+msgstr "Panoramica"
 
 #: crates/rigg-core/src/settings.rs:54
 msgid "Sensorer"
-msgstr ""
+msgstr "Sensori"
 
 #: crates/rigg-core/src/settings.rs:55
 msgid "Grafer"
-msgstr ""
+msgstr "Grafici"
 
 #: crates/rigg-core/src/settings.rs:56
 msgid "Grafikkort"
-msgstr ""
+msgstr "Scheda video"
 
 #: crates/rigg-core/src/settings.rs:57
 msgid "Prosessor"
-msgstr ""
+msgstr "Processore"
 
 #: crates/rigg-core/src/settings.rs:58
 msgid "Disker"
-msgstr ""
+msgstr "Dischi"
 
 #: crates/rigg-core/src/settings.rs:59
 msgid "System"
-msgstr ""
+msgstr "Sistema"
 
 #: crates/rigg-core/src/settings.rs:60
 msgid "Skjermkort › Klokker og effekt"
-msgstr ""
+msgstr "GPU › Clock e potenza"
 
 #: crates/rigg-core/src/settings.rs:61
 msgid "Skjermkort › Vifter"
-msgstr ""
+msgstr "GPU › Ventole"
 
 #: crates/rigg-core/src/settings.rs:62
 msgid "Skjermkort › RGB-lys"
-msgstr ""
+msgstr "GPU › Luci RGB"
 
 #: crates/rigg-core/src/settings.rs:63
 msgid "Oppgaver"
-msgstr ""
+msgstr "Processi"
 
 #: crates/rigg-core/src/settings.rs:115
 msgid "thresholds må være et objekt"
-msgstr ""
+msgstr "thresholds deve essere un oggetto"
 
 #: crates/rigg-core/src/settings.rs:119
 msgid "{felt} må være et tall"
-msgstr ""
+msgstr "{felt} deve essere un numero"
 
 #: crates/rigg-core/src/settings.rs:123
 msgid "Rød grense for GPU-temperatur må være over gul"
-msgstr ""
+msgstr "La soglia rossa di temperatura GPU deve superare quella gialla"
 
 #: crates/rigg-core/src/settings.rs:126
 msgid "Rød grense for CPU-temperatur må være over gul"
-msgstr ""
+msgstr "La soglia rossa di temperatura CPU deve superare quella gialla"
 
 #: crates/rigg-core/src/settings.rs:280
 msgid "{felt} må være true/false"
-msgstr ""
+msgstr "{felt} deve essere true/false"
 
 #: crates/rigg-core/src/settings.rs:284
 msgid "{felt} må være en liste"
-msgstr ""
+msgstr "{felt} deve essere un elenco"
 
 #: crates/rigg-core/src/settings.rs:293
 msgid "Ukjent verdi i {felt}: {verdi}"
-msgstr ""
+msgstr "Valore sconosciuto in {felt}: {verdi}"
 
 #: crates/rigg-core/src/settings.rs:300
 msgid "{felt} må ha {min}–{max} valg"
-msgstr ""
+msgstr "{felt} deve avere {min}–{max} elementi"
 
 #: crates/rigg-core/src/settings.rs:329
 msgid "statusItems må være en liste"
-msgstr ""
+msgstr "statusItems deve essere un elenco"
 
 #: crates/rigg-core/src/settings.rs:334
 msgid "Ukjent verdi i statusItems: {verdi}"
-msgstr ""
+msgstr "Valore sconosciuto in statusItems: {verdi}"
 
 #: crates/rigg-core/src/settings.rs:341
 msgid "Statusblokken kan ha høyst {maks} verdier"
-msgstr ""
+msgstr "Il blocco di stato può contenere al massimo {maks} valori"
 
 #: crates/rigg-core/src/settings.rs:349
 msgid "{felt} er ugyldig"
-msgstr ""
+msgstr "{felt} non è valido"
 
 #: crates/rigg-core/src/settings.rs:356 crates/rigg-core/src/settings.rs:581 crates/rigg-core/src/settings.rs:690
 msgid "Forventet et JSON-objekt"
-msgstr ""
+msgstr "Atteso un oggetto JSON"
 
 #: crates/rigg-core/src/settings.rs:362
 msgid "Ukjent språkvalg"
@@ -110,148 +110,148 @@ msgstr "Lingua selezionata sconosciuta"
 
 #: crates/rigg-core/src/settings.rs:364
 msgid "Ugyldig intervall"
-msgstr ""
+msgstr "Intervallo non valido"
 
 #: crates/rigg-core/src/settings.rs:365
 msgid "Enhet må være C eller F"
-msgstr ""
+msgstr "L’unità deve essere C o F"
 
 #: crates/rigg-core/src/settings.rs:366
 msgid "Tema må være system, light eller dark"
-msgstr ""
+msgstr "Il tema deve essere system, light o dark"
 
 #: crates/rigg-core/src/settings.rs:368
 msgid "Ukjent aksentfarge"
-msgstr ""
+msgstr "Colore d’accento sconosciuto"
 
 #: crates/rigg-core/src/settings.rs:370
 msgid "Ukjent fargetema"
-msgstr ""
+msgstr "Tema colori sconosciuto"
 
 #: crates/rigg-core/src/settings.rs:372
 msgid "Ukjent tetthet"
-msgstr ""
+msgstr "Densità sconosciuta"
 
 #: crates/rigg-core/src/settings.rs:373
 msgid "Ugyldig skriftstørrelse"
-msgstr ""
+msgstr "Dimensione testo non valida"
 
 #: crates/rigg-core/src/settings.rs:374
 msgid "Animasjoner må være system, full, reduced eller off"
-msgstr ""
+msgstr "Le animazioni devono essere system, full, reduced o off"
 
 #: crates/rigg-core/src/settings.rs:378
 msgid "Ukjent startside"
-msgstr ""
+msgstr "Pagina iniziale sconosciuta"
 
 #: crates/rigg-core/src/settings.rs:390 crates/rigg-core/src/settings.rs:395
 msgid "Tidsvindu må være en av {verdier} s"
-msgstr ""
+msgstr "L’intervallo di tempo deve essere uno di {verdier} s"
 
 #: crates/rigg-core/src/settings.rs:394
 msgid "windows må være et objekt"
-msgstr ""
+msgstr "windows deve essere un oggetto"
 
 #: crates/rigg-core/src/settings.rs:402
 msgid "Ukjent side i windows: {side}"
-msgstr ""
+msgstr "Pagina sconosciuta in windows: {side}"
 
 #: crates/rigg-core/src/settings.rs:407
 msgid "chartScale må være auto eller fixed"
-msgstr ""
+msgstr "chartScale deve essere auto o fixed"
 
 #: crates/rigg-core/src/settings.rs:412
 msgid "Desimaler må være auto, 0 eller 1"
-msgstr ""
+msgstr "I decimali devono essere auto, 0 o 1"
 
 #: crates/rigg-core/src/settings.rs:413
 msgid "memUnit må være bin eller dec"
-msgstr ""
+msgstr "memUnit deve essere bin o dec"
 
 #: crates/rigg-core/src/settings.rs:414
 msgid "netUnit må være byte eller bit"
-msgstr ""
+msgstr "netUnit deve essere byte o bit"
 
 #: crates/rigg-core/src/settings.rs:415
 msgid "Klokke må være system, 24 eller 12"
-msgstr ""
+msgstr "L’orologio deve essere system, 24 o 12"
 
 #: crates/rigg-core/src/settings.rs:418
 msgid "Fristen må være {verdier} s"
-msgstr ""
+msgstr "Il termine deve essere {verdier} s"
 
 #: crates/rigg-core/src/settings.rs:422
 msgid "lys3d må være auto, 3d eller 2d"
-msgstr ""
+msgstr "lys3d deve essere auto, 3d o 2d"
 
 #: crates/rigg-core/src/settings.rs:425
 msgid "Ukjent del av Innstillinger"
-msgstr ""
+msgstr "Sezione delle Impostazioni sconosciuta"
 
 #: crates/rigg-core/src/settings.rs:428
 msgid "Ukjent side"
-msgstr ""
+msgstr "Pagina sconosciuta"
 
 #: crates/rigg-core/src/settings.rs:431
 msgid "window må være et objekt"
-msgstr ""
+msgstr "window deve essere un oggetto"
 
 #: crates/rigg-core/src/settings.rs:451
 msgid "gpuMakers må være et objekt"
-msgstr ""
+msgstr "gpuMakers deve essere un oggetto"
 
 #: crates/rigg-core/src/settings.rs:453
 msgid "Høyst 16 kort i gpuMakers"
-msgstr ""
+msgstr "Al massimo 16 schede in gpuMakers"
 
 #: crates/rigg-core/src/settings.rs:457
 msgid "Produsenten må være tekst"
-msgstr ""
+msgstr "Il produttore deve essere testo"
 
 #: crates/rigg-core/src/settings.rs:460
 msgid "Ugyldig kort i gpuMakers"
-msgstr ""
+msgstr "Scheda non valida in gpuMakers"
 
 #: crates/rigg-core/src/settings.rs:463
 msgid "Produsenten kan ha høyst 40 tegn"
-msgstr ""
+msgstr "Il produttore può avere al massimo 40 caratteri"
 
 #: crates/rigg-core/src/settings.rs:586
 msgid "Takten i bakgrunnen må være 1, 2 eller 5 s"
-msgstr ""
+msgstr "La frequenza in background deve essere 1, 2 o 5 s"
 
 #: crates/rigg-core/src/settings.rs:589
 msgid "Fristen må være 10, 15, 30 eller 60 s"
-msgstr ""
+msgstr "Il termine deve essere 10, 15, 30 o 60 s"
 
 #: crates/rigg-core/src/settings.rs:591
 msgid "log må være et objekt"
-msgstr ""
+msgstr "log deve essere un oggetto"
 
 #: crates/rigg-core/src/settings.rs:596
 msgid "log.keys må være en liste"
-msgstr ""
+msgstr "log.keys deve essere un elenco"
 
 #: crates/rigg-core/src/settings.rs:602
 msgid "Ukjent sensor i log.keys"
-msgstr ""
+msgstr "Sensore sconosciuto in log.keys"
 
 #: crates/rigg-core/src/settings.rs:607
 msgid "Loggintervallet må være 0,5, 1, 2, 5 eller 10 s"
-msgstr ""
+msgstr "L’intervallo di registro deve essere 0,5, 1, 2, 5 o 10 s"
 
 #: crates/rigg-core/src/settings.rs:612
 msgid "Loggmappa må være en full sti"
-msgstr ""
+msgstr "La cartella del registro deve essere un percorso completo"
 
 #: crates/rigg-core/src/settings.rs:615
 msgid "Formatet må være standard eller norsk"
-msgstr ""
+msgstr "Il formato deve essere standard o norsk"
 
 #: crates/rigg-core/src/settings.rs:621
 msgid "alarms må være et objekt"
-msgstr ""
+msgstr "alarms deve essere un oggetto"
 
 #: crates/rigg-core/src/settings.rs:686
 msgid "Fila har ingen innstillinger"
-msgstr ""
+msgstr "Il file non contiene impostazioni"

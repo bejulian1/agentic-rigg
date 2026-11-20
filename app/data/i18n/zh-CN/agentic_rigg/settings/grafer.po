@@ -6,185 +6,186 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg/src/settings/grafer.rs:22 crates/rigg/src/settings/grafer.rs:26 crates/rigg/src/settings/grafer.rs:82
 msgid "Tidsvindu på Grafer"
-msgstr ""
+msgstr "图表时间范围"
 
 #: crates/rigg/src/settings/grafer.rs:34
 msgid "Tilpass"
-msgstr ""
+msgstr "自动"
 
 #: crates/rigg/src/settings/grafer.rs:34
 msgid "Fast"
-msgstr ""
+msgstr "固定"
 
 #: crates/rigg/src/settings/grafer.rs:34 crates/rigg/src/settings/grafer.rs:97
 msgid "Y-akse"
-msgstr ""
+msgstr "Y 轴"
 
 #: crates/rigg/src/settings/grafer.rs:61
 msgid "Minst én graf må vises"
-msgstr ""
+msgstr "至少必须显示一个图表"
 
 #: crates/rigg/src/settings/grafer.rs:75
 msgid "Grafer"
-msgstr ""
+msgstr "图表"
 
 #: crates/rigg/src/settings/grafer.rs:77
 msgid "Tjenesten tar vare på 48 timer med historikk, også over en omstart. Med «Fortsett i bakgrunnen» av (Generelt) blir det hull i grafene der appen var lukket."
-msgstr ""
+msgstr "服务保留 48 小时历史记录，重启后依然保留。若在「常规」中关闭「在后台继续运行」，窗口关闭期间图表将出现空白。"
 
 #: crates/rigg/src/settings/grafer.rs:83
 msgid "Hvor langt tilbake siden Grafer viser. Oversikt og Sensorer har eget valg ved grafene."
-msgstr ""
+msgstr "「图表」页面显示的时间跨度。「概览」和「传感器」有各自独立的切换。"
 
 #: crates/rigg/src/settings/grafer.rs:85
 msgctxt "søkeord"
 msgid "historikk minutter timer"
-msgstr ""
+msgstr "历史 分钟 小时 时间范围"
 
 #: crates/rigg/src/settings/grafer.rs:88
 msgid "Markør på alle grafene"
-msgstr ""
+msgstr "所有图表同步准星"
 
 #: crates/rigg/src/settings/grafer.rs:89
 msgid "Når du holder over én graf, vises tidspunktet på de andre også. Av: bare på grafen du holder over."
-msgstr ""
+msgstr "悬停在一个图表上时，其他图表同步显示同一时间点。关闭则仅显示当前图表。"
 
 #: crates/rigg/src/settings/grafer.rs:91
 msgctxt "søkeord"
 msgid "synkron tidspunkt sikte"
-msgstr ""
+msgstr "同步 准星 时间点"
 
 #: crates/rigg/src/settings/grafer.rs:98
 msgid "Tilpass følger dataene i vinduet. Fast beholder normalområdet, men begge utvider aksen når verdiene går utenfor. Last og minne i prosent har skala 0–100; vifter kan gå over 100 %."
-msgstr ""
+msgstr "自动模式贴合当前数据。固定模式保持常规刻度，超出时两者都会自动扩展。负载和内存百分比固定为 0–100；风扇可超过 100 %。"
 
 #: crates/rigg/src/settings/grafer.rs:100
 msgctxt "søkeord"
 msgid "skala akse adaptiv temperatur klokke"
-msgstr ""
+msgstr "刻度 坐标轴 自适应 温度 频率"
 
 #: crates/rigg/src/settings/grafer.rs:103
 msgid "Fylt flate"
-msgstr ""
+msgstr "面积填充"
 
 #: crates/rigg/src/settings/grafer.rs:104
 msgid "Svak farge under linja. Lange vinduer viser i stedet et bånd fra minste til største verdi."
-msgstr ""
+msgstr "在曲线下方显示柔和填充。较长时间范围会改为显示最小–最大区间带。"
 
 #: crates/rigg/src/settings/grafer.rs:106
 msgctxt "søkeord"
 msgid "fyll"
-msgstr ""
+msgstr "填充 面积"
 
 #: crates/rigg/src/settings/grafer.rs:114
 msgid "Grafer som vises"
-msgstr ""
+msgstr "显示的图表"
 
 #: crates/rigg/src/settings/grafer.rs:116
 msgid "På siden Grafer. Kan også velges i toppfeltet der."
-msgstr ""
+msgstr "用于「图表」页面，也可在其顶部栏中直接选择。"
 
 #: crates/rigg/src/settings/grafer.rs:117
 msgctxt "søkeord"
 msgid "velg skjul"
-msgstr ""
+msgstr "选择 隐藏 显示"
 
 #: crates/rigg/src/settings/grafer.rs:124
 msgid "Sensorer"
-msgstr ""
+msgstr "传感器"
 
 #: crates/rigg/src/settings/grafer.rs:128
 msgid "Sparklinjer"
-msgstr ""
+msgstr "迷你趋势图"
 
 #: crates/rigg/src/settings/grafer.rs:129
 msgid "Liten graf for siste 60 sekunder ved hver sensor."
-msgstr ""
+msgstr "在每个传感器旁显示最近 60 秒的迷你图。"
 
 #: crates/rigg/src/settings/grafer.rs:131
 msgctxt "søkeord"
 msgid "graf"
-msgstr ""
+msgstr "图表 趋势图"
 
 #: crates/rigg/src/settings/grafer.rs:137
 msgid "Husk min og maks mellom økter"
-msgstr ""
+msgstr "跨会话保留最小值和最大值"
 
 #: crates/rigg/src/settings/grafer.rs:138
 msgid "Tjenesten tar vare på min og maks, også når appen er lukket. Nullstilles bare når du trykker ↺ på Sensorer. Snitt gjelder siden tjenesten startet."
-msgstr ""
+msgstr "即使关闭应用，服务仍会保留最小/最大值；仅在「传感器」页点击 ↺ 时清零。平均值自服务启动起计算。"
 
 #: crates/rigg/src/settings/grafer.rs:140
 msgctxt "søkeord"
 msgid "minimum maksimum"
-msgstr ""
+msgstr "最小 最大 min max"
 
 #: crates/rigg/src/settings/grafer.rs:179
 msgid "Last har bare gul grense"
-msgstr ""
+msgstr "负载仅支持黄色阈值"
 
 #: crates/rigg/src/settings/grafer.rs:187
 msgid "Gul"
-msgstr ""
+msgstr "黄色"
 
 #: crates/rigg/src/settings/grafer.rs:187
 msgid "Rød"
-msgstr ""
+msgstr "红色"
 
 #: crates/rigg/src/settings/grafer.rs:203
 msgid "Varselfarger"
-msgstr ""
+msgstr "警告颜色"
 
 #: crates/rigg/src/settings/grafer.rs:205
 msgid "Verdien blir gul eller rød over grensen: i sidefeltet, på Oversikt, i Nå-kolonnen på Sensorer og i stolpene."
-msgstr ""
+msgstr "超过阈值后数值会变为黄色或红色：应用于侧边栏、概览、传感器「当前」列及进度条。"
 
 #: crates/rigg/src/settings/grafer.rs:207
 msgctxt "søkeord"
 msgid "grense terskel advarsel gul rød"
-msgstr ""
+msgstr "阈值 警告 黄色 红色"
 
 #: crates/rigg/src/settings/grafer.rs:212
 msgid "GPU-temperatur"
-msgstr ""
+msgstr "GPU 温度"
 
 #: crates/rigg/src/settings/grafer.rs:212
 msgid "GPU-temperatur, gul grense"
-msgstr ""
+msgstr "GPU 温度，黄色阈值"
 
 #: crates/rigg/src/settings/grafer.rs:212
 msgid "GPU-temperatur, rød grense"
-msgstr ""
+msgstr "GPU 温度，红色阈值"
 
 #: crates/rigg/src/settings/grafer.rs:213
 msgid "CPU-temperatur"
-msgstr ""
+msgstr "CPU 温度"
 
 #: crates/rigg/src/settings/grafer.rs:213
 msgid "CPU-temperatur, gul grense"
-msgstr ""
+msgstr "CPU 温度，黄色阈值"
 
 #: crates/rigg/src/settings/grafer.rs:213
 msgid "CPU-temperatur, rød grense"
-msgstr ""
+msgstr "CPU 温度，红色阈值"
 
 #: crates/rigg/src/settings/grafer.rs:213
 msgctxt "søkeord"
 msgid "cpu prosessor"
-msgstr ""
+msgstr "cpu 处理器"
 
 #: crates/rigg/src/settings/grafer.rs:214
 msgid "Last (GPU og CPU)"
-msgstr ""
+msgstr "负载（GPU 和 CPU）"
 
 #: crates/rigg/src/settings/grafer.rs:214
 msgid "Last, gul grense"
-msgstr ""
+msgstr "负载，黄色阈值"
 
 #: crates/rigg/src/settings/grafer.rs:214
 msgctxt "søkeord"
 msgid "last"
-msgstr ""
+msgstr "负载 占用"

@@ -6,172 +6,173 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n == 1 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : 2);\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg/src/settings/sidefelt.rs:31
 msgid "Verdier i statusblokken, i rekkefølge"
-msgstr ""
+msgstr "Wartości w bloku stanu, po kolei"
 
 #: crates/rigg/src/settings/sidefelt.rs:36
 msgid "Statusblokken er tom"
-msgstr ""
+msgstr "Blok stanu jest pusty"
 
 #: crates/rigg/src/settings/sidefelt.rs:37
 msgid "Legg til verdier her, eller fest sensorer med nålen på Sensorer."
-msgstr ""
+msgstr "Dodaj wartości tutaj lub przypnij czujniki na stronie Czujniki."
 
 #: crates/rigg/src/settings/sidefelt.rs:54
 msgid "{nr} av {totalt}: {navn}. Alt+pil opp eller ned flytter."
-msgstr ""
+msgstr "{nr} z {totalt}: {navn}. Alt+strzałka w górę lub w dół przesuwa."
 
 #: crates/rigg/src/settings/sidefelt.rs:59
 msgid "Skjermkort"
-msgstr ""
+msgstr "GPU"
 
 #: crates/rigg/src/settings/sidefelt.rs:60
 msgid "Prosessor"
-msgstr ""
+msgstr "Procesor"
 
 #: crates/rigg/src/settings/sidefelt.rs:61
 msgid "Minne"
-msgstr ""
+msgstr "Pamięć"
 
 #: crates/rigg/src/settings/sidefelt.rs:62
 msgid "Nett (alle kort)"
-msgstr ""
+msgstr "Sieć (wszystkie karty)"
 
 #: crates/rigg/src/settings/sidefelt.rs:63
 msgid "Disker"
-msgstr ""
+msgstr "Dyski"
 
 #: crates/rigg/src/settings/sidefelt.rs:64
 msgid "Andre sensorer"
-msgstr ""
+msgstr "Inne czujniki"
 
 #: crates/rigg/src/settings/sidefelt.rs:66
 msgid "{kilde} · i sidefeltet: {etikett}"
-msgstr ""
+msgstr "{kilde} · w pasku bocznym: {etikett}"
 
 #: crates/rigg/src/settings/sidefelt.rs:71
 msgid "Fjern fra statusblokken"
-msgstr ""
+msgstr "Usuń z bloku stanu"
 
 #: crates/rigg/src/settings/sidefelt.rs:72
 msgid "Fjern {navn}"
-msgstr ""
+msgstr "Usuń {navn}"
 
 #: crates/rigg/src/settings/sidefelt.rs:136
 msgid "Legg til verdi …"
-msgstr ""
+msgstr "Dodaj wartość…"
 
 #: crates/rigg/src/settings/sidefelt.rs:140
 msgid "Statusblokken er full ({antall} av {maks}). Fjern en verdi først."
-msgstr ""
+msgstr "Blok stanu jest pełny ({antall} z {maks}). Najpierw usuń wartość."
 
 #: crates/rigg/src/settings/sidefelt.rs:149
 msgid "{antall} av {maks}"
-msgstr ""
+msgstr "{antall} z {maks}"
 
 #: crates/rigg/src/settings/sidefelt.rs:151
 msgid "Statusblokken"
-msgstr ""
+msgstr "Blok stanu"
 
 #: crates/rigg/src/settings/sidefelt.rs:153
 msgid "Verdiene nederst i sidefeltet, i denne rekkefølgen. Velg en rad og bruk Alt+↑/↓ for å flytte. Fest flere fra Sensorer med nålen."
-msgstr ""
+msgstr "Wartości na dole paska bocznego w tej kolejności. Zaznacz wiersz i użyj Alt+↑/↓, aby przesunąć. Przypnij więcej z Czujników."
 
 #: crates/rigg/src/settings/sidefelt.rs:156
 msgctxt "søkeord"
 msgid "status nederst rekkefølge fest sensor verdier"
-msgstr ""
+msgstr "stan dół kolejność przypnij czujnik wartości"
 
 #: crates/rigg/src/settings/sidefelt.rs:170
 msgid "Søk etter verdi"
-msgstr ""
+msgstr "Szukaj wartości"
 
 #: crates/rigg/src/settings/sidefelt.rs:186
 msgid "Faste verdier"
-msgstr ""
+msgstr "Wartości wbudowane"
 
 #: crates/rigg/src/settings/sidefelt.rs:203
 msgid "Lagt til"
-msgstr ""
+msgstr "Dodano"
 
 #: crates/rigg/src/settings/sidefelt.rs:219
 msgid "Ingen verdi heter «{sok}»"
-msgstr ""
+msgstr "Brak wartości pasującej do «{sok}»"
 
 #: crates/rigg/src/settings/sidefelt.rs:235
 msgid "Full"
-msgstr ""
+msgstr "Pełny"
 
 #: crates/rigg/src/settings/sidefelt.rs:235
 msgid "Ikonlist"
-msgstr ""
+msgstr "Pasek ikon"
 
 #: crates/rigg/src/settings/sidefelt.rs:235
 msgid "Bredde på sidefeltet"
-msgstr ""
+msgstr "Szerokość paska bocznego"
 
 #: crates/rigg/src/settings/sidefelt.rs:244
 msgid "Vinduet er smalt, så sidefeltet er en ikonlist nå. Valget gjelder i bredere vinduer."
-msgstr ""
+msgstr "Okno jest wąskie, więc pasek boczny zwinięto do ikon. Ustawienie zadziała w szerszych oknach."
 
 #: crates/rigg/src/settings/sidefelt.rs:246
 msgid "Ikonlista viser bare ikoner og korte tall. Også Ctrl+B og knappen nederst i sidefeltet."
-msgstr ""
+msgstr "Pokazuje tylko ikony i krótkie wartości. Także Ctrl+B i przycisk na dole paska."
 
 #: crates/rigg/src/settings/sidefelt.rs:264
 msgid "Minst én side må vises"
-msgstr ""
+msgstr "Co najmniej jedna strona musi być widoczna"
 
 #: crates/rigg/src/settings/sidefelt.rs:279
 msgid "Visning"
-msgstr ""
+msgstr "Wyświetlanie"
 
 #: crates/rigg/src/settings/sidefelt.rs:282
 msgid "Bredde"
-msgstr ""
+msgstr "Szerokość"
 
 #: crates/rigg/src/settings/sidefelt.rs:282
 msgctxt "søkeord"
 msgid "ikonlist legg sammen utvid smal"
-msgstr ""
+msgstr "ikony zwiń rozwiń wąski szerokość"
 
 #: crates/rigg/src/settings/sidefelt.rs:283
 msgid "Sparklinjer"
-msgstr ""
+msgstr "Miniwykresy"
 
 #: crates/rigg/src/settings/sidefelt.rs:283
 msgid "Liten graf for siste minutt ved hver verdi i statusblokken."
-msgstr ""
+msgstr "Mały wykres z ostatniej minuty przy każdej wartości."
 
 #: crates/rigg/src/settings/sidefelt.rs:283
 msgctxt "søkeord"
 msgid "statusblokk graf"
-msgstr ""
+msgstr "blok stanu wykres miniwykres"
 
 #: crates/rigg/src/settings/sidefelt.rs:289
 msgid "Sider"
-msgstr ""
+msgstr "Strony"
 
 #: crates/rigg/src/settings/sidefelt.rs:290
 msgid "Sidene i sidefeltet. Skjulte sider kan fortsatt åpnes med hurtigtasten."
-msgstr ""
+msgstr "Strony w pasku bocznym. Ukryte strony nadal można otworzyć skrótem."
 
 #: crates/rigg/src/settings/sidefelt.rs:290
 msgctxt "søkeord"
 msgid "skjul vis navigasjon"
-msgstr ""
+msgstr "ukryj pokaż nawigacja strony"
 
 #: crates/rigg/src/settings/sidefelt.rs:293
 msgid "Vis hurtigtaster"
-msgstr ""
+msgstr "Pokaż skróty cyfrowe"
 
 #: crates/rigg/src/settings/sidefelt.rs:293
 msgid "Tallene 1–8 ved sidene. Ellers står de i verktøytipset og under Tastatursnarveier."
-msgstr ""
+msgstr "Cyfry 1–8 przy stronach. W przeciwnym razie w podpowiedziach i Skrótach klawiszowych."
 
 #: crates/rigg/src/settings/sidefelt.rs:293
 msgctxt "søkeord"
 msgid "taster tall snarvei"
-msgstr ""
+msgstr "klawisze cyfry skróty"

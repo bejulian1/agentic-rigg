@@ -6,185 +6,186 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n == 1 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : 2);\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg/src/settings/grafer.rs:22 crates/rigg/src/settings/grafer.rs:26 crates/rigg/src/settings/grafer.rs:82
 msgid "Tidsvindu på Grafer"
-msgstr ""
+msgstr "Zakres czasu na Wykresach"
 
 #: crates/rigg/src/settings/grafer.rs:34
 msgid "Tilpass"
-msgstr ""
+msgstr "Auto"
 
 #: crates/rigg/src/settings/grafer.rs:34
 msgid "Fast"
-msgstr ""
+msgstr "Stała"
 
 #: crates/rigg/src/settings/grafer.rs:34 crates/rigg/src/settings/grafer.rs:97
 msgid "Y-akse"
-msgstr ""
+msgstr "Oś Y"
 
 #: crates/rigg/src/settings/grafer.rs:61
 msgid "Minst én graf må vises"
-msgstr ""
+msgstr "Co najmniej jeden wykres musi być widoczny"
 
 #: crates/rigg/src/settings/grafer.rs:75
 msgid "Grafer"
-msgstr ""
+msgstr "Wykresy"
 
 #: crates/rigg/src/settings/grafer.rs:77
 msgid "Tjenesten tar vare på 48 timer med historikk, også over en omstart. Med «Fortsett i bakgrunnen» av (Generelt) blir det hull i grafene der appen var lukket."
-msgstr ""
+msgstr "Usługa przechowuje 48 godzin historii, także po restarcie. Gdy opcja «Działaj w tle» (Ogólne) jest wyłączona, na wykresach powstaną przerwy."
 
 #: crates/rigg/src/settings/grafer.rs:83
 msgid "Hvor langt tilbake siden Grafer viser. Oversikt og Sensorer har eget valg ved grafene."
-msgstr ""
+msgstr "Jak daleko wstecz sięgają Wykresy. Przegląd i Czujniki mają własne przełączniki."
 
 #: crates/rigg/src/settings/grafer.rs:85
 msgctxt "søkeord"
 msgid "historikk minutter timer"
-msgstr ""
+msgstr "historia minuty godziny zakres"
 
 #: crates/rigg/src/settings/grafer.rs:88
 msgid "Markør på alle grafene"
-msgstr ""
+msgstr "Zsynchronizowany kursor"
 
 #: crates/rigg/src/settings/grafer.rs:89
 msgid "Når du holder over én graf, vises tidspunktet på de andre også. Av: bare på grafen du holder over."
-msgstr ""
+msgstr "Najechanie na jeden wykres pokazuje czas także na pozostałych. Wył.: tylko na wskazanym wykresie."
 
 #: crates/rigg/src/settings/grafer.rs:91
 msgctxt "søkeord"
 msgid "synkron tidspunkt sikte"
-msgstr ""
+msgstr "synchronizacja kursor czas celownik"
 
 #: crates/rigg/src/settings/grafer.rs:98
 msgid "Tilpass følger dataene i vinduet. Fast beholder normalområdet, men begge utvider aksen når verdiene går utenfor. Last og minne i prosent har skala 0–100; vifter kan gå over 100 %."
-msgstr ""
+msgstr "Auto dopasowuje się do widocznych danych. Stała zachowuje typowy zakres, ale obie rozszerzają się przy przekroczeniu. Obciążenie i pamięć w % mają skalę 0–100; wentylatory mogą przekroczyć 100 %."
 
 #: crates/rigg/src/settings/grafer.rs:100
 msgctxt "søkeord"
 msgid "skala akse adaptiv temperatur klokke"
-msgstr ""
+msgstr "skala oś adaptacyjna temperatura taktowanie"
 
 #: crates/rigg/src/settings/grafer.rs:103
 msgid "Fylt flate"
-msgstr ""
+msgstr "Wypełnienie pod linią"
 
 #: crates/rigg/src/settings/grafer.rs:104
 msgid "Svak farge under linja. Lange vinduer viser i stedet et bånd fra minste til største verdi."
-msgstr ""
+msgstr "Delikatny kolor pod krzywą. Długie zakresy pokazują pasmo min–maks."
 
 #: crates/rigg/src/settings/grafer.rs:106
 msgctxt "søkeord"
 msgid "fyll"
-msgstr ""
+msgstr "wypełnienie obszar"
 
 #: crates/rigg/src/settings/grafer.rs:114
 msgid "Grafer som vises"
-msgstr ""
+msgstr "Widoczne wykresy"
 
 #: crates/rigg/src/settings/grafer.rs:116
 msgid "På siden Grafer. Kan også velges i toppfeltet der."
-msgstr ""
+msgstr "Na stronie Wykresy. Można też wybrać na górnym pasku."
 
 #: crates/rigg/src/settings/grafer.rs:117
 msgctxt "søkeord"
 msgid "velg skjul"
-msgstr ""
+msgstr "wybierz ukryj zaznacz"
 
 #: crates/rigg/src/settings/grafer.rs:124
 msgid "Sensorer"
-msgstr ""
+msgstr "Czujniki"
 
 #: crates/rigg/src/settings/grafer.rs:128
 msgid "Sparklinjer"
-msgstr ""
+msgstr "Miniwykresy"
 
 #: crates/rigg/src/settings/grafer.rs:129
 msgid "Liten graf for siste 60 sekunder ved hver sensor."
-msgstr ""
+msgstr "Mały wykres z ostatnich 60 sekund przy każdym czujniku."
 
 #: crates/rigg/src/settings/grafer.rs:131
 msgctxt "søkeord"
 msgid "graf"
-msgstr ""
+msgstr "wykres miniwykres"
 
 #: crates/rigg/src/settings/grafer.rs:137
 msgid "Husk min og maks mellom økter"
-msgstr ""
+msgstr "Zachowuj min i maks między sesjami"
 
 #: crates/rigg/src/settings/grafer.rs:138
 msgid "Tjenesten tar vare på min og maks, også når appen er lukket. Nullstilles bare når du trykker ↺ på Sensorer. Snitt gjelder siden tjenesten startet."
-msgstr ""
+msgstr "Usługa zachowuje min i maks także po zamknięciu aplikacji. Zerowanie tylko przyciskiem ↺ na Czujnikach. Średnia obejmuje czas od startu usługi."
 
 #: crates/rigg/src/settings/grafer.rs:140
 msgctxt "søkeord"
 msgid "minimum maksimum"
-msgstr ""
+msgstr "minimum maksimum min maks"
 
 #: crates/rigg/src/settings/grafer.rs:179
 msgid "Last har bare gul grense"
-msgstr ""
+msgstr "Obciążenie ma tylko żółty próg"
 
 #: crates/rigg/src/settings/grafer.rs:187
 msgid "Gul"
-msgstr ""
+msgstr "Żółty"
 
 #: crates/rigg/src/settings/grafer.rs:187
 msgid "Rød"
-msgstr ""
+msgstr "Czerwony"
 
 #: crates/rigg/src/settings/grafer.rs:203
 msgid "Varselfarger"
-msgstr ""
+msgstr "Kolory ostrzeżeń"
 
 #: crates/rigg/src/settings/grafer.rs:205
 msgid "Verdien blir gul eller rød over grensen: i sidefeltet, på Oversikt, i Nå-kolonnen på Sensorer og i stolpene."
-msgstr ""
+msgstr "Wartość zmienia kolor na żółty lub czerwony po przekroczeniu progu: w pasku bocznym, Przeglądzie, kolumnie Teraz na Czujnikach i na paskach."
 
 #: crates/rigg/src/settings/grafer.rs:207
 msgctxt "søkeord"
 msgid "grense terskel advarsel gul rød"
-msgstr ""
+msgstr "próg limit ostrzeżenie żółty czerwony"
 
 #: crates/rigg/src/settings/grafer.rs:212
 msgid "GPU-temperatur"
-msgstr ""
+msgstr "Temperatura GPU"
 
 #: crates/rigg/src/settings/grafer.rs:212
 msgid "GPU-temperatur, gul grense"
-msgstr ""
+msgstr "Temperatura GPU, próg żółty"
 
 #: crates/rigg/src/settings/grafer.rs:212
 msgid "GPU-temperatur, rød grense"
-msgstr ""
+msgstr "Temperatura GPU, próg czerwony"
 
 #: crates/rigg/src/settings/grafer.rs:213
 msgid "CPU-temperatur"
-msgstr ""
+msgstr "Temperatura CPU"
 
 #: crates/rigg/src/settings/grafer.rs:213
 msgid "CPU-temperatur, gul grense"
-msgstr ""
+msgstr "Temperatura CPU, próg żółty"
 
 #: crates/rigg/src/settings/grafer.rs:213
 msgid "CPU-temperatur, rød grense"
-msgstr ""
+msgstr "Temperatura CPU, próg czerwony"
 
 #: crates/rigg/src/settings/grafer.rs:213
 msgctxt "søkeord"
 msgid "cpu prosessor"
-msgstr ""
+msgstr "cpu procesor"
 
 #: crates/rigg/src/settings/grafer.rs:214
 msgid "Last (GPU og CPU)"
-msgstr ""
+msgstr "Obciążenie (GPU i CPU)"
 
 #: crates/rigg/src/settings/grafer.rs:214
 msgid "Last, gul grense"
-msgstr ""
+msgstr "Obciążenie, próg żółty"
 
 #: crates/rigg/src/settings/grafer.rs:214
 msgctxt "søkeord"
 msgid "last"
-msgstr ""
+msgstr "obciążenie użycie"

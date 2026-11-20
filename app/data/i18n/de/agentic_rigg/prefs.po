@@ -6,7 +6,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg/src/prefs.rs:33
 msgid "ui.json kunne ikke leses. Kopien heter {fil}. Standardverdiene brukes."
-msgstr ""
+msgstr "ui.json konnte nicht gelesen werden. Eine Kopie heißt {fil}. Es werden Standardwerte verwendet."

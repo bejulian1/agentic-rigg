@@ -6,61 +6,62 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg/src/logg_ui.rs:66
 msgid "{antall} rad"
 msgid_plural "{antall} rader"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{antall} linha"
+msgstr[1] "{antall} linhas"
 
 #: crates/rigg/src/logg_ui.rs:112
 msgid "norsk regneark"
-msgstr ""
+msgstr "planilha norueguesa"
 
 #: crates/rigg/src/logg_ui.rs:112
 msgid "standard CSV"
-msgstr ""
+msgstr "CSV padrão"
 
 #: crates/rigg/src/logg_ui.rs:113
 msgid "Logger til fil siden {tid} · {fil}\n{rader} · hvert {intervall} · {format}\nCtrl+L stopper loggen."
-msgstr ""
+msgstr "Registrando desde {tid} · {fil}\n{rader} · a cada {intervall} · {format}\nCtrl+L para o registro."
 
 #: crates/rigg/src/logg_ui.rs:136
 msgid "Stopp loggen"
-msgstr ""
+msgstr "Parar registro"
 
 #: crates/rigg/src/logg_ui.rs:136 crates/rigg/src/logg_ui.rs:319
 msgid "Logg til fil"
-msgstr ""
+msgstr "Registrar em arquivo"
 
 #: crates/rigg/src/logg_ui.rs:140
 msgid "Logg alle eller utvalgte sensorer til en CSV-fil. Loggen fortsetter når vinduet lukkes.  ·  Ctrl+L"
-msgstr ""
+msgstr "Registrar todos os sensores ou os selecionados em CSV. Continua ao fechar a janela.  ·  Ctrl+L"
 
 #: crates/rigg/src/logg_ui.rs:187
 msgid "Loggen er stoppet"
-msgstr ""
+msgstr "Registro interrompido"
 
 #: crates/rigg/src/logg_ui.rs:189 crates/rigg/src/logg_ui.rs:225 crates/rigg/src/logg_ui.rs:258
 msgid "Vis i Filer"
-msgstr ""
+msgstr "Mostrar em Arquivos"
 
 #: crates/rigg/src/logg_ui.rs:223
 msgid "Logger til fil"
-msgstr ""
+msgstr "Registrando em arquivo"
 
 #: crates/rigg/src/logg_ui.rs:223
 msgid "{fil} i {mappe}"
-msgstr ""
+msgstr "{fil} em {mappe}"
 
 #: crates/rigg/src/logg_ui.rs:230
 msgid "Loggen startet ikke"
-msgstr ""
+msgstr "Não foi possível iniciar o registro"
 
 #: crates/rigg/src/logg_ui.rs:256
 msgid "Loggen er lagret"
-msgstr ""
+msgstr "Registro salvo"
 
 #: crates/rigg/src/logg_ui.rs:262
 msgid "Loggen stoppet ikke"
-msgstr ""
+msgstr "Não foi possível parar o registro"

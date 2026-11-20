@@ -6,244 +6,245 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg/src/settings/logging.rs:34
 msgid "Tjenesten svarer ikke"
-msgstr ""
+msgstr "Service not responding"
 
 #: crates/rigg/src/settings/logging.rs:38
 msgid "Logger siden {tid} · {rader}"
-msgstr ""
+msgstr "Logging since {tid} · {rader}"
 
 #: crates/rigg/src/settings/logging.rs:41
 msgid "Av · siste: {fil}"
-msgstr ""
+msgstr "Off · last: {fil}"
 
 #: crates/rigg/src/settings/logging.rs:42
 msgid "Av"
-msgstr ""
+msgstr "Off"
 
 #: crates/rigg/src/settings/logging.rs:49 crates/rigg/src/settings/logging.rs:152
 msgid "Sensorer i loggen"
-msgstr ""
+msgstr "Sensors in log"
 
 #: crates/rigg/src/settings/logging.rs:51
 msgid "Filtrer"
-msgstr ""
+msgstr "Filter"
 
 #: crates/rigg/src/settings/logging.rs:82
 msgid "Sensorene vises når tjenesten har sendt første prøve."
-msgstr ""
+msgstr "Sensors appear once the service sends its first sample."
 
 #: crates/rigg/src/settings/logging.rs:91
 msgid "Trådene (last og klokke per tråd) er med når du logger alle sensorene."
-msgstr ""
+msgstr "Per-thread load and clock are included when logging all sensors."
 
 #: crates/rigg/src/settings/logging.rs:109 crates/rigg/src/settings/logging.rs:144
 msgid "Stopp loggen"
-msgstr ""
+msgstr "Stop logging"
 
 #: crates/rigg/src/settings/logging.rs:109 crates/rigg/src/settings/logging.rs:144
 msgid "Start loggen"
-msgstr ""
+msgstr "Start logging"
 
 #: crates/rigg/src/settings/logging.rs:115
 msgid "Vis i Filer"
-msgstr ""
+msgstr "Show in Files"
 
 #: crates/rigg/src/settings/logging.rs:152
 msgid "Alle"
-msgstr ""
+msgstr "All"
 
 #: crates/rigg/src/settings/logging.rs:152
 msgid "Utvalgte"
-msgstr ""
+msgstr "Selected"
 
 #: crates/rigg/src/settings/logging.rs:164 crates/rigg/src/settings/logging.rs:190
 msgid "Velg …"
-msgstr ""
+msgstr "Choose…"
 
 #: crates/rigg/src/settings/logging.rs:164
 msgid "{antall} valgt …"
-msgstr ""
+msgstr "{antall} selected…"
 
 #: crates/rigg/src/settings/logging.rs:173 crates/rigg/src/settings/logging.rs:240
 msgid "Intervall"
-msgstr ""
+msgstr "Interval"
 
 #: crates/rigg/src/settings/logging.rs:197
 msgid "Mappe for loggen"
-msgstr ""
+msgstr "Log folder"
 
 #: crates/rigg/src/settings/logging.rs:213
 msgid "Tilbake til ~/Dokumenter/Agentic Rigg"
-msgstr ""
+msgstr "Reset to ~/Dokumenter/Agentic Rigg"
 
 #: crates/rigg/src/settings/logging.rs:214
 msgid "Tilbake til standardmappa"
-msgstr ""
+msgstr "Reset to default folder"
 
 #: crates/rigg/src/settings/logging.rs:223
 msgid "Standard CSV"
-msgstr ""
+msgstr "Standard CSV"
 
 #: crates/rigg/src/settings/logging.rs:223
 msgid "Norsk regneark"
-msgstr ""
+msgstr "Norwegian spreadsheet"
 
 #: crates/rigg/src/settings/logging.rs:223 crates/rigg/src/settings/logging.rs:242
 msgid "Format"
-msgstr ""
+msgstr "Format"
 
 #: crates/rigg/src/settings/logging.rs:230
 msgid "Logg til fil"
-msgstr ""
+msgstr "Log to file"
 
 #: crates/rigg/src/settings/logging.rs:232
 msgctxt "søkeord"
 msgid "logg csv fil ctrl+l"
-msgstr ""
+msgstr "log csv file ctrl+l"
 
 #: crates/rigg/src/settings/logging.rs:233
 msgid "Tjenesten skriver loggen, så den fortsetter når vinduet lukkes. Start og stopp også med knappen på Sensorer, eller Ctrl+L."
-msgstr ""
+msgstr "The service writes the log, so it continues when the window closes. Also toggle from Sensors or with Ctrl+L."
 
 #: crates/rigg/src/settings/logging.rs:234
 msgid "Ny fil ved 100 MB. Loggen stopper med en melding hvis disken har under 500 MB ledig. Kolonnene ligger fast mens loggen går; nye sensorer tas med i neste logg."
-msgstr ""
+msgstr "Rotates to a new file at 100 MB. Stops with a notice if free disk space drops below 500 MB. Columns stay fixed while logging; new sensors appear in the next log."
 
 #: crates/rigg/src/settings/logging.rs:238
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
 #: crates/rigg/src/settings/logging.rs:238
 msgctxt "søkeord"
 msgid "logg status start stopp vis i filer"
-msgstr ""
+msgstr "log status start stop show in files"
 
 #: crates/rigg/src/settings/logging.rs:239
 msgid "Sensorer"
-msgstr ""
+msgstr "Sensors"
 
 #: crates/rigg/src/settings/logging.rs:239
 msgid "Alle sensorene, eller bare de du velger (også med høyreklikk på Sensorer › «Ta med i loggen»)."
-msgstr ""
+msgstr "All sensors, or only selected ones (also via right-click on Sensors › “Include in log”)."
 
 #: crates/rigg/src/settings/logging.rs:239
 msgctxt "søkeord"
 msgid "sensorer utvalgte alle"
-msgstr ""
+msgstr "sensors selected all"
 
 #: crates/rigg/src/settings/logging.rs:240
 msgid "Hvor ofte en rad skrives. Raskere enn takten tjenesten leser i, gir ikke flere rader."
-msgstr ""
+msgstr "How often a row is written. Faster than the service polling rate does not add more rows."
 
 #: crates/rigg/src/settings/logging.rs:240
 msgctxt "søkeord"
 msgid "intervall sekunder"
-msgstr ""
+msgstr "interval seconds"
 
 #: crates/rigg/src/settings/logging.rs:241
 msgid "Mappe"
-msgstr ""
+msgstr "Folder"
 
 #: crates/rigg/src/settings/logging.rs:241
 msgid "Filnavn som rigg-2026-11-07_14-32-10.csv."
-msgstr ""
+msgstr "Filenames like rigg-2026-11-07_14-32-10.csv."
 
 #: crates/rigg/src/settings/logging.rs:241
 msgctxt "søkeord"
 msgid "mappe dokumenter sti"
-msgstr ""
+msgstr "folder documents path"
 
 #: crates/rigg/src/settings/logging.rs:242
 msgid "Standard CSV bruker komma og desimalpunktum. Norsk regneark bruker semikolon og desimalkomma, og åpnes rett i LibreOffice og Excel med norsk oppsett."
-msgstr ""
+msgstr "Standard CSV uses commas and decimal points. Norwegian spreadsheet uses semicolons and decimal commas for Norwegian LibreOffice and Excel setups."
 
 #: crates/rigg/src/settings/logging.rs:242
 msgctxt "søkeord"
 msgid "format komma semikolon desimal regneark excel libreoffice"
-msgstr ""
+msgstr "format comma semicolon decimal spreadsheet excel libreoffice"
 
 #: crates/rigg/src/settings/logging.rs:251
 msgid "Varsle ved rød grense"
-msgstr ""
+msgstr "Notify on red threshold"
 
 #: crates/rigg/src/settings/logging.rs:252
 msgid "Et varsel på skrivebordet når en verdi har vært over den røde grensen i 10 s. Høyst ett varsel per verdi per 15 min. Virker også når vinduet er lukket og tjenesten går i bakgrunnen."
-msgstr ""
+msgstr "Shows a desktop notification when a reading stays above the red threshold for 10 s. At most one alert per reading every 15 min. Also works in the background when the window is closed."
 
 #: crates/rigg/src/settings/logging.rs:254
 msgctxt "søkeord"
 msgid "varsel skrivebord alarm rød grense"
-msgstr ""
+msgstr "alert notification desktop alarm red threshold"
 
 #: crates/rigg/src/settings/logging.rs:264
 msgid "GPU-temperatur"
-msgstr ""
+msgstr "GPU temperature"
 
 #: crates/rigg/src/settings/logging.rs:265
 msgid "Rød grense {grense}. Endres under Grafer og sensorer › Varselfarger."
-msgstr ""
+msgstr "Red threshold {grense}. Change in Charts and sensors › Warning colors."
 
 #: crates/rigg/src/settings/logging.rs:267
 msgctxt "søkeord"
 msgid "gpu temperatur varsel"
-msgstr ""
+msgstr "gpu temperature alert"
 
 #: crates/rigg/src/settings/logging.rs:275
 msgid "CPU-temperatur"
-msgstr ""
+msgstr "CPU temperature"
 
 #: crates/rigg/src/settings/logging.rs:276
 msgid "Rød grense {grense} (Tdie)."
-msgstr ""
+msgstr "Red threshold {grense} (Tdie)."
 
 #: crates/rigg/src/settings/logging.rs:278
 msgctxt "søkeord"
 msgid "cpu temperatur varsel tdie"
-msgstr ""
+msgstr "cpu temperature alert tdie"
 
 #: crates/rigg/src/settings/logging.rs:286
 msgid "Skjermkortet svarer ikke"
-msgstr ""
+msgstr "GPU not responding"
 
 #: crates/rigg/src/settings/logging.rs:287
 msgid "Også når driveren er oppdatert og maskinen må startes på nytt, eller driveren ikke kan leses."
-msgstr ""
+msgstr "Also when the driver was updated and requires a reboot, or cannot be read."
 
 #: crates/rigg/src/settings/logging.rs:289
 msgctxt "søkeord"
 msgid "skjermkort borte driver varsel"
-msgstr ""
+msgstr "gpu lost driver alert"
 
 #: crates/rigg/src/settings/logging.rs:297
 msgid "Diskhelse"
-msgstr ""
+msgstr "Drive health"
 
 #: crates/rigg/src/settings/logging.rs:298
 msgid "Når SMART melder at en disk feiler, eller antallet dårlige sektorer øker. Tjenesten ser på SMART hvert 10. minutt når vinduet er lukket."
-msgstr ""
+msgstr "When SMART reports a failing drive or bad sectors increase. The service checks SMART every 10 minutes while the window is closed."
 
 #: crates/rigg/src/settings/logging.rs:300
 msgctxt "søkeord"
 msgid "disk helse smart sektorer varsel"
-msgstr ""
+msgstr "drive disk health smart sectors alert"
 
 #: crates/rigg/src/settings/logging.rs:306
 msgid "Klikk på et varsel for å åpne appen på riktig side. Varslene sendes av tjenesten, uten lyd."
-msgstr ""
+msgstr "Click a notification to open the app on the relevant page. Notifications are sent silently by the service."
 
 #: crates/rigg/src/settings/logging.rs:308
 msgctxt "søkeord"
 msgid "klikk varsel lyd"
-msgstr ""
+msgstr "click notification sound"
 
 #: crates/rigg/src/settings/logging.rs:309
 msgid "Skrivebordsvarsler"
-msgstr ""
+msgstr "Desktop notifications"
 
 #: crates/rigg/src/settings/logging.rs:309
 msgctxt "søkeord"
 msgid "varsler notification"
-msgstr ""
+msgstr "alerts notifications"

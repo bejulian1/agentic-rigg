@@ -6,100 +6,101 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg/src/settings/format.rs:15
 msgid "Enheter"
-msgstr ""
+msgstr "Unidades"
 
 #: crates/rigg/src/settings/format.rs:19
 msgid "Temperatur"
-msgstr ""
+msgstr "Temperatura"
 
 #: crates/rigg/src/settings/format.rs:20
 msgid "Alle sider, grafer, temperaturmålet og viftekurven."
-msgstr ""
+msgstr "Todas as páginas, gráficos, meta de temperatura e curva de ventoinha."
 
 #: crates/rigg/src/settings/format.rs:21
 msgid "Temperaturenhet"
-msgstr ""
+msgstr "Unidade de temperatura"
 
 #: crates/rigg/src/settings/format.rs:22
 msgctxt "søkeord"
 msgid "celsius fahrenheit"
-msgstr ""
+msgstr "celsius fahrenheit"
 
 #: crates/rigg/src/settings/format.rs:25
 msgid "Minne"
-msgstr ""
+msgstr "Memória"
 
 #: crates/rigg/src/settings/format.rs:26
 msgid "GiB som Linux-verktøy, eller GB som produsentene."
-msgstr ""
+msgstr "GiB como ferramentas Linux, ou GB como fabricantes."
 
 #: crates/rigg/src/settings/format.rs:27
 msgid "Minneenhet"
-msgstr ""
+msgstr "Unidade de memória"
 
 #: crates/rigg/src/settings/format.rs:28
 msgctxt "søkeord"
 msgid "binær desimal gigabyte"
-msgstr ""
+msgstr "binário decimal gigabyte"
 
 #: crates/rigg/src/settings/format.rs:31 crates/rigg/src/settings/format.rs:33
 msgid "Nettrate"
-msgstr ""
+msgstr "Taxa de rede"
 
 #: crates/rigg/src/settings/format.rs:32
 msgid "Byte per sekund eller bit per sekund."
-msgstr ""
+msgstr "Bytes por segundo ou bits por segundo."
 
 #: crates/rigg/src/settings/format.rs:34
 msgctxt "søkeord"
 msgid "nett hastighet"
-msgstr ""
+msgstr "rede velocidade banda"
 
 #: crates/rigg/src/settings/format.rs:39
 msgid "Visning"
-msgstr ""
+msgstr "Exibição"
 
 #: crates/rigg/src/settings/format.rs:43 crates/rigg/src/settings/format.rs:45
 msgid "Desimaler"
-msgstr ""
+msgstr "Casas decimais"
 
 #: crates/rigg/src/settings/format.rs:44
 msgid "Temperatur, effekt og prosent i tabeller og sidefeltet. Automatisk velger etter stedet."
-msgstr ""
+msgstr "Temperatura, potência e porcentagem em tabelas e na barra lateral. Automático escolhe conforme o contexto."
 
 #: crates/rigg/src/settings/format.rs:45
 msgid "Automatisk"
-msgstr ""
+msgstr "Automático"
 
 #: crates/rigg/src/settings/format.rs:46
 msgctxt "søkeord"
 msgid "desimal komma"
-msgstr ""
+msgstr "decimal vírgula precisão"
 
 #: crates/rigg/src/settings/format.rs:49 crates/rigg/src/settings/format.rs:51
 msgid "Klokkeslett"
-msgstr ""
+msgstr "Formato de hora"
 
 #: crates/rigg/src/settings/format.rs:50
 msgid "Min/maks på Sensorer, profiler og grafer. Nå: {na}."
-msgstr ""
+msgstr "Mín/máx em Sensores, perfis e gráficos. Agora: {na}."
 
 #: crates/rigg/src/settings/format.rs:51
 msgid "System"
-msgstr ""
+msgstr "Sistema"
 
 #: crates/rigg/src/settings/format.rs:51
 msgid "24 t"
-msgstr ""
+msgstr "24 h"
 
 #: crates/rigg/src/settings/format.rs:51
 msgid "12 t"
-msgstr ""
+msgstr "12 h"
 
 #: crates/rigg/src/settings/format.rs:52
 msgctxt "søkeord"
 msgid "tid klokke am pm"
-msgstr ""
+msgstr "hora relógio am pm"

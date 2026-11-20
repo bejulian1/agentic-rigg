@@ -6,61 +6,62 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg/src/logg_ui.rs:66
 msgid "{antall} rad"
 msgid_plural "{antall} rader"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{antall} riga"
+msgstr[1] "{antall} righe"
 
 #: crates/rigg/src/logg_ui.rs:112
 msgid "norsk regneark"
-msgstr ""
+msgstr "foglio norvegese"
 
 #: crates/rigg/src/logg_ui.rs:112
 msgid "standard CSV"
-msgstr ""
+msgstr "CSV standard"
 
 #: crates/rigg/src/logg_ui.rs:113
 msgid "Logger til fil siden {tid} · {fil}\n{rader} · hvert {intervall} · {format}\nCtrl+L stopper loggen."
-msgstr ""
+msgstr "Registrazione da {tid} · {fil}\n{rader} · ogni {intervall} · {format}\nCtrl+L arresta il registro."
 
 #: crates/rigg/src/logg_ui.rs:136
 msgid "Stopp loggen"
-msgstr ""
+msgstr "Arresta registro"
 
 #: crates/rigg/src/logg_ui.rs:136 crates/rigg/src/logg_ui.rs:319
 msgid "Logg til fil"
-msgstr ""
+msgstr "Registra su file"
 
 #: crates/rigg/src/logg_ui.rs:140
 msgid "Logg alle eller utvalgte sensorer til en CSV-fil. Loggen fortsetter når vinduet lukkes.  ·  Ctrl+L"
-msgstr ""
+msgstr "Registra tutti i sensori o quelli selezionati in CSV. Continua a finestra chiusa.  ·  Ctrl+L"
 
 #: crates/rigg/src/logg_ui.rs:187
 msgid "Loggen er stoppet"
-msgstr ""
+msgstr "Registrazione arrestata"
 
 #: crates/rigg/src/logg_ui.rs:189 crates/rigg/src/logg_ui.rs:225 crates/rigg/src/logg_ui.rs:258
 msgid "Vis i Filer"
-msgstr ""
+msgstr "Mostra in File"
 
 #: crates/rigg/src/logg_ui.rs:223
 msgid "Logger til fil"
-msgstr ""
+msgstr "Registrazione su file"
 
 #: crates/rigg/src/logg_ui.rs:223
 msgid "{fil} i {mappe}"
-msgstr ""
+msgstr "{fil} in {mappe}"
 
 #: crates/rigg/src/logg_ui.rs:230
 msgid "Loggen startet ikke"
-msgstr ""
+msgstr "Impossibile avviare la registrazione"
 
 #: crates/rigg/src/logg_ui.rs:256
 msgid "Loggen er lagret"
-msgstr ""
+msgstr "Registro salvato"
 
 #: crates/rigg/src/logg_ui.rs:262
 msgid "Loggen stoppet ikke"
-msgstr ""
+msgstr "Impossibile arrestare la registrazione"

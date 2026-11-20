@@ -6,61 +6,62 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg/src/logg_ui.rs:66
 msgid "{antall} rad"
 msgid_plural "{antall} rader"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{antall} Zeile"
+msgstr[1] "{antall} Zeilen"
 
 #: crates/rigg/src/logg_ui.rs:112
 msgid "norsk regneark"
-msgstr ""
+msgstr "norwegische Tabelle"
 
 #: crates/rigg/src/logg_ui.rs:112
 msgid "standard CSV"
-msgstr ""
+msgstr "Standard-CSV"
 
 #: crates/rigg/src/logg_ui.rs:113
 msgid "Logger til fil siden {tid} · {fil}\n{rader} · hvert {intervall} · {format}\nCtrl+L stopper loggen."
-msgstr ""
+msgstr "Protokolliert seit {tid} · {fil}\n{rader} · alle {intervall} · {format}\nStrg+L stoppt das Protokoll."
 
 #: crates/rigg/src/logg_ui.rs:136
 msgid "Stopp loggen"
-msgstr ""
+msgstr "Protokoll stoppen"
 
 #: crates/rigg/src/logg_ui.rs:136 crates/rigg/src/logg_ui.rs:319
 msgid "Logg til fil"
-msgstr ""
+msgstr "In Datei protokollieren"
 
 #: crates/rigg/src/logg_ui.rs:140
 msgid "Logg alle eller utvalgte sensorer til en CSV-fil. Loggen fortsetter når vinduet lukkes.  ·  Ctrl+L"
-msgstr ""
+msgstr "Alle oder ausgewählte Sensoren in eine CSV-Datei protokollieren. Läuft bei geschlossenem Fenster weiter.  ·  Strg+L"
 
 #: crates/rigg/src/logg_ui.rs:187
 msgid "Loggen er stoppet"
-msgstr ""
+msgstr "Protokollierung gestoppt"
 
 #: crates/rigg/src/logg_ui.rs:189 crates/rigg/src/logg_ui.rs:225 crates/rigg/src/logg_ui.rs:258
 msgid "Vis i Filer"
-msgstr ""
+msgstr "In Dateien zeigen"
 
 #: crates/rigg/src/logg_ui.rs:223
 msgid "Logger til fil"
-msgstr ""
+msgstr "Protokolliert in Datei"
 
 #: crates/rigg/src/logg_ui.rs:223
 msgid "{fil} i {mappe}"
-msgstr ""
+msgstr "{fil} in {mappe}"
 
 #: crates/rigg/src/logg_ui.rs:230
 msgid "Loggen startet ikke"
-msgstr ""
+msgstr "Protokollierung konnte nicht gestartet werden"
 
 #: crates/rigg/src/logg_ui.rs:256
 msgid "Loggen er lagret"
-msgstr ""
+msgstr "Protokoll gespeichert"
 
 #: crates/rigg/src/logg_ui.rs:262
 msgid "Loggen stoppet ikke"
-msgstr ""
+msgstr "Protokollierung konnte nicht gestoppt werden"

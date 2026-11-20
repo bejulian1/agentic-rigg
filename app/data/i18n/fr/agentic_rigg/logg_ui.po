@@ -6,61 +6,62 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg/src/logg_ui.rs:66
 msgid "{antall} rad"
 msgid_plural "{antall} rader"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{antall} ligne"
+msgstr[1] "{antall} lignes"
 
 #: crates/rigg/src/logg_ui.rs:112
 msgid "norsk regneark"
-msgstr ""
+msgstr "tableur norvégien"
 
 #: crates/rigg/src/logg_ui.rs:112
 msgid "standard CSV"
-msgstr ""
+msgstr "CSV standard"
 
 #: crates/rigg/src/logg_ui.rs:113
 msgid "Logger til fil siden {tid} · {fil}\n{rader} · hvert {intervall} · {format}\nCtrl+L stopper loggen."
-msgstr ""
+msgstr "Journalisation depuis {tid} · {fil}\n{rader} · toutes les {intervall} · {format}\nCtrl+L arrête le journal."
 
 #: crates/rigg/src/logg_ui.rs:136
 msgid "Stopp loggen"
-msgstr ""
+msgstr "Arrêter le journal"
 
 #: crates/rigg/src/logg_ui.rs:136 crates/rigg/src/logg_ui.rs:319
 msgid "Logg til fil"
-msgstr ""
+msgstr "Journaliser dans un fichier"
 
 #: crates/rigg/src/logg_ui.rs:140
 msgid "Logg alle eller utvalgte sensorer til en CSV-fil. Loggen fortsetter når vinduet lukkes.  ·  Ctrl+L"
-msgstr ""
+msgstr "Journaliser tous les capteurs ou une sélection en CSV. Continue fenêtre fermée.  ·  Ctrl+L"
 
 #: crates/rigg/src/logg_ui.rs:187
 msgid "Loggen er stoppet"
-msgstr ""
+msgstr "Journalisation arrêtée"
 
 #: crates/rigg/src/logg_ui.rs:189 crates/rigg/src/logg_ui.rs:225 crates/rigg/src/logg_ui.rs:258
 msgid "Vis i Filer"
-msgstr ""
+msgstr "Afficher dans Fichiers"
 
 #: crates/rigg/src/logg_ui.rs:223
 msgid "Logger til fil"
-msgstr ""
+msgstr "Journalisation en cours"
 
 #: crates/rigg/src/logg_ui.rs:223
 msgid "{fil} i {mappe}"
-msgstr ""
+msgstr "{fil} dans {mappe}"
 
 #: crates/rigg/src/logg_ui.rs:230
 msgid "Loggen startet ikke"
-msgstr ""
+msgstr "Impossible de démarrer le journal"
 
 #: crates/rigg/src/logg_ui.rs:256
 msgid "Loggen er lagret"
-msgstr ""
+msgstr "Journal enregistré"
 
 #: crates/rigg/src/logg_ui.rs:262
 msgid "Loggen stoppet ikke"
-msgstr ""
+msgstr "Impossible d’arrêter le journal"

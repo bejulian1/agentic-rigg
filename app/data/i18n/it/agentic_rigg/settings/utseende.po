@@ -6,295 +6,296 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg/src/settings/utseende.rs:27
 msgid "Grafitt"
-msgstr ""
+msgstr "Grafite"
 
 #: crates/rigg/src/settings/utseende.rs:27
 msgid "Nøytral grå"
-msgstr ""
+msgstr "Grigio neutro"
 
 #: crates/rigg/src/settings/utseende.rs:28
 msgid "Sand"
-msgstr ""
+msgstr "Sabbia"
 
 #: crates/rigg/src/settings/utseende.rs:28
 msgid "Varm, som papir"
-msgstr ""
+msgstr "Caldo, come carta"
 
 #: crates/rigg/src/settings/utseende.rs:29
 msgid "Fjord"
-msgstr ""
+msgstr "Fiordo"
 
 #: crates/rigg/src/settings/utseende.rs:29
 msgid "Kjølig blågrå"
-msgstr ""
+msgstr "Grigio-blu freddo"
 
 #: crates/rigg/src/settings/utseende.rs:30
 msgid "Midnatt"
-msgstr ""
+msgstr "Mezzanotte"
 
 #: crates/rigg/src/settings/utseende.rs:30
 msgid "Dypt mørkt, skarpt lyst"
-msgstr ""
+msgstr "Scuro profondo, chiaro nitido"
 
 #: crates/rigg/src/settings/utseende.rs:37 crates/rigg/src/settings/utseende.rs:50
 msgid "Blå"
-msgstr ""
+msgstr "Blu"
 
 #: crates/rigg/src/settings/utseende.rs:38 crates/rigg/src/settings/utseende.rs:51
 msgid "Blågrønn"
-msgstr ""
+msgstr "Verde acqua"
 
 #: crates/rigg/src/settings/utseende.rs:39 crates/rigg/src/settings/utseende.rs:52
 msgid "Grønn"
-msgstr ""
+msgstr "Verde"
 
 #: crates/rigg/src/settings/utseende.rs:40 crates/rigg/src/settings/utseende.rs:53
 msgid "Lilla"
-msgstr ""
+msgstr "Viola"
 
 #: crates/rigg/src/settings/utseende.rs:41 crates/rigg/src/settings/utseende.rs:54
 msgid "Rosa"
-msgstr ""
+msgstr "Rosa"
 
 #: crates/rigg/src/settings/utseende.rs:42 crates/rigg/src/settings/utseende.rs:55
 msgid "Skifer"
-msgstr ""
+msgstr "Ardesia"
 
 #: crates/rigg/src/settings/utseende.rs:49 crates/rigg/src/settings/utseende.rs:448 crates/rigg/src/settings/utseende.rs:454
 msgid "Standard"
-msgstr ""
+msgstr "Predefinito"
 
 #: crates/rigg/src/settings/utseende.rs:49
 msgid "Grafitt med blå måler"
-msgstr ""
+msgstr "Grafite con indicatore blu"
 
 #: crates/rigg/src/settings/utseende.rs:50
 msgid "Flis i blå"
-msgstr ""
+msgstr "Riquadro blu"
 
 #: crates/rigg/src/settings/utseende.rs:51
 msgid "Flis i blågrønn"
-msgstr ""
+msgstr "Riquadro verde acqua"
 
 #: crates/rigg/src/settings/utseende.rs:52
 msgid "Flis i grønn"
-msgstr ""
+msgstr "Riquadro verde"
 
 #: crates/rigg/src/settings/utseende.rs:53
 msgid "Flis i lilla"
-msgstr ""
+msgstr "Riquadro viola"
 
 #: crates/rigg/src/settings/utseende.rs:54
 msgid "Flis i rosa"
-msgstr ""
+msgstr "Riquadro rosa"
 
 #: crates/rigg/src/settings/utseende.rs:55
 msgid "Flis i skifer"
-msgstr ""
+msgstr "Riquadro ardesia"
 
 #: crates/rigg/src/settings/utseende.rs:56 crates/rigg/src/settings/utseende.rs:409
 msgid "Mørk"
-msgstr ""
+msgstr "Scuro"
 
 #: crates/rigg/src/settings/utseende.rs:56
 msgid "Nesten svart flis"
-msgstr ""
+msgstr "Riquadro quasi nero"
 
 #: crates/rigg/src/settings/utseende.rs:57 crates/rigg/src/settings/utseende.rs:409
 msgid "Lys"
-msgstr ""
+msgstr "Chiaro"
 
 #: crates/rigg/src/settings/utseende.rs:57
 msgid "Lys flis, mørk vifte"
-msgstr ""
+msgstr "Riquadro chiaro, ventola scura"
 
 #: crates/rigg/src/settings/utseende.rs:58
 msgid "Monokrom"
-msgstr ""
+msgstr "Monocromatico"
 
 #: crates/rigg/src/settings/utseende.rs:58
 msgid "Bare gråtoner"
-msgstr ""
+msgstr "Solo scala di grigi"
 
 #: crates/rigg/src/settings/utseende.rs:166 crates/rigg/src/settings/utseende.rs:413
 msgid "Fargetema"
-msgstr ""
+msgstr "Tema colori"
 
 #: crates/rigg/src/settings/utseende.rs:212 crates/rigg/src/settings/utseende.rs:419
 msgid "Aksentfarge"
-msgstr ""
+msgstr "Colore d’accento"
 
 #: crates/rigg/src/settings/utseende.rs:278 crates/rigg/src/settings/utseende.rs:425
 msgid "Appikon"
-msgstr ""
+msgstr "Icona dell’app"
 
 #: crates/rigg/src/settings/utseende.rs:346 crates/rigg/src/settings/utseende.rs:381
 msgid "Appikonet er «{navn}»"
-msgstr ""
+msgstr "Icona impostata su «{navn}»"
 
 #: crates/rigg/src/settings/utseende.rs:346
 msgid "Appen er ikke installert, så bare vinduet har fått det nye ikonet. Valget brukes når appen installeres."
-msgstr ""
+msgstr "L’app non è installata, quindi solo la finestra ha cambiato icona. La scelta varrà dopo l’installazione."
 
 #: crates/rigg/src/settings/utseende.rs:381
 msgid "Ikonet byttes i dokken og Vis programmer om noen sekunder."
-msgstr ""
+msgstr "L’icona cambierà nel dock e nel menu delle app tra pochi secondi."
 
 #: crates/rigg/src/settings/utseende.rs:382
 msgid "Kunne ikke bytte appikonet"
-msgstr ""
+msgstr "Impossibile cambiare l’icona"
 
 #: crates/rigg/src/settings/utseende.rs:397
 msgid "Automatisk følger systemets innstilling (nå: full)."
-msgstr ""
+msgstr "Automatico segue il sistema (attuale: complete)."
 
 #: crates/rigg/src/settings/utseende.rs:398
 msgid "Automatisk følger systemets innstilling (nå: redusert)."
-msgstr ""
+msgstr "Automatico segue il sistema (attuale: ridotte)."
 
 #: crates/rigg/src/settings/utseende.rs:403
 msgid "Farger"
-msgstr ""
+msgstr "Colori"
 
 #: crates/rigg/src/settings/utseende.rs:407 crates/rigg/src/settings/utseende.rs:409
 msgid "Lyst eller mørkt"
-msgstr ""
+msgstr "Chiaro o scuro"
 
 #: crates/rigg/src/settings/utseende.rs:408
 msgid "System følger GNOME og bytter med en gang."
-msgstr ""
+msgstr "Sistema segue GNOME e cambia subito."
 
 #: crates/rigg/src/settings/utseende.rs:409
 msgid "System"
-msgstr ""
+msgstr "Sistema"
 
 #: crates/rigg/src/settings/utseende.rs:410
 msgctxt "søkeord"
 msgid "tema mørk modus lys dark light"
-msgstr ""
+msgstr "tema scuro chiaro modalità aspetto"
 
 #: crates/rigg/src/settings/utseende.rs:414
 msgid "Tonen i flater, rammer og tekst, i både lyst og mørkt."
-msgstr ""
+msgstr "Tonalità di superfici, bordi e testo in modalità chiara e scura."
 
 #: crates/rigg/src/settings/utseende.rs:416
 msgctxt "søkeord"
 msgid "palett grafitt sand fjord midnatt"
-msgstr ""
+msgstr "tavolozza grafite sabbia fiordo mezzanotte"
 
 #: crates/rigg/src/settings/utseende.rs:420
 msgid "Knapper, valgt side, stolper og glidere. Grafene har faste farger per serie."
-msgstr ""
+msgstr "Pulsanti, pagina attiva, barre e cursori. I grafici usano colori fissi per serie."
 
 #: crates/rigg/src/settings/utseende.rs:422
 msgctxt "søkeord"
 msgid "blå blågrønn grønn lilla rosa skifer"
-msgstr ""
+msgstr "blu verde viola rosa ardesia"
 
 #: crates/rigg/src/settings/utseende.rs:426
 msgid "Ikonet i Vis programmer, dokken og Alt+Tab. Byttet vises etter noen sekunder, uten å logge ut."
-msgstr ""
+msgstr "Icona nel menu delle app, nel dock e in Alt+Tab. Si aggiorna in pochi secondi senza disconnettersi."
 
 #: crates/rigg/src/settings/utseende.rs:428
 msgctxt "søkeord"
 msgid "ikon appikon dokk vis programmer farge"
-msgstr ""
+msgstr "icona dock menu colore"
 
 #: crates/rigg/src/settings/utseende.rs:431
 msgid "Høy kontrast"
-msgstr ""
+msgstr "Contrasto elevato"
 
 #: crates/rigg/src/settings/utseende.rs:432
 msgid "Sterkere tekst, rammer, fokusringer og grafer i alle fargetemaer."
-msgstr ""
+msgstr "Testo, bordi, focus e grafici più marcati in tutti i temi."
 
 #: crates/rigg/src/settings/utseende.rs:434
 msgctxt "søkeord"
 msgid "tilgjengelighet synlighet"
-msgstr ""
+msgstr "accessibilità contrasto visibilità"
 
 #: crates/rigg/src/settings/utseende.rs:442
 msgid "Størrelse"
-msgstr ""
+msgstr "Dimensioni"
 
 #: crates/rigg/src/settings/utseende.rs:446 crates/rigg/src/settings/utseende.rs:448
 msgid "Tetthet"
-msgstr ""
+msgstr "Densità"
 
 #: crates/rigg/src/settings/utseende.rs:447
 msgid "Høyden på rader og luften mellom panelene."
-msgstr ""
+msgstr "Altezza delle righe e spazio tra i pannelli."
 
 #: crates/rigg/src/settings/utseende.rs:448
 msgid "Kompakt"
-msgstr ""
+msgstr "Compatta"
 
 #: crates/rigg/src/settings/utseende.rs:448
 msgid "Luftig"
-msgstr ""
+msgstr "Ampia"
 
 #: crates/rigg/src/settings/utseende.rs:449
 msgctxt "søkeord"
 msgid "kompakt luftig tett"
-msgstr ""
+msgstr "compatta ampia densa spazio"
 
 #: crates/rigg/src/settings/utseende.rs:452 crates/rigg/src/settings/utseende.rs:454
 msgid "Skriftstørrelse"
-msgstr ""
+msgstr "Dimensione testo"
 
 #: crates/rigg/src/settings/utseende.rs:453
 msgid "Teksten i hele appen. Også Ctrl og + eller −, og Ctrl+0."
-msgstr ""
+msgstr "Testo in tutta l’app. Anche Ctrl e + o −, e Ctrl+0."
 
 #: crates/rigg/src/settings/utseende.rs:454
 msgid "Liten"
-msgstr ""
+msgstr "Piccolo"
 
 #: crates/rigg/src/settings/utseende.rs:454
 msgid "Stor"
-msgstr ""
+msgstr "Grande"
 
 #: crates/rigg/src/settings/utseende.rs:454
 msgid "Større"
-msgstr ""
+msgstr "Più grande"
 
 #: crates/rigg/src/settings/utseende.rs:455
 msgctxt "søkeord"
 msgid "tekst zoom skrift"
-msgstr ""
+msgstr "testo zoom carattere dimensione"
 
 #: crates/rigg/src/settings/utseende.rs:470
 msgid "Bevegelse"
-msgstr ""
+msgstr "Movimento"
 
 #: crates/rigg/src/settings/utseende.rs:471
 msgid "Redusert gir bare korte toninger, og grafene oppdateres i trinn. Av slår av all animasjon."
-msgstr ""
+msgstr "Ridotto usa dissolvenze brevi e grafici a passi. Disattivato rimuove ogni animazione."
 
 #: crates/rigg/src/settings/utseende.rs:473 crates/rigg/src/settings/utseende.rs:475
 msgid "Animasjoner"
-msgstr ""
+msgstr "Animazioni"
 
 #: crates/rigg/src/settings/utseende.rs:475
 msgid "Automatisk"
-msgstr ""
+msgstr "Automatico"
 
 #: crates/rigg/src/settings/utseende.rs:475
 msgid "Full"
-msgstr ""
+msgstr "Completo"
 
 #: crates/rigg/src/settings/utseende.rs:475
 msgid "Redusert"
-msgstr ""
+msgstr "Ridotto"
 
 #: crates/rigg/src/settings/utseende.rs:475
 msgid "Av"
-msgstr ""
+msgstr "Disattivato"
 
 #: crates/rigg/src/settings/utseende.rs:476
 msgctxt "søkeord"
 msgid "bevegelse animasjon redusert"
-msgstr ""
+msgstr "movimento animazione ridotto"

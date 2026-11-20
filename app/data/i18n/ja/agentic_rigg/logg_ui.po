@@ -6,60 +6,61 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg/src/logg_ui.rs:66
 msgid "{antall} rad"
 msgid_plural "{antall} rader"
-msgstr[0] ""
+msgstr[0] "{antall} 行"
 
 #: crates/rigg/src/logg_ui.rs:112
 msgid "norsk regneark"
-msgstr ""
+msgstr "ノルウェー表計算"
 
 #: crates/rigg/src/logg_ui.rs:112
 msgid "standard CSV"
-msgstr ""
+msgstr "標準 CSV"
 
 #: crates/rigg/src/logg_ui.rs:113
 msgid "Logger til fil siden {tid} · {fil}\n{rader} · hvert {intervall} · {format}\nCtrl+L stopper loggen."
-msgstr ""
+msgstr "{tid} からファイル記録中 · {fil}\n{rader} · {intervall} ごと · {format}\nCtrl+L でログを停止します。"
 
 #: crates/rigg/src/logg_ui.rs:136
 msgid "Stopp loggen"
-msgstr ""
+msgstr "ログを停止"
 
 #: crates/rigg/src/logg_ui.rs:136 crates/rigg/src/logg_ui.rs:319
 msgid "Logg til fil"
-msgstr ""
+msgstr "ファイルにログ記録"
 
 #: crates/rigg/src/logg_ui.rs:140
 msgid "Logg alle eller utvalgte sensorer til en CSV-fil. Loggen fortsetter når vinduet lukkes.  ·  Ctrl+L"
-msgstr ""
+msgstr "すべてのセンサーまたは選択項目を CSV に記録します。ウィンドウを閉じても継続します。  ·  Ctrl+L"
 
 #: crates/rigg/src/logg_ui.rs:187
 msgid "Loggen er stoppet"
-msgstr ""
+msgstr "ログ記録を停止しました"
 
 #: crates/rigg/src/logg_ui.rs:189 crates/rigg/src/logg_ui.rs:225 crates/rigg/src/logg_ui.rs:258
 msgid "Vis i Filer"
-msgstr ""
+msgstr "ファイルで表示"
 
 #: crates/rigg/src/logg_ui.rs:223
 msgid "Logger til fil"
-msgstr ""
+msgstr "ファイルにログ記録中"
 
 #: crates/rigg/src/logg_ui.rs:223
 msgid "{fil} i {mappe}"
-msgstr ""
+msgstr "{mappe} 内の {fil}"
 
 #: crates/rigg/src/logg_ui.rs:230
 msgid "Loggen startet ikke"
-msgstr ""
+msgstr "ログ記録を開始できませんでした"
 
 #: crates/rigg/src/logg_ui.rs:256
 msgid "Loggen er lagret"
-msgstr ""
+msgstr "ログを保存しました"
 
 #: crates/rigg/src/logg_ui.rs:262
 msgid "Loggen stoppet ikke"
-msgstr ""
+msgstr "ログ記録を停止できませんでした"

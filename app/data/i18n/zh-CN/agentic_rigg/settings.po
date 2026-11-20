@@ -106,7 +106,7 @@ msgstr "版本记录"
 
 #: crates/rigg/src/settings/mod.rs:591
 msgid "Tilbake til {side}"
-msgstr ""
+msgstr "返回{side}"
 
 #: crates/rigg/src/settings/mod.rs:621
 msgid "Søk"
