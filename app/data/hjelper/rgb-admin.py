@@ -33,7 +33,8 @@ STATE = Path("var/lib/agentic-rigg-rgb")
 INACTIVE_MARKER = Path("var/lib/agentic-rigg-rgb.inactive")
 UNIT_PATH = Path("etc/systemd/system") / UNIT
 OLD_DROPIN = Path("etc/systemd/system") / (UNIT + ".d/card.conf")
-DROPIN = Path("run/systemd/system") / (UNIT + ".d/card.conf")
+OLD_RUN_DROPIN = Path("run/systemd/system") / (UNIT + ".d/card.conf")
+DROPIN = OLD_RUN_DROPIN.with_name('50-agentic-rigg-card.conf')
 SOCKET = Path("run/agentic-rigg-rgb/helper.sock")
 MAX_JSON = 1024 * 1024
 
@@ -294,7 +295,14 @@ class Admin:
         else:
             argv = [str(executable), flag, "--pci", self.args.pci,
                     "--uuid", self.args.uuid, "--uid", str(self.uid), *options]
-            payload = strict_json(self.command(prefix + argv))
+            try:
+                output = self.command(prefix + argv)
+            except (RuntimeError, OSError, subprocess.SubprocessError) as error:
+                if prefix:
+                    fail(f'systemd-run ({flag}): {error}. Kontroller enhetsegenskapene og journalen for '
+                         'agentic-rigg-rgb-admin.service før du prøver igjen.')
+                raise
+            payload = strict_json(output)
         if type(payload) is not dict:
             fail("RGB-hjelperens svar må være et JSON-objekt.")
         if payload.get("ok") is not True:
@@ -316,7 +324,7 @@ class Admin:
                 fail('Forberedelse krever en privat tillatelsesmappe.')
             properties.extend((f'BindPaths={stage}:/etc/agentic-rigg', 'ReadWritePaths=/etc/agentic-rigg'))
         return ['/usr/bin/systemd-run', '--wait', '--pipe', '--collect', '--quiet',
-                '--service-type=exec', *('--property=' + line for line in properties), '--']
+                '--unit=agentic-rigg-rgb-admin', '--service-type=exec', *('--property=' + line for line in properties), '--']
 
     def prepare(self, binary):
         self.directory(CONFIG.parent)
@@ -405,6 +413,8 @@ class Admin:
         return data
 
     def start(self, bus):
+        self.remove(OLD_DROPIN)
+        self.remove(OLD_RUN_DROPIN)
         content = ("[Service]\nDeviceAllow=\nDeviceAllow=/dev/i2c-" + str(bus) + " rw\n")
         self.atomic(DROPIN, content.encode(), 0o644)
         self.systemctl("daemon-reload")
@@ -435,7 +445,8 @@ class Admin:
             installed = self.check_file(UNIT_PATH, missing=True)
             if (auth is not None and self.unit_state() == ("active", False)
                     and installed is not None and installed.read_bytes() == unit
-                    and self.check_file(DROPIN, missing=True) is not None):
+                    and self.check_file(DROPIN, missing=True) is not None
+                    and all(self.check_file(path, missing=True) is None for path in (OLD_DROPIN, OLD_RUN_DROPIN))):
                 self.wait_for_worker()
                 return
             fail("En eldre RGB-hjelper kjører. Avklar og slå av RGB-tilgangen først.")
@@ -507,7 +518,7 @@ class Admin:
         with self.lock("worker.lock"):
             self.selected_authorization(missing=True)
             self.no_journal()
-            for relative in (UNIT_PATH, DROPIN, OLD_DROPIN, *LEGACY_ASSETS):
+            for relative in (UNIT_PATH, DROPIN, OLD_DROPIN, OLD_RUN_DROPIN, *LEGACY_ASSETS):
                 self.remove(relative)
             self.systemctl("daemon-reload")
             # Tillatelsen fjernes sist. Den binder samme bruker/kort også

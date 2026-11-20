@@ -7,10 +7,11 @@ import json
 from pathlib import Path
 import runpy
 import subprocess
+import sys
 import tarfile
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 DATA = Path(__file__).resolve().parents[1] / 'data/hjelper'
 
@@ -29,6 +30,10 @@ class SystemTest(unittest.TestCase):
                         stopped=lambda _: True, directory=self.directory)
         self.files = {key: (DATA / Path(key).name).read_bytes() if not key.startswith('bin/') else b'fixture'
                       for key, _ in self.assets.values()}
+        self.files['version.json'] = b'{"build":25}'
+        self.runner = Mock(side_effect=AssertionError('Uventet systemd-run'))
+        self.mod['subprocess'] = Mock(wraps=subprocess, run=self.runner, CalledProcessError=subprocess.CalledProcessError,
+                                      SubprocessError=subprocess.SubprocessError, DEVNULL=subprocess.DEVNULL)
 
     def directory(self, path):
         self.assertTrue(path.is_relative_to(self.root))
@@ -93,6 +98,7 @@ class SystemTest(unittest.TestCase):
         baseline = journal.with_name('baseline.json')
         baseline.write_text('opptak')
         self.mod['install'](self.files)
+        self.assertEqual(self.mod['MARK'].read_text(), '2:25\n')
         self.assertFalse(config.exists() or unit.exists())
         for path, (key, mode) in self.assets.items():
             self.assertEqual(path.read_bytes(), self.files[key])
@@ -100,6 +106,112 @@ class SystemTest(unittest.TestCase):
         self.mod['uninstall']()
         self.assertFalse(any(path.exists() for path in self.assets))
         self.assertEqual(next(self.root.rglob('baseline.json')).read_text(), 'opptak')
+
+    def test_failed_stop_retries_once_in_bound_sandbox_before_migration(self):
+        config, journal, unit, _ = self.mod['active_files']('nvml')
+        pci, uuid = '0000:01:00.0', 'GPU-fixture'
+        binary = self.mod['LIB'] / 'agentic-rigg-helper'
+        info = self.mod['GPU_INFO'] / pci / 'information'
+        for path, text in ((config, json.dumps(dict(pci=pci, uuid=uuid))), (binary, 'original'), (journal, 'dirty'),
+                           (info, f'Device Minor: 13\nGPU UUID: {uuid}')):
+            self.directory(path.parent)
+            path.write_text(text)
+            path.chmod(0o644)
+        active = True
+
+        def ctl(*args):
+            nonlocal active
+            if args == ('stop', unit.name):
+                active = False
+                raise subprocess.CalledProcessError(1, 'fake stop')
+
+        self.mod.update(ctl=ctl, stopped=lambda name: name != unit.name or not active)
+
+        def restore(argv, **kwargs):
+            self.assertFalse(active)
+            self.assertEqual(binary.read_text(), 'original')
+            self.assertEqual(argv[0:3], ['/usr/bin/systemd-run', '--wait', '--pipe'])
+            self.assertEqual(argv[-5:], ['--', str(binary), '--backend', 'nvml', '--tilbakestill'])
+            self.assertCountEqual([p for p in argv if 'DeviceAllow=' in p],
+                                  ['--property=DeviceAllow=/dev/nvidiactl rw', '--property=DeviceAllow=/dev/nvidia13 rw'])
+            for prop in ('DevicePolicy=closed', 'ProtectProc=invisible', 'CapabilityBoundingSet=CAP_CHOWN CAP_SYS_ADMIN'):
+                self.assertIn('--property=' + prop, argv)
+            journal.unlink()
+            return subprocess.CompletedProcess(argv, 0)
+
+        self.runner.side_effect = None
+        self.runner.return_value = subprocess.CompletedProcess([], 1, '', 'Unknown property')
+        with self.assertRaisesRegex(ValueError, 'Unknown property'):
+            self.mod['install'](self.files)
+        self.runner.assert_called_once()
+        self.assertTrue(journal.exists() and config.exists())
+        self.runner.reset_mock()
+        self.runner.return_value = subprocess.CompletedProcess([], 0)
+        with self.assertRaisesRegex(ValueError, 'Endringsjournalen finnes fortsatt'):
+            self.mod['install'](self.files)
+        self.runner.assert_called_once()
+        self.runner.reset_mock()
+        info.write_text('Device Minor: 13\nGPU UUID: GPU-annet')
+        with self.assertRaisesRegex(ValueError, '--backend nvml --tilbakestill'):
+            self.mod['install'](self.files)
+        self.runner.assert_not_called()
+        info.write_text(f'Device Minor: 13\nGPU UUID: {uuid}')
+        self.runner.side_effect = restore
+        self.mod['install'](self.files)
+        self.runner.assert_called_once()
+        self.assertFalse(journal.exists() or config.exists())
+
+    def test_revoke_requires_stopped_clean_domain_and_keeps_baseline(self):
+        for domain in ('rgb', 'nvml'):
+            config, journal, unit, dropin = self.mod['active_files'](domain)
+            baseline = journal.with_name('baseline.json')
+            for path in (config, journal, unit, dropin, baseline):
+                self.directory(path.parent)
+                path.write_text('behold')
+            revoke = self.mod['archive_state']
+            with self.assertRaises(ValueError):
+                revoke(domain, revoke=True)
+            journal.unlink()
+            self.mod['stopped'] = lambda _: False
+            with self.assertRaises(ValueError):
+                revoke(domain, revoke=True)
+            self.mod['stopped'] = lambda _: True
+            if domain == 'rgb':
+                with (journal.parent / 'worker.lock').open('a') as lock:
+                    fcntl.flock(lock, fcntl.LOCK_EX)
+                    with self.assertRaises(BlockingIOError):
+                        revoke(domain, revoke=True)
+            self.assertTrue(config.exists() and unit.exists() and dropin.exists())
+            revoke(domain, revoke=True)
+            self.assertFalse(config.exists() or unit.exists() or dropin.exists())
+            self.assertEqual(baseline.read_text(), 'behold')
+
+    def test_revoke_cli_needs_root_and_explains_busy_lock(self):
+        os = self.mod['os']
+        lock = self.root / 'system.lock'
+        with patch.object(sys, 'argv', ['system-install', '--revoke', 'rgb']), patch.object(sys, 'stderr', io.StringIO()):
+            with patch.object(os, 'geteuid', return_value=1000), patch.object(os, 'open', side_effect=AssertionError):
+                with self.assertRaises(SystemExit):
+                    self.mod['main']()
+            with lock.open('wb') as owner:
+                fcntl.flock(owner, fcntl.LOCK_EX)
+                fd = os.open(lock, os.O_WRONLY)
+                with patch.object(os, 'geteuid', return_value=0), patch.object(os, 'open', return_value=fd), patch.object(os, 'umask'):
+                    with self.assertRaisesRegex(ValueError, 'annen administratorhandling'):
+                        self.mod['main']()
+
+    def test_user_uninstall_reports_inactive_root_leftovers_but_succeeds(self):
+        leftover = self.root / 'usr/local/libexec/agentic-rigg-system'
+        self.directory(leftover)
+        home = self.root / 'home'
+        self.directory(home)
+        answer = subprocess.run(['/bin/bash', str(DATA.parents[1] / 'uninstall.sh')], capture_output=True, text=True,
+                                env={'PATH': '/usr/bin:/bin', 'HOME': str(home), 'RIGG_INSTALL_NO_SYSTEMD': '1',
+                                     'RIGG_HJELPER_ROT': str(self.root)})
+        self.assertEqual(answer.returncode, 0, answer.stderr)
+        self.assertIn('OBS:', answer.stderr)
+        self.assertIn('sudo /usr/local/libexec/agentic-rigg-system/system-install --uninstall', answer.stderr)
+        self.assertTrue(leftover.is_dir())
 
     def test_removed_card_needs_stopped_worker_lock_and_bound_uuid(self):
         config, journal, unit, _ = self.mod['active_files']('rgb')
@@ -162,6 +274,11 @@ class SystemTest(unittest.TestCase):
             if flag == '--rgb-forbered':
                 self.assertIn(f'--property=BindPaths={self.root}:/etc/agentic-rigg', action)
             self.assertEqual(action[action.index('--') + 1:][:2], ['/fixture/helper', flag])
+        probe = command(['/fixture/helper', '--rgb-adapter'])
+        admin.command = Mock(side_effect=[probe, RuntimeError('Unknown property ProtectProc')])
+        with self.assertRaisesRegex(RuntimeError, r'systemd-run.*Unknown property ProtectProc.*rgb-admin.service'):
+            admin.helper('/fixture/helper', '--rgb-forbered', stage=str(self.root))
+        self.assertEqual(admin.command.call_count, 2)
 
     def test_prepare_commits_only_matching_staged_authorization(self):
         module = runpy.run_path(str(DATA / 'rgb-admin.py'))

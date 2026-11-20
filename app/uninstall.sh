@@ -2,9 +2,8 @@
 # Fjerner det install.sh la inn. Rører ikke innstillingene, historikken eller
 # loggene dine. Skriver ut hvor de ligger og hvordan de slettes for hånd.
 #
-# Root-hjelperen (1.2.0) fjernes IKKE herfra, for det krever root. Er den
-# fortsatt aktiv, sier skriptet fra og viser hvordan den slås av. Kopien av
-# deaktiver.sh i /usr/local/libexec/agentic-rigg/ blir liggende til da.
+# Aktive hjelpere må deaktiveres først. Inaktive systemkomponenter fjernes
+# separat av administrator; de hindrer ikke avinstallasjon av brukerappen.
 set -euo pipefail
 
 app_id=io.github.AgenticRigg
@@ -26,6 +25,7 @@ if [ -e "$hjelper_rot/etc/agentic-rigg/rgb.json" ] ||
    [ -e "$hjelper_rot/etc/systemd/system/agentic-rigg-rgb.service" ] ||
    [ -e "$hjelper_rot/etc/systemd/system/agentic-rigg-rgb.service.d/card.conf" ] ||
    [ -e "$hjelper_rot/run/systemd/system/agentic-rigg-rgb.service.d/card.conf" ] ||
+   [ -e "$hjelper_rot/run/systemd/system/agentic-rigg-rgb.service.d/50-agentic-rigg-card.conf" ] ||
    [ -S "$hjelper_rot/run/agentic-rigg-rgb/helper.sock" ] ||
    [ -e "$hjelper_rot/usr/local/libexec/agentic-rigg-rgb-helper" ] ||
    { [ -d "$hjelper_rot/var/lib/agentic-rigg-rgb" ] &&
@@ -48,7 +48,7 @@ if [ "$hjelper_aktiv" -eq 1 ]; then
 fi
 for rest in usr/local/libexec/agentic-rigg{,-system,-rgb-v2,-helper} usr/share/polkit-1/actions/io.github.AgenticRigg.{helper,rgb.v2}.policy var/lib/agentic-rigg{,-rgb}; do
     if [ -e "$hjelper_rot/$rest" ]; then
-        echo 'Systemkomponenter eller grunnopptak gjenstår. Etter deaktivering: sudo /usr/local/libexec/agentic-rigg-system/system-install --uninstall' >&2
+        printf '\nOBS: Systemkomponenter eller grunnopptak gjenstår. Fjern dem separat etter deaktivering:\n  sudo /usr/local/libexec/agentic-rigg-system/system-install --uninstall\n\n' >&2
         break
     fi
 done

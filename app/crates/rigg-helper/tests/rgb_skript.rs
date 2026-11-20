@@ -15,7 +15,7 @@ const TRUSTED: &str = "usr/local/libexec/agentic-rigg-rgb-v2";
 const LEGACY_BIN: &str = "usr/local/libexec/agentic-rigg-rgb-helper";
 const PERMISSION: &str = "etc/agentic-rigg/rgb.json";
 const UNIT: &str = "etc/systemd/system/agentic-rigg-rgb.service";
-const DROPIN: &str = "run/systemd/system/agentic-rigg-rgb.service.d/card.conf";
+const DROPIN: &str = "run/systemd/system/agentic-rigg-rgb.service.d/50-agentic-rigg-card.conf";
 const JOURNAL: &str = "var/lib/agentic-rigg-rgb/journal.json";
 const INACTIVE: &str = "var/lib/agentic-rigg-rgb.inactive";
 const RECOVERY_ID: &str = "0123456789abcdef0123456789abcdef";
@@ -186,6 +186,12 @@ impl Drop for Fixture {
 #[test]
 fn filfixture_installerer_bare_rgb_og_en_fersk_avgrenset_adapter() {
     let f = Fixture::new();
+    for dir in ["etc", "run"] {
+        let stale = f.at(&format!("{dir}/systemd/system/agentic-rigg-rgb.service.d/card.conf"));
+        fs::DirBuilder::new().recursive(true).mode(0o755).create(stale.parent().unwrap()).unwrap();
+        fs::write(&stale, "gammelt korttillegg").unwrap();
+        fs::set_permissions(stale, fs::Permissions::from_mode(0o644)).unwrap();
+    }
     for (relative, value) in [
         ("etc/agentic-rigg/helper.json", "behold-nvml-konfig"),
         ("usr/local/libexec/agentic-rigg-helper", "behold-nvml-bin"),
@@ -213,9 +219,10 @@ fn filfixture_installerer_bare_rgb_og_en_fersk_avgrenset_adapter() {
     ] {
         assert_eq!(fs::read_to_string(f.at(relative)).unwrap(), value);
     }
-    let dropin =
-        fs::read_to_string(f.at("run/systemd/system/agentic-rigg-rgb.service.d/card.conf"))
-            .unwrap();
+    for dir in ["etc", "run"] {
+        assert!(!f.at(&format!("{dir}/systemd/system/agentic-rigg-rgb.service.d/card.conf")).exists());
+    }
+    let dropin = fs::read_to_string(f.at(DROPIN)).unwrap();
     assert_eq!(
         dropin,
         "[Service]\nDeviceAllow=\nDeviceAllow=/dev/i2c-17 rw\n"
@@ -316,8 +323,7 @@ fn feil_busrapport_og_symlink_target_skriver_ikke_enhetsregel() {
     fs::write(&f.report, report.to_string()).unwrap();
     assert!(!f.run("activate", &["--static-confirmed"]).status.success());
     assert!(
-        !f.at("run/systemd/system/agentic-rigg-rgb.service.d/card.conf")
-            .exists()
+        !f.at(DROPIN).exists()
     );
 
     let f = Fixture::new();

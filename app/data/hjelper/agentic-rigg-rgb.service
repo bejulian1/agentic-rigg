@@ -21,7 +21,7 @@ ProtectHome=yes
 ProtectProc=invisible
 PrivateTmp=yes
 DevicePolicy=closed
-# Bare ferskt identifisert /dev/i2c-N legges til i card.conf ved aktivering.
+# Bare ferskt identifisert /dev/i2c-N legges til i det flyktige korttillegget.
 ProtectKernelTunables=yes
 ProtectKernelModules=yes
 ProtectKernelLogs=yes

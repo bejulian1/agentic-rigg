@@ -81,8 +81,9 @@ class Admin(common['Admin']):
             if auth is None or self.fake:
                 fail('Uavklarte GPU-endringer. Grunnverdier og tillatelse beholdes.')
             try:
-                self.command([str(self.check_file(BIN)), '--backend', 'nvml', '--tilbakestill'])
-            except (RuntimeError, subprocess.SubprocessError) as exc:
+                installer = runpy.run_path('/usr/local/libexec/agentic-rigg-system/system-install')
+                installer['restore_nvml'](self.check_file(SCRIPTS / UNIT).read_bytes())
+            except (OSError, ValueError, subprocess.SubprocessError) as exc:
                 fail(f"Bundet kort: {auth['pci']} {auth['uuid']}. Gjenoppretting feilet: {exc}")
             if self.check_file(STATE / 'dirty.json', missing=True) is not None:
                 fail('Uavklarte GPU-endringer etter gjenoppretting.')
@@ -94,7 +95,7 @@ class Admin(common['Admin']):
         template = self.check_file(SCRIPTS / UNIT).read_bytes()
         binary = self.check_file(BIN)
         if self.fake:
-            minor, build = '0', 24
+            minor, build = '0', 25
         else:
             info = Path(f'/proc/driver/nvidia/gpus/{self.args.pci}/information').read_text()
             fields = dict(line.split(':', 1) for line in info.splitlines() if ':' in line)
