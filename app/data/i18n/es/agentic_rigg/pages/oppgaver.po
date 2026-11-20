@@ -152,7 +152,7 @@ msgstr "La tarea no se finalizó"
 
 #: crates/rigg/src/pages/oppgaver.rs:556
 msgid "Kjører"
-msgstr "En ejecución"
+msgstr "Activo"
 
 #: crates/rigg/src/pages/oppgaver.rs:557
 msgid "Sover"

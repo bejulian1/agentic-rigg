@@ -386,7 +386,7 @@ msgstr "\nLimit reasons are not read in P8 (the query takes 25 ms and wakes the 
 
 #: crates/rigg/src/pages/oversikt.rs:937
 msgid "{verdi1} · {verdi2} o/min"
-msgstr "{verdi1} · {verdi2} o/min"
+msgstr "{verdi1} · {verdi2} RPM"
 
 #: crates/rigg/src/pages/oversikt.rs:944
 msgid "Auto · driveren styrer"

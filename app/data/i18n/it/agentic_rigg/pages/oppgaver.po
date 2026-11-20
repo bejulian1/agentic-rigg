@@ -152,11 +152,11 @@ msgstr "L’attività non è stata terminata"
 
 #: crates/rigg/src/pages/oppgaver.rs:556
 msgid "Kjører"
-msgstr "In esecuzione"
+msgstr "Attivo"
 
 #: crates/rigg/src/pages/oppgaver.rs:557
 msgid "Sover"
-msgstr "In attesa"
+msgstr "Dormiente"
 
 #: crates/rigg/src/pages/oppgaver.rs:558
 msgid "Venter"

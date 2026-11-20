@@ -312,11 +312,11 @@ msgstr " · powyżej progu ostrzegawczego ({verdi})"
 
 #: crates/rigg/src/pages/oversikt.rs:840
 msgid "Mål"
-msgstr "Wartość docelowa"
+msgstr "Cel"
 
 #: crates/rigg/src/pages/oversikt.rs:840
 msgid "Nedklokking"
-msgstr "Obniżanie taktowania"
+msgstr "Throttling"
 
 #: crates/rigg/src/pages/oversikt.rs:843 crates/rigg/src/pages/oversikt.rs:847
 msgid "Avstenging"
@@ -388,11 +388,11 @@ msgstr "\nW P8 przyczyny ograniczeń nie są odczytywane (zapytanie trwa 25 ms i
 
 #: crates/rigg/src/pages/oversikt.rs:937
 msgid "{verdi1} · {verdi2} o/min"
-msgstr "{verdi1} · {verdi2} o/min"
+msgstr "{verdi1} · {verdi2} obr./min"
 
 #: crates/rigg/src/pages/oversikt.rs:944
 msgid "Auto · driveren styrer"
-msgstr "Auto · sterowanie przez sterownik"
+msgstr "Auto · przez sterownik"
 
 #: crates/rigg/src/pages/oversikt.rs:944
 msgid "Driveren styrer viftene etter temperaturen, som uten appen."

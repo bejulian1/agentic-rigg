@@ -166,7 +166,7 @@ msgstr "降频"
 
 #: crates/rigg/src/widgets/chart.rs:2008 crates/rigg/src/widgets/chart.rs:2010
 msgid "Avstenging"
-msgstr "关机"
+msgstr "关断"
 
 #: crates/rigg/src/widgets/chart.rs:2042
 msgid "Temperatur"

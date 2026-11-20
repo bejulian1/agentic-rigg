@@ -114,7 +114,7 @@ msgstr "max {verdi}"
 
 #: crates/rigg/src/pages/oversikt.rs:324
 msgid "uten temperatur"
-msgstr "senza lettura di temperatura"
+msgstr "senza temperatura"
 
 #: crates/rigg/src/pages/oversikt.rs:336
 msgid "Disker: samlet hastighet (lesing og skriving), varmeste disk og SMART-helsa.\n{helse}\nSparklinja er siste minutt. Klikk for Disker."
@@ -314,7 +314,7 @@ msgstr "Obiettivo"
 
 #: crates/rigg/src/pages/oversikt.rs:840
 msgid "Nedklokking"
-msgstr "Riduzione di frequenza"
+msgstr "Throttling"
 
 #: crates/rigg/src/pages/oversikt.rs:843 crates/rigg/src/pages/oversikt.rs:847
 msgid "Avstenging"
@@ -386,7 +386,7 @@ msgstr "\nIn P8 non si leggono le cause di limitazione (la richiesta impiega 25 
 
 #: crates/rigg/src/pages/oversikt.rs:937
 msgid "{verdi1} · {verdi2} o/min"
-msgstr "{verdi1} · {verdi2} o/min"
+msgstr "{verdi1} · {verdi2} RPM"
 
 #: crates/rigg/src/pages/oversikt.rs:944
 msgid "Auto · driveren styrer"

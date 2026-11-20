@@ -314,7 +314,7 @@ msgstr "Alvo"
 
 #: crates/rigg/src/pages/oversikt.rs:840
 msgid "Nedklokking"
-msgstr "Redução de frequência"
+msgstr "Redução"
 
 #: crates/rigg/src/pages/oversikt.rs:843 crates/rigg/src/pages/oversikt.rs:847
 msgid "Avstenging"
@@ -386,7 +386,7 @@ msgstr "\nAs causas de limitação não são consultadas em P8 (a consulta leva 
 
 #: crates/rigg/src/pages/oversikt.rs:937
 msgid "{verdi1} · {verdi2} o/min"
-msgstr "{verdi1} · {verdi2} o/min"
+msgstr "{verdi1} · {verdi2} RPM"
 
 #: crates/rigg/src/pages/oversikt.rs:944
 msgid "Auto · driveren styrer"

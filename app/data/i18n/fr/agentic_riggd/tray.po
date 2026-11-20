@@ -48,7 +48,7 @@ msgstr "Démarrer la journalisation"
 
 #: crates/riggd/src/tray.rs:172
 msgid "Stopp bakgrunnsopptak"
-msgstr "Arrêter l’enregistrement en arrière-plan"
+msgstr "Arrêter le suivi en arrière-plan"
 
 #: crates/riggd/src/tray.rs:558
 msgid "Systemfeltet: verten tok ikke imot ikonet: {e}"

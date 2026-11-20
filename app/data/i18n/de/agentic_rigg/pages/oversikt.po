@@ -314,7 +314,7 @@ msgstr "Zielwert"
 
 #: crates/rigg/src/pages/oversikt.rs:840
 msgid "Nedklokking"
-msgstr "Taktdrosselung"
+msgstr "Drosselung"
 
 #: crates/rigg/src/pages/oversikt.rs:843 crates/rigg/src/pages/oversikt.rs:847
 msgid "Avstenging"
@@ -386,7 +386,7 @@ msgstr "\nIn P8 werden die Begrenzungsgründe nicht ausgelesen (die Abfrage daue
 
 #: crates/rigg/src/pages/oversikt.rs:937
 msgid "{verdi1} · {verdi2} o/min"
-msgstr "{verdi1} · {verdi2} o/min"
+msgstr "{verdi1} · {verdi2} U/min"
 
 #: crates/rigg/src/pages/oversikt.rs:944
 msgid "Auto · driveren styrer"

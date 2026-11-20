@@ -22,7 +22,7 @@ msgstr "Wählen Sie mindestens einen Sensor zur Aufzeichnung aus."
 
 #: crates/riggd/src/logg.rs:122
 msgid "Ingen sensorer er valgt for loggen. Velg dem i Innstillinger › Logging og varsler, eller logg alle."
-msgstr "Keine Sensoren ausgewählt. Wählen Sie unter Einstellungen › Aufzeichnung und Warnungen Sensoren aus oder zeichnen Sie alle auf."
+msgstr "Keine Sensoren ausgewählt. Wählen Sie unter Einstellungen › Protokollierung und Warnungen Sensoren aus oder zeichnen Sie alle auf."
 
 #: crates/riggd/src/logg.rs:129
 msgid "Loggintervallet må være 0,5, 1, 2, 5 eller 10 s"

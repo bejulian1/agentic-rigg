@@ -54,7 +54,7 @@ msgstr "Szukaj w ustawieniach"
 
 #: crates/rigg/src/shortcuts.rs:195
 msgid "Flytt en verdi i statusblokken (Innstillinger › Sidefelt)"
-msgstr "Przenieś odczyt w obszarze stanu (Ustawienia › Panel boczny)"
+msgstr "Przenieś odczyt w obszarze stanu (Ustawienia › Pasek boczny)"
 
 #: crates/rigg/src/shortcuts.rs:196
 msgid "Mellomrom"

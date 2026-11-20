@@ -162,7 +162,7 @@ msgstr "Desligamento GPU"
 
 #: crates/rigg/src/widgets/chart.rs:2008 crates/rigg/src/widgets/chart.rs:2010
 msgid "Nedklokking"
-msgstr "Redução de frequência"
+msgstr "Redução"
 
 #: crates/rigg/src/widgets/chart.rs:2008 crates/rigg/src/widgets/chart.rs:2010
 msgid "Avstenging"

@@ -152,7 +152,7 @@ msgstr "La tâche n’a pas été terminée"
 
 #: crates/rigg/src/pages/oppgaver.rs:556
 msgid "Kjører"
-msgstr "En cours d’exécution"
+msgstr "Actif"
 
 #: crates/rigg/src/pages/oppgaver.rs:557
 msgid "Sover"
@@ -204,7 +204,7 @@ msgstr "Rechercher des tâches"
 
 #: crates/rigg/src/pages/oppgaver.rs:621
 msgid "Prosesstre"
-msgstr "Arborescence des processus"
+msgstr "Arborescence"
 
 #: crates/rigg/src/pages/oppgaver.rs:624
 msgid "Vis foreldre og barn. Sortering gjelder innen hver familie; ingen summering av barna."
@@ -212,7 +212,7 @@ msgstr "Affiche les processus parents et enfants. Le tri s’applique au sein de
 
 #: crates/rigg/src/pages/oppgaver.rs:626 crates/rigg/src/pages/oppgaver.rs:825
 msgid "Pause"
-msgstr "Mettre en pause"
+msgstr "Pause"
 
 #: crates/rigg/src/pages/oppgaver.rs:629
 msgid "Pause oppgavelisten. Systemgrafene fortsetter å vise felles målinger."

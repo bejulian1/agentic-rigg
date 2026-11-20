@@ -162,7 +162,7 @@ msgstr "GPU-Abschaltung"
 
 #: crates/rigg/src/widgets/chart.rs:2008 crates/rigg/src/widgets/chart.rs:2010
 msgid "Nedklokking"
-msgstr "Taktdrosselung"
+msgstr "Drosselung"
 
 #: crates/rigg/src/widgets/chart.rs:2008 crates/rigg/src/widgets/chart.rs:2010
 msgid "Avstenging"

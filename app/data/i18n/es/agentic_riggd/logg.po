@@ -22,7 +22,7 @@ msgstr "Selecciona al menos un sensor para el registro."
 
 #: crates/riggd/src/logg.rs:122
 msgid "Ingen sensorer er valgt for loggen. Velg dem i Innstillinger › Logging og varsler, eller logg alle."
-msgstr "No hay sensores seleccionados. Selecciónalos en Ajustes › Registro y alertas o regístralos todos."
+msgstr "No hay sensores seleccionados. Selecciónalos en Configuración › Registro y avisos o regístralos todos."
 
 #: crates/riggd/src/logg.rs:129
 msgid "Loggintervallet må være 0,5, 1, 2, 5 eller 10 s"

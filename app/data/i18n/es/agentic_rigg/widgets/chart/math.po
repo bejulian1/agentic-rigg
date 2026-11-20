@@ -114,8 +114,8 @@ msgstr "Ninguno"
 
 #: crates/rigg/src/widgets/chart/math.rs:882
 msgid "Over rød varselgrense (Innstillinger › Grafer og sensorer)."
-msgstr "Por encima del umbral crítico (Ajustes › Gráficos y sensores)."
+msgstr "Por encima del umbral crítico (Configuración › Gráficos y sensores)."
 
 #: crates/rigg/src/widgets/chart/math.rs:883
 msgid "Over gul varselgrense (Innstillinger › Grafer og sensorer)."
-msgstr "Por encima del umbral de aviso (Ajustes › Gráficos y sensores)."
+msgstr "Por encima del umbral de aviso (Configuración › Gráficos y sensores)."

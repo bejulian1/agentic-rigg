@@ -26,7 +26,7 @@ msgstr "Moverse por la barra lateral"
 
 #: crates/rigg/src/shortcuts.rs:184
 msgid "Åpne og lukk Innstillinger"
-msgstr "Abrir o cerrar los ajustes"
+msgstr "Abrir o cerrar Configuración"
 
 #: crates/rigg/src/shortcuts.rs:185
 msgid "Denne oversikten"
@@ -38,7 +38,7 @@ msgstr "Contraer o expandir la barra lateral"
 
 #: crates/rigg/src/shortcuts.rs:187
 msgid "Lukk meny, popover, dialog eller Innstillinger"
-msgstr "Cerrar menús, paneles emergentes, cuadros de diálogo o ajustes"
+msgstr "Cerrar menús, paneles emergentes, cuadros de diálogo o Configuración"
 
 #: crates/rigg/src/shortcuts.rs:191
 msgid "Sider"
@@ -46,15 +46,15 @@ msgstr "Páginas"
 
 #: crates/rigg/src/shortcuts.rs:193
 msgid "Søk i Oppgaver, Sensorer eller Innstillinger"
-msgstr "Buscar en Tareas, Sensores o Ajustes"
+msgstr "Buscar en Tareas, Sensores o Configuración"
 
 #: crates/rigg/src/shortcuts.rs:194
 msgid "Søk i Innstillinger"
-msgstr "Buscar en los ajustes"
+msgstr "Buscar en Configuración"
 
 #: crates/rigg/src/shortcuts.rs:195
 msgid "Flytt en verdi i statusblokken (Innstillinger › Sidefelt)"
-msgstr "Mover una lectura en el área de estado (Ajustes › Barra lateral)"
+msgstr "Mover una lectura en el área de estado (Configuración › Barra lateral)"
 
 #: crates/rigg/src/shortcuts.rs:196
 msgid "Mellomrom"
@@ -146,4 +146,4 @@ msgstr "o"
 
 #: crates/rigg/src/shortcuts.rs:364
 msgid "Versjon og feilsøking står under Innstillinger › Om."
-msgstr "La versión y la información de diagnóstico están en Ajustes › Acerca de."
+msgstr "La versión y la información de diagnóstico están en Configuración › Acerca de."

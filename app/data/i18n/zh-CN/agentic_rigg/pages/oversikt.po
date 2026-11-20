@@ -284,7 +284,7 @@ msgstr "硬件视频编码器和解码器的利用率。"
 
 #: crates/rigg/src/pages/oversikt.rs:804
 msgid "maks 5 min: {verdi}"
-msgstr "5 min 内最高：{verdi}"
+msgstr "5 分钟最高：{verdi}"
 
 #: crates/rigg/src/pages/oversikt.rs:819
 msgid " · {verdi} under nedklokking"
@@ -316,7 +316,7 @@ msgstr "降频"
 
 #: crates/rigg/src/pages/oversikt.rs:843 crates/rigg/src/pages/oversikt.rs:847
 msgid "Avstenging"
-msgstr "关机"
+msgstr "关断"
 
 #: crates/rigg/src/pages/oversikt.rs:847 crates/rigg/src/pages/oversikt.rs:892
 msgid "Nå"
@@ -384,7 +384,7 @@ msgstr "\nP8 状态下不读取限制原因（查询耗时 25 ms，并会唤醒�
 
 #: crates/rigg/src/pages/oversikt.rs:937
 msgid "{verdi1} · {verdi2} o/min"
-msgstr "{verdi1} · {verdi2} o/min"
+msgstr "{verdi1} · {verdi2} RPM"
 
 #: crates/rigg/src/pages/oversikt.rs:944
 msgid "Auto · driveren styrer"

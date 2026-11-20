@@ -314,7 +314,7 @@ msgstr "Objetivo"
 
 #: crates/rigg/src/pages/oversikt.rs:840
 msgid "Nedklokking"
-msgstr "Reducción de frecuencia"
+msgstr "Throttling"
 
 #: crates/rigg/src/pages/oversikt.rs:843 crates/rigg/src/pages/oversikt.rs:847
 msgid "Avstenging"
@@ -326,7 +326,7 @@ msgstr "Ahora"
 
 #: crates/rigg/src/pages/oversikt.rs:848
 msgid "Fra {min} til avstenging ({avstenging}). Over målet ({target}) senker kortet klokken litt, ved {nedklokking} tvinger det nedklokking. Gul og rød fyll betyr over varselgrensene {gul} og {red} (Innstillinger › Grafer og sensorer)."
-msgstr "De {min} al apagado ({avstenging}). Por encima del objetivo ({target}), la tarjeta reduce un poco la frecuencia. A {nedklokking}, la reducción es forzosa. El relleno amarillo y rojo indica que se superaron los umbrales {gul} y {red} (Ajustes › Gráficos y sensores)."
+msgstr "De {min} al apagado ({avstenging}). Por encima del objetivo ({target}), la tarjeta reduce un poco la frecuencia. A {nedklokking}, la reducción es forzosa. El relleno amarillo y rojo indica que se superaron los umbrales {gul} y {red} (Configuración › Gráficos y sensores)."
 
 #: crates/rigg/src/pages/oversikt.rs:852 crates/rigg/src/pages/oversikt.rs:897 crates/rigg/src/pages/oversikt.rs:939
 msgid "Ikke støttet"
@@ -386,11 +386,11 @@ msgstr "\nEn P8 no se consultan las causas de limitación (la consulta tarda 25 
 
 #: crates/rigg/src/pages/oversikt.rs:937
 msgid "{verdi1} · {verdi2} o/min"
-msgstr "{verdi1} · {verdi2} o/min"
+msgstr "{verdi1} · {verdi2} RPM"
 
 #: crates/rigg/src/pages/oversikt.rs:944
 msgid "Auto · driveren styrer"
-msgstr "Auto · control del controlador"
+msgstr "Auto · por el controlador"
 
 #: crates/rigg/src/pages/oversikt.rs:944
 msgid "Driveren styrer viftene etter temperaturen, som uten appen."

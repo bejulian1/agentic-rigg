@@ -102,7 +102,7 @@ msgstr "Envío de red"
 
 #: crates/rigg/src/sidebar.rs:255
 msgid "Turtall {n}"
-msgstr "Velocidad ventilador {n}"
+msgstr "RPM {n}"
 
 #: crates/rigg/src/sidebar.rs:526
 msgid "Sent oppe? Skjermkortet er våkent det også."

@@ -276,7 +276,7 @@ msgstr "ファン制御"
 
 #: crates/rigg/src/pages/oversikt.rs:773
 msgid "Video (enc / dek)"
-msgstr "動画 (エンコード／デコード)"
+msgstr "ビデオ (エンコード/デコード)"
 
 #: crates/rigg/src/pages/oversikt.rs:774
 msgid "Last på maskinvarens videokoder (encoder) og -dekoder (decoder)."
@@ -284,7 +284,7 @@ msgstr "ハードウェア動画エンコーダーとデコーダーの使用率
 
 #: crates/rigg/src/pages/oversikt.rs:804
 msgid "maks 5 min: {verdi}"
-msgstr "5 min の最大: {verdi}"
+msgstr "5 分最大: {verdi}"
 
 #: crates/rigg/src/pages/oversikt.rs:819
 msgid " · {verdi} under nedklokking"
@@ -384,7 +384,7 @@ msgstr "\nP8 では制限の理由を読み取りません (取得に 25 ms か�
 
 #: crates/rigg/src/pages/oversikt.rs:937
 msgid "{verdi1} · {verdi2} o/min"
-msgstr "{verdi1} · {verdi2} o/min"
+msgstr "{verdi1} · {verdi2} RPM"
 
 #: crates/rigg/src/pages/oversikt.rs:944
 msgid "Auto · driveren styrer"

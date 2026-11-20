@@ -102,7 +102,7 @@ msgstr "Trasmissione di rete"
 
 #: crates/rigg/src/sidebar.rs:255
 msgid "Turtall {n}"
-msgstr "Velocità ventola {n}"
+msgstr "RPM {n}"
 
 #: crates/rigg/src/sidebar.rs:526
 msgid "Sent oppe? Skjermkortet er våkent det også."
@@ -302,7 +302,7 @@ msgstr "Sposta giù"
 
 #: crates/rigg/src/sidebar.rs:1307
 msgid "Løsne"
-msgstr "Rimuovi dai preferiti"
+msgstr "Sgancia"
 
 #: crates/rigg/src/sidebar.rs:1316
 msgid "Vis på Sensorer"

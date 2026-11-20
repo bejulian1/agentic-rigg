@@ -162,7 +162,7 @@ msgstr "Wyłączenie GPU"
 
 #: crates/rigg/src/widgets/chart.rs:2008 crates/rigg/src/widgets/chart.rs:2010
 msgid "Nedklokking"
-msgstr "Obniżanie taktowania"
+msgstr "Throttling"
 
 #: crates/rigg/src/widgets/chart.rs:2008 crates/rigg/src/widgets/chart.rs:2010
 msgid "Avstenging"

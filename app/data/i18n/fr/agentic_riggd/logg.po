@@ -22,7 +22,7 @@ msgstr "Sélectionnez au moins un capteur à journaliser."
 
 #: crates/riggd/src/logg.rs:122
 msgid "Ingen sensorer er valgt for loggen. Velg dem i Innstillinger › Logging og varsler, eller logg alle."
-msgstr "Aucun capteur sélectionné. Sélectionnez-les dans Paramètres › Journalisation et alertes, ou journalisez-les tous."
+msgstr "Aucun capteur sélectionné. Sélectionnez-les dans Paramètres › Journal et alertes, ou journalisez-les tous."
 
 #: crates/riggd/src/logg.rs:129
 msgid "Loggintervallet må være 0,5, 1, 2, 5 eller 10 s"

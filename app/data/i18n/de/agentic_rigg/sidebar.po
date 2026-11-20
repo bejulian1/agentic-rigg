@@ -102,7 +102,7 @@ msgstr "Netzwerkversand"
 
 #: crates/rigg/src/sidebar.rs:255
 msgid "Turtall {n}"
-msgstr "Lüfterdrehzahl {n}"
+msgstr "Drehzahl {n}"
 
 #: crates/rigg/src/sidebar.rs:526
 msgid "Sent oppe? Skjermkortet er våkent det også."
@@ -150,7 +150,7 @@ msgstr "Dienst antwortet nicht"
 
 #: crates/rigg/src/sidebar.rs:954
 msgid "Kobler til …"
-msgstr "Verbindung wird hergestellt …"
+msgstr "Verbinde …"
 
 #: crates/rigg/src/sidebar.rs:955
 msgid "Leser …"
@@ -294,11 +294,11 @@ msgstr "Optionen für {verdi}"
 
 #: crates/rigg/src/sidebar.rs:1300
 msgid "Flytt opp"
-msgstr "Nach oben verschieben"
+msgstr "Nach oben"
 
 #: crates/rigg/src/sidebar.rs:1302
 msgid "Flytt ned"
-msgstr "Nach unten verschieben"
+msgstr "Nach unten"
 
 #: crates/rigg/src/sidebar.rs:1307
 msgid "Løsne"

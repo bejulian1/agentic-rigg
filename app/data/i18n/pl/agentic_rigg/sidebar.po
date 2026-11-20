@@ -104,7 +104,7 @@ msgstr "Wysyłanie sieciowe"
 
 #: crates/rigg/src/sidebar.rs:255
 msgid "Turtall {n}"
-msgstr "Obroty wentylatora {n}"
+msgstr "Obroty {n}"
 
 #: crates/rigg/src/sidebar.rs:526
 msgid "Sent oppe? Skjermkortet er våkent det også."

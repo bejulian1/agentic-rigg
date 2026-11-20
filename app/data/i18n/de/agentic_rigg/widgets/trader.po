@@ -26,4 +26,4 @@ msgstr " und "
 
 #: crates/rigg/src/widgets/trader.rs:271
 msgid "snitt {snitt} · last {last}"
-msgstr "Mittelwert {snitt} · Auslastung {last}"
+msgstr "Ø {snitt} · Auslastung {last}"

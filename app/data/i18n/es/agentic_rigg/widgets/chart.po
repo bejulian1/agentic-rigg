@@ -18,7 +18,7 @@ msgstr "No se registraron datos en este tramo (el equipo estaba apagado o en sus
 
 #: crates/rigg/src/widgets/chart.rs:611
 msgid "Hull i grafen: appen var lukket. Slå på «Fortsett i bakgrunnen» under Innstillinger › Generelt for å ta opp også da."
-msgstr "Hueco en el gráfico: la aplicación estaba cerrada. Activa «Continuar en segundo plano» en Ajustes › General para seguir grabando al cerrarla."
+msgstr "Hueco en el gráfico: la aplicación estaba cerrada. Activa «Continuar en segundo plano» en Configuración › General para seguir grabando al cerrarla."
 
 #: crates/rigg/src/widgets/chart.rs:1079
 msgid "pauset {verdi}"
@@ -154,7 +154,7 @@ msgstr "Gráfico"
 
 #: crates/rigg/src/widgets/chart.rs:2006
 msgid "GPU-nedklokking"
-msgstr "Estrangulamiento GPU"
+msgstr "Throttling GPU"
 
 #: crates/rigg/src/widgets/chart.rs:2006
 msgid "GPU-avstenging"
@@ -162,7 +162,7 @@ msgstr "Apagado GPU"
 
 #: crates/rigg/src/widgets/chart.rs:2008 crates/rigg/src/widgets/chart.rs:2010
 msgid "Nedklokking"
-msgstr "Reducción de frecuencia"
+msgstr "Throttling"
 
 #: crates/rigg/src/widgets/chart.rs:2008 crates/rigg/src/widgets/chart.rs:2010
 msgid "Avstenging"

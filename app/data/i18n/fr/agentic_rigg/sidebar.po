@@ -102,7 +102,7 @@ msgstr "Émission réseau"
 
 #: crates/rigg/src/sidebar.rs:255
 msgid "Turtall {n}"
-msgstr "Vitesse ventilateur {n}"
+msgstr "Tr/min {n}"
 
 #: crates/rigg/src/sidebar.rs:526
 msgid "Sent oppe? Skjermkortet er våkent det også."
@@ -294,11 +294,11 @@ msgstr "Options pour {verdi}"
 
 #: crates/rigg/src/sidebar.rs:1300
 msgid "Flytt opp"
-msgstr "Déplacer vers le haut"
+msgstr "Monter"
 
 #: crates/rigg/src/sidebar.rs:1302
 msgid "Flytt ned"
-msgstr "Déplacer vers le bas"
+msgstr "Descendre"
 
 #: crates/rigg/src/sidebar.rs:1307
 msgid "Løsne"

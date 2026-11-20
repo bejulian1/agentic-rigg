@@ -162,7 +162,7 @@ msgstr "Arrêt GPU"
 
 #: crates/rigg/src/widgets/chart.rs:2008 crates/rigg/src/widgets/chart.rs:2010
 msgid "Nedklokking"
-msgstr "Réduction de fréquence"
+msgstr "Bridage"
 
 #: crates/rigg/src/widgets/chart.rs:2008 crates/rigg/src/widgets/chart.rs:2010
 msgid "Avstenging"

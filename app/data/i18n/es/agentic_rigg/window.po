@@ -14,4 +14,4 @@ msgstr "Resumen"
 
 #: crates/rigg/src/window.rs:380
 msgid "Innstillinger · {verdi}"
-msgstr "Ajustes · {verdi}"
+msgstr "Configuración · {verdi}"

@@ -152,7 +152,7 @@ msgstr "Der Task wurde nicht beendet"
 
 #: crates/rigg/src/pages/oppgaver.rs:556
 msgid "Kjører"
-msgstr "Wird ausgeführt"
+msgstr "Läuft"
 
 #: crates/rigg/src/pages/oppgaver.rs:557
 msgid "Sover"
