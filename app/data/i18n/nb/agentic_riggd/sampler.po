@@ -1,0 +1,16 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: nb\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: crates/riggd/src/sampler.rs:112
+msgid "Prøvetråden fikk panikk. Starter den på nytt om 1 s."
+msgstr "Prøvetråden fikk panikk. Starter den på nytt om 1 s."
+
+#: crates/riggd/src/sampler.rs:118
+msgid "kunne ikke starte prøvetråden"
+msgstr "kunne ikke starte prøvetråden"

@@ -10,6 +10,7 @@
 //!
 //! **For 2C:** [`Topbar::set_locked`] setter merket «Låst» for en side.
 
+use rigg_core::tr;
 use crate::widgets::{Icon, hbox, label, set_text};
 use gtk::prelude::*;
 use std::cell::RefCell;
@@ -60,9 +61,9 @@ impl Topbar {
         actions.set_interpolate_size(false);
         actions.add_named(&gtk::Box::new(gtk::Orientation::Horizontal, 0), Some("tom"));
         bar.append(&actions);
-        let lock = crate::widgets::rows::tag("Låst", Some("lock"), "");
+        let lock = crate::widgets::rows::tag(tr!("Låst"), Some("lock"), "");
         lock.add_css_class("tag-lg");
-        lock.set_tooltip_text(Some("Endringer er låst. Verdiene er lest fra kortet."));
+        lock.set_tooltip_text(Some(tr!("Endringer er låst. Verdiene er lest fra kortet.")));
         lock.set_valign(gtk::Align::Center);
         lock.set_visible(false);
         bar.append(&lock);

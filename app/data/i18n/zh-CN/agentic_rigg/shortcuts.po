@@ -1,0 +1,145 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/shortcuts.rs:179
+msgid "Navigasjon"
+msgstr "导航"
+
+#: crates/rigg/src/shortcuts.rs:181
+msgid "Åpne de ti opprinnelige sidene; 0 åpner RGB-lys"
+msgstr "打开前十个页面；0 打开 RGB 灯效"
+
+#: crates/rigg/src/shortcuts.rs:182
+msgid "Åpne Oppgaver"
+msgstr "打开任务"
+
+#: crates/rigg/src/shortcuts.rs:183
+msgid "Flytt i sidefeltet"
+msgstr "在侧边栏中移动"
+
+#: crates/rigg/src/shortcuts.rs:184
+msgid "Åpne og lukk Innstillinger"
+msgstr "打开或关闭设置"
+
+#: crates/rigg/src/shortcuts.rs:185
+msgid "Denne oversikten"
+msgstr "显示此快捷键列表"
+
+#: crates/rigg/src/shortcuts.rs:186
+msgid "Legg sammen eller utvid sidefeltet"
+msgstr "收起或展开侧边栏"
+
+#: crates/rigg/src/shortcuts.rs:187
+msgid "Lukk meny, popover, dialog eller Innstillinger"
+msgstr "关闭菜单、弹出面板、对话框或设置"
+
+#: crates/rigg/src/shortcuts.rs:191
+msgid "Sider"
+msgstr "页面"
+
+#: crates/rigg/src/shortcuts.rs:193
+msgid "Søk i Oppgaver, Sensorer eller Innstillinger"
+msgstr "在任务、传感器或设置中搜索"
+
+#: crates/rigg/src/shortcuts.rs:194
+msgid "Søk i Innstillinger"
+msgstr "搜索设置"
+
+#: crates/rigg/src/shortcuts.rs:195
+msgid "Flytt en verdi i statusblokken (Innstillinger › Sidefelt)"
+msgstr "移动状态区中的读数（设置 › 侧边栏）"
+
+#: crates/rigg/src/shortcuts.rs:196
+msgid "Pause og fortsett (Grafer)"
+msgstr "暂停或继续（图表）"
+
+#: crates/rigg/src/shortcuts.rs:197
+msgid "Logg til fil av og på"
+msgstr "开启或关闭文件记录"
+
+#: crates/rigg/src/shortcuts.rs:198
+msgid "Nullstill min og maks (Sensorer)"
+msgstr "重置最小值和最大值（传感器）"
+
+#: crates/rigg/src/shortcuts.rs:199
+msgid "Oppdater nå (Oppgaver) eller les faste data på nytt (Grafikkort, Prosessor og System)"
+msgstr "立即刷新（任务）或重新读取静态信息（显卡、处理器和系统）"
+
+#: crates/rigg/src/shortcuts.rs:203
+msgid "Vinduet"
+msgstr "窗口"
+
+#: crates/rigg/src/shortcuts.rs:205
+msgid "Større eller mindre skrift"
+msgstr "放大或缩小文字"
+
+#: crates/rigg/src/shortcuts.rs:206
+msgid "Vanlig skriftstørrelse"
+msgstr "恢复默认文字大小"
+
+#: crates/rigg/src/shortcuts.rs:207
+msgid "Lukk vinduet"
+msgstr "关闭窗口"
+
+#: crates/rigg/src/shortcuts.rs:208
+msgid "Avslutt"
+msgstr "退出"
+
+#: crates/rigg/src/shortcuts.rs:212
+msgid "Skjermkortstyring (klokker og effekt, vifter)"
+msgstr "显卡控制（频率与功耗、风扇）"
+
+#: crates/rigg/src/shortcuts.rs:214
+msgid "Angre i utkastet"
+msgstr "撤销草稿更改"
+
+#: crates/rigg/src/shortcuts.rs:215
+msgid "Gjør om"
+msgstr "重做"
+
+#: crates/rigg/src/shortcuts.rs:216
+msgid "Bruk utkastet"
+msgstr "应用草稿"
+
+#: crates/rigg/src/shortcuts.rs:217
+msgid "Glideren: ett steg ned eller opp (Shift: stort steg)"
+msgstr "滑块：减小或增大一步（Shift：大步调整）"
+
+#: crates/rigg/src/shortcuts.rs:218
+msgid "Glideren: stort steg opp eller ned"
+msgstr "滑块：大步增大或减小"
+
+#: crates/rigg/src/shortcuts.rs:219
+msgid "Glideren: laveste eller høyeste verdi"
+msgstr "滑块：最小值或最大值"
+
+#: crates/rigg/src/shortcuts.rs:220
+msgid "Kurven: forrige eller neste punkt (også PgUp og PgDn)"
+msgstr "曲线：上一个或下一个点（也可用 PgUp 和 PgDn）"
+
+#: crates/rigg/src/shortcuts.rs:221
+msgid "Kurven: flytt punktet 1 °C eller 1 % (Shift: 5)"
+msgstr "曲线：将点移动 1 °C 或 1 %（Shift：5）"
+
+#: crates/rigg/src/shortcuts.rs:222
+msgid "Kurven: legg til eller fjern et punkt"
+msgstr "曲线：添加或删除点"
+
+#: crates/rigg/src/shortcuts.rs:329
+msgid "Tastatursnarveier"
+msgstr "键盘快捷键"
+
+#: crates/rigg/src/shortcuts.rs:349
+msgid "eller"
+msgstr "或"
+
+#: crates/rigg/src/shortcuts.rs:364
+msgid "Versjon og feilsøking står under Innstillinger › Om."
+msgstr "版本和故障排查信息位于“设置 › 关于”。"

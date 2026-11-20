@@ -1,0 +1,29 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/widgets/trader.rs:139
+msgid "Klokke og last per tråd"
+msgstr "Frecuencia y uso por hilo"
+
+#: crates/rigg/src/widgets/trader.rs:148
+msgid "Tråd {t}: {m}, {l} last\nKlokke er snittet fra APERF/MPERF (cpufreq)."
+msgstr "Hilo {t}: {m}, uso {l}\nLa frecuencia es el promedio de APERF/MPERF (cpufreq)."
+
+#: crates/rigg/src/widgets/trader.rs:150
+msgid "{threads} deler kjerne (SMT)"
+msgstr "{threads} comparten núcleo (SMT)"
+
+#: crates/rigg/src/widgets/trader.rs:150
+msgid " og "
+msgstr " y "
+
+#: crates/rigg/src/widgets/trader.rs:271
+msgid "snitt {snitt} · last {last}"
+msgstr "prom. {snitt} · uso {last}"

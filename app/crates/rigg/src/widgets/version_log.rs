@@ -1,6 +1,7 @@
 //! Kort, innebygd desktophistorikk. Kilden oppdateres ved hver utgivelse;
 //! løpende testtall og utviklingslogger hører ikke hjemme i denne dialogen.
 
+use rigg_core::{tr, trf};
 use super::{label, vbox};
 use crate::state::App;
 use gtk::prelude::*;
@@ -59,9 +60,9 @@ fn wrap(text: &str, classes: &[&str]) -> gtk::Label {
 }
 
 pub fn show(app: &Rc<App>) {
-    let Some((window, root)) = crate::shortcuts::dialog(app, "Versjonslogg", 640, 720) else { return };
+    let Some((window, root)) = crate::shortcuts::dialog(app, tr!("Versjonslogg"), 640, 720) else { return };
     let body = vbox(12, &["lic-body"]);
-    body.append(&wrap("Desktoputgavene, fra nyeste til eldste. Åpne en versjon for å se endringene.", &["muted"]));
+    body.append(&wrap(tr!("Desktoputgavene, fra nyeste til eldste. Åpne en versjon for å se endringene."), &["muted"]));
     let data = gtk::gio::resources_lookup_data(RESOURCE, gtk::gio::ResourceLookupFlags::NONE).map_err(|e| e.to_string()).and_then(|bytes| std::str::from_utf8(&bytes).map_err(|e| e.to_string()).and_then(entries));
     match data {
         Ok(entries) => {
@@ -70,7 +71,7 @@ pub fn show(app: &Rc<App>) {
                 expander.set_hexpand(true);
                 expander.set_expanded(index == 0);
                 let heading = vbox(2, &[]);
-                heading.append(&wrap(&format!("{} · bygg {} · {}", entry.version, entry.build, date_label(&entry.date)), &["group-title"]));
+                heading.append(&wrap(&trf!("{versjon} · bygg {bygg} · {dato}", versjon = entry.version, bygg = entry.build, dato = date_label(&entry.date)), &["group-title"]));
                 heading.append(&wrap(&entry.title, &["muted"]));
                 expander.set_label_widget(Some(&heading));
                 let changes = vbox(8, &[]);
@@ -84,7 +85,7 @@ pub fn show(app: &Rc<App>) {
                 body.append(&expander);
             }
         }
-        Err(_) => body.append(&wrap("Versjonsloggen kunne ikke leses fra appen.", &[])),
+        Err(_) => body.append(&wrap(tr!("Versjonsloggen kunne ikke leses fra appen."), &[])),
     }
     let scroll = gtk::ScrolledWindow::new();
     scroll.set_hscrollbar_policy(gtk::PolicyType::Never);

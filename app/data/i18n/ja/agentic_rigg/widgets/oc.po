@@ -1,0 +1,25 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/widgets/oc.rs:231
+msgid "standard {verdi}"
+msgstr "既定値 {verdi}"
+
+#: crates/rigg/src/widgets/oc.rs:703 crates/rigg/src/widgets/oc.rs:704
+msgid "Mer om {what}"
+msgstr "{what} の詳細"
+
+#: crates/rigg/src/widgets/oc.rs:804
+msgid "Tilbakestill"
+msgstr "リセット"
+
+#: crates/rigg/src/widgets/oc.rs:808
+msgid "Tilbakestill {verdi} til standard"
+msgstr "{verdi} を既定値に戻す"

@@ -1,0 +1,410 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/pages/oversikt.rs:88 crates/rigg/src/pages/oversikt.rs:99
+msgid "Prosessor"
+msgstr "プロセッサー"
+
+#: crates/rigg/src/pages/oversikt.rs:89 crates/rigg/src/pages/oversikt.rs:740
+msgid "Skjermkort"
+msgstr "グラフィックスカード"
+
+#: crates/rigg/src/pages/oversikt.rs:90 crates/rigg/src/pages/oversikt.rs:620 crates/rigg/src/pages/oversikt.rs:652
+msgid "Minne"
+msgstr "メモリ"
+
+#: crates/rigg/src/pages/oversikt.rs:92 crates/rigg/src/pages/oversikt.rs:102
+msgid "Disker"
+msgstr "ドライブ"
+
+#: crates/rigg/src/pages/oversikt.rs:93 crates/rigg/src/pages/oversikt.rs:1065
+msgid "Nettverk"
+msgstr "ネットワーク"
+
+#: crates/rigg/src/pages/oversikt.rs:100 crates/rigg/src/pages/oversikt.rs:744
+msgid "Grafikkort"
+msgstr "グラフィックスカード"
+
+#: crates/rigg/src/pages/oversikt.rs:101
+msgid "System"
+msgstr "システム"
+
+#: crates/rigg/src/pages/oversikt.rs:103
+msgid "Klokker og effekt"
+msgstr "クロックと電力"
+
+#: crates/rigg/src/pages/oversikt.rs:104
+msgid "Sensorer"
+msgstr "センサー"
+
+#: crates/rigg/src/pages/oversikt.rs:196
+msgid "{what}\nSparklinja er siste minutt. Klikk for {side}."
+msgstr "{what}\nミニグラフは直近 1 分間を示します。クリックすると「{side}」が開きます。"
+
+#: crates/rigg/src/pages/oversikt.rs:235
+msgid "Prosessor: total last, temperatur (Tdie) og snittklokke over trådene."
+msgstr "プロセッサー: 全体の使用率、温度 (Tdie)、全スレッドの平均クロック。"
+
+#: crates/rigg/src/pages/oversikt.rs:252
+msgid "Ny driver"
+msgstr "新しいドライバー"
+
+#: crates/rigg/src/pages/oversikt.rs:252
+msgid "Ingen driver"
+msgstr "ドライバーなし"
+
+#: crates/rigg/src/pages/oversikt.rs:254
+msgid "start maskinen på nytt"
+msgstr "コンピューターを再起動"
+
+#: crates/rigg/src/pages/oversikt.rs:254
+msgid "fant ikke NVIDIA-driveren"
+msgstr "NVIDIA ドライバーが見つかりません"
+
+#: crates/rigg/src/pages/oversikt.rs:255
+msgid "En ny NVIDIA-driver er installert, men den gamle kjører fortsatt."
+msgstr "新しい NVIDIA ドライバーがインストールされていますが、古いドライバーがまだ動作中です。"
+
+#: crates/rigg/src/pages/oversikt.rs:255
+msgid "Fant ingen NVIDIA-driver. Prosessor, minne og disker vises som vanlig."
+msgstr "NVIDIA ドライバーが見つかりません。プロセッサー、メモリ、ドライブは通常どおり表示されます。"
+
+#: crates/rigg/src/pages/oversikt.rs:258
+msgid "svarer ikke"
+msgstr "応答なし"
+
+#: crates/rigg/src/pages/oversikt.rs:259
+msgid "Skjermkortet svarer ikke. Tjenesten prøver å finne det igjen hvert 10. s."
+msgstr "GPU が応答していません。サービスは 10 s ごとに再検出を試みます。"
+
+#: crates/rigg/src/pages/oversikt.rs:269
+msgid "{brukt} av {totalt}"
+msgstr "{totalt} 中 {brukt}"
+
+#: crates/rigg/src/pages/oversikt.rs:276
+msgid "Skjermkort: GPU-last, temperatur, effekt av effektgrensen og P-tilstand (P0 er full ytelse, P8 er tomgang)."
+msgstr "グラフィックスカード: GPU 使用率、温度、電力制限に対する消費電力、パフォーマンス状態 (P0 は最大性能、P8 はアイドル)。"
+
+#: crates/rigg/src/pages/oversikt.rs:289 crates/rigg/src/pages/oversikt.rs:304
+msgid "av {verdi}"
+msgstr "全 {verdi}"
+
+#: crates/rigg/src/pages/oversikt.rs:291
+msgid "Minne: det programmene bruker, av totalt. Buffer og cache er ikke med."
+msgstr "メモリ: 総容量のうちアプリが使用している量。バッファーとキャッシュは含みません。"
+
+#: crates/rigg/src/pages/oversikt.rs:306
+msgid "Videominne brukt på skjermkortet, av totalt. Gult over 85 %, rødt over 95 %."
+msgstr "カードのビデオメモリ総容量に対する使用量です。85% 超で黄色、95% 超で赤色になります。"
+
+#: crates/rigg/src/pages/oversikt.rs:316
+msgid "ingen disker"
+msgstr "ドライブなし"
+
+#: crates/rigg/src/pages/oversikt.rs:323
+msgid "maks {verdi}"
+msgstr "最大 {verdi}"
+
+#: crates/rigg/src/pages/oversikt.rs:324
+msgid "uten temperatur"
+msgstr "温度データなし"
+
+#: crates/rigg/src/pages/oversikt.rs:336
+msgid "Disker: samlet hastighet (lesing og skriving), varmeste disk og SMART-helsa.\n{helse}\nSparklinja er siste minutt. Klikk for Disker."
+msgstr "ドライブ: 合計読み書き速度、温度が最も高いドライブ、SMART の状態。\n{helse}\nミニグラフは直近 1 分間を示します。クリックすると「ドライブ」が開きます。"
+
+#: crates/rigg/src/pages/oversikt.rs:344
+msgid "{fail} feil"
+msgid_plural "{fail} med feil"
+msgstr[0] "{fail} 台に障害"
+
+#: crates/rigg/src/pages/oversikt.rs:348
+msgid "alle OK"
+msgstr "すべて正常"
+
+#: crates/rigg/src/pages/oversikt.rs:350
+msgid "helse ukjent"
+msgstr "状態不明"
+
+#: crates/rigg/src/pages/oversikt.rs:364
+msgid "{u} ned"
+msgstr "{u} 受信"
+
+#: crates/rigg/src/pages/oversikt.rs:368
+msgid "{verdi} opp"
+msgstr "{verdi} 送信"
+
+#: crates/rigg/src/pages/oversikt.rs:369
+msgid "Nettverk: mottatt og sendt over de fysiske nettverkskortene."
+msgstr "ネットワーク: 物理ネットワークアダプターで受信・送信した通信量。"
+
+#: crates/rigg/src/pages/oversikt.rs:415
+msgid "Skjermkortet svarer ikke"
+msgstr "GPU が応答していません"
+
+#: crates/rigg/src/pages/oversikt.rs:417
+msgid "siden {s} · tjenesten prøver igjen hvert 10. s"
+msgstr "{s} から · サービスは 10 s ごとに再試行"
+
+#: crates/rigg/src/pages/oversikt.rs:418
+msgid "tjenesten prøver igjen hvert 10. s"
+msgstr "サービスは 10 s ごとに再試行"
+
+#: crates/rigg/src/pages/oversikt.rs:422
+msgid "Driveren er oppdatert"
+msgstr "ドライバー更新済み"
+
+#: crates/rigg/src/pages/oversikt.rs:422
+msgid "start maskinen på nytt for å lese skjermkortet"
+msgstr "GPU の測定値を取得するにはコンピューターを再起動"
+
+#: crates/rigg/src/pages/oversikt.rs:423
+msgid "Fant ingen NVIDIA-driver"
+msgstr "NVIDIA ドライバーが見つかりません"
+
+#: crates/rigg/src/pages/oversikt.rs:423
+msgid "prosessor, minne og disker vises som vanlig"
+msgstr "プロセッサー、メモリ、ドライブは通常どおり表示"
+
+#: crates/rigg/src/pages/oversikt.rs:429
+msgid "Skjermkortet nedklokker"
+msgstr "GPU がクロックを下げています"
+
+#: crates/rigg/src/pages/oversikt.rs:435
+msgid "over nedklokkingsgrensen ({verdi})"
+msgstr "クロック低下しきい値を超過 ({verdi})"
+
+#: crates/rigg/src/pages/oversikt.rs:435
+msgid "ved nedklokkingsgrensen ({verdi})"
+msgstr "クロック低下しきい値に到達 ({verdi})"
+
+#: crates/rigg/src/pages/oversikt.rs:438 crates/rigg/src/pages/oversikt.rs:447
+msgid "over rød grense ({verdi})"
+msgstr "危険しきい値を超過 ({verdi})"
+
+#: crates/rigg/src/pages/oversikt.rs:440 crates/rigg/src/pages/oversikt.rs:449
+msgid "over gul grense ({verdi})"
+msgstr "警告しきい値を超過 ({verdi})"
+
+#: crates/rigg/src/pages/oversikt.rs:453
+msgid "Minne {verdi}"
+msgstr "メモリ {verdi}"
+
+#: crates/rigg/src/pages/oversikt.rs:453
+msgid "nesten fullt"
+msgstr "ほぼ満杯"
+
+#: crates/rigg/src/pages/oversikt.rs:461
+msgid "se SMART"
+msgstr "SMART を確認"
+
+#: crates/rigg/src/pages/oversikt.rs:530
+msgid "{status} {detalj}. Klikk for {side}."
+msgstr "{status} {detalj}。クリックすると「{side}」が開きます。"
+
+#: crates/rigg/src/pages/oversikt.rs:548
+msgid "Tilstand: {summary}"
+msgstr "状態: {summary}"
+
+#: crates/rigg/src/pages/oversikt.rs:590
+msgid "Last"
+msgstr "使用率"
+
+#: crates/rigg/src/pages/oversikt.rs:613
+msgid "Temperaturer"
+msgstr "温度"
+
+#: crates/rigg/src/pages/oversikt.rs:652
+msgid "Minne og VRAM"
+msgstr "メモリと VRAM"
+
+#: crates/rigg/src/pages/oversikt.rs:687
+msgid "Temperatur og effekt"
+msgstr "温度と電力"
+
+#: crates/rigg/src/pages/oversikt.rs:696 crates/rigg/src/pages/oversikt.rs:711
+msgid "GPU-temperatur"
+msgstr "GPU 温度"
+
+#: crates/rigg/src/pages/oversikt.rs:709
+msgid "Høyeste GPU-temperatur de siste 5 minuttene"
+msgstr "直近 5 分間の最高 GPU 温度"
+
+#: crates/rigg/src/pages/oversikt.rs:722 crates/rigg/src/pages/oversikt.rs:729 crates/rigg/src/pages/oversikt.rs:1061
+msgid "GPU-effekt"
+msgstr "GPU 消費電力"
+
+#: crates/rigg/src/pages/oversikt.rs:747
+msgid "Alt driveren og kortet oppgir, på Grafikkort"
+msgstr "ドライバーとカードの全情報は「グラフィックスカード」で確認できます"
+
+#: crates/rigg/src/pages/oversikt.rs:755
+msgid "Kjerneklokke"
+msgstr "コアクロック"
+
+#: crates/rigg/src/pages/oversikt.rs:755
+msgid "Minneklokke"
+msgstr "メモリクロック"
+
+#: crates/rigg/src/pages/oversikt.rs:766
+msgid "Nå og kortets høyeste (fra driveren)"
+msgstr "現在のクロックとカードの最大クロック (ドライバーの報告値)"
+
+#: crates/rigg/src/pages/oversikt.rs:770
+msgid "Vifter"
+msgstr "ファン"
+
+#: crates/rigg/src/pages/oversikt.rs:771
+msgid "Viftestyring"
+msgstr "ファン制御"
+
+#: crates/rigg/src/pages/oversikt.rs:773
+msgid "Video (enc / dek)"
+msgstr "動画 (エンコード／デコード)"
+
+#: crates/rigg/src/pages/oversikt.rs:774
+msgid "Last på maskinvarens videokoder (encoder) og -dekoder (decoder)."
+msgstr "ハードウェア動画エンコーダーとデコーダーの使用率。"
+
+#: crates/rigg/src/pages/oversikt.rs:804
+msgid "maks 5 min: {verdi}"
+msgstr "5 min の最大: {verdi}"
+
+#: crates/rigg/src/pages/oversikt.rs:819
+msgid " · {verdi} under nedklokking"
+msgstr " · クロック低下まで {verdi}"
+
+#: crates/rigg/src/pages/oversikt.rs:821
+msgid " · over nedklokkingsgrensen"
+msgstr " · クロック低下しきい値を超過"
+
+#: crates/rigg/src/pages/oversikt.rs:823
+msgid " · ved nedklokkingsgrensen"
+msgstr " · クロック低下しきい値に到達"
+
+#: crates/rigg/src/pages/oversikt.rs:827
+msgid " · over rød grense ({verdi})"
+msgstr " · 危険しきい値を超過 ({verdi})"
+
+#: crates/rigg/src/pages/oversikt.rs:828
+msgid " · over gul grense ({verdi})"
+msgstr " · 警告しきい値を超過 ({verdi})"
+
+#: crates/rigg/src/pages/oversikt.rs:840
+msgid "Mål"
+msgstr "目標"
+
+#: crates/rigg/src/pages/oversikt.rs:840
+msgid "Nedklokking"
+msgstr "クロック低下"
+
+#: crates/rigg/src/pages/oversikt.rs:843 crates/rigg/src/pages/oversikt.rs:847
+msgid "Avstenging"
+msgstr "シャットダウン"
+
+#: crates/rigg/src/pages/oversikt.rs:847 crates/rigg/src/pages/oversikt.rs:892
+msgid "Nå"
+msgstr "現在"
+
+#: crates/rigg/src/pages/oversikt.rs:848
+msgid "Fra {min} til avstenging ({avstenging}). Over målet ({target}) senker kortet klokken litt, ved {nedklokking} tvinger det nedklokking. Gul og rød fyll betyr over varselgrensene {gul} og {red} (Innstillinger › Grafer og sensorer)."
+msgstr "{min} からシャットダウン温度 ({avstenging}) まで。目標温度 ({target}) を超えるとカードはクロックを少し下げ、{nedklokking} に達すると強制的にクロックを下げます。黄色と赤の塗りつぶしはそれぞれしきい値 {gul} と {red} の超過を示します (設定 › グラフとセンサー)。"
+
+#: crates/rigg/src/pages/oversikt.rs:852 crates/rigg/src/pages/oversikt.rs:897 crates/rigg/src/pages/oversikt.rs:939
+msgid "Ikke støttet"
+msgstr "非対応"
+
+#: crates/rigg/src/pages/oversikt.rs:866
+msgid "{trekk} av {grense}"
+msgstr "{trekk} / {grense}"
+
+#: crates/rigg/src/pages/oversikt.rs:873
+msgid "Grense (standard)"
+msgstr "上限 (既定)"
+
+#: crates/rigg/src/pages/oversikt.rs:873
+msgid "Grense"
+msgstr "上限"
+
+#: crates/rigg/src/pages/oversikt.rs:875
+msgid "Standard"
+msgstr "既定"
+
+#: crates/rigg/src/pages/oversikt.rs:879
+msgid " Grensen kan settes fra {min} til {maks}."
+msgstr "上限は {min} から {maks} の範囲で設定できます。"
+
+#: crates/rigg/src/pages/oversikt.rs:884 crates/rigg/src/pages/oversikt.rs:892
+msgid "Kortets maks"
+msgstr "カードの最大値"
+
+#: crates/rigg/src/pages/oversikt.rs:893
+msgid "Trekket nå mot effektgrensen, snitt fra energitelleren. Gult fyll betyr at kortet er ved grensen og holder igjen.{range}"
+msgstr "エネルギーカウンターから求めた平均消費電力を電力制限と比較します。黄色の塗りつぶしはカードが上限に達して性能を抑えていることを示します。{range}"
+
+#: crates/rigg/src/pages/oversikt.rs:895
+msgid "{verdi} av grensen"
+msgstr "上限の {verdi}"
+
+#: crates/rigg/src/pages/oversikt.rs:906
+msgid "ingen begrensning"
+msgstr "制限なし"
+
+#: crates/rigg/src/pages/oversikt.rs:913
+msgid "P0 er full ytelse, P8 er dyp tomgang. Kortet bytter selv."
+msgstr "P0 は最大性能、P8 は深いアイドル状態です。カードが自動的に切り替えます。"
+
+#: crates/rigg/src/pages/oversikt.rs:915
+msgid "\nBegrensninger nå: {full}."
+msgstr "\n現在の制限: {full}。"
+
+#: crates/rigg/src/pages/oversikt.rs:917
+msgid "\nKlokken begrenses nå av: {x}."
+msgstr "\n現在のクロック制限の理由: {x}。"
+
+#: crates/rigg/src/pages/oversikt.rs:920
+msgid "\nI P8 leses ikke begrensningene (kallet koster 25 ms og vekker kortet)."
+msgstr "\nP8 では制限の理由を読み取りません (取得に 25 ms かかり、カードがアイドル状態から復帰するため)。"
+
+#: crates/rigg/src/pages/oversikt.rs:937
+msgid "{verdi1} · {verdi2} o/min"
+msgstr "{verdi1} · {verdi2} o/min"
+
+#: crates/rigg/src/pages/oversikt.rs:944
+msgid "Auto · driveren styrer"
+msgstr "自動 · ドライバー制御"
+
+#: crates/rigg/src/pages/oversikt.rs:944
+msgid "Driveren styrer viftene etter temperaturen, som uten appen."
+msgstr "アプリがない場合と同じように、ドライバーが温度に応じてファンを制御します。"
+
+#: crates/rigg/src/pages/oversikt.rs:945
+msgid "Manuell · satt utenfor appen"
+msgstr "手動 · アプリ外で設定"
+
+#: crates/rigg/src/pages/oversikt.rs:945
+msgid "Minst én vifte er satt til fast fart utenfor appen."
+msgstr "少なくとも 1 つのファンがアプリ外で固定回転数に設定されています。"
+
+#: crates/rigg/src/pages/oversikt.rs:946
+msgid "Viftestyringen er ikke lest ennå, eller kortet oppgir den ikke."
+msgstr "ファン制御モードをまだ読み取っていないか、カードが報告しません。"
+
+#: crates/rigg/src/pages/oversikt.rs:955
+msgid "PCIe-lenken mellom kortet og hovedkortet."
+msgstr "グラフィックスカードとマザーボードを接続する PCIe リンク。"
+
+#: crates/rigg/src/pages/oversikt.rs:1064
+msgid "Disk-I/O"
+msgstr "ディスク I/O"
+
+#: crates/rigg/src/pages/oversikt.rs:1096
+msgid "Tidsvindu for grafene på Oversikt"
+msgstr "「概要」のグラフの表示期間"

@@ -1,0 +1,75 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/riggd/src/tray.rs:104
+msgid "Ingen tall fra skjermkortet"
+msgstr "Aucune mesure du GPU"
+
+#: crates/riggd/src/tray.rs:106
+msgid "GPU {temperatur} · {effekt} · {last} last"
+msgstr "GPU {temperatur} · {effekt} · charge {last}"
+
+#: crates/riggd/src/tray.rs:109
+msgid " · Logger"
+msgstr " · Journalisation"
+
+#: crates/riggd/src/tray.rs:120
+msgid "Logger til fil · {antall} rader"
+msgid_plural "Logger til fil · {antall} rader"
+msgstr[0] "Journalisation dans un fichier · {antall} ligne"
+msgstr[1] "Journalisation dans un fichier · {antall} lignes"
+
+#: crates/riggd/src/tray.rs:121
+msgid "Logger til fil"
+msgstr "Journalisation dans un fichier"
+
+#: crates/riggd/src/tray.rs:124
+msgid "Tar opp historikk i bakgrunnen"
+msgstr "Enregistrement de l’historique en arrière-plan"
+
+#: crates/riggd/src/tray.rs:169
+msgid "Åpne Agentic Rigg"
+msgstr "Ouvrir Agentic Rigg"
+
+#: crates/riggd/src/tray.rs:170
+msgid "Stopp logging"
+msgstr "Arrêter la journalisation"
+
+#: crates/riggd/src/tray.rs:170
+msgid "Start logging"
+msgstr "Démarrer la journalisation"
+
+#: crates/riggd/src/tray.rs:172
+msgid "Stopp bakgrunnsopptak"
+msgstr "Arrêter l’enregistrement en arrière-plan"
+
+#: crates/riggd/src/tray.rs:558
+msgid "Systemfeltet: verten tok ikke imot ikonet: {e}"
+msgstr "Zone de notification : l’hôte a refusé l’icône : {e}"
+
+#: crates/riggd/src/tray.rs:668
+msgid "Systemfeltet kunne ikke lages: {e}"
+msgstr "Impossible de créer l’icône de notification : {e}"
+
+#: crates/riggd/src/tray.rs:678
+msgid "Kunne ikke starte loggen fra systemfeltet: {verdi}"
+msgstr "Impossible de démarrer la journalisation depuis la zone de notification : {verdi}"
+
+#: crates/riggd/src/tray.rs:688
+msgid "Stopper bakgrunnsopptaket fra systemfeltet."
+msgstr "Arrêt de l’enregistrement en arrière-plan depuis la zone de notification."
+
+#: crates/riggd/src/tray.rs:713
+msgid "Kunne ikke åpne Agentic Rigg: {e}"
+msgstr "Impossible d’ouvrir Agentic Rigg : {e}"
+
+#: crates/riggd/src/tray.rs:716
+msgid "Fant ikke Agentic Rigg ({desktop})."
+msgstr "Agentic Rigg ({desktop}) est introuvable."

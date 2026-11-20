@@ -1,0 +1,74 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/riggd/src/tray.rs:104
+msgid "Ingen tall fra skjermkortet"
+msgstr "无 GPU 读数"
+
+#: crates/riggd/src/tray.rs:106
+msgid "GPU {temperatur} · {effekt} · {last} last"
+msgstr "GPU {temperatur} · {effekt} · 负载 {last}"
+
+#: crates/riggd/src/tray.rs:109
+msgid " · Logger"
+msgstr " · 正在记录"
+
+#: crates/riggd/src/tray.rs:120
+msgid "Logger til fil · {antall} rader"
+msgid_plural "Logger til fil · {antall} rader"
+msgstr[0] "正在写入日志文件 · {antall} 行"
+
+#: crates/riggd/src/tray.rs:121
+msgid "Logger til fil"
+msgstr "正在写入日志文件"
+
+#: crates/riggd/src/tray.rs:124
+msgid "Tar opp historikk i bakgrunnen"
+msgstr "正在后台记录历史数据"
+
+#: crates/riggd/src/tray.rs:169
+msgid "Åpne Agentic Rigg"
+msgstr "打开 Agentic Rigg"
+
+#: crates/riggd/src/tray.rs:170
+msgid "Stopp logging"
+msgstr "停止记录"
+
+#: crates/riggd/src/tray.rs:170
+msgid "Start logging"
+msgstr "开始记录"
+
+#: crates/riggd/src/tray.rs:172
+msgid "Stopp bakgrunnsopptak"
+msgstr "停止后台记录"
+
+#: crates/riggd/src/tray.rs:558
+msgid "Systemfeltet: verten tok ikke imot ikonet: {e}"
+msgstr "系统托盘：宿主拒绝了图标：{e}"
+
+#: crates/riggd/src/tray.rs:668
+msgid "Systemfeltet kunne ikke lages: {e}"
+msgstr "无法创建托盘图标：{e}"
+
+#: crates/riggd/src/tray.rs:678
+msgid "Kunne ikke starte loggen fra systemfeltet: {verdi}"
+msgstr "无法从系统托盘启动记录：{verdi}"
+
+#: crates/riggd/src/tray.rs:688
+msgid "Stopper bakgrunnsopptaket fra systemfeltet."
+msgstr "正在从系统托盘停止后台记录。"
+
+#: crates/riggd/src/tray.rs:713
+msgid "Kunne ikke åpne Agentic Rigg: {e}"
+msgstr "无法打开 Agentic Rigg：{e}"
+
+#: crates/riggd/src/tray.rs:716
+msgid "Fant ikke Agentic Rigg ({desktop})."
+msgstr "找不到 Agentic Rigg（{desktop}）。"

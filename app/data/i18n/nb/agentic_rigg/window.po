@@ -1,0 +1,16 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: nb\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: crates/rigg/src/window.rs:375
+msgid "Oversikt"
+msgstr "Oversikt"
+
+#: crates/rigg/src/window.rs:380
+msgid "Innstillinger · {verdi}"
+msgstr "Innstillinger · {verdi}"

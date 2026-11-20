@@ -1,0 +1,217 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/widgets/chart.rs:601
+msgid "Kortet svarer ikke siden {verdi}"
+msgstr "GPU 自 {verdi} 起无响应"
+
+#: crates/rigg/src/widgets/chart.rs:609
+msgid "Tjenesten tok ikke opp her (maskinen var av eller sov)."
+msgstr "此时间段未记录数据（计算机已关机或休眠）。"
+
+#: crates/rigg/src/widgets/chart.rs:611
+msgid "Hull i grafen: appen var lukket. Slå på «Fortsett i bakgrunnen» under Innstillinger › Generelt for å ta opp også da."
+msgstr "图表有空白：应用当时已关闭。请在“设置 › 常规”中启用“在后台继续运行”，以便关闭应用后继续记录。"
+
+#: crates/rigg/src/widgets/chart.rs:1079
+msgid "pauset {verdi}"
+msgstr "暂停 {verdi}"
+
+#: crates/rigg/src/widgets/chart.rs:1081
+msgid "nå"
+msgstr "现在"
+
+#: crates/rigg/src/widgets/chart.rs:1128
+msgid "Henter historikk …"
+msgstr "正在加载历史数据…"
+
+#: crates/rigg/src/widgets/chart.rs:1131
+msgid "Kunne ikke hente historikken"
+msgstr "无法加载历史数据"
+
+#: crates/rigg/src/widgets/chart.rs:1133 crates/rigg/src/widgets/chart.rs:1222
+msgid "Ingen data ennå"
+msgstr "暂无数据"
+
+#: crates/rigg/src/widgets/chart.rs:1136 crates/rigg/src/widgets/chart.rs:1137
+msgid "Data fra {verdi}"
+msgstr "数据始于 {verdi}"
+
+#: crates/rigg/src/widgets/chart.rs:1138
+msgid "Samler data …"
+msgstr "正在收集数据…"
+
+#: crates/rigg/src/widgets/chart.rs:1139 crates/rigg/src/widgets/chart.rs:1140 crates/rigg/src/widgets/chart.rs:1218 crates/rigg/src/widgets/chart.rs:1219
+msgid "Ingen data"
+msgstr "无数据"
+
+#: crates/rigg/src/widgets/chart.rs:1145
+msgid "Svarer ikke"
+msgstr "无响应"
+
+#: crates/rigg/src/widgets/chart.rs:1221
+msgid "Historikken begynner {verdi}"
+msgstr "历史记录始于 {verdi}"
+
+#: crates/rigg/src/widgets/chart.rs:1517 crates/rigg/src/widgets/chart.rs:1604
+msgid "Skjul {verdi}"
+msgstr "隐藏 {verdi}"
+
+#: crates/rigg/src/widgets/chart.rs:1557 crates/rigg/src/widgets/chart.rs:1691
+msgid "Fortsett"
+msgstr "继续"
+
+#: crates/rigg/src/widgets/chart.rs:1562 crates/rigg/src/widgets/chart.rs:1563 crates/rigg/src/widgets/chart.rs:1690 crates/rigg/src/widgets/chart.rs:1691
+msgid "Pause"
+msgstr "暂停"
+
+#: crates/rigg/src/widgets/chart.rs:1604
+msgid "Vis {verdi}"
+msgstr "显示 {verdi}"
+
+#: crates/rigg/src/widgets/chart.rs:1646
+msgid "Graf: {navn}, {status}. Mellomrom setter på pause."
+msgstr "图表：{navn}，{status}。按空格键暂停。"
+
+#: crates/rigg/src/widgets/chart.rs:1690
+msgid "Fortsett og hopp til nå"
+msgstr "继续并跳到当前时刻"
+
+#: crates/rigg/src/widgets/chart.rs:1695
+msgid "På pause · {verdi}"
+msgstr "已暂停 · {verdi}"
+
+#: crates/rigg/src/widgets/chart.rs:1741
+msgid "min {min} · maks {maks}"
+msgstr "最小 {min} · 最大 {maks}"
+
+#: crates/rigg/src/widgets/chart.rs:1902
+msgid "GPU-temperatur"
+msgstr "GPU 温度"
+
+#: crates/rigg/src/widgets/chart.rs:1903
+msgid "GPU-last"
+msgstr "GPU 利用率"
+
+#: crates/rigg/src/widgets/chart.rs:1904
+msgid "Kjerneklokke"
+msgstr "核心频率"
+
+#: crates/rigg/src/widgets/chart.rs:1905
+msgid "Minneklokke"
+msgstr "内存频率"
+
+#: crates/rigg/src/widgets/chart.rs:1906
+msgid "GPU-effekt"
+msgstr "GPU 功耗"
+
+#: crates/rigg/src/widgets/chart.rs:1907
+msgid "GPU-vifte"
+msgstr "GPU 风扇"
+
+#: crates/rigg/src/widgets/chart.rs:1908
+msgid "Videominne"
+msgstr "显存"
+
+#: crates/rigg/src/widgets/chart.rs:1909
+msgid "CPU-last"
+msgstr "CPU 利用率"
+
+#: crates/rigg/src/widgets/chart.rs:1910
+msgid "CPU-temperatur"
+msgstr "CPU 温度"
+
+#: crates/rigg/src/widgets/chart.rs:1911
+msgid "Minne brukt"
+msgstr "已用内存"
+
+#: crates/rigg/src/widgets/chart.rs:1912
+msgid "Nett"
+msgstr "网络"
+
+#: crates/rigg/src/widgets/chart.rs:1913
+msgid "Disktemperatur"
+msgstr "磁盘温度"
+
+#: crates/rigg/src/widgets/chart.rs:1914
+msgid "Disk-I/O"
+msgstr "磁盘 I/O"
+
+#: crates/rigg/src/widgets/chart.rs:1964
+msgid "Graf"
+msgstr "图表"
+
+#: crates/rigg/src/widgets/chart.rs:2007
+msgid "Nedklokking"
+msgstr "降频"
+
+#: crates/rigg/src/widgets/chart.rs:2010
+msgid "Avstenging"
+msgstr "关机"
+
+#: crates/rigg/src/widgets/chart.rs:2036
+msgid "Temperatur"
+msgstr "温度"
+
+#: crates/rigg/src/widgets/chart.rs:2038
+msgid "Minnekontroller"
+msgstr "内存控制器"
+
+#: crates/rigg/src/widgets/chart.rs:2045
+msgid "Kjerne"
+msgstr "内核"
+
+#: crates/rigg/src/widgets/chart.rs:2049
+msgid "Minne"
+msgstr "内存"
+
+#: crates/rigg/src/widgets/chart.rs:2054
+msgid "Trekk"
+msgstr "功耗"
+
+#: crates/rigg/src/widgets/chart.rs:2054
+msgid "Grense"
+msgstr "上限"
+
+#: crates/rigg/src/widgets/chart.rs:2060
+msgid "Vifte"
+msgstr "风扇"
+
+#: crates/rigg/src/widgets/chart.rs:2064 crates/rigg/src/widgets/chart.rs:2072
+msgid "Brukt"
+msgstr "已用"
+
+#: crates/rigg/src/widgets/chart.rs:2070
+msgid "Total"
+msgstr "总计"
+
+#: crates/rigg/src/widgets/chart.rs:2071
+msgid "Temperatur (Tdie)"
+msgstr "温度 (Tdie)"
+
+#: crates/rigg/src/widgets/chart.rs:2076
+msgid "Ingen disk med temperatur"
+msgstr "无磁盘温度读数"
+
+#: crates/rigg/src/widgets/chart.rs:2083
+msgid "Lesing"
+msgstr "读取"
+
+#: crates/rigg/src/widgets/chart.rs:2083
+msgid "Skriving"
+msgstr "写入"
+
+#: crates/rigg/src/widgets/chart.rs:2092
+msgid "Mottatt"
+msgstr "接收"
+
+#: crates/rigg/src/widgets/chart.rs:2092
+msgid "Sendt"
+msgstr "发送"

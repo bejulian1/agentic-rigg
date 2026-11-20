@@ -1,0 +1,25 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/client.rs:110
+msgid "Tjenesten svarte ikke på 5 s."
+msgstr "服务在 5 s 内未响应。"
+
+#: crates/rigg/src/client.rs:217
+msgid "Fant ikke agentic-riggd ved siden av vinduet."
+msgstr "在应用目录中找不到 agentic-riggd。"
+
+#: crates/rigg/src/client.rs:237
+msgid "Kunne ikke starte {verdi}: {e}"
+msgstr "无法启动 {verdi}：{e}"
+
+#: crates/rigg/src/client.rs:329
+msgid "Tjenesten svarer ikke."
+msgstr "服务无响应。"

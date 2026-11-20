@@ -1,0 +1,76 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n == 1 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : 2);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/riggd/src/tray.rs:104
+msgid "Ingen tall fra skjermkortet"
+msgstr "Brak odczytów GPU"
+
+#: crates/riggd/src/tray.rs:106
+msgid "GPU {temperatur} · {effekt} · {last} last"
+msgstr "GPU {temperatur} · {effekt} · obciążenie {last}"
+
+#: crates/riggd/src/tray.rs:109
+msgid " · Logger"
+msgstr " · Rejestrowanie"
+
+#: crates/riggd/src/tray.rs:120
+msgid "Logger til fil · {antall} rader"
+msgid_plural "Logger til fil · {antall} rader"
+msgstr[0] "Zapis do pliku · {antall} wiersz"
+msgstr[1] "Zapis do pliku · {antall} wiersze"
+msgstr[2] "Zapis do pliku · {antall} wierszy"
+
+#: crates/riggd/src/tray.rs:121
+msgid "Logger til fil"
+msgstr "Zapis do pliku"
+
+#: crates/riggd/src/tray.rs:124
+msgid "Tar opp historikk i bakgrunnen"
+msgstr "Zapisywanie historii w tle"
+
+#: crates/riggd/src/tray.rs:169
+msgid "Åpne Agentic Rigg"
+msgstr "Otwórz Agentic Rigg"
+
+#: crates/riggd/src/tray.rs:170
+msgid "Stopp logging"
+msgstr "Zatrzymaj rejestrowanie"
+
+#: crates/riggd/src/tray.rs:170
+msgid "Start logging"
+msgstr "Rozpocznij rejestrowanie"
+
+#: crates/riggd/src/tray.rs:172
+msgid "Stopp bakgrunnsopptak"
+msgstr "Zatrzymaj zapis w tle"
+
+#: crates/riggd/src/tray.rs:558
+msgid "Systemfeltet: verten tok ikke imot ikonet: {e}"
+msgstr "Zasobnik systemowy: host odrzucił ikonę: {e}"
+
+#: crates/riggd/src/tray.rs:668
+msgid "Systemfeltet kunne ikke lages: {e}"
+msgstr "Nie udało się utworzyć ikony zasobnika: {e}"
+
+#: crates/riggd/src/tray.rs:678
+msgid "Kunne ikke starte loggen fra systemfeltet: {verdi}"
+msgstr "Nie udało się rozpocząć zapisu z zasobnika systemowego: {verdi}"
+
+#: crates/riggd/src/tray.rs:688
+msgid "Stopper bakgrunnsopptaket fra systemfeltet."
+msgstr "Zatrzymywanie zapisu w tle z zasobnika systemowego."
+
+#: crates/riggd/src/tray.rs:713
+msgid "Kunne ikke åpne Agentic Rigg: {e}"
+msgstr "Nie udało się otworzyć Agentic Rigg: {e}"
+
+#: crates/riggd/src/tray.rs:716
+msgid "Fant ikke Agentic Rigg ({desktop})."
+msgstr "Nie znaleziono Agentic Rigg ({desktop})."

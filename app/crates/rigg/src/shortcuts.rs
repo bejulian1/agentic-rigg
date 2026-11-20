@@ -6,6 +6,7 @@
 //! mellomrom, F5 …), og til slutt 1–9 og 0 for de ti sidene når fokus ikke
 //! står i et tekstfelt (0 er den tiende, som på et tastatur).
 
+use rigg_core::tr;
 use crate::pages::{Key, PAGES};
 use crate::state::App;
 use crate::widgets::{hbox, label, vbox};
@@ -170,57 +171,61 @@ fn font_step(app: &Rc<App>, dir: i32) {
 }
 
 /// Tastene som (gruppe, [(taster, hva)]).
-pub const KEYS: &[(&str, &[(&str, &str)])] = &[
-    (
-        "Navigasjon",
-        &[
-            ("1–9 0", "Åpne de ti opprinnelige sidene; 0 åpner RGB-lys"),
-            ("Ctrl+Shift+Esc", "Åpne Oppgaver"),
-            ("↑ ↓", "Flytt i sidefeltet"),
-            ("Ctrl+,", "Åpne og lukk Innstillinger"),
-            ("Ctrl+?", "Denne oversikten"),
-            ("Ctrl+B", "Legg sammen eller utvid sidefeltet"),
-            ("Esc", "Lukk meny, popover, dialog eller Innstillinger"),
-        ],
-    ),
-    (
-        "Sider",
-        &[
-            ("Ctrl+F", "Søk i Oppgaver, Sensorer eller Innstillinger"),
-            ("/", "Søk i Innstillinger"),
-            ("Alt+↑ / Alt+↓", "Flytt en verdi i statusblokken (Innstillinger › Sidefelt)"),
-            ("Mellomrom", "Pause og fortsett (Grafer)"),
-            ("Ctrl+L", "Logg til fil av og på"),
-            ("Ctrl+R", "Nullstill min og maks (Sensorer)"),
-            ("F5", "Oppdater nå (Oppgaver) eller les faste data på nytt (Grafikkort, Prosessor og System)"),
-        ],
-    ),
-    (
-        "Vinduet",
-        &[
-            ("Ctrl++ / Ctrl+−", "Større eller mindre skrift"),
-            ("Ctrl+0", "Vanlig skriftstørrelse"),
-            ("Ctrl+W", "Lukk vinduet"),
-            ("Ctrl+Q", "Avslutt"),
-        ],
-    ),
-    (
-        "Skjermkortstyring (klokker og effekt, vifter)",
-        &[
-            ("Ctrl+Z", "Angre i utkastet"),
-            ("Ctrl+Shift+Z / Ctrl+Y", "Gjør om"),
-            ("Ctrl+Enter", "Bruk utkastet"),
-            ("← →", "Glideren: ett steg ned eller opp (Shift: stort steg)"),
-            ("PgUp PgDn", "Glideren: stort steg opp eller ned"),
-            ("Home End", "Glideren: laveste eller høyeste verdi"),
-            ("[ ]", "Kurven: forrige eller neste punkt (også PgUp og PgDn)"),
-            ("← → ↑ ↓", "Kurven: flytt punktet 1 °C eller 1 % (Shift: 5)"),
-            ("+ Delete", "Kurven: legg til eller fjern et punkt"),
-        ],
-    ),
-];
+type KeyGroup = (&'static str, Vec<(&'static str, &'static str)>);
 
-/// Gruppene i hver spalte i oversikten (indekser i [`KEYS`]).
+fn keys() -> [KeyGroup; 4] {
+    [
+    (
+        tr!("Navigasjon"),
+        vec![
+            ("1–9 0", tr!("Åpne de ti opprinnelige sidene; 0 åpner RGB-lys")),
+            ("Ctrl+Shift+Esc", tr!("Åpne Oppgaver")),
+            ("↑ ↓", tr!("Flytt i sidefeltet")),
+            ("Ctrl+,", tr!("Åpne og lukk Innstillinger")),
+            ("Ctrl+?", tr!("Denne oversikten")),
+            ("Ctrl+B", tr!("Legg sammen eller utvid sidefeltet")),
+            ("Esc", tr!("Lukk meny, popover, dialog eller Innstillinger")),
+        ],
+    ),
+    (
+        tr!("Sider"),
+        vec![
+            ("Ctrl+F", tr!("Søk i Oppgaver, Sensorer eller Innstillinger")),
+            ("/", tr!("Søk i Innstillinger")),
+            ("Alt+↑ / Alt+↓", tr!("Flytt en verdi i statusblokken (Innstillinger › Sidefelt)")),
+            ("Mellomrom", tr!("Pause og fortsett (Grafer)")),
+            ("Ctrl+L", tr!("Logg til fil av og på")),
+            ("Ctrl+R", tr!("Nullstill min og maks (Sensorer)")),
+            ("F5", tr!("Oppdater nå (Oppgaver) eller les faste data på nytt (Grafikkort, Prosessor og System)")),
+        ],
+    ),
+    (
+        tr!("Vinduet"),
+        vec![
+            ("Ctrl++ / Ctrl+−", tr!("Større eller mindre skrift")),
+            ("Ctrl+0", tr!("Vanlig skriftstørrelse")),
+            ("Ctrl+W", tr!("Lukk vinduet")),
+            ("Ctrl+Q", tr!("Avslutt")),
+        ],
+    ),
+    (
+        tr!("Skjermkortstyring (klokker og effekt, vifter)"),
+        vec![
+            ("Ctrl+Z", tr!("Angre i utkastet")),
+            ("Ctrl+Shift+Z / Ctrl+Y", tr!("Gjør om")),
+            ("Ctrl+Enter", tr!("Bruk utkastet")),
+            ("← →", tr!("Glideren: ett steg ned eller opp (Shift: stort steg)")),
+            ("PgUp PgDn", tr!("Glideren: stort steg opp eller ned")),
+            ("Home End", tr!("Glideren: laveste eller høyeste verdi")),
+            ("[ ]", tr!("Kurven: forrige eller neste punkt (også PgUp og PgDn)")),
+            ("← → ↑ ↓", tr!("Kurven: flytt punktet 1 °C eller 1 % (Shift: 5)")),
+            ("+ Delete", tr!("Kurven: legg til eller fjern et punkt")),
+        ],
+    ),
+    ]
+}
+
+/// Gruppene i hver spalte i oversikten (indekser i [`keys`]).
 const COLUMNS: [&[usize]; 2] = [&[0, 1], &[2, 3]];
 
 /// Én tast per knapp, som i GNOME: [Ctrl] [,] og [↑] [↓].
@@ -321,15 +326,16 @@ pub fn show_dialog(app: &Rc<App>) {
     // standard skrift. I smale vinduer (under 900 px) står spaltene under
     // hverandre og lista ruller.
     let wide = app.window().is_some_and(|p| p.width() >= 900);
-    let Some((w, root)) = dialog(app, "Tastatursnarveier", if wide { 860 } else { 480 }, if wide { 660 } else { 780 }) else { return };
+    let Some((w, root)) = dialog(app, tr!("Tastatursnarveier"), if wide { 860 } else { 480 }, if wide { 660 } else { 780 }) else { return };
     let body = if wide { hbox(32, &["dialog-body"]) } else { vbox(0, &["dialog-body"]) };
     body.set_homogeneous(wide);
+    let keys = keys();
     for groups in COLUMNS {
         let col = vbox(0, &["keys-col"]);
         col.set_hexpand(true);
         body.append(&col);
         for &gi in groups {
-            let (group, list) = KEYS[gi];
+            let (group, list) = &keys[gi];
             col.append(&label(group, &["keys-h"]));
             for (k, what) in list.iter() {
             let row = hbox(12, &["keys-row"]);
@@ -340,7 +346,7 @@ pub fn show_dialog(app: &Rc<App>) {
             let c = hbox(4, &["caps"]);
             for cap in caps(k) {
                 // «/» skiller to taster som gjør det samme: ikke en tast.
-                let kc = if cap == "/" && k.contains(" / ") { label("eller", &["keys-or"]) } else { label(&cap, &["keycap"]) };
+                let kc = if cap == "/" && k.contains(" / ") { label(tr!("eller"), &["keys-or"]) } else { label(&cap, &["keycap"]) };
                 kc.set_xalign(0.5);
                 c.append(&kc);
             }
@@ -355,7 +361,7 @@ pub fn show_dialog(app: &Rc<App>) {
     sc.set_child(Some(&body));
     root.append(&sc);
     let foot_box = hbox(0, &["dialog-foot"]);
-    let foot = gtk::Button::with_label("Versjon og feilsøking står under Innstillinger › Om.");
+    let foot = gtk::Button::with_label(tr!("Versjon og feilsøking står under Innstillinger › Om."));
     foot.add_css_class("link");
     {
         let (a, w) = (app.clone(), w.clone());
@@ -403,8 +409,9 @@ mod tests {
     fn hver_gruppe_står_i_én_spalte_og_styring_er_med() {
         let mut seen: Vec<usize> = super::COLUMNS.iter().flat_map(|c| c.iter().copied()).collect();
         seen.sort();
-        assert_eq!(seen, (0..super::KEYS.len()).collect::<Vec<_>>());
-        let styring = super::KEYS.iter().find(|(g, _)| g.starts_with("Skjermkortstyring")).expect("Styring-gruppa");
+        let keys = super::keys();
+        assert_eq!(seen, (0..keys.len()).collect::<Vec<_>>());
+        let styring = keys.iter().find(|(g, _)| g.starts_with("Skjermkortstyring")).expect("Styring-gruppa");
         for k in ["Ctrl+Z", "Ctrl+Shift+Z / Ctrl+Y", "← →", "[ ]"] {
             assert!(styring.1.iter().any(|(x, _)| *x == k), "{k} mangler");
         }

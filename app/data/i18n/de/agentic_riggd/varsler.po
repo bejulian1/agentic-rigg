@@ -1,0 +1,91 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/riggd/src/varsler.rs:89
+msgid "{what} er {temperatur}"
+msgstr "{what} beträgt {temperatur}"
+
+#: crates/riggd/src/varsler.rs:89
+msgid "Over den røde grensen på {grense} siden {tid}."
+msgstr "Seit {tid} über dem kritischen Grenzwert von {grense}."
+
+#: crates/riggd/src/varsler.rs:121
+msgid "Temperaturen på skjermkort {verdi}"
+msgstr "Temperatur von GPU {verdi}"
+
+#: crates/riggd/src/varsler.rs:121
+msgid "GPU-temperaturen"
+msgstr "GPU-Temperatur"
+
+#: crates/riggd/src/varsler.rs:126
+msgid "CPU-temperaturen"
+msgstr "CPU-Temperatur"
+
+#: crates/riggd/src/varsler.rs:152
+msgid "Skjermkortet svarer ikke"
+msgstr "Grafikkarte antwortet nicht"
+
+#: crates/riggd/src/varsler.rs:153
+msgid "{kortnavn}Siden {tid}. Det skjer når kortet faller av bussen eller trekkes ut. Tallene før det er tatt vare på."
+msgstr "{kortnavn}Seit {tid}. Die GPU ist möglicherweise nicht mehr am Bus erreichbar oder wurde entfernt. Frühere Messwerte wurden behalten."
+
+#: crates/riggd/src/varsler.rs:156
+msgid "Driveren er oppdatert"
+msgstr "Treiber aktualisiert"
+
+#: crates/riggd/src/varsler.rs:159
+msgid "ny"
+msgstr "neu"
+
+#: crates/riggd/src/varsler.rs:160
+msgid "gammel"
+msgstr "alt"
+
+#: crates/riggd/src/varsler.rs:163
+msgid "Fant ingen NVIDIA-driver"
+msgstr "Kein NVIDIA-Treiber gefunden"
+
+#: crates/riggd/src/varsler.rs:163
+msgid "Prosessor, minne og sensorer vises som vanlig."
+msgstr "Prozessor, Speicher und Sensoren werden wie gewohnt angezeigt."
+
+#: crates/riggd/src/varsler.rs:164
+msgid "Skjermkortet svarer igjen"
+msgstr "GPU antwortet wieder"
+
+#: crates/riggd/src/varsler.rs:164
+msgid "{kortnavn}Det er funnet igjen og leses som før."
+msgstr "{kortnavn}Die GPU wurde wieder erkannt. Die Überwachung läuft weiter."
+
+#: crates/riggd/src/varsler.rs:200
+msgid "Disken {name} feiler"
+msgstr "Laufwerk {name} fällt aus"
+
+#: crates/riggd/src/varsler.rs:200
+msgid "{why}. Ta sikkerhetskopi av det som ligger på disken ({enhet})."
+msgstr "{why}. Sichern Sie die Daten auf diesem Laufwerk ({enhet})."
+
+#: crates/riggd/src/varsler.rs:207
+msgid "Nye dårlige sektorer på {name}"
+msgstr "Neue fehlerhafte Sektoren auf {name}"
+
+#: crates/riggd/src/varsler.rs:208
+msgid "{antall} dårlig sektor (var {b}). Ta sikkerhetskopi av det som ligger på disken ({enhet})."
+msgid_plural "{antall} dårlige sektorer (var {b}). Ta sikkerhetskopi av det som ligger på disken ({enhet})."
+msgstr[0] "{antall} fehlerhafter Sektor (zuvor {b}). Sichern Sie die Daten auf diesem Laufwerk ({enhet})."
+msgstr[1] "{antall} fehlerhafte Sektoren (zuvor {b}). Sichern Sie die Daten auf diesem Laufwerk ({enhet})."
+
+#: crates/riggd/src/varsler.rs:262
+msgid "Åpne"
+msgstr "Öffnen"
+
+#: crates/riggd/src/varsler.rs:284
+msgid "Kunne ikke sende skrivebordsvarsel: {e}"
+msgstr "Desktop-Benachrichtigung konnte nicht gesendet werden: {e}"

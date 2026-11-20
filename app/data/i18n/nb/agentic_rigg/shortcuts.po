@@ -1,0 +1,144 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: nb\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: crates/rigg/src/shortcuts.rs:179
+msgid "Navigasjon"
+msgstr "Navigasjon"
+
+#: crates/rigg/src/shortcuts.rs:181
+msgid "Åpne de ti opprinnelige sidene; 0 åpner RGB-lys"
+msgstr "Åpne de ti opprinnelige sidene; 0 åpner RGB-lys"
+
+#: crates/rigg/src/shortcuts.rs:182
+msgid "Åpne Oppgaver"
+msgstr "Åpne Oppgaver"
+
+#: crates/rigg/src/shortcuts.rs:183
+msgid "Flytt i sidefeltet"
+msgstr "Flytt i sidefeltet"
+
+#: crates/rigg/src/shortcuts.rs:184
+msgid "Åpne og lukk Innstillinger"
+msgstr "Åpne og lukk Innstillinger"
+
+#: crates/rigg/src/shortcuts.rs:185
+msgid "Denne oversikten"
+msgstr "Denne oversikten"
+
+#: crates/rigg/src/shortcuts.rs:186
+msgid "Legg sammen eller utvid sidefeltet"
+msgstr "Legg sammen eller utvid sidefeltet"
+
+#: crates/rigg/src/shortcuts.rs:187
+msgid "Lukk meny, popover, dialog eller Innstillinger"
+msgstr "Lukk meny, popover, dialog eller Innstillinger"
+
+#: crates/rigg/src/shortcuts.rs:191
+msgid "Sider"
+msgstr "Sider"
+
+#: crates/rigg/src/shortcuts.rs:193
+msgid "Søk i Oppgaver, Sensorer eller Innstillinger"
+msgstr "Søk i Oppgaver, Sensorer eller Innstillinger"
+
+#: crates/rigg/src/shortcuts.rs:194
+msgid "Søk i Innstillinger"
+msgstr "Søk i Innstillinger"
+
+#: crates/rigg/src/shortcuts.rs:195
+msgid "Flytt en verdi i statusblokken (Innstillinger › Sidefelt)"
+msgstr "Flytt en verdi i statusblokken (Innstillinger › Sidefelt)"
+
+#: crates/rigg/src/shortcuts.rs:196
+msgid "Pause og fortsett (Grafer)"
+msgstr "Pause og fortsett (Grafer)"
+
+#: crates/rigg/src/shortcuts.rs:197
+msgid "Logg til fil av og på"
+msgstr "Logg til fil av og på"
+
+#: crates/rigg/src/shortcuts.rs:198
+msgid "Nullstill min og maks (Sensorer)"
+msgstr "Nullstill min og maks (Sensorer)"
+
+#: crates/rigg/src/shortcuts.rs:199
+msgid "Oppdater nå (Oppgaver) eller les faste data på nytt (Grafikkort, Prosessor og System)"
+msgstr "Oppdater nå (Oppgaver) eller les faste data på nytt (Grafikkort, Prosessor og System)"
+
+#: crates/rigg/src/shortcuts.rs:203
+msgid "Vinduet"
+msgstr "Vinduet"
+
+#: crates/rigg/src/shortcuts.rs:205
+msgid "Større eller mindre skrift"
+msgstr "Større eller mindre skrift"
+
+#: crates/rigg/src/shortcuts.rs:206
+msgid "Vanlig skriftstørrelse"
+msgstr "Vanlig skriftstørrelse"
+
+#: crates/rigg/src/shortcuts.rs:207
+msgid "Lukk vinduet"
+msgstr "Lukk vinduet"
+
+#: crates/rigg/src/shortcuts.rs:208
+msgid "Avslutt"
+msgstr "Avslutt"
+
+#: crates/rigg/src/shortcuts.rs:212
+msgid "Skjermkortstyring (klokker og effekt, vifter)"
+msgstr "Skjermkortstyring (klokker og effekt, vifter)"
+
+#: crates/rigg/src/shortcuts.rs:214
+msgid "Angre i utkastet"
+msgstr "Angre i utkastet"
+
+#: crates/rigg/src/shortcuts.rs:215
+msgid "Gjør om"
+msgstr "Gjør om"
+
+#: crates/rigg/src/shortcuts.rs:216
+msgid "Bruk utkastet"
+msgstr "Bruk utkastet"
+
+#: crates/rigg/src/shortcuts.rs:217
+msgid "Glideren: ett steg ned eller opp (Shift: stort steg)"
+msgstr "Glideren: ett steg ned eller opp (Shift: stort steg)"
+
+#: crates/rigg/src/shortcuts.rs:218
+msgid "Glideren: stort steg opp eller ned"
+msgstr "Glideren: stort steg opp eller ned"
+
+#: crates/rigg/src/shortcuts.rs:219
+msgid "Glideren: laveste eller høyeste verdi"
+msgstr "Glideren: laveste eller høyeste verdi"
+
+#: crates/rigg/src/shortcuts.rs:220
+msgid "Kurven: forrige eller neste punkt (også PgUp og PgDn)"
+msgstr "Kurven: forrige eller neste punkt (også PgUp og PgDn)"
+
+#: crates/rigg/src/shortcuts.rs:221
+msgid "Kurven: flytt punktet 1 °C eller 1 % (Shift: 5)"
+msgstr "Kurven: flytt punktet 1 °C eller 1 % (Shift: 5)"
+
+#: crates/rigg/src/shortcuts.rs:222
+msgid "Kurven: legg til eller fjern et punkt"
+msgstr "Kurven: legg til eller fjern et punkt"
+
+#: crates/rigg/src/shortcuts.rs:329
+msgid "Tastatursnarveier"
+msgstr "Tastatursnarveier"
+
+#: crates/rigg/src/shortcuts.rs:349
+msgid "eller"
+msgstr "eller"
+
+#: crates/rigg/src/shortcuts.rs:364
+msgid "Versjon og feilsøking står under Innstillinger › Om."
+msgstr "Versjon og feilsøking står under Innstillinger › Om."

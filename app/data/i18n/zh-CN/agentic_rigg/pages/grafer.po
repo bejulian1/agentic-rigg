@@ -1,0 +1,90 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/pages/grafer.rs:104 crates/rigg/src/pages/grafer.rs:116
+msgid "Tidsvindu"
+msgstr "时间范围"
+
+#: crates/rigg/src/pages/grafer.rs:139 crates/rigg/src/pages/grafer.rs:320
+msgid "Pause alle"
+msgstr "全部暂停"
+
+#: crates/rigg/src/pages/grafer.rs:140 crates/rigg/src/pages/grafer.rs:321
+msgid "Pause alle grafene"
+msgstr "暂停所有图表"
+
+#: crates/rigg/src/pages/grafer.rs:146 crates/rigg/src/pages/grafer.rs:147
+msgid "Velg grafer"
+msgstr "选择图表"
+
+#: crates/rigg/src/pages/grafer.rs:153 crates/rigg/src/pages/grafer.rs:154
+msgid "Eksporter CSV …"
+msgstr "导出 CSV…"
+
+#: crates/rigg/src/pages/grafer.rs:320
+msgid "Fortsett alle"
+msgstr "全部继续"
+
+#: crates/rigg/src/pages/grafer.rs:321
+msgid "Fortsett alle grafene"
+msgstr "继续更新所有图表"
+
+#: crates/rigg/src/pages/grafer.rs:326
+msgid "På pause · {verdi}"
+msgstr "已暂停 · {verdi}"
+
+#: crates/rigg/src/pages/grafer.rs:335
+msgid "Markøren vises på alle grafene. Klikk for bare grafen du holder over."
+msgstr "光标显示在所有图表上。单击后仅在指针所在的图表上显示。"
+
+#: crates/rigg/src/pages/grafer.rs:335
+msgid "Markøren vises bare på grafen du holder over. Klikk for alle grafene."
+msgstr "光标仅显示在指针所在的图表上。单击后在所有图表上显示。"
+
+#: crates/rigg/src/pages/grafer.rs:337
+msgid "Markør på alle grafene"
+msgstr "在所有图表上显示光标"
+
+#: crates/rigg/src/pages/grafer.rs:349
+msgid "Grafer som vises"
+msgstr "显示的图表"
+
+#: crates/rigg/src/pages/grafer.rs:382
+msgid "Minst én graf må vises"
+msgstr "必须至少显示一个图表"
+
+#: crates/rigg/src/pages/grafer.rs:421
+msgid "Kunne ikke hente historikken"
+msgstr "无法加载历史数据"
+
+#: crates/rigg/src/pages/grafer.rs:447
+msgid "Eksporter historikk som CSV"
+msgstr "将历史数据导出为 CSV"
+
+#: crates/rigg/src/pages/grafer.rs:449
+msgid "Eksporter"
+msgstr "导出"
+
+#: crates/rigg/src/pages/grafer.rs:472
+msgid "Historikken er eksportert"
+msgstr "历史数据已导出"
+
+#: crates/rigg/src/pages/grafer.rs:473
+msgid "{fname} · {antall} rader, {periode}"
+msgid_plural "{fname} · {antall} rader, {periode}"
+msgstr[0] "{fname} · {antall} 行，{periode}"
+
+#: crates/rigg/src/pages/grafer.rs:475
+msgid "Vis i Filer"
+msgstr "在“文件”中显示"
+
+#: crates/rigg/src/pages/grafer.rs:480
+msgid "Kunne ikke lagre fila"
+msgstr "无法保存文件"

@@ -1,5 +1,6 @@
 //! Oppgavebehandling. Bare den synlige siden ber om prosesser; høyst 100
 //! gjenbrukte rader og én forespørsel om gangen. Systemgrafene deler App-data.
+use rigg_core::{tr, trf, trn};
 use super::{Key, Page};
 use crate::state::{App, Conn};
 use crate::widgets::spark::SparkOpts;
@@ -14,15 +15,17 @@ use std::rc::Rc;
 use std::time::{Duration, Instant};
 
 const LIMIT: usize = 100;
-const COLS: [(&str, &str, i32); 7] = [
-    ("name", "Navn", 170),
+fn columns() -> [(&'static str, &'static str, i32); 7] {
+    [
+    ("name", tr!("Navn"), 170),
     ("pid", "PID", 64),
-    ("user", "Bruker", 80),
+    ("user", tr!("Bruker"), 80),
     ("cpu", "CPU", 82),
     ("memory", "RAM", 100),
-    ("gpuMemory", "GPU-minne", 100),
-    ("state", "Status", 70),
-];
+    ("gpuMemory", tr!("GPU-minne"), 100),
+    ("state", tr!("Status"), 70),
+    ]
+}
 
 struct RowView {
     row: gtk::ListBoxRow,
@@ -235,14 +238,14 @@ impl State {
                     } else {
                         s.stale.set(true);
                         s.update_selection();
-                        set_text(&s.status, "Henter ny prøve …");
+                        set_text(&s.status, tr!("Henter ny prøve …"));
                     }
                     if load != Load::Live {
                         if s.refresh_until.get().is_some_and(|until| Instant::now() < until) {
                             s.retry_refresh(load);
                         } else {
                             s.cancel_refresh();
-                            set_text(&s.status, "Tjenesten bruker lengre tid. Prøv igjen med F5.");
+                            set_text(&s.status, tr!("Tjenesten bruker lengre tid. Prøv igjen med F5."));
                         }
                     }
                 }
@@ -263,8 +266,8 @@ impl State {
                     s.apply(&v);
                     if replaced {
                         s.app.toast(crate::toast::Toast::new(
-                            "Prosessbildet er ikke lenger tilgjengelig",
-                        ).body("Viser første side i et nytt prosessbilde."));
+                            tr!("Prosessbildet er ikke lenger tilgjengelig"),
+                        ).body(tr!("Viser første side i et nytt prosessbilde.")));
                     }
                 }
                 Err(e) => {
@@ -277,11 +280,11 @@ impl State {
                         s.cancel_timer();
                         set_text(
                             &s.status,
-                            "Oppgavebehandling støttes ikke av denne tjenesteversjonen.",
+                            tr!("Oppgavebehandling støttes ikke av denne tjenesteversjonen."),
                         );
                         set_text(
                             &s.empty,
-                            "Oppdater tjenesten for å vise oppgaver. Prøv igjen med F5.",
+                            tr!("Oppdater tjenesten for å vise oppgaver. Prøv igjen med F5."),
                         );
                         s.empty.set_visible(s.data.borrow().is_empty());
                         s.update_selection();
@@ -289,12 +292,12 @@ impl State {
                     }
                     set_text(
                         &s.status,
-                        &format!("Kunne ikke hente oppgaver · {}", e.message),
+                        &trf!("Kunne ikke hente oppgaver · {verdi}", verdi = e.message),
                     );
                     if s.data.borrow().is_empty() {
                         set_text(
                             &s.empty,
-                            "Oppgaver er ikke tilgjengelige. Prøv igjen med F5.",
+                            tr!("Oppgaver er ikke tilgjengelige. Prøv igjen med F5."),
                         );
                         s.empty.set_visible(true);
                     }
@@ -309,7 +312,7 @@ impl State {
             self.stale.set(true);
             set_text(
                 &self.status,
-                "Tjenesten returnerte ugyldige oppgavedata. Prøv igjen med F5.",
+                tr!("Tjenesten returnerte ugyldige oppgavedata. Prøv igjen med F5."),
             );
             self.update_selection();
             return;
@@ -364,13 +367,10 @@ impl State {
             for (cell, text) in view.cells.iter().zip(values) {
                 set_text(cell, &text);
             }
-            view.cells[0].set_tooltip_text(Some(&format!(
-                "{}\nPID {} · forelder {}",
-                row.name, row.identity.pid, row.ppid
-            )));
-            view.cells[3].set_tooltip_text(Some("100 % tilsvarer én logisk CPU. Flertrådede oppgaver kan overstige 100 %. Første prøve vises som –."));
-            view.cells[4].set_tooltip_text(Some("Resident minne (RSS), inkludert delte sider. Radene kan ikke summeres til systemets minnebruk."));
-            view.cells[5].set_tooltip_text(Some("Videominne rapportert per prosess av NVIDIA-driveren. – betyr at målingen ikke er tilgjengelig, ikke null."));
+            view.cells[0].set_tooltip_text(Some(&trf!("{navn}\nPID {pid} · forelder {forelder}", navn = row.name, pid = row.identity.pid, forelder = row.ppid)));
+            view.cells[3].set_tooltip_text(Some(tr!("100 % tilsvarer én logisk CPU. Flertrådede oppgaver kan overstige 100 %. Første prøve vises som –.")));
+            view.cells[4].set_tooltip_text(Some(tr!("Resident minne (RSS), inkludert delte sider. Radene kan ikke summeres til systemets minnebruk.")));
+            view.cells[5].set_tooltip_text(Some(tr!("Videominne rapportert per prosess av NVIDIA-driveren. – betyr at målingen ikke er tilgjengelig, ikke null.")));
             if selected.as_ref().is_some_and(|id| {
                 id.pid == row.identity.pid && id.start_ticks == row.identity.start_ticks
             }) {
@@ -395,41 +395,35 @@ impl State {
         };
         set_text(
             &self.count,
-            &format!("{range} av {matched} · {total} oppgaver"),
+            &trn!(total, "{range} av {matched} · {total} oppgaver", "{range} av {matched} · {total} oppgaver", range = range, matched = matched, total = total),
         );
         self.empty.set_visible(n == 0);
         set_text(
             &self.empty,
             if v["loading"].as_bool() == Some(true) {
-                "Leser oppgaver … CPU blir tilgjengelig etter neste prøve."
+                tr!("Leser oppgaver … CPU blir tilgjengelig etter neste prøve.")
             } else {
-                "Ingen oppgaver passer søket."
+                tr!("Ingen oppgaver passer søket.")
             },
         );
         let mut message = if v["loading"].as_bool() == Some(true) {
-            "Henter ny prøve …".into()
+            tr!("Henter ny prøve …").into()
         } else if self.paused.get() {
-            "Oppdatering pauset · F5 oppdaterer én gang".into()
+            tr!("Oppdatering pauset · F5 oppdaterer én gang").into()
         } else if self.stale.get() {
-            format!(
-                "Eldre prøve · {} s",
-                v["ageMs"].as_u64().unwrap_or(0) / 1000
-            )
+            trf!("Eldre prøve · {verdi} s", verdi = v["ageMs"].as_u64().unwrap_or(0) / 1000)
         } else {
-            format!(
-                "Oppdateres hvert 2. sekund · prøve {} s gammel",
-                v["ageMs"].as_u64().unwrap_or(0) / 1000
-            )
+            trf!("Oppdateres hvert 2. sekund · prøve {verdi} s gammel", verdi = v["ageMs"].as_u64().unwrap_or(0) / 1000)
         };
         if let Some(error) = v["error"].as_str().filter(|s| !s.is_empty()) {
             message = format!("{message} · {error}");
         }
         let unreadable = v["unreadable"].as_u64().unwrap_or(0);
         if unreadable > 0 {
-            message.push_str(&format!(" · {unreadable} utilgjengelige"));
+            message.push_str(&trf!(" · {unreadable} utilgjengelige", unreadable = unreadable));
         }
         if let Some(note) = v["gpuNote"].as_str().filter(|n| !n.is_empty()) {
-            self.headers[5].set_tooltip_text(Some(&format!("Sorter etter GPU-minne. {note}")));
+            self.headers[5].set_tooltip_text(Some(&trf!("Sorter etter GPU-minne. {note}", note = note)));
         }
         self.status.set_tooltip_text(Some(&message));
         set_text(&self.status, &message);
@@ -456,7 +450,7 @@ impl State {
         let text = row
             .as_ref()
             .map(|r| format!("{} · PID {}", r.name, r.identity.pid))
-            .unwrap_or_else(|| "Velg en oppgave for å avslutte den".into());
+            .unwrap_or_else(|| tr!("Velg en oppgave for å avslutte den").into());
         self.selection.set_tooltip_text(
             row.as_ref()
                 .and_then(|r| r.protected_reason.as_deref())
@@ -467,9 +461,9 @@ impl State {
             .as_ref()
             .and_then(|r| r.protected_reason.as_deref())
             .unwrap_or(if self.stale.get() {
-                "Oppdater oppgavelisten før du avslutter en oppgave."
+                tr!("Oppdater oppgavelisten før du avslutter en oppgave.")
             } else {
-                "Send normal avslutning (SIGTERM) til den valgte oppgaven."
+                tr!("Send normal avslutning (SIGTERM) til den valgte oppgaven.")
             });
         self.stop.set_tooltip_text(Some(reason));
     }
@@ -481,7 +475,7 @@ impl State {
             return;
         };
         let Some((window, root)) =
-            crate::shortcuts::dialog(&self.app, "Avslutt oppgave?", 440, 250)
+            crate::shortcuts::dialog(&self.app, tr!("Avslutt oppgave?"), 440, 250)
         else {
             return;
         };
@@ -493,7 +487,7 @@ impl State {
         name.set_wrap(true);
         body.append(&name);
         let detail = label(
-            "Oppgaven får en vanlig forespørsel om å avslutte (SIGTERM). Ulagret arbeid kan gå tapt.",
+            tr!("Oppgaven får en vanlig forespørsel om å avslutte (SIGTERM). Ulagret arbeid kan gå tapt."),
             &[],
         );
         detail.set_wrap(true);
@@ -501,8 +495,8 @@ impl State {
         root.append(&body);
         let buttons = hbox(8, &["dialog-foot"]);
         buttons.set_halign(gtk::Align::End);
-        let cancel = gtk::Button::with_label("Avbryt");
-        let yes = gtk::Button::with_label("Avslutt oppgave");
+        let cancel = gtk::Button::with_label(tr!("Avbryt"));
+        let yes = gtk::Button::with_label(tr!("Avslutt oppgave"));
         yes.add_css_class("destructive");
         buttons.append(&cancel);
         buttons.append(&yes);
@@ -517,8 +511,8 @@ impl State {
             let a = s.app.clone(); let weak = Rc::downgrade(&s);
             s.app.client.request("terminate_task", json!({"pid": row.identity.pid, "expectedStartTicks": row.identity.start_ticks, "confirmed": true}), move |res| {
                 match res {
-                    Ok(_) => a.toast(crate::toast::Toast::new("Avslutning sendt").body("Oppgaven har mottatt SIGTERM. Den kan bruke litt tid på å avslutte.")),
-                    Err(e) => a.toast(crate::toast::Toast::new("Oppgaven ble ikke avsluttet").body(&e.message).error()),
+                    Ok(_) => a.toast(crate::toast::Toast::new(tr!("Avslutning sendt")).body(tr!("Oppgaven har mottatt SIGTERM. Den kan bruke litt tid på å avslutte."))),
+                    Err(e) => a.toast(crate::toast::Toast::new(tr!("Oppgaven ble ikke avsluttet")).body(&e.message).error()),
                 }
                 if let Some(s) = weak.upgrade() {
                     s.refresh_now();
@@ -559,12 +553,12 @@ fn bytes(v: Option<u64>) -> String {
 }
 fn state_name(state: &str) -> &str {
     match state {
-        "R" => "Kjører",
-        "S" => "Sover",
-        "D" => "Venter",
-        "T" | "t" => "Stoppet",
+        "R" => tr!("Kjører"),
+        "S" => tr!("Sover"),
+        "D" => tr!("Venter"),
+        "T" | "t" => tr!("Stoppet"),
         "Z" => "Zombie",
-        "I" => "Inaktiv",
+        "I" => tr!("Inaktiv"),
         other => other,
     }
 }
@@ -585,22 +579,22 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     let mut summaries = Vec::new();
     for (title, key, serie, tooltip) in [
         (
-            "CPU · hele systemet",
+            tr!("CPU · hele systemet"),
             "cpu/load",
             "load",
-            "Samlet CPU-last, 0–100 %. Oppgavenes CPU-prosent bruker én logisk CPU som 100 %.",
+            tr!("Samlet CPU-last, 0–100 %. Oppgavenes CPU-prosent bruker én logisk CPU som 100 %."),
         ),
         (
-            "RAM · hele systemet",
+            tr!("RAM · hele systemet"),
             "mem/usedPct",
             "mem",
-            "Systemets brukte minne. Inkluderer mer enn oppgavenes RSS; delte sider gjør RSS ikke-additivt.",
+            tr!("Systemets brukte minne. Inkluderer mer enn oppgavenes RSS; delte sider gjør RSS ikke-additivt."),
         ),
         (
-            "GPU · valgt kort",
+            tr!("GPU · valgt kort"),
             "gpu",
             "memctl",
-            "Samlet GPU-last for kortet valgt i sidefeltet. Per-prosess GPU-prosent er ikke tilgjengelig.",
+            tr!("Samlet GPU-last for kortet valgt i sidefeltet. Per-prosess GPU-prosent er ikke tilgjengelig."),
         ),
     ] {
         let panel = vbox(5, &["task-summary"]);
@@ -620,19 +614,19 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     let controls = hbox(8, &["task-controls"]);
     let search = gtk::SearchEntry::new();
     search.add_css_class("task-search");
-    search.set_placeholder_text(Some("Søk etter navn, PID eller bruker"));
+    search.set_placeholder_text(Some(tr!("Søk etter navn, PID eller bruker")));
     search.set_hexpand(true);
     search.set_search_delay(250);
-    search.update_property(&[gtk::accessible::Property::Label("Søk i oppgaver")]);
-    let tree = gtk::ToggleButton::with_label("Prosesstre");
+    search.update_property(&[gtk::accessible::Property::Label(tr!("Søk i oppgaver"))]);
+    let tree = gtk::ToggleButton::with_label(tr!("Prosesstre"));
     tree.add_css_class("task-tree");
     tree.set_tooltip_text(Some(
-        "Vis foreldre og barn. Sortering gjelder innen hver familie; ingen summering av barna.",
+        tr!("Vis foreldre og barn. Sortering gjelder innen hver familie; ingen summering av barna."),
     ));
-    let pause = gtk::ToggleButton::with_label("Pause");
+    let pause = gtk::ToggleButton::with_label(tr!("Pause"));
     pause.add_css_class("task-pause");
     pause.set_tooltip_text(Some(
-        "Pause oppgavelisten. Systemgrafene fortsetter å vise felles målinger.",
+        tr!("Pause oppgavelisten. Systemgrafene fortsetter å vise felles målinger."),
     ));
     controls.append(&search);
     controls.append(&tree);
@@ -642,7 +636,8 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     table.set_vexpand(true);
     let heads = hbox(0, &["task-header"]);
     let mut headers = Vec::new();
-    for (i, (_, title, width)) in COLS.iter().enumerate() {
+    let columns = columns();
+    for (i, (_, title, width)) in columns.iter().enumerate() {
         let b = gtk::Button::new();
         b.add_css_class("task-sort");
         let l = cell(title, *width, i == 0);
@@ -661,7 +656,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         row.add_css_class("task-row");
         let line = hbox(0, &[]);
         let mut cells = Vec::new();
-        for (i, (_, _, width)) in COLS.iter().enumerate() {
+        for (i, (_, _, width)) in columns.iter().enumerate() {
             let l = cell("", *width, i == 0);
             line.append(&l);
             cells.push(l);
@@ -688,7 +683,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     let overlay = gtk::Overlay::new();
     overlay.set_vexpand(true);
     overlay.set_child(Some(&horizontal));
-    let empty = label("Leser oppgaver …", &["muted", "task-empty"]);
+    let empty = label(tr!("Leser oppgaver …"), &["muted", "task-empty"]);
     empty.set_halign(gtk::Align::Center);
     empty.set_valign(gtk::Align::Center);
     empty.set_wrap(true);
@@ -697,10 +692,10 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     table.append(&overlay);
     root.append(&table);
     let pager = hbox(8, &["task-pager"]);
-    let count = label("Leser oppgaver …", &["muted", "num"]);
+    let count = label(tr!("Leser oppgaver …"), &["muted", "num"]);
     count.set_hexpand(true);
-    let previous = gtk::Button::with_label("Forrige");
-    let following = gtk::Button::with_label("Neste");
+    let previous = gtk::Button::with_label(tr!("Forrige"));
+    let following = gtk::Button::with_label(tr!("Neste"));
     previous.set_sensitive(false);
     following.set_sensitive(false);
     pager.append(&count);
@@ -708,24 +703,24 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     pager.append(&following);
     root.append(&pager);
     let footer = hbox(8, &["task-footer"]);
-    let selection = label("Velg en oppgave for å avslutte den", &["muted"]);
+    let selection = label(tr!("Velg en oppgave for å avslutte den"), &["muted"]);
     selection.set_hexpand(true);
     selection.set_ellipsize(gtk::pango::EllipsizeMode::End);
-    let stop = gtk::Button::with_label("Avslutt oppgave …");
+    let stop = gtk::Button::with_label(tr!("Avslutt oppgave …"));
     stop.add_css_class("task-stop");
     stop.set_sensitive(false);
     footer.append(&selection);
     footer.append(&stop);
     root.append(&footer);
     let note = label(
-        "CPU: 100 % = én logisk CPU · RAM: RSS med delte sider · GPU-minne: – = ikke tilgjengelig",
+        tr!("CPU: 100 % = én logisk CPU · RAM: RSS med delte sider · GPU-minne: – = ikke tilgjengelig"),
         &["muted", "sm", "task-note"],
     );
     note.set_ellipsize(gtk::pango::EllipsizeMode::End);
-    note.set_tooltip_text(Some("CPU kan overstige 100 %. RSS kan ikke summeres til systemets RAM-bruk. GPU-prosent per oppgave er ikke tilgjengelig; GPU-minne vises bare når driveren leverer det. Prosesstreet summerer ikke foreldre og barn."));
+    note.set_tooltip_text(Some(tr!("CPU kan overstige 100 %. RSS kan ikke summeres til systemets RAM-bruk. GPU-prosent per oppgave er ikke tilgjengelig; GPU-minne vises bare når driveren leverer det. Prosesstreet summerer ikke foreldre og barn.")));
     root.append(&note);
     let status = label(
-        "Kobler til oppgavetjenesten …",
+        tr!("Kobler til oppgavetjenesten …"),
         &["muted", "sm", "task-status"],
     );
     status.set_ellipsize(gtk::pango::EllipsizeMode::End);
@@ -767,12 +762,12 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         stale: Cell::new(true),
         summaries,
     });
-    for (i, (key, title, _)) in COLS.iter().enumerate() {
+    for (i, (key, title, _)) in columns.iter().enumerate() {
         let w = Rc::downgrade(&st);
         let key = *key;
         let title = *title;
         let b = &st.headers[i];
-        b.set_tooltip_text(Some(&format!("Sorter etter {title}")));
+        b.set_tooltip_text(Some(&trf!("Sorter etter {title}", title = title)));
         b.set_widget_name(&format!("task-sort-{key}"));
         if key == "cpu" {
             b.add_css_class("sorted");
@@ -789,7 +784,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
                 matches!(key, "cpu" | "memory" | "gpuMemory")
             });
             *s.sort.borrow_mut() = key.into();
-            for (j, (_, t, _)) in COLS.iter().enumerate() {
+            for (j, (_, t, _)) in columns.iter().enumerate() {
                 let active = j == i;
                 class(&s.headers[j], "sorted", active);
                 if let Some(l) = s.headers[j].child().and_downcast::<gtk::Label>() {
@@ -827,10 +822,10 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         st.pause.connect_toggled(move |b| {
             if let Some(s) = w.upgrade() {
                 s.paused.set(b.is_active());
-                b.set_label(if b.is_active() { "Fortsett" } else { "Pause" });
+                b.set_label(if b.is_active() { tr!("Fortsett") } else { tr!("Pause") });
                 if b.is_active() {
                     s.cancel_timer();
-                    set_text(&s.status, "Oppdatering pauset · F5 oppdaterer én gang");
+                    set_text(&s.status, tr!("Oppdatering pauset · F5 oppdaterer én gang"));
                 } else {
                     s.start();
                 }

@@ -1,0 +1,77 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/infobar.rs:61
+msgid "Start på nytt"
+msgstr "重启"
+
+#: crates/rigg/src/infobar.rs:66
+msgid "Start tjenesten på nytt"
+msgstr "重启服务"
+
+#: crates/rigg/src/infobar.rs:84
+msgid "Tjenesten startes på nytt"
+msgstr "正在重启服务"
+
+#: crates/rigg/src/infobar.rs:84
+msgid "Den gamle stopper når vinduet kobler fra. Lukk og åpne vinduet."
+msgstr "窗口断开连接后，旧服务将停止。请关闭并重新打开窗口。"
+
+#: crates/rigg/src/infobar.rs:116
+msgid "Kobler til tjenesten …"
+msgstr "正在连接服务…"
+
+#: crates/rigg/src/infobar.rs:140
+msgid "Tjenesten svarer ikke."
+msgstr "服务无响应。"
+
+#: crates/rigg/src/infobar.rs:140
+msgid "Verdiene under er gamle. Appen prøver igjen av seg selv."
+msgstr "下方读数已过时。应用会自动重试。"
+
+#: crates/rigg/src/infobar.rs:146
+msgid "Tjenesten svarer ikke. Verdiene er gamle."
+msgstr "服务无响应。读数已过时。"
+
+#: crates/rigg/src/infobar.rs:158
+msgid "Tjenesten er fra et annet bygg."
+msgstr "服务与应用的构建版本不同。"
+
+#: crates/rigg/src/infobar.rs:158
+msgid "Tjenesten er fra bygg {b}, vinduet fra bygg {mine}. Start tjenesten på nytt."
+msgstr "服务构建号为 {b}，应用构建号为 {mine}。请重启服务。"
+
+#: crates/rigg/src/infobar.rs:176
+msgid "Driveren er oppdatert."
+msgstr "驱动已更新。"
+
+#: crates/rigg/src/infobar.rs:179
+msgid "ny"
+msgstr "新版"
+
+#: crates/rigg/src/infobar.rs:180
+msgid "gammel"
+msgstr "旧版"
+
+#: crates/rigg/src/infobar.rs:184
+msgid "Fant ingen NVIDIA-driver."
+msgstr "未找到 NVIDIA 驱动。"
+
+#: crates/rigg/src/infobar.rs:184
+msgid "Prosessor, minne og sensorer vises som vanlig."
+msgstr "处理器、内存和传感器仍正常显示。"
+
+#: crates/rigg/src/infobar.rs:186
+msgid "Skjermkortet svarer ikke."
+msgstr "显卡无响应。"
+
+#: crates/rigg/src/infobar.rs:187
+msgid "Siden {tid}. Det skjer når kortet faller av bussen eller trekkes ut. Tallene før det er tatt vare på."
+msgstr "从 {tid} 起无响应。显卡可能已从总线掉线或被拔出。此前的读数已保留。"

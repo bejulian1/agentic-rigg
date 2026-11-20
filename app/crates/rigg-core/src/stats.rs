@@ -4,6 +4,7 @@
 //! maks» er på, så de overlever omstart. Snittet er sum og antall, og gjelder
 //! siden nullstilling eller siden tjenesten startet (`avg_since`).
 
+use crate::tr;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::collections::BTreeMap;
@@ -127,7 +128,7 @@ impl Stats {
             let mut bad = path.as_os_str().to_owned();
             bad.push(format!(".ødelagt-{now}"));
             let _ = std::fs::copy(path, &bad);
-            return (s, Some("minmaks.json kunne ikke leses. Min og maks begynner på nytt.".into()));
+            return (s, Some(tr!("minmaks.json kunne ikke leses. Min og maks begynner på nytt.").into()));
         };
         if let Some(t) = obj.get("since").and_then(Value::as_i64)
             && t > 1_577_836_800_000

@@ -1,0 +1,25 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/widgets/version_log.rs:63
+msgid "Versjonslogg"
+msgstr "Historial de versiones"
+
+#: crates/rigg/src/widgets/version_log.rs:65
+msgid "Desktoputgavene, fra nyeste til eldste. Åpne en versjon for å se endringene."
+msgstr "Versiones de escritorio, de más reciente a más antigua. Despliega una versión para ver sus cambios."
+
+#: crates/rigg/src/widgets/version_log.rs:74
+msgid "{versjon} · bygg {bygg} · {dato}"
+msgstr "{versjon} · compilación {bygg} · {dato}"
+
+#: crates/rigg/src/widgets/version_log.rs:88
+msgid "Versjonsloggen kunne ikke leses fra appen."
+msgstr "No se pudo leer el historial de versiones incluido en la aplicación."

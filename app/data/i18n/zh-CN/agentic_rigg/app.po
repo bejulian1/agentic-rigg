@@ -8,6 +8,10 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg/src/app.rs:80
+#: crates/rigg/src/app.rs:81
 msgid "Kunne ikke starte appen på nytt: {feil}"
 msgstr "无法重启应用：{feil}"
+
+#: crates/rigg/src/app.rs:149
+msgid "Innstillingene kunne ikke leses"
+msgstr "无法读取设置"

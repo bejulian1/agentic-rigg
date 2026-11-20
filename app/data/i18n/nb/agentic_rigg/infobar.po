@@ -1,0 +1,76 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: nb\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: crates/rigg/src/infobar.rs:61
+msgid "Start på nytt"
+msgstr "Start på nytt"
+
+#: crates/rigg/src/infobar.rs:66
+msgid "Start tjenesten på nytt"
+msgstr "Start tjenesten på nytt"
+
+#: crates/rigg/src/infobar.rs:84
+msgid "Tjenesten startes på nytt"
+msgstr "Tjenesten startes på nytt"
+
+#: crates/rigg/src/infobar.rs:84
+msgid "Den gamle stopper når vinduet kobler fra. Lukk og åpne vinduet."
+msgstr "Den gamle stopper når vinduet kobler fra. Lukk og åpne vinduet."
+
+#: crates/rigg/src/infobar.rs:116
+msgid "Kobler til tjenesten …"
+msgstr "Kobler til tjenesten …"
+
+#: crates/rigg/src/infobar.rs:140
+msgid "Tjenesten svarer ikke."
+msgstr "Tjenesten svarer ikke."
+
+#: crates/rigg/src/infobar.rs:140
+msgid "Verdiene under er gamle. Appen prøver igjen av seg selv."
+msgstr "Verdiene under er gamle. Appen prøver igjen av seg selv."
+
+#: crates/rigg/src/infobar.rs:146
+msgid "Tjenesten svarer ikke. Verdiene er gamle."
+msgstr "Tjenesten svarer ikke. Verdiene er gamle."
+
+#: crates/rigg/src/infobar.rs:158
+msgid "Tjenesten er fra et annet bygg."
+msgstr "Tjenesten er fra et annet bygg."
+
+#: crates/rigg/src/infobar.rs:158
+msgid "Tjenesten er fra bygg {b}, vinduet fra bygg {mine}. Start tjenesten på nytt."
+msgstr "Tjenesten er fra bygg {b}, vinduet fra bygg {mine}. Start tjenesten på nytt."
+
+#: crates/rigg/src/infobar.rs:176
+msgid "Driveren er oppdatert."
+msgstr "Driveren er oppdatert."
+
+#: crates/rigg/src/infobar.rs:179
+msgid "ny"
+msgstr "ny"
+
+#: crates/rigg/src/infobar.rs:180
+msgid "gammel"
+msgstr "gammel"
+
+#: crates/rigg/src/infobar.rs:184
+msgid "Fant ingen NVIDIA-driver."
+msgstr "Fant ingen NVIDIA-driver."
+
+#: crates/rigg/src/infobar.rs:184
+msgid "Prosessor, minne og sensorer vises som vanlig."
+msgstr "Prosessor, minne og sensorer vises som vanlig."
+
+#: crates/rigg/src/infobar.rs:186
+msgid "Skjermkortet svarer ikke."
+msgstr "Skjermkortet svarer ikke."
+
+#: crates/rigg/src/infobar.rs:187
+msgid "Siden {tid}. Det skjer når kortet faller av bussen eller trekkes ut. Tallene før det er tatt vare på."
+msgstr "Siden {tid}. Det skjer når kortet faller av bussen eller trekkes ut. Tallene før det er tatt vare på."

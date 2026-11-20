@@ -4,6 +4,7 @@
 //! UID/RSS: https://docs.kernel.org/filesystems/proc.html
 //! Sikker prosessreferanse: https://man7.org/linux/man-pages/man2/pidfd_open.2.html
 //! Kun SIGTERM: https://man7.org/linux/man-pages/man2/pidfd_send_signal.2.html
+use rigg_core::tr;
 use rigg_core::process::{ProcessIdentity, ProcessRow, ProcessSnapshot};
 use std::collections::{HashMap, HashSet};
 use std::fs::{self, File};
@@ -100,7 +101,7 @@ fn read_small(path: &Path) -> io::Result<String> {
     if bytes.len() > MAX_PROC_FILE as usize {
         return Err(io::Error::new(
             io::ErrorKind::InvalidData,
-            "For stor /proc-fil",
+            tr!("For stor /proc-fil"),
         ));
     }
     Ok(String::from_utf8_lossy(&bytes).into_owned())
@@ -110,7 +111,7 @@ fn read_stat(root: &Path, pid: u32) -> io::Result<Stat> {
     let text = read_small(&root.join(format!("proc/{pid}/stat")))?;
     parse_stat(&text)
         .filter(|s| s.identity.pid == pid)
-        .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidData, "Ugyldig prosessinformasjon"))
+        .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidData, tr!("Ugyldig prosessinformasjon")))
 }
 
 pub fn read_identity(root: &Path, pid: u32) -> Option<ProcessIdentity> {
@@ -183,7 +184,7 @@ pub fn protected_ancestors(root: &Path, client_pids: &[u32]) -> Result<HashSet<u
                 break;
             }
             if !chain.insert(pid) {
-                return Err("Ugyldig foreldrekjede for appen eller en tilkoblet klient".into());
+                return Err(tr!("Ugyldig foreldrekjede for appen eller en tilkoblet klient").into());
             }
             if result.contains(&pid) {
                 completed = true;
@@ -192,13 +193,13 @@ pub fn protected_ancestors(root: &Path, client_pids: &[u32]) -> Result<HashSet<u
             result.insert(pid);
             pid = read_stat(root, pid)
                 .map_err(|_| {
-                    "Kunne ikke kontrollere foreldreprosesser for appen eller en tilkoblet klient"
+                    tr!("Kunne ikke kontrollere foreldreprosesser for appen eller en tilkoblet klient")
                         .to_string()
                 })?
                 .ppid;
         }
         if !completed {
-            return Err("Foreldrekjeden er for lang".into());
+            return Err(tr!("Foreldrekjeden er for lang").into());
         }
     }
     Ok(result)
@@ -216,29 +217,29 @@ fn denial(
     protected: &HashSet<u32>,
 ) -> Option<String> {
     let message = if stat.identity.pid <= 1 {
-        Some("Systemets init-prosess er beskyttet")
+        Some(tr!("Systemets init-prosess er beskyttet"))
     } else if protected.contains(&stat.identity.pid) {
-        Some("Appen eller en foreldreprosess er beskyttet")
+        Some(tr!("Appen eller en foreldreprosess er beskyttet"))
     } else if critical_name(&stat.name) {
-        Some("Viktig system- eller øktprosess er beskyttet")
+        Some(tr!("Viktig system- eller øktprosess er beskyttet"))
     } else if matches!(stat.state.as_str(), "Z" | "X" | "x") {
-        Some("Prosessen er allerede avsluttet")
+        Some(tr!("Prosessen er allerede avsluttet"))
     } else if stat.flags & PF_KTHREAD != 0 || status.is_some_and(|s| s.kernel) {
-        Some("Kjerneprosesser er beskyttet")
+        Some(tr!("Kjerneprosesser er beskyttet"))
     } else if uid == 0 || euid != uid {
-        Some("Avslutning krever en vanlig brukerøkt")
+        Some(tr!("Avslutning krever en vanlig brukerøkt"))
     } else if let Some(status) = status {
         if status.uids.contains(&0) {
-            Some("Root-prosesser er beskyttet")
+            Some(tr!("Root-prosesser er beskyttet"))
         } else if status.uids.iter().any(|u| *u != uid) {
-            Some("Prosessen tilhører en annen bruker eller har andre rettigheter")
+            Some(tr!("Prosessen tilhører en annen bruker eller har andre rettigheter"))
         } else if status.privileged {
-            Some("Prosessen har særskilte systemrettigheter")
+            Some(tr!("Prosessen har særskilte systemrettigheter"))
         } else {
             None
         }
     } else {
-        Some("Kan ikke kontrollere prosessens brukerrettigheter")
+        Some(tr!("Kan ikke kontrollere prosessens brukerrettigheter"))
     };
     message.map(str::to_string)
 }
@@ -323,7 +324,7 @@ impl ProcessReader {
             Ok(entries) => entries,
             Err(_) => {
                 self.reset();
-                result.error = Some("Prosesslisten er utilgjengelig".into());
+                result.error = Some(tr!("Prosesslisten er utilgjengelig").into());
                 return result;
             }
         };

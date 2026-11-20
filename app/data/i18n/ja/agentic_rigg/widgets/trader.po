@@ -1,0 +1,29 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/widgets/trader.rs:139
+msgid "Klokke og last per tråd"
+msgstr "スレッドごとのクロックと使用率"
+
+#: crates/rigg/src/widgets/trader.rs:148
+msgid "Tråd {t}: {m}, {l} last\nKlokke er snittet fra APERF/MPERF (cpufreq)."
+msgstr "スレッド {t}: {m}、使用率 {l}\nクロックは APERF/MPERF (cpufreq) から求めた平均です。"
+
+#: crates/rigg/src/widgets/trader.rs:150
+msgid "{threads} deler kjerne (SMT)"
+msgstr "{threads} はコアを共有 (SMT)"
+
+#: crates/rigg/src/widgets/trader.rs:150
+msgid " og "
+msgstr "と"
+
+#: crates/rigg/src/widgets/trader.rs:271
+msgid "snitt {snitt} · last {last}"
+msgstr "平均 {snitt} · 使用率 {last}"

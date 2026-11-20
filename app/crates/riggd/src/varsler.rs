@@ -18,6 +18,7 @@
 //!   feiler (også første gang den sees), og når antallet dårlige sektorer
 //!   øker. Klikk åpner Disker. Høyst ett varsel per disk og grunn per 6 t.
 
+use rigg_core::{tr, trf, trn};
 use rigg_core::disk::{DiskList, Level};
 use rigg_core::model::{DeviceState, GpuInfo, Telemetry};
 use rigg_core::settings::ServiceSettings;
@@ -85,7 +86,7 @@ fn deg(v: f64) -> String {
 
 /// Teksten i varselet: («GPU-temperaturen er 86 °C», «Over den røde grensen på 85 °C siden 14:31.»).
 pub fn threshold_text(what: &str, value: f64, limit: f64, since: i64) -> (String, String) {
-    (format!("{what} er {}", deg(value)), format!("Over den røde grensen på {} siden {}.", deg(limit), hm(since)))
+    (trf!("{what} er {temperatur}", what = what, temperatur = deg(value)), trf!("Over den røde grensen på {grense} siden {tid}.", grense = deg(limit), tid = hm(since)))
 }
 
 #[derive(Default)]
@@ -117,12 +118,12 @@ impl Alarms {
         if a.gpu_temp {
             let many = t.gpus.len() > 1;
             for (i, (id, s)) in t.gpus.iter().enumerate() {
-                let what = if many { format!("Temperaturen på skjermkort {}", i + 1) } else { "GPU-temperaturen".to_string() };
+                let what = if many { trf!("Temperaturen på skjermkort {verdi}", verdi = i + 1) } else { tr!("GPU-temperaturen").to_string() };
                 items.push((rigg_core::sensor_key::gpu(id, "temp"), what, s.temp, th.gpu_temp_crit));
             }
         }
         if a.cpu_temp {
-            items.push(("cpu/temp".into(), "CPU-temperaturen".into(), rigg_core::sensormeta::cpu_temp(&t.sys), th.cpu_temp_crit));
+            items.push(("cpu/temp".into(), tr!("CPU-temperaturen").into(), rigg_core::sensormeta::cpu_temp(&t.sys), th.cpu_temp_crit));
         }
         let mut out = Vec::new();
         for (key, what, value, limit) in items {
@@ -148,19 +149,19 @@ impl Alarms {
         let name = rigg_core::model::short_gpu_name(&info.name);
         let (title, body) = match info.state {
             DeviceState::Lost => (
-                "Skjermkortet svarer ikke".to_string(),
-                format!("{}Siden {}. Det skjer når kortet faller av bussen eller trekkes ut. Tallene før det er tatt vare på.", if name.is_empty() { String::new() } else { format!("{name}. ") }, hm(info.since.max(1))),
+                tr!("Skjermkortet svarer ikke").to_string(),
+                trf!("{kortnavn}Siden {tid}. Det skjer når kortet faller av bussen eller trekkes ut. Tallene før det er tatt vare på.", kortnavn = if name.is_empty() { String::new() } else { format!("{name}. ") }, tid = hm(info.since.max(1))),
             ),
             DeviceState::DriverUpdated => (
-                "Driveren er oppdatert".to_string(),
+                tr!("Driveren er oppdatert").to_string(),
                 format!(
                     "Ny NVIDIA-driver ({}) er installert, men den gamle ({}) kjører fortsatt. Start maskinen på nytt for å lese skjermkortet.",
-                    info.driver_installed.as_deref().unwrap_or("ny"),
-                    info.driver.as_deref().unwrap_or("gammel")
+                    info.driver_installed.as_deref().unwrap_or(tr!("ny")),
+                    info.driver.as_deref().unwrap_or(tr!("gammel"))
                 ),
             ),
-            DeviceState::NoDriver => ("Fant ingen NVIDIA-driver".to_string(), "Prosessor, minne og sensorer vises som vanlig.".to_string()),
-            DeviceState::Ok if prev == DeviceState::Lost => ("Skjermkortet svarer igjen".to_string(), format!("{}Det er funnet igjen og leses som før.", if name.is_empty() { String::new() } else { format!("{name} ") })),
+            DeviceState::NoDriver => (tr!("Fant ingen NVIDIA-driver").to_string(), tr!("Prosessor, minne og sensorer vises som vanlig.").to_string()),
+            DeviceState::Ok if prev == DeviceState::Lost => (tr!("Skjermkortet svarer igjen").to_string(), trf!("{kortnavn}Det er funnet igjen og leses som før.", kortnavn = if name.is_empty() { String::new() } else { format!("{name} ") })),
             _ => return vec![],
         };
         let key = format!("device:{}:{}", info.id, info.state.as_str());
@@ -196,15 +197,15 @@ impl Alarms {
             };
             if d.health.level == Level::Fail {
                 let why = d.health.reasons.first().cloned().unwrap_or_default();
-                send(format!("disk:{}:fail", d.id), format!("Disken {name} feiler"), format!("{why}. Ta sikkerhetskopi av det som ligger på disken ({}).", d.dev), "disk_fail");
+                send(format!("disk:{}:fail", d.id), trf!("Disken {name} feiler", name = name), trf!("{why}. Ta sikkerhetskopi av det som ligger på disken ({enhet}).", why = why, enhet = d.dev), "disk_fail");
             }
             if let Some(b) = before
                 && bad > b
             {
                 send(
                     format!("disk:{}:bad:{bad}", d.id),
-                    format!("Nye dårlige sektorer på {name}"),
-                    format!("{} (var {b}). Ta sikkerhetskopi av det som ligger på disken ({}).", rigg_core::fmt::plural(bad, "dårlig sektor", "dårlige sektorer"), d.dev),
+                    trf!("Nye dårlige sektorer på {name}", name = name),
+                    trn!(bad, "{antall} dårlig sektor (var {b}). Ta sikkerhetskopi av det som ligger på disken ({enhet}).", "{antall} dårlige sektorer (var {b}). Ta sikkerhetskopi av det som ligger på disken ({enhet}).", antall = rigg_core::fmt::num(Some(bad as f64), 0), b = b, enhet = d.dev),
                     "disk_sectors",
                 );
             }
@@ -258,7 +259,7 @@ impl Notifier {
         hints.insert("desktop-entry".into(), app_id.to_variant());
         hints.insert("urgency".into(), 1u8.to_variant());
         hints.insert("category".into(), "device".to_variant());
-        let actions = vec!["default".to_string(), "Åpne".to_string()];
+        let actions = vec!["default".to_string(), tr!("Åpne").to_string()];
         let params = ("Agentic Rigg", replaces, app_id.as_str(), title, body, actions, hints, -1i32).to_variant();
         self.ensure_watch();
         let me = self.clone();
@@ -280,7 +281,7 @@ impl Notifier {
                         me.open.borrow_mut().insert(id, (page, None));
                     }
                 }
-                Err(e) => eprintln!("Kunne ikke sende skrivebordsvarsel: {e}"),
+                Err(e) => eprintln!("{}", trf!("Kunne ikke sende skrivebordsvarsel: {e}", e = e)),
             },
         );
     }

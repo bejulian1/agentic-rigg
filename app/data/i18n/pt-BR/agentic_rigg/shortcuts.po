@@ -1,0 +1,145 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/shortcuts.rs:179
+msgid "Navigasjon"
+msgstr "Navegação"
+
+#: crates/rigg/src/shortcuts.rs:181
+msgid "Åpne de ti opprinnelige sidene; 0 åpner RGB-lys"
+msgstr "Abrir as dez páginas originais; 0 abre a iluminação RGB"
+
+#: crates/rigg/src/shortcuts.rs:182
+msgid "Åpne Oppgaver"
+msgstr "Abrir Tarefas"
+
+#: crates/rigg/src/shortcuts.rs:183
+msgid "Flytt i sidefeltet"
+msgstr "Navegar pela barra lateral"
+
+#: crates/rigg/src/shortcuts.rs:184
+msgid "Åpne og lukk Innstillinger"
+msgstr "Abrir ou fechar as configurações"
+
+#: crates/rigg/src/shortcuts.rs:185
+msgid "Denne oversikten"
+msgstr "Mostrar esta lista de atalhos"
+
+#: crates/rigg/src/shortcuts.rs:186
+msgid "Legg sammen eller utvid sidefeltet"
+msgstr "Recolher ou expandir a barra lateral"
+
+#: crates/rigg/src/shortcuts.rs:187
+msgid "Lukk meny, popover, dialog eller Innstillinger"
+msgstr "Fechar menus, pop-ups, caixas de diálogo ou configurações"
+
+#: crates/rigg/src/shortcuts.rs:191
+msgid "Sider"
+msgstr "Páginas"
+
+#: crates/rigg/src/shortcuts.rs:193
+msgid "Søk i Oppgaver, Sensorer eller Innstillinger"
+msgstr "Buscar em Tarefas, Sensores ou Configurações"
+
+#: crates/rigg/src/shortcuts.rs:194
+msgid "Søk i Innstillinger"
+msgstr "Buscar nas configurações"
+
+#: crates/rigg/src/shortcuts.rs:195
+msgid "Flytt en verdi i statusblokken (Innstillinger › Sidefelt)"
+msgstr "Mover uma leitura na área de status (Configurações › Barra lateral)"
+
+#: crates/rigg/src/shortcuts.rs:196
+msgid "Pause og fortsett (Grafer)"
+msgstr "Pausar ou retomar (Gráficos)"
+
+#: crates/rigg/src/shortcuts.rs:197
+msgid "Logg til fil av og på"
+msgstr "Ativar ou desativar o registro em arquivo"
+
+#: crates/rigg/src/shortcuts.rs:198
+msgid "Nullstill min og maks (Sensorer)"
+msgstr "Redefinir mínimos e máximos (Sensores)"
+
+#: crates/rigg/src/shortcuts.rs:199
+msgid "Oppdater nå (Oppgaver) eller les faste data på nytt (Grafikkort, Prosessor og System)"
+msgstr "Atualizar agora (Tarefas) ou recarregar dados estáticos (Placa de vídeo, Processador e Sistema)"
+
+#: crates/rigg/src/shortcuts.rs:203
+msgid "Vinduet"
+msgstr "Janela"
+
+#: crates/rigg/src/shortcuts.rs:205
+msgid "Større eller mindre skrift"
+msgstr "Aumentar ou reduzir o texto"
+
+#: crates/rigg/src/shortcuts.rs:206
+msgid "Vanlig skriftstørrelse"
+msgstr "Restaurar o tamanho padrão do texto"
+
+#: crates/rigg/src/shortcuts.rs:207
+msgid "Lukk vinduet"
+msgstr "Fechar janela"
+
+#: crates/rigg/src/shortcuts.rs:208
+msgid "Avslutt"
+msgstr "Sair"
+
+#: crates/rigg/src/shortcuts.rs:212
+msgid "Skjermkortstyring (klokker og effekt, vifter)"
+msgstr "Controle da GPU (frequências e potência, ventoinhas)"
+
+#: crates/rigg/src/shortcuts.rs:214
+msgid "Angre i utkastet"
+msgstr "Desfazer alteração no rascunho"
+
+#: crates/rigg/src/shortcuts.rs:215
+msgid "Gjør om"
+msgstr "Refazer"
+
+#: crates/rigg/src/shortcuts.rs:216
+msgid "Bruk utkastet"
+msgstr "Aplicar rascunho"
+
+#: crates/rigg/src/shortcuts.rs:217
+msgid "Glideren: ett steg ned eller opp (Shift: stort steg)"
+msgstr "Controle deslizante: reduzir ou aumentar um passo (Shift: passo maior)"
+
+#: crates/rigg/src/shortcuts.rs:218
+msgid "Glideren: stort steg opp eller ned"
+msgstr "Controle deslizante: aumentar ou reduzir um passo maior"
+
+#: crates/rigg/src/shortcuts.rs:219
+msgid "Glideren: laveste eller høyeste verdi"
+msgstr "Controle deslizante: valor mínimo ou máximo"
+
+#: crates/rigg/src/shortcuts.rs:220
+msgid "Kurven: forrige eller neste punkt (også PgUp og PgDn)"
+msgstr "Curva: ponto anterior ou seguinte (também PgUp e PgDn)"
+
+#: crates/rigg/src/shortcuts.rs:221
+msgid "Kurven: flytt punktet 1 °C eller 1 % (Shift: 5)"
+msgstr "Curva: mover o ponto em 1 °C ou 1 % (Shift: 5)"
+
+#: crates/rigg/src/shortcuts.rs:222
+msgid "Kurven: legg til eller fjern et punkt"
+msgstr "Curva: adicionar ou remover um ponto"
+
+#: crates/rigg/src/shortcuts.rs:329
+msgid "Tastatursnarveier"
+msgstr "Atalhos de teclado"
+
+#: crates/rigg/src/shortcuts.rs:349
+msgid "eller"
+msgstr "ou"
+
+#: crates/rigg/src/shortcuts.rs:364
+msgid "Versjon og feilsøking står under Innstillinger › Om."
+msgstr "A versão e as informações de diagnóstico estão em Configurações › Sobre."

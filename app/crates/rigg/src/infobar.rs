@@ -3,6 +3,7 @@
 //! (produktspesifikasjonen 3.8). Bare ved feil; ingen spinnere. «Kobler til
 //! tjenesten …» vises bare hvis det tar mer enn 300 ms.
 
+use rigg_core::{tr, trf};
 use crate::state::{App, Conn};
 use crate::widgets::{Icon, hbox, label, vbox};
 use gtk::prelude::*;
@@ -57,12 +58,12 @@ impl Infobar {
     pub fn new(app: &Rc<App>) -> Rc<Infobar> {
         let root = vbox(0, &[]);
         let (conn, cb, conn_line) = banner("unplug", "");
-        let conn_btn = gtk::Button::with_label("Start på nytt");
+        let conn_btn = gtk::Button::with_label(tr!("Start på nytt"));
         conn_btn.add_css_class("sm");
         conn_btn.set_valign(gtk::Align::Center);
         cb.append(&conn_btn);
         let (build, bb, build_line) = banner("refresh-cw", "warn");
-        let restart = gtk::Button::with_label("Start tjenesten på nytt");
+        let restart = gtk::Button::with_label(tr!("Start tjenesten på nytt"));
         restart.add_css_class("sm");
         restart.set_valign(gtk::Align::Center);
         bb.append(&restart);
@@ -80,7 +81,7 @@ impl Infobar {
             restart.connect_clicked(move |_| {
                 // Ber den gamle tjenesten stoppe når vinduet kobler fra; vinduet starter en ny.
                 a.client.request("shutdown_when_idle", serde_json::json!({}), |_| {});
-                a.toast(crate::toast::Toast::new("Tjenesten startes på nytt").body("Den gamle stopper når vinduet kobler fra. Lukk og åpne vinduet."));
+                a.toast(crate::toast::Toast::new(tr!("Tjenesten startes på nytt")).body(tr!("Den gamle stopper når vinduet kobler fra. Lukk og åpne vinduet.")));
             });
         }
         let m = Rc::downgrade(&me);
@@ -112,7 +113,7 @@ impl Infobar {
             if let Some(me) = m.upgrade()
                 && !a.client.is_connected()
             {
-                me.conn_line.set("Kobler til tjenesten …", "");
+                me.conn_line.set(tr!("Kobler til tjenesten …"), "");
                 me.conn_btn.set_visible(false);
                 if let Some(b) = me.conn.child() {
                     b.remove_css_class("danger");
@@ -136,13 +137,13 @@ impl Infobar {
                     if a.is_connected() {
                         return;
                     }
-                    line.set("Tjenesten svarer ikke.", "Verdiene under er gamle. Appen prøver igjen av seg selv.");
+                    line.set(tr!("Tjenesten svarer ikke."), tr!("Verdiene under er gamle. Appen prøver igjen av seg selv."));
                     b.set_visible(true);
                     if let Some(bx) = r.child() {
                         bx.remove_css_class("info");
                     }
                     r.set_reveal_child(true);
-                    r.announce("Tjenesten svarer ikke. Verdiene er gamle.", gtk::AccessibleAnnouncementPriority::Medium);
+                    r.announce(tr!("Tjenesten svarer ikke. Verdiene er gamle."), gtk::AccessibleAnnouncementPriority::Medium);
                 });
             }
         }
@@ -154,7 +155,7 @@ impl Infobar {
         let mine = rigg_core::version::build() as u64;
         match theirs {
             Some(b) if b != mine => {
-                self.build_line.set("Tjenesten er fra et annet bygg.", &format!("Tjenesten er fra bygg {b}, vinduet fra bygg {mine}. Start tjenesten på nytt."));
+                self.build_line.set(tr!("Tjenesten er fra et annet bygg."), &trf!("Tjenesten er fra bygg {b}, vinduet fra bygg {mine}. Start tjenesten på nytt.", b = b, mine = mine));
                 self.build.set_reveal_child(true);
             }
             _ => self.build.set_reveal_child(false),
@@ -172,18 +173,18 @@ impl Infobar {
             let since = crate::app::local_time(i.since);
             match i.state {
                 DeviceState::DriverUpdated => Some((
-                    "Driveren er oppdatert.",
+                    tr!("Driveren er oppdatert."),
                     format!(
                         "Ny NVIDIA-driver ({}) er installert, men den gamle ({}) kjører fortsatt. Start maskinen på nytt for å lese skjermkortet.",
-                        i.driver_installed.clone().unwrap_or_else(|| "ny".into()),
-                        i.driver.clone().unwrap_or_else(|| "gammel".into())
+                        i.driver_installed.clone().unwrap_or_else(|| tr!("ny").into()),
+                        i.driver.clone().unwrap_or_else(|| tr!("gammel").into())
                     ),
                     "warn",
                 )),
-                DeviceState::NoDriver => Some(("Fant ingen NVIDIA-driver.", "Prosessor, minne og sensorer vises som vanlig.".to_string(), "info")),
+                DeviceState::NoDriver => Some((tr!("Fant ingen NVIDIA-driver."), tr!("Prosessor, minne og sensorer vises som vanlig.").to_string(), "info")),
                 DeviceState::Lost => Some((
-                    "Skjermkortet svarer ikke.",
-                    format!("Siden {}. Det skjer når kortet faller av bussen eller trekkes ut. Tallene før det er tatt vare på.", rigg_core::fmt::time(since, false)),
+                    tr!("Skjermkortet svarer ikke."),
+                    trf!("Siden {tid}. Det skjer når kortet faller av bussen eller trekkes ut. Tallene før det er tatt vare på.", tid = rigg_core::fmt::time(since, false)),
                     "",
                 )),
                 _ => None,

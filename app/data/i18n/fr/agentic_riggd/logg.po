@@ -1,0 +1,61 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/riggd/src/logg.rs:107
+msgid "keys må være en liste"
+msgstr "keys doit être une liste"
+
+#: crates/riggd/src/logg.rs:110
+msgid "Ugyldig sensornøkkel"
+msgstr "Clé de capteur non valide"
+
+#: crates/riggd/src/logg.rs:116
+msgid "Velg minst én sensor å logge."
+msgstr "Sélectionnez au moins un capteur à journaliser."
+
+#: crates/riggd/src/logg.rs:122
+msgid "Ingen sensorer er valgt for loggen. Velg dem i Innstillinger › Logging og varsler, eller logg alle."
+msgstr "Aucun capteur sélectionné. Sélectionnez-les dans Paramètres › Journalisation et alertes, ou journalisez-les tous."
+
+#: crates/riggd/src/logg.rs:129
+msgid "Loggintervallet må være 0,5, 1, 2, 5 eller 10 s"
+msgstr "L’intervalle de journalisation doit être de 0,5, 1, 2, 5 ou 10 s"
+
+#: crates/riggd/src/logg.rs:135
+msgid "Formatet må være standard eller norsk"
+msgstr "Le format doit être standard ou norvégien"
+
+#: crates/riggd/src/logg.rs:140
+msgid "Loggmappa må være en full sti"
+msgstr "Le dossier des journaux doit être indiqué par un chemin absolu"
+
+#: crates/riggd/src/logg.rs:146
+msgid "Kunne ikke lage mappa {verdi}: {e}"
+msgstr "Impossible de créer le dossier {verdi} : {e}"
+
+#: crates/riggd/src/logg.rs:149
+msgid "Det er under 500 MB ledig på disken. Loggen er ikke startet."
+msgstr "Il reste moins de 500 MB d’espace disque. La journalisation n’a pas démarré."
+
+#: crates/riggd/src/logg.rs:152
+msgid "Kunne ikke lage loggfila: {e}"
+msgstr "Impossible de créer le fichier journal : {e}"
+
+#: crates/riggd/src/logg.rs:184 crates/riggd/src/logg.rs:247 crates/riggd/src/logg.rs:259 crates/riggd/src/logg.rs:282
+msgid "Kunne ikke skrive til loggfila: {e}"
+msgstr "Impossible d’écrire dans le fichier journal : {e}"
+
+#: crates/riggd/src/logg.rs:268
+msgid "Kunne ikke lage neste loggfil: {e}"
+msgstr "Impossible de créer le fichier journal suivant : {e}"
+
+#: crates/riggd/src/logg.rs:289
+msgid "Loggen er stoppet: det er under 500 MB ledig på disken."
+msgstr "Journalisation arrêtée : il reste moins de 500 MB d’espace disque."

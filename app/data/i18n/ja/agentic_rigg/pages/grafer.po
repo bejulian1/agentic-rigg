@@ -1,0 +1,90 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/pages/grafer.rs:104 crates/rigg/src/pages/grafer.rs:116
+msgid "Tidsvindu"
+msgstr "表示期間"
+
+#: crates/rigg/src/pages/grafer.rs:139 crates/rigg/src/pages/grafer.rs:320
+msgid "Pause alle"
+msgstr "すべて一時停止"
+
+#: crates/rigg/src/pages/grafer.rs:140 crates/rigg/src/pages/grafer.rs:321
+msgid "Pause alle grafene"
+msgstr "すべてのグラフを一時停止"
+
+#: crates/rigg/src/pages/grafer.rs:146 crates/rigg/src/pages/grafer.rs:147
+msgid "Velg grafer"
+msgstr "グラフを選択"
+
+#: crates/rigg/src/pages/grafer.rs:153 crates/rigg/src/pages/grafer.rs:154
+msgid "Eksporter CSV …"
+msgstr "CSV にエクスポート…"
+
+#: crates/rigg/src/pages/grafer.rs:320
+msgid "Fortsett alle"
+msgstr "すべて再開"
+
+#: crates/rigg/src/pages/grafer.rs:321
+msgid "Fortsett alle grafene"
+msgstr "すべてのグラフを再開"
+
+#: crates/rigg/src/pages/grafer.rs:326
+msgid "På pause · {verdi}"
+msgstr "一時停止中 · {verdi}"
+
+#: crates/rigg/src/pages/grafer.rs:335
+msgid "Markøren vises på alle grafene. Klikk for bare grafen du holder over."
+msgstr "カーソルはすべてのグラフに表示されます。クリックするとポインターを置いたグラフにだけ表示されます。"
+
+#: crates/rigg/src/pages/grafer.rs:335
+msgid "Markøren vises bare på grafen du holder over. Klikk for alle grafene."
+msgstr "カーソルはポインターを置いたグラフにだけ表示されます。クリックするとすべてのグラフに表示されます。"
+
+#: crates/rigg/src/pages/grafer.rs:337
+msgid "Markør på alle grafene"
+msgstr "すべてのグラフにカーソルを表示"
+
+#: crates/rigg/src/pages/grafer.rs:349
+msgid "Grafer som vises"
+msgstr "表示するグラフ"
+
+#: crates/rigg/src/pages/grafer.rs:382
+msgid "Minst én graf må vises"
+msgstr "グラフを 1 つ以上表示してください"
+
+#: crates/rigg/src/pages/grafer.rs:421
+msgid "Kunne ikke hente historikken"
+msgstr "履歴を読み込めませんでした"
+
+#: crates/rigg/src/pages/grafer.rs:447
+msgid "Eksporter historikk som CSV"
+msgstr "履歴を CSV にエクスポート"
+
+#: crates/rigg/src/pages/grafer.rs:449
+msgid "Eksporter"
+msgstr "エクスポート"
+
+#: crates/rigg/src/pages/grafer.rs:472
+msgid "Historikken er eksportert"
+msgstr "履歴をエクスポートしました"
+
+#: crates/rigg/src/pages/grafer.rs:473
+msgid "{fname} · {antall} rader, {periode}"
+msgid_plural "{fname} · {antall} rader, {periode}"
+msgstr[0] "{fname} · {antall} 行、{periode}"
+
+#: crates/rigg/src/pages/grafer.rs:475
+msgid "Vis i Filer"
+msgstr "「ファイル」で表示"
+
+#: crates/rigg/src/pages/grafer.rs:480
+msgid "Kunne ikke lagre fila"
+msgstr "ファイルを保存できませんでした"

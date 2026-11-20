@@ -1,0 +1,92 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n == 1 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : 2);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/riggd/src/varsler.rs:89
+msgid "{what} er {temperatur}"
+msgstr "{what} wynosi {temperatur}"
+
+#: crates/riggd/src/varsler.rs:89
+msgid "Over den røde grensen på {grense} siden {tid}."
+msgstr "Powyżej progu krytycznego {grense} od {tid}."
+
+#: crates/riggd/src/varsler.rs:121
+msgid "Temperaturen på skjermkort {verdi}"
+msgstr "Temperatura GPU {verdi}"
+
+#: crates/riggd/src/varsler.rs:121
+msgid "GPU-temperaturen"
+msgstr "Temperatura GPU"
+
+#: crates/riggd/src/varsler.rs:126
+msgid "CPU-temperaturen"
+msgstr "Temperatura CPU"
+
+#: crates/riggd/src/varsler.rs:152
+msgid "Skjermkortet svarer ikke"
+msgstr "GPU nie odpowiada"
+
+#: crates/riggd/src/varsler.rs:153
+msgid "{kortnavn}Siden {tid}. Det skjer når kortet faller av bussen eller trekkes ut. Tallene før det er tatt vare på."
+msgstr "{kortnavn}Od {tid}. GPU mogło utracić połączenie z magistralą lub zostać odłączone. Wcześniejsze odczyty zachowano."
+
+#: crates/riggd/src/varsler.rs:156
+msgid "Driveren er oppdatert"
+msgstr "Zaktualizowano sterownik"
+
+#: crates/riggd/src/varsler.rs:159
+msgid "ny"
+msgstr "nowy"
+
+#: crates/riggd/src/varsler.rs:160
+msgid "gammel"
+msgstr "stary"
+
+#: crates/riggd/src/varsler.rs:163
+msgid "Fant ingen NVIDIA-driver"
+msgstr "Nie znaleziono sterownika NVIDIA"
+
+#: crates/riggd/src/varsler.rs:163
+msgid "Prosessor, minne og sensorer vises som vanlig."
+msgstr "Procesor, pamięć i czujniki są wyświetlane jak zwykle."
+
+#: crates/riggd/src/varsler.rs:164
+msgid "Skjermkortet svarer igjen"
+msgstr "GPU znów odpowiada"
+
+#: crates/riggd/src/varsler.rs:164
+msgid "{kortnavn}Det er funnet igjen og leses som før."
+msgstr "{kortnavn}GPU wykryto ponownie i wznowiono monitorowanie."
+
+#: crates/riggd/src/varsler.rs:200
+msgid "Disken {name} feiler"
+msgstr "Dysk {name} ulega awarii"
+
+#: crates/riggd/src/varsler.rs:200
+msgid "{why}. Ta sikkerhetskopi av det som ligger på disken ({enhet})."
+msgstr "{why}. Utwórz kopię zapasową danych z tego dysku ({enhet})."
+
+#: crates/riggd/src/varsler.rs:207
+msgid "Nye dårlige sektorer på {name}"
+msgstr "Nowe uszkodzone sektory na dysku {name}"
+
+#: crates/riggd/src/varsler.rs:208
+msgid "{antall} dårlig sektor (var {b}). Ta sikkerhetskopi av det som ligger på disken ({enhet})."
+msgid_plural "{antall} dårlige sektorer (var {b}). Ta sikkerhetskopi av det som ligger på disken ({enhet})."
+msgstr[0] "{antall} uszkodzony sektor (wcześniej: {b}). Utwórz kopię zapasową danych z tego dysku ({enhet})."
+msgstr[1] "{antall} uszkodzone sektory (wcześniej: {b}). Utwórz kopię zapasową danych z tego dysku ({enhet})."
+msgstr[2] "{antall} uszkodzonych sektorów (wcześniej: {b}). Utwórz kopię zapasową danych z tego dysku ({enhet})."
+
+#: crates/riggd/src/varsler.rs:262
+msgid "Åpne"
+msgstr "Otwórz"
+
+#: crates/riggd/src/varsler.rs:284
+msgid "Kunne ikke sende skrivebordsvarsel: {e}"
+msgstr "Nie udało się wysłać powiadomienia: {e}"

@@ -1,0 +1,61 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/riggd/src/logg.rs:107
+msgid "keys må være en liste"
+msgstr "keys must be a list"
+
+#: crates/riggd/src/logg.rs:110
+msgid "Ugyldig sensornøkkel"
+msgstr "Invalid sensor key"
+
+#: crates/riggd/src/logg.rs:116
+msgid "Velg minst én sensor å logge."
+msgstr "Select at least one sensor to log."
+
+#: crates/riggd/src/logg.rs:122
+msgid "Ingen sensorer er valgt for loggen. Velg dem i Innstillinger › Logging og varsler, eller logg alle."
+msgstr "No sensors selected. Select them in Settings › Logging and alerts, or log all sensors."
+
+#: crates/riggd/src/logg.rs:129
+msgid "Loggintervallet må være 0,5, 1, 2, 5 eller 10 s"
+msgstr "The logging interval must be 0.5, 1, 2, 5 or 10 s"
+
+#: crates/riggd/src/logg.rs:135
+msgid "Formatet må være standard eller norsk"
+msgstr "The format must be Standard or Norwegian"
+
+#: crates/riggd/src/logg.rs:140
+msgid "Loggmappa må være en full sti"
+msgstr "The log folder must be an absolute path"
+
+#: crates/riggd/src/logg.rs:146
+msgid "Kunne ikke lage mappa {verdi}: {e}"
+msgstr "Could not create folder {verdi}: {e}"
+
+#: crates/riggd/src/logg.rs:149
+msgid "Det er under 500 MB ledig på disken. Loggen er ikke startet."
+msgstr "Less than 500 MB of disk space is free. Logging was not started."
+
+#: crates/riggd/src/logg.rs:152
+msgid "Kunne ikke lage loggfila: {e}"
+msgstr "Could not create the log file: {e}"
+
+#: crates/riggd/src/logg.rs:184 crates/riggd/src/logg.rs:247 crates/riggd/src/logg.rs:259 crates/riggd/src/logg.rs:282
+msgid "Kunne ikke skrive til loggfila: {e}"
+msgstr "Could not write to the log file: {e}"
+
+#: crates/riggd/src/logg.rs:268
+msgid "Kunne ikke lage neste loggfil: {e}"
+msgstr "Could not create the next log file: {e}"
+
+#: crates/riggd/src/logg.rs:289
+msgid "Loggen er stoppet: det er under 500 MB ledig på disken."
+msgstr "Logging stopped: less than 500 MB of disk space is free."

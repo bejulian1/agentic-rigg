@@ -1,0 +1,17 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/main.rs:37
+msgid "Bruk: agentic-rigg [--side SIDE] [--innstillinger DEL] [--hint] [--version]\n\n  --side SIDE           åpne en side: oversikt, sensorer, grafer, grafikkort,\n                        oppgaver, prosessor, disker, system, kontroller (Klokker og\n                        effekt), viftekurve (Vifter) eller lys (RGB-lys)\n  --innstillinger DEL   åpne Innstillinger (generelt, utseende, format,\n                        sidefelt, grafer, logging, data eller om)\n  --hint                et hint om en liten overraskelse du ikke har funnet\n  --version             skriv versjonen"
+msgstr "Uso: agentic-rigg [--side SIDE] [--innstillinger DEL] [--hint] [--version]\n\n  --side SIDE           abrir uma página: oversikt, sensorer, grafer, grafikkort,\n                        oppgaver, prosessor, disker, system, kontroller (Frequências e\n                        potência), viftekurve (Ventoinhas) ou lys (Iluminação RGB)\n  --innstillinger DEL   abrir configurações (generelt, utseende, format,\n                        sidefelt, grafer, logging, data ou om)\n  --hint                mostrar uma dica sobre uma surpresa ainda não descoberta\n  --version             mostrar a versão"
+
+#: crates/rigg/src/main.rs:82
+msgid "Små overraskelser er slått av (Innstillinger › Generelt)."
+msgstr "As surpresas estão desativadas (Configurações › Geral)."

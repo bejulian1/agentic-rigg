@@ -8,6 +8,7 @@
 //! - Panikk i tråden fanges; backenden lages på nytt etter 1 s, og hovedtråden
 //!   fortsetter (arkitektur.md 4.6).
 
+use rigg_core::tr;
 use rigg_core::model::{GpuInfo, GpuSample, GpuStatic, SysSample};
 use rigg_core::proto::MIN_INTERVAL_MS;
 use rigg_hw::gpu::{GpuBackend, Plan};
@@ -108,13 +109,13 @@ impl Sampler {
                     match res {
                         Ok(()) => break,
                         Err(_) => {
-                            eprintln!("Prøvetråden fikk panikk. Starter den på nytt om 1 s.");
+                            eprintln!("{}", tr!("Prøvetråden fikk panikk. Starter den på nytt om 1 s."));
                             std::thread::sleep(Duration::from_secs(1));
                         }
                     }
                 }
             })
-            .expect("kunne ikke starte prøvetråden");
+            .expect(tr!("kunne ikke starte prøvetråden"));
         Sampler { tx, handle: Some(handle) }
     }
 

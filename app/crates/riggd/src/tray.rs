@@ -28,6 +28,7 @@
 //! Koblingen inn i tjenesten er én linje i `main.rs`, før hovedløkka:
 //! `let _tray = tray::attach(&d);`
 
+use rigg_core::{tr, trf, trn};
 use crate::daemon::Daemon;
 use gio::prelude::*;
 use glib::variant::{ObjectPath, ToVariant, Variant};
@@ -100,12 +101,12 @@ pub fn snapshot(d: &Daemon) -> Snapshot {
 /// «GPU 52 °C · 12 W · 8 % last», med « · Logger» mens loggen går.
 pub fn status_line(s: &Snapshot) -> String {
     let mut out = if s.temp.is_none() && s.load.is_none() && s.power.is_none() {
-        "Ingen tall fra skjermkortet".to_string()
+        tr!("Ingen tall fra skjermkortet").to_string()
     } else {
-        format!("GPU {} · {} · {} last", F::with_unit(F::num(s.temp, 0), "°C"), F::watt(s.power, 0), F::pct(s.load, 0))
+        trf!("GPU {temperatur} · {effekt} · {last} last", temperatur = F::with_unit(F::num(s.temp, 0), "°C"), effekt = F::watt(s.power, 0), last = F::pct(s.load, 0))
     };
     if s.logging {
-        out.push_str(" · Logger");
+        out.push_str(tr!(" · Logger"));
     }
     out
 }
@@ -116,11 +117,11 @@ pub fn tooltip(s: &Snapshot) -> (String, String) {
     body.push('\n');
     if s.logging {
         match s.log_rows {
-            Some(n) => body.push_str(&format!("Logger til fil · {} rader", F::num(Some(n as f64), 0))),
-            None => body.push_str("Logger til fil"),
+            Some(n) => body.push_str(&trn!(n, "Logger til fil · {antall} rader", "Logger til fil · {antall} rader", antall = F::num(Some(n as f64), 0))),
+            None => body.push_str(tr!("Logger til fil")),
         }
     } else {
-        body.push_str("Tar opp historikk i bakgrunnen");
+        body.push_str(tr!("Tar opp historikk i bakgrunnen"));
     }
     ("Agentic Rigg".to_string(), body)
 }
@@ -165,10 +166,10 @@ pub fn menu(s: &Snapshot) -> Vec<MenuItem> {
     vec![
         it(ID_STATUS, &status_line(s), false, true, None),
         sep(2, true),
-        it(ID_OPEN, "Åpne Agentic Rigg", true, true, Some(Action::Open)),
-        if s.logging { it(ID_LOG, "Stopp logging", true, true, Some(Action::StopLog)) } else { it(ID_LOG, "Start logging", true, true, Some(Action::StartLog)) },
+        it(ID_OPEN, tr!("Åpne Agentic Rigg"), true, true, Some(Action::Open)),
+        if s.logging { it(ID_LOG, tr!("Stopp logging"), true, true, Some(Action::StopLog)) } else { it(ID_LOG, tr!("Start logging"), true, true, Some(Action::StartLog)) },
         sep(5, true),
-        it(ID_STOP_BG, "Stopp bakgrunnsopptak", true, true, Some(Action::StopBackground)),
+        it(ID_STOP_BG, tr!("Stopp bakgrunnsopptak"), true, true, Some(Action::StopBackground)),
     ]
 }
 
@@ -554,7 +555,7 @@ fn register_with_watcher(conn: &gio::DBusConnection, name: &str) {
             if let Err(e) = res {
                 let gone = e.matches(gio::DBusError::ServiceUnknown) || e.matches(gio::DBusError::NameHasNoOwner) || e.matches(gio::IOErrorEnum::Closed);
                 if !gone {
-                    eprintln!("Systemfeltet: verten tok ikke imot ikonet: {e}");
+                    eprintln!("{}", trf!("Systemfeltet: verten tok ikke imot ikonet: {e}", e = e));
                 }
             }
         },
@@ -664,7 +665,7 @@ impl Tray {
         });
         match Item::new(snap, on_action) {
             Ok(it) => *self.item.borrow_mut() = Some(it),
-            Err(e) => eprintln!("Systemfeltet kunne ikke lages: {e}"),
+            Err(e) => eprintln!("{}", trf!("Systemfeltet kunne ikke lages: {e}", e = e)),
         }
     }
 
@@ -674,7 +675,7 @@ impl Tray {
             Action::Open => open_app(),
             Action::StartLog => {
                 if let Err(e) = d.borrow_mut().op_log_start(&serde_json::json!({})) {
-                    eprintln!("Kunne ikke starte loggen fra systemfeltet: {}", e.message);
+                    eprintln!("{}", trf!("Kunne ikke starte loggen fra systemfeltet: {verdi}", verdi = e.message));
                 }
             }
             Action::StopLog => {
@@ -684,7 +685,7 @@ impl Tray {
                 // Slår av valget (lagres i tjeneste.json). Uten logg og uten
                 // vindu stopper tjenesten etter fristen, som etter et lukket vindu.
                 let mut d = d.borrow_mut();
-                eprintln!("Stopper bakgrunnsopptaket fra systemfeltet.");
+                eprintln!("{}", tr!("Stopper bakgrunnsopptaket fra systemfeltet."));
                 let _ = d.op_set_settings(&serde_json::json!({"background": false}));
                 if !d.logger.active() && d.sessions.is_empty() {
                     d.stop("idle");
@@ -709,10 +710,10 @@ fn open_app() {
     match info {
         Some(i) => {
             if let Err(e) = i.launch(&[], None::<&gio::AppLaunchContext>) {
-                eprintln!("Kunne ikke åpne Agentic Rigg: {e}");
+                eprintln!("{}", trf!("Kunne ikke åpne Agentic Rigg: {e}", e = e));
             }
         }
-        None => eprintln!("Fant ikke Agentic Rigg ({desktop})."),
+        None => eprintln!("{}", trf!("Fant ikke Agentic Rigg ({desktop}).", desktop = desktop)),
     }
 }
 

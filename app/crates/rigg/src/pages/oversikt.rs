@@ -21,6 +21,7 @@
 #[path = "oversikt/bilder.rs"]
 pub(crate) mod bilder;
 
+use rigg_core::{tr, trf, trn};
 use super::Page;
 use crate::state::{App, Conn};
 use crate::widgets::bar::Bar;
@@ -79,28 +80,32 @@ struct TileView {
     spark_opts: SparkOpts,
 }
 
-const TILES: [(&str, &str, &str, &str, &str); 6] = [
+type TileDef = (&'static str, &'static str, &'static str, &'static str, &'static str);
+
+fn tiles() -> [TileDef; 6] {
+    [
     // (id, navn, ikon, serie, siden klikket åpner)
-    ("cpu", "Prosessor", "cpu", "memctl", "prosessor"),
-    ("gpu", "Skjermkort", "gpu", "load", "grafikkort"),
-    ("mem", "Minne", "memory-stick", "mem", "system"),
+    ("cpu", tr!("Prosessor"), "cpu", "memctl", "prosessor"),
+    ("gpu", tr!("Skjermkort"), "gpu", "load", "grafikkort"),
+    ("mem", tr!("Minne"), "memory-stick", "mem", "system"),
     ("vram", "VRAM", "memory-stick", "clock", "grafikkort"),
-    ("disk", "Disker", "hard-drive", "load", "disker"),
-    ("net", "Nettverk", "network", "load", "sensorer?vis=net/rx"),
-];
+    ("disk", tr!("Disker"), "hard-drive", "load", "disker"),
+    ("net", tr!("Nettverk"), "network", "load", "sensorer?vis=net/rx"),
+    ]
+}
 
 fn page_name(page: &str) -> &'static str {
     match page {
-        "prosessor" => "Prosessor",
-        "grafikkort" => "Grafikkort",
-        "system" => "System",
-        "disker" => "Disker",
-        "kontroller" => "Klokker og effekt",
-        _ => "Sensorer",
+        "prosessor" => tr!("Prosessor"),
+        "grafikkort" => tr!("Grafikkort"),
+        "system" => tr!("System"),
+        "disker" => tr!("Disker"),
+        "kontroller" => tr!("Klokker og effekt"),
+        _ => tr!("Sensorer"),
     }
 }
 
-fn build_tile(app: &Rc<App>, (id, name, icon, serie, page): (&'static str, &'static str, &'static str, &'static str, &'static str)) -> Tile {
+fn build_tile(app: &Rc<App>, (id, name, icon, serie, page): TileDef) -> Tile {
     let b = gtk::Button::new();
     b.add_css_class("tile");
     b.add_css_class("ov-tile");
@@ -188,7 +193,7 @@ fn split_unit(s: &str) -> (String, String) {
 
 /// Teksten i verktøytipset: hva flisa viser, og hvor klikket går.
 fn tile_tip(what: &str, page: &str) -> String {
-    format!("{what}\nSparklinja er siste minutt. Klikk for {}.", page_name(page))
+    trf!("{what}\nSparklinja er siste minutt. Klikk for {side}.", what = what, side = page_name(page))
 }
 
 /// Summen av to serier med samme tidspunkter (lesing og skriving).
@@ -227,7 +232,7 @@ fn tile_views(app: &App, disks: Option<&DiskList>) -> Vec<(&'static str, TileVie
         let mhz: Vec<f64> = sys.map(|s| s.cpu.core_mhz.iter().flatten().copied().collect()).unwrap_or_default();
         let avg = (!mhz.is_empty()).then(|| mhz.iter().sum::<f64>() / mhz.len() as f64);
         v.sub[1] = (if avg.is_some() { F::mhz(avg) } else { String::new() }, "");
-        v.tip = tile_tip("Prosessor: total last, temperatur (Tdie) og snittklokke over trådene.", "prosessor");
+        v.tip = tile_tip(tr!("Prosessor: total last, temperatur (Tdie) og snittklokke over trådene."), "prosessor");
         out.push(("cpu", v));
     }
 
@@ -244,14 +249,14 @@ fn tile_views(app: &App, disks: Option<&DiskList>) -> Vec<(&'static str, TileVie
         let lost = state == Some(DeviceState::Lost);
         if no_card && matches!(state, Some(DeviceState::NoDriver | DeviceState::DriverUpdated)) {
             let upd = state == Some(DeviceState::DriverUpdated);
-            v.value = if upd { "Ny driver".into() } else { "Ingen driver".into() };
+            v.value = if upd { tr!("Ny driver").into() } else { tr!("Ingen driver").into() };
             v.na = true;
-            v.sub[0] = (if upd { "start maskinen på nytt".into() } else { "fant ikke NVIDIA-driveren".into() }, if upd { "warn" } else { "" });
-            v.tip = tile_tip(if upd { "En ny NVIDIA-driver er installert, men den gamle kjører fortsatt." } else { "Fant ingen NVIDIA-driver. Prosessor, minne og disker vises som vanlig." }, "grafikkort");
+            v.sub[0] = (if upd { tr!("start maskinen på nytt").into() } else { tr!("fant ikke NVIDIA-driveren").into() }, if upd { "warn" } else { "" });
+            v.tip = tile_tip(if upd { tr!("En ny NVIDIA-driver er installert, men den gamle kjører fortsatt.") } else { tr!("Fant ingen NVIDIA-driver. Prosessor, minne og disker vises som vanlig.") }, "grafikkort");
         } else if lost {
             v.value = F::DASH.into();
-            v.sub[0] = ("svarer ikke".into(), "danger");
-            v.tip = tile_tip("Skjermkortet svarer ikke. Tjenesten prøver å finne det igjen hvert 10. s.", "grafikkort");
+            v.sub[0] = (tr!("svarer ikke").into(), "danger");
+            v.tip = tile_tip(tr!("Skjermkortet svarer ikke. Tjenesten prøver å finne det igjen hvert 10. s."), "grafikkort");
         } else {
             v.value = F::num(s.gpu_util, F::dec(0));
             v.unit = if s.gpu_util.is_some() { "%".into() } else { String::new() };
@@ -261,14 +266,14 @@ fn tile_views(app: &App, disks: Option<&DiskList>) -> Vec<(&'static str, TileVie
             let at_limit = matches!((s.power, s.power_limit), (Some(p), Some(l)) if p >= l * 0.97);
             v.sub[1] = (
                 match (s.power, s.power_limit) {
-                    (Some(p), Some(l)) => format!("{} av {}", F::num(Some(p), F::dec(0)), F::watt(Some(l), 0)),
+                    (Some(p), Some(l)) => trf!("{brukt} av {totalt}", brukt = F::num(Some(p), F::dec(0)), totalt = F::watt(Some(l), 0)),
                     (Some(p), None) => F::watt(Some(p), F::dec(0)),
                     _ => String::new(),
                 },
                 if at_limit { "warn" } else { "" },
             );
             v.aside = (s.pstate.clone().unwrap_or_default(), "");
-            v.tip = tile_tip("Skjermkort: GPU-last, temperatur, effekt av effektgrensen og P-tilstand (P0 er full ytelse, P8 er tomgang).", "grafikkort");
+            v.tip = tile_tip(tr!("Skjermkort: GPU-last, temperatur, effekt av effektgrensen og P-tilstand (P0 er full ytelse, P8 er tomgang)."), "grafikkort");
         }
         out.push(("gpu", v));
     }
@@ -281,9 +286,9 @@ fn tile_views(app: &App, disks: Option<&DiskList>) -> Vec<(&'static str, TileVie
         let pct = sys.and_then(rigg_core::sensormeta::mem_used_pct);
         (v.value, v.unit) = if used.is_some() { split_unit(&F::kb(used, 1)) } else { (F::DASH.into(), String::new()) };
         v.level = math::level(pct, Some(MEM_WARN), Some(MEM_CRIT));
-        v.sub[0] = (if total.is_some() { format!("av {}", F::kb(total, 1)) } else { String::new() }, "");
+        v.sub[0] = (if total.is_some() { trf!("av {verdi}", verdi = F::kb(total, 1)) } else { String::new() }, "");
         v.sub[1] = (if pct.is_some() { F::pct(pct, 0) } else { String::new() }, "");
-        v.tip = tile_tip("Minne: det programmene bruker, av totalt. Buffer og cache er ikke med.", "system");
+        v.tip = tile_tip(tr!("Minne: det programmene bruker, av totalt. Buffer og cache er ikke med."), "system");
         out.push(("mem", v));
     }
 
@@ -296,9 +301,9 @@ fn tile_views(app: &App, disks: Option<&DiskList>) -> Vec<(&'static str, TileVie
         let frac = s.vram_used.zip(s.vram_total).filter(|(_, t)| *t > 0.0).map(|(u, t)| u / t);
         (v.value, v.unit) = if s.vram_used.is_some() { split_unit(&F::mib(s.vram_used, Some(1), Some(mu))) } else { (F::DASH.into(), String::new()) };
         v.level = math::level(frac, Some(0.85), Some(0.95));
-        v.sub[0] = (s.vram_total.map(|t| format!("av {}", F::mib(Some(t), Some(1), Some(mu)))).unwrap_or_default(), "");
+        v.sub[0] = (s.vram_total.map(|t| trf!("av {verdi}", verdi = F::mib(Some(t), Some(1), Some(mu)))).unwrap_or_default(), "");
         v.sub[1] = (frac.map(|f| F::pct(Some(f * 100.0), 0)).unwrap_or_default(), "");
-        v.tip = tile_tip("Videominne brukt på skjermkortet, av totalt. Gult over 85 %, rødt over 95 %.", "grafikkort");
+        v.tip = tile_tip(tr!("Videominne brukt på skjermkortet, av totalt. Gult over 85 %, rødt over 95 %."), "grafikkort");
         out.push(("vram", v));
     }
 
@@ -308,15 +313,15 @@ fn tile_views(app: &App, disks: Option<&DiskList>) -> Vec<(&'static str, TileVie
         let list = sys.map(|s| s.disks.as_slice()).unwrap_or(&[]);
         if list.is_empty() {
             v.value = F::DASH.into();
-            v.sub[0] = (if tele.is_some() { "ingen disker".into() } else { String::new() }, "");
+            v.sub[0] = (if tele.is_some() { tr!("ingen disker").into() } else { String::new() }, "");
         } else {
             let rd: f64 = list.iter().filter_map(|d| d.read).sum();
             let wr: f64 = list.iter().filter_map(|d| d.write).sum();
             (v.value, v.unit) = split_unit(&super::disker::mbps(Some(rd + wr)));
             let hot = list.iter().filter_map(|d| d.temp.map(|t| (d, t))).max_by(|a, b| a.1.total_cmp(&b.1));
             v.sub[0] = match hot {
-                Some((_, t)) => (format!("maks {}", F::temp(Some(t), 0)), ""),
-                None => ("uten temperatur".into(), ""),
+                Some((_, t)) => (trf!("maks {verdi}", verdi = F::temp(Some(t), 0)), ""),
+                None => (tr!("uten temperatur").into(), ""),
             };
             // Verktøytipset har ingen tall som endres hvert sekund (hvert nytt
             // verktøytips går også til skjermleseren).
@@ -328,7 +333,7 @@ fn tile_views(app: &App, disks: Option<&DiskList>) -> Vec<(&'static str, TileVie
                     [Some(d.name.clone()), t, h.map(str::to_string)].into_iter().flatten().collect::<Vec<_>>().join(" · ")
                 })
                 .collect();
-            v.tip = format!("Disker: samlet hastighet (lesing og skriving), varmeste disk og SMART-helsa.\n{}\nSparklinja er siste minutt. Klikk for Disker.", lines.join("\n"));
+            v.tip = trf!("Disker: samlet hastighet (lesing og skriving), varmeste disk og SMART-helsa.\n{helse}\nSparklinja er siste minutt. Klikk for Disker.", helse = lines.join("\n"));
         }
         // Helsa fra get_disks: «Alle OK», «1 advarsel», «1 feil».
         if let Some(l) = disks.filter(|l| !l.disks.is_empty()) {
@@ -336,13 +341,13 @@ fn tile_views(app: &App, disks: Option<&DiskList>) -> Vec<(&'static str, TileVie
             let warn = l.disks.iter().filter(|d| d.health.level == DiskLevel::Warn).count();
             let known = l.disks.iter().filter(|d| d.health.level != DiskLevel::Unknown).count();
             v.aside = if fail > 0 {
-                (format!("{fail} {}", if fail == 1 { "feil" } else { "med feil" }), "danger")
+                (trn!(fail, "{fail} feil", "{fail} med feil", fail = fail), "danger")
             } else if warn > 0 {
                 (F::plural(warn as i64, "advarsel", "advarsler"), "warn")
             } else if known > 0 {
-                ("alle OK".into(), "")
+                (tr!("alle OK").into(), "")
             } else {
-                ("helse ukjent".into(), "")
+                (tr!("helse ukjent").into(), "")
             };
         }
         out.push(("disk", v));
@@ -356,12 +361,12 @@ fn tile_views(app: &App, disks: Option<&DiskList>) -> Vec<(&'static str, TileVie
         if rx.is_some() {
             let (n, u) = split_unit(&F::rate(rx, None));
             v.value = n;
-            v.unit = format!("{u} ned");
+            v.unit = trf!("{u} ned", u = u);
         } else {
             v.value = F::DASH.into();
         }
-        v.sub[0] = (tx.map(|t| format!("{} opp", F::rate(Some(t), None))).unwrap_or_default(), "");
-        v.tip = tile_tip("Nettverk: mottatt og sendt over de fysiske nettverkskortene.", "sensorer?vis=net/rx");
+        v.sub[0] = (tx.map(|t| trf!("{verdi} opp", verdi = F::rate(Some(t), None))).unwrap_or_default(), "");
+        v.tip = tile_tip(tr!("Nettverk: mottatt og sendt over de fysiske nettverkskortene."), "sensorer?vis=net/rx");
         out.push(("net", v));
     }
     out
@@ -407,44 +412,45 @@ pub fn state_items(i: &StateIn) -> Vec<StateItem> {
     match i.gpu_state {
         Some(DeviceState::Lost) => out.push(item(
             "danger",
-            "Skjermkortet svarer ikke".into(),
+            tr!("Skjermkortet svarer ikke").into(),
             match &i.gpu_since {
-                Some(s) => format!("siden {s} · tjenesten prøver igjen hvert 10. s"),
-                None => "tjenesten prøver igjen hvert 10. s".into(),
+                Some(s) => trf!("siden {s} · tjenesten prøver igjen hvert 10. s", s = s),
+                None => tr!("tjenesten prøver igjen hvert 10. s").into(),
             },
             "grafikkort",
         )),
-        Some(DeviceState::DriverUpdated) => out.push(item("warn", "Driveren er oppdatert".into(), "start maskinen på nytt for å lese skjermkortet".into(), "grafikkort")),
-        Some(DeviceState::NoDriver) if i.no_card => out.push(item("info", "Fant ingen NVIDIA-driver".into(), "prosessor, minne og disker vises som vanlig".into(), "grafikkort")),
+        Some(DeviceState::DriverUpdated) => out.push(item("warn", tr!("Driveren er oppdatert").into(), tr!("start maskinen på nytt for å lese skjermkortet").into(), "grafikkort")),
+        Some(DeviceState::NoDriver) if i.no_card => out.push(item("info", tr!("Fant ingen NVIDIA-driver").into(), tr!("prosessor, minne og disker vises som vanlig").into(), "grafikkort")),
         _ => {}
     }
     if i.gpu_state.is_none_or(|s| s == DeviceState::Ok) {
         if let Some(m) = i.throttle.filter(|m| m & (THROTTLE_HW | THROTTLE_SW_THERMAL) != 0) {
             let why: Vec<String> = math::throttle_list(Some(m & (THROTTLE_HW | THROTTLE_SW_THERMAL))).unwrap_or_default().iter().map(|s| s.to_lowercase()).collect();
-            out.push(item(if m & THROTTLE_HW != 0 { "danger" } else { "warn" }, "Skjermkortet nedklokker".into(), why.join(", "), "kontroller"));
+            out.push(item(if m & THROTTLE_HW != 0 { "danger" } else { "warn" }, tr!("Skjermkortet nedklokker").into(), why.join(", "), "kontroller"));
         }
         if let Some(t) = i.gpu_temp {
             let title = format!("GPU {}", F::temp(Some(t), 0));
             if let Some(slow) = i.slowdown.filter(|s| t >= *s) {
-                let ved = if t > slow + 0.5 { "over" } else { "ved" };
-                out.push(item("danger", title, format!("{ved} nedklokkingsgrensen ({})", F::temp(Some(slow), 0)), "grafikkort"));
+                let verdi = F::temp(Some(slow), 0);
+                let detail = if t > slow + 0.5 { trf!("over nedklokkingsgrensen ({verdi})", verdi = verdi) } else { trf!("ved nedklokkingsgrensen ({verdi})", verdi = verdi) };
+                out.push(item("danger", title, detail, "grafikkort"));
             } else if t >= i.th.gpu_temp_crit {
-                out.push(item("danger", title, format!("over rød grense ({})", F::temp(Some(i.th.gpu_temp_crit), 0)), "grafikkort"));
+                out.push(item("danger", title, trf!("over rød grense ({verdi})", verdi = F::temp(Some(i.th.gpu_temp_crit), 0)), "grafikkort"));
             } else if t >= i.th.gpu_temp_warn {
-                out.push(item("warn", title, format!("over gul grense ({})", F::temp(Some(i.th.gpu_temp_warn), 0)), "grafikkort"));
+                out.push(item("warn", title, trf!("over gul grense ({verdi})", verdi = F::temp(Some(i.th.gpu_temp_warn), 0)), "grafikkort"));
             }
         }
     }
     if let Some(t) = i.cpu_temp {
         let title = format!("CPU {}", F::temp(Some(t), 0));
         if t >= i.th.cpu_temp_crit {
-            out.push(item("danger", title, format!("over rød grense ({})", F::temp(Some(i.th.cpu_temp_crit), 0)), "prosessor"));
+            out.push(item("danger", title, trf!("over rød grense ({verdi})", verdi = F::temp(Some(i.th.cpu_temp_crit), 0)), "prosessor"));
         } else if t >= i.th.cpu_temp_warn {
-            out.push(item("warn", title, format!("over gul grense ({})", F::temp(Some(i.th.cpu_temp_warn), 0)), "prosessor"));
+            out.push(item("warn", title, trf!("over gul grense ({verdi})", verdi = F::temp(Some(i.th.cpu_temp_warn), 0)), "prosessor"));
         }
     }
     if let Some(p) = i.mem_pct.filter(|p| *p >= MEM_WARN) {
-        out.push(item(if p >= MEM_CRIT { "danger" } else { "warn" }, format!("Minne {}", F::pct(Some(p), 0)), "nesten fullt".into(), "system"));
+        out.push(item(if p >= MEM_CRIT { "danger" } else { "warn" }, trf!("Minne {verdi}", verdi = F::pct(Some(p), 0)), tr!("nesten fullt").into(), "system"));
     }
     for d in i.disks.map(|l| l.disks.as_slice()).unwrap_or(&[]) {
         let lvl = match d.health.level {
@@ -452,7 +458,7 @@ pub fn state_items(i: &StateIn) -> Vec<StateItem> {
             DiskLevel::Warn => "warn",
             _ => continue,
         };
-        let why = d.health.reasons.first().cloned().unwrap_or_else(|| "se SMART".into());
+        let why = d.health.reasons.first().cloned().unwrap_or_else(|| tr!("se SMART").into());
         out.push(item(lvl, format!("{} · {}", d.name, d.health.level.text().to_lowercase()), why, "disker"));
     }
     let rank = |l: &str| match l {
@@ -521,7 +527,7 @@ impl StateStrip {
             bx.append(&t);
             bx.append(&x);
             b.set_child(Some(&bx));
-            b.set_tooltip_text(Some(&format!("{} {}. Klikk for {}.", it.title, it.text, page_name(it.page))));
+            b.set_tooltip_text(Some(&trf!("{status} {detalj}. Klikk for {side}.", status = it.title, detalj = it.text, side = page_name(it.page))));
             let (a, page) = (app.clone(), it.page);
             b.connect_clicked(move |_| a.go(page));
             let child = gtk::FlowBoxChild::new();
@@ -539,7 +545,7 @@ impl StateStrip {
             self.flow.insert(&child, -1);
         }
         let summary = items.iter().map(|i| format!("{} {}", i.title, i.text)).collect::<Vec<_>>().join(". ");
-        self.root.update_property(&[gtk::accessible::Property::Label(&format!("Tilstand: {summary}"))]);
+        self.root.update_property(&[gtk::accessible::Property::Label(&trf!("Tilstand: {summary}", summary = summary))]);
         self.root.set_visible(!items.is_empty());
         *self.shown.borrow_mut() = items;
     }
@@ -581,7 +587,7 @@ fn load_chart(app: &Rc<App>, gpu: bool, win: i64, sync: &Rc<CursorSync>) -> Rc<C
         let wa = Rc::downgrade(app);
         o.stopped = Rc::new(move || wa.upgrade().and_then(|a| chart::gpu_stopped(&a)));
     }
-    panel(app, "Last", series, o, win, sync)
+    panel(app, tr!("Last"), series, o, win, sync)
 }
 
 /// Temperaturene: skjermkortet, prosessoren og de varmeste diskene, med
@@ -604,14 +610,14 @@ fn temp_chart(app: &Rc<App>, gpu: bool, disks: &[(String, String)], win: i64, sy
         let wa = Rc::downgrade(app);
         o.limits = Rc::new(move || wa.upgrade().map(|a| chart::gpu_temp_limits(&a, "GPU-")).unwrap_or_default());
     }
-    panel(app, "Temperaturer", series, o, win, sync)
+    panel(app, tr!("Temperaturer"), series, o, win, sync)
 }
 
 /// Minne og VRAM i prosent av totalt, med GiB i verktøytipset.
 fn mem_chart(app: &Rc<App>, gpu: bool, win: i64, sync: &Rc<CursorSync>) -> Rc<ChartPanel> {
     let wa = Rc::downgrade(app);
     let mem_total = move || wa.upgrade().and_then(|a| a.sys()).and_then(|s| s.mem.total_kb);
-    let ram = SeriesDef::new("mem/usedPct", "Minne", "--c-mem").fill().fmt(move |p| match mem_total() {
+    let ram = SeriesDef::new("mem/usedPct", tr!("Minne"), "--c-mem").fill().fmt(move |p| match mem_total() {
         Some(t) => format!("{} · {}", F::pct(Some(p), 0), F::kb(Some(t * p / 100.0), 1)),
         None => F::pct(Some(p), 0),
     });
@@ -643,7 +649,7 @@ fn mem_chart(app: &Rc<App>, gpu: bool, win: i64, sync: &Rc<CursorSync>) -> Rc<Ch
     o.unit = Rc::new(|| "%".into());
     o.auto = Rc::new(|| false);
     o.hard = chart::HARD_PCT;
-    panel(app, if gpu { "Minne og VRAM" } else { "Minne" }, series, o, win, sync)
+    panel(app, if gpu { tr!("Minne og VRAM") } else { tr!("Minne") }, series, o, win, sync)
 }
 
 // ================================================================ Skjermkortet
@@ -678,7 +684,7 @@ fn build_gpu(app: &Rc<App>) -> GpuUi {
     root.add_css_class("ov-gpu");
 
     // Temperatur og effekt: ett panel med to deler, samme måler.
-    let te = Panel::new("Temperatur og effekt");
+    let te = Panel::new(tr!("Temperatur og effekt"));
     te.root.add_css_class("ov-te");
     let part = |title: &str| {
         let p = vbox(0, &["ov-part"]);
@@ -687,7 +693,7 @@ fn build_gpu(app: &Rc<App>) -> GpuUi {
         p.append(&sub);
         (p, sub)
     };
-    let (tp, tsub) = part("GPU-temperatur");
+    let (tp, tsub) = part(tr!("GPU-temperatur"));
     let tlead = hbox(0, &["temp-lead"]);
     let temp_num = label("–", &["bold", "num"]);
     let temp_unit = label("", &["bold"]);
@@ -700,9 +706,9 @@ fn build_gpu(app: &Rc<App>) -> GpuUi {
     let temp_peak = label("", &["ov-aside", "num"]);
     temp_peak.set_hexpand(true);
     temp_peak.set_xalign(1.0);
-    temp_peak.set_tooltip_text(Some("Høyeste GPU-temperatur de siste 5 minuttene"));
+    temp_peak.set_tooltip_text(Some(tr!("Høyeste GPU-temperatur de siste 5 minuttene")));
     tsub.append(&temp_peak);
-    let temp_gauge = Gauge::new(app, "GPU-temperatur");
+    let temp_gauge = Gauge::new(app, tr!("GPU-temperatur"));
     // Stolpene og målerne hopper rett til ny verdi: under last endrer klokkene
     // og effekten seg nesten hvert sekund, og glidingen kostet mer enn resten
     // av siden (runde 8A, maalinger.md).
@@ -713,14 +719,14 @@ fn build_gpu(app: &Rc<App>) -> GpuUi {
     temp_gauge.root.set_vexpand(true);
     temp_gauge.root.set_valign(gtk::Align::Center);
     te.body.append(&tp);
-    let (pp, psub) = part("GPU-effekt");
+    let (pp, psub) = part(tr!("GPU-effekt"));
     let power_text = label("–", &["temp-lead", "num"]);
     psub.append(&power_text);
     let power_aside = label("", &["ov-aside", "num"]);
     power_aside.set_hexpand(true);
     power_aside.set_xalign(1.0);
     psub.append(&power_aside);
-    let power_gauge = Gauge::new(app, "GPU-effekt");
+    let power_gauge = Gauge::new(app, tr!("GPU-effekt"));
     power_gauge.set_still(true);
     pp.append(&power_gauge.root);
     pp.set_vexpand(true);
@@ -731,14 +737,14 @@ fn build_gpu(app: &Rc<App>) -> GpuUi {
     root.append(&te.root);
 
     // Skjermkort: det en Afterburner-bruker ser etter. Resten på Grafikkort.
-    let gp = Panel::new("Skjermkort");
+    let gp = Panel::new(tr!("Skjermkort"));
     gp.root.add_css_class("ov-card");
     let more = crate::widgets::button(None, None, &["flat", "sm", "ov-more"]);
     let bx = hbox(4, &[]);
-    bx.append(&label("Grafikkort", &[]));
+    bx.append(&label(tr!("Grafikkort"), &[]));
     bx.append(&Icon::new("chevron-right", 14));
     more.set_child(Some(&bx));
-    more.set_tooltip_text(Some("Alt driveren og kortet oppgir, på Grafikkort"));
+    more.set_tooltip_text(Some(tr!("Alt driveren og kortet oppgir, på Grafikkort")));
     let a = app.clone();
     more.connect_clicked(move |_| a.go("grafikkort"));
     gp.aside.append(&more);
@@ -746,7 +752,7 @@ fn build_gpu(app: &Rc<App>) -> GpuUi {
     gp.body.append(&kv.grid);
     let pstate = kv.add("P-tilstand", "–");
     let mut clocks = Vec::new();
-    for (name, field) in [("Kjerneklokke", "coreClock"), ("Minneklokke", "memClock")] {
+    for (name, field) in [(tr!("Kjerneklokke"), "coreClock"), (tr!("Minneklokke"), "memClock")] {
         let bar = Bar::new(app, true);
         bar.set_still(true);
         bar.set_hexpand(true);
@@ -757,15 +763,15 @@ fn build_gpu(app: &Rc<App>) -> GpuUi {
         m.append(&bar);
         m.append(&num);
         m.set_hexpand(true);
-        m.set_tooltip_text(Some("Nå og kortets høyeste (fra driveren)"));
+        m.set_tooltip_text(Some(tr!("Nå og kortets høyeste (fra driveren)")));
         kv.add_widget(name, &m);
         clocks.push(Clock { field, bar, num });
     }
-    let fans = kv.add("Vifter", "–");
-    let fan_mode = kv.add("Viftestyring", "–");
+    let fans = kv.add(tr!("Vifter"), "–");
+    let fan_mode = kv.add(tr!("Viftestyring"), "–");
     let pcie = kv.add("PCIe", "–");
-    let video = kv.add("Video (enc / dek)", "–");
-    video.set_tooltip_text(Some("Last på maskinvarens videokoder (encoder) og -dekoder (decoder)."));
+    let video = kv.add(tr!("Video (enc / dek)"), "–");
+    video.set_tooltip_text(Some(tr!("Last på maskinvarens videokoder (encoder) og -dekoder (decoder).")));
     // Ledig høyde fordeles på radene (panelene i raden er like høye).
     gp.body.set_vexpand(true);
     kv.grid.set_vexpand(true);
@@ -795,7 +801,7 @@ fn render_gpu(app: &Rc<App>, g: &GpuUi, peak: &RefCell<VecDeque<(i64, f64)>>) {
     let target = st.temp_target.unwrap_or(83.0);
     if let Some(temp) = s.temp {
         let pk = peak.borrow().iter().map(|p| p.1).fold(temp, f64::max);
-        set_text(&g.temp_peak, &format!("maks 5 min: {}", F::temp(Some(pk), F::dec(0))));
+        set_text(&g.temp_peak, &trf!("maks 5 min: {verdi}", verdi = F::temp(Some(pk), F::dec(0))));
         let lv = math::level(Some(temp), Some(t.gpu_temp_warn), Some(t.gpu_temp_crit));
         if !g.temp_num.has_css_class("egg-42") {
             set_text(&g.temp_num, &F::temp_num(Some(temp), F::dec(0)));
@@ -810,16 +816,16 @@ fn render_gpu(app: &Rc<App>, g: &GpuUi, peak: &RefCell<VecDeque<(i64, f64)>>) {
         // Det viktigste først, og bare det: ved nedklokking er varselgrensene
         // uten betydning.
         let mut rest = if margin > 0.0 {
-            format!(" · {} under nedklokking", F::temp_delta(margin, 0))
+            trf!(" · {verdi} under nedklokking", verdi = F::temp_delta(margin, 0))
         } else if margin < -0.5 {
-            " · over nedklokkingsgrensen".into()
+            tr!(" · over nedklokkingsgrensen").into()
         } else {
-            " · ved nedklokkingsgrensen".into()
+            tr!(" · ved nedklokkingsgrensen").into()
         };
         match lv {
             _ if margin <= 0.0 => {}
-            "danger" => rest.push_str(&format!(" · over rød grense ({})", F::temp(Some(t.gpu_temp_crit), 0))),
-            "warn" => rest.push_str(&format!(" · over gul grense ({})", F::temp(Some(t.gpu_temp_warn), 0))),
+            "danger" => rest.push_str(&trf!(" · over rød grense ({verdi})", verdi = F::temp(Some(t.gpu_temp_crit), 0))),
+            "warn" => rest.push_str(&trf!(" · over gul grense ({verdi})", verdi = F::temp(Some(t.gpu_temp_warn), 0))),
             _ => {}
         }
         set_text(&g.temp_rest, &rest);
@@ -831,27 +837,19 @@ fn render_gpu(app: &Rc<App>, g: &GpuUi, peak: &RefCell<VecDeque<(i64, f64)>>) {
             value: Some(temp),
             level: lv,
             marks: {
-                let mut m = vec![Mark { v: target, num: F::temp(Some(target), 0), name: "Mål".into() }, Mark { v: slow, num: F::temp(Some(slow), 0), name: "Nedklokking".into() }];
+                let mut m = vec![Mark { v: target, num: F::temp(Some(target), 0), name: tr!("Mål").into() }, Mark { v: slow, num: F::temp(Some(slow), 0), name: tr!("Nedklokking").into() }];
                 // Over avstengingen slutter skalaen på verdien; avstengingen står som merke.
                 if temp > shut {
-                    m.push(Mark { v: shut, num: F::temp(Some(shut), 0), name: "Avstenging".into() });
+                    m.push(Mark { v: shut, num: F::temp(Some(shut), 0), name: tr!("Avstenging").into() });
                 }
                 m
             },
-            end: Some((F::temp(Some(shut.max(temp)), 0), if temp > shut { "Nå".into() } else { "Avstenging".into() })),
-            tip: format!(
-                "Fra {} til avstenging ({}). Over målet ({}) senker kortet klokken litt, ved {} tvinger det nedklokking. Gul og rød fyll betyr over varselgrensene {} og {} (Innstillinger › Grafer og sensorer).",
-                F::temp(Some(min), 0),
-                F::temp(Some(shut), 0),
-                F::temp(Some(target), 0),
-                F::temp(Some(slow), 0),
-                F::temp(Some(t.gpu_temp_warn), 0),
-                F::temp(Some(t.gpu_temp_crit), 0)
-            ),
+            end: Some((F::temp(Some(shut.max(temp)), 0), if temp > shut { tr!("Nå").into() } else { tr!("Avstenging").into() })),
+            tip: trf!("Fra {min} til avstenging ({avstenging}). Over målet ({target}) senker kortet klokken litt, ved {nedklokking} tvinger det nedklokking. Gul og rød fyll betyr over varselgrensene {gul} og {red} (Innstillinger › Grafer og sensorer).", min = F::temp(Some(min), 0), avstenging = F::temp(Some(shut), 0), target = F::temp(Some(target), 0), nedklokking = F::temp(Some(slow), 0), gul = F::temp(Some(t.gpu_temp_warn), 0), red = F::temp(Some(t.gpu_temp_crit), 0)),
         });
     } else {
         if !g.temp_num.has_css_class("egg-42") {
-            set_text(&g.temp_num, if unsupported(&s, "temp") { "Ikke støttet" } else { F::DASH });
+            set_text(&g.temp_num, if unsupported(&s, "temp") { tr!("Ikke støttet") } else { F::DASH });
         }
         set_text(&g.temp_unit, "");
         set_text(&g.temp_rest, "");
@@ -865,25 +863,25 @@ fn render_gpu(app: &Rc<App>, g: &GpuUi, peak: &RefCell<VecDeque<(i64, f64)>>) {
     if let Some(p) = s.power {
         let at_limit = s.power_limit.is_some_and(|l| p >= l * 0.97);
         set_text(&g.power_text, &match s.power_limit {
-            Some(l) => format!("{} av {}", F::watt(Some(p), F::dec(0)), F::watt(Some(l), 0)),
+            Some(l) => trf!("{trekk} av {grense}", trekk = F::watt(Some(p), F::dec(0)), grense = F::watt(Some(l), 0)),
             None => F::watt(Some(p), F::dec(0)),
         });
         class(&g.power_text, "lvl-warn", at_limit);
         let mut marks = Vec::new();
         if let Some(l) = s.power_limit {
             let is_def = st.power_default.is_some_and(|d| d.round() == l.round());
-            marks.push(Mark { v: l, num: F::watt(Some(l), 0), name: if is_def { "Grense (standard)".into() } else { "Grense".into() } });
+            marks.push(Mark { v: l, num: F::watt(Some(l), 0), name: if is_def { tr!("Grense (standard)").into() } else { tr!("Grense").into() } });
             if let Some(d) = st.power_default.filter(|d| d.round() != l.round()) {
-                marks.push(Mark { v: d, num: F::watt(Some(d), 0), name: "Standard".into() });
+                marks.push(Mark { v: d, num: F::watt(Some(d), 0), name: tr!("Standard").into() });
             }
         }
         let range = match (st.power_min, st.power_max) {
-            (Some(a), Some(b)) => format!(" Grensen kan settes fra {} til {}.", F::watt(Some(a), 0), F::watt(Some(b), 0)),
+            (Some(a), Some(b)) => trf!(" Grensen kan settes fra {min} til {maks}.", min = F::watt(Some(a), 0), maks = F::watt(Some(b), 0)),
             _ => String::new(),
         };
         let pmax = st.power_max.or(s.power_limit).unwrap_or(300.0);
         if let Some(m) = st.power_max.filter(|m| p > *m) {
-            marks.push(Mark { v: m, num: F::watt(Some(m), 0), name: "Kortets maks".into() });
+            marks.push(Mark { v: m, num: F::watt(Some(m), 0), name: tr!("Kortets maks").into() });
         }
         g.power_gauge.set(Spec {
             min: 0.0,
@@ -891,12 +889,12 @@ fn render_gpu(app: &Rc<App>, g: &GpuUi, peak: &RefCell<VecDeque<(i64, f64)>>) {
             value: Some(p),
             level: if at_limit { "warn" } else { "" },
             marks,
-            end: st.power_max.map(|m| (F::watt(Some(m.max(p)), 0), if p > m { "Nå".into() } else { "Kortets maks".into() })),
-            tip: format!("Trekket nå mot effektgrensen, snitt fra energitelleren. Gult fyll betyr at kortet er ved grensen og holder igjen.{range}"),
+            end: st.power_max.map(|m| (F::watt(Some(m.max(p)), 0), if p > m { tr!("Nå").into() } else { tr!("Kortets maks").into() })),
+            tip: trf!("Trekket nå mot effektgrensen, snitt fra energitelleren. Gult fyll betyr at kortet er ved grensen og holder igjen.{range}", range = range),
         });
-        set_text(&g.power_aside, &s.power_limit.map(|l| format!("{} av grensen", F::pct(Some(p / l * 100.0), 0))).unwrap_or_default());
+        set_text(&g.power_aside, &s.power_limit.map(|l| trf!("{verdi} av grensen", verdi = F::pct(Some(p / l * 100.0), 0))).unwrap_or_default());
     } else {
-        set_text(&g.power_text, if unsupported(&s, "power") { "Ikke støttet" } else { F::DASH });
+        set_text(&g.power_text, if unsupported(&s, "power") { tr!("Ikke støttet") } else { F::DASH });
         class(&g.power_text, "lvl-warn", false);
         set_text(&g.power_aside, "");
         g.power_gauge.clear();
@@ -905,21 +903,21 @@ fn render_gpu(app: &Rc<App>, g: &GpuUi, peak: &RefCell<VecDeque<(i64, f64)>>) {
     // ---- Skjermkort ----
     let (th, full) = math::throttle_short(s.throttle, 1);
     let th_text = match th.as_str() {
-        "Ingen" => Some("ingen begrensning".to_string()),
+        _ if math::throttle_list(s.throttle).is_some_and(|reasons| reasons.is_empty()) => Some(tr!("ingen begrensning").to_string()),
         "–" => None,
         x => Some(x.to_lowercase()),
     };
     let ps = [s.pstate.clone(), th_text.clone()].into_iter().flatten().collect::<Vec<_>>().join(" · ");
     set_text(&g.pstate, if ps.is_empty() { F::DASH } else { &ps });
     class(&g.pstate, "warn-text", math::throttle_serious(s.throttle));
-    let mut ptip = String::from("P0 er full ytelse, P8 er dyp tomgang. Kortet bytter selv.");
+    let mut ptip = String::from(tr!("P0 er full ytelse, P8 er dyp tomgang. Kortet bytter selv."));
     if !full.is_empty() {
-        ptip.push_str(&format!("\nBegrensninger nå: {full}."));
-    } else if let Some(x) = th_text.filter(|x| x != "ingen begrensning") {
-        ptip.push_str(&format!("\nKlokken begrenses nå av: {x}."));
+        ptip.push_str(&trf!("\nBegrensninger nå: {full}.", full = full));
+    } else if let Some(x) = th_text.filter(|_| math::throttle_list(s.throttle).is_some_and(|reasons| !reasons.is_empty())) {
+        ptip.push_str(&trf!("\nKlokken begrenses nå av: {x}.", x = x));
     }
     if s.throttle_inferred {
-        ptip.push_str("\nI P8 leses ikke begrensningene (kallet koster 25 ms og vekker kortet).");
+        ptip.push_str(tr!("\nI P8 leses ikke begrensningene (kallet koster 25 ms og vekker kortet)."));
     }
     if g.pstate.tooltip_text().as_deref() != Some(ptip.as_str()) {
         g.pstate.set_tooltip_text(Some(&ptip));
@@ -936,16 +934,16 @@ fn render_gpu(app: &Rc<App>, g: &GpuUi, peak: &RefCell<VecDeque<(i64, f64)>>) {
     }
     let rpm: Vec<String> = s.fan_rpm.iter().flatten().map(|r| F::num(Some(*r), 0)).collect();
     let fans = match (s.fan, rpm.is_empty()) {
-        (Some(f), false) => format!("{} · {} o/min", F::pct(Some(f), 0), rpm.join(" / ")),
+        (Some(f), false) => trf!("{verdi1} · {verdi2} o/min", verdi1 = F::pct(Some(f), 0), verdi2 = rpm.join(" / ")),
         (Some(f), true) => F::pct(Some(f), 0),
-        _ if unsupported(&s, "fan") => "Ikke støttet".into(),
+        _ if unsupported(&s, "fan") => tr!("Ikke støttet").into(),
         _ => F::DASH.into(),
     };
     set_text(&g.fans, &fans);
     let (mode, tip) = match rigg_core::model::fan_control(&s) {
-        rigg_core::model::FanControl::Driver => ("Auto · driveren styrer", "Driveren styrer viftene etter temperaturen, som uten appen."),
-        rigg_core::model::FanControl::Manual => ("Manuell · satt utenfor appen", "Minst én vifte er satt til fast fart utenfor appen."),
-        rigg_core::model::FanControl::Unknown => (F::DASH, "Viftestyringen er ikke lest ennå, eller kortet oppgir den ikke."),
+        rigg_core::model::FanControl::Driver => (tr!("Auto · driveren styrer"), tr!("Driveren styrer viftene etter temperaturen, som uten appen.")),
+        rigg_core::model::FanControl::Manual => (tr!("Manuell · satt utenfor appen"), tr!("Minst én vifte er satt til fast fart utenfor appen.")),
+        rigg_core::model::FanControl::Unknown => (F::DASH, tr!("Viftestyringen er ikke lest ennå, eller kortet oppgir den ikke.")),
     };
     set_text(&g.fan_mode, mode);
     if g.fan_mode.tooltip_text().as_deref() != Some(tip) {
@@ -954,7 +952,7 @@ fn render_gpu(app: &Rc<App>, g: &GpuUi, peak: &RefCell<VecDeque<(i64, f64)>>) {
     let pcie = if lost { F::DASH.to_string() } else { math::pcie_text(st.pcie_width_max, st.pcie_gen_max, s.pcie_width, s.pcie_gen).unwrap_or_else(|| F::DASH.into()) };
     set_text(&g.pcie, &pcie);
     let ex = math::pcie_explain(st.pcie_gen_max, s.pcie_gen);
-    let ex = if ex.is_empty() { "PCIe-lenken mellom kortet og hovedkortet.".to_string() } else { ex };
+    let ex = if ex.is_empty() { tr!("PCIe-lenken mellom kortet og hovedkortet.").to_string() } else { ex };
     if g.pcie.tooltip_text().as_deref() != Some(ex.as_str()) {
         g.pcie.set_tooltip_text(Some(&ex));
     }
@@ -1033,7 +1031,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     tiles_box.add_css_class("tiles");
     tiles_box.set_breaks(&[(900, 3), (560, 2)]);
     tiles_box.set_bleed();
-    let tiles: Vec<Tile> = TILES.iter().map(|d| build_tile(app, *d)).collect();
+    let tiles: Vec<Tile> = tiles().into_iter().map(|d| build_tile(app, d)).collect();
     for t in &tiles {
         tiles_box.append(&t.root);
     }
@@ -1060,11 +1058,11 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
             let win = app.settings().windows.oversikt as i64;
             let mut list = vec![load_chart(&app, gpu, win, &sync), temp_chart(&app, gpu, &disks, win, &sync)];
             if gpu {
-                list.push(chart::def_panel(&app, "power", DefOpts { window: win, sync: Some(sync.clone()), title: Some("GPU-effekt".into()), stats: false, now: false }));
+                list.push(chart::def_panel(&app, "power", DefOpts { window: win, sync: Some(sync.clone()), title: Some(tr!("GPU-effekt").into()), stats: false, now: false }));
             }
             list.push(mem_chart(&app, gpu, win, &sync));
-            list.push(chart::def_panel(&app, "diskIo", DefOpts { window: win, sync: Some(sync.clone()), title: Some("Disk-I/O".into()), stats: false, now: false }));
-            list.push(chart::def_panel(&app, "net", DefOpts { window: win, sync: Some(sync.clone()), title: Some("Nettverk".into()), stats: false, now: false }));
+            list.push(chart::def_panel(&app, "diskIo", DefOpts { window: win, sync: Some(sync.clone()), title: Some(tr!("Disk-I/O").into()), stats: false, now: false }));
+            list.push(chart::def_panel(&app, "net", DefOpts { window: win, sync: Some(sync.clone()), title: Some(tr!("Nettverk").into()), stats: false, now: false }));
             for p in list {
                 // Flytter seg med prøvene, i samme bilde som flisene (≤ 2 % i ro).
                 p.chart.set_calm(true);
@@ -1095,7 +1093,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     let actions = hbox(4, &[]);
     let dd = {
         let a = app.clone();
-        chart::window_dropdown(app.settings().windows.oversikt as i64, "Tidsvindu for grafene på Oversikt", move |sec| {
+        chart::window_dropdown(app.settings().windows.oversikt as i64, tr!("Tidsvindu for grafene på Oversikt"), move |sec| {
             a.set(json!({"windows": {"oversikt": sec}}));
         })
     };

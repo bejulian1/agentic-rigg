@@ -1,0 +1,145 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/shortcuts.rs:179
+msgid "Navigasjon"
+msgstr "ナビゲーション"
+
+#: crates/rigg/src/shortcuts.rs:181
+msgid "Åpne de ti opprinnelige sidene; 0 åpner RGB-lys"
+msgstr "最初の 10 ページを開く。0 で RGB 照明を開く"
+
+#: crates/rigg/src/shortcuts.rs:182
+msgid "Åpne Oppgaver"
+msgstr "タスクを開く"
+
+#: crates/rigg/src/shortcuts.rs:183
+msgid "Flytt i sidefeltet"
+msgstr "サイドバー内を移動"
+
+#: crates/rigg/src/shortcuts.rs:184
+msgid "Åpne og lukk Innstillinger"
+msgstr "設定を開く／閉じる"
+
+#: crates/rigg/src/shortcuts.rs:185
+msgid "Denne oversikten"
+msgstr "このショートカット一覧を表示"
+
+#: crates/rigg/src/shortcuts.rs:186
+msgid "Legg sammen eller utvid sidefeltet"
+msgstr "サイドバーを折りたたむ／展開する"
+
+#: crates/rigg/src/shortcuts.rs:187
+msgid "Lukk meny, popover, dialog eller Innstillinger"
+msgstr "メニュー、ポップオーバー、ダイアログ、設定を閉じる"
+
+#: crates/rigg/src/shortcuts.rs:191
+msgid "Sider"
+msgstr "ページ"
+
+#: crates/rigg/src/shortcuts.rs:193
+msgid "Søk i Oppgaver, Sensorer eller Innstillinger"
+msgstr "タスク、センサー、設定で検索"
+
+#: crates/rigg/src/shortcuts.rs:194
+msgid "Søk i Innstillinger"
+msgstr "設定を検索"
+
+#: crates/rigg/src/shortcuts.rs:195
+msgid "Flytt en verdi i statusblokken (Innstillinger › Sidefelt)"
+msgstr "ステータス欄の測定値を移動 (設定 › サイドバー)"
+
+#: crates/rigg/src/shortcuts.rs:196
+msgid "Pause og fortsett (Grafer)"
+msgstr "一時停止／再開 (グラフ)"
+
+#: crates/rigg/src/shortcuts.rs:197
+msgid "Logg til fil av og på"
+msgstr "ファイルへのログ記録を切り替える"
+
+#: crates/rigg/src/shortcuts.rs:198
+msgid "Nullstill min og maks (Sensorer)"
+msgstr "最小値と最大値をリセット (センサー)"
+
+#: crates/rigg/src/shortcuts.rs:199
+msgid "Oppdater nå (Oppgaver) eller les faste data på nytt (Grafikkort, Prosessor og System)"
+msgstr "今すぐ更新 (タスク)、または静的情報を再取得 (グラフィックスカード、プロセッサー、システム)"
+
+#: crates/rigg/src/shortcuts.rs:203
+msgid "Vinduet"
+msgstr "ウィンドウ"
+
+#: crates/rigg/src/shortcuts.rs:205
+msgid "Større eller mindre skrift"
+msgstr "文字サイズを拡大／縮小"
+
+#: crates/rigg/src/shortcuts.rs:206
+msgid "Vanlig skriftstørrelse"
+msgstr "文字サイズを既定に戻す"
+
+#: crates/rigg/src/shortcuts.rs:207
+msgid "Lukk vinduet"
+msgstr "ウィンドウを閉じる"
+
+#: crates/rigg/src/shortcuts.rs:208
+msgid "Avslutt"
+msgstr "終了"
+
+#: crates/rigg/src/shortcuts.rs:212
+msgid "Skjermkortstyring (klokker og effekt, vifter)"
+msgstr "GPU 制御 (クロックと電力、ファン)"
+
+#: crates/rigg/src/shortcuts.rs:214
+msgid "Angre i utkastet"
+msgstr "下書きの変更を元に戻す"
+
+#: crates/rigg/src/shortcuts.rs:215
+msgid "Gjør om"
+msgstr "やり直す"
+
+#: crates/rigg/src/shortcuts.rs:216
+msgid "Bruk utkastet"
+msgstr "下書きを適用"
+
+#: crates/rigg/src/shortcuts.rs:217
+msgid "Glideren: ett steg ned eller opp (Shift: stort steg)"
+msgstr "スライダー: 1 段階下げる／上げる (Shift: 大きく調整)"
+
+#: crates/rigg/src/shortcuts.rs:218
+msgid "Glideren: stort steg opp eller ned"
+msgstr "スライダー: 大きく上げる／下げる"
+
+#: crates/rigg/src/shortcuts.rs:219
+msgid "Glideren: laveste eller høyeste verdi"
+msgstr "スライダー: 最小値／最大値"
+
+#: crates/rigg/src/shortcuts.rs:220
+msgid "Kurven: forrige eller neste punkt (også PgUp og PgDn)"
+msgstr "カーブ: 前／次の点 (PgUp、PgDn も可)"
+
+#: crates/rigg/src/shortcuts.rs:221
+msgid "Kurven: flytt punktet 1 °C eller 1 % (Shift: 5)"
+msgstr "カーブ: 点を 1 °C または 1 % 移動 (Shift: 5)"
+
+#: crates/rigg/src/shortcuts.rs:222
+msgid "Kurven: legg til eller fjern et punkt"
+msgstr "カーブ: 点を追加／削除"
+
+#: crates/rigg/src/shortcuts.rs:329
+msgid "Tastatursnarveier"
+msgstr "キーボードショートカット"
+
+#: crates/rigg/src/shortcuts.rs:349
+msgid "eller"
+msgstr "または"
+
+#: crates/rigg/src/shortcuts.rs:364
+msgid "Versjon og feilsøking står under Innstillinger › Om."
+msgstr "バージョンとトラブルシューティングの情報は「設定 › このアプリについて」にあります。"

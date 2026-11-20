@@ -1,6 +1,7 @@
 //! Varsler nederst til høyre (demoens toast): tittel, en setning, valgfri
 //! handling (Angre, Åpne) og en lukkeknapp. Forsvinner av seg selv. Ingen lyd.
 
+use rigg_core::tr;
 use crate::state::App;
 use crate::widgets::{Icon, hbox, label, vbox};
 use gtk::prelude::*;
@@ -98,8 +99,8 @@ impl Toasts {
         }
         let close = crate::widgets::button(Some("x"), None, &["flat", "sm", "icon-only"]);
         close.set_valign(gtk::Align::Center);
-        close.update_property(&[gtk::accessible::Property::Label("Lukk")]);
-        close.set_tooltip_text(Some("Lukk"));
+        close.update_property(&[gtk::accessible::Property::Label(tr!("Lukk"))]);
+        close.set_tooltip_text(Some(tr!("Lukk")));
         {
             let r = rev.clone();
             let root = self.root.clone();

@@ -20,6 +20,7 @@
 //! **For runde 2:** [`Sidebar::set_log_indicator`] (2B, loggstatusen ved
 //! appnavnet) og [`status_label`] (navn og format for en festet sensor).
 
+use rigg_core::{tr, trf, trn};
 use crate::pages::{PAGES, Section, section_title};
 use crate::state::App;
 use crate::widgets::icon::Spin;
@@ -68,9 +69,9 @@ fn control_description(app: &App, hint: &str) -> String {
 /// Hva en side på Styring styrer (verktøytipset i sidefeltet).
 pub fn page_hint(id: &str) -> Option<&'static str> {
     match id {
-        "kontroller" => Some("Skjermkortets effektgrense, klokke-offset og temperaturmål"),
-        "viftekurve" => Some("Skjermkortets viftekurve og turtall"),
-        "lys" => Some("Effekter og farger på skjermkortet"),
+        "kontroller" => Some(tr!("Skjermkortets effektgrense, klokke-offset og temperaturmål")),
+        "viftekurve" => Some(tr!("Skjermkortets viftekurve og turtall")),
+        "lys" => Some(tr!("Effekter og farger på skjermkortet")),
         _ => None,
     }
 }
@@ -166,10 +167,12 @@ fn cpu_info(v: &serde_json::Value) -> Option<CpuInfo> {
     let full = v["cpu"]["name"].as_str().filter(|s| !s.is_empty())?.to_string();
     let cores = v["cpu"]["cores"].as_u64();
     let threads = v["cpu"]["threads"].as_u64().or_else(|| v["threads"].as_u64());
+    let core_count = |count: u64| trn!(count, "{antall} kjerne", "{antall} kjerner", antall = F::num(Some(count as f64), 0));
+    let thread_count = |count: u64| trn!(count, "{antall} tråd", "{antall} tråder", antall = F::num(Some(count as f64), 0));
     let sub = match (cores, threads) {
-        (Some(c), Some(t)) if c != t => format!("{} · {}", F::plural(c as i64, "kjerne", "kjerner"), F::plural(t as i64, "tråd", "tråder")),
-        (Some(c), _) => F::plural(c as i64, "kjerne", "kjerner"),
-        (None, Some(t)) => F::plural(t as i64, "tråd", "tråder"),
+        (Some(c), Some(t)) if c != t => format!("{} · {}", core_count(c), thread_count(t)),
+        (Some(c), _) => core_count(c),
+        (None, Some(t)) => thread_count(t),
         _ => String::new(),
     };
     Some(CpuInfo { short: short_cpu_name(&full), full, sub })
@@ -220,16 +223,16 @@ fn key_span(key: &str) -> SparkOpts {
 pub fn status_label(id: &str) -> StatusDef {
     let d = |label: &str, long: &str, src, serie, opts| StatusDef { label: label.into(), long: long.into(), src, serie, opts };
     match id {
-        "gpuTemp" => d("GPU-temp", "GPU-temperatur", "gpu", "temp", span(20.0)),
-        "gpuLoad" => d("GPU-last", "GPU-last", "gpu", "load", fixed100()),
-        "gpuPower" => d("Effekt", "GPU-effekt", "gpu", "power", span(40.0)),
-        "vram" => d("VRAM", "Videominne brukt", "gpu", "mem", fixed100()),
-        "gpuFan" => d("Vifte", "GPU-vifte", "gpu", "clock", fixed100()),
-        "cpuTemp" => d("CPU-temp", "CPU-temperatur", "cpu", "temp", span(20.0)),
-        "cpuLoad" => d("CPU-last", "CPU-last", "cpu", "load", fixed100()),
-        "mem" => d("Minne", "Minne brukt", "mem", "mem", fixed100()),
-        "netDown" => d("Mottatt", "Nett mottatt", "net", "load", span(1.0)),
-        "netUp" => d("Sendt", "Nett sendt", "net", "memctl", span(1.0)),
+        "gpuTemp" => d(tr!("GPU-temp"), tr!("GPU-temperatur"), "gpu", "temp", span(20.0)),
+        "gpuLoad" => d(tr!("GPU-last"), tr!("GPU-last"), "gpu", "load", fixed100()),
+        "gpuPower" => d(tr!("Effekt"), tr!("GPU-effekt"), "gpu", "power", span(40.0)),
+        "vram" => d("VRAM", tr!("Videominne brukt"), "gpu", "mem", fixed100()),
+        "gpuFan" => d(tr!("Vifte"), tr!("GPU-vifte"), "gpu", "clock", fixed100()),
+        "cpuTemp" => d(tr!("CPU-temp"), tr!("CPU-temperatur"), "cpu", "temp", span(20.0)),
+        "cpuLoad" => d(tr!("CPU-last"), tr!("CPU-last"), "cpu", "load", fixed100()),
+        "mem" => d(tr!("Minne"), tr!("Minne brukt"), "mem", "mem", fixed100()),
+        "netDown" => d(tr!("Mottatt"), tr!("Nett mottatt"), "net", "load", span(1.0)),
+        "netUp" => d(tr!("Sendt"), tr!("Nett sendt"), "net", "memctl", span(1.0)),
         other => {
             let tail = other.rsplit('/').next().unwrap_or(other);
             let src = if other.starts_with("gpu") {
@@ -248,8 +251,8 @@ pub fn status_label(id: &str) -> StatusDef {
             // Festede nøkler får navnet fra Sensorer («Vifte 1 o/min»), kortet
             // litt der enheten uansett står ved tallet («Turtall 1»).
             let long = crate::pages::sensorer::short_name(other).unwrap_or_else(|| tail.to_string());
-            let short = match long.strip_prefix("Vifte ").and_then(|r| r.strip_suffix(" o/min")) {
-                Some(n) => format!("Turtall {n}"),
+            let short = match rigg_core::sensor_key::split_gpu(other).and_then(|(_, field)| field.strip_prefix("fanRpm")) {
+                Some(index) => trf!("Turtall {n}", n = index.parse::<usize>().map(|n| n + 1).unwrap_or(1)),
                 None => long.clone(),
             };
             d(&short, &long, src, "load", key_span(other))
@@ -520,7 +523,7 @@ impl Sidebar {
         moon.add_css_class("moon");
         moon.set_visible(false);
         moon.set_can_target(true);
-        moon.set_tooltip_text(Some(rigg_core::easter::NIGHT_TIP));
+        moon.set_tooltip_text(Some(tr!("Sent oppe? Skjermkortet er våkent det også.")));
         head.append(&moon);
         let head_handle = gtk::WindowHandle::new();
         head_handle.set_child(Some(&head));
@@ -544,19 +547,19 @@ impl Sidebar {
         cpu.add_css_class("machine-row");
         cpu.add_css_class("last");
         let cpu_row = machine_row("cpu", "chevron-right");
-        set_text(&cpu_row.name, "Prosessor");
+        set_text(&cpu_row.name, tr!("Prosessor"));
         cpu.set_child(Some(&cpu_row.bx));
         machine.append(&cpu);
         body.append(&machine);
 
         let nav = vbox(1, &["nav"]);
         nav.set_accessible_role(gtk::AccessibleRole::Navigation);
-        nav.update_property(&[gtk::accessible::Property::Label("Sider")]);
+        nav.update_property(&[gtk::accessible::Property::Label(tr!("Sider"))]);
         body.append(&nav);
 
         let status = vbox(1, &["side-status"]);
         status.set_valign(gtk::Align::End);
-        let status_head = label("Status", &["side-status-head"]);
+        let status_head = label(tr!("Status"), &["side-status-head"]);
         status.append(&status_head);
         let status_rows = vbox(0, &[]);
         status.append(&status_rows);
@@ -570,14 +573,14 @@ impl Sidebar {
         settings_link.set_hexpand(true);
         let sl = hbox(10, &[]);
         sl.append(&Icon::new("settings", 16));
-        let settings_label = label("Innstillinger", &[]);
+        let settings_label = label(tr!("Innstillinger"), &[]);
         sl.append(&settings_label);
         settings_link.set_child(Some(&sl));
-        tip(&settings_link, "Innstillinger", Some("Ctrl+,"));
+        tip(&settings_link, tr!("Innstillinger"), Some("Ctrl+,"));
         foot.append(&settings_link);
         let keys_btn = crate::widgets::button(Some("circle-help"), None, &["flat", "icon-only", "side-btn"]);
-        keys_btn.update_property(&[gtk::accessible::Property::Label("Tastatursnarveier")]);
-        tip(&keys_btn, "Tastatursnarveier", Some("Ctrl+?"));
+        keys_btn.update_property(&[gtk::accessible::Property::Label(tr!("Tastatursnarveier"))]);
+        tip(&keys_btn, tr!("Tastatursnarveier"), Some("Ctrl+?"));
         foot.append(&keys_btn);
         let toggle = crate::widgets::button(Some("panel-left-close"), None, &["flat", "icon-only", "side-btn"]);
         foot.append(&toggle);
@@ -823,7 +826,7 @@ impl Sidebar {
                     let b = gtk::Button::new();
                     b.add_css_class("nav-target");
                     b.add_css_class("flat");
-                    b.update_property(&[gtk::accessible::Property::HasPopup(true), gtk::accessible::Property::Description("Detaljer og kortvalg")]);
+                    b.update_property(&[gtk::accessible::Property::HasPopup(true), gtk::accessible::Property::Description(tr!("Detaljer og kortvalg"))]);
                     b.update_state(&[gtk::accessible::State::Expanded(Some(false))]);
                     let bx = hbox(8, &[]);
                     bx.append(&Icon::new("gpu", 14));
@@ -866,7 +869,7 @@ impl Sidebar {
             };
             b.set_child(Some(&bx));
             let description = page_hint(p.id).map(|h| control_description(&self.app, h));
-            let tiptext = description.as_ref().map(|d| format!("{}\n{d}", p.title)).unwrap_or_else(|| if p.id == "oppgaver" { "Oppgavebehandling · CPU, minne og prosesser".into() } else { p.title.to_string() });
+            let tiptext = description.as_ref().map(|d| format!("{}\n{d}", p.title)).unwrap_or_else(|| if p.id == "oppgaver" { tr!("Oppgavebehandling · CPU, minne og prosesser").into() } else { p.title.to_string() });
             tip(&b, &tiptext, if p.id == "oppgaver" { Some("Ctrl+Shift+Esc") } else { num.as_deref() });
             b.update_property(&[gtk::accessible::Property::Label(p.title)]);
             if let Some(desc) = description {
@@ -932,7 +935,7 @@ impl Sidebar {
             let mut parts: Vec<String> = Vec::new();
             if gpus > 1 {
                 let i = info.as_ref().map(|i| i.index as usize + 1).unwrap_or(1);
-                parts.push(format!("Kort {i} av {gpus}"));
+                parts.push(trf!("Kort {i} av {gpus}", i = i, gpus = gpus));
             }
             let vram = st.as_ref().and_then(|s| s.vram_total).or_else(|| self.app.gpu_sample().and_then(|s| s.vram_total));
             if let Some(v) = vram.filter(|v| *v > 0.0) {
@@ -942,23 +945,23 @@ impl Sidebar {
             if gpus <= 1
                 && let Some(d) = st.as_ref().and_then(|s| s.driver.clone()).or_else(|| info.as_ref().and_then(|i| i.driver.clone()))
             {
-                parts.push(format!("driver {d}"));
+                parts.push(trf!("driver {d}", d = d));
             }
             parts.join(" · ")
         };
         let (kind, sub) = match (&info, connected) {
-            (_, false) if self.app.telemetry().is_some() => ("danger", "Tjenesten svarer ikke".to_string()),
-            (_, false) => ("", "Kobler til …".to_string()),
-            (None, true) => ("", "Leser …".to_string()),
+            (_, false) if self.app.telemetry().is_some() => ("danger", tr!("Tjenesten svarer ikke").to_string()),
+            (_, false) => ("", tr!("Kobler til …").to_string()),
+            (None, true) => ("", tr!("Leser …").to_string()),
             (Some(i), true) => match i.state {
                 DeviceState::Ok => ("", normal()),
-                DeviceState::DriverUpdated => ("warn", "Ny driver · start på nytt".into()),
-                DeviceState::NoDriver => ("danger", "Ingen NVIDIA-driver".into()),
-                DeviceState::Lost => ("danger", "Svarer ikke".into()),
-                DeviceState::Suspended => ("", "Dvale".into()),
+                DeviceState::DriverUpdated => ("warn", tr!("Ny driver · start på nytt").into()),
+                DeviceState::NoDriver => ("danger", tr!("Ingen NVIDIA-driver").into()),
+                DeviceState::Lost => ("danger", tr!("Svarer ikke").into()),
+                DeviceState::Suspended => ("", tr!("Dvale").into()),
             },
         };
-        let name = name.unwrap_or_else(|| if info.as_ref().is_some_and(|i| i.state == DeviceState::NoDriver) { "Ingen skjermkort".into() } else { "Skjermkort".into() });
+        let name = name.unwrap_or_else(|| if info.as_ref().is_some_and(|i| i.state == DeviceState::NoDriver) { tr!("Ingen skjermkort").into() } else { tr!("Skjermkort").into() });
         // Produsenten foran navnet når den er kjent (satt av brukeren, eller
         // en kjent kortprodusent i PCI-subsystemet): «Palit RTX 2080» (8A).
         let maker = st.as_ref().and_then(|s| crate::widgets::styrer::maker_short(&self.app, s));
@@ -976,8 +979,8 @@ impl Sidebar {
         self.apply_machine_visibility();
         let long = st.as_ref().map(|s| s.name.clone()).filter(|n| !n.is_empty()).unwrap_or_else(|| name.clone());
         let t = if sub.is_empty() { long.clone() } else { format!("{long} · {sub}") };
-        self.device.set_tooltip_text(Some(&format!("{t}\nVis Grafikkort")));
-        self.device.update_property(&[gtk::accessible::Property::Label(&t), gtk::accessible::Property::Description("Vis Grafikkort")]);
+        self.device.set_tooltip_text(Some(&trf!("{t}\nVis Grafikkort", t = t)));
+        self.device.update_property(&[gtk::accessible::Property::Label(&t), gtk::accessible::Property::Description(tr!("Vis Grafikkort"))]);
         // Kortet Styring gjelder, under seksjonstittelen.
         if let Some((b, l)) = self.nav_target.borrow().as_ref() {
             // Feil: «RTX 2080 · svarer ikke», eller bare feilen når det ikke er
@@ -998,11 +1001,11 @@ impl Sidebar {
             for k in ["warn", "danger"] {
                 class(b, k, k == kind);
             }
-            let tip = format!("Styring gjelder dette kortet: {long}{}\nDetaljer og kortvalg", maker.as_ref().map(|m| format!(" ({m})")).unwrap_or_default());
+            let tip = trf!("Styring gjelder dette kortet: {long}{valg}\nDetaljer og kortvalg", long = long, valg = maker.as_ref().map(|m| format!(" ({m})")).unwrap_or_default());
             if b.tooltip_text().as_deref() != Some(tip.as_str()) {
                 b.set_tooltip_text(Some(&tip));
             }
-            b.update_property(&[gtk::accessible::Property::Label(&format!("Styring gjelder {text}"))]);
+            b.update_property(&[gtk::accessible::Property::Label(&trf!("Styring gjelder {text}", text = text))]);
         }
     }
 
@@ -1031,12 +1034,12 @@ impl Sidebar {
 
     fn render_cpu(&self) {
         let c = self.cpu_info.borrow().clone().unwrap_or_default();
-        set_text(&self.cpu_row.name, if c.short.is_empty() { "Prosessor" } else { &c.short });
+        set_text(&self.cpu_row.name, if c.short.is_empty() { tr!("Prosessor") } else { &c.short });
         set_text(&self.cpu_row.sub, &c.sub);
         self.apply_machine_visibility();
-        let t = if c.full.is_empty() { "Prosessor".to_string() } else if c.sub.is_empty() { c.full.clone() } else { format!("{} · {}", c.full, c.sub) };
-        tip(&self.cpu, &format!("{t}\nVis Prosessor"), page_key(PAGES.iter().position(|p| p.id == "prosessor").unwrap_or(99)).as_deref());
-        self.cpu.update_property(&[gtk::accessible::Property::Label(&t), gtk::accessible::Property::Description("Vis Prosessor")]);
+        let t = if c.full.is_empty() { tr!("Prosessor").to_string() } else if c.sub.is_empty() { c.full.clone() } else { format!("{} · {}", c.full, c.sub) };
+        tip(&self.cpu, &trf!("{t}\nVis Prosessor", t = t), page_key(PAGES.iter().position(|p| p.id == "prosessor").unwrap_or(99)).as_deref());
+        self.cpu.update_property(&[gtk::accessible::Property::Label(&t), gtk::accessible::Property::Description(tr!("Vis Prosessor"))]);
     }
 
     /// Navn og linjer i maskinhodet etter bredde (ikonlist) og høyde.
@@ -1065,9 +1068,9 @@ impl Sidebar {
         let body = vbox(0, &["device-details"]);
         let st = app.statics().unwrap_or_default();
         let info = app.gpu_info();
-        let full_name = if !st.name.is_empty() { st.name.clone() } else { info.as_ref().map(|i| i.name.clone()).filter(|n| !n.is_empty()).unwrap_or_else(|| "Skjermkort".into()) };
+        let full_name = if !st.name.is_empty() { st.name.clone() } else { info.as_ref().map(|i| i.name.clone()).filter(|n| !n.is_empty()).unwrap_or_else(|| tr!("Skjermkort").into()) };
         let head = vbox(3, &["device-details-head"]);
-        head.append(&label("Valgt skjermkort", &["device-details-caption"]));
+        head.append(&label(tr!("Valgt skjermkort"), &["device-details-caption"]));
         let title = label(&rigg_core::model::short_gpu_name(&full_name), &["device-details-title"]);
         title.set_wrap(true);
         title.set_wrap_mode(gtk::pango::WrapMode::WordChar);
@@ -1077,13 +1080,13 @@ impl Sidebar {
         // Feilkoden fra NVML står bare i verktøytipset (spesifikasjonen kap. 5).
         let since = |i: &rigg_core::model::GpuInfo| F::since(crate::app::local_time(i.since), crate::app::local_now());
         let sub = match &info {
-            Some(i) if i.state == DeviceState::Ok => "Tilkoblet".to_string(),
-            Some(i) if i.state == DeviceState::Lost => format!("Svarer ikke siden {}", since(i)),
-            Some(i) if i.state == DeviceState::NoDriver => "Fant ingen NVIDIA-driver".into(),
-            Some(i) if i.state == DeviceState::DriverUpdated => "Driveren er oppdatert. Start maskinen på nytt.".into(),
-            Some(i) if i.state == DeviceState::Suspended => format!("I dvale siden {}", since(i)),
+            Some(i) if i.state == DeviceState::Ok => tr!("Tilkoblet").to_string(),
+            Some(i) if i.state == DeviceState::Lost => trf!("Svarer ikke siden {verdi}", verdi = since(i)),
+            Some(i) if i.state == DeviceState::NoDriver => tr!("Fant ingen NVIDIA-driver").into(),
+            Some(i) if i.state == DeviceState::DriverUpdated => tr!("Driveren er oppdatert. Start maskinen på nytt.").into(),
+            Some(i) if i.state == DeviceState::Suspended => trf!("I dvale siden {verdi}", verdi = since(i)),
             Some(_) => "–".into(),
-            None => "Ikke tilkoblet".into(),
+            None => tr!("Ikke tilkoblet").into(),
         };
         let subl = label(&sub, &["device-details-state"]);
         subl.set_wrap(true);
@@ -1104,7 +1107,7 @@ impl Sidebar {
         let facts = vbox(8, &["device-details-facts"]);
         let versions = hbox(12, &[]);
         versions.set_homogeneous(true);
-        versions.append(&device_detail("Driver", st.driver.as_deref().unwrap_or("–")));
+        versions.append(&device_detail(tr!("Driver"), st.driver.as_deref().unwrap_or("–")));
         versions.append(&device_detail("CUDA", st.cuda_version.as_deref().unwrap_or("–")));
         facts.append(&versions);
         facts.append(&device_detail("VBIOS", st.vbios.as_deref().unwrap_or("–")));
@@ -1118,21 +1121,21 @@ impl Sidebar {
         facts.append(&device_detail("PCIe", &pcie));
         body.append(&facts);
         let service = vbox(8, &["device-details-service"]);
-        service.append(&device_detail("Oppdatering", &F::seconds(app.settings().interval_ms)));
+        service.append(&device_detail(tr!("Oppdatering"), &F::seconds(app.settings().interval_ms)));
         let svc = match (app.client.is_connected(), app.data.borrow().hello.clone()) {
-            (true, Some(h)) => format!("{} · bygg {}", h["daemon"]["version"].as_str().unwrap_or("–"), h["daemon"]["build"]),
-            _ => "Ikke tilkoblet".into(),
+            (true, Some(h)) => trf!("{versjon} · bygg {bygg}", versjon = h["daemon"]["version"].as_str().unwrap_or("–"), bygg = h["daemon"]["build"]),
+            _ => tr!("Ikke tilkoblet").into(),
         };
-        service.append(&device_detail("Tjeneste", &svc));
+        service.append(&device_detail(tr!("Tjeneste"), &svc));
         body.append(&service);
         // Flere kort: velg her.
         let gpus = app.data.borrow().gpus.clone();
         if gpus.iter().filter(|g| !g.id.is_empty()).count() > 1 {
-            body.append(&label("Kort", &["menu-label"]));
+            body.append(&label(tr!("Kort"), &["menu-label"]));
             for g in gpus.into_iter().filter(|g| !g.id.is_empty()) {
                 let selected = app.gpu_id().as_deref() == Some(g.id.as_str());
                 let b = crate::widgets::button(Some(if selected { "check" } else { "gpu" }), Some(&rigg_core::model::short_gpu_name(&g.name)), &["flat", "menu-item", "device-details-choice"]);
-                b.update_property(&[gtk::accessible::Property::Description(if selected { "Valgt skjermkort" } else { "Velg dette skjermkortet" })]);
+                b.update_property(&[gtk::accessible::Property::Description(if selected { tr!("Valgt skjermkort") } else { tr!("Velg dette skjermkortet") })]);
                 // Lange navn brytes også med flere kort og stor skrift.
                 if let Some(row) = b.child() {
                     let mut child = row.first_child();
@@ -1154,7 +1157,7 @@ impl Sidebar {
                 body.append(&b);
             }
         }
-        let more = crate::widgets::button(Some("arrow-right"), Some("Mer om kortet"), &["flat", "menu-item", "device-details-more"]);
+        let more = crate::widgets::button(Some("arrow-right"), Some(tr!("Mer om kortet")), &["flat", "menu-item", "device-details-more"]);
         {
             let a = app.clone();
             more.connect_clicked(move |b| {
@@ -1176,7 +1179,7 @@ impl Sidebar {
             anchor.remove_css_class("open");
             anchor.update_state(&[gtk::accessible::State::Expanded(Some(false))]);
         });
-        pop.update_property(&[gtk::accessible::Property::Label(&format!("Detaljer om {full_name}"))]);
+        pop.update_property(&[gtk::accessible::Property::Label(&trf!("Detaljer om {full_name}", full_name = full_name))]);
         pop.popup();
         // Fokus på knappen, ikke på første valgbare verdi (den ble markert).
         more.grab_focus();
@@ -1195,9 +1198,9 @@ impl Sidebar {
             b.add_css_class("empty-note");
             let bx = hbox(8, &[]);
             bx.append(&Icon::new("pin", 14));
-            bx.append(&label("Fest sensorer fra Sensorer", &[]));
+            bx.append(&label(tr!("Fest sensorer fra Sensorer"), &[]));
             b.set_child(Some(&bx));
-            tip(&b, "Pek på en rad på Sensorer og trykk på nålen", None);
+            tip(&b, tr!("Pek på en rad på Sensorer og trykk på nålen"), None);
             let app = self.app.clone();
             b.connect_clicked(move |_| app.go("sensorer"));
             self.status_rows.append(&b);
@@ -1210,9 +1213,9 @@ impl Sidebar {
                     "gpu" => "GPU",
                     "cpu" => "CPU",
                     "mem" => "RAM",
-                    "net" => "NETT",
-                    "disk" => "DISK",
-                    _ => "ANDRE",
+                    "net" => tr!("NETT"),
+                    "disk" => tr!("DISK"),
+                    _ => tr!("ANDRE"),
                 };
                 let l = label(tag, &["stat-src"]);
                 l.set_xalign(0.5);
@@ -1248,7 +1251,7 @@ impl Sidebar {
             b.set_child(Some(&bx));
             let long = RefCell::new(def.long.clone());
             let row = Rc::new(StatRow { id: id.clone(), button: b.clone(), k, v, vu, spark, def, long, key: RefCell::new(None), level: RefCell::new("") });
-            let tiptext = format!("{} · vis på Sensorer", row.def.long);
+            let tiptext = trf!("{verdi} · vis på Sensorer", verdi = row.def.long);
             b.set_tooltip_text(Some(&tiptext));
             b.update_property(&[gtk::accessible::Property::Label(&row.def.long)]);
             let app = self.app.clone();
@@ -1279,7 +1282,7 @@ impl Sidebar {
         let items = self.app.settings().status_items.clone();
         let i = items.iter().position(|x| x == id).unwrap_or(0);
         let m = Menu::new(&row.button);
-        m.popover.update_property(&[gtk::accessible::Property::Label(&format!("Valg for {}", row.long.borrow()))]);
+        m.popover.update_property(&[gtk::accessible::Property::Label(&trf!("Valg for {verdi}", verdi = row.long.borrow()))]);
         let mv = |dir: i32| {
             let app = self.app.clone();
             let id = id.to_string();
@@ -1294,14 +1297,14 @@ impl Sidebar {
                 }
             }
         };
-        let up = m.item(Some("arrow-up"), "Flytt opp", None, mv(-1));
+        let up = m.item(Some("arrow-up"), tr!("Flytt opp"), None, mv(-1));
         up.set_sensitive(i > 0);
-        let down = m.item(Some("arrow-down"), "Flytt ned", None, mv(1));
+        let down = m.item(Some("arrow-down"), tr!("Flytt ned"), None, mv(1));
         down.set_sensitive(i + 1 < items.len());
         {
             let app = self.app.clone();
             let id = id.to_string();
-            m.item(Some("pin-off"), "Løsne", None, move || {
+            m.item(Some("pin-off"), tr!("Løsne"), None, move || {
                 let cur: Vec<String> = app.settings().status_items.iter().filter(|x| **x != id).cloned().collect();
                 app.set(json!({"statusItems": cur}));
             });
@@ -1310,11 +1313,11 @@ impl Sidebar {
         {
             let app = self.app.clone();
             let vis = format!("sensorer?vis={id}");
-            m.item(Some("arrow-right"), "Vis på Sensorer", None, move || app.go(&vis));
+            m.item(Some("arrow-right"), tr!("Vis på Sensorer"), None, move || app.go(&vis));
         }
         {
             let app = self.app.clone();
-            m.item(Some("settings"), "Rekkefølge og utvalg …", None, move || app.open_settings("sidefelt"));
+            m.item(Some("settings"), tr!("Rekkefølge og utvalg …"), None, move || app.open_settings("sidefelt"));
         }
         m.show();
     }
@@ -1352,11 +1355,11 @@ impl Sidebar {
                 class(&r.button, "danger", lvl == "danger");
                 r.spark.set_level(lvl);
                 let word = match lvl {
-                    "warn" => " · over gul varselgrense",
-                    "danger" => " · over rød varselgrense",
+                    "warn" => tr!(" · over gul varselgrense"),
+                    "danger" => tr!(" · over rød varselgrense"),
                     _ => "",
                 };
-                r.button.set_tooltip_text(Some(&format!("{} · vis på Sensorer{word}", r.long.borrow())));
+                r.button.set_tooltip_text(Some(&trf!("{verdi} · vis på Sensorer{word}", word = word, verdi = r.long.borrow())));
             }
             if sparks && let Some(k) = &key {
                 let pts = if r.id == "vram" { vec![] } else { self.app.recent(k) };
@@ -1379,7 +1382,7 @@ impl Sidebar {
     fn toggle_collapsed(&self) {
         let next = !self.app.settings().side_collapsed;
         self.app.set(json!({"sideCollapsed": next}));
-        self.column.announce(if next { "Sidefeltet er lagt sammen." } else { "Sidefeltet er utvidet." }, gtk::AccessibleAnnouncementPriority::Low);
+        self.column.announce(if next { tr!("Sidefeltet er lagt sammen.") } else { tr!("Sidefeltet er utvidet.") }, gtk::AccessibleAnnouncementPriority::Low);
     }
 
     /// Ctrl+B. Gjør ingenting i smale vinduer (der er det alltid en ikonlist).
@@ -1417,7 +1420,7 @@ impl Sidebar {
         self.column.set_width(if rail { RAIL_W } else { SIDE_W });
         class(&self.body, "rail", rail);
         class(&self.head, "rail", rail);
-        let label_text = if collapsed { "Utvid sidefeltet" } else { "Legg sammen sidefeltet" };
+        let label_text = if collapsed { tr!("Utvid sidefeltet") } else { tr!("Legg sammen sidefeltet") };
         tip(&self.toggle, label_text, Some("Ctrl+B"));
         self.toggle.update_property(&[gtk::accessible::Property::Label(label_text)]);
         self.toggle.update_state(&[gtk::accessible::State::Expanded(Some(!collapsed))]);

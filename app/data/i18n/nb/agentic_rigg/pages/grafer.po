@@ -1,0 +1,90 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: nb\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: crates/rigg/src/pages/grafer.rs:104 crates/rigg/src/pages/grafer.rs:116
+msgid "Tidsvindu"
+msgstr "Tidsvindu"
+
+#: crates/rigg/src/pages/grafer.rs:139 crates/rigg/src/pages/grafer.rs:320
+msgid "Pause alle"
+msgstr "Pause alle"
+
+#: crates/rigg/src/pages/grafer.rs:140 crates/rigg/src/pages/grafer.rs:321
+msgid "Pause alle grafene"
+msgstr "Pause alle grafene"
+
+#: crates/rigg/src/pages/grafer.rs:146 crates/rigg/src/pages/grafer.rs:147
+msgid "Velg grafer"
+msgstr "Velg grafer"
+
+#: crates/rigg/src/pages/grafer.rs:153 crates/rigg/src/pages/grafer.rs:154
+msgid "Eksporter CSV …"
+msgstr "Eksporter CSV …"
+
+#: crates/rigg/src/pages/grafer.rs:320
+msgid "Fortsett alle"
+msgstr "Fortsett alle"
+
+#: crates/rigg/src/pages/grafer.rs:321
+msgid "Fortsett alle grafene"
+msgstr "Fortsett alle grafene"
+
+#: crates/rigg/src/pages/grafer.rs:326
+msgid "På pause · {verdi}"
+msgstr "På pause · {verdi}"
+
+#: crates/rigg/src/pages/grafer.rs:335
+msgid "Markøren vises på alle grafene. Klikk for bare grafen du holder over."
+msgstr "Markøren vises på alle grafene. Klikk for bare grafen du holder over."
+
+#: crates/rigg/src/pages/grafer.rs:335
+msgid "Markøren vises bare på grafen du holder over. Klikk for alle grafene."
+msgstr "Markøren vises bare på grafen du holder over. Klikk for alle grafene."
+
+#: crates/rigg/src/pages/grafer.rs:337
+msgid "Markør på alle grafene"
+msgstr "Markør på alle grafene"
+
+#: crates/rigg/src/pages/grafer.rs:349
+msgid "Grafer som vises"
+msgstr "Grafer som vises"
+
+#: crates/rigg/src/pages/grafer.rs:382
+msgid "Minst én graf må vises"
+msgstr "Minst én graf må vises"
+
+#: crates/rigg/src/pages/grafer.rs:421
+msgid "Kunne ikke hente historikken"
+msgstr "Kunne ikke hente historikken"
+
+#: crates/rigg/src/pages/grafer.rs:447
+msgid "Eksporter historikk som CSV"
+msgstr "Eksporter historikk som CSV"
+
+#: crates/rigg/src/pages/grafer.rs:449
+msgid "Eksporter"
+msgstr "Eksporter"
+
+#: crates/rigg/src/pages/grafer.rs:472
+msgid "Historikken er eksportert"
+msgstr "Historikken er eksportert"
+
+#: crates/rigg/src/pages/grafer.rs:473
+msgid "{fname} · {antall} rader, {periode}"
+msgid_plural "{fname} · {antall} rader, {periode}"
+msgstr[0] "{fname} · {antall} rader, {periode}"
+msgstr[1] "{fname} · {antall} rader, {periode}"
+
+#: crates/rigg/src/pages/grafer.rs:475
+msgid "Vis i Filer"
+msgstr "Vis i Filer"
+
+#: crates/rigg/src/pages/grafer.rs:480
+msgid "Kunne ikke lagre fila"
+msgstr "Kunne ikke lagre fila"

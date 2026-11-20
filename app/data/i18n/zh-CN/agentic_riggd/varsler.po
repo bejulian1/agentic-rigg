@@ -1,0 +1,90 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/riggd/src/varsler.rs:89
+msgid "{what} er {temperatur}"
+msgstr "{what}：{temperatur}"
+
+#: crates/riggd/src/varsler.rs:89
+msgid "Over den røde grensen på {grense} siden {tid}."
+msgstr "自 {tid} 起超过严重告警阈值 {grense}。"
+
+#: crates/riggd/src/varsler.rs:121
+msgid "Temperaturen på skjermkort {verdi}"
+msgstr "GPU {verdi} 温度"
+
+#: crates/riggd/src/varsler.rs:121
+msgid "GPU-temperaturen"
+msgstr "GPU 温度"
+
+#: crates/riggd/src/varsler.rs:126
+msgid "CPU-temperaturen"
+msgstr "CPU 温度"
+
+#: crates/riggd/src/varsler.rs:152
+msgid "Skjermkortet svarer ikke"
+msgstr "显卡无响应"
+
+#: crates/riggd/src/varsler.rs:153
+msgid "{kortnavn}Siden {tid}. Det skjer når kortet faller av bussen eller trekkes ut. Tallene før det er tatt vare på."
+msgstr "{kortnavn}从 {tid} 起无响应。GPU 可能已从总线掉线或被拔出。此前的读数已保留。"
+
+#: crates/riggd/src/varsler.rs:156
+msgid "Driveren er oppdatert"
+msgstr "驱动已更新"
+
+#: crates/riggd/src/varsler.rs:159
+msgid "ny"
+msgstr "新版"
+
+#: crates/riggd/src/varsler.rs:160
+msgid "gammel"
+msgstr "旧版"
+
+#: crates/riggd/src/varsler.rs:163
+msgid "Fant ingen NVIDIA-driver"
+msgstr "未找到 NVIDIA 驱动"
+
+#: crates/riggd/src/varsler.rs:163
+msgid "Prosessor, minne og sensorer vises som vanlig."
+msgstr "处理器、内存和传感器仍正常显示。"
+
+#: crates/riggd/src/varsler.rs:164
+msgid "Skjermkortet svarer igjen"
+msgstr "GPU 已恢复响应"
+
+#: crates/riggd/src/varsler.rs:164
+msgid "{kortnavn}Det er funnet igjen og leses som før."
+msgstr "{kortnavn}已重新检测到 GPU，并恢复监控。"
+
+#: crates/riggd/src/varsler.rs:200
+msgid "Disken {name} feiler"
+msgstr "磁盘 {name} 发生故障"
+
+#: crates/riggd/src/varsler.rs:200
+msgid "{why}. Ta sikkerhetskopi av det som ligger på disken ({enhet})."
+msgstr "{why}。请备份此磁盘（{enhet}）上的数据。"
+
+#: crates/riggd/src/varsler.rs:207
+msgid "Nye dårlige sektorer på {name}"
+msgstr "{name} 出现新的坏扇区"
+
+#: crates/riggd/src/varsler.rs:208
+msgid "{antall} dårlig sektor (var {b}). Ta sikkerhetskopi av det som ligger på disken ({enhet})."
+msgid_plural "{antall} dårlige sektorer (var {b}). Ta sikkerhetskopi av det som ligger på disken ({enhet})."
+msgstr[0] "{antall} 个坏扇区（原为 {b} 个）。请备份此磁盘（{enhet}）上的数据。"
+
+#: crates/riggd/src/varsler.rs:262
+msgid "Åpne"
+msgstr "打开"
+
+#: crates/riggd/src/varsler.rs:284
+msgid "Kunne ikke sende skrivebordsvarsel: {e}"
+msgstr "无法发送桌面通知：{e}"

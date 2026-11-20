@@ -1,0 +1,65 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n == 1 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : 2);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg-core/src/history.rs:429
+msgid "fila er større enn grensen"
+msgstr "plik przekracza limit rozmiaru"
+
+#: crates/rigg-core/src/history.rs:436
+msgid "{name} kunne ikke leses ({why}). Historikken begynner på nytt."
+msgstr "Nie udało się odczytać {name} ({why}). Historia będzie zapisywana od nowa."
+
+#: crates/rigg-core/src/history.rs:447
+msgid "ukjent format"
+msgstr "nieznany format"
+
+#: crates/rigg-core/src/history.rs:450
+msgid "ukjent versjon"
+msgstr "nieznana wersja"
+
+#: crates/rigg-core/src/history.rs:455
+msgid "for mange serier"
+msgstr "zbyt wiele serii"
+
+#: crates/rigg-core/src/history.rs:460
+msgid "ugyldig nøkkel"
+msgstr "nieprawidłowy klucz"
+
+#: crates/rigg-core/src/history.rs:462
+msgid "ugyldige serier"
+msgstr "nieprawidłowe serie"
+
+#: crates/rigg-core/src/history.rs:468
+msgid "ugyldig takt"
+msgstr "nieprawidłowy interwał próbkowania"
+
+#: crates/rigg-core/src/history.rs:477
+msgid "ugyldige lag"
+msgstr "nieprawidłowe warstwy"
+
+#: crates/rigg-core/src/history.rs:482
+msgid "for mange rader"
+msgstr "zbyt wiele wierszy"
+
+#: crates/rigg-core/src/history.rs:488
+msgid "ugyldig rad"
+msgstr "nieprawidłowy wiersz"
+
+#: crates/rigg-core/src/history.rs:494
+msgid "ugyldig verdi"
+msgstr "nieprawidłowa wartość"
+
+#: crates/rigg-core/src/history.rs:506
+msgid "ekstra data på slutten"
+msgstr "dodatkowe dane na końcu pliku"
+
+#: crates/rigg-core/src/history.rs:540
+msgid "fila er avkortet"
+msgstr "plik jest ucięty"

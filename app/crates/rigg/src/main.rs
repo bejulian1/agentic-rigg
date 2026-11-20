@@ -31,7 +31,10 @@ mod topbar;
 mod widgets;
 mod window;
 
-const HELP: &str = "Bruk: agentic-rigg [--side SIDE] [--innstillinger DEL] [--hint] [--version]
+use rigg_core::{i18n, paths::Profile, tr};
+
+fn help() -> &'static str {
+    tr!("Bruk: agentic-rigg [--side SIDE] [--innstillinger DEL] [--hint] [--version]
 
   --side SIDE           åpne en side: oversikt, sensorer, grafer, grafikkort,
                         oppgaver, prosessor, disker, system, kontroller (Klokker og
@@ -39,7 +42,8 @@ const HELP: &str = "Bruk: agentic-rigg [--side SIDE] [--innstillinger DEL] [--hi
   --innstillinger DEL   åpne Innstillinger (generelt, utseende, format,
                         sidefelt, grafer, logging, data eller om)
   --hint                et hint om en liten overraskelse du ikke har funnet
-  --version             skriv versjonen";
+  --version             skriv versjonen")
+}
 
 /// Valgene som gjelder vinduet (også fra en ny start mens vinduet er åpent).
 pub fn parse_window_args(args: &[String]) -> app::Cli {
@@ -67,13 +71,15 @@ fn main() -> gtk::glib::ExitCode {
                 return gtk::glib::ExitCode::SUCCESS;
             }
             "--help" | "-h" => {
-                println!("{HELP}");
+                i18n::init(&i18n::read_preference(Profile::current()));
+                println!("{}", help());
                 return gtk::glib::ExitCode::SUCCESS;
             }
             "--hint" => {
-                let (s, _) = prefs::load(rigg_core::paths::Profile::current());
+                let (s, _) = prefs::load(Profile::current());
+                i18n::init(&s.language);
                 if !s.surprises {
-                    println!("Små overraskelser er slått av (Innstillinger › Generelt).");
+                    println!("{}", tr!("Små overraskelser er slått av (Innstillinger › Generelt)."));
                 } else {
                     let pick = (rigg_core::now_ms() / 1000) as usize;
                     println!("{}", rigg_core::easter::hint(&s.eggs_found, pick));

@@ -1,0 +1,73 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg-hw/src/sys/process.rs:104
+msgid "For stor /proc-fil"
+msgstr "File /proc troppo grande"
+
+#: crates/rigg-hw/src/sys/process.rs:114
+msgid "Ugyldig prosessinformasjon"
+msgstr "Informazioni sul processo non valide"
+
+#: crates/rigg-hw/src/sys/process.rs:187
+msgid "Ugyldig foreldrekjede for appen eller en tilkoblet klient"
+msgstr "Catena dei processi padre non valida per l’app o per un client connesso"
+
+#: crates/rigg-hw/src/sys/process.rs:196
+msgid "Kunne ikke kontrollere foreldreprosesser for appen eller en tilkoblet klient"
+msgstr "Impossibile verificare i processi padre dell’app o di un client connesso"
+
+#: crates/rigg-hw/src/sys/process.rs:202
+msgid "Foreldrekjeden er for lang"
+msgstr "La catena dei processi padre è troppo lunga"
+
+#: crates/rigg-hw/src/sys/process.rs:220
+msgid "Systemets init-prosess er beskyttet"
+msgstr "Il processo init di sistema è protetto"
+
+#: crates/rigg-hw/src/sys/process.rs:222
+msgid "Appen eller en foreldreprosess er beskyttet"
+msgstr "L’app o un processo padre è protetto"
+
+#: crates/rigg-hw/src/sys/process.rs:224
+msgid "Viktig system- eller øktprosess er beskyttet"
+msgstr "Un processo essenziale di sistema o di sessione è protetto"
+
+#: crates/rigg-hw/src/sys/process.rs:226
+msgid "Prosessen er allerede avsluttet"
+msgstr "Il processo è già terminato"
+
+#: crates/rigg-hw/src/sys/process.rs:228
+msgid "Kjerneprosesser er beskyttet"
+msgstr "I processi del kernel sono protetti"
+
+#: crates/rigg-hw/src/sys/process.rs:230
+msgid "Avslutning krever en vanlig brukerøkt"
+msgstr "Per terminare il processo serve una normale sessione utente"
+
+#: crates/rigg-hw/src/sys/process.rs:233
+msgid "Root-prosesser er beskyttet"
+msgstr "I processi di root sono protetti"
+
+#: crates/rigg-hw/src/sys/process.rs:235
+msgid "Prosessen tilhører en annen bruker eller har andre rettigheter"
+msgstr "Il processo appartiene a un altro utente o ha autorizzazioni diverse"
+
+#: crates/rigg-hw/src/sys/process.rs:237
+msgid "Prosessen har særskilte systemrettigheter"
+msgstr "Il processo dispone di privilegi di sistema speciali"
+
+#: crates/rigg-hw/src/sys/process.rs:242
+msgid "Kan ikke kontrollere prosessens brukerrettigheter"
+msgstr "Impossibile verificare le autorizzazioni utente del processo"
+
+#: crates/rigg-hw/src/sys/process.rs:327
+msgid "Prosesslisten er utilgjengelig"
+msgstr "L’elenco dei processi non è disponibile"

@@ -1,0 +1,121 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/widgets/chart/math.rs:25
+msgid "1 min"
+msgstr "1 min"
+
+#: crates/rigg/src/widgets/chart/math.rs:26
+msgid "5 min"
+msgstr "5 min"
+
+#: crates/rigg/src/widgets/chart/math.rs:27
+msgid "15 min"
+msgstr "15 min"
+
+#: crates/rigg/src/widgets/chart/math.rs:28
+msgid "1 t"
+msgstr "1 h"
+
+#: crates/rigg/src/widgets/chart/math.rs:29
+msgid "6 t"
+msgstr "6 h"
+
+#: crates/rigg/src/widgets/chart/math.rs:30
+msgid "24 t"
+msgstr "24 h"
+
+#: crates/rigg/src/widgets/chart/math.rs:31
+msgid "48 t"
+msgstr "48 h"
+
+#: crates/rigg/src/widgets/chart/math.rs:41
+msgid "{verdi} min"
+msgstr "{verdi} min"
+
+#: crates/rigg/src/widgets/chart/math.rs:340 crates/rigg/src/widgets/chart/math.rs:762
+msgid "nå"
+msgstr "jetzt"
+
+#: crates/rigg/src/widgets/chart/math.rs:409
+msgid "i dag {hm}"
+msgstr "heute {hm}"
+
+#: crates/rigg/src/widgets/chart/math.rs:411
+msgid "i går {hm}"
+msgstr "gestern {hm}"
+
+#: crates/rigg/src/widgets/chart/math.rs:762
+msgid "for {s}{verdi}s siden"
+msgstr "vor {s}{verdi}s"
+
+#: crates/rigg/src/widgets/chart/math.rs:768
+msgid "{head} · snitt over {over}"
+msgstr "{head} · Mittelwert über {over}"
+
+#: crates/rigg/src/widgets/chart/math.rs:809
+msgid "{now} · maks {extra}"
+msgstr "{now} · max. {extra}"
+
+#: crates/rigg/src/widgets/chart/math.rs:818
+msgid "{verdi1} = {r}{verdi2}GT/s per lane"
+msgstr "{verdi1} = {r}{verdi2}GT/s pro Lane"
+
+#: crates/rigg/src/widgets/chart/math.rs:823
+msgid "Lenken går på {aktiv} nå fordi kortet sparer strøm i tomgang, og går opp til {maks} under last. {aktiv_hastighet}, {maks_hastighet}."
+msgstr "Die Verbindung läuft bei {aktiv}, um im Leerlauf Strom zu sparen. Unter Last steigt sie auf {maks}. {aktiv_hastighet}, {maks_hastighet}."
+
+#: crates/rigg/src/widgets/chart/math.rs:825
+msgid "Lenken går på full hastighet. {verdi}."
+msgstr "Die Verbindung läuft mit voller Geschwindigkeit. {verdi}."
+
+#: crates/rigg/src/widgets/chart/math.rs:833
+msgid "Tomgang"
+msgstr "Leerlauf"
+
+#: crates/rigg/src/widgets/chart/math.rs:834
+msgid "App-klokker"
+msgstr "Anwendungstakte"
+
+#: crates/rigg/src/widgets/chart/math.rs:835
+msgid "Effektgrense"
+msgstr "Leistungsgrenze"
+
+#: crates/rigg/src/widgets/chart/math.rs:836
+msgid "HW-nedklokking"
+msgstr "HW-Taktdrosselung"
+
+#: crates/rigg/src/widgets/chart/math.rs:838
+msgid "Termisk (SW)"
+msgstr "Thermisch (SW)"
+
+#: crates/rigg/src/widgets/chart/math.rs:839
+msgid "Termisk (HW)"
+msgstr "Thermisch (HW)"
+
+#: crates/rigg/src/widgets/chart/math.rs:840
+msgid "Strømbrems (HW)"
+msgstr "Leistungsbremse (HW)"
+
+#: crates/rigg/src/widgets/chart/math.rs:841
+msgid "Skjermklokke"
+msgstr "Anzeigetakt"
+
+#: crates/rigg/src/widgets/chart/math.rs:855
+msgid "Ingen"
+msgstr "Keine"
+
+#: crates/rigg/src/widgets/chart/math.rs:882
+msgid "Over rød varselgrense (Innstillinger › Grafer og sensorer)."
+msgstr "Über dem kritischen Grenzwert (Einstellungen › Diagramme und Sensoren)."
+
+#: crates/rigg/src/widgets/chart/math.rs:883
+msgid "Over gul varselgrense (Innstillinger › Grafer og sensorer)."
+msgstr "Über der Warnschwelle (Einstellungen › Diagramme und Sensoren)."

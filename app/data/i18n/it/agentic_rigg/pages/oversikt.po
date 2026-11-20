@@ -1,0 +1,411 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/pages/oversikt.rs:88 crates/rigg/src/pages/oversikt.rs:99
+msgid "Prosessor"
+msgstr "Processore"
+
+#: crates/rigg/src/pages/oversikt.rs:89 crates/rigg/src/pages/oversikt.rs:740
+msgid "Skjermkort"
+msgstr "Scheda video"
+
+#: crates/rigg/src/pages/oversikt.rs:90 crates/rigg/src/pages/oversikt.rs:620 crates/rigg/src/pages/oversikt.rs:652
+msgid "Minne"
+msgstr "Memoria"
+
+#: crates/rigg/src/pages/oversikt.rs:92 crates/rigg/src/pages/oversikt.rs:102
+msgid "Disker"
+msgstr "Unità"
+
+#: crates/rigg/src/pages/oversikt.rs:93 crates/rigg/src/pages/oversikt.rs:1065
+msgid "Nettverk"
+msgstr "Rete"
+
+#: crates/rigg/src/pages/oversikt.rs:100 crates/rigg/src/pages/oversikt.rs:744
+msgid "Grafikkort"
+msgstr "Scheda video"
+
+#: crates/rigg/src/pages/oversikt.rs:101
+msgid "System"
+msgstr "Sistema"
+
+#: crates/rigg/src/pages/oversikt.rs:103
+msgid "Klokker og effekt"
+msgstr "Frequenze e potenza"
+
+#: crates/rigg/src/pages/oversikt.rs:104
+msgid "Sensorer"
+msgstr "Sensori"
+
+#: crates/rigg/src/pages/oversikt.rs:196
+msgid "{what}\nSparklinja er siste minutt. Klikk for {side}."
+msgstr "{what}\nIl minigrafico mostra l’ultimo minuto. Fai clic per aprire {side}."
+
+#: crates/rigg/src/pages/oversikt.rs:235
+msgid "Prosessor: total last, temperatur (Tdie) og snittklokke over trådene."
+msgstr "Processore: utilizzo totale, temperatura (Tdie) e frequenza media dei thread."
+
+#: crates/rigg/src/pages/oversikt.rs:252
+msgid "Ny driver"
+msgstr "Nuovo driver"
+
+#: crates/rigg/src/pages/oversikt.rs:252
+msgid "Ingen driver"
+msgstr "Nessun driver"
+
+#: crates/rigg/src/pages/oversikt.rs:254
+msgid "start maskinen på nytt"
+msgstr "riavvia il computer"
+
+#: crates/rigg/src/pages/oversikt.rs:254
+msgid "fant ikke NVIDIA-driveren"
+msgstr "driver NVIDIA non trovato"
+
+#: crates/rigg/src/pages/oversikt.rs:255
+msgid "En ny NVIDIA-driver er installert, men den gamle kjører fortsatt."
+msgstr "È stato installato un nuovo driver NVIDIA, ma quello precedente è ancora in uso."
+
+#: crates/rigg/src/pages/oversikt.rs:255
+msgid "Fant ingen NVIDIA-driver. Prosessor, minne og disker vises som vanlig."
+msgstr "Nessun driver NVIDIA trovato. Processore, memoria e unità sono mostrati come di consueto."
+
+#: crates/rigg/src/pages/oversikt.rs:258
+msgid "svarer ikke"
+msgstr "non risponde"
+
+#: crates/rigg/src/pages/oversikt.rs:259
+msgid "Skjermkortet svarer ikke. Tjenesten prøver å finne det igjen hvert 10. s."
+msgstr "La GPU non risponde. Il servizio tenta di rilevarla di nuovo ogni 10 s."
+
+#: crates/rigg/src/pages/oversikt.rs:269
+msgid "{brukt} av {totalt}"
+msgstr "{brukt} di {totalt}"
+
+#: crates/rigg/src/pages/oversikt.rs:276
+msgid "Skjermkort: GPU-last, temperatur, effekt av effektgrensen og P-tilstand (P0 er full ytelse, P8 er tomgang)."
+msgstr "Scheda video: utilizzo GPU, temperatura, assorbimento rispetto al limite di potenza e stato di prestazioni (P0 è massime prestazioni, P8 è inattività)."
+
+#: crates/rigg/src/pages/oversikt.rs:289 crates/rigg/src/pages/oversikt.rs:304
+msgid "av {verdi}"
+msgstr "di {verdi}"
+
+#: crates/rigg/src/pages/oversikt.rs:291
+msgid "Minne: det programmene bruker, av totalt. Buffer og cache er ikke med."
+msgstr "Memoria: quota del totale usata dalle applicazioni, senza buffer né cache."
+
+#: crates/rigg/src/pages/oversikt.rs:306
+msgid "Videominne brukt på skjermkortet, av totalt. Gult over 85 %, rødt over 95 %."
+msgstr "Memoria video usata sul totale della scheda. Giallo oltre l’85%, rosso oltre il 95%."
+
+#: crates/rigg/src/pages/oversikt.rs:316
+msgid "ingen disker"
+msgstr "nessuna unità"
+
+#: crates/rigg/src/pages/oversikt.rs:323
+msgid "maks {verdi}"
+msgstr "max {verdi}"
+
+#: crates/rigg/src/pages/oversikt.rs:324
+msgid "uten temperatur"
+msgstr "senza lettura di temperatura"
+
+#: crates/rigg/src/pages/oversikt.rs:336
+msgid "Disker: samlet hastighet (lesing og skriving), varmeste disk og SMART-helsa.\n{helse}\nSparklinja er siste minutt. Klikk for Disker."
+msgstr "Unità: velocità complessiva di lettura e scrittura, unità più calda e stato SMART.\n{helse}\nIl minigrafico mostra l’ultimo minuto. Fai clic per aprire Unità."
+
+#: crates/rigg/src/pages/oversikt.rs:344
+msgid "{fail} feil"
+msgid_plural "{fail} med feil"
+msgstr[0] "{fail} con errori"
+msgstr[1] "{fail} con errori"
+
+#: crates/rigg/src/pages/oversikt.rs:348
+msgid "alle OK"
+msgstr "tutte OK"
+
+#: crates/rigg/src/pages/oversikt.rs:350
+msgid "helse ukjent"
+msgstr "stato sconosciuto"
+
+#: crates/rigg/src/pages/oversikt.rs:364
+msgid "{u} ned"
+msgstr "{u} download"
+
+#: crates/rigg/src/pages/oversikt.rs:368
+msgid "{verdi} opp"
+msgstr "{verdi} upload"
+
+#: crates/rigg/src/pages/oversikt.rs:369
+msgid "Nettverk: mottatt og sendt over de fysiske nettverkskortene."
+msgstr "Rete: traffico ricevuto e inviato sulle schede di rete fisiche."
+
+#: crates/rigg/src/pages/oversikt.rs:415
+msgid "Skjermkortet svarer ikke"
+msgstr "La GPU non risponde"
+
+#: crates/rigg/src/pages/oversikt.rs:417
+msgid "siden {s} · tjenesten prøver igjen hvert 10. s"
+msgstr "dalle {s} · il servizio riprova ogni 10 s"
+
+#: crates/rigg/src/pages/oversikt.rs:418
+msgid "tjenesten prøver igjen hvert 10. s"
+msgstr "il servizio riprova ogni 10 s"
+
+#: crates/rigg/src/pages/oversikt.rs:422
+msgid "Driveren er oppdatert"
+msgstr "Driver aggiornato"
+
+#: crates/rigg/src/pages/oversikt.rs:422
+msgid "start maskinen på nytt for å lese skjermkortet"
+msgstr "riavvia il computer per leggere i dati della GPU"
+
+#: crates/rigg/src/pages/oversikt.rs:423
+msgid "Fant ingen NVIDIA-driver"
+msgstr "Nessun driver NVIDIA trovato"
+
+#: crates/rigg/src/pages/oversikt.rs:423
+msgid "prosessor, minne og disker vises som vanlig"
+msgstr "processore, memoria e unità sono mostrati come di consueto"
+
+#: crates/rigg/src/pages/oversikt.rs:429
+msgid "Skjermkortet nedklokker"
+msgstr "La GPU riduce la frequenza"
+
+#: crates/rigg/src/pages/oversikt.rs:435
+msgid "over nedklokkingsgrensen ({verdi})"
+msgstr "oltre la soglia di riduzione di frequenza ({verdi})"
+
+#: crates/rigg/src/pages/oversikt.rs:435
+msgid "ved nedklokkingsgrensen ({verdi})"
+msgstr "alla soglia di riduzione di frequenza ({verdi})"
+
+#: crates/rigg/src/pages/oversikt.rs:438 crates/rigg/src/pages/oversikt.rs:447
+msgid "over rød grense ({verdi})"
+msgstr "oltre la soglia critica ({verdi})"
+
+#: crates/rigg/src/pages/oversikt.rs:440 crates/rigg/src/pages/oversikt.rs:449
+msgid "over gul grense ({verdi})"
+msgstr "oltre la soglia di avviso ({verdi})"
+
+#: crates/rigg/src/pages/oversikt.rs:453
+msgid "Minne {verdi}"
+msgstr "Memoria {verdi}"
+
+#: crates/rigg/src/pages/oversikt.rs:453
+msgid "nesten fullt"
+msgstr "quasi piena"
+
+#: crates/rigg/src/pages/oversikt.rs:461
+msgid "se SMART"
+msgstr "vedi SMART"
+
+#: crates/rigg/src/pages/oversikt.rs:530
+msgid "{status} {detalj}. Klikk for {side}."
+msgstr "{status} {detalj}. Fai clic per aprire {side}."
+
+#: crates/rigg/src/pages/oversikt.rs:548
+msgid "Tilstand: {summary}"
+msgstr "Stato: {summary}"
+
+#: crates/rigg/src/pages/oversikt.rs:590
+msgid "Last"
+msgstr "Utilizzo"
+
+#: crates/rigg/src/pages/oversikt.rs:613
+msgid "Temperaturer"
+msgstr "Temperature"
+
+#: crates/rigg/src/pages/oversikt.rs:652
+msgid "Minne og VRAM"
+msgstr "Memoria e VRAM"
+
+#: crates/rigg/src/pages/oversikt.rs:687
+msgid "Temperatur og effekt"
+msgstr "Temperatura e potenza"
+
+#: crates/rigg/src/pages/oversikt.rs:696 crates/rigg/src/pages/oversikt.rs:711
+msgid "GPU-temperatur"
+msgstr "Temperatura GPU"
+
+#: crates/rigg/src/pages/oversikt.rs:709
+msgid "Høyeste GPU-temperatur de siste 5 minuttene"
+msgstr "Temperatura GPU più alta negli ultimi 5 minuti"
+
+#: crates/rigg/src/pages/oversikt.rs:722 crates/rigg/src/pages/oversikt.rs:729 crates/rigg/src/pages/oversikt.rs:1061
+msgid "GPU-effekt"
+msgstr "Potenza GPU"
+
+#: crates/rigg/src/pages/oversikt.rs:747
+msgid "Alt driveren og kortet oppgir, på Grafikkort"
+msgstr "Tutti i dati del driver e della scheda sono nella pagina Scheda video"
+
+#: crates/rigg/src/pages/oversikt.rs:755
+msgid "Kjerneklokke"
+msgstr "Frequenza del core"
+
+#: crates/rigg/src/pages/oversikt.rs:755
+msgid "Minneklokke"
+msgstr "Frequenza memoria"
+
+#: crates/rigg/src/pages/oversikt.rs:766
+msgid "Nå og kortets høyeste (fra driveren)"
+msgstr "Frequenza attuale e massima della scheda (secondo il driver)"
+
+#: crates/rigg/src/pages/oversikt.rs:770
+msgid "Vifter"
+msgstr "Ventole"
+
+#: crates/rigg/src/pages/oversikt.rs:771
+msgid "Viftestyring"
+msgstr "Controllo ventole"
+
+#: crates/rigg/src/pages/oversikt.rs:773
+msgid "Video (enc / dek)"
+msgstr "Video (cod. / dec.)"
+
+#: crates/rigg/src/pages/oversikt.rs:774
+msgid "Last på maskinvarens videokoder (encoder) og -dekoder (decoder)."
+msgstr "Utilizzo del codificatore e del decodificatore video hardware."
+
+#: crates/rigg/src/pages/oversikt.rs:804
+msgid "maks 5 min: {verdi}"
+msgstr "Max 5 min: {verdi}"
+
+#: crates/rigg/src/pages/oversikt.rs:819
+msgid " · {verdi} under nedklokking"
+msgstr " · {verdi} sotto la soglia di riduzione di frequenza"
+
+#: crates/rigg/src/pages/oversikt.rs:821
+msgid " · over nedklokkingsgrensen"
+msgstr " · oltre la soglia di riduzione di frequenza"
+
+#: crates/rigg/src/pages/oversikt.rs:823
+msgid " · ved nedklokkingsgrensen"
+msgstr " · alla soglia di riduzione di frequenza"
+
+#: crates/rigg/src/pages/oversikt.rs:827
+msgid " · over rød grense ({verdi})"
+msgstr " · oltre la soglia critica ({verdi})"
+
+#: crates/rigg/src/pages/oversikt.rs:828
+msgid " · over gul grense ({verdi})"
+msgstr " · oltre la soglia di avviso ({verdi})"
+
+#: crates/rigg/src/pages/oversikt.rs:840
+msgid "Mål"
+msgstr "Obiettivo"
+
+#: crates/rigg/src/pages/oversikt.rs:840
+msgid "Nedklokking"
+msgstr "Riduzione di frequenza"
+
+#: crates/rigg/src/pages/oversikt.rs:843 crates/rigg/src/pages/oversikt.rs:847
+msgid "Avstenging"
+msgstr "Spegnimento"
+
+#: crates/rigg/src/pages/oversikt.rs:847 crates/rigg/src/pages/oversikt.rs:892
+msgid "Nå"
+msgstr "Attuale"
+
+#: crates/rigg/src/pages/oversikt.rs:848
+msgid "Fra {min} til avstenging ({avstenging}). Over målet ({target}) senker kortet klokken litt, ved {nedklokking} tvinger det nedklokking. Gul og rød fyll betyr over varselgrensene {gul} og {red} (Innstillinger › Grafer og sensorer)."
+msgstr "Da {min} allo spegnimento ({avstenging}). Sopra l’obiettivo ({target}) la scheda riduce leggermente la frequenza. A {nedklokking} la riduzione è forzata. Il riempimento giallo e rosso indica il superamento delle soglie {gul} e {red} (Impostazioni › Grafici e sensori)."
+
+#: crates/rigg/src/pages/oversikt.rs:852 crates/rigg/src/pages/oversikt.rs:897 crates/rigg/src/pages/oversikt.rs:939
+msgid "Ikke støttet"
+msgstr "Non supportato"
+
+#: crates/rigg/src/pages/oversikt.rs:866
+msgid "{trekk} av {grense}"
+msgstr "{trekk} su {grense}"
+
+#: crates/rigg/src/pages/oversikt.rs:873
+msgid "Grense (standard)"
+msgstr "Limite (predefinito)"
+
+#: crates/rigg/src/pages/oversikt.rs:873
+msgid "Grense"
+msgstr "Limite"
+
+#: crates/rigg/src/pages/oversikt.rs:875
+msgid "Standard"
+msgstr "Predefinito"
+
+#: crates/rigg/src/pages/oversikt.rs:879
+msgid " Grensen kan settes fra {min} til {maks}."
+msgstr " Il limite si può impostare tra {min} e {maks}."
+
+#: crates/rigg/src/pages/oversikt.rs:884 crates/rigg/src/pages/oversikt.rs:892
+msgid "Kortets maks"
+msgstr "Massimo della scheda"
+
+#: crates/rigg/src/pages/oversikt.rs:893
+msgid "Trekket nå mot effektgrensen, snitt fra energitelleren. Gult fyll betyr at kortet er ved grensen og holder igjen.{range}"
+msgstr "Assorbimento attuale rispetto al limite di potenza, come media dal contatore di energia. Il riempimento giallo indica che la scheda è al limite e riduce le prestazioni.{range}"
+
+#: crates/rigg/src/pages/oversikt.rs:895
+msgid "{verdi} av grensen"
+msgstr "{verdi} del limite"
+
+#: crates/rigg/src/pages/oversikt.rs:906
+msgid "ingen begrensning"
+msgstr "nessuna limitazione"
+
+#: crates/rigg/src/pages/oversikt.rs:913
+msgid "P0 er full ytelse, P8 er dyp tomgang. Kortet bytter selv."
+msgstr "P0 è lo stato di massime prestazioni, P8 quello di inattività profonda. La scheda cambia stato automaticamente."
+
+#: crates/rigg/src/pages/oversikt.rs:915
+msgid "\nBegrensninger nå: {full}."
+msgstr "\nLimitazioni attuali: {full}."
+
+#: crates/rigg/src/pages/oversikt.rs:917
+msgid "\nKlokken begrenses nå av: {x}."
+msgstr "\nLa frequenza è attualmente limitata da: {x}."
+
+#: crates/rigg/src/pages/oversikt.rs:920
+msgid "\nI P8 leses ikke begrensningene (kallet koster 25 ms og vekker kortet)."
+msgstr "\nIn P8 non si leggono le cause di limitazione (la richiesta impiega 25 ms e risveglia la scheda)."
+
+#: crates/rigg/src/pages/oversikt.rs:937
+msgid "{verdi1} · {verdi2} o/min"
+msgstr "{verdi1} · {verdi2} o/min"
+
+#: crates/rigg/src/pages/oversikt.rs:944
+msgid "Auto · driveren styrer"
+msgstr "Auto · gestito dal driver"
+
+#: crates/rigg/src/pages/oversikt.rs:944
+msgid "Driveren styrer viftene etter temperaturen, som uten appen."
+msgstr "Il driver regola le ventole in base alla temperatura, come quando l’app non è in uso."
+
+#: crates/rigg/src/pages/oversikt.rs:945
+msgid "Manuell · satt utenfor appen"
+msgstr "Manuale · impostato fuori dall’app"
+
+#: crates/rigg/src/pages/oversikt.rs:945
+msgid "Minst én vifte er satt til fast fart utenfor appen."
+msgstr "Almeno una ventola è stata impostata a velocità fissa fuori dall’app."
+
+#: crates/rigg/src/pages/oversikt.rs:946
+msgid "Viftestyringen er ikke lest ennå, eller kortet oppgir den ikke."
+msgstr "Il controllo delle ventole non è ancora stato letto o la scheda non lo comunica."
+
+#: crates/rigg/src/pages/oversikt.rs:955
+msgid "PCIe-lenken mellom kortet og hovedkortet."
+msgstr "Il collegamento PCIe tra la scheda video e la scheda madre."
+
+#: crates/rigg/src/pages/oversikt.rs:1064
+msgid "Disk-I/O"
+msgstr "I/O disco"
+
+#: crates/rigg/src/pages/oversikt.rs:1096
+msgid "Tidsvindu for grafene på Oversikt"
+msgstr "Intervallo dei grafici in Panoramica"

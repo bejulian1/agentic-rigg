@@ -1,0 +1,121 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/widgets/chart/math.rs:25
+msgid "1 min"
+msgstr "1 分"
+
+#: crates/rigg/src/widgets/chart/math.rs:26
+msgid "5 min"
+msgstr "5 分"
+
+#: crates/rigg/src/widgets/chart/math.rs:27
+msgid "15 min"
+msgstr "15 分"
+
+#: crates/rigg/src/widgets/chart/math.rs:28
+msgid "1 t"
+msgstr "1 時間"
+
+#: crates/rigg/src/widgets/chart/math.rs:29
+msgid "6 t"
+msgstr "6 時間"
+
+#: crates/rigg/src/widgets/chart/math.rs:30
+msgid "24 t"
+msgstr "24 時間"
+
+#: crates/rigg/src/widgets/chart/math.rs:31
+msgid "48 t"
+msgstr "48 時間"
+
+#: crates/rigg/src/widgets/chart/math.rs:41
+msgid "{verdi} min"
+msgstr "{verdi} 分"
+
+#: crates/rigg/src/widgets/chart/math.rs:340 crates/rigg/src/widgets/chart/math.rs:762
+msgid "nå"
+msgstr "現在"
+
+#: crates/rigg/src/widgets/chart/math.rs:409
+msgid "i dag {hm}"
+msgstr "今日 {hm}"
+
+#: crates/rigg/src/widgets/chart/math.rs:411
+msgid "i går {hm}"
+msgstr "昨日 {hm}"
+
+#: crates/rigg/src/widgets/chart/math.rs:762
+msgid "for {s}{verdi}s siden"
+msgstr "{s}{verdi}s 前"
+
+#: crates/rigg/src/widgets/chart/math.rs:768
+msgid "{head} · snitt over {over}"
+msgstr "{head} · {over} の平均"
+
+#: crates/rigg/src/widgets/chart/math.rs:809
+msgid "{now} · maks {extra}"
+msgstr "{now} · 最大 {extra}"
+
+#: crates/rigg/src/widgets/chart/math.rs:818
+msgid "{verdi1} = {r}{verdi2}GT/s per lane"
+msgstr "{verdi1} = 1 レーンあたり {r}{verdi2}GT/s"
+
+#: crates/rigg/src/widgets/chart/math.rs:823
+msgid "Lenken går på {aktiv} nå fordi kortet sparer strøm i tomgang, og går opp til {maks} under last. {aktiv_hastighet}, {maks_hastighet}."
+msgstr "アイドル時の消費電力を抑えるため、リンクは {aktiv} で動作中です。負荷がかかると {maks} に上がります。{aktiv_hastighet}、{maks_hastighet}。"
+
+#: crates/rigg/src/widgets/chart/math.rs:825
+msgid "Lenken går på full hastighet. {verdi}."
+msgstr "リンクは最高速度で動作中です。{verdi}。"
+
+#: crates/rigg/src/widgets/chart/math.rs:833
+msgid "Tomgang"
+msgstr "アイドル"
+
+#: crates/rigg/src/widgets/chart/math.rs:834
+msgid "App-klokker"
+msgstr "アプリケーションクロック"
+
+#: crates/rigg/src/widgets/chart/math.rs:835
+msgid "Effektgrense"
+msgstr "電力制限"
+
+#: crates/rigg/src/widgets/chart/math.rs:836
+msgid "HW-nedklokking"
+msgstr "ハードウェアによるクロック低下"
+
+#: crates/rigg/src/widgets/chart/math.rs:838
+msgid "Termisk (SW)"
+msgstr "温度制限 (SW)"
+
+#: crates/rigg/src/widgets/chart/math.rs:839
+msgid "Termisk (HW)"
+msgstr "温度制限 (HW)"
+
+#: crates/rigg/src/widgets/chart/math.rs:840
+msgid "Strømbrems (HW)"
+msgstr "電力ブレーキ (HW)"
+
+#: crates/rigg/src/widgets/chart/math.rs:841
+msgid "Skjermklokke"
+msgstr "ディスプレイクロック"
+
+#: crates/rigg/src/widgets/chart/math.rs:855
+msgid "Ingen"
+msgstr "なし"
+
+#: crates/rigg/src/widgets/chart/math.rs:882
+msgid "Over rød varselgrense (Innstillinger › Grafer og sensorer)."
+msgstr "危険しきい値を超えています (設定 › グラフとセンサー)。"
+
+#: crates/rigg/src/widgets/chart/math.rs:883
+msgid "Over gul varselgrense (Innstillinger › Grafer og sensorer)."
+msgstr "警告しきい値を超えています (設定 › グラフとセンサー)。"
