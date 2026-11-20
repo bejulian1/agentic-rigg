@@ -1,6 +1,13 @@
 # Root-hjelperen · sikkerhet og begrensninger
 
-**Separat RGB-arbeid:** NVML-modellen nedenfor gir ingen RGB-tillatelse. Den pågående featurebranchen har en egen [RGB-hjelper med privat journal og protokoll](rgb-hjelper.md), uten delt socket, grunnopptak eller lease. Den er ikke installert eller fysisk verifisert; vanlig GPU-start aktiverer den ikke.
+## Gjeldende installasjon på denne featuregrenen
+
+GPU- og RGB-styring er separate tillatelser. Den 20. november 2026 ble fast blått og tilbakeføring til grønt fysisk bekreftet på ett Palit RTX 2080 Super JetStream; testtilgangen ble deretter deaktivert. Den nye installasjonsflyten og de transiente systemd-enhetene er ikke prøvd på fysisk maskinvare. [Systeminstallasjon, bygg fra kilde, arkivering og avinstallasjon](rgb-hjelper.md#betrodd-installasjon-og-administratoraktivering) gjelder **begge** hjelperne. Versjonshistorikken nedenfor beskriver tidligere utgaver, ikke gjeldende installasjonsinstrukser.
+
+- Systeminstallereren kopierer og verifiserer pakken før noen kode fra den kjøres. Brukerinstallasjonen fjerner gamle kjente brukerkopier og starter aldri root-kode. Det finnes ingen `--kilde` i den installerte NVML-aktiveringen. Testrot, simulert systemd og UID-overstyring er bare tilgjengelige i kildefixturen med eksplisitt privat rot.
+- NVML bruker faste root-eide skript, nye polkit-handlinger uten `keep`, faktisk `PKEXEC_UID` og kortets PCI/UUID. Installereren stopper eldre tjeneste, nekter utskifting ved uavklart journal og fjerner gammel autorisasjon. **Én ny NVML-aktivering etter systeminstallasjonen er påkrevd.** Valg av kort eller profil kan ikke fornye tillatelsen.
+- Gyldige protokoll-2-meldinger er uendret. Dupliserte JSON-felt avvises før dispatch, også i underobjekter. Minimumsbygg er **24**. Siden denne uutgitte grenen deler byggnummer med gamle binærer, må status også oppgi `strictRequests: true`. Både første og løpende status bruker samme kontroll; en gammel 24-binær kommer ikke rundt sperren.
+- NVML-deaktivering krever riktig UID, ikke et kort som fortsatt finnes i appen. Tjenesten stoppes; uavklarte egne endringer må gjenopprettes for det opprinnelige kortet. Ved permanent fjernet kort kan bare administrator arkivere den stoppede tilstanden, uten å bekrefte fysisk gjenoppretting. Installert programkode og polkit fjernes separat med `system-install --uninstall`.
 
 ## UI-kompatibilitet · 1.4.1, bygg 24
 
@@ -10,7 +17,7 @@ Ved sikkerhetsrettinger som eldre hjelpere ikke må få omgå, skal minimumsbygg
 
 **Presisering om viftestopp i 1.4.1:** Det rapporterte manuelle området 35–100 % avgjør ikke om automatisk styring kan stoppe viftene. [NVIDIAs beskrivelse av `nvmlDeviceGetMinMaxFanSpeed`](https://docs.nvidia.com/deploy/nvml-api/latest/api/group__nvmlDeviceQueries.html) gjelder hva brukeren kan sette. Automatisk Zero RPM er ubekreftet på dette kortet. Eldre historikk nedenfor som tilskriver 35 %-grensen en fysisk VBIOS-begrensning er derfor for bastant og skal ikke brukes som gjeldende konklusjon. Teksten er korrigert uten backend-/grenseendring, nye skrivekall eller 0 %-prøve.
 
-## Gjeldende modell · 1.4.0, bygg 23 · 14. november 2026
+## Historisk modell · 1.4.0, bygg 23 · 14. november 2026
 
 Dette avsnittet erstatter den tidligere modellens fire godkjenningstrinn og absolutte NVML-skrivelås. Historikken fra 1.2.0 er bevart lenger ned. Brukeren har autorisert implementasjon av kortbundet GPU-styring gjennom én administratoraktivering. RGB/I2C, CPU, hovedkortvifter, systempakker og kjernemoduler inngår ikke i denne styringen.
 

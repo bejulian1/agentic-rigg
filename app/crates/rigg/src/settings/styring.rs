@@ -1,13 +1,4 @@
 //! Innstillinger › Skjermkortstyring: én administratoraktivering og støtte per funksjon.
-//!
-//! Bryteren kjører `pkexec <mappe>/aktiver.sh` eller `deaktiver.sh`. Det er
-//! brukerens egen handling: passordvinduet kommer fra polkit, og skriptene
-//! står i `app/data/hjelper/` (lagt i `~/.local/share/agentic-rigg/hjelper/`
-//! av `install.sh`). I utviklerprofilen kan `RIGG_PKEXEC` peke på en falsk
-//! pkexec (`scripts/falsk-pkexec.sh`), `RIGG_HJELPER_DATA` på mappa med
-//! skriptene og `RIGG_HJELPER_ROT` på en falsk rot. Utenfor `dev` brukes de
-//! aldri.
-//!
 use super::{Group, GroupOpts, custom_row, group, live, request_render, row};
 use crate::state::App;
 use crate::toast::Toast;
@@ -16,7 +7,7 @@ use crate::widgets::rows::KvList;
 use crate::widgets::{button, hbox, label};
 use gtk::glib;
 use gtk::prelude::*;
-use rigg_core::hjelper::{Paths, Step};
+use rigg_core::hjelper::Step;
 use std::cell::Cell;
 use std::path::PathBuf;
 use std::rc::Rc;
@@ -26,42 +17,26 @@ thread_local! {
     static BUSY: Cell<bool> = const { Cell::new(false) };
 }
 
-/// pkexec: den ekte, eller den falske i utviklerprofilen.
-fn pkexec(app: &App) -> PathBuf {
-    if app.profile.is_dev()
-        && let Some(p) = std::env::var_os("RIGG_PKEXEC").filter(|p| !p.is_empty())
-    {
-        return p.into();
-    }
-    PathBuf::from("/usr/bin/pkexec")
-}
-
-/// Mappa med skriptene brukeren selv har installert (`install.sh`).
 fn data_dir(app: &App) -> PathBuf {
-    if app.profile.is_dev()
-        && let Some(p) = std::env::var_os("RIGG_HJELPER_DATA").filter(|p| !p.is_empty())
-    {
-        return p.into();
+    if app.profile.is_dev() {
+        return std::env::var_os("RIGG_HJELPER_DATA").map(PathBuf::from).unwrap_or_default();
     }
-    let base = std::env::var_os("XDG_DATA_HOME").filter(|p| !p.is_empty()).map(PathBuf::from).unwrap_or_else(|| PathBuf::from(std::env::var_os("HOME").unwrap_or_default()).join(".local/share"));
-    base.join("agentic-rigg/hjelper")
+    PathBuf::from("/usr/local/libexec/agentic-rigg")
 }
 
-/// Roten der hjelperen ligger når den er aktivert (`/`, eller falsk i dev).
-fn root(app: &App) -> Paths {
-    match std::env::var_os("RIGG_HJELPER_ROT") {
-        Some(r) if app.profile.is_dev() && !r.is_empty() => Paths::new(r),
-        _ => Paths::new("/"),
+fn admin(app: &App) -> Option<PathBuf> {
+    if app.profile.is_dev() {
+        let fake = PathBuf::from(std::env::var_os("RIGG_PKEXEC")?);
+        let root = PathBuf::from(std::env::var_os("RIGG_HJELPER_ROT")?);
+        return (fake.ends_with("falsk-pkexec.sh") && fake.is_absolute() && fake.canonicalize().is_ok_and(|path| path == fake) && root.starts_with("/tmp")
+            && data_dir(app).is_absolute() && app.data.borrow().backend.starts_with("sim")).then_some(fake);
     }
+    let dir = data_dir(app);
+    (!app.data.borrow().backend.starts_with("sim") && crate::system_install::ready()
+        && [PathBuf::from("/usr/local/libexec/agentic-rigg-helper"), dir.join("agentic-rigg-helper.service"), dir.join("aktiver.sh"), dir.join("deaktiver.sh"), dir.join("nvml-admin.py"),
+            PathBuf::from("/usr/share/polkit-1/actions/io.github.AgenticRigg.helper.policy")]
+            .iter().all(|path| crate::system_install::trusted(path))).then(|| "/usr/bin/pkexec".into())
 }
-
-/// Deaktiveringen kjøres helst fra kopien bare root kan endre.
-fn deactivate_script(app: &App) -> PathBuf {
-    let own = root(app).libexec("deaktiver.sh");
-    if own.exists() { own } else { data_dir(app).join("deaktiver.sh") }
-}
-
-
 
 /// Statusen i klartekst. Merket foran sier tilstanden (Av, På, Feil), så
 /// teksten gjentar den ikke. Det tekniske står i verktøytipset ([`state_tip`]).
@@ -74,7 +49,7 @@ fn state_text(app: &App) -> String {
         "on" if locked::gate(app) == rigg_core::txn::Gate::Sim => "Simulert styring. Det ekte skjermkortet endres ikke.".into(),
         "on" | "error" => h["message"].as_str().unwrap_or("Hjelperen er ikke klar for kortet som vises. Se funksjonsstøtten under, eller trykk Sjekk igjen.").into(),
         "outdated" => "Hjelperen må oppdateres. Slå bryteren av og på igjen for å aktivere denne versjonen.".into(),
-        _ if !data_dir(app).join("aktiver.sh").exists() => "Hjelperfilene mangler. Installer den nye appversjonen først.".into(),
+        _ if admin(app).is_none() => "Systemkomponentene mangler eller må oppdateres.".into(),
         _ => "Bare visning. Endring av skjermkortet er slått av.".into(),
     }
 }
@@ -96,8 +71,8 @@ fn state_tip(app: &App) -> Option<String> {
 }
 
 /// Kjører `pkexec PROGRAM ARG…` uten å blokkere vinduet. `done(kode, feil)`.
-fn run_pkexec(app: &Rc<App>, program: PathBuf, args: Vec<String>, done: impl FnOnce(i32, String) + 'static) {
-    let mut argv: Vec<std::ffi::OsString> = vec![pkexec(app).into_os_string(), program.into_os_string()];
+fn run_pkexec(pkexec: PathBuf, program: PathBuf, args: Vec<String>, done: impl FnOnce(i32, String) + 'static) {
+    let mut argv: Vec<std::ffi::OsString> = vec![pkexec.into_os_string(), program.into_os_string()];
     argv.extend(args.into_iter().map(Into::into));
     let refs: Vec<&std::ffi::OsStr> = argv.iter().map(|a| a.as_os_str()).collect();
     // Unntaket fra «ingen programmer» (clippy.toml): brukeren slo selv på
@@ -131,6 +106,8 @@ fn failure(code: i32, err: &str, what: &str) -> Option<Toast> {
 
 pub(crate) fn toggle(app: &Rc<App>, on: bool) {
     if BUSY.with(Cell::get) { return; }
+    let Some(pkexec) = admin(app) else { return };
+    if on && !app.profile.is_dev() && app.data.borrow().backend != "nvml" { return; }
     let args = if on {
         let Some(pci) = app.gpu_id() else {
             app.toast(Toast::new("Ingen skjermkort valgt").error());
@@ -144,9 +121,9 @@ pub(crate) fn toggle(app: &Rc<App>, on: bool) {
     } else { Vec::new() };
     BUSY.with(|b| b.set(true));
     request_render();
-    let (program, what) = if on { (data_dir(app).join("aktiver.sh"), "aktivere styring") } else { (deactivate_script(app), "slå av styring") };
+    let (program, what) = if on { (data_dir(app).join("aktiver.sh"), "aktivere styring") } else { (data_dir(app).join("deaktiver.sh"), "slå av styring") };
     let a = app.clone();
-    run_pkexec(app, program, args, move |code, err| {
+    run_pkexec(pkexec, program, args, move |code, err| {
         BUSY.with(|b| b.set(false));
         let a2 = a.clone();
         locked::refresh_helper(&a, move || {
@@ -155,7 +132,7 @@ pub(crate) fn toggle(app: &Rc<App>, on: bool) {
                 Some(t) => a2.toast(t),
                 None if on && matches!(locked::gate(&a2), rigg_core::txn::Gate::Real | rigg_core::txn::Gate::Sim) => a2.toast(Toast::new("Skjermkortstyring er aktivert").body("Velg endringer og trykk Bruk. Behold dem innen fristen, ellers rulles de tilbake.").ms(5000)),
                 None if on => a2.toast(Toast::new("Hjelperen er installert, men styring er ikke klar").body(&state_text(&a2)).error()),
-                None => a2.toast(Toast::new("Skjermkortstyring er slått av").body("Hjelperen har gjenopprettet utgangspunktet og er fjernet.").ms(4000)),
+                None => a2.toast(Toast::new("Skjermkortstyring er slått av").body("Hjelperen har gjenopprettet utgangspunktet og tillatelsen er fjernet.").ms(4000)),
             }
         });
     });
@@ -228,7 +205,7 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     sw.set_state(active);
     sw.set_valign(gtk::Align::Center);
     sw.update_property(&[gtk::accessible::Property::Label("Tillat endring av skjermkortet")]);
-    let can = app.client.is_connected() && (active || data_dir(app).join("aktiver.sh").exists());
+    let can = app.client.is_connected() && admin(app).is_some() && (active || app.profile.is_dev() || app.data.borrow().backend == "nvml");
     sw.set_sensitive(can && !busy);
     {
         let a = app.clone();
@@ -292,14 +269,18 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     status_row.widget.add_css_class("set-row");
     status_row.widget.add_css_class("helper-status-row");
 
+    let mut rows = vec![main_row, status_row];
+    if !app.profile.is_dev() && (active || app.data.borrow().backend == "nvml") && admin(app).is_none() {
+        rows.push(custom_row(&crate::system_install::prompt(), "systemkomponenter installasjon"));
+    }
     let toggle_group = group(
         "Endring av skjermkortet",
         GroupOpts {
-            note: Some("Slår du bryteren av, gjenopprettes det lagrede utgangspunktet før hjelperen fjernes. En feil vises hvis gjenopprettingen ikke kan bekreftes. Slå av styring før avinstallasjon."),
+            note: Some("Slår du bryteren av, gjenopprettes det lagrede utgangspunktet før tillatelsen fjernes. En feil vises hvis gjenopprettingen ikke kan bekreftes. Slå av styring før avinstallasjon."),
             k: "bryter av på status",
             ..Default::default()
         },
-        vec![main_row, status_row],
+        rows,
     );
 
     // ---- Hva bryteren legger inn ----

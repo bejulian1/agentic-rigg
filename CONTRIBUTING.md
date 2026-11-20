@@ -43,6 +43,10 @@ cd app
 CARGO_TARGET_DIR=$HOME/.cache/rigg-build cargo build --release --locked --workspace
 ```
 
+### Installing the optional system helpers
+
+The desktop installer is unprivileged. Never use `sudo ./install.sh` or run a wrapper from a checkout, home directory or extracted download as root. For a release use the [verified archive bootstrap](docs/produksjon/rgb-hjelper.md#betrodd-installasjon-og-administratoraktivering) and the archive SHA-256 obtained independently from the Release page. For source builds, use the same procedure with a clean reviewed commit built by a trusted separate builder; the administrator approves the resulting archive digest, not a writable target directory. Installation grants neither NVML nor RGB access. After deactivating both, remove the system components with `sudo /usr/local/libexec/agentic-rigg-system/system-install --uninstall`.
+
 ## Test Isolation Rules
 
 Automated tests and private GTK screenshot sessions **must be completely isolated** from any live Agentic Rigg installation on the host:
@@ -50,6 +54,7 @@ Automated tests and private GTK screenshot sessions **must be completely isolate
 - Always use temporary, private directories for helper root, configuration, socket, and baseline files (e.g., `--socket`, `--config`, `--baseline`, and `RIGG_HJELPER_ROT` / temporary `HOME` / `XDG_*` paths).
 - **Never** fall back to host paths (`/run/agentic-rigg/helper.sock`, `/etc/agentic-rigg/helper.json`, or `/var/lib/agentic-rigg`) in any test fixture.
 - Tests must pass even when a real, activated GPU helper is running on the developer's machine.
+- For concurrent worktrees sharing a Cargo cache, use a distinct Cargo profile and pin its freshly built `agentic-rigg-helper` in a private `0700` directory under `/tmp` with `RIGG_TEST_HJELPER_BIN`. Only the simulated daemon integration test reads this override; it avoids rebuilding or picking another worktree's helper while the suite runs.
 
 ## Hardware-Safety Rules
 

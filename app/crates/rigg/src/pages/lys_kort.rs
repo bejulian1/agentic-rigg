@@ -39,6 +39,7 @@ pub(super) struct CardLight {
     swatch_color: Cell<Option<[u8; 3]>>,
     brightness: gtk::SpinButton,
     apply: gtk::Button,
+    install_prompt: gtk::Box,
     activate: gtk::Button,
     deactivate: gtk::Button,
     resolve: gtk::Button,
@@ -248,6 +249,7 @@ fn bound_status(helper: &Value, selected: Option<&(String, String)>) -> bool {
         && &binding.uuid == uuid
         && helper["status"]["helper"]["name"] == rgb_auth::HELPER_NAME
         && helper["status"]["helper"]["domain"] == rgb_auth::DOMAIN
+        && helper["status"]["helper"]["strictRequests"] == true
         && helper["status"]["helper"]["protocol"] == rgb_auth::PROTOCOL
         && helper["status"]["helper"]["build"]
             .as_u64()
@@ -292,6 +294,8 @@ impl CardLight {
             &[],
         );
         panel.body.append(&summary);
+        let install_prompt = crate::system_install::prompt();
+        panel.body.append(&install_prompt);
         let identity = paragraph("Én fysisk sone · hele kortlyset", &["muted", "sm"]);
         panel.body.append(&identity);
 
@@ -348,11 +352,7 @@ impl CardLight {
         let activate = button(Some("shield"), Some("Aktiver kortlys …"), &["sm"]);
         let refresh = button(Some("refresh-cw"), Some("Sjekk igjen"), &["sm", "flat"]);
         let resolve = button(None, Some("Avklar tidligere økt …"), &["sm", "flat"]);
-        let repair = button(
-            None,
-            Some("Gjenopprett lagret utgangspunkt …"),
-            &["sm", "flat"],
-        );
+        let repair = button(None, Some("Gjenopprett lagret lys …"), &["sm", "flat"]);
         for b in [&apply, &activate, &refresh, &repair, &resolve] {
             actions.insert(b, -1);
         }
@@ -422,6 +422,7 @@ impl CardLight {
             brightness,
             apply,
             activate,
+            install_prompt,
             deactivate,
             resolve,
             repair,
@@ -463,7 +464,8 @@ impl CardLight {
         let weak = Rc::downgrade(self);
         self.refresh.connect_clicked(move |_| {
             if let Some(p) = weak.upgrade() {
-                let clean = should_read_clean(&p.helper.borrow(), selected_identity(&p.app).as_ref());
+                let clean =
+                    should_read_clean(&p.helper.borrow(), selected_identity(&p.app).as_ref());
                 if clean {
                     p.operation("rgb_read", json!({}));
                 } else {
@@ -953,6 +955,9 @@ impl CardLight {
         let activation = admin_paths(&self.app, &helper, AdminAction::Activate);
         let resolution = admin_paths(&self.app, &helper, AdminAction::Resolve);
         let restoration = admin_paths(&self.app, &helper, AdminAction::Restore);
+        self.install_prompt.set_visible(
+            !self.app.profile.is_dev() && helper["systemAdmin"] == true && activation.is_err(),
+        );
         let deactivation = admin_paths(&self.app, &helper, AdminAction::Deactivate);
         let admin_available = connected
             && present
@@ -974,13 +979,11 @@ impl CardLight {
         self.repair
             .set_sensitive(admin_available && restoration.is_ok());
         self.repair.set_tooltip_text(restoration.err().as_deref());
-        let offline = matches!(helper["state"].as_str(), Some("off" | "error" | "outdated"));
         self.deactivate.set_visible(
-            (bound && state["dirty"] == false && !pending) || (offline && deactivation.is_ok()),
+            (bound && state["dirty"] == false && !pending) || (!bound && deactivation.is_ok()),
         );
-        self.deactivate.set_sensitive(
-            connected && !self.busy.get() && !other && selected.is_some() && deactivation.is_ok(),
-        );
+        self.deactivate
+            .set_sensitive(connected && !self.busy.get() && !other && deactivation.is_ok());
         self.deactivate
             .set_tooltip_text(deactivation.err().as_deref());
         self.reset.set_visible(
@@ -1009,9 +1012,15 @@ impl CardLight {
         if self.busy.get() || (action != AdminAction::Deactivate && !card_present(&self.app)) {
             return;
         }
-        let Some(identity) = selected_identity(&self.app) else {
+        let mut identity = selected_identity(&self.app);
+        if action == AdminAction::Deactivate
+            && !bound_status(&self.helper.borrow(), identity.as_ref())
+        {
+            identity = None;
+        }
+        if identity.is_none() && action != AdminAction::Deactivate {
             return;
-        };
+        }
         if let Err(error) = admin_paths(&self.app, &self.helper.borrow(), action) {
             self.app.toast(
                 Toast::new("RGB-oppsettet er ikke klart")
@@ -1046,12 +1055,17 @@ impl CardLight {
         confirm(
             &self.app,
             title,
-            &format!("Kort: {}\n\n{text}", identity.0),
+            &format!(
+                "Kort: {}\n\n{text}",
+                identity
+                    .as_ref()
+                    .map_or("Lagret binding", |card| card.0.as_str())
+            ),
             check,
             "Fortsett til administratorgodkjenning",
             move || {
                 if let Some(p) = weak.upgrade()
-                    && selected_identity(&p.app).as_ref() == Some(&identity)
+                    && (identity.is_none() || selected_identity(&p.app) == identity)
                 {
                     p.run_admin(action, identity, None);
                 }
@@ -1075,7 +1089,7 @@ impl CardLight {
                 if let Some(p) = weak.upgrade()
                     && selected_identity(&p.app).as_ref() == Some(&identity)
                 {
-                    p.run_admin(AdminAction::Resolve, identity, Some(id));
+                    p.run_admin(AdminAction::Resolve, Some(identity), Some(id));
                 }
             },
         );
@@ -1084,7 +1098,7 @@ impl CardLight {
     fn run_admin(
         self: &Rc<Self>,
         action: AdminAction,
-        identity: (String, String),
+        identity: Option<(String, String)>,
         recovery_id: Option<String>,
     ) {
         if self.fixture.get() || (action != AdminAction::Deactivate && !card_present(&self.app)) {
@@ -1098,14 +1112,10 @@ impl CardLight {
         }
         self.message.borrow_mut().take();
         self.render();
-        let mut argv = vec![
-            pkexec.into_os_string(),
-            script.into_os_string(),
-            "--pci".into(),
-            identity.0.clone().into(),
-            "--uuid".into(),
-            identity.1.clone().into(),
-        ];
+        let mut argv = vec![pkexec.into_os_string(), script.into_os_string()];
+        if let Some((pci, uuid)) = &identity {
+            argv.extend(["--pci".into(), pci.into(), "--uuid".into(), uuid.into()]);
+        }
         match action {
             AdminAction::Restore => argv.push("--restore-original".into()),
             AdminAction::Activate => argv.push("--static-confirmed".into()),
@@ -1151,6 +1161,7 @@ impl CardLight {
                 if let Some(report) = &report
                     && let Some(id) = report["recoveryId"].as_str()
                     && serde_json::from_value::<Request>(report["expected"].clone()).is_ok()
+                    && let Some(identity) = identity
                     && selected_identity(&p.app).as_ref() == Some(&identity)
                 {
                     p.render();
@@ -1191,29 +1202,20 @@ fn admin_paths(
     }
     let pkexec = PathBuf::from("/usr/bin/pkexec");
     let script = rgb_auth::Paths::new("/").libexec(action.script());
-    if [pkexec.as_path(), &script, Path::new(rgb_auth::POLICY_PATH)]
+    if !crate::system_install::ready()
+        || [
+            pkexec.as_path(),
+            &script,
+            Path::new(rgb_auth::POLICY_PATH),
+            Path::new("/usr/local/libexec/agentic-rigg-rgb-v2/agentic-rigg-helper"),
+            Path::new("/usr/local/libexec/agentic-rigg-rgb-v2/agentic-rigg-rgb.service"),
+        ]
         .into_iter()
-        .any(|path| !trusted_system_file(path))
+        .any(|path| !crate::system_install::trusted(path))
     {
         return Err("En administrator må først installere de betrodde RGB-komponentene. Se RGB-HJELPER.md i apppakken.".into());
     }
     Ok((pkexec, script))
-}
-
-fn trusted_system_file(path: &Path) -> bool {
-    use std::os::unix::fs::MetadataExt;
-
-    path.ancestors().enumerate().all(|(index, part)| {
-        std::fs::symlink_metadata(part).is_ok_and(|info| {
-            info.uid() == 0
-                && info.mode() & 0o022 == 0
-                && if index == 0 {
-                    info.is_file()
-                } else {
-                    info.is_dir()
-                }
-        })
-    })
 }
 
 fn confirm(
@@ -1490,7 +1492,7 @@ pub(crate) fn debug_fixture(kind: &str) {
             let mut value = json!({
                 "state":"on", "owned":false, "busy":false, "message":null,
                 "status":{
-                    "helper":{"name":rgb_auth::HELPER_NAME,"domain":rgb_auth::DOMAIN,"protocol":rgb_auth::PROTOCOL,"build":rigg_core::version::build()},
+                    "helper":{"name":rgb_auth::HELPER_NAME,"domain":rgb_auth::DOMAIN,"protocol":rgb_auth::PROTOCOL,"strictRequests":true,"build":rigg_core::version::build()},
                     "authorized":true,"observationSource":"operation_readback",
                     "identity":{"pci":pci,"uuid":uuid,"pciIds":{"vendor":0x10de,"device":0x1e87,"subsystemVendor":0x10de,"subsystemDevice":0x1e87},"adapter":{"port":1,"name":adapter_name,"parentPci":pci,"driver":"nvidia"},"address":73,"signature":"palit_150"},
                     "state":{"baselineSource":"user_confirmed_static","confirmed":{"mode":"static","color":[58,123,240],"brightness":80},"observed":{"color":[58,123,240],"brightnessRaw":80,"mode":null},"pending":null,"dirty":false,"recovery":null,"recoveryNeedsConfirmation":false,"recoveryConfirmationSource":null,"error":null}
@@ -1608,7 +1610,7 @@ mod tests {
         let value = json!({
             "state":"on", "status":{
                 "authorized":true,
-                "helper":{"name":rgb_auth::HELPER_NAME,"domain":rgb_auth::DOMAIN,"protocol":rgb_auth::PROTOCOL,"build":rigg_core::version::build()},
+                "helper":{"name":rgb_auth::HELPER_NAME,"domain":rgb_auth::DOMAIN,"protocol":rgb_auth::PROTOCOL,"strictRequests":true,"build":rigg_core::version::build()},
                 "identity":{"pci":selected.0,"uuid":selected.1,"pciIds":{"vendor":0x10de,"device":0x1e87,"subsystemVendor":0x10de,"subsystemDevice":0x1e87},"adapter":{"port":1,"name":"NVIDIA i2c adapter 1 at 1c:00.0","parentPci":selected.0,"driver":"nvidia"},"address":73,"signature":"palit_150"}
             }
         });
@@ -1618,6 +1620,7 @@ mod tests {
         for (field, replacement) in [
             ("domain", json!("nvml")),
             ("protocol", json!(rgb_auth::PROTOCOL + 1)),
+            ("strictRequests", Value::Null),
             ("build", json!(rigg_core::version::build() + 1)),
         ] {
             let mut changed = value.clone();
@@ -1641,6 +1644,7 @@ mod tests {
                     "name": rgb_auth::HELPER_NAME,
                     "domain": rgb_auth::DOMAIN,
                     "protocol": rgb_auth::PROTOCOL,
+                    "strictRequests": true,
                     "build": rigg_core::version::build()
                 },
                 "identity": {
