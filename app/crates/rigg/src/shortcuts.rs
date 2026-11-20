@@ -193,7 +193,7 @@ fn keys() -> [KeyGroup; 4] {
             ("Ctrl+F", tr!("Søk i Oppgaver, Sensorer eller Innstillinger")),
             ("/", tr!("Søk i Innstillinger")),
             ("Alt+↑ / Alt+↓", tr!("Flytt en verdi i statusblokken (Innstillinger › Sidefelt)")),
-            ("Mellomrom", tr!("Pause og fortsett (Grafer)")),
+            (tr!("Mellomrom"), tr!("Pause og fortsett (Grafer)")),
             ("Ctrl+L", tr!("Logg til fil av og på")),
             ("Ctrl+R", tr!("Nullstill min og maks (Sensorer)")),
             ("F5", tr!("Oppdater nå (Oppgaver) eller les faste data på nytt (Grafikkort, Prosessor og System)")),

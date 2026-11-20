@@ -52,6 +52,10 @@ msgstr "The service is build {b}; the app is build {mine}. Restart the service."
 msgid "Driveren er oppdatert."
 msgstr "The driver has been updated."
 
+#: crates/rigg/src/infobar.rs:177
+msgid "Ny NVIDIA-driver ({ny}) er installert, men den gamle ({gammel}) kjører fortsatt. Start maskinen på nytt for å lese skjermkortet."
+msgstr "A new NVIDIA driver ({ny}) is installed, while the old one ({gammel}) is still running. Restart the computer to read the graphics card."
+
 #: crates/rigg/src/infobar.rs:179
 msgid "ny"
 msgstr "new"

@@ -57,6 +57,10 @@ msgid "Flytt en verdi i statusblokken (Innstillinger › Sidefelt)"
 msgstr "Sposta una lettura nell’area di stato (Impostazioni › Barra laterale)"
 
 #: crates/rigg/src/shortcuts.rs:196
+msgid "Mellomrom"
+msgstr "Spazio"
+
+#: crates/rigg/src/shortcuts.rs:196
 msgid "Pause og fortsett (Grafer)"
 msgstr "Metti in pausa o riprendi (Grafici)"
 

@@ -40,6 +40,10 @@ msgstr "{kortnavn}Desde {tid}. A GPU pode ter perdido a conexão com o barrament
 msgid "Driveren er oppdatert"
 msgstr "Driver atualizado"
 
+#: crates/riggd/src/varsler.rs:157
+msgid "Ny NVIDIA-driver ({ny}) er installert, men den gamle ({gammel}) kjører fortsatt. Start maskinen på nytt for å lese skjermkortet."
+msgstr "Um novo driver NVIDIA ({ny}) está instalado, mas o antigo ({gammel}) continua em execução. Reinicie o computador para ler a placa de vídeo."
+
 #: crates/riggd/src/varsler.rs:159
 msgid "ny"
 msgstr "novo"

@@ -16,6 +16,10 @@ msgstr "时间范围"
 msgid "Pause alle"
 msgstr "全部暂停"
 
+#: crates/rigg/src/pages/grafer.rs:139 crates/rigg/src/pages/grafer.rs:320
+msgid "Mellomrom"
+msgstr "空格"
+
 #: crates/rigg/src/pages/grafer.rs:140 crates/rigg/src/pages/grafer.rs:321
 msgid "Pause alle grafene"
 msgstr "暂停所有图表"

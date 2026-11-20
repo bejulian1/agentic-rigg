@@ -16,6 +16,10 @@ msgstr "Zeitraum"
 msgid "Pause alle"
 msgstr "Alle pausieren"
 
+#: crates/rigg/src/pages/grafer.rs:139 crates/rigg/src/pages/grafer.rs:320
+msgid "Mellomrom"
+msgstr "Leertaste"
+
 #: crates/rigg/src/pages/grafer.rs:140 crates/rigg/src/pages/grafer.rs:321
 msgid "Pause alle grafene"
 msgstr "Alle Diagramme pausieren"

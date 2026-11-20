@@ -57,6 +57,10 @@ msgid "Flytt en verdi i statusblokken (Innstillinger › Sidefelt)"
 msgstr "ステータス欄の測定値を移動 (設定 › サイドバー)"
 
 #: crates/rigg/src/shortcuts.rs:196
+msgid "Mellomrom"
+msgstr "Space"
+
+#: crates/rigg/src/shortcuts.rs:196
 msgid "Pause og fortsett (Grafer)"
 msgstr "一時停止／再開 (グラフ)"
 

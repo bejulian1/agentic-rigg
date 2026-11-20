@@ -40,6 +40,10 @@ msgstr "{kortnavn}{tid} から応答していません。GPU がバスから切�
 msgid "Driveren er oppdatert"
 msgstr "ドライバー更新済み"
 
+#: crates/riggd/src/varsler.rs:157
+msgid "Ny NVIDIA-driver ({ny}) er installert, men den gamle ({gammel}) kjører fortsatt. Start maskinen på nytt for å lese skjermkortet."
+msgstr "新しい NVIDIA ドライバー（{ny}）がインストールされていますが、古いドライバー（{gammel}）がまだ動作中です。GPU を読み取るには再起動してください。"
+
 #: crates/riggd/src/varsler.rs:159
 msgid "ny"
 msgstr "新版"

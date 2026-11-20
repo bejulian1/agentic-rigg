@@ -4,7 +4,7 @@
 //! UID/RSS: https://docs.kernel.org/filesystems/proc.html
 //! Sikker prosessreferanse: https://man7.org/linux/man-pages/man2/pidfd_open.2.html
 //! Kun SIGTERM: https://man7.org/linux/man-pages/man2/pidfd_send_signal.2.html
-use rigg_core::tr;
+use rigg_core::{tr, trf};
 use rigg_core::process::{ProcessIdentity, ProcessRow, ProcessSnapshot};
 use std::collections::{HashMap, HashSet};
 use std::fs::{self, File};
@@ -420,31 +420,31 @@ pub fn terminate_with_protected(
     // Eksakt rot, uten canonicalize: en fixture/symlink skal aldri bli en
     // signalkanal til vertsmaskinen. Testroten må alltid avvises før pidfd_open.
     if root != Path::new("/") {
-        return Err("Avslutning er sperret for testdata".into());
+        return Err(tr!("Avslutning er sperret for testdata").into());
     }
     if identity.pid <= 1 || identity.pid > i32::MAX as u32 {
-        return Err("Ugyldig eller beskyttet prosess".into());
+        return Err(tr!("Ugyldig eller beskyttet prosess").into());
     }
     let uid = unsafe { libc::getuid() };
     let euid = unsafe { libc::geteuid() };
     if uid == 0 || uid != euid {
-        return Err("Avslutning krever en vanlig brukerøkt".into());
+        return Err(tr!("Avslutning krever en vanlig brukerøkt").into());
     }
     // Før kontroll av /proc åpnes en stabil referanse. Dersom PID-en gjenbrukes
     // etter dette, vil signalet aldri bli sendt til den nye prosessen.
     let fd = unsafe { libc::syscall(libc::SYS_pidfd_open, identity.pid as libc::pid_t, 0u32) };
     if fd < 0 {
-        return Err(format!(
-            "Kan ikke åpne sikker prosessreferanse: {}",
-            io::Error::last_os_error()
+        return Err(trf!(
+            "Kan ikke åpne sikker prosessreferanse: {feil}",
+            feil = io::Error::last_os_error()
         ));
     }
     let fd = unsafe { OwnedFd::from_raw_fd(fd as i32) };
     let protected = protected_ancestors(root, protected_pids)?;
     let stat = read_stat(root, identity.pid)
-        .map_err(|_| "Prosessen finnes ikke lenger eller kan ikke leses".to_string())?;
+        .map_err(|_| tr!("Prosessen finnes ikke lenger eller kan ikke leses").to_string())?;
     if stat.identity != identity {
-        return Err("Prosessen er erstattet. Oppdater listen og velg på nytt".into());
+        return Err(tr!("Prosessen er erstattet. Oppdater listen og velg på nytt").into());
     }
     let status = read_small(&root.join(format!("proc/{}/status", identity.pid)))
         .ok()
@@ -453,7 +453,7 @@ pub fn terminate_with_protected(
         return Err(reason);
     }
     if read_identity(root, identity.pid) != Some(identity) {
-        return Err("Prosessen er erstattet eller avsluttet".into());
+        return Err(tr!("Prosessen er erstattet eller avsluttet").into());
     }
     let sent = unsafe {
         libc::syscall(
@@ -465,9 +465,9 @@ pub fn terminate_with_protected(
         )
     };
     if sent < 0 {
-        return Err(format!(
-            "Kunne ikke sende SIGTERM: {}",
-            io::Error::last_os_error()
+        return Err(trf!(
+            "Kunne ikke sende SIGTERM: {feil}",
+            feil = io::Error::last_os_error()
         ));
     }
     Ok(())

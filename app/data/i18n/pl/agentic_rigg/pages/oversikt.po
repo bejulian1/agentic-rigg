@@ -127,6 +127,13 @@ msgstr[0] "{fail} z błędem"
 msgstr[1] "{fail} z błędami"
 msgstr[2] "{fail} z błędami"
 
+#: crates/rigg/src/pages/oversikt.rs:346
+msgid "{antall} advarsel"
+msgid_plural "{antall} advarsler"
+msgstr[0] "{antall} ostrzeżenie"
+msgstr[1] "{antall} ostrzeżenia"
+msgstr[2] "{antall} ostrzeżeń"
+
 #: crates/rigg/src/pages/oversikt.rs:348
 msgid "alle OK"
 msgstr "wszystkie sprawne"
@@ -246,6 +253,10 @@ msgstr "Moc GPU"
 #: crates/rigg/src/pages/oversikt.rs:747
 msgid "Alt driveren og kortet oppgir, på Grafikkort"
 msgstr "Wszystkie dane sterownika i karty znajdziesz w sekcji Karta graficzna"
+
+#: crates/rigg/src/pages/oversikt.rs:753
+msgid "P-tilstand"
+msgstr "Stan P"
 
 #: crates/rigg/src/pages/oversikt.rs:755
 msgid "Kjerneklokke"

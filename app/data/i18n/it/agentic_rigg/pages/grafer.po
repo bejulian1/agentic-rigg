@@ -16,6 +16,10 @@ msgstr "Intervallo di tempo"
 msgid "Pause alle"
 msgstr "Metti tutto in pausa"
 
+#: crates/rigg/src/pages/grafer.rs:139 crates/rigg/src/pages/grafer.rs:320
+msgid "Mellomrom"
+msgstr "Spazio"
+
 #: crates/rigg/src/pages/grafer.rs:140 crates/rigg/src/pages/grafer.rs:321
 msgid "Pause alle grafene"
 msgstr "Metti in pausa tutti i grafici"

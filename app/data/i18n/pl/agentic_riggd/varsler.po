@@ -40,6 +40,10 @@ msgstr "{kortnavn}Od {tid}. GPU mogło utracić połączenie z magistralą lub z
 msgid "Driveren er oppdatert"
 msgstr "Zaktualizowano sterownik"
 
+#: crates/riggd/src/varsler.rs:157
+msgid "Ny NVIDIA-driver ({ny}) er installert, men den gamle ({gammel}) kjører fortsatt. Start maskinen på nytt for å lese skjermkortet."
+msgstr "Zainstalowano nowy sterownik NVIDIA ({ny}), ale stary ({gammel}) nadal działa. Uruchom ponownie komputer, aby odczytać kartę graficzną."
+
 #: crates/riggd/src/varsler.rs:159
 msgid "ny"
 msgstr "nowy"

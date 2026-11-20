@@ -343,7 +343,7 @@ fn tile_views(app: &App, disks: Option<&DiskList>) -> Vec<(&'static str, TileVie
             v.aside = if fail > 0 {
                 (trn!(fail, "{fail} feil", "{fail} med feil", fail = fail), "danger")
             } else if warn > 0 {
-                (F::plural(warn as i64, "advarsel", "advarsler"), "warn")
+                (trn!(warn, "{antall} advarsel", "{antall} advarsler", antall = F::num(Some(warn as f64), 0)), "warn")
             } else if known > 0 {
                 (tr!("alle OK").into(), "")
             } else {
@@ -750,7 +750,7 @@ fn build_gpu(app: &Rc<App>) -> GpuUi {
     gp.aside.append(&more);
     let kv = KvList::new();
     gp.body.append(&kv.grid);
-    let pstate = kv.add("P-tilstand", "–");
+    let pstate = kv.add(tr!("P-tilstand"), "–");
     let mut clocks = Vec::new();
     for (name, field) in [(tr!("Kjerneklokke"), "coreClock"), (tr!("Minneklokke"), "memClock")] {
         let bar = Bar::new(app, true);

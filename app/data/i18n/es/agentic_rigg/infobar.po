@@ -52,6 +52,10 @@ msgstr "El servicio usa la compilación {b}, y la aplicación, la {mine}. Reinic
 msgid "Driveren er oppdatert."
 msgstr "Se ha actualizado el controlador."
 
+#: crates/rigg/src/infobar.rs:177
+msgid "Ny NVIDIA-driver ({ny}) er installert, men den gamle ({gammel}) kjører fortsatt. Start maskinen på nytt for å lese skjermkortet."
+msgstr "Se ha instalado un nuevo controlador NVIDIA ({ny}), pero el anterior ({gammel}) sigue en ejecución. Reinicia el equipo para leer la tarjeta gráfica."
+
 #: crates/rigg/src/infobar.rs:179
 msgid "ny"
 msgstr "nuevo"

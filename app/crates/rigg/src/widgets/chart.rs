@@ -1559,7 +1559,7 @@ impl ChartPanel {
         pbx.append(&pause_icon);
         pbx.append(&pause_text);
         pause_btn.set_child(Some(&pbx));
-        crate::widgets::tip(&pause_btn, tr!("Pause"), Some("Mellomrom"));
+        crate::widgets::tip(&pause_btn, tr!("Pause"), Some(tr!("Mellomrom")));
         pause_btn.update_property(&[gtk::accessible::Property::Label(tr!("Pause"))]);
         aside.append(&pause_btn);
         head.append(&aside);
@@ -1687,7 +1687,7 @@ impl ChartPanel {
         self.pause_icon.set_icon(if p { "play" } else { "pause" });
         self.pause_text.set_visible(loud);
         crate::widgets::class(&self.pause_btn, "on", p);
-        crate::widgets::tip(&self.pause_btn, if p { tr!("Fortsett og hopp til nå") } else { tr!("Pause") }, Some("Mellomrom"));
+        crate::widgets::tip(&self.pause_btn, if p { tr!("Fortsett og hopp til nå") } else { tr!("Pause") }, Some(tr!("Mellomrom")));
         self.pause_btn.update_property(&[gtk::accessible::Property::Label(if p { tr!("Fortsett") } else { tr!("Pause") })]);
         self.paused_tag.set_visible(loud);
         if p {
@@ -2002,12 +2002,18 @@ pub fn net_unit() -> String {
 pub fn gpu_temp_limits(app: &App, prefix: &str) -> Vec<LimitLine> {
     let Some((slow, shut)) = app.with_statics(|s| (s.temp_slowdown, s.temp_shutdown)) else { return vec![] };
     let mut out = Vec::new();
-    let name = |n: &str| if prefix.is_empty() { n.to_string() } else { format!("{prefix}{}", n.to_lowercase()) };
+    let (slow_name, shut_name) = if prefix == "GPU-" {
+        (tr!("GPU-nedklokking").to_string(), tr!("GPU-avstenging").to_string())
+    } else if prefix.is_empty() {
+        (tr!("Nedklokking").to_string(), tr!("Avstenging").to_string())
+    } else {
+        (format!("{prefix}{}", tr!("Nedklokking").to_lowercase()), format!("{prefix}{}", tr!("Avstenging").to_lowercase()))
+    };
     if let Some(v) = slow {
-        out.push(LimitLine { v: F::temp_out(Some(v)).unwrap_or(v), label: format!("{} {}", name(tr!("Nedklokking")), F::temp(Some(v), 0)), level: "warn" });
+        out.push(LimitLine { v: F::temp_out(Some(v)).unwrap_or(v), label: format!("{slow_name} {}", F::temp(Some(v), 0)), level: "warn" });
     }
     if let Some(v) = shut {
-        out.push(LimitLine { v: F::temp_out(Some(v)).unwrap_or(v), label: format!("{} {}", name(tr!("Avstenging")), F::temp(Some(v), 0)), level: "danger" });
+        out.push(LimitLine { v: F::temp_out(Some(v)).unwrap_or(v), label: format!("{shut_name} {}", F::temp(Some(v), 0)), level: "danger" });
     }
     out
 }

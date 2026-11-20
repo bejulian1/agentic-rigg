@@ -56,6 +56,10 @@ msgid "Flytt en verdi i statusblokken (Innstillinger › Sidefelt)"
 msgstr "Flytt en verdi i statusblokken (Innstillinger › Sidefelt)"
 
 #: crates/rigg/src/shortcuts.rs:196
+msgid "Mellomrom"
+msgstr "Mellomrom"
+
+#: crates/rigg/src/shortcuts.rs:196
 msgid "Pause og fortsett (Grafer)"
 msgstr "Pause og fortsett (Grafer)"
 

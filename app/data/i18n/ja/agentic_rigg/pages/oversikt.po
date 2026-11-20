@@ -125,6 +125,11 @@ msgid "{fail} feil"
 msgid_plural "{fail} med feil"
 msgstr[0] "{fail} 台に障害"
 
+#: crates/rigg/src/pages/oversikt.rs:346
+msgid "{antall} advarsel"
+msgid_plural "{antall} advarsler"
+msgstr[0] "警告 {antall} 件"
+
 #: crates/rigg/src/pages/oversikt.rs:348
 msgid "alle OK"
 msgstr "すべて正常"
@@ -244,6 +249,10 @@ msgstr "GPU 消費電力"
 #: crates/rigg/src/pages/oversikt.rs:747
 msgid "Alt driveren og kortet oppgir, på Grafikkort"
 msgstr "ドライバーとカードの全情報は「グラフィックスカード」で確認できます"
+
+#: crates/rigg/src/pages/oversikt.rs:753
+msgid "P-tilstand"
+msgstr "P ステート"
 
 #: crates/rigg/src/pages/oversikt.rs:755
 msgid "Kjerneklokke"

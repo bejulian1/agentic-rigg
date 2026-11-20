@@ -57,6 +57,10 @@ msgid "Flytt en verdi i statusblokken (Innstillinger › Sidefelt)"
 msgstr "Przenieś odczyt w obszarze stanu (Ustawienia › Panel boczny)"
 
 #: crates/rigg/src/shortcuts.rs:196
+msgid "Mellomrom"
+msgstr "Spacja"
+
+#: crates/rigg/src/shortcuts.rs:196
 msgid "Pause og fortsett (Grafer)"
 msgstr "Wstrzymaj lub wznów (Wykresy)"
 

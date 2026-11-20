@@ -126,6 +126,12 @@ msgid_plural "{fail} med feil"
 msgstr[0] "{fail} fehlerhaft"
 msgstr[1] "{fail} fehlerhaft"
 
+#: crates/rigg/src/pages/oversikt.rs:346
+msgid "{antall} advarsel"
+msgid_plural "{antall} advarsler"
+msgstr[0] "{antall} Warnung"
+msgstr[1] "{antall} Warnungen"
+
 #: crates/rigg/src/pages/oversikt.rs:348
 msgid "alle OK"
 msgstr "alle in Ordnung"
@@ -245,6 +251,10 @@ msgstr "GPU-Leistung"
 #: crates/rigg/src/pages/oversikt.rs:747
 msgid "Alt driveren og kortet oppgir, på Grafikkort"
 msgstr "Alle Daten von Treiber und Karte stehen unter Grafikkarte"
+
+#: crates/rigg/src/pages/oversikt.rs:753
+msgid "P-tilstand"
+msgstr "P-State"
 
 #: crates/rigg/src/pages/oversikt.rs:755
 msgid "Kjerneklokke"

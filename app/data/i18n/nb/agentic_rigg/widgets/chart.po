@@ -71,6 +71,10 @@ msgstr "Fortsett"
 msgid "Pause"
 msgstr "Pause"
 
+#: crates/rigg/src/widgets/chart.rs:1562 crates/rigg/src/widgets/chart.rs:1690
+msgid "Mellomrom"
+msgstr "Mellomrom"
+
 #: crates/rigg/src/widgets/chart.rs:1604
 msgid "Vis {verdi}"
 msgstr "Vis {verdi}"
@@ -147,70 +151,78 @@ msgstr "Disk-I/O"
 msgid "Graf"
 msgstr "Graf"
 
-#: crates/rigg/src/widgets/chart.rs:2007
+#: crates/rigg/src/widgets/chart.rs:2006
+msgid "GPU-nedklokking"
+msgstr "GPU-nedklokking"
+
+#: crates/rigg/src/widgets/chart.rs:2006
+msgid "GPU-avstenging"
+msgstr "GPU-avstenging"
+
+#: crates/rigg/src/widgets/chart.rs:2008 crates/rigg/src/widgets/chart.rs:2010
 msgid "Nedklokking"
 msgstr "Nedklokking"
 
-#: crates/rigg/src/widgets/chart.rs:2010
+#: crates/rigg/src/widgets/chart.rs:2008 crates/rigg/src/widgets/chart.rs:2010
 msgid "Avstenging"
 msgstr "Avstenging"
 
-#: crates/rigg/src/widgets/chart.rs:2036
+#: crates/rigg/src/widgets/chart.rs:2042
 msgid "Temperatur"
 msgstr "Temperatur"
 
-#: crates/rigg/src/widgets/chart.rs:2038
+#: crates/rigg/src/widgets/chart.rs:2044
 msgid "Minnekontroller"
 msgstr "Minnekontroller"
 
-#: crates/rigg/src/widgets/chart.rs:2045
+#: crates/rigg/src/widgets/chart.rs:2051
 msgid "Kjerne"
 msgstr "Kjerne"
 
-#: crates/rigg/src/widgets/chart.rs:2049
+#: crates/rigg/src/widgets/chart.rs:2055
 msgid "Minne"
 msgstr "Minne"
 
-#: crates/rigg/src/widgets/chart.rs:2054
+#: crates/rigg/src/widgets/chart.rs:2060
 msgid "Trekk"
 msgstr "Trekk"
 
-#: crates/rigg/src/widgets/chart.rs:2054
+#: crates/rigg/src/widgets/chart.rs:2060
 msgid "Grense"
 msgstr "Grense"
 
-#: crates/rigg/src/widgets/chart.rs:2060
+#: crates/rigg/src/widgets/chart.rs:2066
 msgid "Vifte"
 msgstr "Vifte"
 
-#: crates/rigg/src/widgets/chart.rs:2064 crates/rigg/src/widgets/chart.rs:2072
+#: crates/rigg/src/widgets/chart.rs:2070 crates/rigg/src/widgets/chart.rs:2078
 msgid "Brukt"
 msgstr "Brukt"
 
-#: crates/rigg/src/widgets/chart.rs:2070
+#: crates/rigg/src/widgets/chart.rs:2076
 msgid "Total"
 msgstr "Total"
 
-#: crates/rigg/src/widgets/chart.rs:2071
+#: crates/rigg/src/widgets/chart.rs:2077
 msgid "Temperatur (Tdie)"
 msgstr "Temperatur (Tdie)"
 
-#: crates/rigg/src/widgets/chart.rs:2076
+#: crates/rigg/src/widgets/chart.rs:2082
 msgid "Ingen disk med temperatur"
 msgstr "Ingen disk med temperatur"
 
-#: crates/rigg/src/widgets/chart.rs:2083
+#: crates/rigg/src/widgets/chart.rs:2089
 msgid "Lesing"
 msgstr "Lesing"
 
-#: crates/rigg/src/widgets/chart.rs:2083
+#: crates/rigg/src/widgets/chart.rs:2089
 msgid "Skriving"
 msgstr "Skriving"
 
-#: crates/rigg/src/widgets/chart.rs:2092
+#: crates/rigg/src/widgets/chart.rs:2098
 msgid "Mottatt"
 msgstr "Mottatt"
 
-#: crates/rigg/src/widgets/chart.rs:2092
+#: crates/rigg/src/widgets/chart.rs:2098
 msgid "Sendt"
 msgstr "Sendt"

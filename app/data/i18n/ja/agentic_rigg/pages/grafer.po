@@ -16,6 +16,10 @@ msgstr "表示期間"
 msgid "Pause alle"
 msgstr "すべて一時停止"
 
+#: crates/rigg/src/pages/grafer.rs:139 crates/rigg/src/pages/grafer.rs:320
+msgid "Mellomrom"
+msgstr "Space"
+
 #: crates/rigg/src/pages/grafer.rs:140 crates/rigg/src/pages/grafer.rs:321
 msgid "Pause alle grafene"
 msgstr "すべてのグラフを一時停止"

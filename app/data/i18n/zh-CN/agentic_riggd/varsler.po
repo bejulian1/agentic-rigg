@@ -40,6 +40,10 @@ msgstr "{kortnavn}从 {tid} 起无响应。GPU 可能已从总线掉线或被拔
 msgid "Driveren er oppdatert"
 msgstr "驱动已更新"
 
+#: crates/riggd/src/varsler.rs:157
+msgid "Ny NVIDIA-driver ({ny}) er installert, men den gamle ({gammel}) kjører fortsatt. Start maskinen på nytt for å lese skjermkortet."
+msgstr "已安装新版 NVIDIA 驱动（{ny}），但旧版（{gammel}）仍在运行。请重启计算机以读取显卡信息。"
+
 #: crates/riggd/src/varsler.rs:159
 msgid "ny"
 msgstr "新版"

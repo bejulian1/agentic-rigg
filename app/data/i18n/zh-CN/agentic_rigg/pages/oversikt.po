@@ -125,6 +125,11 @@ msgid "{fail} feil"
 msgid_plural "{fail} med feil"
 msgstr[0] "{fail} 个故障"
 
+#: crates/rigg/src/pages/oversikt.rs:346
+msgid "{antall} advarsel"
+msgid_plural "{antall} advarsler"
+msgstr[0] "{antall} 个警告"
+
 #: crates/rigg/src/pages/oversikt.rs:348
 msgid "alle OK"
 msgstr "全部正常"
@@ -244,6 +249,10 @@ msgstr "GPU 功耗"
 #: crates/rigg/src/pages/oversikt.rs:747
 msgid "Alt driveren og kortet oppgir, på Grafikkort"
 msgstr "在“显卡”页面查看驱动和显卡提供的所有数据"
+
+#: crates/rigg/src/pages/oversikt.rs:753
+msgid "P-tilstand"
+msgstr "P 状态"
 
 #: crates/rigg/src/pages/oversikt.rs:755
 msgid "Kjerneklokke"

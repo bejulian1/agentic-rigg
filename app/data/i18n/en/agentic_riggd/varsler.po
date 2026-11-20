@@ -40,6 +40,10 @@ msgstr "{kortnavn}Since {tid}. The GPU may have fallen off the bus or been remov
 msgid "Driveren er oppdatert"
 msgstr "Driver updated"
 
+#: crates/riggd/src/varsler.rs:157
+msgid "Ny NVIDIA-driver ({ny}) er installert, men den gamle ({gammel}) kjører fortsatt. Start maskinen på nytt for å lese skjermkortet."
+msgstr "A new NVIDIA driver ({ny}) is installed, while the old one ({gammel}) is still running. Restart the computer to read the graphics card."
+
 #: crates/riggd/src/varsler.rs:159
 msgid "ny"
 msgstr "new"

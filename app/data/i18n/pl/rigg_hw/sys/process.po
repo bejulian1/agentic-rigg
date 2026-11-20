@@ -48,7 +48,7 @@ msgstr "Proces już się zakończył"
 msgid "Kjerneprosesser er beskyttet"
 msgstr "Procesy jądra są chronione"
 
-#: crates/rigg-hw/src/sys/process.rs:230
+#: crates/rigg-hw/src/sys/process.rs:230 crates/rigg-hw/src/sys/process.rs:431
 msgid "Avslutning krever en vanlig brukerøkt"
 msgstr "Zakończenie procesu wymaga zwykłej sesji użytkownika"
 
@@ -71,3 +71,31 @@ msgstr "Nie można sprawdzić uprawnień użytkownika procesu"
 #: crates/rigg-hw/src/sys/process.rs:327
 msgid "Prosesslisten er utilgjengelig"
 msgstr "Lista procesów jest niedostępna"
+
+#: crates/rigg-hw/src/sys/process.rs:423
+msgid "Avslutning er sperret for testdata"
+msgstr "Zakańczanie jest zablokowane dla danych testowych"
+
+#: crates/rigg-hw/src/sys/process.rs:426
+msgid "Ugyldig eller beskyttet prosess"
+msgstr "Nieprawidłowy lub chroniony proces"
+
+#: crates/rigg-hw/src/sys/process.rs:437
+msgid "Kan ikke åpne sikker prosessreferanse: {feil}"
+msgstr "Nie można otworzyć bezpiecznego uchwytu procesu: {feil}"
+
+#: crates/rigg-hw/src/sys/process.rs:445
+msgid "Prosessen finnes ikke lenger eller kan ikke leses"
+msgstr "Proces już nie istnieje lub nie można go odczytać"
+
+#: crates/rigg-hw/src/sys/process.rs:447
+msgid "Prosessen er erstattet. Oppdater listen og velg på nytt"
+msgstr "Proces został zastąpiony. Odśwież listę i wybierz ponownie"
+
+#: crates/rigg-hw/src/sys/process.rs:456
+msgid "Prosessen er erstattet eller avsluttet"
+msgstr "Proces został zastąpiony lub zakończony"
+
+#: crates/rigg-hw/src/sys/process.rs:468
+msgid "Kunne ikke sende SIGTERM: {feil}"
+msgstr "Nie udało się wysłać sygnału SIGTERM: {feil}"

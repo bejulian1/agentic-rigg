@@ -136,7 +136,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     pause_btn.add_css_class("icon-only");
     let pause_icon = Icon::new("pause", 16);
     pause_btn.set_child(Some(&pause_icon));
-    tip(&pause_btn, tr!("Pause alle"), Some("Mellomrom"));
+    tip(&pause_btn, tr!("Pause alle"), Some(tr!("Mellomrom")));
     pause_btn.update_property(&[gtk::accessible::Property::Label(tr!("Pause alle grafene"))]);
     actions.append(&pause_btn);
     let pick_btn = gtk::Button::new();
@@ -317,7 +317,7 @@ impl Inner {
             p.set_quiet_pause(all);
         }
         self.pause_icon.set_icon(if all { "play" } else { "pause" });
-        tip(&self.pause_btn, if all { tr!("Fortsett alle") } else { tr!("Pause alle") }, Some("Mellomrom"));
+        tip(&self.pause_btn, if all { tr!("Fortsett alle") } else { tr!("Pause alle") }, Some(tr!("Mellomrom")));
         self.pause_btn.update_property(&[gtk::accessible::Property::Label(if all { tr!("Fortsett alle grafene") } else { tr!("Pause alle grafene") })]);
         crate::widgets::class(&self.pause_btn, "on", all);
         self.paused_tag.set_visible(all);

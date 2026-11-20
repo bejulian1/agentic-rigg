@@ -174,10 +174,10 @@ impl Infobar {
             match i.state {
                 DeviceState::DriverUpdated => Some((
                     tr!("Driveren er oppdatert."),
-                    format!(
-                        "Ny NVIDIA-driver ({}) er installert, men den gamle ({}) kjører fortsatt. Start maskinen på nytt for å lese skjermkortet.",
-                        i.driver_installed.clone().unwrap_or_else(|| tr!("ny").into()),
-                        i.driver.clone().unwrap_or_else(|| tr!("gammel").into())
+                    trf!(
+                        "Ny NVIDIA-driver ({ny}) er installert, men den gamle ({gammel}) kjører fortsatt. Start maskinen på nytt for å lese skjermkortet.",
+                        ny = i.driver_installed.as_deref().unwrap_or(tr!("ny")),
+                        gammel = i.driver.as_deref().unwrap_or(tr!("gammel"))
                     ),
                     "warn",
                 )),

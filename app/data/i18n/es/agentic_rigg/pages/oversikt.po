@@ -126,6 +126,12 @@ msgid_plural "{fail} med feil"
 msgstr[0] "{fail} con fallos"
 msgstr[1] "{fail} con fallos"
 
+#: crates/rigg/src/pages/oversikt.rs:346
+msgid "{antall} advarsel"
+msgid_plural "{antall} advarsler"
+msgstr[0] "{antall} advertencia"
+msgstr[1] "{antall} advertencias"
+
 #: crates/rigg/src/pages/oversikt.rs:348
 msgid "alle OK"
 msgstr "todo bien"
@@ -245,6 +251,10 @@ msgstr "Potencia de la GPU"
 #: crates/rigg/src/pages/oversikt.rs:747
 msgid "Alt driveren og kortet oppgir, på Grafikkort"
 msgstr "Todos los datos de la tarjeta y del controlador están en Tarjeta gráfica"
+
+#: crates/rigg/src/pages/oversikt.rs:753
+msgid "P-tilstand"
+msgstr "Estado P"
 
 #: crates/rigg/src/pages/oversikt.rs:755
 msgid "Kjerneklokke"

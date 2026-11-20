@@ -51,6 +51,10 @@ msgstr "Tjenesten er fra bygg {b}, vinduet fra bygg {mine}. Start tjenesten på 
 msgid "Driveren er oppdatert."
 msgstr "Driveren er oppdatert."
 
+#: crates/rigg/src/infobar.rs:177
+msgid "Ny NVIDIA-driver ({ny}) er installert, men den gamle ({gammel}) kjører fortsatt. Start maskinen på nytt for å lese skjermkortet."
+msgstr "Ny NVIDIA-driver ({ny}) er installert, men den gamle ({gammel}) kjører fortsatt. Start maskinen på nytt for å lese skjermkortet."
+
 #: crates/rigg/src/infobar.rs:179
 msgid "ny"
 msgstr "ny"

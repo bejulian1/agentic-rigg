@@ -39,6 +39,10 @@ msgstr "{kortnavn}Siden {tid}. Det skjer når kortet faller av bussen eller trek
 msgid "Driveren er oppdatert"
 msgstr "Driveren er oppdatert"
 
+#: crates/riggd/src/varsler.rs:157
+msgid "Ny NVIDIA-driver ({ny}) er installert, men den gamle ({gammel}) kjører fortsatt. Start maskinen på nytt for å lese skjermkortet."
+msgstr "Ny NVIDIA-driver ({ny}) er installert, men den gamle ({gammel}) kjører fortsatt. Start maskinen på nytt for å lese skjermkortet."
+
 #: crates/riggd/src/varsler.rs:159
 msgid "ny"
 msgstr "ny"

@@ -15,6 +15,10 @@ msgstr "Tidsvindu"
 msgid "Pause alle"
 msgstr "Pause alle"
 
+#: crates/rigg/src/pages/grafer.rs:139 crates/rigg/src/pages/grafer.rs:320
+msgid "Mellomrom"
+msgstr "Mellomrom"
+
 #: crates/rigg/src/pages/grafer.rs:140 crates/rigg/src/pages/grafer.rs:321
 msgid "Pause alle grafene"
 msgstr "Pause alle grafene"

@@ -52,6 +52,10 @@ msgstr "服务构建号为 {b}，应用构建号为 {mine}。请重启服务。"
 msgid "Driveren er oppdatert."
 msgstr "驱动已更新。"
 
+#: crates/rigg/src/infobar.rs:177
+msgid "Ny NVIDIA-driver ({ny}) er installert, men den gamle ({gammel}) kjører fortsatt. Start maskinen på nytt for å lese skjermkortet."
+msgstr "已安装新版 NVIDIA 驱动（{ny}），但旧版（{gammel}）仍在运行。请重启计算机以读取显卡信息。"
+
 #: crates/rigg/src/infobar.rs:179
 msgid "ny"
 msgstr "新版"

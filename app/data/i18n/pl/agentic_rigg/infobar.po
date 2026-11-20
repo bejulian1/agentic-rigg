@@ -52,6 +52,10 @@ msgstr "Usługa ma kompilację {b}, aplikacja ma kompilację {mine}. Uruchom us�
 msgid "Driveren er oppdatert."
 msgstr "Sterownik został zaktualizowany."
 
+#: crates/rigg/src/infobar.rs:177
+msgid "Ny NVIDIA-driver ({ny}) er installert, men den gamle ({gammel}) kjører fortsatt. Start maskinen på nytt for å lese skjermkortet."
+msgstr "Zainstalowano nowy sterownik NVIDIA ({ny}), ale stary ({gammel}) nadal działa. Uruchom ponownie komputer, aby odczytać kartę graficzną."
+
 #: crates/rigg/src/infobar.rs:179
 msgid "ny"
 msgstr "nowy"

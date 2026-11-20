@@ -72,6 +72,10 @@ msgstr "继续"
 msgid "Pause"
 msgstr "暂停"
 
+#: crates/rigg/src/widgets/chart.rs:1562 crates/rigg/src/widgets/chart.rs:1690
+msgid "Mellomrom"
+msgstr "空格"
+
 #: crates/rigg/src/widgets/chart.rs:1604
 msgid "Vis {verdi}"
 msgstr "显示 {verdi}"
@@ -148,70 +152,78 @@ msgstr "磁盘 I/O"
 msgid "Graf"
 msgstr "图表"
 
-#: crates/rigg/src/widgets/chart.rs:2007
+#: crates/rigg/src/widgets/chart.rs:2006
+msgid "GPU-nedklokking"
+msgstr "GPU 降频"
+
+#: crates/rigg/src/widgets/chart.rs:2006
+msgid "GPU-avstenging"
+msgstr "GPU 关断"
+
+#: crates/rigg/src/widgets/chart.rs:2008 crates/rigg/src/widgets/chart.rs:2010
 msgid "Nedklokking"
 msgstr "降频"
 
-#: crates/rigg/src/widgets/chart.rs:2010
+#: crates/rigg/src/widgets/chart.rs:2008 crates/rigg/src/widgets/chart.rs:2010
 msgid "Avstenging"
 msgstr "关机"
 
-#: crates/rigg/src/widgets/chart.rs:2036
+#: crates/rigg/src/widgets/chart.rs:2042
 msgid "Temperatur"
 msgstr "温度"
 
-#: crates/rigg/src/widgets/chart.rs:2038
+#: crates/rigg/src/widgets/chart.rs:2044
 msgid "Minnekontroller"
 msgstr "内存控制器"
 
-#: crates/rigg/src/widgets/chart.rs:2045
+#: crates/rigg/src/widgets/chart.rs:2051
 msgid "Kjerne"
 msgstr "内核"
 
-#: crates/rigg/src/widgets/chart.rs:2049
+#: crates/rigg/src/widgets/chart.rs:2055
 msgid "Minne"
 msgstr "内存"
 
-#: crates/rigg/src/widgets/chart.rs:2054
+#: crates/rigg/src/widgets/chart.rs:2060
 msgid "Trekk"
 msgstr "功耗"
 
-#: crates/rigg/src/widgets/chart.rs:2054
+#: crates/rigg/src/widgets/chart.rs:2060
 msgid "Grense"
 msgstr "上限"
 
-#: crates/rigg/src/widgets/chart.rs:2060
+#: crates/rigg/src/widgets/chart.rs:2066
 msgid "Vifte"
 msgstr "风扇"
 
-#: crates/rigg/src/widgets/chart.rs:2064 crates/rigg/src/widgets/chart.rs:2072
+#: crates/rigg/src/widgets/chart.rs:2070 crates/rigg/src/widgets/chart.rs:2078
 msgid "Brukt"
 msgstr "已用"
 
-#: crates/rigg/src/widgets/chart.rs:2070
+#: crates/rigg/src/widgets/chart.rs:2076
 msgid "Total"
 msgstr "总计"
 
-#: crates/rigg/src/widgets/chart.rs:2071
+#: crates/rigg/src/widgets/chart.rs:2077
 msgid "Temperatur (Tdie)"
 msgstr "温度 (Tdie)"
 
-#: crates/rigg/src/widgets/chart.rs:2076
+#: crates/rigg/src/widgets/chart.rs:2082
 msgid "Ingen disk med temperatur"
 msgstr "无磁盘温度读数"
 
-#: crates/rigg/src/widgets/chart.rs:2083
+#: crates/rigg/src/widgets/chart.rs:2089
 msgid "Lesing"
 msgstr "读取"
 
-#: crates/rigg/src/widgets/chart.rs:2083
+#: crates/rigg/src/widgets/chart.rs:2089
 msgid "Skriving"
 msgstr "写入"
 
-#: crates/rigg/src/widgets/chart.rs:2092
+#: crates/rigg/src/widgets/chart.rs:2098
 msgid "Mottatt"
 msgstr "接收"
 
-#: crates/rigg/src/widgets/chart.rs:2092
+#: crates/rigg/src/widgets/chart.rs:2098
 msgid "Sendt"
 msgstr "发送"

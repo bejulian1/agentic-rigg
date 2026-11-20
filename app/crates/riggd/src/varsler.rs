@@ -154,10 +154,10 @@ impl Alarms {
             ),
             DeviceState::DriverUpdated => (
                 tr!("Driveren er oppdatert").to_string(),
-                format!(
-                    "Ny NVIDIA-driver ({}) er installert, men den gamle ({}) kjører fortsatt. Start maskinen på nytt for å lese skjermkortet.",
-                    info.driver_installed.as_deref().unwrap_or(tr!("ny")),
-                    info.driver.as_deref().unwrap_or(tr!("gammel"))
+                trf!(
+                    "Ny NVIDIA-driver ({ny}) er installert, men den gamle ({gammel}) kjører fortsatt. Start maskinen på nytt for å lese skjermkortet.",
+                    ny = info.driver_installed.as_deref().unwrap_or(tr!("ny")),
+                    gammel = info.driver.as_deref().unwrap_or(tr!("gammel"))
                 ),
             ),
             DeviceState::NoDriver => (tr!("Fant ingen NVIDIA-driver").to_string(), tr!("Prosessor, minne og sensorer vises som vanlig.").to_string()),
