@@ -92,6 +92,10 @@ msgstr "功耗上限"
 msgid "HW-nedklokking"
 msgstr "硬件降频"
 
+#: crates/rigg/src/widgets/chart/math.rs:837
+msgid "Sync boost"
+msgstr "Sync Boost"
+
 #: crates/rigg/src/widgets/chart/math.rs:838
 msgid "Termisk (SW)"
 msgstr "软件温控"
@@ -108,14 +112,14 @@ msgstr "硬件功率抑制"
 msgid "Skjermklokke"
 msgstr "显示时钟"
 
-#: crates/rigg/src/widgets/chart/math.rs:855
+#: crates/rigg/src/widgets/chart/math.rs:859
 msgid "Ingen"
 msgstr "无"
 
-#: crates/rigg/src/widgets/chart/math.rs:882
+#: crates/rigg/src/widgets/chart/math.rs:886
 msgid "Over rød varselgrense (Innstillinger › Grafer og sensorer)."
 msgstr "超过严重告警阈值（设置 › 图表和传感器）。"
 
-#: crates/rigg/src/widgets/chart/math.rs:883
+#: crates/rigg/src/widgets/chart/math.rs:887
 msgid "Over gul varselgrense (Innstillinger › Grafer og sensorer)."
 msgstr "超过预警阈值（设置 › 图表和传感器）。"

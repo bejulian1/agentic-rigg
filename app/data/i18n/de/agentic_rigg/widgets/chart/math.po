@@ -92,6 +92,10 @@ msgstr "Leistungsgrenze"
 msgid "HW-nedklokking"
 msgstr "HW-Taktdrosselung"
 
+#: crates/rigg/src/widgets/chart/math.rs:837
+msgid "Sync boost"
+msgstr "Sync Boost"
+
 #: crates/rigg/src/widgets/chart/math.rs:838
 msgid "Termisk (SW)"
 msgstr "Thermisch (SW)"
@@ -108,14 +112,14 @@ msgstr "Leistungsbremse (HW)"
 msgid "Skjermklokke"
 msgstr "Anzeigetakt"
 
-#: crates/rigg/src/widgets/chart/math.rs:855
+#: crates/rigg/src/widgets/chart/math.rs:859
 msgid "Ingen"
 msgstr "Keine"
 
-#: crates/rigg/src/widgets/chart/math.rs:882
+#: crates/rigg/src/widgets/chart/math.rs:886
 msgid "Over rød varselgrense (Innstillinger › Grafer og sensorer)."
 msgstr "Über dem kritischen Grenzwert (Einstellungen › Diagramme und Sensoren)."
 
-#: crates/rigg/src/widgets/chart/math.rs:883
+#: crates/rigg/src/widgets/chart/math.rs:887
 msgid "Over gul varselgrense (Innstillinger › Grafer og sensorer)."
 msgstr "Über der Warnschwelle (Einstellungen › Diagramme und Sensoren)."

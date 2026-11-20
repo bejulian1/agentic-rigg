@@ -92,6 +92,10 @@ msgstr "Limit mocy"
 msgid "HW-nedklokking"
 msgstr "Obniżone taktowanie (HW)"
 
+#: crates/rigg/src/widgets/chart/math.rs:837
+msgid "Sync boost"
+msgstr "Sync Boost"
+
 #: crates/rigg/src/widgets/chart/math.rs:838
 msgid "Termisk (SW)"
 msgstr "Termiczne (SW)"
@@ -108,14 +112,14 @@ msgstr "Hamulec mocy (HW)"
 msgid "Skjermklokke"
 msgstr "Taktowanie wyświetlania"
 
-#: crates/rigg/src/widgets/chart/math.rs:855
+#: crates/rigg/src/widgets/chart/math.rs:859
 msgid "Ingen"
 msgstr "Brak"
 
-#: crates/rigg/src/widgets/chart/math.rs:882
+#: crates/rigg/src/widgets/chart/math.rs:886
 msgid "Over rød varselgrense (Innstillinger › Grafer og sensorer)."
 msgstr "Powyżej progu krytycznego (Ustawienia › Wykresy i czujniki)."
 
-#: crates/rigg/src/widgets/chart/math.rs:883
+#: crates/rigg/src/widgets/chart/math.rs:887
 msgid "Over gul varselgrense (Innstillinger › Grafer og sensorer)."
 msgstr "Powyżej progu ostrzegawczego (Ustawienia › Wykresy i czujniki)."

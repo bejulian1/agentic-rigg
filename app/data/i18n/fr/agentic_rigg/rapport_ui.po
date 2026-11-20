@@ -131,3 +131,8 @@ msgstr "Rapport"
 #: crates/rigg/src/rapport_ui.rs:583
 msgid "Alt appen vet om maskinen i én fil, som tekst eller Markdown. Serienumre og UUID er ikke med, med mindre du velger det."
 msgstr "Toutes les informations système dans un fichier texte ou Markdown. Les numéros de série et les UUID sont facultatifs."
+
+#: crates/rigg/src/rapport_ui.rs:587
+msgctxt "søkeord"
+msgid "rapport lagre feilsøking tekst markdown serienummer"
+msgstr "rapport enregistrer dépannage texte markdown numéro de série"

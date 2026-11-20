@@ -156,7 +156,7 @@ fn machine_row(icon: &str, chev: &str) -> MachineRow {
 }
 
 /// Prosessoren fra `get_system`: (hele navnet, kort navn, linja under).
-#[derive(Clone, Default)]
+#[derive(Clone, Default, PartialEq, Eq)]
 struct CpuInfo {
     full: String,
     short: String,
@@ -164,7 +164,13 @@ struct CpuInfo {
 }
 
 fn cpu_info(v: &serde_json::Value) -> Option<CpuInfo> {
-    let full = v["cpu"]["name"].as_str().filter(|s| !s.is_empty())?.to_string();
+    let raw = v["cpu"]["name"].as_str().filter(|s| !s.is_empty())?;
+    let (full, short) = if raw == "Ukjent prosessor" {
+        let unknown = tr!("Ukjent prosessor").to_string();
+        (unknown.clone(), unknown)
+    } else {
+        (raw.to_string(), short_cpu_name(raw))
+    };
     let cores = v["cpu"]["cores"].as_u64();
     let threads = v["cpu"]["threads"].as_u64().or_else(|| v["threads"].as_u64());
     let core_count = |count: u64| trn!(count, "{antall} kjerne", "{antall} kjerner", antall = F::num(Some(count as f64), 0));
@@ -175,7 +181,7 @@ fn cpu_info(v: &serde_json::Value) -> Option<CpuInfo> {
         (None, Some(t)) => thread_count(t),
         _ => String::new(),
     };
-    Some(CpuInfo { short: short_cpu_name(&full), full, sub })
+    Some(CpuInfo { full, short, sub })
 }
 
 /// Navn, kilde og format for en verdi i statusblokken.
@@ -470,7 +476,10 @@ pub struct Sidebar {
     cpu: gtk::Button,
     cpu_row: MachineRow,
     cpu_info: RefCell<Option<CpuInfo>>,
+    cpu_system: RefCell<serde_json::Value>,
     cpu_asked: std::cell::Cell<bool>,
+    cpu_loading: std::cell::Cell<bool>,
+    cpu_topology: RefCell<rigg_core::report::system::CpuTopologySync>,
     nav: gtk::Box,
     nav_items: RefCell<Vec<NavItem>>,
     sec_labels: RefCell<Vec<(Section, gtk::Widget, gtk::Box)>>,
@@ -611,7 +620,10 @@ impl Sidebar {
             cpu,
             cpu_row,
             cpu_info: RefCell::new(None),
+            cpu_system: RefCell::new(serde_json::Value::Null),
             cpu_asked: std::cell::Cell::new(false),
+            cpu_loading: std::cell::Cell::new(false),
+            cpu_topology: RefCell::new(rigg_core::report::system::CpuTopologySync::default()),
             nav,
             nav_items: RefCell::new(vec![]),
             sec_labels: RefCell::new(vec![]),
@@ -710,6 +722,7 @@ impl Sidebar {
         app.on_telemetry.connect(move |_| {
             if let Some(s) = me.upgrade() {
                 s.render_status();
+                s.sync_cpu_topology();
             }
         });
         let me = Rc::downgrade(self);
@@ -755,7 +768,7 @@ impl Sidebar {
             {
                 let desc = control_description(&self.app, hint);
                 let key = PAGES.iter().position(|p| p.id == id.as_str()).and_then(page_key);
-                tip(b, &format!("{}\n{desc}", page.title), key.as_deref());
+                tip(b, &format!("{}\n{desc}", page.title()), key.as_deref());
                 b.update_property(&[gtk::accessible::Property::Description(&desc)]);
             }
         }
@@ -855,7 +868,8 @@ impl Sidebar {
             b.add_css_class("nav-item");
             let bx = hbox(10, &[]);
             bx.append(&Icon::new(p.icon, 16));
-            let l = label(p.title, &[]);
+            let page_title = p.title();
+            let l = label(page_title, &[]);
             l.set_hexpand(true);
             bx.append(&l);
             let num = page_key(i);
@@ -869,9 +883,9 @@ impl Sidebar {
             };
             b.set_child(Some(&bx));
             let description = page_hint(p.id).map(|h| control_description(&self.app, h));
-            let tiptext = description.as_ref().map(|d| format!("{}\n{d}", p.title)).unwrap_or_else(|| if p.id == "oppgaver" { tr!("Oppgavebehandling · CPU, minne og prosesser").into() } else { p.title.to_string() });
+            let tiptext = description.as_ref().map(|d| format!("{page_title}\n{d}")).unwrap_or_else(|| if p.id == "oppgaver" { tr!("Oppgavebehandling · CPU, minne og prosesser").into() } else { page_title.to_string() });
             tip(&b, &tiptext, if p.id == "oppgaver" { Some("Ctrl+Shift+Esc") } else { num.as_deref() });
-            b.update_property(&[gtk::accessible::Property::Label(p.title)]);
+            b.update_property(&[gtk::accessible::Property::Label(page_title)]);
             if let Some(desc) = description {
                 b.update_property(&[gtk::accessible::Property::Description(&desc)]);
             }
@@ -1009,27 +1023,66 @@ impl Sidebar {
         }
     }
 
-    /// Prosessornavnet hentes én gang per tilkobling (`get_system`, som
-    /// tjenesten har i minnet); det står igjen om tjenesten blir borte.
+    /// Prosessornavnet og kjerne-/trådtallet hentes ved tilkobling (`get_system`),
+    /// og oppdateres på nytt når telemetrien melder endret CPU-topologi (hotplug).
     fn ask_cpu(self: &Rc<Self>) {
         if !self.app.client.is_connected() {
             self.cpu_asked.set(false);
+            self.cpu_loading.set(false);
+            *self.cpu_system.borrow_mut() = serde_json::Value::Null;
+            *self.cpu_topology.borrow_mut() = Default::default();
             return;
         }
         if self.cpu_asked.replace(true) {
             return;
         }
+        self.fetch_cpu_system();
+    }
+
+    fn fetch_cpu_system(self: &Rc<Self>) {
+        if !self.app.client.is_connected() || self.cpu_loading.replace(true) {
+            return;
+        }
         let me = Rc::downgrade(self);
         self.app.client.request("get_system", json!({}), move |res| {
             let Some(s) = me.upgrade() else { return };
-            match res.ok().as_ref().and_then(cpu_info) {
-                Some(c) => {
-                    *s.cpu_info.borrow_mut() = Some(c);
-                    s.render_cpu();
+            s.cpu_loading.set(false);
+            match res {
+                Ok(v) => {
+                    let info = cpu_info(&v);
+                    *s.cpu_system.borrow_mut() = v;
+                    if let Some(c) = info {
+                        if s.cpu_info.borrow().as_ref() != Some(&c) {
+                            *s.cpu_info.borrow_mut() = Some(c);
+                            s.render_cpu();
+                        }
+                    } else if s.cpu_info.borrow().is_none() {
+                        s.cpu_asked.set(false);
+                    }
                 }
-                None => s.cpu_asked.set(false),
+                Err(_) => {
+                    if s.cpu_info.borrow().is_none() {
+                        s.cpu_asked.set(false);
+                    }
+                }
             }
         });
+    }
+
+    /// Henter `get_system` på nytt når telemetrien melder et nytt sett aktive CPU-ID-er.
+    fn sync_cpu_topology(self: &Rc<Self>) {
+        if !self.app.client.is_connected() {
+            return;
+        }
+        let Some(tel) = self.app.telemetry() else { return };
+        let request = self.cpu_topology.borrow_mut().should_request(
+            &self.cpu_system.borrow(),
+            &tel.sys.cpu,
+            self.cpu_loading.get(),
+        );
+        if request {
+            self.fetch_cpu_system();
+        }
     }
 
     fn render_cpu(&self) {
@@ -1610,11 +1663,29 @@ mod tests {
     }
 
     #[test]
+    fn prosessorlinja_oppdateres_etter_hotplug() {
+        let mut sync = rigg_core::report::system::CpuTopologySync::default();
+        let initial = serde_json::json!({"cpu": {"name": "AMD Ryzen 7 2700X Eight-Core Processor", "cores": 8, "threads": 16, "threadIds": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]}});
+        let after = serde_json::json!({"cpu": {"name": "AMD Ryzen 7 2700X Eight-Core Processor", "cores": 6, "threads": 12, "threadIds": [0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13]}});
+        let same_tel = rigg_core::model::CpuSample { thread_ids: (0..16).collect(), ..Default::default() };
+        let changed_tel = rigg_core::model::CpuSample { thread_ids: vec![0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13], ..Default::default() };
+        assert!(!sync.should_request(&initial, &same_tel, false));
+        assert!(sync.should_request(&initial, &changed_tel, false));
+        assert!(!sync.should_request(&initial, &changed_tel, true));
+        assert!(sync.should_request(&initial, &changed_tel, false));
+        assert!(!sync.should_request(&initial, &changed_tel, false));
+        assert!(!sync.should_request(&after, &changed_tel, false));
+        assert!(sync.should_request(&after, &same_tel, false));
+        let info = super::cpu_info(&after).unwrap();
+        assert_eq!(info.sub, "6 kjerner · 12 tråder");
+    }
+
+    #[test]
     fn styring_sidene_sier_hva_de_styrer() {
         for p in crate::pages::PAGES.iter().filter(|p| p.section == crate::pages::Section::Control) {
             assert!(super::page_hint(p.id).is_some(), "{} mangler undertekst", p.id);
         }
-        let titles: Vec<&str> = crate::pages::PAGES.iter().filter(|p| p.section == crate::pages::Section::Control).map(|p| p.title).collect();
+        let titles: Vec<&str> = crate::pages::PAGES.iter().filter(|p| p.section == crate::pages::Section::Control).map(|p| p.title()).collect();
         assert_eq!(titles, ["Klokker og effekt", "Vifter", "RGB-lys"]);
     }
 

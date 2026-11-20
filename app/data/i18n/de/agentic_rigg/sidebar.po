@@ -20,318 +20,322 @@ msgstr "Lüfterkurve und Drehzahl der Grafikkarte"
 msgid "Effekter og farger på skjermkortet"
 msgstr "Lichteffekte und Farben der Grafikkarte"
 
-#: crates/rigg/src/sidebar.rs:170
+#: crates/rigg/src/sidebar.rs:169
+msgid "Ukjent prosessor"
+msgstr "Unbekannte CPU"
+
+#: crates/rigg/src/sidebar.rs:176
 msgid "{antall} kjerne"
 msgid_plural "{antall} kjerner"
 msgstr[0] "{antall} Kern"
 msgstr[1] "{antall} Kerne"
 
-#: crates/rigg/src/sidebar.rs:171
+#: crates/rigg/src/sidebar.rs:177
 msgid "{antall} tråd"
 msgid_plural "{antall} tråder"
 msgstr[0] "{antall} Thread"
 msgstr[1] "{antall} Threads"
 
-#: crates/rigg/src/sidebar.rs:226
+#: crates/rigg/src/sidebar.rs:232
 msgid "GPU-temp"
 msgstr "GPU-Temp."
 
-#: crates/rigg/src/sidebar.rs:226
+#: crates/rigg/src/sidebar.rs:232
 msgid "GPU-temperatur"
 msgstr "GPU-Temperatur"
 
-#: crates/rigg/src/sidebar.rs:227 crates/rigg/src/sidebar.rs:227
+#: crates/rigg/src/sidebar.rs:233 crates/rigg/src/sidebar.rs:233
 msgid "GPU-last"
 msgstr "GPU-Auslastung"
 
-#: crates/rigg/src/sidebar.rs:228
+#: crates/rigg/src/sidebar.rs:234
 msgid "Effekt"
 msgstr "Leistung"
 
-#: crates/rigg/src/sidebar.rs:228
+#: crates/rigg/src/sidebar.rs:234
 msgid "GPU-effekt"
 msgstr "GPU-Leistung"
 
-#: crates/rigg/src/sidebar.rs:229
+#: crates/rigg/src/sidebar.rs:235
 msgid "Videominne brukt"
 msgstr "Belegter Grafikspeicher"
 
-#: crates/rigg/src/sidebar.rs:230
+#: crates/rigg/src/sidebar.rs:236
 msgid "Vifte"
 msgstr "Lüfter"
 
-#: crates/rigg/src/sidebar.rs:230
+#: crates/rigg/src/sidebar.rs:236
 msgid "GPU-vifte"
 msgstr "GPU-Lüfter"
 
-#: crates/rigg/src/sidebar.rs:231
+#: crates/rigg/src/sidebar.rs:237
 msgid "CPU-temp"
 msgstr "CPU-Temp."
 
-#: crates/rigg/src/sidebar.rs:231
+#: crates/rigg/src/sidebar.rs:237
 msgid "CPU-temperatur"
 msgstr "CPU-Temperatur"
 
-#: crates/rigg/src/sidebar.rs:232 crates/rigg/src/sidebar.rs:232
+#: crates/rigg/src/sidebar.rs:238 crates/rigg/src/sidebar.rs:238
 msgid "CPU-last"
 msgstr "CPU-Auslastung"
 
-#: crates/rigg/src/sidebar.rs:233
+#: crates/rigg/src/sidebar.rs:239
 msgid "Minne"
 msgstr "Arbeitsspeicher"
 
-#: crates/rigg/src/sidebar.rs:233
+#: crates/rigg/src/sidebar.rs:239
 msgid "Minne brukt"
 msgstr "Belegter Speicher"
 
-#: crates/rigg/src/sidebar.rs:234
+#: crates/rigg/src/sidebar.rs:240
 msgid "Mottatt"
 msgstr "Empfangen"
 
-#: crates/rigg/src/sidebar.rs:234
+#: crates/rigg/src/sidebar.rs:240
 msgid "Nett mottatt"
 msgstr "Netzwerkempfang"
 
-#: crates/rigg/src/sidebar.rs:235
+#: crates/rigg/src/sidebar.rs:241
 msgid "Sendt"
 msgstr "Gesendet"
 
-#: crates/rigg/src/sidebar.rs:235
+#: crates/rigg/src/sidebar.rs:241
 msgid "Nett sendt"
 msgstr "Netzwerkversand"
 
-#: crates/rigg/src/sidebar.rs:255
+#: crates/rigg/src/sidebar.rs:261
 msgid "Turtall {n}"
 msgstr "Drehzahl {n}"
 
-#: crates/rigg/src/sidebar.rs:550 crates/rigg/src/sidebar.rs:1037 crates/rigg/src/sidebar.rs:1040
+#: crates/rigg/src/sidebar.rs:559 crates/rigg/src/sidebar.rs:1087 crates/rigg/src/sidebar.rs:1090
 msgid "Prosessor"
 msgstr "Prozessor"
 
-#: crates/rigg/src/sidebar.rs:557
+#: crates/rigg/src/sidebar.rs:566
 msgid "Sider"
 msgstr "Seiten"
 
-#: crates/rigg/src/sidebar.rs:562
+#: crates/rigg/src/sidebar.rs:571
 msgid "Status"
 msgstr "Status"
 
-#: crates/rigg/src/sidebar.rs:576 crates/rigg/src/sidebar.rs:579
+#: crates/rigg/src/sidebar.rs:585 crates/rigg/src/sidebar.rs:588
 msgid "Innstillinger"
 msgstr "Einstellungen"
 
-#: crates/rigg/src/sidebar.rs:582 crates/rigg/src/sidebar.rs:583
+#: crates/rigg/src/sidebar.rs:591 crates/rigg/src/sidebar.rs:592
 msgid "Tastatursnarveier"
 msgstr "Tastenkürzel"
 
-#: crates/rigg/src/sidebar.rs:829
+#: crates/rigg/src/sidebar.rs:842
 msgid "Detaljer og kortvalg"
 msgstr "Grafikkartendetails und -auswahl"
 
-#: crates/rigg/src/sidebar.rs:872
+#: crates/rigg/src/sidebar.rs:886
 msgid "Oppgavebehandling · CPU, minne og prosesser"
 msgstr "Task-Manager · CPU, Speicher und Prozesse"
 
-#: crates/rigg/src/sidebar.rs:938
+#: crates/rigg/src/sidebar.rs:952
 msgid "Kort {i} av {gpus}"
 msgstr "Karte {i} von {gpus}"
 
-#: crates/rigg/src/sidebar.rs:948
+#: crates/rigg/src/sidebar.rs:962
 msgid "driver {d}"
 msgstr "Treiber {d}"
 
-#: crates/rigg/src/sidebar.rs:953
+#: crates/rigg/src/sidebar.rs:967
 msgid "Tjenesten svarer ikke"
 msgstr "Dienst antwortet nicht"
 
-#: crates/rigg/src/sidebar.rs:954
+#: crates/rigg/src/sidebar.rs:968
 msgid "Kobler til …"
 msgstr "Verbinde …"
 
-#: crates/rigg/src/sidebar.rs:955
+#: crates/rigg/src/sidebar.rs:969
 msgid "Leser …"
 msgstr "Wird gelesen …"
 
-#: crates/rigg/src/sidebar.rs:958
+#: crates/rigg/src/sidebar.rs:972
 msgid "Ny driver · start på nytt"
 msgstr "Neuer Treiber · Neustart erforderlich"
 
-#: crates/rigg/src/sidebar.rs:959
+#: crates/rigg/src/sidebar.rs:973
 msgid "Ingen NVIDIA-driver"
 msgstr "Kein NVIDIA-Treiber"
 
-#: crates/rigg/src/sidebar.rs:960
+#: crates/rigg/src/sidebar.rs:974
 msgid "Svarer ikke"
 msgstr "Keine Antwort"
 
-#: crates/rigg/src/sidebar.rs:961
+#: crates/rigg/src/sidebar.rs:975
 msgid "Dvale"
 msgstr "Ruhezustand"
 
-#: crates/rigg/src/sidebar.rs:964
+#: crates/rigg/src/sidebar.rs:978
 msgid "Ingen skjermkort"
 msgstr "Keine Grafikkarte"
 
-#: crates/rigg/src/sidebar.rs:964 crates/rigg/src/sidebar.rs:1071
+#: crates/rigg/src/sidebar.rs:978 crates/rigg/src/sidebar.rs:1121
 msgid "Skjermkort"
 msgstr "Grafikkarte"
 
-#: crates/rigg/src/sidebar.rs:982
+#: crates/rigg/src/sidebar.rs:996
 msgid "{t}\nVis Grafikkort"
 msgstr "{t}\nGrafikkarte anzeigen"
 
-#: crates/rigg/src/sidebar.rs:983
+#: crates/rigg/src/sidebar.rs:997
 msgid "Vis Grafikkort"
 msgstr "Grafikkarte anzeigen"
 
-#: crates/rigg/src/sidebar.rs:1004
+#: crates/rigg/src/sidebar.rs:1018
 msgid "Styring gjelder dette kortet: {long}{valg}\nDetaljer og kortvalg"
 msgstr "Steuerung gilt für diese Karte: {long}{valg}\nGrafikkartendetails und -auswahl"
 
-#: crates/rigg/src/sidebar.rs:1008
+#: crates/rigg/src/sidebar.rs:1022
 msgid "Styring gjelder {text}"
 msgstr "Steuerung gilt für {text}"
 
-#: crates/rigg/src/sidebar.rs:1041
+#: crates/rigg/src/sidebar.rs:1091
 msgid "{t}\nVis Prosessor"
 msgstr "{t}\nProzessor anzeigen"
 
-#: crates/rigg/src/sidebar.rs:1042
+#: crates/rigg/src/sidebar.rs:1092
 msgid "Vis Prosessor"
 msgstr "Prozessor anzeigen"
 
-#: crates/rigg/src/sidebar.rs:1073 crates/rigg/src/sidebar.rs:1138
+#: crates/rigg/src/sidebar.rs:1123 crates/rigg/src/sidebar.rs:1188
 msgid "Valgt skjermkort"
 msgstr "Ausgewählte Grafikkarte"
 
-#: crates/rigg/src/sidebar.rs:1083
+#: crates/rigg/src/sidebar.rs:1133
 msgid "Tilkoblet"
 msgstr "Verbunden"
 
-#: crates/rigg/src/sidebar.rs:1084
+#: crates/rigg/src/sidebar.rs:1134
 msgid "Svarer ikke siden {verdi}"
 msgstr "Keine Antwort seit {verdi}"
 
-#: crates/rigg/src/sidebar.rs:1085
+#: crates/rigg/src/sidebar.rs:1135
 msgid "Fant ingen NVIDIA-driver"
 msgstr "Kein NVIDIA-Treiber gefunden"
 
-#: crates/rigg/src/sidebar.rs:1086
+#: crates/rigg/src/sidebar.rs:1136
 msgid "Driveren er oppdatert. Start maskinen på nytt."
 msgstr "Der Treiber wurde aktualisiert. Starten Sie den Rechner neu."
 
-#: crates/rigg/src/sidebar.rs:1087
+#: crates/rigg/src/sidebar.rs:1137
 msgid "I dvale siden {verdi}"
 msgstr "Seit {verdi} im Ruhezustand"
 
-#: crates/rigg/src/sidebar.rs:1089 crates/rigg/src/sidebar.rs:1127
+#: crates/rigg/src/sidebar.rs:1139 crates/rigg/src/sidebar.rs:1177
 msgid "Ikke tilkoblet"
 msgstr "Nicht verbunden"
 
-#: crates/rigg/src/sidebar.rs:1110
+#: crates/rigg/src/sidebar.rs:1160
 msgid "Driver"
 msgstr "Treiber"
 
-#: crates/rigg/src/sidebar.rs:1124
+#: crates/rigg/src/sidebar.rs:1174
 msgid "Oppdatering"
 msgstr "Aktualisierung"
 
-#: crates/rigg/src/sidebar.rs:1126
+#: crates/rigg/src/sidebar.rs:1176
 msgid "{versjon} · bygg {bygg}"
 msgstr "{versjon} · Build {bygg}"
 
-#: crates/rigg/src/sidebar.rs:1129
+#: crates/rigg/src/sidebar.rs:1179
 msgid "Tjeneste"
 msgstr "Dienst"
 
-#: crates/rigg/src/sidebar.rs:1134
+#: crates/rigg/src/sidebar.rs:1184
 msgid "Kort"
 msgstr "Karte"
 
-#: crates/rigg/src/sidebar.rs:1138
+#: crates/rigg/src/sidebar.rs:1188
 msgid "Velg dette skjermkortet"
 msgstr "Diese Grafikkarte auswählen"
 
-#: crates/rigg/src/sidebar.rs:1160
+#: crates/rigg/src/sidebar.rs:1210
 msgid "Mer om kortet"
 msgstr "Mehr zur Grafikkarte"
 
-#: crates/rigg/src/sidebar.rs:1182
+#: crates/rigg/src/sidebar.rs:1232
 msgid "Detaljer om {full_name}"
 msgstr "Details zu {full_name}"
 
-#: crates/rigg/src/sidebar.rs:1201
+#: crates/rigg/src/sidebar.rs:1251
 msgid "Fest sensorer fra Sensorer"
 msgstr "Messwerte aus Sensoren anheften"
 
-#: crates/rigg/src/sidebar.rs:1203
+#: crates/rigg/src/sidebar.rs:1253
 msgid "Pek på en rad på Sensorer og trykk på nålen"
 msgstr "Zeigen Sie auf eine Zeile in Sensoren und klicken Sie auf die Stecknadel"
 
-#: crates/rigg/src/sidebar.rs:1216
+#: crates/rigg/src/sidebar.rs:1266
 msgid "NETT"
 msgstr "NETZ"
 
-#: crates/rigg/src/sidebar.rs:1217
+#: crates/rigg/src/sidebar.rs:1267
 msgid "DISK"
 msgstr "LAUFWERK"
 
-#: crates/rigg/src/sidebar.rs:1218
+#: crates/rigg/src/sidebar.rs:1268
 msgid "ANDRE"
 msgstr "SONSTIGE"
 
-#: crates/rigg/src/sidebar.rs:1254
+#: crates/rigg/src/sidebar.rs:1304
 msgid "{verdi} · vis på Sensorer"
 msgstr "{verdi} · unter Sensoren anzeigen"
 
-#: crates/rigg/src/sidebar.rs:1285
+#: crates/rigg/src/sidebar.rs:1335
 msgid "Valg for {verdi}"
 msgstr "Optionen für {verdi}"
 
-#: crates/rigg/src/sidebar.rs:1300
+#: crates/rigg/src/sidebar.rs:1350
 msgid "Flytt opp"
 msgstr "Nach oben"
 
-#: crates/rigg/src/sidebar.rs:1302
+#: crates/rigg/src/sidebar.rs:1352
 msgid "Flytt ned"
 msgstr "Nach unten"
 
-#: crates/rigg/src/sidebar.rs:1307
+#: crates/rigg/src/sidebar.rs:1357
 msgid "Løsne"
 msgstr "Lösen"
 
-#: crates/rigg/src/sidebar.rs:1316
+#: crates/rigg/src/sidebar.rs:1366
 msgid "Vis på Sensorer"
 msgstr "Unter Sensoren anzeigen"
 
-#: crates/rigg/src/sidebar.rs:1320
+#: crates/rigg/src/sidebar.rs:1370
 msgid "Rekkefølge og utvalg …"
 msgstr "Reihenfolge und Auswahl …"
 
-#: crates/rigg/src/sidebar.rs:1358
+#: crates/rigg/src/sidebar.rs:1408
 msgid " · over gul varselgrense"
 msgstr " · über der Warnschwelle"
 
-#: crates/rigg/src/sidebar.rs:1359
+#: crates/rigg/src/sidebar.rs:1409
 msgid " · over rød varselgrense"
 msgstr " · über dem kritischen Grenzwert"
 
-#: crates/rigg/src/sidebar.rs:1362
+#: crates/rigg/src/sidebar.rs:1412
 msgid "{verdi} · vis på Sensorer{word}"
 msgstr "{verdi} · unter Sensoren anzeigen{word}"
 
-#: crates/rigg/src/sidebar.rs:1385
+#: crates/rigg/src/sidebar.rs:1435
 msgid "Sidefeltet er lagt sammen."
 msgstr "Seitenleiste eingeklappt."
 
-#: crates/rigg/src/sidebar.rs:1385
+#: crates/rigg/src/sidebar.rs:1435
 msgid "Sidefeltet er utvidet."
 msgstr "Seitenleiste ausgeklappt."
 
-#: crates/rigg/src/sidebar.rs:1423
+#: crates/rigg/src/sidebar.rs:1473
 msgid "Utvid sidefeltet"
 msgstr "Seitenleiste ausklappen"
 
-#: crates/rigg/src/sidebar.rs:1423
+#: crates/rigg/src/sidebar.rs:1473
 msgid "Legg sammen sidefeltet"
 msgstr "Seitenleiste einklappen"

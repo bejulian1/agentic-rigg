@@ -349,6 +349,9 @@ fn skjermkortet_i_tekst() {
     assert_eq!(throttle_short(Some(0x1), 1).0, "Tomgang");
     assert_eq!(throttle_short(Some(0x0), 1).0, "Ingen");
     assert_eq!(throttle_short(Some(0x45), 1).0, "Termisk (HW) +2");
+    assert!(throttle_has_reason(0x10));
+    assert!(!throttle_has_reason(0));
+    assert!(!throttle_has_reason(0x200));
     assert!(throttle_serious(Some(0x4)));
     assert!(!throttle_serious(Some(0x1)));
     assert_eq!(level(Some(80.0), Some(75.0), Some(85.0)), "warn");

@@ -26,7 +26,7 @@ msgstr "Graphics card"
 
 #: crates/rigg-core/src/settings.rs:57
 msgid "Prosessor"
-msgstr "CPU"
+msgstr "Processor"
 
 #: crates/rigg-core/src/settings.rs:58
 msgid "Disker"

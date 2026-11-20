@@ -834,7 +834,7 @@ const REASONS: [Reason; 9] = [
     (0x2, || tr!("App-klokker")),
     (0x4, || tr!("Effektgrense")),
     (0x8, || tr!("HW-nedklokking")),
-    (0x10, || "Sync boost"),
+    (0x10, || tr!("Sync boost")),
     (0x20, || tr!("Termisk (SW)")),
     (0x40, || tr!("Termisk (HW)")),
     (0x80, || tr!("Strømbrems (HW)")),
@@ -844,6 +844,10 @@ const REASONS: [Reason; 9] = [
 pub fn throttle_list(mask: Option<u64>) -> Option<Vec<&'static str>> {
     let n = mask?;
     Some(REASONS.iter().filter(|(b, _)| n & b != 0).map(|(_, text)| text()).collect())
+}
+
+pub fn throttle_has_reason(mask: u64) -> bool {
+    REASONS.iter().any(|(bit, _)| mask & bit != 0)
 }
 
 /// Kort form: de alvorligste først, høyst `max`, og «+N» for resten. Gir

@@ -902,18 +902,15 @@ fn render_gpu(app: &Rc<App>, g: &GpuUi, peak: &RefCell<VecDeque<(i64, f64)>>) {
 
     // ---- Skjermkort ----
     let (th, full) = math::throttle_short(s.throttle, 1);
-    let th_text = match th.as_str() {
-        _ if math::throttle_list(s.throttle).is_some_and(|reasons| reasons.is_empty()) => Some(tr!("ingen begrensning").to_string()),
-        "–" => None,
-        x => Some(x.to_lowercase()),
-    };
+    let has_reason = s.throttle.is_some_and(math::throttle_has_reason);
+    let th_text = throttle_text(s.throttle, th);
     let ps = [s.pstate.clone(), th_text.clone()].into_iter().flatten().collect::<Vec<_>>().join(" · ");
     set_text(&g.pstate, if ps.is_empty() { F::DASH } else { &ps });
     class(&g.pstate, "warn-text", math::throttle_serious(s.throttle));
     let mut ptip = String::from(tr!("P0 er full ytelse, P8 er dyp tomgang. Kortet bytter selv."));
     if !full.is_empty() {
         ptip.push_str(&trf!("\nBegrensninger nå: {full}.", full = full));
-    } else if let Some(x) = th_text.filter(|_| math::throttle_list(s.throttle).is_some_and(|reasons| !reasons.is_empty())) {
+    } else if let Some(x) = th_text.filter(|_| has_reason) {
         ptip.push_str(&trf!("\nKlokken begrenses nå av: {x}.", x = x));
     }
     if s.throttle_inferred {
@@ -1283,10 +1280,26 @@ fn render(app: &Rc<App>, ui: &Ui, peak: &RefCell<VecDeque<(i64, f64)>>) {
     }
 }
 
+/// Klokkebegrensningen etter P-tilstanden, med liten forbokstav («P8 · tomgang»).
+/// Avgjøres av masken, ikke av den oversatte teksten.
+fn throttle_text(mask: Option<u64>, short: String) -> Option<String> {
+    mask.map(|m| if math::throttle_has_reason(m) { short.to_lowercase() } else { tr!("ingen begrensning").to_string() })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use rigg_core::disk::{Disk, Health};
+
+    #[test]
+    fn klokkebegrensningen_står_med_liten_forbokstav() {
+        let text = |mask| throttle_text(mask, math::throttle_short(mask, 1).0);
+        assert_eq!(text(None), None);
+        assert_eq!(text(Some(0)).as_deref(), Some("ingen begrensning"));
+        assert_eq!(text(Some(0x200)).as_deref(), Some("ingen begrensning"));
+        assert_eq!(text(Some(0x1)).as_deref(), Some("tomgang"));
+        assert_eq!(text(Some(0x45)).as_deref(), Some("termisk (hw) +2"));
+    }
 
     fn input<'a>(th: &'a Thresholds) -> StateIn<'a> {
         StateIn { gpu_state: Some(DeviceState::Ok), gpu_since: None, no_card: false, gpu_temp: Some(40.0), slowdown: Some(97.0), throttle: Some(1), cpu_temp: Some(38.0), mem_pct: Some(30.0), th, disks: None }

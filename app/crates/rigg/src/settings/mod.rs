@@ -360,8 +360,14 @@ impl SettingsView {
         side.append(&nav);
         let foot = vbox(8, &["set-side-foot"]);
         let saved_line = hbox(8, &[]);
-        saved_line.append(&Icon::new("check", 14));
-        saved_line.append(&label(tr!("Endringer lagres straks."), &[]));
+        let saved_icon = Icon::new("check", 14);
+        saved_icon.set_valign(gtk::Align::Center);
+        saved_line.append(&saved_icon);
+        let saved_label = label(tr!("Endringer lagres straks."), &[]);
+        saved_label.set_wrap(true);
+        saved_label.set_xalign(0.0);
+        saved_label.set_hexpand(true);
+        saved_line.append(&saved_label);
         foot.append(&saved_line);
         let version_log = crate::widgets::button(Some("rotate-ccw"), Some(tr!("Versjonslogg")), &["flat"]);
         version_log.set_halign(gtk::Align::Start);

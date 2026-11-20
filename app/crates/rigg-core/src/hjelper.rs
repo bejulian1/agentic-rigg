@@ -482,6 +482,7 @@ pub fn display_message(message: &str) -> &str {
         "Nødregelen gjelder. Vent til kortet er under 80 °C." => crate::tr!("Nødregelen gjelder. Vent til kortet er under 80 °C."),
         "Endringer er låst: endring av skjermkortet er ikke slått på. Slå på «Tillat endring av skjermkortet» i Innstillinger › Styring." => crate::tr!("Endringer er låst: endring av skjermkortet er ikke slått på. Slå på «Tillat endring av skjermkortet» i Innstillinger › Styring."),
         "Hjelperen for endring svarer ikke. Se Innstillinger › Styring." => crate::tr!("Hjelperen for endring svarer ikke. Se Innstillinger › Styring."),
+        "Hjelperen er fra en annen versjon av appen. Oppdater systemkomponentene fra Innstillinger › Skjermkortstyring." => crate::tr!("Hjelperen er fra en annen versjon av appen. Oppdater systemkomponentene fra Innstillinger › Skjermkortstyring."),
         "Hjelperen er fra en annen versjon av appen. Slå bryteren i Innstillinger › Styring av og på igjen." => crate::tr!("Hjelperen er fra en annen versjon av appen. Slå bryteren i Innstillinger › Styring av og på igjen."),
         "Hjelperen og tjenesten bruker ulike kort (simulert og ekte). Ingenting er sendt." => crate::tr!("Hjelperen og tjenesten bruker ulike kort (simulert og ekte). Ingenting er sendt."),
         "NVML-hjelperen er ikke klar til å endre dette kortet." => crate::tr!("NVML-hjelperen er ikke klar til å endre dette kortet."),
