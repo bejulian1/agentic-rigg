@@ -85,17 +85,17 @@ pub struct CpuSample {
 impl CpuSample {
     /// Aktive Linux-CPU-ID-er i prøven: `thread_ids` når tjenesten sender dem,
     /// ellers indeksene som har last eller klokke (eldre tjenester).
-    pub fn active_thread_ids(&self) -> Vec<usize> {
-        if !self.thread_ids.is_empty() {
-            return self.thread_ids.iter().filter_map(|&id| usize::try_from(id).ok()).collect();
-        }
+    pub fn active_thread_ids(&self) -> impl Iterator<Item = usize> + Clone + '_ {
         let n = self.core_load.len().max(self.core_mhz.len());
-        (0..n)
+        let legacy = (0..if self.thread_ids.is_empty() { n } else { 0 })
             .filter(|&i| {
                 self.core_load.get(i).copied().flatten().is_some()
                     || self.core_mhz.get(i).copied().flatten().is_some()
-            })
-            .collect()
+            });
+        self.thread_ids
+            .iter()
+            .filter_map(|&id| usize::try_from(id).ok())
+            .chain(legacy)
     }
 }
 
@@ -335,12 +335,12 @@ mod tests {
     fn cpu_sample_active_thread_ids_og_serialisering() {
         let empty = CpuSample::default();
         assert!(serde_json::to_value(&empty).unwrap().get("threadIds").is_none());
-        assert!(empty.active_thread_ids().is_empty());
+        assert_eq!(empty.active_thread_ids().next(), None);
 
         let with_ids = CpuSample { thread_ids: vec![0, 8], core_load: vec![Some(10.0), None, None, None, None, None, None, None, None], ..Default::default() };
         let v = serde_json::to_value(&with_ids).unwrap();
         assert_eq!(v["threadIds"], serde_json::json!([0, 8]));
-        assert_eq!(with_ids.active_thread_ids(), vec![0, 8]);
+        assert!(with_ids.active_thread_ids().eq([0, 8]));
 
         // Eldre tjeneste uten threadIds: utleder aktive ID-er fra last/klokke.
         let legacy: CpuSample = serde_json::from_value(serde_json::json!({
@@ -349,6 +349,6 @@ mod tests {
         }))
         .unwrap();
         assert!(legacy.thread_ids.is_empty());
-        assert_eq!(legacy.active_thread_ids(), vec![0, 8]);
+        assert!(legacy.active_thread_ids().eq([0, 8]));
     }
 }

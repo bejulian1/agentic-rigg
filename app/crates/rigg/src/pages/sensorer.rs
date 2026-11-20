@@ -317,7 +317,7 @@ struct Inner {
     sig: RefCell<String>,
     system: RefCell<serde_json::Value>,
     system_loading: Cell<bool>,
-    cpu_ids_requested: RefCell<Vec<usize>>,
+    cpu_topology: RefCell<rigg_core::report::system::CpuTopologySync>,
     filter: RefCell<String>,
     collapsed: RefCell<HashSet<String>>,
     threads_open: Cell<bool>,
@@ -873,7 +873,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         sig: RefCell::new(String::new()),
         system: RefCell::new(serde_json::Value::Null),
         system_loading: Cell::new(false),
-        cpu_ids_requested: RefCell::new(Vec::new()),
+        cpu_topology: RefCell::default(),
         filter: RefCell::new(String::new()),
         collapsed: RefCell::new(HashSet::new()),
         threads_open: Cell::new(false),
@@ -1011,7 +1011,7 @@ impl Inner {
             {
                 s.prefilled.set(false);
                 *s.system.borrow_mut() = serde_json::Value::Null;
-                s.cpu_ids_requested.borrow_mut().clear();
+                *s.cpu_topology.borrow_mut() = Default::default();
                 if s.visible.get() {
                     s.load_system();
                     s.prefill();
@@ -1143,7 +1143,6 @@ impl Inner {
                     s.rebuild_if_needed();
                     s.paint();
                     s.prefill();
-                    s.sync_cpu_topology();
                 }
             }
         });
@@ -1151,17 +1150,13 @@ impl Inner {
 
     /// Henter `get_system` på nytt når telemetrien melder et nytt sett aktive CPU-ID-er.
     fn sync_cpu_topology(self: &Rc<Self>) {
-        if self.system_loading.get() {
-            return;
-        }
         let Some(tel) = self.app.telemetry() else { return };
-        let next = rigg_core::report::system::cpu_topology_update(
+        let request = self.cpu_topology.borrow_mut().should_request(
             &self.system.borrow(),
             &tel.sys.cpu,
-            &self.cpu_ids_requested.borrow(),
+            self.system_loading.get(),
         );
-        if let Some(ids) = next {
-            *self.cpu_ids_requested.borrow_mut() = ids;
+        if request {
             self.load_system();
         }
     }

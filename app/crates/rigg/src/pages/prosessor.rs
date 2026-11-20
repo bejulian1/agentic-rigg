@@ -257,7 +257,7 @@ struct State {
     visible: Cell<bool>,
     system: RefCell<Value>,
     loading: Cell<bool>,
-    cpu_ids_requested: RefCell<Vec<usize>>,
+    cpu_topology: RefCell<report::system::CpuTopologySync>,
     view: Rc<Sections>,
     flags: Flags,
     live: Live,
@@ -284,6 +284,8 @@ impl Page for Prosessor {
         self.st.visible.set(true);
         if self.st.system.borrow().is_null() {
             self.st.load(false);
+        } else {
+            self.st.sync_cpu_topology();
         }
         self.st.refresh();
     }
@@ -332,17 +334,16 @@ impl State {
 
     /// Henter `get_system` på nytt når telemetrien melder et nytt sett aktive CPU-ID-er.
     fn sync_cpu_topology(self: &Rc<Self>) {
-        if self.loading.get() {
+        if !self.visible.get() {
             return;
         }
-        let Some(sys) = self.app.sys() else { return };
-        let next = report::system::cpu_topology_update(
+        let Some(tel) = self.app.telemetry() else { return };
+        let request = self.cpu_topology.borrow_mut().should_request(
             &self.system.borrow(),
-            &sys.cpu,
-            &self.cpu_ids_requested.borrow(),
+            &tel.sys.cpu,
+            self.loading.get(),
         );
-        if let Some(ids) = next {
-            *self.cpu_ids_requested.borrow_mut() = ids;
+        if request {
             self.load(false);
         }
     }
@@ -371,11 +372,10 @@ impl State {
         d.stats["stats"].as_object().and_then(|o| o.iter().filter(|(k, _)| k.starts_with("cpu/thread/") && k.ends_with("/mhz")).filter_map(|(_, v)| v["max"].as_f64()).reduce(f64::max))
     }
 
-    fn refresh(self: &Rc<Self>) {
+    fn refresh(&self) {
         if !self.visible.get() {
             return;
         }
-        self.sync_cpu_topology();
         let secs = self.sections(false);
         self.view.show(&secs);
         self.render_flags();
@@ -640,7 +640,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         visible: Cell::new(false),
         system: RefCell::new(Value::Null),
         loading: Cell::new(false),
-        cpu_ids_requested: RefCell::new(Vec::new()),
+        cpu_topology: RefCell::default(),
         view,
         flags,
         live,
@@ -698,17 +698,21 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
             }
         })
     };
-    let r1 = r.clone();
-    app.on_telemetry.connect(move |_| r1());
-    let r2 = r.clone();
-    app.on_settings.connect(move |_| r2());
+    let w = Rc::downgrade(&st);
+    app.on_telemetry.connect(move |_| {
+        if let Some(s) = w.upgrade() {
+            s.sync_cpu_topology();
+            s.refresh();
+        }
+    });
+    app.on_settings.connect(move |_| r());
     {
         let w = Rc::downgrade(&st);
         app.on_conn.connect(move |c| {
             if let Some(s) = w.upgrade()
                 && *c == crate::state::Conn::Connected
             {
-                s.cpu_ids_requested.borrow_mut().clear();
+                *s.cpu_topology.borrow_mut() = Default::default();
                 *s.system.borrow_mut() = Value::Null;
                 if s.visible.get() {
                     s.load(false);
