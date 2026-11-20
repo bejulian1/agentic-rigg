@@ -190,11 +190,11 @@ msgstr "Velocidade da ventoinha"
 
 #: crates/rigg/src/pages/sensorer.rs:560
 msgid "Vifte {nr}, turtall"
-msgstr "Velocidade da ventoinha {nr}"
+msgstr "Ventoinha {nr} (rpm)"
 
 #: crates/rigg/src/pages/sensorer.rs:560
 msgid "Viftens turtall"
-msgstr "Velocidade da ventoinha em rpm"
+msgstr "Ventoinha (rpm)"
 
 #: crates/rigg/src/pages/sensorer.rs:563
 msgid "Videominne brukt"
@@ -530,7 +530,7 @@ msgstr "Fechar gráfico"
 
 #: crates/rigg/src/pages/sensorer.rs:1947
 msgid "Graf: {navn}, kilde {kilde}. Mellomrom setter på pause."
-msgstr "Gráfico: {navn}, fonte {kilde}. Pressione Space para pausar."
+msgstr "Gráfico: {navn}, fonte {kilde}. Pressione Espaço para pausar."
 
 #: crates/rigg/src/pages/sensorer.rs:1948
 msgid "Graf: {navn}. Mellomrom setter på pause."

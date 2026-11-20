@@ -470,7 +470,7 @@ msgstr "Ventiladores"
 
 #: crates/rigg-core/src/report/gpu.rs:477
 msgid "turtall ikke støttet"
-msgstr "RPM no disponibles"
+msgstr "rpm no compatibles"
 
 #: crates/rigg-core/src/report/gpu.rs:480
 msgid "mål {prosent}"
@@ -590,7 +590,7 @@ msgstr "El controlador responde, pero el campo está vacío para esta GPU."
 
 #: crates/rigg-core/src/report/gpu.rs:534
 msgid "Viftens turtall"
-msgstr "Velocidad del ventilador en rpm"
+msgstr "Ventilador (rpm)"
 
 #: crates/rigg-core/src/report/gpu.rs:534
 msgid "NVML gir «ikke støttet» for turtallet."

@@ -94,7 +94,7 @@ msgstr "RAM disponible"
 
 #: crates/rigg/src/pages/sensorer.rs:374
 msgid "Swap"
-msgstr "Espace d’échange"
+msgstr "Swap"
 
 #: crates/rigg/src/pages/sensorer.rs:375
 msgid "Mottatt"
@@ -190,11 +190,11 @@ msgstr "Vitesse du ventilateur"
 
 #: crates/rigg/src/pages/sensorer.rs:560
 msgid "Vifte {nr}, turtall"
-msgstr "Vitesse du ventilateur {nr}"
+msgstr "Ventilateur {nr} (tr/min)"
 
 #: crates/rigg/src/pages/sensorer.rs:560
 msgid "Viftens turtall"
-msgstr "Vitesse du ventilateur en tr/min"
+msgstr "Ventilateur (tr/min)"
 
 #: crates/rigg/src/pages/sensorer.rs:563
 msgid "Videominne brukt"
@@ -530,7 +530,7 @@ msgstr "Fermer le graphique"
 
 #: crates/rigg/src/pages/sensorer.rs:1947
 msgid "Graf: {navn}, kilde {kilde}. Mellomrom setter på pause."
-msgstr "Graphique : {navn}, source {kilde}. Space pour mettre en pause."
+msgstr "Graphique : {navn}, source {kilde}. Espace pour mettre en pause."
 
 #: crates/rigg/src/pages/sensorer.rs:1948
 msgid "Graf: {navn}. Mellomrom setter på pause."

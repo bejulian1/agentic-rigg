@@ -114,7 +114,7 @@ msgstr "核心"
 
 #: crates/rigg/src/pages/grafikkort.rs:279
 msgid "Minne"
-msgstr "内存"
+msgstr "显存"
 
 #: crates/rigg/src/pages/grafikkort.rs:279
 msgid "Video"

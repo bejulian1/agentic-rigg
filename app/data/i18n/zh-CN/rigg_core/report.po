@@ -14,7 +14,7 @@ msgstr "字段"
 
 #: crates/rigg-core/src/report.rs:166
 msgid "Verdi"
-msgstr "当前值"
+msgstr "值"
 
 #: crates/rigg-core/src/report.rs:284
 msgid "Leses med NVML"
@@ -102,7 +102,7 @@ msgstr "PCIe 代数"
 
 #: crates/rigg-core/src/report.rs:316
 msgid "Vifte {nr}, turtall"
-msgstr "风扇 {nr} 转速"
+msgstr "风扇 {nr}（RPM）"
 
 #: crates/rigg-core/src/report.rs:318
 msgid "Vifte {nr}"

@@ -312,7 +312,7 @@ msgstr "核心"
 
 #: crates/rigg-core/src/report/gpu.rs:334 crates/rigg-core/src/report/gpu.rs:373 crates/rigg-core/src/report/gpu.rs:605
 msgid "Minne"
-msgstr "内存"
+msgstr "显存"
 
 #: crates/rigg-core/src/report/gpu.rs:334
 msgid "Video"

@@ -470,7 +470,7 @@ msgstr "Ventilateurs"
 
 #: crates/rigg-core/src/report/gpu.rs:477
 msgid "turtall ikke støttet"
-msgstr "Vitesse non prise en charge"
+msgstr "tr/min non pris en charge"
 
 #: crates/rigg-core/src/report/gpu.rs:480
 msgid "mål {prosent}"
@@ -590,7 +590,7 @@ msgstr "Le pilote répond, mais le champ est vide pour ce GPU."
 
 #: crates/rigg-core/src/report/gpu.rs:534
 msgid "Viftens turtall"
-msgstr "Vitesse du ventilateur en tr/min"
+msgstr "Ventilateur (tr/min)"
 
 #: crates/rigg-core/src/report/gpu.rs:534
 msgid "NVML gir «ikke støttet» for turtallet."

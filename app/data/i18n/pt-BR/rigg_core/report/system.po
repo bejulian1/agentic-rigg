@@ -278,7 +278,7 @@ msgstr "O aplicativo não lê a tensão do núcleo da CPU. O acesso e a fonte de
 
 #: crates/rigg-core/src/report/system.rs:345
 msgid "Pakkeeffekt"
-msgstr "Potência do pacote da CPU"
+msgstr "Potência do pacote"
 
 #: crates/rigg-core/src/report/system.rs:345
 msgid "Appen samler ikke inn CPU-pakkeeffekt. Tilgjengelige energitellere, eventuell RAPL-støtte og lesetilgang avhenger av maskinen og kjernen."

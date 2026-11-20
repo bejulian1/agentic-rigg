@@ -470,7 +470,7 @@ msgstr "Ventole"
 
 #: crates/rigg-core/src/report/gpu.rs:477
 msgid "turtall ikke støttet"
-msgstr "Giri/min non supportati"
+msgstr "giri/min non supportati"
 
 #: crates/rigg-core/src/report/gpu.rs:480
 msgid "mål {prosent}"
@@ -590,7 +590,7 @@ msgstr "Il driver risponde, ma il campo è vuoto per questa GPU."
 
 #: crates/rigg-core/src/report/gpu.rs:534
 msgid "Viftens turtall"
-msgstr "Velocità ventola in giri/min"
+msgstr "Ventola (giri/min)"
 
 #: crates/rigg-core/src/report/gpu.rs:534
 msgid "NVML gir «ikke støttet» for turtallet."

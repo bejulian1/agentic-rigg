@@ -102,7 +102,7 @@ msgstr "Génération PCIe"
 
 #: crates/rigg-core/src/report.rs:316
 msgid "Vifte {nr}, turtall"
-msgstr "Vitesse du ventilateur {nr}"
+msgstr "Ventilateur {nr} (tr/min)"
 
 #: crates/rigg-core/src/report.rs:318
 msgid "Vifte {nr}"

@@ -470,7 +470,7 @@ msgstr "Ventoinhas"
 
 #: crates/rigg-core/src/report/gpu.rs:477
 msgid "turtall ikke støttet"
-msgstr "RPM não disponíveis"
+msgstr "rpm não compatível"
 
 #: crates/rigg-core/src/report/gpu.rs:480
 msgid "mål {prosent}"
@@ -590,7 +590,7 @@ msgstr "O driver responde, mas o campo está vazio nesta GPU."
 
 #: crates/rigg-core/src/report/gpu.rs:534
 msgid "Viftens turtall"
-msgstr "Velocidade da ventoinha em rpm"
+msgstr "Ventoinha (rpm)"
 
 #: crates/rigg-core/src/report/gpu.rs:534
 msgid "NVML gir «ikke støttet» for turtallet."

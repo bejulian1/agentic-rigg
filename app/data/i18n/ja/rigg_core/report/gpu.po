@@ -70,7 +70,7 @@ msgstr "不明"
 
 #: crates/rigg-core/src/report/gpu.rs:157
 msgid "Lukket kjernemodul"
-msgstr "プロプライエタリなカーネルモジュール"
+msgstr "プロプライエタリカーネルモジュール"
 
 #: crates/rigg-core/src/report/gpu.rs:164
 msgid "grafikk"

@@ -190,7 +190,7 @@ msgstr "风扇转速"
 
 #: crates/rigg/src/pages/sensorer.rs:560
 msgid "Vifte {nr}, turtall"
-msgstr "风扇 {nr} 转速"
+msgstr "风扇 {nr}（RPM）"
 
 #: crates/rigg/src/pages/sensorer.rs:560
 msgid "Viftens turtall"
@@ -474,7 +474,7 @@ msgstr "打开"
 
 #: crates/rigg/src/pages/sensorer.rs:1726
 msgid "Løsne fra statusblokken"
-msgstr "取消固定到状态面板"
+msgstr "从状态面板取消固定"
 
 #: crates/rigg/src/pages/sensorer.rs:1726
 msgid "Fest i statusblokken"
@@ -530,7 +530,7 @@ msgstr "关闭图表"
 
 #: crates/rigg/src/pages/sensorer.rs:1947
 msgid "Graf: {navn}, kilde {kilde}. Mellomrom setter på pause."
-msgstr "图表：{navn}，来源：{kilde}。按 Space 暂停。"
+msgstr "图表：{navn}，来源：{kilde}。按空格键暂停。"
 
 #: crates/rigg/src/pages/sensorer.rs:1948
 msgid "Graf: {navn}. Mellomrom setter på pause."

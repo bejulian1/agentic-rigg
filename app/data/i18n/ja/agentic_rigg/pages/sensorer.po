@@ -190,7 +190,7 @@ msgstr "ファン回転数"
 
 #: crates/rigg/src/pages/sensorer.rs:560
 msgid "Vifte {nr}, turtall"
-msgstr "ファン {nr} の回転数"
+msgstr "ファン {nr}（RPM）"
 
 #: crates/rigg/src/pages/sensorer.rs:560
 msgid "Viftens turtall"
@@ -530,7 +530,7 @@ msgstr "グラフを閉じる"
 
 #: crates/rigg/src/pages/sensorer.rs:1947
 msgid "Graf: {navn}, kilde {kilde}. Mellomrom setter på pause."
-msgstr "グラフ：{navn}、ソース：{kilde}。Space キーで一時停止します。"
+msgstr "グラフ：{navn}、ソース：{kilde}。スペースキーで一時停止します。"
 
 #: crates/rigg/src/pages/sensorer.rs:1948
 msgid "Graf: {navn}. Mellomrom setter på pause."
