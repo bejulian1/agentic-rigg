@@ -1,6 +1,6 @@
 # Separat RGB-hjelper · implementert på featurebranchen
 
-RGB har et eget domene i hjelperbinæren, en separat systemd-prosess, daemonklient og kontroller på Lys-siden. Det deler ikke motor, socket, tillatelse, grunnopptak eller lease med NVML-styringen. Aktivering, menneskelig bekreftelse og manuell gjenoppretting er implementert og prøvd med isolerte fakes. **Kontrollersignatur, synlig farge og tilbakeføring på brukerens faktiske kort er fortsatt uverifisert.** Ingen RGB-tjeneste er installert eller aktivert på brukerens PC.
+RGB har et eget domene i hjelperbinæren, en separat systemd-prosess, daemonklient og kontroller på Lys-siden. Det deler ikke motor, socket, tillatelse, grunnopptak eller lease med NVML-styringen. Aktivering, menneskelig bekreftelse og manuell gjenoppretting er implementert og prøvd med isolerte fakes. På brukerens Palit RTX 2080 Super JetStream er fast blått og automatisk tilbakeføring til grønt fysisk bekreftet ved 100 % lysstyrke.
 
 ## Administratoraktivering og oppstart
 
@@ -10,7 +10,7 @@ RGB har et eget domene i hjelperbinæren, en separat systemd-prosess, daemonklie
 
 Deretter installeres `/usr/local/libexec/agentic-rigg-rgb-helper`, egne skript under `/usr/local/libexec/agentic-rigg-rgb/`, RGB-polkit-policy og `agentic-rigg-rgb.service`. Enheten bruker `DevicePolicy=closed`. Drop-in-filen nullstiller tidligere `DeviceAllow` og legger til **bare `/dev/i2c-N rw` fra hjelperens ferske, kortbundne adapterrapport**. Ingen klientvalgt buss, `char-i2c` eller jokertegn tillates. Enheten har blant annet skrivebeskyttet system, privat tilstandsmappe, nettverkssperre og avgrensede systemkall.
 
-Tjenesten har `Restart=no`, ingen `ExecStopPost` og aktiveres ikke for boot med `enable`. Ved endret bussnummer må en eksplisitt administratorflyt hente ny adaptermetadata og skrive den smale tillatelsen på nytt; vanlig appstart gjør ikke dette. Systemd-enhetens fysiske I2C-tilgang er ennå ikke prøvd.
+Tjenesten har `Restart=no`, ingen `ExecStopPost` og aktiveres ikke for boot med `enable`. Ved endret bussnummer må en eksplisitt administratorflyt hente ny adaptermetadata og skrive den smale tillatelsen på nytt; vanlig appstart gjør ikke dette. Tjenesten kjørte den fysiske prøven 20. november.
 
     agentic-rigg-helper --rgb-server
 
@@ -93,8 +93,10 @@ Når arbeideren ikke kjører, finnes egne administratorhandlinger med samme UID 
 
 Appen viser deaktivering bare ved ren RGB-tilstand. Ingen administratorhandling kjøres ved vinduslukking, profilvalg eller oppstart.
 
-## Verifikasjon og gjenstående fysisk prøve
+## Verifikasjon og fysisk prøve
 
 Fase 4 er kontrollert med ren workspace-clippy og **536 beståtte tester, 4 ignorerte, ingen feil**. Produksjonsbinærene er bygget og oppgir **1.4.1 · bygg 24**. Privat GTK-QA ga tolv PNG-er: sju merkede visningstilstander og fem bilder fra vanlig GTK/daemon-flyt mot en eksplisitt merket fake-arbeider. Faktiske størrelser var 1920×1048, 1440×1000 og 776×900; forespurt bredde 640 px ble begrenset til 776 px. **640 px og mindre bredder er ikke verifisert.** Funksjonsprøven dekker redigering uten mutasjon, Bruk, Behold, Reset, avvist gammel ACK, aktiv checkbox-ACK, Av og Frigi. Fake-spor er ikke fysisk lysbevis.
 
-Kontrollene bruker private røtter, simulerte kort og falske svar; administratorhandlinger er sperret i `rgb-flow`. Ingen root-probe, aktivering, installasjon eller fysisk RGB-prøve er kjørt mens brukeren er borte. Neste fysiske steg krever brukerens tilstedeværelse og ordinær administratorgodkjenning: observer faktisk signatur, bekreft et statisk utgangspunkt, prøv farge/av/lysstyrke kontrollert og dokumenter synlig gjenoppretting. Featurebranchen er fortsatt et Draft PR-arbeid, ikke en fysisk verifisert RGB-utgivelse.
+Kontrollene bruker private røtter, simulerte kort og falske svar; administratorhandlinger er sperret i `rgb-flow`.
+
+Den 20. november 2026 identifiserte den lesende proben én PALIT 100-sone på NVIDIA-port 1, adresse `0x49`. Brukeren bekreftet fast grønt (`#45C800`, 100 %) før aktivering med polkit. Produksjonshjelperen leste tilbake blått (`#0000FF`, 100 %) etter Bruk og den opprinnelige grønnfargen etter ti sekunders frist. Brukeren så blått og deretter grønt igjen. Hjelperen leste feltene på nytt, lagret bekreftelsen som `userVisual` og ryddet journalen. RGB-testtilgangen ble deaktivert. Prøven gikk gjennom hjelpersocketen. GTK-betjening er prøvd i simulering. Av-modus og endring av lysstyrke på kortet gjenstår.

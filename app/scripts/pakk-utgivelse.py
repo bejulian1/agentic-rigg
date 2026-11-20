@@ -135,8 +135,8 @@ med én administratorgodkjenning. Støttede endringer i effekt, vifter og
 klokkeoffset sendes med Bruk og må beholdes innen fristen. Hjelperen bindes
 til kortet og lagrer utgangspunktet før skriving. Pågående RGB-arbeid krever
 egen aktivering og et visuelt bekreftet statisk utgangspunkt. Lokal lysmodell
-er forhåndsvisning. Fysisk RGB-kontroll og tilbakeføring er ikke verifisert;
-se PATCHLOG.md for status før bruk.
+er forhåndsvisning. Fast blått og tilbakeføring til grønt er prøvd på ett Palit-kort.
+Se PATCHLOG.md for prøveresultat og omfang.
 
 Start «Agentic Rigg» fra programmenyen, eller ~/.local/bin/agentic-rigg.
 Versjon og bygg står i Innstillinger › Om og i binærenes --version.

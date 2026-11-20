@@ -6,7 +6,7 @@ Gjeldende versjon: **1.4.1 · bygg 24**. Nedlastinger og utgivelsesnotater ligge
 
 - Kortbundet Palit-identifikasjon og statisk farge/av for RTX 2080 Super JetStream, med separat RGB-hjelper, tillatelse, privat journal og lease. Gammel GPU-godkjenning gir ikke RGB-tilgang.
 - Egen administratoraktivering og smal systemd-tjeneste, asynkron daemonkobling og panelet «Lys på kortet» med Bruk/Behold, tilbakeføring og tydelig skille fra lokal forhåndsvisning. Ukjent effektmodus forblir ukjent; menneskelig bekreftelse registreres separat fra tilbakelesing.
-- Isolerte tester og faktisk GTK-betjening mot en merket falsk arbeider er verifisert. Kontrollersignatur, synlig farge og gjenoppretting på brukerens kort gjenstår. Featurebranchen er ikke utgitt eller installert.
+- Isolerte tester og faktisk GTK-betjening mot en merket falsk arbeider er verifisert. På brukerens Palit RTX 2080 Super JetStream er fast blått og automatisk tilbakeføring til grønt fysisk bekreftet ved 100 % lysstyrke. Featurebranchen er ikke utgitt eller installert.
 - [Faktisk status, kontrollerprotokoll og verifikasjon](docs/produksjon/palit-rgb-2026-11-17.md). Eksisterende GPU-autorisasjon og installasjon endres ikke av dette forarbeidet.
 
 ## 1.4.1 · bygg 24 – 14. november 2026

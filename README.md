@@ -2,7 +2,7 @@
 
 **1.4.1 · bygg 24** · Rust og GTK 4 · Ubuntu · Code Pro
 
-**Pågående RGB-arbeid på `feature/palit-rgb`:** Kortbundet Palit-transport, separat administratoraktivering, daemonkobling og appkontroller er implementert for fast farge/av. En privat GTK-prøve dekker betjeningsflyten mot en falsk RGB-arbeider. Kontrollersignatur, faktisk farge og synlig gjenoppretting på brukerens kort er fortsatt uverifisert. Arbeidet ligger i [Draft PR #2](https://github.com/bejulian1/agentic-rigg/pull/2), uten merge, Release eller installasjon. [Kildegrunnlag og verifikasjon](docs/produksjon/palit-rgb-2026-11-17.md).
+**Pågående RGB-arbeid på `feature/palit-rgb`:** Kortbundet Palit-transport, separat administratoraktivering, daemonkobling og appkontroller er implementert for fast farge/av. En privat GTK-prøve dekker betjeningsflyten mot en falsk RGB-arbeider. På brukerens Palit RTX 2080 Super JetStream er fast blått og automatisk tilbakeføring til grønt fysisk bekreftet ved 100 % lysstyrke. Arbeidet ligger i [Draft PR #2](https://github.com/bejulian1/agentic-rigg/pull/2), som uutgitt forslag. [Kildegrunnlag og verifikasjon](docs/produksjon/palit-rgb-2026-11-17.md).
 
 Et lett maskinvareverktøy for Ubuntu: sensorer, grafer, CPU- og GPU-spesifikasjoner og diskhelse i én norsk desktop-app. Inspirert av MSI Afterburner, HWiNFO, GPU-Z, CPU-Z og CrystalDiskInfo.
 

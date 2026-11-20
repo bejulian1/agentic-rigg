@@ -12,7 +12,7 @@
 - Asynkron, avgrenset RGB-klient i daemonen med egen eier, kø, tidsfrist inkludert hviletid og heartbeat. GUI-tråden blokkeres ikke av RGB-socketen. Bare en levende eierøkt fornyer leasen.
 - «Lys på kortet» har én fysisk sone, fast farge/av, lysstyrke, Bruk/Behold og gjenoppretting. Den lokale lysmodellen og lagring i appen sender ingen maskinvareendring. Visuell bekreftelse krever aktiv avkryssing og gjelder det bestemte gjenopprettingsmålet fra dialogåpning; den gir ikke en avlest effektmodus.
 - Separat, lesende `--rgb-identifiser --pci PCI --uuid UUID` i hjelperen. Streng GPU-/adapterbinding, én adresse og et fast lesesett; ingen registerskriving, skanning, konfigurasjonsendring eller omstart av GPU-hjelperen.
-- Nye isolerte modell-/transport-/argumenttester, private administrasjonsskriptprøver og GTK-betjening mot en eksplisitt merket falsk RGB-arbeider. Kontrollersignatur, faktisk farge og synlig gjenoppretting gjenstår før modulen er ferdig. [Status og kilder](../docs/produksjon/palit-rgb-2026-11-17.md).
+- Nye isolerte modell-/transport-/argumenttester, private administrasjonsskriptprøver og GTK-betjening mot en eksplisitt merket falsk RGB-arbeider. På brukerens Palit RTX 2080 Super JetStream er fast blått og automatisk tilbakeføring til grønt fysisk bekreftet ved 100 % lysstyrke. [Status og kilder](../docs/produksjon/palit-rgb-2026-11-17.md).
 
 ## 1.4.1 · bygg 24 – 14. november 2026: enklere viftestyring og synlig bekreftelse
 
