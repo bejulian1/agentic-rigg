@@ -1,0 +1,101 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg-hw/src/sys/process.rs:104
+msgid "For stor /proc-fil"
+msgstr "/proc のファイルが大きすぎます"
+
+#: crates/rigg-hw/src/sys/process.rs:114
+msgid "Ugyldig prosessinformasjon"
+msgstr "プロセス情報が無効です"
+
+#: crates/rigg-hw/src/sys/process.rs:187
+msgid "Ugyldig foreldrekjede for appen eller en tilkoblet klient"
+msgstr "アプリまたは接続中のクライアントの親プロセスの連鎖が無効です"
+
+#: crates/rigg-hw/src/sys/process.rs:196
+msgid "Kunne ikke kontrollere foreldreprosesser for appen eller en tilkoblet klient"
+msgstr "アプリまたは接続中のクライアントの親プロセスを確認できませんでした"
+
+#: crates/rigg-hw/src/sys/process.rs:202
+msgid "Foreldrekjeden er for lang"
+msgstr "親プロセスの連鎖が長すぎます"
+
+#: crates/rigg-hw/src/sys/process.rs:220
+msgid "Systemets init-prosess er beskyttet"
+msgstr "システムの init プロセスは保護されています"
+
+#: crates/rigg-hw/src/sys/process.rs:222
+msgid "Appen eller en foreldreprosess er beskyttet"
+msgstr "アプリまたは親プロセスは保護されています"
+
+#: crates/rigg-hw/src/sys/process.rs:224
+msgid "Viktig system- eller øktprosess er beskyttet"
+msgstr "重要なシステムまたはセッションのプロセスは保護されています"
+
+#: crates/rigg-hw/src/sys/process.rs:226
+msgid "Prosessen er allerede avsluttet"
+msgstr "プロセスはすでに終了しています"
+
+#: crates/rigg-hw/src/sys/process.rs:228
+msgid "Kjerneprosesser er beskyttet"
+msgstr "カーネルプロセスは保護されています"
+
+#: crates/rigg-hw/src/sys/process.rs:230 crates/rigg-hw/src/sys/process.rs:431
+msgid "Avslutning krever en vanlig brukerøkt"
+msgstr "プロセスを終了するには通常のユーザーセッションが必要です"
+
+#: crates/rigg-hw/src/sys/process.rs:233
+msgid "Root-prosesser er beskyttet"
+msgstr "root のプロセスは保護されています"
+
+#: crates/rigg-hw/src/sys/process.rs:235
+msgid "Prosessen tilhører en annen bruker eller har andre rettigheter"
+msgstr "プロセスの所有者が別のユーザーか、権限が異なります"
+
+#: crates/rigg-hw/src/sys/process.rs:237
+msgid "Prosessen har særskilte systemrettigheter"
+msgstr "プロセスには特別なシステム権限があります"
+
+#: crates/rigg-hw/src/sys/process.rs:242
+msgid "Kan ikke kontrollere prosessens brukerrettigheter"
+msgstr "プロセスのユーザー権限を確認できません"
+
+#: crates/rigg-hw/src/sys/process.rs:327
+msgid "Prosesslisten er utilgjengelig"
+msgstr "プロセス一覧を利用できません"
+
+#: crates/rigg-hw/src/sys/process.rs:423
+msgid "Avslutning er sperret for testdata"
+msgstr "テストデータでは終了できません"
+
+#: crates/rigg-hw/src/sys/process.rs:426
+msgid "Ugyldig eller beskyttet prosess"
+msgstr "無効または保護されたプロセスです"
+
+#: crates/rigg-hw/src/sys/process.rs:437
+msgid "Kan ikke åpne sikker prosessreferanse: {feil}"
+msgstr "安全なプロセス参照を開けません: {feil}"
+
+#: crates/rigg-hw/src/sys/process.rs:445
+msgid "Prosessen finnes ikke lenger eller kan ikke leses"
+msgstr "プロセスはもう存在しないか読み取れません"
+
+#: crates/rigg-hw/src/sys/process.rs:447
+msgid "Prosessen er erstattet. Oppdater listen og velg på nytt"
+msgstr "プロセスが置き換わりました。一覧を更新して再選択してください"
+
+#: crates/rigg-hw/src/sys/process.rs:456
+msgid "Prosessen er erstattet eller avsluttet"
+msgstr "プロセスが置き換わったか終了しました"
+
+#: crates/rigg-hw/src/sys/process.rs:468
+msgid "Kunne ikke sende SIGTERM: {feil}"
+msgstr "SIGTERM を送信できませんでした: {feil}"

@@ -16,6 +16,7 @@
 //! - `app.toast(Toast::new("Tittel").body("…"))`, `app.go("sensorer")`,
 //!   `app.open_settings("sidefelt")`.
 
+use rigg_core::tr;
 use crate::client::Client;
 use rigg_core::model::{GpuInfo, GpuSample, GpuStatic, SysSample, Telemetry};
 use rigg_core::paths::Profile;
@@ -268,7 +269,7 @@ impl App {
         let next = match rigg_core::settings::merge(&before, &patch) {
             Ok(n) => n,
             Err(e) => {
-                self.toast(crate::toast::Toast::new("Kunne ikke lagre innstillingen").body(&e.0).error());
+                self.toast(crate::toast::Toast::new(tr!("Kunne ikke lagre innstillingen")).body(&e.0).error());
                 return false;
             }
         };
@@ -326,7 +327,7 @@ impl App {
                 app.data.borrow_mut().service = v;
                 app.on_service.emit(&());
             }
-            Err(e) => app.toast(crate::toast::Toast::new("Tjenesten tok ikke imot endringen").body(&e.message).error()),
+            Err(e) => app.toast(crate::toast::Toast::new(tr!("Tjenesten tok ikke imot endringen")).body(&e.message).error()),
         });
     }
 

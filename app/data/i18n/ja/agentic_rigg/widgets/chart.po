@@ -1,0 +1,229 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/widgets/chart.rs:601
+msgid "Kortet svarer ikke siden {verdi}"
+msgstr "GPU は {verdi} から応答していません"
+
+#: crates/rigg/src/widgets/chart.rs:609
+msgid "Tjenesten tok ikke opp her (maskinen var av eller sov)."
+msgstr "この区間は記録されていません (コンピューターの電源がオフかスリープ中でした)。"
+
+#: crates/rigg/src/widgets/chart.rs:611
+msgid "Hull i grafen: appen var lukket. Slå på «Fortsett i bakgrunnen» under Innstillinger › Generelt for å ta opp også da."
+msgstr "グラフの空白はアプリが閉じていた時間です。「設定 › 一般」で「バックグラウンドで動作を続ける」を有効にすると、アプリを閉じても記録を続けます。"
+
+#: crates/rigg/src/widgets/chart.rs:1079
+msgid "pauset {verdi}"
+msgstr "一時停止 {verdi}"
+
+#: crates/rigg/src/widgets/chart.rs:1081
+msgid "nå"
+msgstr "現在"
+
+#: crates/rigg/src/widgets/chart.rs:1128
+msgid "Henter historikk …"
+msgstr "履歴を読み込み中…"
+
+#: crates/rigg/src/widgets/chart.rs:1131
+msgid "Kunne ikke hente historikken"
+msgstr "履歴を読み込めませんでした"
+
+#: crates/rigg/src/widgets/chart.rs:1133 crates/rigg/src/widgets/chart.rs:1222
+msgid "Ingen data ennå"
+msgstr "まだデータがありません"
+
+#: crates/rigg/src/widgets/chart.rs:1136 crates/rigg/src/widgets/chart.rs:1137
+msgid "Data fra {verdi}"
+msgstr "{verdi} 以降のデータ"
+
+#: crates/rigg/src/widgets/chart.rs:1138
+msgid "Samler data …"
+msgstr "データを収集中…"
+
+#: crates/rigg/src/widgets/chart.rs:1139 crates/rigg/src/widgets/chart.rs:1140 crates/rigg/src/widgets/chart.rs:1218 crates/rigg/src/widgets/chart.rs:1219
+msgid "Ingen data"
+msgstr "データなし"
+
+#: crates/rigg/src/widgets/chart.rs:1145
+msgid "Svarer ikke"
+msgstr "応答なし"
+
+#: crates/rigg/src/widgets/chart.rs:1221
+msgid "Historikken begynner {verdi}"
+msgstr "履歴の開始: {verdi}"
+
+#: crates/rigg/src/widgets/chart.rs:1517 crates/rigg/src/widgets/chart.rs:1604
+msgid "Skjul {verdi}"
+msgstr "{verdi} を非表示"
+
+#: crates/rigg/src/widgets/chart.rs:1557 crates/rigg/src/widgets/chart.rs:1691
+msgid "Fortsett"
+msgstr "再開"
+
+#: crates/rigg/src/widgets/chart.rs:1562 crates/rigg/src/widgets/chart.rs:1563 crates/rigg/src/widgets/chart.rs:1690 crates/rigg/src/widgets/chart.rs:1691
+msgid "Pause"
+msgstr "一時停止"
+
+#: crates/rigg/src/widgets/chart.rs:1562 crates/rigg/src/widgets/chart.rs:1690
+msgid "Mellomrom"
+msgstr "Space"
+
+#: crates/rigg/src/widgets/chart.rs:1604
+msgid "Vis {verdi}"
+msgstr "{verdi} を表示"
+
+#: crates/rigg/src/widgets/chart.rs:1646
+msgid "Graf: {navn}, {status}. Mellomrom setter på pause."
+msgstr "グラフ: {navn}、{status}。スペースキーで一時停止します。"
+
+#: crates/rigg/src/widgets/chart.rs:1690
+msgid "Fortsett og hopp til nå"
+msgstr "再開して現在時刻に移動"
+
+#: crates/rigg/src/widgets/chart.rs:1695
+msgid "På pause · {verdi}"
+msgstr "一時停止中 · {verdi}"
+
+#: crates/rigg/src/widgets/chart.rs:1741
+msgid "min {min} · maks {maks}"
+msgstr "最小 {min} · 最大 {maks}"
+
+#: crates/rigg/src/widgets/chart.rs:1902
+msgid "GPU-temperatur"
+msgstr "GPU 温度"
+
+#: crates/rigg/src/widgets/chart.rs:1903
+msgid "GPU-last"
+msgstr "GPU 使用率"
+
+#: crates/rigg/src/widgets/chart.rs:1904
+msgid "Kjerneklokke"
+msgstr "コアクロック"
+
+#: crates/rigg/src/widgets/chart.rs:1905
+msgid "Minneklokke"
+msgstr "メモリクロック"
+
+#: crates/rigg/src/widgets/chart.rs:1906
+msgid "GPU-effekt"
+msgstr "GPU 消費電力"
+
+#: crates/rigg/src/widgets/chart.rs:1907
+msgid "GPU-vifte"
+msgstr "GPU ファン"
+
+#: crates/rigg/src/widgets/chart.rs:1908
+msgid "Videominne"
+msgstr "ビデオメモリ"
+
+#: crates/rigg/src/widgets/chart.rs:1909
+msgid "CPU-last"
+msgstr "CPU 使用率"
+
+#: crates/rigg/src/widgets/chart.rs:1910
+msgid "CPU-temperatur"
+msgstr "CPU 温度"
+
+#: crates/rigg/src/widgets/chart.rs:1911
+msgid "Minne brukt"
+msgstr "メモリ使用量"
+
+#: crates/rigg/src/widgets/chart.rs:1912
+msgid "Nett"
+msgstr "ネットワーク"
+
+#: crates/rigg/src/widgets/chart.rs:1913
+msgid "Disktemperatur"
+msgstr "ドライブ温度"
+
+#: crates/rigg/src/widgets/chart.rs:1914
+msgid "Disk-I/O"
+msgstr "ディスク I/O"
+
+#: crates/rigg/src/widgets/chart.rs:1964
+msgid "Graf"
+msgstr "グラフ"
+
+#: crates/rigg/src/widgets/chart.rs:2006
+msgid "GPU-nedklokking"
+msgstr "GPU サーマル制限"
+
+#: crates/rigg/src/widgets/chart.rs:2006
+msgid "GPU-avstenging"
+msgstr "GPU シャットダウン"
+
+#: crates/rigg/src/widgets/chart.rs:2008 crates/rigg/src/widgets/chart.rs:2010
+msgid "Nedklokking"
+msgstr "クロック低下"
+
+#: crates/rigg/src/widgets/chart.rs:2008 crates/rigg/src/widgets/chart.rs:2010
+msgid "Avstenging"
+msgstr "シャットダウン"
+
+#: crates/rigg/src/widgets/chart.rs:2042
+msgid "Temperatur"
+msgstr "温度"
+
+#: crates/rigg/src/widgets/chart.rs:2044
+msgid "Minnekontroller"
+msgstr "メモリコントローラー"
+
+#: crates/rigg/src/widgets/chart.rs:2051
+msgid "Kjerne"
+msgstr "カーネル"
+
+#: crates/rigg/src/widgets/chart.rs:2055
+msgid "Minne"
+msgstr "メモリ"
+
+#: crates/rigg/src/widgets/chart.rs:2060
+msgid "Trekk"
+msgstr "消費電力"
+
+#: crates/rigg/src/widgets/chart.rs:2060
+msgid "Grense"
+msgstr "上限"
+
+#: crates/rigg/src/widgets/chart.rs:2066
+msgid "Vifte"
+msgstr "ファン"
+
+#: crates/rigg/src/widgets/chart.rs:2070 crates/rigg/src/widgets/chart.rs:2078
+msgid "Brukt"
+msgstr "使用済み"
+
+#: crates/rigg/src/widgets/chart.rs:2076
+msgid "Total"
+msgstr "合計"
+
+#: crates/rigg/src/widgets/chart.rs:2077
+msgid "Temperatur (Tdie)"
+msgstr "温度 (Tdie)"
+
+#: crates/rigg/src/widgets/chart.rs:2082
+msgid "Ingen disk med temperatur"
+msgstr "温度を取得できるドライブがありません"
+
+#: crates/rigg/src/widgets/chart.rs:2089
+msgid "Lesing"
+msgstr "読み取り"
+
+#: crates/rigg/src/widgets/chart.rs:2089
+msgid "Skriving"
+msgstr "書き込み"
+
+#: crates/rigg/src/widgets/chart.rs:2098
+msgid "Mottatt"
+msgstr "受信"
+
+#: crates/rigg/src/widgets/chart.rs:2098
+msgid "Sendt"
+msgstr "送信"

@@ -1,0 +1,65 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg-core/src/history.rs:429
+msgid "fila er større enn grensen"
+msgstr "fichier trop volumineux"
+
+#: crates/rigg-core/src/history.rs:436
+msgid "{name} kunne ikke leses ({why}). Historikken begynner på nytt."
+msgstr "Impossible de lire {name} ({why}). L’historique repart de zéro."
+
+#: crates/rigg-core/src/history.rs:447
+msgid "ukjent format"
+msgstr "format inconnu"
+
+#: crates/rigg-core/src/history.rs:450
+msgid "ukjent versjon"
+msgstr "version inconnue"
+
+#: crates/rigg-core/src/history.rs:455
+msgid "for mange serier"
+msgstr "trop de séries"
+
+#: crates/rigg-core/src/history.rs:460
+msgid "ugyldig nøkkel"
+msgstr "clé non valide"
+
+#: crates/rigg-core/src/history.rs:462
+msgid "ugyldige serier"
+msgstr "séries non valides"
+
+#: crates/rigg-core/src/history.rs:468
+msgid "ugyldig takt"
+msgstr "intervalle d’échantillonnage non valide"
+
+#: crates/rigg-core/src/history.rs:477
+msgid "ugyldige lag"
+msgstr "couches non valides"
+
+#: crates/rigg-core/src/history.rs:482
+msgid "for mange rader"
+msgstr "trop de lignes"
+
+#: crates/rigg-core/src/history.rs:488
+msgid "ugyldig rad"
+msgstr "ligne non valide"
+
+#: crates/rigg-core/src/history.rs:494
+msgid "ugyldig verdi"
+msgstr "valeur non valide"
+
+#: crates/rigg-core/src/history.rs:506
+msgid "ekstra data på slutten"
+msgstr "données superflues en fin de fichier"
+
+#: crates/rigg-core/src/history.rs:540
+msgid "fila er avkortet"
+msgstr "fichier tronqué"

@@ -1,0 +1,57 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n == 1 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : 2);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/riggd/src/tasks.rs:67
+msgid "GPU-minne fra NVML (avrundet til MiB). GPU-bruk per prosess er ikke tilgjengelig."
+msgstr "Pamięć GPU z NVML (zaokrąglona do MiB). Użycie GPU według procesu jest niedostępne."
+
+#: crates/riggd/src/tasks.rs:69
+msgid "GPU-minne og GPU-bruk per prosess er ikke tilgjengelig."
+msgstr "Pamięć i użycie GPU według procesu są niedostępne."
+
+#: crates/riggd/src/tasks.rs:81
+msgid "Ugyldig søk eller sortering av oppgaver."
+msgstr "Nieprawidłowe wyszukiwanie lub sortowanie zadań."
+
+#: crates/riggd/src/tasks.rs:83
+msgid "Høyst 128 tegn i søket og 1–100 oppgaver per side."
+msgstr "Wyszukiwanie może mieć do 128 znaków, a strona od 1 do 100 zadań."
+
+#: crates/riggd/src/tasks.rs:88
+msgid "{key} må være et positivt heltall."
+msgstr "{key} musi być dodatnią liczbą całkowitą."
+
+#: crates/riggd/src/tasks.rs:94
+msgid "Velg enten et eksisterende eller et nyere prosessbilde."
+msgstr "Wybierz istniejącą migawkę procesów lub poproś o nowszą."
+
+#: crates/riggd/src/tasks.rs:156
+msgid "Agentic Rigg eller en tilkoblet klient"
+msgstr "Agentic Rigg lub połączony klient"
+
+#: crates/riggd/src/tasks.rs:169
+msgid "GPU-bruk per prosess er ikke tilgjengelig."
+msgstr "Użycie GPU według procesu jest niedostępne."
+
+#: crates/riggd/src/tasks.rs:175
+msgid "Avslutning krever en egen bekreftelse."
+msgstr "Zakończenie zadania wymaga osobnego potwierdzenia."
+
+#: crates/riggd/src/tasks.rs:181
+msgid "Ugyldig prosess-ID."
+msgstr "Nieprawidłowy identyfikator procesu."
+
+#: crates/riggd/src/tasks.rs:186
+msgid "Prosessens starttid må følge med."
+msgstr "Wymagany jest czas uruchomienia procesu."
+
+#: crates/riggd/src/tasks.rs:189
+msgid "Agentic Rigg og tilkoblede klienter er beskyttet."
+msgstr "Agentic Rigg i połączeni klienci są chronieni."

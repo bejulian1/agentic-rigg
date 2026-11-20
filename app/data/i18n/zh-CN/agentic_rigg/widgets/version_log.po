@@ -1,0 +1,25 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/widgets/version_log.rs:63
+msgid "Versjonslogg"
+msgstr "版本记录"
+
+#: crates/rigg/src/widgets/version_log.rs:65
+msgid "Desktoputgavene, fra nyeste til eldste. Åpne en versjon for å se endringene."
+msgstr "桌面版从新到旧排列。展开某个版本即可查看更改。"
+
+#: crates/rigg/src/widgets/version_log.rs:74
+msgid "{versjon} · bygg {bygg} · {dato}"
+msgstr "{versjon} · 构建 {bygg} · {dato}"
+
+#: crates/rigg/src/widgets/version_log.rs:88
+msgid "Versjonsloggen kunne ikke leses fra appen."
+msgstr "无法读取应用内置的版本记录。"

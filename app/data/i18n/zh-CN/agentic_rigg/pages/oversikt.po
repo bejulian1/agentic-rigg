@@ -1,0 +1,419 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/pages/oversikt.rs:88 crates/rigg/src/pages/oversikt.rs:99
+msgid "Prosessor"
+msgstr "处理器"
+
+#: crates/rigg/src/pages/oversikt.rs:89 crates/rigg/src/pages/oversikt.rs:740
+msgid "Skjermkort"
+msgstr "显卡"
+
+#: crates/rigg/src/pages/oversikt.rs:90 crates/rigg/src/pages/oversikt.rs:620 crates/rigg/src/pages/oversikt.rs:652
+msgid "Minne"
+msgstr "内存"
+
+#: crates/rigg/src/pages/oversikt.rs:92 crates/rigg/src/pages/oversikt.rs:102
+msgid "Disker"
+msgstr "磁盘"
+
+#: crates/rigg/src/pages/oversikt.rs:93 crates/rigg/src/pages/oversikt.rs:1065
+msgid "Nettverk"
+msgstr "网络"
+
+#: crates/rigg/src/pages/oversikt.rs:100 crates/rigg/src/pages/oversikt.rs:744
+msgid "Grafikkort"
+msgstr "显卡"
+
+#: crates/rigg/src/pages/oversikt.rs:101
+msgid "System"
+msgstr "系统"
+
+#: crates/rigg/src/pages/oversikt.rs:103
+msgid "Klokker og effekt"
+msgstr "频率与功耗"
+
+#: crates/rigg/src/pages/oversikt.rs:104
+msgid "Sensorer"
+msgstr "传感器"
+
+#: crates/rigg/src/pages/oversikt.rs:196
+msgid "{what}\nSparklinja er siste minutt. Klikk for {side}."
+msgstr "{what}\n迷你趋势图显示最近一分钟的数据。单击打开“{side}”。"
+
+#: crates/rigg/src/pages/oversikt.rs:235
+msgid "Prosessor: total last, temperatur (Tdie) og snittklokke over trådene."
+msgstr "处理器：总利用率、温度（Tdie）和所有线程的平均频率。"
+
+#: crates/rigg/src/pages/oversikt.rs:252
+msgid "Ny driver"
+msgstr "新驱动"
+
+#: crates/rigg/src/pages/oversikt.rs:252
+msgid "Ingen driver"
+msgstr "无驱动"
+
+#: crates/rigg/src/pages/oversikt.rs:254
+msgid "start maskinen på nytt"
+msgstr "请重启计算机"
+
+#: crates/rigg/src/pages/oversikt.rs:254
+msgid "fant ikke NVIDIA-driveren"
+msgstr "未找到 NVIDIA 驱动"
+
+#: crates/rigg/src/pages/oversikt.rs:255
+msgid "En ny NVIDIA-driver er installert, men den gamle kjører fortsatt."
+msgstr "已安装新版 NVIDIA 驱动，但旧版仍在运行。"
+
+#: crates/rigg/src/pages/oversikt.rs:255
+msgid "Fant ingen NVIDIA-driver. Prosessor, minne og disker vises som vanlig."
+msgstr "未找到 NVIDIA 驱动。处理器、内存和磁盘仍正常显示。"
+
+#: crates/rigg/src/pages/oversikt.rs:258
+msgid "svarer ikke"
+msgstr "无响应"
+
+#: crates/rigg/src/pages/oversikt.rs:259
+msgid "Skjermkortet svarer ikke. Tjenesten prøver å finne det igjen hvert 10. s."
+msgstr "显卡无响应。服务每 10 s 尝试重新检测一次。"
+
+#: crates/rigg/src/pages/oversikt.rs:269
+msgid "{brukt} av {totalt}"
+msgstr "{brukt} / {totalt}"
+
+#: crates/rigg/src/pages/oversikt.rs:276
+msgid "Skjermkort: GPU-last, temperatur, effekt av effektgrensen og P-tilstand (P0 er full ytelse, P8 er tomgang)."
+msgstr "显卡：GPU 利用率、温度、功耗与上限的对比，以及性能状态（P0 为全速，P8 为空闲）。"
+
+#: crates/rigg/src/pages/oversikt.rs:289 crates/rigg/src/pages/oversikt.rs:304
+msgid "av {verdi}"
+msgstr "共 {verdi}"
+
+#: crates/rigg/src/pages/oversikt.rs:291
+msgid "Minne: det programmene bruker, av totalt. Buffer og cache er ikke med."
+msgstr "内存：应用占用的内存量与总量，不包括缓冲区和缓存。"
+
+#: crates/rigg/src/pages/oversikt.rs:306
+msgid "Videominne brukt på skjermkortet, av totalt. Gult over 85 %, rødt over 95 %."
+msgstr "显卡已用显存占总量的比例。超过 85% 显示黄色，超过 95% 显示红色。"
+
+#: crates/rigg/src/pages/oversikt.rs:316
+msgid "ingen disker"
+msgstr "无磁盘"
+
+#: crates/rigg/src/pages/oversikt.rs:323
+msgid "maks {verdi}"
+msgstr "最大 {verdi}"
+
+#: crates/rigg/src/pages/oversikt.rs:324
+msgid "uten temperatur"
+msgstr "无温度读数"
+
+#: crates/rigg/src/pages/oversikt.rs:336
+msgid "Disker: samlet hastighet (lesing og skriving), varmeste disk og SMART-helsa.\n{helse}\nSparklinja er siste minutt. Klikk for Disker."
+msgstr "磁盘：读写总速率、温度最高的磁盘和 SMART 健康状态。\n{helse}\n迷你趋势图显示最近一分钟的数据。单击打开“磁盘”。"
+
+#: crates/rigg/src/pages/oversikt.rs:344
+msgid "{fail} feil"
+msgid_plural "{fail} med feil"
+msgstr[0] "{fail} 个故障"
+
+#: crates/rigg/src/pages/oversikt.rs:346
+msgid "{antall} advarsel"
+msgid_plural "{antall} advarsler"
+msgstr[0] "{antall} 个警告"
+
+#: crates/rigg/src/pages/oversikt.rs:348
+msgid "alle OK"
+msgstr "全部正常"
+
+#: crates/rigg/src/pages/oversikt.rs:350
+msgid "helse ukjent"
+msgstr "健康状态未知"
+
+#: crates/rigg/src/pages/oversikt.rs:364
+msgid "{u} ned"
+msgstr "{u} 下载"
+
+#: crates/rigg/src/pages/oversikt.rs:368
+msgid "{verdi} opp"
+msgstr "{verdi} 上传"
+
+#: crates/rigg/src/pages/oversikt.rs:369
+msgid "Nettverk: mottatt og sendt over de fysiske nettverkskortene."
+msgstr "网络：通过物理网络适配器接收和发送的流量。"
+
+#: crates/rigg/src/pages/oversikt.rs:415
+msgid "Skjermkortet svarer ikke"
+msgstr "显卡无响应"
+
+#: crates/rigg/src/pages/oversikt.rs:417
+msgid "siden {s} · tjenesten prøver igjen hvert 10. s"
+msgstr "始于 {s} · 服务每 10 s 重试"
+
+#: crates/rigg/src/pages/oversikt.rs:418
+msgid "tjenesten prøver igjen hvert 10. s"
+msgstr "服务每 10 s 重试"
+
+#: crates/rigg/src/pages/oversikt.rs:422
+msgid "Driveren er oppdatert"
+msgstr "驱动已更新"
+
+#: crates/rigg/src/pages/oversikt.rs:422
+msgid "start maskinen på nytt for å lese skjermkortet"
+msgstr "请重启计算机以读取显卡数据"
+
+#: crates/rigg/src/pages/oversikt.rs:423
+msgid "Fant ingen NVIDIA-driver"
+msgstr "未找到 NVIDIA 驱动"
+
+#: crates/rigg/src/pages/oversikt.rs:423
+msgid "prosessor, minne og disker vises som vanlig"
+msgstr "处理器、内存和磁盘仍正常显示"
+
+#: crates/rigg/src/pages/oversikt.rs:429
+msgid "Skjermkortet nedklokker"
+msgstr "显卡正在降频"
+
+#: crates/rigg/src/pages/oversikt.rs:435
+msgid "over nedklokkingsgrensen ({verdi})"
+msgstr "超过降频阈值（{verdi}）"
+
+#: crates/rigg/src/pages/oversikt.rs:435
+msgid "ved nedklokkingsgrensen ({verdi})"
+msgstr "达到降频阈值（{verdi}）"
+
+#: crates/rigg/src/pages/oversikt.rs:438 crates/rigg/src/pages/oversikt.rs:447
+msgid "over rød grense ({verdi})"
+msgstr "超过严重告警阈值（{verdi}）"
+
+#: crates/rigg/src/pages/oversikt.rs:440 crates/rigg/src/pages/oversikt.rs:449
+msgid "over gul grense ({verdi})"
+msgstr "超过预警阈值（{verdi}）"
+
+#: crates/rigg/src/pages/oversikt.rs:453
+msgid "Minne {verdi}"
+msgstr "内存 {verdi}"
+
+#: crates/rigg/src/pages/oversikt.rs:453
+msgid "nesten fullt"
+msgstr "即将用完"
+
+#: crates/rigg/src/pages/oversikt.rs:461
+msgid "se SMART"
+msgstr "查看 SMART"
+
+#: crates/rigg/src/pages/oversikt.rs:530
+msgid "{status} {detalj}. Klikk for {side}."
+msgstr "{status} {detalj}。单击打开“{side}”。"
+
+#: crates/rigg/src/pages/oversikt.rs:548
+msgid "Tilstand: {summary}"
+msgstr "状态：{summary}"
+
+#: crates/rigg/src/pages/oversikt.rs:590
+msgid "Last"
+msgstr "利用率"
+
+#: crates/rigg/src/pages/oversikt.rs:613
+msgid "Temperaturer"
+msgstr "温度"
+
+#: crates/rigg/src/pages/oversikt.rs:652
+msgid "Minne og VRAM"
+msgstr "内存与 VRAM"
+
+#: crates/rigg/src/pages/oversikt.rs:687
+msgid "Temperatur og effekt"
+msgstr "温度与功耗"
+
+#: crates/rigg/src/pages/oversikt.rs:696 crates/rigg/src/pages/oversikt.rs:711
+msgid "GPU-temperatur"
+msgstr "GPU 温度"
+
+#: crates/rigg/src/pages/oversikt.rs:709
+msgid "Høyeste GPU-temperatur de siste 5 minuttene"
+msgstr "最近 5 分钟的最高 GPU 温度"
+
+#: crates/rigg/src/pages/oversikt.rs:722 crates/rigg/src/pages/oversikt.rs:729 crates/rigg/src/pages/oversikt.rs:1061
+msgid "GPU-effekt"
+msgstr "GPU 功耗"
+
+#: crates/rigg/src/pages/oversikt.rs:747
+msgid "Alt driveren og kortet oppgir, på Grafikkort"
+msgstr "在“显卡”页面查看驱动和显卡提供的所有数据"
+
+#: crates/rigg/src/pages/oversikt.rs:753
+msgid "P-tilstand"
+msgstr "P 状态"
+
+#: crates/rigg/src/pages/oversikt.rs:755
+msgid "Kjerneklokke"
+msgstr "核心频率"
+
+#: crates/rigg/src/pages/oversikt.rs:755
+msgid "Minneklokke"
+msgstr "内存频率"
+
+#: crates/rigg/src/pages/oversikt.rs:766
+msgid "Nå og kortets høyeste (fra driveren)"
+msgstr "当前频率和显卡最高频率（由驱动报告）"
+
+#: crates/rigg/src/pages/oversikt.rs:770
+msgid "Vifter"
+msgstr "风扇"
+
+#: crates/rigg/src/pages/oversikt.rs:771
+msgid "Viftestyring"
+msgstr "风扇控制"
+
+#: crates/rigg/src/pages/oversikt.rs:773
+msgid "Video (enc / dek)"
+msgstr "视频（编码 / 解码）"
+
+#: crates/rigg/src/pages/oversikt.rs:774
+msgid "Last på maskinvarens videokoder (encoder) og -dekoder (decoder)."
+msgstr "硬件视频编码器和解码器的利用率。"
+
+#: crates/rigg/src/pages/oversikt.rs:804
+msgid "maks 5 min: {verdi}"
+msgstr "5 分钟最高：{verdi}"
+
+#: crates/rigg/src/pages/oversikt.rs:819
+msgid " · {verdi} under nedklokking"
+msgstr " · 距降频阈值 {verdi}"
+
+#: crates/rigg/src/pages/oversikt.rs:821
+msgid " · over nedklokkingsgrensen"
+msgstr " · 超过降频阈值"
+
+#: crates/rigg/src/pages/oversikt.rs:823
+msgid " · ved nedklokkingsgrensen"
+msgstr " · 达到降频阈值"
+
+#: crates/rigg/src/pages/oversikt.rs:827
+msgid " · over rød grense ({verdi})"
+msgstr " · 超过严重告警阈值（{verdi}）"
+
+#: crates/rigg/src/pages/oversikt.rs:828
+msgid " · over gul grense ({verdi})"
+msgstr " · 超过预警阈值（{verdi}）"
+
+#: crates/rigg/src/pages/oversikt.rs:840
+msgid "Mål"
+msgstr "目标"
+
+#: crates/rigg/src/pages/oversikt.rs:840
+msgid "Nedklokking"
+msgstr "降频"
+
+#: crates/rigg/src/pages/oversikt.rs:843 crates/rigg/src/pages/oversikt.rs:847
+msgid "Avstenging"
+msgstr "关断"
+
+#: crates/rigg/src/pages/oversikt.rs:847 crates/rigg/src/pages/oversikt.rs:892
+msgid "Nå"
+msgstr "当前"
+
+#: crates/rigg/src/pages/oversikt.rs:848
+msgid "Fra {min} til avstenging ({avstenging}). Over målet ({target}) senker kortet klokken litt, ved {nedklokking} tvinger det nedklokking. Gul og rød fyll betyr over varselgrensene {gul} og {red} (Innstillinger › Grafer og sensorer)."
+msgstr "从 {min} 到关机温度（{avstenging}）。超过目标温度（{target}）时，显卡会略微降频；达到 {nedklokking} 时会强制降频。黄色和红色填充分别表示超过阈值 {gul} 和 {red}（设置 › 图表和传感器）。"
+
+#: crates/rigg/src/pages/oversikt.rs:852 crates/rigg/src/pages/oversikt.rs:897 crates/rigg/src/pages/oversikt.rs:939
+msgid "Ikke støttet"
+msgstr "不支持"
+
+#: crates/rigg/src/pages/oversikt.rs:866
+msgid "{trekk} av {grense}"
+msgstr "{trekk} / {grense}"
+
+#: crates/rigg/src/pages/oversikt.rs:873
+msgid "Grense (standard)"
+msgstr "上限（默认）"
+
+#: crates/rigg/src/pages/oversikt.rs:873
+msgid "Grense"
+msgstr "上限"
+
+#: crates/rigg/src/pages/oversikt.rs:875
+msgid "Standard"
+msgstr "默认"
+
+#: crates/rigg/src/pages/oversikt.rs:879
+msgid " Grensen kan settes fra {min} til {maks}."
+msgstr "上限可设为 {min} 至 {maks}。"
+
+#: crates/rigg/src/pages/oversikt.rs:884 crates/rigg/src/pages/oversikt.rs:892
+msgid "Kortets maks"
+msgstr "显卡最大值"
+
+#: crates/rigg/src/pages/oversikt.rs:893
+msgid "Trekket nå mot effektgrensen, snitt fra energitelleren. Gult fyll betyr at kortet er ved grensen og holder igjen.{range}"
+msgstr "当前功耗与功耗上限的对比；功耗为根据能量计数器计算的平均值。黄色填充表示显卡已达到上限并限制性能。{range}"
+
+#: crates/rigg/src/pages/oversikt.rs:895
+msgid "{verdi} av grensen"
+msgstr "达上限的 {verdi}"
+
+#: crates/rigg/src/pages/oversikt.rs:906
+msgid "ingen begrensning"
+msgstr "未受限制"
+
+#: crates/rigg/src/pages/oversikt.rs:913
+msgid "P0 er full ytelse, P8 er dyp tomgang. Kortet bytter selv."
+msgstr "P0 表示全速性能，P8 表示深度空闲。显卡会自动切换状态。"
+
+#: crates/rigg/src/pages/oversikt.rs:915
+msgid "\nBegrensninger nå: {full}."
+msgstr "\n当前性能限制：{full}。"
+
+#: crates/rigg/src/pages/oversikt.rs:917
+msgid "\nKlokken begrenses nå av: {x}."
+msgstr "\n当前频率受以下因素限制：{x}。"
+
+#: crates/rigg/src/pages/oversikt.rs:920
+msgid "\nI P8 leses ikke begrensningene (kallet koster 25 ms og vekker kortet)."
+msgstr "\nP8 状态下不读取限制原因（查询耗时 25 ms，并会唤醒显卡）。"
+
+#: crates/rigg/src/pages/oversikt.rs:937
+msgid "{verdi1} · {verdi2} o/min"
+msgstr "{verdi1} · {verdi2} RPM"
+
+#: crates/rigg/src/pages/oversikt.rs:944
+msgid "Auto · driveren styrer"
+msgstr "自动 · 由驱动控制"
+
+#: crates/rigg/src/pages/oversikt.rs:944
+msgid "Driveren styrer viftene etter temperaturen, som uten appen."
+msgstr "驱动会根据温度调节风扇，与不使用本应用时相同。"
+
+#: crates/rigg/src/pages/oversikt.rs:945
+msgid "Manuell · satt utenfor appen"
+msgstr "手动 · 在应用外设置"
+
+#: crates/rigg/src/pages/oversikt.rs:945
+msgid "Minst én vifte er satt til fast fart utenfor appen."
+msgstr "至少一个风扇已在应用外设为固定转速。"
+
+#: crates/rigg/src/pages/oversikt.rs:946
+msgid "Viftestyringen er ikke lest ennå, eller kortet oppgir den ikke."
+msgstr "尚未读取风扇控制模式，或显卡未提供该信息。"
+
+#: crates/rigg/src/pages/oversikt.rs:955
+msgid "PCIe-lenken mellom kortet og hovedkortet."
+msgstr "显卡与主板之间的 PCIe 链路。"
+
+#: crates/rigg/src/pages/oversikt.rs:1064
+msgid "Disk-I/O"
+msgstr "磁盘 I/O"
+
+#: crates/rigg/src/pages/oversikt.rs:1096
+msgid "Tidsvindu for grafene på Oversikt"
+msgstr "“概览”中图表的时间范围"

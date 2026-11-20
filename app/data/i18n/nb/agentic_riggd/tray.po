@@ -1,0 +1,74 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: nb\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: crates/riggd/src/tray.rs:104
+msgid "Ingen tall fra skjermkortet"
+msgstr "Ingen tall fra skjermkortet"
+
+#: crates/riggd/src/tray.rs:106
+msgid "GPU {temperatur} · {effekt} · {last} last"
+msgstr "GPU {temperatur} · {effekt} · {last} last"
+
+#: crates/riggd/src/tray.rs:109
+msgid " · Logger"
+msgstr " · Logger"
+
+#: crates/riggd/src/tray.rs:120
+msgid "Logger til fil · {antall} rader"
+msgid_plural "Logger til fil · {antall} rader"
+msgstr[0] "Logger til fil · {antall} rader"
+msgstr[1] "Logger til fil · {antall} rader"
+
+#: crates/riggd/src/tray.rs:121
+msgid "Logger til fil"
+msgstr "Logger til fil"
+
+#: crates/riggd/src/tray.rs:124
+msgid "Tar opp historikk i bakgrunnen"
+msgstr "Tar opp historikk i bakgrunnen"
+
+#: crates/riggd/src/tray.rs:169
+msgid "Åpne Agentic Rigg"
+msgstr "Åpne Agentic Rigg"
+
+#: crates/riggd/src/tray.rs:170
+msgid "Stopp logging"
+msgstr "Stopp logging"
+
+#: crates/riggd/src/tray.rs:170
+msgid "Start logging"
+msgstr "Start logging"
+
+#: crates/riggd/src/tray.rs:172
+msgid "Stopp bakgrunnsopptak"
+msgstr "Stopp bakgrunnsopptak"
+
+#: crates/riggd/src/tray.rs:558
+msgid "Systemfeltet: verten tok ikke imot ikonet: {e}"
+msgstr "Systemfeltet: verten tok ikke imot ikonet: {e}"
+
+#: crates/riggd/src/tray.rs:668
+msgid "Systemfeltet kunne ikke lages: {e}"
+msgstr "Systemfeltet kunne ikke lages: {e}"
+
+#: crates/riggd/src/tray.rs:678
+msgid "Kunne ikke starte loggen fra systemfeltet: {verdi}"
+msgstr "Kunne ikke starte loggen fra systemfeltet: {verdi}"
+
+#: crates/riggd/src/tray.rs:688
+msgid "Stopper bakgrunnsopptaket fra systemfeltet."
+msgstr "Stopper bakgrunnsopptaket fra systemfeltet."
+
+#: crates/riggd/src/tray.rs:713
+msgid "Kunne ikke åpne Agentic Rigg: {e}"
+msgstr "Kunne ikke åpne Agentic Rigg: {e}"
+
+#: crates/riggd/src/tray.rs:716
+msgid "Fant ikke Agentic Rigg ({desktop})."
+msgstr "Fant ikke Agentic Rigg ({desktop})."

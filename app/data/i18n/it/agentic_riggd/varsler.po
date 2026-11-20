@@ -1,0 +1,95 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/riggd/src/varsler.rs:89
+msgid "{what} er {temperatur}"
+msgstr "{what}: {temperatur}"
+
+#: crates/riggd/src/varsler.rs:89
+msgid "Over den røde grensen på {grense} siden {tid}."
+msgstr "Oltre la soglia critica di {grense} dalle {tid}."
+
+#: crates/riggd/src/varsler.rs:121
+msgid "Temperaturen på skjermkort {verdi}"
+msgstr "Temperatura GPU {verdi}"
+
+#: crates/riggd/src/varsler.rs:121
+msgid "GPU-temperaturen"
+msgstr "Temperatura GPU"
+
+#: crates/riggd/src/varsler.rs:126
+msgid "CPU-temperaturen"
+msgstr "Temperatura CPU"
+
+#: crates/riggd/src/varsler.rs:152
+msgid "Skjermkortet svarer ikke"
+msgstr "La GPU non risponde"
+
+#: crates/riggd/src/varsler.rs:153
+msgid "{kortnavn}Siden {tid}. Det skjer når kortet faller av bussen eller trekkes ut. Tallene før det er tatt vare på."
+msgstr "{kortnavn}Dalle {tid}. La GPU potrebbe essersi scollegata dal bus o essere stata rimossa. Le letture precedenti sono state conservate."
+
+#: crates/riggd/src/varsler.rs:156
+msgid "Driveren er oppdatert"
+msgstr "Driver aggiornato"
+
+#: crates/riggd/src/varsler.rs:157
+msgid "Ny NVIDIA-driver ({ny}) er installert, men den gamle ({gammel}) kjører fortsatt. Start maskinen på nytt for å lese skjermkortet."
+msgstr "È installato un nuovo driver NVIDIA ({ny}), ma il precedente ({gammel}) è ancora in esecuzione. Riavvia il computer per leggere la scheda grafica."
+
+#: crates/riggd/src/varsler.rs:159
+msgid "ny"
+msgstr "nuovo"
+
+#: crates/riggd/src/varsler.rs:160
+msgid "gammel"
+msgstr "precedente"
+
+#: crates/riggd/src/varsler.rs:163
+msgid "Fant ingen NVIDIA-driver"
+msgstr "Nessun driver NVIDIA trovato"
+
+#: crates/riggd/src/varsler.rs:163
+msgid "Prosessor, minne og sensorer vises som vanlig."
+msgstr "Processore, memoria e sensori vengono mostrati come di consueto."
+
+#: crates/riggd/src/varsler.rs:164
+msgid "Skjermkortet svarer igjen"
+msgstr "La GPU risponde di nuovo"
+
+#: crates/riggd/src/varsler.rs:164
+msgid "{kortnavn}Det er funnet igjen og leses som før."
+msgstr "{kortnavn}La GPU è stata rilevata di nuovo e il monitoraggio è ripreso."
+
+#: crates/riggd/src/varsler.rs:200
+msgid "Disken {name} feiler"
+msgstr "L’unità {name} è in avaria"
+
+#: crates/riggd/src/varsler.rs:200
+msgid "{why}. Ta sikkerhetskopi av det som ligger på disken ({enhet})."
+msgstr "{why}. Esegui il backup dei dati su questa unità ({enhet})."
+
+#: crates/riggd/src/varsler.rs:207
+msgid "Nye dårlige sektorer på {name}"
+msgstr "Nuovi settori danneggiati su {name}"
+
+#: crates/riggd/src/varsler.rs:208
+msgid "{antall} dårlig sektor (var {b}). Ta sikkerhetskopi av det som ligger på disken ({enhet})."
+msgid_plural "{antall} dårlige sektorer (var {b}). Ta sikkerhetskopi av det som ligger på disken ({enhet})."
+msgstr[0] "{antall} settore danneggiato (prima: {b}). Esegui il backup dei dati su questa unità ({enhet})."
+msgstr[1] "{antall} settori danneggiati (prima: {b}). Esegui il backup dei dati su questa unità ({enhet})."
+
+#: crates/riggd/src/varsler.rs:262
+msgid "Åpne"
+msgstr "Apri"
+
+#: crates/riggd/src/varsler.rs:284
+msgid "Kunne ikke sende skrivebordsvarsel: {e}"
+msgstr "Impossibile inviare la notifica desktop: {e}"

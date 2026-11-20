@@ -1,6 +1,7 @@
 //! Oppgavebehandling: avgrenset IPC over prøvetrådens prosessbilder.
 //! Ingen ny tråd eller historikkbuffer; SIGTERM bruker aldri GPU-hjelperen.
 
+use rigg_core::{tr, trf};
 use crate::daemon::Daemon;
 use rigg_core::process::{MAX_PAGE_ROWS, ProcessIdentity, ProcessQuery, ProcessSnapshot};
 use rigg_core::proto::{ErrorCode, OpResult, ProtoError};
@@ -63,9 +64,9 @@ pub fn with_gpu(mut processes: ProcessSnapshot, gpu_lists: &[(String, Value)], n
         gpu_sampled_at_ms,
         gpu_source: if valid { "nvml" } else { "unavailable" },
         gpu_note: if valid {
-            "GPU-minne fra NVML (avrundet til MiB). GPU-bruk per prosess er ikke tilgjengelig."
+            tr!("GPU-minne fra NVML (avrundet til MiB). GPU-bruk per prosess er ikke tilgjengelig.")
         } else {
-            "GPU-minne og GPU-bruk per prosess er ikke tilgjengelig."
+            tr!("GPU-minne og GPU-bruk per prosess er ikke tilgjengelig.")
         }
         .into(),
     }
@@ -77,20 +78,20 @@ fn invalid(message: &str) -> ProtoError {
 
 impl Daemon {
     pub(crate) fn op_get_tasks(&mut self, sid: u64, args: &Value) -> OpResult {
-        let mut query: ProcessQuery = serde_json::from_value(args.clone()).map_err(|_| invalid("Ugyldig søk eller sortering av oppgaver."))?;
+        let mut query: ProcessQuery = serde_json::from_value(args.clone()).map_err(|_| invalid(tr!("Ugyldig søk eller sortering av oppgaver.")))?;
         if query.filter.chars().count() > 128 || query.limit == 0 || query.limit > MAX_PAGE_ROWS || query.offset > 1_000_000 {
-            return Err(invalid("Høyst 128 tegn i søket og 1–100 oppgaver per side."));
+            return Err(invalid(tr!("Høyst 128 tegn i søket og 1–100 oppgaver per side.")));
         }
         let snapshot_arg = |key| match args.get(key) {
             None | Some(Value::Null) => Ok(None),
             Some(value) => value.as_u64().map(Some).ok_or_else(|| {
-                invalid(&format!("{key} må være et positivt heltall."))
+                invalid(&trf!("{key} må være et positivt heltall.", key = key))
             }),
         };
         let requested_id = snapshot_arg("snapshotId")?;
         let newer_than = snapshot_arg("newerThan")?;
         if requested_id.is_some() && newer_than.is_some() {
-            return Err(invalid("Velg enten et eksisterende eller et nyere prosessbilde."));
+            return Err(invalid(tr!("Velg enten et eksisterende eller et nyere prosessbilde.")));
         }
 
         let now = Instant::now();
@@ -152,7 +153,7 @@ impl Daemon {
                 row.protected_reason = Some(reason.clone());
             } else if protected.as_ref().is_ok_and(|pids| pids.contains(&row.identity.pid)) {
                 row.can_terminate = false;
-                row.protected_reason = Some("Agentic Rigg eller en tilkoblet klient".into());
+                row.protected_reason = Some(tr!("Agentic Rigg eller en tilkoblet klient").into());
             }
         }
         let age = snapshot.map(|s| now.saturating_duration_since(s.collected_at).as_millis() as u64);
@@ -165,27 +166,27 @@ impl Daemon {
         value["intervalMs"] = json!(TASK_INTERVAL_MS);
         value["gpuSampledAtMs"] = json!(snapshot.and_then(|s| s.gpu_sampled_at_ms));
         value["gpuSource"] = json!(snapshot.map_or("unavailable", |s| s.gpu_source));
-        value["gpuNote"] = json!(snapshot.map_or("GPU-bruk per prosess er ikke tilgjengelig.", |s| s.gpu_note.as_str()));
+        value["gpuNote"] = json!(snapshot.map_or(tr!("GPU-bruk per prosess er ikke tilgjengelig."), |s| s.gpu_note.as_str()));
         Ok(value)
     }
 
     pub(crate) fn op_terminate_task(&mut self, args: &Value) -> OpResult {
         if args.get("confirmed").and_then(Value::as_bool) != Some(true) {
-            return Err(invalid("Avslutning krever en egen bekreftelse."));
+            return Err(invalid(tr!("Avslutning krever en egen bekreftelse.")));
         }
         let pid = args
             .get("pid")
             .and_then(Value::as_u64)
             .filter(|pid| *pid > 1 && *pid <= i32::MAX as u64)
-            .ok_or_else(|| invalid("Ugyldig prosess-ID."))? as u32;
+            .ok_or_else(|| invalid(tr!("Ugyldig prosess-ID.")))? as u32;
         let start_ticks = args
             .get("expectedStartTicks")
             .and_then(Value::as_u64)
             .filter(|ticks| *ticks > 0)
-            .ok_or_else(|| invalid("Prosessens starttid må følge med."))?;
+            .ok_or_else(|| invalid(tr!("Prosessens starttid må følge med.")))?;
         let protected = self.task_protected_pids();
         if protected.contains(&pid) {
-            return Err(ProtoError::msg(ErrorCode::PermissionDenied, "Agentic Rigg og tilkoblede klienter er beskyttet."));
+            return Err(ProtoError::msg(ErrorCode::PermissionDenied, tr!("Agentic Rigg og tilkoblede klienter er beskyttet.")));
         }
         rigg_hw::sys::process::terminate_with_protected(&self.opts.root, ProcessIdentity { pid, start_ticks }, &protected).map_err(|message| ProtoError::msg(ErrorCode::PermissionDenied, message))?;
         Ok(json!({"pid": pid, "signal": "SIGTERM", "sent": true}))

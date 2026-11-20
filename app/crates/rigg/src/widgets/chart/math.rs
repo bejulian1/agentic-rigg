@@ -6,6 +6,7 @@
 //! test uten skjerm. Tidspunkter er ms siden 1970, og tidssonen kommer inn
 //! som forskyvning fra UTC i sekunder (vinduet slår den opp med libc).
 
+use rigg_core::{tr, trf};
 use rigg_core::fmt as F;
 
 /// Tidsvinduene brukeren kan velge (sekunder, kort navn med U+202F).
@@ -19,8 +20,25 @@ pub const WINDOWS: [(i64, &str); 7] = [
     (172800, "48\u{202f}t"),
 ];
 
+fn window_choice_label(sec: i64) -> Option<&'static str> {
+    Some(match sec {
+        60 => tr!("1\u{202f}min"),
+        300 => tr!("5\u{202f}min"),
+        900 => tr!("15\u{202f}min"),
+        3600 => tr!("1\u{202f}t"),
+        21600 => tr!("6\u{202f}t"),
+        86400 => tr!("24\u{202f}t"),
+        172800 => tr!("48\u{202f}t"),
+        _ => return None,
+    })
+}
+
+pub fn window_choices() -> impl Iterator<Item = (i64, &'static str)> {
+    WINDOWS.into_iter().map(|(sec, source)| (sec, window_choice_label(sec).unwrap_or(source)))
+}
+
 pub fn window_label(sec: i64) -> String {
-    WINDOWS.iter().find(|w| w.0 == sec).map(|w| w.1.to_string()).unwrap_or_else(|| format!("{}\u{202f}min", sec / 60))
+    window_choice_label(sec).map(str::to_owned).unwrap_or_else(|| trf!("{verdi}\u{202f}min", verdi = sec / 60))
 }
 
 /// Lange vinduer får klokkeslett på aksen og min/maks-bånd.
@@ -319,7 +337,7 @@ pub fn y_ticks(s: &Scale) -> Vec<f64> {
 /// «nå», «−45 s», «−4 min» (som demoens `ago`).
 pub fn ago(sec: i64, window_sec: i64) -> String {
     if sec <= 0 {
-        return "nå".into();
+        return tr!("nå").into();
     }
     if (window_sec > 120 || window_sec == 0) && sec % 60 == 0 {
         return format!("{}{}{}min", F::MINUS, sec / 60, F::NNBSP);
@@ -388,9 +406,9 @@ pub fn when(t: i64, now: i64, utc_offset_s: i64, seconds: bool) -> String {
     let day = |ms: i64| (ms / 1000 + utc_offset_s).div_euclid(86_400);
     let (d, dn) = (day(t), day(now));
     if d == dn {
-        format!("i dag {hm}")
+        trf!("i dag {hm}", hm = hm)
     } else if d == dn - 1 {
-        format!("i går {hm}")
+        trf!("i går {hm}", hm = hm)
     } else {
         format!("{} {hm}", day_short(t, utc_offset_s))
     }
@@ -741,13 +759,13 @@ pub fn nearest(t: &[i64], start: usize, th: i64, t_now: i64, max_dist: i64) -> O
 pub fn hover_head(t: i64, t_now: i64, window_sec: i64, step_ms: i64, now: i64, utc_offset_s: i64) -> String {
     if window_sec <= 300 && step_ms <= 1000 {
         let s = ((t_now - t) as f64 / 1000.0).round().max(0.0) as i64;
-        return if s == 0 { "nå".into() } else { format!("for {s}{}s siden", F::NNBSP) };
+        return if s == 0 { tr!("nå").into() } else { trf!("for {s}{verdi}s siden", s = s, verdi = F::NNBSP) };
     }
     let start = if step_ms > 1000 { t - step_ms / 2 } else { t };
     let head = when(start, now, utc_offset_s, step_ms < 60_000);
     if step_ms > 1000 {
         let over = if step_ms >= 60_000 { format!("{}{}min", step_ms / 60_000, F::NNBSP) } else { format!("{}{}s", step_ms / 1000, F::NNBSP) };
-        format!("{head} · snitt over {over}")
+        trf!("{head} · snitt over {over}", head = head, over = over)
     } else {
         head
     }
@@ -788,7 +806,7 @@ pub fn pcie_text(max_w: Option<f64>, max_g: Option<f64>, cur_w: Option<f64>, cur
     if low_g {
         extra.push_str(&gen_text(max_g));
     }
-    Some(format!("{now} · maks {extra}"))
+    Some(trf!("{now} · maks {extra}", now = now, extra = extra))
 }
 
 /// Forklaringen i verktøytipset, med overføringsrate per lane.
@@ -797,59 +815,56 @@ pub fn pcie_explain(max_g: Option<f64>, cur_g: Option<f64>) -> String {
     let rate = |g: f64| {
         let gi = g.round() as u32;
         match GT.iter().find(|x| x.0 == gi) {
-            Some((_, r)) => format!("{} = {r}{}GT/s per lane", gen_text(Some(g)), F::NNBSP),
+            Some((_, r)) => trf!("{verdi1} = {r}{verdi2}GT/s per lane", r = r, verdi1 = gen_text(Some(g)), verdi2 = F::NNBSP),
             None => gen_text(Some(g)),
         }
     };
     if c < m {
-        format!(
-            "Lenken går på {} nå fordi kortet sparer strøm i tomgang, og går opp til {} under last. {}, {}.",
-            gen_text(Some(c)),
-            gen_text(Some(m)),
-            rate(c),
-            rate(m)
-        )
+        trf!("Lenken går på {aktiv} nå fordi kortet sparer strøm i tomgang, og går opp til {maks} under last. {aktiv_hastighet}, {maks_hastighet}.", aktiv = gen_text(Some(c)), maks = gen_text(Some(m)), aktiv_hastighet = rate(c), maks_hastighet = rate(m))
     } else {
-        format!("Lenken går på full hastighet. {}.", rate(c))
+        trf!("Lenken går på full hastighet. {verdi}.", verdi = rate(c))
     }
 }
 
+type Reason = (u64, fn() -> &'static str);
+
 /// Klokkebegrensningene i masken fra NVML.
-const REASONS: [(u64, &str); 9] = [
-    (0x1, "Tomgang"),
-    (0x2, "App-klokker"),
-    (0x4, "Effektgrense"),
-    (0x8, "HW-nedklokking"),
-    (0x10, "Sync boost"),
-    (0x20, "Termisk (SW)"),
-    (0x40, "Termisk (HW)"),
-    (0x80, "Strømbrems (HW)"),
-    (0x100, "Skjermklokke"),
+const REASONS: [Reason; 9] = [
+    (0x1, || tr!("Tomgang")),
+    (0x2, || tr!("App-klokker")),
+    (0x4, || tr!("Effektgrense")),
+    (0x8, || tr!("HW-nedklokking")),
+    (0x10, || "Sync boost"),
+    (0x20, || tr!("Termisk (SW)")),
+    (0x40, || tr!("Termisk (HW)")),
+    (0x80, || tr!("Strømbrems (HW)")),
+    (0x100, || tr!("Skjermklokke")),
 ];
 
 pub fn throttle_list(mask: Option<u64>) -> Option<Vec<&'static str>> {
     let n = mask?;
-    Some(REASONS.iter().filter(|(b, _)| n & b != 0).map(|(_, t)| *t).collect())
+    Some(REASONS.iter().filter(|(b, _)| n & b != 0).map(|(_, text)| text()).collect())
 }
 
 /// Kort form: de alvorligste først, høyst `max`, og «+N» for resten. Gir
 /// (tekst, hele lista når noe er kuttet).
 pub fn throttle_short(mask: Option<u64>, max: usize) -> (String, String) {
-    let Some(l) = throttle_list(mask) else { return (F::DASH.into(), String::new()) };
-    if l.is_empty() {
-        return ("Ingen".into(), String::new());
+    let Some(mask) = mask else { return (F::DASH.into(), String::new()) };
+    let reasons: Vec<_> = REASONS.iter().filter(|(bit, _)| mask & bit != 0).collect();
+    if reasons.is_empty() {
+        return (tr!("Ingen").into(), String::new());
     }
-    const ORDER: [&str; 9] = ["Termisk (HW)", "Strømbrems (HW)", "HW-nedklokking", "Termisk (SW)", "Effektgrense", "Sync boost", "App-klokker", "Skjermklokke", "Tomgang"];
-    let mut sorted = l.clone();
-    sorted.sort_by_key(|x| ORDER.iter().position(|o| o == x).unwrap_or(5));
-    let shown = sorted.iter().take(max).copied().collect::<Vec<_>>().join(", ");
+    const ORDER: [u64; 9] = [0x40, 0x80, 0x8, 0x20, 0x4, 0x10, 0x2, 0x100, 0x1];
+    let mut sorted = reasons.clone();
+    sorted.sort_by_key(|(bit, _)| ORDER.iter().position(|entry| entry == bit));
+    let shown = sorted.iter().take(max).map(|(_, text)| text()).collect::<Vec<_>>().join(", ");
     let text = if sorted.len() > max { format!("{shown} +{}", sorted.len() - max) } else { shown };
-    (text, if l.len() > max { l.join(", ") } else { String::new() })
+    (text, if reasons.len() > max { reasons.iter().map(|(_, text)| text()).collect::<Vec<_>>().join(", ") } else { String::new() })
 }
 
 /// Er begrensningen noe annet enn tomgang? (varselfarge)
 pub fn throttle_serious(mask: Option<u64>) -> bool {
-    throttle_list(mask).is_some_and(|l| l.iter().any(|x| *x != "Tomgang" && *x != "Skjermklokke"))
+    REASONS.iter().any(|(bit, _)| matches!(bit, 0x2..=0x80) && mask.is_some_and(|value| value & bit != 0))
 }
 
 /// Nivå mot to grenser: «danger», «warn» eller «».
@@ -864,8 +879,8 @@ pub fn level(v: Option<f64>, warn: Option<f64>, crit: Option<f64>) -> &'static s
 /// Hva gul og rød betyr, i ord (verktøytipsene).
 pub fn level_text(level: &str) -> &'static str {
     match level {
-        "danger" => "Over rød varselgrense (Innstillinger › Grafer og sensorer).",
-        "warn" => "Over gul varselgrense (Innstillinger › Grafer og sensorer).",
+        "danger" => tr!("Over rød varselgrense (Innstillinger › Grafer og sensorer)."),
+        "warn" => tr!("Over gul varselgrense (Innstillinger › Grafer og sensorer)."),
         _ => "",
     }
 }

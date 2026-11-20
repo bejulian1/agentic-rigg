@@ -1,0 +1,25 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/widgets/version_log.rs:63
+msgid "Versjonslogg"
+msgstr "バージョン履歴"
+
+#: crates/rigg/src/widgets/version_log.rs:65
+msgid "Desktoputgavene, fra nyeste til eldste. Åpne en versjon for å se endringene."
+msgstr "デスクトップ版を新しい順に表示します。バージョンを展開すると変更点を確認できます。"
+
+#: crates/rigg/src/widgets/version_log.rs:74
+msgid "{versjon} · bygg {bygg} · {dato}"
+msgstr "{versjon} · ビルド {bygg} · {dato}"
+
+#: crates/rigg/src/widgets/version_log.rs:88
+msgid "Versjonsloggen kunne ikke leses fra appen."
+msgstr "アプリに内蔵されたバージョン履歴を読み込めませんでした。"

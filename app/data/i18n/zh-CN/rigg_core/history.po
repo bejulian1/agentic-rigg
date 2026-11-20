@@ -1,0 +1,65 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg-core/src/history.rs:429
+msgid "fila er større enn grensen"
+msgstr "文件超出大小限制"
+
+#: crates/rigg-core/src/history.rs:436
+msgid "{name} kunne ikke leses ({why}). Historikken begynner på nytt."
+msgstr "无法读取 {name}（{why}）。历史记录将重新开始。"
+
+#: crates/rigg-core/src/history.rs:447
+msgid "ukjent format"
+msgstr "未知格式"
+
+#: crates/rigg-core/src/history.rs:450
+msgid "ukjent versjon"
+msgstr "未知版本"
+
+#: crates/rigg-core/src/history.rs:455
+msgid "for mange serier"
+msgstr "数据系列过多"
+
+#: crates/rigg-core/src/history.rs:460
+msgid "ugyldig nøkkel"
+msgstr "键无效"
+
+#: crates/rigg-core/src/history.rs:462
+msgid "ugyldige serier"
+msgstr "数据系列无效"
+
+#: crates/rigg-core/src/history.rs:468
+msgid "ugyldig takt"
+msgstr "采样间隔无效"
+
+#: crates/rigg-core/src/history.rs:477
+msgid "ugyldige lag"
+msgstr "数据层无效"
+
+#: crates/rigg-core/src/history.rs:482
+msgid "for mange rader"
+msgstr "行数过多"
+
+#: crates/rigg-core/src/history.rs:488
+msgid "ugyldig rad"
+msgstr "行无效"
+
+#: crates/rigg-core/src/history.rs:494
+msgid "ugyldig verdi"
+msgstr "值无效"
+
+#: crates/rigg-core/src/history.rs:506
+msgid "ekstra data på slutten"
+msgstr "文件末尾有多余数据"
+
+#: crates/rigg-core/src/history.rs:540
+msgid "fila er avkortet"
+msgstr "文件已截断"

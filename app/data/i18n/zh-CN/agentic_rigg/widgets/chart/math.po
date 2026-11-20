@@ -1,0 +1,121 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/widgets/chart/math.rs:25
+msgid "1 min"
+msgstr "1 分钟"
+
+#: crates/rigg/src/widgets/chart/math.rs:26
+msgid "5 min"
+msgstr "5 分钟"
+
+#: crates/rigg/src/widgets/chart/math.rs:27
+msgid "15 min"
+msgstr "15 分钟"
+
+#: crates/rigg/src/widgets/chart/math.rs:28
+msgid "1 t"
+msgstr "1 小时"
+
+#: crates/rigg/src/widgets/chart/math.rs:29
+msgid "6 t"
+msgstr "6 小时"
+
+#: crates/rigg/src/widgets/chart/math.rs:30
+msgid "24 t"
+msgstr "24 小时"
+
+#: crates/rigg/src/widgets/chart/math.rs:31
+msgid "48 t"
+msgstr "48 小时"
+
+#: crates/rigg/src/widgets/chart/math.rs:41
+msgid "{verdi} min"
+msgstr "{verdi} 分钟"
+
+#: crates/rigg/src/widgets/chart/math.rs:340 crates/rigg/src/widgets/chart/math.rs:762
+msgid "nå"
+msgstr "现在"
+
+#: crates/rigg/src/widgets/chart/math.rs:409
+msgid "i dag {hm}"
+msgstr "今天 {hm}"
+
+#: crates/rigg/src/widgets/chart/math.rs:411
+msgid "i går {hm}"
+msgstr "昨天 {hm}"
+
+#: crates/rigg/src/widgets/chart/math.rs:762
+msgid "for {s}{verdi}s siden"
+msgstr "{s}{verdi}s 前"
+
+#: crates/rigg/src/widgets/chart/math.rs:768
+msgid "{head} · snitt over {over}"
+msgstr "{head} · {over} 内平均值"
+
+#: crates/rigg/src/widgets/chart/math.rs:809
+msgid "{now} · maks {extra}"
+msgstr "{now} · 最大 {extra}"
+
+#: crates/rigg/src/widgets/chart/math.rs:818
+msgid "{verdi1} = {r}{verdi2}GT/s per lane"
+msgstr "{verdi1} = 每通道 {r}{verdi2}GT/s"
+
+#: crates/rigg/src/widgets/chart/math.rs:823
+msgid "Lenken går på {aktiv} nå fordi kortet sparer strøm i tomgang, og går opp til {maks} under last. {aktiv_hastighet}, {maks_hastighet}."
+msgstr "显卡空闲时会降至 {aktiv} 以节省电量，负载增加时会升至 {maks}。{aktiv_hastighet}，{maks_hastighet}。"
+
+#: crates/rigg/src/widgets/chart/math.rs:825
+msgid "Lenken går på full hastighet. {verdi}."
+msgstr "链路正以全速运行。{verdi}。"
+
+#: crates/rigg/src/widgets/chart/math.rs:833
+msgid "Tomgang"
+msgstr "空闲"
+
+#: crates/rigg/src/widgets/chart/math.rs:834
+msgid "App-klokker"
+msgstr "应用频率"
+
+#: crates/rigg/src/widgets/chart/math.rs:835
+msgid "Effektgrense"
+msgstr "功耗上限"
+
+#: crates/rigg/src/widgets/chart/math.rs:836
+msgid "HW-nedklokking"
+msgstr "硬件降频"
+
+#: crates/rigg/src/widgets/chart/math.rs:838
+msgid "Termisk (SW)"
+msgstr "软件温控"
+
+#: crates/rigg/src/widgets/chart/math.rs:839
+msgid "Termisk (HW)"
+msgstr "硬件温控"
+
+#: crates/rigg/src/widgets/chart/math.rs:840
+msgid "Strømbrems (HW)"
+msgstr "硬件功率抑制"
+
+#: crates/rigg/src/widgets/chart/math.rs:841
+msgid "Skjermklokke"
+msgstr "显示时钟"
+
+#: crates/rigg/src/widgets/chart/math.rs:855
+msgid "Ingen"
+msgstr "无"
+
+#: crates/rigg/src/widgets/chart/math.rs:882
+msgid "Over rød varselgrense (Innstillinger › Grafer og sensorer)."
+msgstr "超过严重告警阈值（设置 › 图表和传感器）。"
+
+#: crates/rigg/src/widgets/chart/math.rs:883
+msgid "Over gul varselgrense (Innstillinger › Grafer og sensorer)."
+msgstr "超过预警阈值（设置 › 图表和传感器）。"

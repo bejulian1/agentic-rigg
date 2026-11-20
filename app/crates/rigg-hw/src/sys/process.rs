@@ -4,6 +4,7 @@
 //! UID/RSS: https://docs.kernel.org/filesystems/proc.html
 //! Sikker prosessreferanse: https://man7.org/linux/man-pages/man2/pidfd_open.2.html
 //! Kun SIGTERM: https://man7.org/linux/man-pages/man2/pidfd_send_signal.2.html
+use rigg_core::{tr, trf};
 use rigg_core::process::{ProcessIdentity, ProcessRow, ProcessSnapshot};
 use std::collections::{HashMap, HashSet};
 use std::fs::{self, File};
@@ -100,7 +101,7 @@ fn read_small(path: &Path) -> io::Result<String> {
     if bytes.len() > MAX_PROC_FILE as usize {
         return Err(io::Error::new(
             io::ErrorKind::InvalidData,
-            "For stor /proc-fil",
+            tr!("For stor /proc-fil"),
         ));
     }
     Ok(String::from_utf8_lossy(&bytes).into_owned())
@@ -110,7 +111,7 @@ fn read_stat(root: &Path, pid: u32) -> io::Result<Stat> {
     let text = read_small(&root.join(format!("proc/{pid}/stat")))?;
     parse_stat(&text)
         .filter(|s| s.identity.pid == pid)
-        .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidData, "Ugyldig prosessinformasjon"))
+        .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidData, tr!("Ugyldig prosessinformasjon")))
 }
 
 pub fn read_identity(root: &Path, pid: u32) -> Option<ProcessIdentity> {
@@ -183,7 +184,7 @@ pub fn protected_ancestors(root: &Path, client_pids: &[u32]) -> Result<HashSet<u
                 break;
             }
             if !chain.insert(pid) {
-                return Err("Ugyldig foreldrekjede for appen eller en tilkoblet klient".into());
+                return Err(tr!("Ugyldig foreldrekjede for appen eller en tilkoblet klient").into());
             }
             if result.contains(&pid) {
                 completed = true;
@@ -192,13 +193,13 @@ pub fn protected_ancestors(root: &Path, client_pids: &[u32]) -> Result<HashSet<u
             result.insert(pid);
             pid = read_stat(root, pid)
                 .map_err(|_| {
-                    "Kunne ikke kontrollere foreldreprosesser for appen eller en tilkoblet klient"
+                    tr!("Kunne ikke kontrollere foreldreprosesser for appen eller en tilkoblet klient")
                         .to_string()
                 })?
                 .ppid;
         }
         if !completed {
-            return Err("Foreldrekjeden er for lang".into());
+            return Err(tr!("Foreldrekjeden er for lang").into());
         }
     }
     Ok(result)
@@ -216,29 +217,29 @@ fn denial(
     protected: &HashSet<u32>,
 ) -> Option<String> {
     let message = if stat.identity.pid <= 1 {
-        Some("Systemets init-prosess er beskyttet")
+        Some(tr!("Systemets init-prosess er beskyttet"))
     } else if protected.contains(&stat.identity.pid) {
-        Some("Appen eller en foreldreprosess er beskyttet")
+        Some(tr!("Appen eller en foreldreprosess er beskyttet"))
     } else if critical_name(&stat.name) {
-        Some("Viktig system- eller øktprosess er beskyttet")
+        Some(tr!("Viktig system- eller øktprosess er beskyttet"))
     } else if matches!(stat.state.as_str(), "Z" | "X" | "x") {
-        Some("Prosessen er allerede avsluttet")
+        Some(tr!("Prosessen er allerede avsluttet"))
     } else if stat.flags & PF_KTHREAD != 0 || status.is_some_and(|s| s.kernel) {
-        Some("Kjerneprosesser er beskyttet")
+        Some(tr!("Kjerneprosesser er beskyttet"))
     } else if uid == 0 || euid != uid {
-        Some("Avslutning krever en vanlig brukerøkt")
+        Some(tr!("Avslutning krever en vanlig brukerøkt"))
     } else if let Some(status) = status {
         if status.uids.contains(&0) {
-            Some("Root-prosesser er beskyttet")
+            Some(tr!("Root-prosesser er beskyttet"))
         } else if status.uids.iter().any(|u| *u != uid) {
-            Some("Prosessen tilhører en annen bruker eller har andre rettigheter")
+            Some(tr!("Prosessen tilhører en annen bruker eller har andre rettigheter"))
         } else if status.privileged {
-            Some("Prosessen har særskilte systemrettigheter")
+            Some(tr!("Prosessen har særskilte systemrettigheter"))
         } else {
             None
         }
     } else {
-        Some("Kan ikke kontrollere prosessens brukerrettigheter")
+        Some(tr!("Kan ikke kontrollere prosessens brukerrettigheter"))
     };
     message.map(str::to_string)
 }
@@ -323,7 +324,7 @@ impl ProcessReader {
             Ok(entries) => entries,
             Err(_) => {
                 self.reset();
-                result.error = Some("Prosesslisten er utilgjengelig".into());
+                result.error = Some(tr!("Prosesslisten er utilgjengelig").into());
                 return result;
             }
         };
@@ -419,31 +420,31 @@ pub fn terminate_with_protected(
     // Eksakt rot, uten canonicalize: en fixture/symlink skal aldri bli en
     // signalkanal til vertsmaskinen. Testroten må alltid avvises før pidfd_open.
     if root != Path::new("/") {
-        return Err("Avslutning er sperret for testdata".into());
+        return Err(tr!("Avslutning er sperret for testdata").into());
     }
     if identity.pid <= 1 || identity.pid > i32::MAX as u32 {
-        return Err("Ugyldig eller beskyttet prosess".into());
+        return Err(tr!("Ugyldig eller beskyttet prosess").into());
     }
     let uid = unsafe { libc::getuid() };
     let euid = unsafe { libc::geteuid() };
     if uid == 0 || uid != euid {
-        return Err("Avslutning krever en vanlig brukerøkt".into());
+        return Err(tr!("Avslutning krever en vanlig brukerøkt").into());
     }
     // Før kontroll av /proc åpnes en stabil referanse. Dersom PID-en gjenbrukes
     // etter dette, vil signalet aldri bli sendt til den nye prosessen.
     let fd = unsafe { libc::syscall(libc::SYS_pidfd_open, identity.pid as libc::pid_t, 0u32) };
     if fd < 0 {
-        return Err(format!(
-            "Kan ikke åpne sikker prosessreferanse: {}",
-            io::Error::last_os_error()
+        return Err(trf!(
+            "Kan ikke åpne sikker prosessreferanse: {feil}",
+            feil = io::Error::last_os_error()
         ));
     }
     let fd = unsafe { OwnedFd::from_raw_fd(fd as i32) };
     let protected = protected_ancestors(root, protected_pids)?;
     let stat = read_stat(root, identity.pid)
-        .map_err(|_| "Prosessen finnes ikke lenger eller kan ikke leses".to_string())?;
+        .map_err(|_| tr!("Prosessen finnes ikke lenger eller kan ikke leses").to_string())?;
     if stat.identity != identity {
-        return Err("Prosessen er erstattet. Oppdater listen og velg på nytt".into());
+        return Err(tr!("Prosessen er erstattet. Oppdater listen og velg på nytt").into());
     }
     let status = read_small(&root.join(format!("proc/{}/status", identity.pid)))
         .ok()
@@ -452,7 +453,7 @@ pub fn terminate_with_protected(
         return Err(reason);
     }
     if read_identity(root, identity.pid) != Some(identity) {
-        return Err("Prosessen er erstattet eller avsluttet".into());
+        return Err(tr!("Prosessen er erstattet eller avsluttet").into());
     }
     let sent = unsafe {
         libc::syscall(
@@ -464,9 +465,9 @@ pub fn terminate_with_protected(
         )
     };
     if sent < 0 {
-        return Err(format!(
-            "Kunne ikke sende SIGTERM: {}",
-            io::Error::last_os_error()
+        return Err(trf!(
+            "Kunne ikke sende SIGTERM: {feil}",
+            feil = io::Error::last_os_error()
         ));
     }
     Ok(())

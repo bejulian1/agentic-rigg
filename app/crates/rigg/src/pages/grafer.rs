@@ -11,6 +11,7 @@
 //!
 //! **Eies av 2A (Data).**
 
+use rigg_core::{tr, trf, trn};
 use super::{Key, Page};
 use crate::state::App;
 use crate::toast::Toast;
@@ -98,9 +99,9 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
 
     // ---- Toppfeltet ----
     let actions = hbox(4, &[]);
-    let opts: Vec<(String, &str)> = math::WINDOWS.iter().map(|w| (w.0.to_string(), w.1)).collect();
+    let opts: Vec<(String, &str)> = chart::window_choices().map(|(sec, title)| (sec.to_string(), title)).collect();
     let opt_refs: Vec<(&str, &str)> = opts.iter().map(|(a, b)| (a.as_str(), *b)).collect();
-    let seg = Seg::new(&opt_refs, &app.settings().chart_window.to_string(), "Tidsvindu");
+    let seg = Seg::new(&opt_refs, &app.settings().chart_window.to_string(), tr!("Tidsvindu"));
     seg.root.add_css_class("win-seg");
     {
         let a = app.clone();
@@ -112,7 +113,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     }
     let win_dd = {
         let a = app.clone();
-        chart::window_dropdown(app.settings().chart_window as i64, "Tidsvindu", move |sec| {
+        chart::window_dropdown(app.settings().chart_window as i64, tr!("Tidsvindu"), move |sec| {
             a.set(json!({"chartWindow": sec}));
         })
     };
@@ -135,22 +136,22 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     pause_btn.add_css_class("icon-only");
     let pause_icon = Icon::new("pause", 16);
     pause_btn.set_child(Some(&pause_icon));
-    tip(&pause_btn, "Pause alle", Some("Mellomrom"));
-    pause_btn.update_property(&[gtk::accessible::Property::Label("Pause alle grafene")]);
+    tip(&pause_btn, tr!("Pause alle"), Some(tr!("Mellomrom")));
+    pause_btn.update_property(&[gtk::accessible::Property::Label(tr!("Pause alle grafene"))]);
     actions.append(&pause_btn);
     let pick_btn = gtk::Button::new();
     pick_btn.add_css_class("flat");
     pick_btn.add_css_class("icon-only");
     pick_btn.set_child(Some(&Icon::new("sliders-horizontal", 16)));
-    tip(&pick_btn, "Velg grafer", None);
-    pick_btn.update_property(&[gtk::accessible::Property::Label("Velg grafer")]);
+    tip(&pick_btn, tr!("Velg grafer"), None);
+    pick_btn.update_property(&[gtk::accessible::Property::Label(tr!("Velg grafer"))]);
     actions.append(&pick_btn);
     let export_btn = gtk::Button::new();
     export_btn.add_css_class("flat");
     export_btn.add_css_class("icon-only");
     export_btn.set_child(Some(&Icon::new("download", 16)));
-    tip(&export_btn, "Eksporter CSV …", None);
-    export_btn.update_property(&[gtk::accessible::Property::Label("Eksporter CSV …")]);
+    tip(&export_btn, tr!("Eksporter CSV …"), None);
+    export_btn.update_property(&[gtk::accessible::Property::Label(tr!("Eksporter CSV …"))]);
     actions.append(&export_btn);
 
     let sync = {
@@ -316,13 +317,13 @@ impl Inner {
             p.set_quiet_pause(all);
         }
         self.pause_icon.set_icon(if all { "play" } else { "pause" });
-        tip(&self.pause_btn, if all { "Fortsett alle" } else { "Pause alle" }, Some("Mellomrom"));
-        self.pause_btn.update_property(&[gtk::accessible::Property::Label(if all { "Fortsett alle grafene" } else { "Pause alle grafene" })]);
+        tip(&self.pause_btn, if all { tr!("Fortsett alle") } else { tr!("Pause alle") }, Some(tr!("Mellomrom")));
+        self.pause_btn.update_property(&[gtk::accessible::Property::Label(if all { tr!("Fortsett alle grafene") } else { tr!("Pause alle grafene") })]);
         crate::widgets::class(&self.pause_btn, "on", all);
         self.paused_tag.set_visible(all);
         if all {
             let at = list.iter().map(|p| p.chart.paused_at()).max().unwrap_or_else(rigg_core::now_ms);
-            set_text(&self.paused_tag, &format!("På pause · {}", F::time(F::local(at, chart::utc_offset(at)), true)));
+            set_text(&self.paused_tag, &trf!("På pause · {verdi}", verdi = F::time(F::local(at, chart::utc_offset(at)), true)));
         }
     }
 
@@ -331,9 +332,9 @@ impl Inner {
         if self.sync_btn.is_active() != on {
             self.sync_btn.set_active(on);
         }
-        let t = if on { "Markøren vises på alle grafene. Klikk for bare grafen du holder over." } else { "Markøren vises bare på grafen du holder over. Klikk for alle grafene." };
+        let t = if on { tr!("Markøren vises på alle grafene. Klikk for bare grafen du holder over.") } else { tr!("Markøren vises bare på grafen du holder over. Klikk for alle grafene.") };
         tip(&self.sync_btn, t, None);
-        self.sync_btn.update_property(&[gtk::accessible::Property::Label("Markør på alle grafene")]);
+        self.sync_btn.update_property(&[gtk::accessible::Property::Label(tr!("Markør på alle grafene"))]);
         if !on {
             self.sync.set(None);
         }
@@ -345,13 +346,13 @@ impl Inner {
     /// «Grafer som vises»: avkrysning som blir stående åpen. Minst én graf.
     fn show_pick(self: &Rc<Self>, anchor: &gtk::Button) {
         let list = vbox(2, &["pick-list"]);
-        list.append(&label("Grafer som vises", &["menu-label"]));
+        list.append(&label(tr!("Grafer som vises"), &["menu-label"]));
         let mut checks: Vec<gtk::CheckButton> = Vec::new();
         for d in DEFS.iter() {
             let on = self.app.settings().charts.iter().any(|c| c == d.id);
             let a = self.app.clone();
             let id = d.id;
-            let c = crate::widgets::switchrow::check(d.title, on, move |c| {
+            let c = crate::widgets::switchrow::check(d.localized_title(), on, move |c| {
                 let mut set: Vec<String> = a.settings().charts.clone();
                 if c.is_active() {
                     if !set.iter().any(|x| x == id) {
@@ -378,7 +379,7 @@ impl Inner {
                 let n = checks.iter().filter(|c| c.is_active()).count();
                 for c in &checks {
                     c.set_sensitive(!(n == 1 && c.is_active()));
-                    c.set_tooltip_text(if n == 1 && c.is_active() { Some("Minst én graf må vises") } else { None });
+                    c.set_tooltip_text(if n == 1 && c.is_active() { Some(tr!("Minst én graf må vises")) } else { None });
                 }
             }
         };
@@ -417,7 +418,7 @@ impl Inner {
             let v = match res {
                 Ok(v) => v,
                 Err(e) => {
-                    me.app.toast(Toast::new("Kunne ikke hente historikken").body(&e.message).error());
+                    me.app.toast(Toast::new(tr!("Kunne ikke hente historikken")).body(&e.message).error());
                     return;
                 }
             };
@@ -443,9 +444,9 @@ impl Inner {
         let now = crate::app::local_now();
         let name = format!("rigg-historikk-{:04}-{:02}-{:02}_{:02}-{:02}.csv", now.year, now.month, now.day, now.hour, now.minute);
         let d = gtk::FileDialog::new();
-        d.set_title("Eksporter historikk som CSV");
+        d.set_title(tr!("Eksporter historikk som CSV"));
         d.set_initial_name(Some(&name));
-        d.set_accept_label(Some("Eksporter"));
+        d.set_accept_label(Some(tr!("Eksporter")));
         let home = glib::home_dir();
         let docs = glib::user_special_dir(glib::UserDirectory::Documents).unwrap_or(home.clone());
         let dir = docs.join("Agentic Rigg");
@@ -468,15 +469,15 @@ impl Inner {
                     let f2 = file.clone();
                     let w = me.app.window();
                     me.app.toast(
-                        Toast::new("Historikken er eksportert")
-                            .body(&format!("{fname} · {} rader, {}", F::num(Some(rows as f64), 0), math::window_label(window)))
+                        Toast::new(tr!("Historikken er eksportert"))
+                            .body(&trn!(rows, "{fname} · {antall} rader, {periode}", "{fname} · {antall} rader, {periode}", fname = fname, antall = F::num(Some(rows as f64), 0), periode = math::window_label(window)))
                             .icon("download")
-                            .action("Vis i Filer", move || {
+                            .action(tr!("Vis i Filer"), move || {
                                 gtk::FileLauncher::new(Some(&f2)).open_containing_folder(w.as_ref(), gio::Cancellable::NONE, |_| {});
                             }),
                     );
                 }
-                Err(e) => me.app.toast(Toast::new("Kunne ikke lagre fila").body(&e.to_string()).error()),
+                Err(e) => me.app.toast(Toast::new(tr!("Kunne ikke lagre fila")).body(&e.to_string()).error()),
             }
         });
     }

@@ -1,0 +1,421 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/pages/oversikt.rs:88 crates/rigg/src/pages/oversikt.rs:99
+msgid "Prosessor"
+msgstr "Prozessor"
+
+#: crates/rigg/src/pages/oversikt.rs:89 crates/rigg/src/pages/oversikt.rs:740
+msgid "Skjermkort"
+msgstr "Grafikkarte"
+
+#: crates/rigg/src/pages/oversikt.rs:90 crates/rigg/src/pages/oversikt.rs:620 crates/rigg/src/pages/oversikt.rs:652
+msgid "Minne"
+msgstr "Arbeitsspeicher"
+
+#: crates/rigg/src/pages/oversikt.rs:92 crates/rigg/src/pages/oversikt.rs:102
+msgid "Disker"
+msgstr "Laufwerke"
+
+#: crates/rigg/src/pages/oversikt.rs:93 crates/rigg/src/pages/oversikt.rs:1065
+msgid "Nettverk"
+msgstr "Netzwerk"
+
+#: crates/rigg/src/pages/oversikt.rs:100 crates/rigg/src/pages/oversikt.rs:744
+msgid "Grafikkort"
+msgstr "Grafikkarte"
+
+#: crates/rigg/src/pages/oversikt.rs:101
+msgid "System"
+msgstr "System"
+
+#: crates/rigg/src/pages/oversikt.rs:103
+msgid "Klokker og effekt"
+msgstr "Taktraten und Leistung"
+
+#: crates/rigg/src/pages/oversikt.rs:104
+msgid "Sensorer"
+msgstr "Sensoren"
+
+#: crates/rigg/src/pages/oversikt.rs:196
+msgid "{what}\nSparklinja er siste minutt. Klikk for {side}."
+msgstr "{what}\nDie Minikurve zeigt die letzte Minute. Klicken öffnet {side}."
+
+#: crates/rigg/src/pages/oversikt.rs:235
+msgid "Prosessor: total last, temperatur (Tdie) og snittklokke over trådene."
+msgstr "Prozessor: Gesamtauslastung, Temperatur (Tdie) und mittlerer Takt aller Threads."
+
+#: crates/rigg/src/pages/oversikt.rs:252
+msgid "Ny driver"
+msgstr "Neuer Treiber"
+
+#: crates/rigg/src/pages/oversikt.rs:252
+msgid "Ingen driver"
+msgstr "Kein Treiber"
+
+#: crates/rigg/src/pages/oversikt.rs:254
+msgid "start maskinen på nytt"
+msgstr "Rechner neu starten"
+
+#: crates/rigg/src/pages/oversikt.rs:254
+msgid "fant ikke NVIDIA-driveren"
+msgstr "NVIDIA-Treiber nicht gefunden"
+
+#: crates/rigg/src/pages/oversikt.rs:255
+msgid "En ny NVIDIA-driver er installert, men den gamle kjører fortsatt."
+msgstr "Ein neuer NVIDIA-Treiber wurde installiert, aber der alte ist noch aktiv."
+
+#: crates/rigg/src/pages/oversikt.rs:255
+msgid "Fant ingen NVIDIA-driver. Prosessor, minne og disker vises som vanlig."
+msgstr "Kein NVIDIA-Treiber gefunden. Prozessor, Speicher und Laufwerke werden wie gewohnt angezeigt."
+
+#: crates/rigg/src/pages/oversikt.rs:258
+msgid "svarer ikke"
+msgstr "keine Antwort"
+
+#: crates/rigg/src/pages/oversikt.rs:259
+msgid "Skjermkortet svarer ikke. Tjenesten prøver å finne det igjen hvert 10. s."
+msgstr "Die Grafikkarte antwortet nicht. Der Dienst versucht alle 10 s, sie wiederzuerkennen."
+
+#: crates/rigg/src/pages/oversikt.rs:269
+msgid "{brukt} av {totalt}"
+msgstr "{brukt} von {totalt}"
+
+#: crates/rigg/src/pages/oversikt.rs:276
+msgid "Skjermkort: GPU-last, temperatur, effekt av effektgrensen og P-tilstand (P0 er full ytelse, P8 er tomgang)."
+msgstr "Grafikkarte: GPU-Auslastung, Temperatur, Leistungsaufnahme im Verhältnis zur Leistungsgrenze und Leistungszustand (P0 ist volle Leistung, P8 ist Leerlauf)."
+
+#: crates/rigg/src/pages/oversikt.rs:289 crates/rigg/src/pages/oversikt.rs:304
+msgid "av {verdi}"
+msgstr "von {verdi}"
+
+#: crates/rigg/src/pages/oversikt.rs:291
+msgid "Minne: det programmene bruker, av totalt. Buffer og cache er ikke med."
+msgstr "Speicher: von Anwendungen genutzter Anteil am Gesamtspeicher. Puffer und Cache zählen nicht mit."
+
+#: crates/rigg/src/pages/oversikt.rs:306
+msgid "Videominne brukt på skjermkortet, av totalt. Gult over 85 %, rødt over 95 %."
+msgstr "Belegter Grafikspeicher im Verhältnis zum Gesamtspeicher der Karte. Gelb über 85 %, rot über 95 %."
+
+#: crates/rigg/src/pages/oversikt.rs:316
+msgid "ingen disker"
+msgstr "keine Laufwerke"
+
+#: crates/rigg/src/pages/oversikt.rs:323
+msgid "maks {verdi}"
+msgstr "max. {verdi}"
+
+#: crates/rigg/src/pages/oversikt.rs:324
+msgid "uten temperatur"
+msgstr "keine Temperaturmesswerte"
+
+#: crates/rigg/src/pages/oversikt.rs:336
+msgid "Disker: samlet hastighet (lesing og skriving), varmeste disk og SMART-helsa.\n{helse}\nSparklinja er siste minutt. Klikk for Disker."
+msgstr "Laufwerke: gesamter Lese- und Schreibdurchsatz, wärmstes Laufwerk und SMART-Zustand.\n{helse}\nDie Minikurve zeigt die letzte Minute. Klicken öffnet Laufwerke."
+
+#: crates/rigg/src/pages/oversikt.rs:344
+msgid "{fail} feil"
+msgid_plural "{fail} med feil"
+msgstr[0] "{fail} fehlerhaft"
+msgstr[1] "{fail} fehlerhaft"
+
+#: crates/rigg/src/pages/oversikt.rs:346
+msgid "{antall} advarsel"
+msgid_plural "{antall} advarsler"
+msgstr[0] "{antall} Warnung"
+msgstr[1] "{antall} Warnungen"
+
+#: crates/rigg/src/pages/oversikt.rs:348
+msgid "alle OK"
+msgstr "alle in Ordnung"
+
+#: crates/rigg/src/pages/oversikt.rs:350
+msgid "helse ukjent"
+msgstr "Zustand unbekannt"
+
+#: crates/rigg/src/pages/oversikt.rs:364
+msgid "{u} ned"
+msgstr "{u} Download"
+
+#: crates/rigg/src/pages/oversikt.rs:368
+msgid "{verdi} opp"
+msgstr "{verdi} Upload"
+
+#: crates/rigg/src/pages/oversikt.rs:369
+msgid "Nettverk: mottatt og sendt over de fysiske nettverkskortene."
+msgstr "Netzwerk: Empfang und Versand über die physischen Netzwerkadapter."
+
+#: crates/rigg/src/pages/oversikt.rs:415
+msgid "Skjermkortet svarer ikke"
+msgstr "Grafikkarte antwortet nicht"
+
+#: crates/rigg/src/pages/oversikt.rs:417
+msgid "siden {s} · tjenesten prøver igjen hvert 10. s"
+msgstr "seit {s} · Dienst versucht es alle 10 s erneut"
+
+#: crates/rigg/src/pages/oversikt.rs:418
+msgid "tjenesten prøver igjen hvert 10. s"
+msgstr "Dienst versucht es alle 10 s erneut"
+
+#: crates/rigg/src/pages/oversikt.rs:422
+msgid "Driveren er oppdatert"
+msgstr "Treiber aktualisiert"
+
+#: crates/rigg/src/pages/oversikt.rs:422
+msgid "start maskinen på nytt for å lese skjermkortet"
+msgstr "Rechner neu starten, um die Grafikkarte auszulesen"
+
+#: crates/rigg/src/pages/oversikt.rs:423
+msgid "Fant ingen NVIDIA-driver"
+msgstr "Kein NVIDIA-Treiber gefunden"
+
+#: crates/rigg/src/pages/oversikt.rs:423
+msgid "prosessor, minne og disker vises som vanlig"
+msgstr "Prozessor, Speicher und Laufwerke werden wie gewohnt angezeigt"
+
+#: crates/rigg/src/pages/oversikt.rs:429
+msgid "Skjermkortet nedklokker"
+msgstr "Grafikkarte drosselt den Takt"
+
+#: crates/rigg/src/pages/oversikt.rs:435
+msgid "over nedklokkingsgrensen ({verdi})"
+msgstr "über der Drosselgrenze ({verdi})"
+
+#: crates/rigg/src/pages/oversikt.rs:435
+msgid "ved nedklokkingsgrensen ({verdi})"
+msgstr "an der Drosselgrenze ({verdi})"
+
+#: crates/rigg/src/pages/oversikt.rs:438 crates/rigg/src/pages/oversikt.rs:447
+msgid "over rød grense ({verdi})"
+msgstr "über kritischem Grenzwert ({verdi})"
+
+#: crates/rigg/src/pages/oversikt.rs:440 crates/rigg/src/pages/oversikt.rs:449
+msgid "over gul grense ({verdi})"
+msgstr "über der Warnschwelle ({verdi})"
+
+#: crates/rigg/src/pages/oversikt.rs:453
+msgid "Minne {verdi}"
+msgstr "Speicher {verdi}"
+
+#: crates/rigg/src/pages/oversikt.rs:453
+msgid "nesten fullt"
+msgstr "fast voll"
+
+#: crates/rigg/src/pages/oversikt.rs:461
+msgid "se SMART"
+msgstr "siehe SMART"
+
+#: crates/rigg/src/pages/oversikt.rs:530
+msgid "{status} {detalj}. Klikk for {side}."
+msgstr "{status} {detalj}. Klicken öffnet {side}."
+
+#: crates/rigg/src/pages/oversikt.rs:548
+msgid "Tilstand: {summary}"
+msgstr "Zustand: {summary}"
+
+#: crates/rigg/src/pages/oversikt.rs:590
+msgid "Last"
+msgstr "Auslastung"
+
+#: crates/rigg/src/pages/oversikt.rs:613
+msgid "Temperaturer"
+msgstr "Temperaturen"
+
+#: crates/rigg/src/pages/oversikt.rs:652
+msgid "Minne og VRAM"
+msgstr "Arbeitsspeicher und VRAM"
+
+#: crates/rigg/src/pages/oversikt.rs:687
+msgid "Temperatur og effekt"
+msgstr "Temperatur und Leistung"
+
+#: crates/rigg/src/pages/oversikt.rs:696 crates/rigg/src/pages/oversikt.rs:711
+msgid "GPU-temperatur"
+msgstr "GPU-Temperatur"
+
+#: crates/rigg/src/pages/oversikt.rs:709
+msgid "Høyeste GPU-temperatur de siste 5 minuttene"
+msgstr "Höchste GPU-Temperatur der letzten 5 Minuten"
+
+#: crates/rigg/src/pages/oversikt.rs:722 crates/rigg/src/pages/oversikt.rs:729 crates/rigg/src/pages/oversikt.rs:1061
+msgid "GPU-effekt"
+msgstr "GPU-Leistung"
+
+#: crates/rigg/src/pages/oversikt.rs:747
+msgid "Alt driveren og kortet oppgir, på Grafikkort"
+msgstr "Alle Daten von Treiber und Karte stehen unter Grafikkarte"
+
+#: crates/rigg/src/pages/oversikt.rs:753
+msgid "P-tilstand"
+msgstr "P-State"
+
+#: crates/rigg/src/pages/oversikt.rs:755
+msgid "Kjerneklokke"
+msgstr "Kerntakt"
+
+#: crates/rigg/src/pages/oversikt.rs:755
+msgid "Minneklokke"
+msgstr "Speichertakt"
+
+#: crates/rigg/src/pages/oversikt.rs:766
+msgid "Nå og kortets høyeste (fra driveren)"
+msgstr "Aktueller und maximaler Takt (laut Treiber)"
+
+#: crates/rigg/src/pages/oversikt.rs:770
+msgid "Vifter"
+msgstr "Lüfter"
+
+#: crates/rigg/src/pages/oversikt.rs:771
+msgid "Viftestyring"
+msgstr "Lüftersteuerung"
+
+#: crates/rigg/src/pages/oversikt.rs:773
+msgid "Video (enc / dek)"
+msgstr "Video (Kod. / Dek.)"
+
+#: crates/rigg/src/pages/oversikt.rs:774
+msgid "Last på maskinvarens videokoder (encoder) og -dekoder (decoder)."
+msgstr "Auslastung von Hardware-Videoencoder und -decoder."
+
+#: crates/rigg/src/pages/oversikt.rs:804
+msgid "maks 5 min: {verdi}"
+msgstr "Max. 5 min: {verdi}"
+
+#: crates/rigg/src/pages/oversikt.rs:819
+msgid " · {verdi} under nedklokking"
+msgstr " · {verdi} unter der Drosselgrenze"
+
+#: crates/rigg/src/pages/oversikt.rs:821
+msgid " · over nedklokkingsgrensen"
+msgstr " · über der Drosselgrenze"
+
+#: crates/rigg/src/pages/oversikt.rs:823
+msgid " · ved nedklokkingsgrensen"
+msgstr " · an der Drosselgrenze"
+
+#: crates/rigg/src/pages/oversikt.rs:827
+msgid " · over rød grense ({verdi})"
+msgstr " · über kritischem Grenzwert ({verdi})"
+
+#: crates/rigg/src/pages/oversikt.rs:828
+msgid " · over gul grense ({verdi})"
+msgstr " · über der Warnschwelle ({verdi})"
+
+#: crates/rigg/src/pages/oversikt.rs:840
+msgid "Mål"
+msgstr "Zielwert"
+
+#: crates/rigg/src/pages/oversikt.rs:840
+msgid "Nedklokking"
+msgstr "Drosselung"
+
+#: crates/rigg/src/pages/oversikt.rs:843 crates/rigg/src/pages/oversikt.rs:847
+msgid "Avstenging"
+msgstr "Abschaltung"
+
+#: crates/rigg/src/pages/oversikt.rs:847 crates/rigg/src/pages/oversikt.rs:892
+msgid "Nå"
+msgstr "Jetzt"
+
+#: crates/rigg/src/pages/oversikt.rs:848
+msgid "Fra {min} til avstenging ({avstenging}). Over målet ({target}) senker kortet klokken litt, ved {nedklokking} tvinger det nedklokking. Gul og rød fyll betyr over varselgrensene {gul} og {red} (Innstillinger › Grafer og sensorer)."
+msgstr "Von {min} bis zur Abschaltung ({avstenging}). Oberhalb des Ziels ({target}) senkt die Karte den Takt leicht. Bei {nedklokking} wird die Drosselung erzwungen. Gelbe und rote Füllung kennzeichnen die Schwellen {gul} und {red} (Einstellungen › Diagramme und Sensoren)."
+
+#: crates/rigg/src/pages/oversikt.rs:852 crates/rigg/src/pages/oversikt.rs:897 crates/rigg/src/pages/oversikt.rs:939
+msgid "Ikke støttet"
+msgstr "Nicht unterstützt"
+
+#: crates/rigg/src/pages/oversikt.rs:866
+msgid "{trekk} av {grense}"
+msgstr "{trekk} von {grense}"
+
+#: crates/rigg/src/pages/oversikt.rs:873
+msgid "Grense (standard)"
+msgstr "Grenze (Standard)"
+
+#: crates/rigg/src/pages/oversikt.rs:873
+msgid "Grense"
+msgstr "Grenze"
+
+#: crates/rigg/src/pages/oversikt.rs:875
+msgid "Standard"
+msgstr "Standard"
+
+#: crates/rigg/src/pages/oversikt.rs:879
+msgid " Grensen kan settes fra {min} til {maks}."
+msgstr " Die Grenze kann zwischen {min} und {maks} eingestellt werden."
+
+#: crates/rigg/src/pages/oversikt.rs:884 crates/rigg/src/pages/oversikt.rs:892
+msgid "Kortets maks"
+msgstr "Kartenmaximum"
+
+#: crates/rigg/src/pages/oversikt.rs:893
+msgid "Trekket nå mot effektgrensen, snitt fra energitelleren. Gult fyll betyr at kortet er ved grensen og holder igjen.{range}"
+msgstr "Aktuelle Leistungsaufnahme gegenüber der Leistungsgrenze, gemittelt aus dem Energiezähler. Gelbe Füllung bedeutet, dass die Karte an der Grenze drosselt.{range}"
+
+#: crates/rigg/src/pages/oversikt.rs:895
+msgid "{verdi} av grensen"
+msgstr "{verdi} der Grenze"
+
+#: crates/rigg/src/pages/oversikt.rs:906
+msgid "ingen begrensning"
+msgstr "keine Begrenzung aktiv"
+
+#: crates/rigg/src/pages/oversikt.rs:913
+msgid "P0 er full ytelse, P8 er dyp tomgang. Kortet bytter selv."
+msgstr "P0 ist volle Leistung, P8 tiefer Leerlauf. Die Karte wechselt den Zustand selbstständig."
+
+#: crates/rigg/src/pages/oversikt.rs:915
+msgid "\nBegrensninger nå: {full}."
+msgstr "\nAktive Begrenzungen: {full}."
+
+#: crates/rigg/src/pages/oversikt.rs:917
+msgid "\nKlokken begrenses nå av: {x}."
+msgstr "\nDer Takt wird derzeit begrenzt durch: {x}."
+
+#: crates/rigg/src/pages/oversikt.rs:920
+msgid "\nI P8 leses ikke begrensningene (kallet koster 25 ms og vekker kortet)."
+msgstr "\nIn P8 werden die Begrenzungsgründe nicht ausgelesen (die Abfrage dauert 25 ms und weckt die Karte)."
+
+#: crates/rigg/src/pages/oversikt.rs:937
+msgid "{verdi1} · {verdi2} o/min"
+msgstr "{verdi1} · {verdi2} U/min"
+
+#: crates/rigg/src/pages/oversikt.rs:944
+msgid "Auto · driveren styrer"
+msgstr "Auto · treibergesteuert"
+
+#: crates/rigg/src/pages/oversikt.rs:944
+msgid "Driveren styrer viftene etter temperaturen, som uten appen."
+msgstr "Der Treiber regelt die Lüfter temperaturabhängig, wie ohne die Anwendung."
+
+#: crates/rigg/src/pages/oversikt.rs:945
+msgid "Manuell · satt utenfor appen"
+msgstr "Manuell · außerhalb der Anwendung eingestellt"
+
+#: crates/rigg/src/pages/oversikt.rs:945
+msgid "Minst én vifte er satt til fast fart utenfor appen."
+msgstr "Mindestens ein Lüfter wurde außerhalb der Anwendung auf eine feste Drehzahl eingestellt."
+
+#: crates/rigg/src/pages/oversikt.rs:946
+msgid "Viftestyringen er ikke lest ennå, eller kortet oppgir den ikke."
+msgstr "Die Lüftersteuerung wurde noch nicht ausgelesen oder wird von der Karte nicht gemeldet."
+
+#: crates/rigg/src/pages/oversikt.rs:955
+msgid "PCIe-lenken mellom kortet og hovedkortet."
+msgstr "Die PCIe-Verbindung zwischen Grafikkarte und Mainboard."
+
+#: crates/rigg/src/pages/oversikt.rs:1064
+msgid "Disk-I/O"
+msgstr "Laufwerk-E/A"
+
+#: crates/rigg/src/pages/oversikt.rs:1096
+msgid "Tidsvindu for grafene på Oversikt"
+msgstr "Zeitraum für die Diagramme in der Übersicht"

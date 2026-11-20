@@ -1,0 +1,61 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/riggd/src/logg.rs:107
+msgid "keys må være en liste"
+msgstr "keys deve essere un elenco"
+
+#: crates/riggd/src/logg.rs:110
+msgid "Ugyldig sensornøkkel"
+msgstr "Chiave del sensore non valida"
+
+#: crates/riggd/src/logg.rs:116
+msgid "Velg minst én sensor å logge."
+msgstr "Seleziona almeno un sensore da registrare."
+
+#: crates/riggd/src/logg.rs:122
+msgid "Ingen sensorer er valgt for loggen. Velg dem i Innstillinger › Logging og varsler, eller logg alle."
+msgstr "Nessun sensore selezionato. Selezionali in Impostazioni › Registrazione e avvisi oppure registrali tutti."
+
+#: crates/riggd/src/logg.rs:129
+msgid "Loggintervallet må være 0,5, 1, 2, 5 eller 10 s"
+msgstr "L’intervallo di registrazione deve essere di 0,5, 1, 2, 5 o 10 s"
+
+#: crates/riggd/src/logg.rs:135
+msgid "Formatet må være standard eller norsk"
+msgstr "Il formato deve essere standard o norvegese"
+
+#: crates/riggd/src/logg.rs:140
+msgid "Loggmappa må være en full sti"
+msgstr "La cartella dei log va indicata con un percorso assoluto"
+
+#: crates/riggd/src/logg.rs:146
+msgid "Kunne ikke lage mappa {verdi}: {e}"
+msgstr "Impossibile creare la cartella {verdi}: {e}"
+
+#: crates/riggd/src/logg.rs:149
+msgid "Det er under 500 MB ledig på disken. Loggen er ikke startet."
+msgstr "Restano meno di 500 MB liberi su disco. La registrazione non è stata avviata."
+
+#: crates/riggd/src/logg.rs:152
+msgid "Kunne ikke lage loggfila: {e}"
+msgstr "Impossibile creare il file di log: {e}"
+
+#: crates/riggd/src/logg.rs:184 crates/riggd/src/logg.rs:247 crates/riggd/src/logg.rs:259 crates/riggd/src/logg.rs:282
+msgid "Kunne ikke skrive til loggfila: {e}"
+msgstr "Impossibile scrivere nel file di log: {e}"
+
+#: crates/riggd/src/logg.rs:268
+msgid "Kunne ikke lage neste loggfil: {e}"
+msgstr "Impossibile creare il file di log successivo: {e}"
+
+#: crates/riggd/src/logg.rs:289
+msgid "Loggen er stoppet: det er under 500 MB ledig på disken."
+msgstr "Registrazione interrotta: restano meno di 500 MB liberi su disco."

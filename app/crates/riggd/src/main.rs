@@ -104,6 +104,7 @@ fn main() {
         }
     };
     let profile = Profile::current();
+    rigg_core::i18n::init(&rigg_core::i18n::read_preference(profile));
     let socket = args.socket.clone().unwrap_or_else(|| paths::socket_path(profile));
     let config_dir = paths::config_dir(profile);
     let state_dir = paths::state_dir(profile);

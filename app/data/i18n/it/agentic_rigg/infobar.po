@@ -1,0 +1,81 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/infobar.rs:61
+msgid "Start på nytt"
+msgstr "Riavvia"
+
+#: crates/rigg/src/infobar.rs:66
+msgid "Start tjenesten på nytt"
+msgstr "Riavvia servizio"
+
+#: crates/rigg/src/infobar.rs:84
+msgid "Tjenesten startes på nytt"
+msgstr "Riavvio del servizio"
+
+#: crates/rigg/src/infobar.rs:84
+msgid "Den gamle stopper når vinduet kobler fra. Lukk og åpne vinduet."
+msgstr "Il vecchio servizio si arresta quando la finestra si disconnette. Chiudi e riapri la finestra."
+
+#: crates/rigg/src/infobar.rs:116
+msgid "Kobler til tjenesten …"
+msgstr "Connessione al servizio…"
+
+#: crates/rigg/src/infobar.rs:140
+msgid "Tjenesten svarer ikke."
+msgstr "Il servizio non risponde."
+
+#: crates/rigg/src/infobar.rs:140
+msgid "Verdiene under er gamle. Appen prøver igjen av seg selv."
+msgstr "Le letture qui sotto non sono aggiornate. L’app riproverà automaticamente."
+
+#: crates/rigg/src/infobar.rs:146
+msgid "Tjenesten svarer ikke. Verdiene er gamle."
+msgstr "Il servizio non risponde. Le letture non sono aggiornate."
+
+#: crates/rigg/src/infobar.rs:158
+msgid "Tjenesten er fra et annet bygg."
+msgstr "Il servizio e l’app hanno build diverse."
+
+#: crates/rigg/src/infobar.rs:158
+msgid "Tjenesten er fra bygg {b}, vinduet fra bygg {mine}. Start tjenesten på nytt."
+msgstr "Il servizio usa la build {b}, l’app la build {mine}. Riavvia il servizio."
+
+#: crates/rigg/src/infobar.rs:176
+msgid "Driveren er oppdatert."
+msgstr "Il driver è stato aggiornato."
+
+#: crates/rigg/src/infobar.rs:177
+msgid "Ny NVIDIA-driver ({ny}) er installert, men den gamle ({gammel}) kjører fortsatt. Start maskinen på nytt for å lese skjermkortet."
+msgstr "È installato un nuovo driver NVIDIA ({ny}), ma il precedente ({gammel}) è ancora in esecuzione. Riavvia il computer per leggere la scheda grafica."
+
+#: crates/rigg/src/infobar.rs:179
+msgid "ny"
+msgstr "nuovo"
+
+#: crates/rigg/src/infobar.rs:180
+msgid "gammel"
+msgstr "precedente"
+
+#: crates/rigg/src/infobar.rs:184
+msgid "Fant ingen NVIDIA-driver."
+msgstr "Nessun driver NVIDIA trovato."
+
+#: crates/rigg/src/infobar.rs:184
+msgid "Prosessor, minne og sensorer vises som vanlig."
+msgstr "Processore, memoria e sensori vengono mostrati come di consueto."
+
+#: crates/rigg/src/infobar.rs:186
+msgid "Skjermkortet svarer ikke."
+msgstr "La GPU non risponde."
+
+#: crates/rigg/src/infobar.rs:187
+msgid "Siden {tid}. Det skjer når kortet faller av bussen eller trekkes ut. Tallene før det er tatt vare på."
+msgstr "Dalle {tid}. La scheda potrebbe essersi scollegata dal bus o essere stata rimossa. Le letture precedenti sono state conservate."

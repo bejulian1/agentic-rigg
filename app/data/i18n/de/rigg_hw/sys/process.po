@@ -1,0 +1,101 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg-hw/src/sys/process.rs:104
+msgid "For stor /proc-fil"
+msgstr "/proc-Datei ist zu groß"
+
+#: crates/rigg-hw/src/sys/process.rs:114
+msgid "Ugyldig prosessinformasjon"
+msgstr "Ungültige Prozessinformationen"
+
+#: crates/rigg-hw/src/sys/process.rs:187
+msgid "Ugyldig foreldrekjede for appen eller en tilkoblet klient"
+msgstr "Ungültige Prozesshierarchie für die Anwendung oder einen verbundenen Client"
+
+#: crates/rigg-hw/src/sys/process.rs:196
+msgid "Kunne ikke kontrollere foreldreprosesser for appen eller en tilkoblet klient"
+msgstr "Übergeordnete Prozesse der Anwendung oder eines verbundenen Clients konnten nicht geprüft werden"
+
+#: crates/rigg-hw/src/sys/process.rs:202
+msgid "Foreldrekjeden er for lang"
+msgstr "Prozesshierarchie ist zu tief"
+
+#: crates/rigg-hw/src/sys/process.rs:220
+msgid "Systemets init-prosess er beskyttet"
+msgstr "Der Init-Prozess des Systems ist geschützt"
+
+#: crates/rigg-hw/src/sys/process.rs:222
+msgid "Appen eller en foreldreprosess er beskyttet"
+msgstr "Die Anwendung oder ein übergeordneter Prozess ist geschützt"
+
+#: crates/rigg-hw/src/sys/process.rs:224
+msgid "Viktig system- eller øktprosess er beskyttet"
+msgstr "Ein wichtiger System- oder Sitzungsprozess ist geschützt"
+
+#: crates/rigg-hw/src/sys/process.rs:226
+msgid "Prosessen er allerede avsluttet"
+msgstr "Der Prozess wurde bereits beendet"
+
+#: crates/rigg-hw/src/sys/process.rs:228
+msgid "Kjerneprosesser er beskyttet"
+msgstr "Kernelprozesse sind geschützt"
+
+#: crates/rigg-hw/src/sys/process.rs:230 crates/rigg-hw/src/sys/process.rs:431
+msgid "Avslutning krever en vanlig brukerøkt"
+msgstr "Zum Beenden ist eine normale Benutzersitzung erforderlich"
+
+#: crates/rigg-hw/src/sys/process.rs:233
+msgid "Root-prosesser er beskyttet"
+msgstr "Root-Prozesse sind geschützt"
+
+#: crates/rigg-hw/src/sys/process.rs:235
+msgid "Prosessen tilhører en annen bruker eller har andre rettigheter"
+msgstr "Der Prozess gehört einem anderen Benutzer oder hat andere Berechtigungen"
+
+#: crates/rigg-hw/src/sys/process.rs:237
+msgid "Prosessen har særskilte systemrettigheter"
+msgstr "Der Prozess hat besondere Systemberechtigungen"
+
+#: crates/rigg-hw/src/sys/process.rs:242
+msgid "Kan ikke kontrollere prosessens brukerrettigheter"
+msgstr "Benutzerberechtigungen des Prozesses können nicht geprüft werden"
+
+#: crates/rigg-hw/src/sys/process.rs:327
+msgid "Prosesslisten er utilgjengelig"
+msgstr "Die Prozessliste ist nicht verfügbar"
+
+#: crates/rigg-hw/src/sys/process.rs:423
+msgid "Avslutning er sperret for testdata"
+msgstr "Beenden ist für Testdaten gesperrt"
+
+#: crates/rigg-hw/src/sys/process.rs:426
+msgid "Ugyldig eller beskyttet prosess"
+msgstr "Ungültiger oder geschützter Prozess"
+
+#: crates/rigg-hw/src/sys/process.rs:437
+msgid "Kan ikke åpne sikker prosessreferanse: {feil}"
+msgstr "Sichere Prozessreferenz kann nicht geöffnet werden: {feil}"
+
+#: crates/rigg-hw/src/sys/process.rs:445
+msgid "Prosessen finnes ikke lenger eller kan ikke leses"
+msgstr "Der Prozess existiert nicht mehr oder kann nicht gelesen werden"
+
+#: crates/rigg-hw/src/sys/process.rs:447
+msgid "Prosessen er erstattet. Oppdater listen og velg på nytt"
+msgstr "Der Prozess wurde ersetzt. Liste aktualisieren und erneut auswählen"
+
+#: crates/rigg-hw/src/sys/process.rs:456
+msgid "Prosessen er erstattet eller avsluttet"
+msgstr "Der Prozess wurde ersetzt oder beendet"
+
+#: crates/rigg-hw/src/sys/process.rs:468
+msgid "Kunne ikke sende SIGTERM: {feil}"
+msgstr "SIGTERM konnte nicht gesendet werden: {feil}"

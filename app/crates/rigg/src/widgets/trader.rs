@@ -10,6 +10,7 @@
 //! flater, så det er like raskt med cairo og GL. Tilgjengelig navn og
 //! beskrivelse med alle verdiene, og verktøytips per tråd.
 
+use rigg_core::{tr, trf};
 use crate::state::App;
 use gtk::glib;
 use gtk::prelude::*;
@@ -135,7 +136,7 @@ impl ThreadGrid {
         *g.imp().app.borrow_mut() = Rc::downgrade(app);
         g.set_hexpand(true);
         g.set_has_tooltip(true);
-        g.update_property(&[gtk::accessible::Property::Label("Klokke og last per tråd")]);
+        g.update_property(&[gtk::accessible::Property::Label(tr!("Klokke og last per tråd"))]);
         g.connect_query_tooltip(|w, x, y, _kb, tip| {
             let hits = w.imp().hits.borrow();
             let Some((_, ty, _, _, threads)) = hits.iter().find(|(hx, hy, hw, hh, _)| (x as f32) >= *hx && (x as f32) < hx + hw && (y as f32) >= *hy && (y as f32) < hy + hh) else { return false };
@@ -144,9 +145,9 @@ impl ThreadGrid {
             let text = match usize::try_from(line).ok().and_then(|l| threads.get(l)) {
                 Some(&t) => {
                     let (m, l) = shown(vals.get(t).copied().unwrap_or_default());
-                    format!("Tråd {t}: {m}, {l} last\nKlokke er snittet fra APERF/MPERF (cpufreq).")
+                    trf!("Tråd {t}: {m}, {l} last\nKlokke er snittet fra APERF/MPERF (cpufreq).", t = t, m = m, l = l)
                 }
-                None => threads.iter().map(|t| format!("T{t}")).collect::<Vec<_>>().join(" og ") + " deler kjerne (SMT)",
+                None => trf!("{threads} deler kjerne (SMT)", threads = threads.iter().map(|t| format!("T{t}")).collect::<Vec<_>>().join(tr!(" og "))),
             };
             tip.set_text(Some(&text));
             true
@@ -267,7 +268,7 @@ impl ThreadGrid {
             self.text(sn, &self.layout(&g.info, false, false), nw + 10.0, y, hh, &muted);
             let all: Vec<usize> = g.cores.iter().flat_map(|c| c.1.iter().copied()).collect();
             let (am, al) = self.averages(&all);
-            self.text_r(sn, &self.layout(&format!("snitt {} · last {}", F::mhz(am), F::pct(al, 0)), false, false), width, y, hh, &muted);
+            self.text_r(sn, &self.layout(&trf!("snitt {snitt} · last {last}", snitt = F::mhz(am), last = F::pct(al, 0)), false, false), width, y, hh, &muted);
             y += hh;
             // Flisene: rutenett med delte kanter (topp og venstre på rutenettet,
             // høyre og bunn på hver flis).

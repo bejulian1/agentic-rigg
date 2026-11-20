@@ -19,6 +19,7 @@
 //! hull som sammenhengende når det er kortere enn tre ganger takten
 //! (arkitektur.md 4.3): bakgrunnsopptak hvert 5. s er ikke et brudd.
 
+use crate::{tr, trf};
 use serde::Serialize;
 use std::collections::{BTreeMap, HashMap};
 use std::path::{Path, PathBuf};
@@ -425,14 +426,14 @@ impl History {
         }
         let res = std::fs::metadata(&path)
             .map_err(|e| e.to_string())
-            .and_then(|m| if m.len() > MAX_FILE_BYTES { Err("fila er større enn grensen".into()) } else { Ok(()) })
+            .and_then(|m| if m.len() > MAX_FILE_BYTES { Err(tr!("fila er større enn grensen").into()) } else { Ok(()) })
             .and_then(|_| std::fs::read(&path).map_err(|e| e.to_string()))
             .and_then(|b| self.restore(&b, now));
         match res {
             Ok(()) => true,
             Err(why) => {
                 let name = path.file_name().and_then(|n| n.to_str()).unwrap_or("historikk.bin").to_string();
-                self.load_note = Some(format!("{name} kunne ikke leses ({why}). Historikken begynner på nytt."));
+                self.load_note = Some(trf!("{name} kunne ikke leses ({why}). Historikken begynner på nytt.", name = name, why = why));
                 let _ = std::fs::rename(&path, bad_path(&path));
                 *self = History { path: self.path.take(), load_note: self.load_note.take(), ..History::new(None) };
                 false
@@ -443,28 +444,28 @@ impl History {
     fn restore(&mut self, b: &[u8], now: i64) -> Result<(), String> {
         let mut r = Reader { b, i: 0 };
         if r.take(8)? != MAGIC {
-            return Err("ukjent format".into());
+            return Err(tr!("ukjent format").into());
         }
         if r.u32()? != FILE_VERSION {
-            return Err("ukjent versjon".into());
+            return Err(tr!("ukjent versjon").into());
         }
         let _saved = r.i64()?;
         let n = r.u32()? as usize;
         if n > MAX_SERIES {
-            return Err("for mange serier".into());
+            return Err(tr!("for mange serier").into());
         }
         let mut keys = Vec::with_capacity(n);
         for _ in 0..n {
             let len = r.u16()? as usize;
-            let k = std::str::from_utf8(r.take(len)?).map_err(|_| "ugyldig nøkkel")?.to_string();
+            let k = std::str::from_utf8(r.take(len)?).map_err(|_| tr!("ugyldig nøkkel"))?.to_string();
             if !key_ok(&k) || keys.contains(&k) {
-                return Err("ugyldige serier".into());
+                return Err(tr!("ugyldige serier").into());
             }
             keys.push(k);
         }
         let nc = r.u32()? as usize;
         if nc > MAX_CADENCE {
-            return Err("ugyldig takt".into());
+            return Err(tr!("ugyldig takt").into());
         }
         let mut cadence = Vec::with_capacity(nc);
         for _ in 0..nc {
@@ -473,24 +474,24 @@ impl History {
         let mut tiers = Vec::new();
         for def in TIERS {
             if r.u32()? as i64 != def.step {
-                return Err("ugyldige lag".into());
+                return Err(tr!("ugyldige lag").into());
             }
             let count = r.u32()? as usize;
             let mut tier = Tier::new(def);
             if count > tier.cap + 1 {
-                return Err("for mange rader".into());
+                return Err(tr!("for mange rader").into());
             }
             for _ in 0..count {
                 let t = r.i64()?;
                 let m = r.u32()? as usize;
                 if m > n {
-                    return Err("ugyldig rad".into());
+                    return Err(tr!("ugyldig rad").into());
                 }
                 let mut d = Vec::with_capacity(m * 3);
                 for _ in 0..m * 3 {
                     let x = f32::from_le_bytes(r.take(4)?.try_into().unwrap());
                     if x.is_infinite() {
-                        return Err("ugyldig verdi".into());
+                        return Err(tr!("ugyldig verdi").into());
                     }
                     d.push(x);
                 }
@@ -502,7 +503,7 @@ impl History {
             tiers.push(tier);
         }
         if r.i != b.len() {
-            return Err("ekstra data på slutten".into());
+            return Err(tr!("ekstra data på slutten").into());
         }
         self.index = keys.iter().enumerate().map(|(i, k)| (k.clone(), i)).collect();
         self.keys = keys;
@@ -536,7 +537,7 @@ struct Reader<'a> {
 impl<'a> Reader<'a> {
     fn take(&mut self, n: usize) -> Result<&'a [u8], String> {
         if self.i + n > self.b.len() {
-            return Err("fila er avkortet".into());
+            return Err(tr!("fila er avkortet").into());
         }
         let s = &self.b[self.i..self.i + n];
         self.i += n;

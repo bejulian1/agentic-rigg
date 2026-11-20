@@ -6,6 +6,7 @@
 //! Bare skallet og startsiden bygges ved oppstart. De andre sidene bygges
 //! første gang de vises, og Innstillinger første gang den åpnes.
 
+use rigg_core::{tr, trf};
 use crate::pages::{self, Key, Page};
 use crate::settings::SettingsView;
 use crate::sidebar::Sidebar;
@@ -371,12 +372,12 @@ impl Shell {
                 p.hide();
             }
             *self.back.borrow_mut() = Some(from.clone());
-            v.set_back(pages::def(&from).map(|d| d.title).unwrap_or("Oversikt"));
+            v.set_back(pages::def(&from).map(|d| d.title).unwrap_or(tr!("Oversikt")));
             self.outer.set_visible_child_name("innstillinger");
             crate::motion::fade_in(&app, &v.root, 4, 0.0);
             *app.page.borrow_mut() = "innstillinger".into();
             self.sidebar.mark_current("innstillinger");
-            self.window.set_title(Some(&format!("Innstillinger · {}", rigg_core::version::NAME)));
+            self.window.set_title(Some(&trf!("Innstillinger · {verdi}", verdi = rigg_core::version::NAME)));
             app.on_page.emit(&"innstillinger".to_string());
         }
         v.show(section);

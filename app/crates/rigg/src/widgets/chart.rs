@@ -30,6 +30,7 @@
 
 pub mod math;
 
+use rigg_core::{tr, trf};
 use crate::state::{App, Conn};
 use crate::widgets::{Icon, hbox, label, set_text};
 use gtk::prelude::*;
@@ -42,7 +43,7 @@ use std::cell::{Cell, RefCell};
 use std::collections::{HashMap, HashSet};
 use std::rc::{Rc, Weak};
 
-pub use math::{WINDOWS, window_label};
+pub use math::{WINDOWS, window_choices, window_label};
 
 /// Grafen flytter seg hele piksler, men høyst ett steg per så mange ms
 /// (målt: hver tegning koster ca. 1,3 ms CPU per graf med cairo, så 20
@@ -597,7 +598,7 @@ pub fn lower_name(s: &str) -> String {
 /// «Kortet svarer ikke siden 18:03» når det valgte kortet er borte.
 pub fn gpu_stopped(app: &App) -> Option<String> {
     let i = app.gpu_info()?;
-    (i.state == rigg_core::model::DeviceState::Lost).then(|| format!("Kortet svarer ikke siden {}", F::since(crate::app::local_time(i.since), crate::app::local_now())))
+    (i.state == rigg_core::model::DeviceState::Lost).then(|| trf!("Kortet svarer ikke siden {verdi}", verdi = F::since(crate::app::local_time(i.since), crate::app::local_now())))
 }
 
 /// Hvorfor grafen har et hull. Med «Fortsett i bakgrunnen» av tar tjenesten
@@ -605,9 +606,9 @@ pub fn gpu_stopped(app: &App) -> Option<String> {
 pub fn gap_reason(app: &App) -> String {
     let bg = app.data.borrow().service["background"].as_bool().unwrap_or(false);
     if bg {
-        "Tjenesten tok ikke opp her (maskinen var av eller sov).".into()
+        tr!("Tjenesten tok ikke opp her (maskinen var av eller sov).").into()
     } else {
-        "Hull i grafen: appen var lukket. Slå på «Fortsett i bakgrunnen» under Innstillinger › Generelt for å ta opp også da.".into()
+        tr!("Hull i grafen: appen var lukket. Slå på «Fortsett i bakgrunnen» under Innstillinger › Generelt for å ta opp også da.").into()
     }
 }
 
@@ -1075,9 +1076,9 @@ impl Chart {
         // ---- Bakgrunn: rutenett, aksetall og tidsaksen ----
         let off = utc_offset(t_now);
         let now_label = if imp.paused.get() {
-            format!("pauset {}", F::time(F::local(imp.paused_at.get(), off), win <= 300))
+            trf!("pauset {verdi}", verdi = F::time(F::local(imp.paused_at.get(), off), win <= 300))
         } else {
-            "nå".to_string()
+            tr!("nå").to_string()
         };
         let ticks = if win <= 300 { math::rel_ticks(win, t_now) } else { math::clock_ticks(t0, t_now, pw, off) };
         let tick_xs: Vec<i32> = ticks.iter().map(|t| x_of(t.t).round() as i32).collect();
@@ -1124,24 +1125,24 @@ impl Chart {
             }
             s.append_color(&c.hatch, &graphene::Rect::new(xa, pad_t, xb - xa, ph));
             let text = match kind {
-                HoleKind::Lead if view.loading() && data.t.is_empty() => "Henter historikk …".to_string(),
+                HoleKind::Lead if view.loading() && data.t.is_empty() => tr!("Henter historikk …").to_string(),
                 HoleKind::Lead if first.is_none() => {
                     if view.error().is_some() {
-                        "Kunne ikke hente historikken".into()
+                        tr!("Kunne ikke hente historikken").into()
                     } else {
-                        "Ingen data ennå".into()
+                        tr!("Ingen data ennå").into()
                     }
                 }
-                HoleKind::Lead if win > 300 => format!("Data fra {}", math::when(first.unwrap_or(t0), real_now, off, false)),
-                HoleKind::Lead if stopped.is_some() => format!("Data fra {}", F::time(F::local(first.unwrap_or(t0), off), false)),
-                HoleKind::Lead => "Samler data …".into(),
-                HoleKind::Gap => "Ingen data".into(),
-                HoleKind::Tail => stopped.clone().unwrap_or_else(|| "Ingen data".into()),
+                HoleKind::Lead if win > 300 => trf!("Data fra {verdi}", verdi = math::when(first.unwrap_or(t0), real_now, off, false)),
+                HoleKind::Lead if stopped.is_some() => trf!("Data fra {verdi}", verdi = F::time(F::local(first.unwrap_or(t0), off), false)),
+                HoleKind::Lead => tr!("Samler data …").into(),
+                HoleKind::Gap => tr!("Ingen data").into(),
+                HoleKind::Tail => stopped.clone().unwrap_or_else(|| tr!("Ingen data").into()),
             };
             // Hullet etter at kortet stoppet er ofte smalt i starten: kortere tekst da.
             let mut texts = vec![text];
             if *kind == HoleKind::Tail {
-                texts.push("Svarer ikke".into());
+                texts.push(tr!("Svarer ikke").into());
             }
             for t in texts {
                 let l = self.layout(&t, true);
@@ -1214,11 +1215,11 @@ impl Chart {
                 && let Some((_, _, kind)) = holes.iter().find(|(a, b, _)| th >= *a && th <= *b)
             {
                 let lines = match kind {
-                    HoleKind::Gap => vec!["Ingen data".to_string(), (inner.opts.gap_reason)()],
-                    HoleKind::Tail => vec![stopped.clone().unwrap_or_else(|| "Ingen data".into())],
+                    HoleKind::Gap => vec![tr!("Ingen data").to_string(), (inner.opts.gap_reason)()],
+                    HoleKind::Tail => vec![stopped.clone().unwrap_or_else(|| tr!("Ingen data").into())],
                     HoleKind::Lead => match first {
-                        Some(f) => vec![format!("Historikken begynner {}", math::when(f, real_now, off, false))],
-                        None => vec!["Ingen data ennå".into()],
+                        Some(f) => vec![trf!("Historikken begynner {verdi}", verdi = math::when(f, real_now, off, false))],
+                        None => vec![tr!("Ingen data ennå").into()],
                     },
                 };
                 self.draw_tip(s, c, own.unwrap_or(0.0), pad_t, pw + pad_l, &lines.into_iter().map(|l| (None, l)).collect::<Vec<_>>());
@@ -1513,7 +1514,7 @@ impl ChartPanel {
                 }
                 bx.append(&l);
                 b.set_child(Some(&bx));
-                b.set_tooltip_text(Some(&format!("Skjul {}", lower_name(&s.label))));
+                b.set_tooltip_text(Some(&trf!("Skjul {verdi}", verdi = lower_name(&s.label))));
                 legend.append(&b);
                 marks.push(m);
                 toggles.push(b);
@@ -1553,13 +1554,13 @@ impl ChartPanel {
         pause_btn.add_css_class("pause-btn");
         let pbx = hbox(4, &[]);
         let pause_icon = Icon::new("pause", 14);
-        let pause_text = label("Fortsett", &[]);
+        let pause_text = label(tr!("Fortsett"), &[]);
         pause_text.set_visible(false);
         pbx.append(&pause_icon);
         pbx.append(&pause_text);
         pause_btn.set_child(Some(&pbx));
-        crate::widgets::tip(&pause_btn, "Pause", Some("Mellomrom"));
-        pause_btn.update_property(&[gtk::accessible::Property::Label("Pause")]);
+        crate::widgets::tip(&pause_btn, tr!("Pause"), Some(tr!("Mellomrom")));
+        pause_btn.update_property(&[gtk::accessible::Property::Label(tr!("Pause"))]);
         aside.append(&pause_btn);
         head.append(&aside);
         root.append(&head);
@@ -1600,7 +1601,8 @@ impl ChartPanel {
                     return;
                 }
                 p.chart.set_hidden(i, !b.is_active());
-                b.set_tooltip_text(Some(&format!("{} {name}", if b.is_active() { "Skjul" } else { "Vis" })));
+                let tip = if b.is_active() { trf!("Skjul {verdi}", verdi = name) } else { trf!("Vis {verdi}", verdi = name) };
+                b.set_tooltip_text(Some(&tip));
                 p.render_numbers();
             });
         }
@@ -1641,7 +1643,7 @@ impl ChartPanel {
     }
 
     fn set_aria(&self) {
-        let t = format!("Graf: {}, {}. Mellomrom setter på pause.", self.title, window_label(self.view.window()));
+        let t = trf!("Graf: {navn}, {status}. Mellomrom setter på pause.", navn = self.title, status = window_label(self.view.window()));
         self.chart.update_property(&[gtk::accessible::Property::Label(&t)]);
     }
 
@@ -1685,12 +1687,12 @@ impl ChartPanel {
         self.pause_icon.set_icon(if p { "play" } else { "pause" });
         self.pause_text.set_visible(loud);
         crate::widgets::class(&self.pause_btn, "on", p);
-        crate::widgets::tip(&self.pause_btn, if p { "Fortsett og hopp til nå" } else { "Pause" }, Some("Mellomrom"));
-        self.pause_btn.update_property(&[gtk::accessible::Property::Label(if p { "Fortsett" } else { "Pause" })]);
+        crate::widgets::tip(&self.pause_btn, if p { tr!("Fortsett og hopp til nå") } else { tr!("Pause") }, Some(tr!("Mellomrom")));
+        self.pause_btn.update_property(&[gtk::accessible::Property::Label(if p { tr!("Fortsett") } else { tr!("Pause") })]);
         self.paused_tag.set_visible(loud);
         if p {
             let at = self.chart.paused_at();
-            set_text(&self.paused_tag, &format!("På pause · {}", F::time(F::local(at, utc_offset(at)), true)));
+            set_text(&self.paused_tag, &trf!("På pause · {verdi}", verdi = F::time(F::local(at, utc_offset(at)), true)));
         }
     }
 
@@ -1736,7 +1738,7 @@ impl ChartPanel {
                 range = Some(range.map_or((v, v), |(lo, hi)| (lo.min(v), hi.max(v))));
             }
             let text = match range {
-                Some((lo, hi)) => format!("min {} · maks {}", F::num(Some(lo), d), F::num(Some(hi), d)),
+                Some((lo, hi)) => trf!("min {min} · maks {maks}", min = F::num(Some(lo), d), maks = F::num(Some(hi), d)),
                 None => String::new(),
             };
             set_text(&self.stats, &text);
@@ -1894,6 +1896,27 @@ pub struct ChartDef {
     pub title: &'static str,
 }
 
+impl ChartDef {
+    pub fn localized_title(&self) -> &'static str {
+        match self.id {
+            "gpuTemp" => tr!("GPU-temperatur"),
+            "gpuLoad" => tr!("GPU-last"),
+            "coreClock" => tr!("Kjerneklokke"),
+            "memClock" => tr!("Minneklokke"),
+            "power" => tr!("GPU-effekt"),
+            "fan" => tr!("GPU-vifte"),
+            "vram" => tr!("Videominne"),
+            "cpuLoad" => tr!("CPU-last"),
+            "cpuTemp" => tr!("CPU-temperatur"),
+            "mem" => tr!("Minne brukt"),
+            "net" => tr!("Nett"),
+            "diskTemp" => tr!("Disktemperatur"),
+            "diskIo" => tr!("Disk-I/O"),
+            _ => self.title,
+        }
+    }
+}
+
 /// Rekkefølgen på Grafer (og i Innstillinger).
 pub const DEFS: [ChartDef; 13] = [
     ChartDef { id: "gpuTemp", title: "GPU-temperatur" },
@@ -1938,7 +1961,7 @@ pub fn mbps_top(app: &App, keys: &[String], floor: f64) -> f64 {
 const DISK_COLORS: [&str; 6] = ["--c-temp", "--c-clock", "--c-mem", "--c-power", "--c-memctl", "--c-load"];
 
 pub fn def_title(id: &str) -> &'static str {
-    DEFS.iter().find(|d| d.id == id).map(|d| d.title).unwrap_or("Graf")
+    DEFS.iter().find(|d| d.id == id).map(ChartDef::localized_title).unwrap_or_else(|| tr!("Graf"))
 }
 
 pub struct DefOpts {
@@ -1979,12 +2002,18 @@ pub fn net_unit() -> String {
 pub fn gpu_temp_limits(app: &App, prefix: &str) -> Vec<LimitLine> {
     let Some((slow, shut)) = app.with_statics(|s| (s.temp_slowdown, s.temp_shutdown)) else { return vec![] };
     let mut out = Vec::new();
-    let name = |n: &str| if prefix.is_empty() { n.to_string() } else { format!("{prefix}{}", n.to_lowercase()) };
+    let (slow_name, shut_name) = if prefix == "GPU-" {
+        (tr!("GPU-nedklokking").to_string(), tr!("GPU-avstenging").to_string())
+    } else if prefix.is_empty() {
+        (tr!("Nedklokking").to_string(), tr!("Avstenging").to_string())
+    } else {
+        (format!("{prefix}{}", tr!("Nedklokking").to_lowercase()), format!("{prefix}{}", tr!("Avstenging").to_lowercase()))
+    };
     if let Some(v) = slow {
-        out.push(LimitLine { v: F::temp_out(Some(v)).unwrap_or(v), label: format!("{} {}", name("Nedklokking"), F::temp(Some(v), 0)), level: "warn" });
+        out.push(LimitLine { v: F::temp_out(Some(v)).unwrap_or(v), label: format!("{slow_name} {}", F::temp(Some(v), 0)), level: "warn" });
     }
     if let Some(v) = shut {
-        out.push(LimitLine { v: F::temp_out(Some(v)).unwrap_or(v), label: format!("{} {}", name("Avstenging"), F::temp(Some(v), 0)), level: "danger" });
+        out.push(LimitLine { v: F::temp_out(Some(v)).unwrap_or(v), label: format!("{shut_name} {}", F::temp(Some(v), 0)), level: "danger" });
     }
     out
 }
@@ -2010,54 +2039,54 @@ pub fn def_panel(app: &Rc<App>, id: &str, o: DefOpts) -> Rc<ChartPanel> {
     let st = move |f: fn(&rigg_core::model::GpuStatic) -> Option<f64>| wa.upgrade().and_then(|a| a.with_statics(f)).flatten();
     let temp = |v: f64| F::temp_out(Some(v)).unwrap_or(v);
     let (series, unit, mut opts, fixed_only): (Vec<SeriesDef>, Rc<dyn Fn() -> String>, ChartOpts, bool) = match id {
-        "gpuTemp" => (vec![SeriesDef::new(&gk("temp"), "Temperatur", "--c-temp").fill().map(temp)], Rc::new(|| F::temp_label().into()), ChartOpts::new(app, temp_range), false),
+        "gpuTemp" => (vec![SeriesDef::new(&gk("temp"), tr!("Temperatur"), "--c-temp").fill().map(temp)], Rc::new(|| F::temp_label().into()), ChartOpts::new(app, temp_range), false),
         "gpuLoad" => (
-            vec![SeriesDef::new(&gk("gpuUtil"), "GPU", "--c-load").fill(), SeriesDef::new(&gk("memUtil"), "Minnekontroller", "--c-memctl")],
+            vec![SeriesDef::new(&gk("gpuUtil"), "GPU", "--c-load").fill(), SeriesDef::new(&gk("memUtil"), tr!("Minnekontroller"), "--c-memctl")],
             Rc::new(|| "%".into()),
             ChartOpts::new(app, || (0.0, 100.0)),
             true,
         ),
         "coreClock" => {
             let s = st.clone();
-            (vec![SeriesDef::new(&gk("coreClock"), "Kjerne", "--c-clock").fill()], Rc::new(|| "MHz".into()), ChartOpts::new(app, move || with_cap((0.0, 2500.0), s(|x| x.core_max))), false)
+            (vec![SeriesDef::new(&gk("coreClock"), tr!("Kjerne"), "--c-clock").fill()], Rc::new(|| "MHz".into()), ChartOpts::new(app, move || with_cap((0.0, 2500.0), s(|x| x.core_max))), false)
         }
         "memClock" => {
             let s = st.clone();
-            (vec![SeriesDef::new(&gk("memClock"), "Minne", "--c-mem").fill()], Rc::new(|| "MHz".into()), ChartOpts::new(app, move || with_cap((0.0, 8000.0), s(|x| x.mem_max))), false)
+            (vec![SeriesDef::new(&gk("memClock"), tr!("Minne"), "--c-mem").fill()], Rc::new(|| "MHz".into()), ChartOpts::new(app, move || with_cap((0.0, 8000.0), s(|x| x.mem_max))), false)
         }
         "power" => {
             let s = st.clone();
             (
-                vec![SeriesDef::new(&gk("power"), "Trekk", "--c-power").fill(), SeriesDef::new(&gk("powerLimit"), "Grense", "--c-limit").limit()],
+                vec![SeriesDef::new(&gk("power"), tr!("Trekk"), "--c-power").fill(), SeriesDef::new(&gk("powerLimit"), tr!("Grense"), "--c-limit").limit()],
                 Rc::new(|| "W".into()),
                 ChartOpts::new(app, move || with_cap((0.0, 300.0), s(|x| x.power_max))),
                 false,
             )
         }
-        "fan" => (vec![SeriesDef::new(&gk("fan"), "Vifte", "--c-clock").fill()], Rc::new(|| "%".into()), ChartOpts::new(app, || (0.0, 100.0)), true),
+        "fan" => (vec![SeriesDef::new(&gk("fan"), tr!("Vifte"), "--c-clock").fill()], Rc::new(|| "%".into()), ChartOpts::new(app, || (0.0, 100.0)), true),
         "vram" => {
             let wa = Rc::downgrade(app);
             (
-                vec![SeriesDef::new(&gk("vramUsed"), "Brukt", "--c-mem").fill()],
+                vec![SeriesDef::new(&gk("vramUsed"), tr!("Brukt"), "--c-mem").fill()],
                 Rc::new(|| "MiB".into()),
                 ChartOpts::new(app, move || (0.0, wa.upgrade().and_then(|a| a.gpu_sample()).and_then(|s| s.vram_total).unwrap_or(8192.0))),
                 false,
             )
         }
-        "cpuLoad" => (vec![SeriesDef::new("cpu/load", "Total", "--c-load").fill()], Rc::new(|| "%".into()), ChartOpts::new(app, || (0.0, 100.0)), true),
-        "cpuTemp" => (vec![SeriesDef::new("cpu/temp", "Temperatur (Tdie)", "--c-temp").fill().map(temp)], Rc::new(|| F::temp_label().into()), ChartOpts::new(app, temp_range), false),
-        "mem" => (vec![SeriesDef::new("mem/usedPct", "Brukt", "--c-mem").fill()], Rc::new(|| "%".into()), ChartOpts::new(app, || (0.0, 100.0)), true),
+        "cpuLoad" => (vec![SeriesDef::new("cpu/load", tr!("Total"), "--c-load").fill()], Rc::new(|| "%".into()), ChartOpts::new(app, || (0.0, 100.0)), true),
+        "cpuTemp" => (vec![SeriesDef::new("cpu/temp", tr!("Temperatur (Tdie)"), "--c-temp").fill().map(temp)], Rc::new(|| F::temp_label().into()), ChartOpts::new(app, temp_range), false),
+        "mem" => (vec![SeriesDef::new("mem/usedPct", tr!("Brukt"), "--c-mem").fill()], Rc::new(|| "%".into()), ChartOpts::new(app, || (0.0, 100.0)), true),
         "diskTemp" => {
             let list = disk_temp_series(app);
             let series: Vec<SeriesDef> = if list.is_empty() {
-                vec![SeriesDef::new("disk/-/temp", "Ingen disk med temperatur", "--c-temp")]
+                vec![SeriesDef::new("disk/-/temp", tr!("Ingen disk med temperatur"), "--c-temp")]
             } else {
                 list.iter().enumerate().map(|(i, (k, n))| SeriesDef::new(k, n, DISK_COLORS[i % DISK_COLORS.len()]).map(temp)).collect()
             };
             (series, Rc::new(|| F::temp_label().into()), ChartOpts::new(app, || if F::fahrenheit() { (68.0, 140.0) } else { (20.0, 60.0) }), false)
         }
         "diskIo" => (
-            vec![SeriesDef::new("disk/read", "Lesing", "--c-load").fill().map(|b| b / 1e6), SeriesDef::new("disk/write", "Skriving", "--c-memctl").map(|b| b / 1e6)],
+            vec![SeriesDef::new("disk/read", tr!("Lesing"), "--c-load").fill().map(|b| b / 1e6), SeriesDef::new("disk/write", tr!("Skriving"), "--c-memctl").map(|b| b / 1e6)],
             Rc::new(|| "MB/s".into()),
             {
                 let wa = Rc::downgrade(app);
@@ -2066,7 +2095,7 @@ pub fn def_panel(app: &Rc<App>, id: &str, o: DefOpts) -> Rc<ChartPanel> {
             false,
         ),
         _ => (
-            vec![SeriesDef::new("net/rx", "Mottatt", "--c-load").fill().map(net_scaled), SeriesDef::new("net/tx", "Sendt", "--c-memctl").map(net_scaled)],
+            vec![SeriesDef::new("net/rx", tr!("Mottatt"), "--c-load").fill().map(net_scaled), SeriesDef::new("net/tx", tr!("Sendt"), "--c-memctl").map(net_scaled)],
             Rc::new(net_unit),
             // Foretrukket 0–1 MB/s (8 Mbit/s): mer utvides aksen av seg selv
             // (8A). Før var det 0–1000, og vanlig nett ble en strek ved null.
@@ -2127,7 +2156,7 @@ pub fn def_panel(app: &Rc<App>, id: &str, o: DefOpts) -> Rc<ChartPanel> {
 
 /// Liten nedtrekksliste for tidsvindu (Oversikt og under en rad på Sensorer).
 pub fn window_dropdown(value: i64, label_text: &str, on_pick: impl Fn(i64) + 'static) -> gtk::DropDown {
-    let names: Vec<&str> = WINDOWS.iter().map(|w| w.1).collect();
+    let names: Vec<&str> = window_choices().map(|(_, title)| title).collect();
     let dd = gtk::DropDown::from_strings(&names);
     dd.add_css_class("win-select");
     // Den korte, faste listen trenger ikke et ekstra søkefelt. Behold

@@ -1,0 +1,65 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg-core/src/history.rs:429
+msgid "fila er større enn grensen"
+msgstr "o arquivo excede o limite de tamanho"
+
+#: crates/rigg-core/src/history.rs:436
+msgid "{name} kunne ikke leses ({why}). Historikken begynner på nytt."
+msgstr "Não foi possível ler {name} ({why}). O histórico será reiniciado."
+
+#: crates/rigg-core/src/history.rs:447
+msgid "ukjent format"
+msgstr "formato desconhecido"
+
+#: crates/rigg-core/src/history.rs:450
+msgid "ukjent versjon"
+msgstr "versão desconhecida"
+
+#: crates/rigg-core/src/history.rs:455
+msgid "for mange serier"
+msgstr "séries demais"
+
+#: crates/rigg-core/src/history.rs:460
+msgid "ugyldig nøkkel"
+msgstr "chave inválida"
+
+#: crates/rigg-core/src/history.rs:462
+msgid "ugyldige serier"
+msgstr "séries inválidas"
+
+#: crates/rigg-core/src/history.rs:468
+msgid "ugyldig takt"
+msgstr "intervalo de amostragem inválido"
+
+#: crates/rigg-core/src/history.rs:477
+msgid "ugyldige lag"
+msgstr "camadas inválidas"
+
+#: crates/rigg-core/src/history.rs:482
+msgid "for mange rader"
+msgstr "linhas demais"
+
+#: crates/rigg-core/src/history.rs:488
+msgid "ugyldig rad"
+msgstr "linha inválida"
+
+#: crates/rigg-core/src/history.rs:494
+msgid "ugyldig verdi"
+msgstr "valor inválido"
+
+#: crates/rigg-core/src/history.rs:506
+msgid "ekstra data på slutten"
+msgstr "dados extras no fim do arquivo"
+
+#: crates/rigg-core/src/history.rs:540
+msgid "fila er avkortet"
+msgstr "o arquivo está truncado"

@@ -14,6 +14,7 @@
 //!
 //! **Eies av 6C (Styring).**
 
+use rigg_core::{tr, trf};
 use crate::state::App;
 use crate::widgets::{Icon, button, class, hbox, label, set_text, vbox};
 use gtk::prelude::*;
@@ -227,7 +228,7 @@ mod slider_imp {
             let mut lo_span = Some((0.0f32, w_lo));
             let mut hi_span = Some((ww - w_hi, ww));
             if let Some(st) = stock {
-                let (l_st, w_st) = lay(&format!("standard {}", f(st)));
+                let (l_st, w_st) = lay(&trf!("standard {verdi}", verdi = f(st)));
                 let sx = (x(st) - w_st / 2.0).clamp(0.0, (ww - w_st).max(0.0));
                 if lo_span.is_some_and(|(_, b)| sx < b + gap) {
                     lo_span = None;
@@ -699,8 +700,8 @@ pub fn info_content(title: &str, paras: &[String], facts: &[(String, String)]) -
 pub fn info_button(what: &str, make: impl Fn() -> gtk::Box + 'static) -> gtk::Button {
     let b = button(Some("info"), None, &["flat", "sm", "oc-i"]);
     b.set_valign(gtk::Align::Center);
-    crate::widgets::tip(&b, &format!("Mer om {what}"), None);
-    b.update_property(&[gtk::accessible::Property::Label(&format!("Mer om {what}"))]);
+    crate::widgets::tip(&b, &trf!("Mer om {what}", what = what), None);
+    b.update_property(&[gtk::accessible::Property::Label(&trf!("Mer om {what}", what = what))]);
     b.connect_clicked(move |b| {
         let p = crate::widgets::popover::popover(b, &make());
         p.add_css_class("pop-wide");
@@ -800,11 +801,11 @@ impl OcRow {
         reset.add_css_class("oc-reset");
         let rb = hbox(5, &[]);
         rb.append(&Icon::new("rotate-ccw", 14));
-        let reset_text = gtk::Label::new(Some("Tilbakestill"));
+        let reset_text = gtk::Label::new(Some(tr!("Tilbakestill")));
         reset_text.set_ellipsize(gtk::pango::EllipsizeMode::End);
         rb.append(&reset_text);
         reset.set_child(Some(&rb));
-        reset.update_property(&[gtk::accessible::Property::Label(&format!("Tilbakestill {} til standard", title.to_lowercase()))]);
+        reset.update_property(&[gtk::accessible::Property::Label(&trf!("Tilbakestill {verdi} til standard", verdi = title.to_lowercase()))]);
         right.append(&right_stack);
         right.append(&unit_l);
         right.append(&reset);

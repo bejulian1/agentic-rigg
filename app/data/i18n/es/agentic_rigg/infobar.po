@@ -1,0 +1,81 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/infobar.rs:61
+msgid "Start på nytt"
+msgstr "Reiniciar"
+
+#: crates/rigg/src/infobar.rs:66
+msgid "Start tjenesten på nytt"
+msgstr "Reiniciar el servicio"
+
+#: crates/rigg/src/infobar.rs:84
+msgid "Tjenesten startes på nytt"
+msgstr "Reiniciando el servicio"
+
+#: crates/rigg/src/infobar.rs:84
+msgid "Den gamle stopper når vinduet kobler fra. Lukk og åpne vinduet."
+msgstr "El servicio anterior se detendrá al desconectar la ventana. Cierra la ventana y vuelve a abrirla."
+
+#: crates/rigg/src/infobar.rs:116
+msgid "Kobler til tjenesten …"
+msgstr "Conectando con el servicio…"
+
+#: crates/rigg/src/infobar.rs:140
+msgid "Tjenesten svarer ikke."
+msgstr "El servicio no responde."
+
+#: crates/rigg/src/infobar.rs:140
+msgid "Verdiene under er gamle. Appen prøver igjen av seg selv."
+msgstr "Las lecturas de abajo están desactualizadas. La aplicación lo volverá a intentar automáticamente."
+
+#: crates/rigg/src/infobar.rs:146
+msgid "Tjenesten svarer ikke. Verdiene er gamle."
+msgstr "El servicio no responde. Las lecturas están desactualizadas."
+
+#: crates/rigg/src/infobar.rs:158
+msgid "Tjenesten er fra et annet bygg."
+msgstr "El servicio y la aplicación tienen compilaciones distintas."
+
+#: crates/rigg/src/infobar.rs:158
+msgid "Tjenesten er fra bygg {b}, vinduet fra bygg {mine}. Start tjenesten på nytt."
+msgstr "El servicio usa la compilación {b}, y la aplicación, la {mine}. Reinicia el servicio."
+
+#: crates/rigg/src/infobar.rs:176
+msgid "Driveren er oppdatert."
+msgstr "Se ha actualizado el controlador."
+
+#: crates/rigg/src/infobar.rs:177
+msgid "Ny NVIDIA-driver ({ny}) er installert, men den gamle ({gammel}) kjører fortsatt. Start maskinen på nytt for å lese skjermkortet."
+msgstr "Se ha instalado un nuevo controlador NVIDIA ({ny}), pero el anterior ({gammel}) sigue en ejecución. Reinicia el equipo para leer la tarjeta gráfica."
+
+#: crates/rigg/src/infobar.rs:179
+msgid "ny"
+msgstr "nuevo"
+
+#: crates/rigg/src/infobar.rs:180
+msgid "gammel"
+msgstr "antiguo"
+
+#: crates/rigg/src/infobar.rs:184
+msgid "Fant ingen NVIDIA-driver."
+msgstr "No se encontró ningún controlador NVIDIA."
+
+#: crates/rigg/src/infobar.rs:184
+msgid "Prosessor, minne og sensorer vises som vanlig."
+msgstr "El procesador, la memoria y los sensores se muestran como siempre."
+
+#: crates/rigg/src/infobar.rs:186
+msgid "Skjermkortet svarer ikke."
+msgstr "La GPU no responde."
+
+#: crates/rigg/src/infobar.rs:187
+msgid "Siden {tid}. Det skjer når kortet faller av bussen eller trekkes ut. Tallene før det er tatt vare på."
+msgstr "Desde las {tid}. La tarjeta podría haberse desconectado del bus o haberse retirado. Se conservan las lecturas anteriores."

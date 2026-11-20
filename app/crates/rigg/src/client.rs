@@ -7,6 +7,7 @@
 //! (eller med `RIGG_PROFIL=dev`, som aldri rører systemd). Så prøves det igjen
 //! hvert 25. ms i opptil 2 s, og etter det med økende pause (0,5–5 s).
 
+use rigg_core::{tr, trf};
 use gtk::gio;
 use gtk::glib;
 use gtk::prelude::*;
@@ -106,7 +107,7 @@ impl Client {
         for id in late {
             let cb = self.inner.borrow_mut().pending.remove(&id);
             if let Some((_, cb)) = cb {
-                cb(Err(ProtoError::msg(ErrorCode::Unavailable, "Tjenesten svarte ikke på 5 s.")));
+                cb(Err(ProtoError::msg(ErrorCode::Unavailable, tr!("Tjenesten svarte ikke på 5 s."))));
             }
         }
     }
@@ -213,7 +214,7 @@ impl Client {
     /// prosessgruppe, så den lever videre når vinduet lukkes.
     fn spawn_service(&self) {
         let Some(bin) = std::env::current_exe().ok().map(|p| p.with_file_name("agentic-riggd")).filter(|p| p.exists()) else {
-            eprintln!("Fant ikke agentic-riggd ved siden av vinduet.");
+            eprintln!("{}", tr!("Fant ikke agentic-riggd ved siden av vinduet."));
             return;
         };
         use std::os::unix::process::CommandExt;
@@ -233,7 +234,7 @@ impl Client {
                     let _ = c.wait();
                 });
             }
-            Err(e) => eprintln!("Kunne ikke starte {}: {e}", bin.display()),
+            Err(e) => eprintln!("{}", trf!("Kunne ikke starte {verdi}: {e}", e = e, verdi = bin.display())),
         }
     }
 
@@ -325,7 +326,7 @@ impl Client {
     /// Sender en forespørsel. Uten forbindelse får `cb` en feil med en gang.
     pub fn request(self: &Rc<Self>, op: &str, args: Value, cb: impl FnOnce(OpResult) + 'static) {
         if !self.connected.get() {
-            cb(Err(ProtoError::msg(ErrorCode::Unavailable, "Tjenesten svarer ikke.")));
+            cb(Err(ProtoError::msg(ErrorCode::Unavailable, tr!("Tjenesten svarer ikke."))));
             return;
         }
         let id = {

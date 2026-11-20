@@ -1,0 +1,121 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n == 1 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : 2);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/widgets/chart/math.rs:25
+msgid "1 min"
+msgstr "1 min"
+
+#: crates/rigg/src/widgets/chart/math.rs:26
+msgid "5 min"
+msgstr "5 min"
+
+#: crates/rigg/src/widgets/chart/math.rs:27
+msgid "15 min"
+msgstr "15 min"
+
+#: crates/rigg/src/widgets/chart/math.rs:28
+msgid "1 t"
+msgstr "1 godz."
+
+#: crates/rigg/src/widgets/chart/math.rs:29
+msgid "6 t"
+msgstr "6 godz."
+
+#: crates/rigg/src/widgets/chart/math.rs:30
+msgid "24 t"
+msgstr "24 godz."
+
+#: crates/rigg/src/widgets/chart/math.rs:31
+msgid "48 t"
+msgstr "48 godz."
+
+#: crates/rigg/src/widgets/chart/math.rs:41
+msgid "{verdi} min"
+msgstr "{verdi} min"
+
+#: crates/rigg/src/widgets/chart/math.rs:340 crates/rigg/src/widgets/chart/math.rs:762
+msgid "nå"
+msgstr "teraz"
+
+#: crates/rigg/src/widgets/chart/math.rs:409
+msgid "i dag {hm}"
+msgstr "dziś o {hm}"
+
+#: crates/rigg/src/widgets/chart/math.rs:411
+msgid "i går {hm}"
+msgstr "wczoraj o {hm}"
+
+#: crates/rigg/src/widgets/chart/math.rs:762
+msgid "for {s}{verdi}s siden"
+msgstr "{s}{verdi}s temu"
+
+#: crates/rigg/src/widgets/chart/math.rs:768
+msgid "{head} · snitt over {over}"
+msgstr "{head} · średnia z {over}"
+
+#: crates/rigg/src/widgets/chart/math.rs:809
+msgid "{now} · maks {extra}"
+msgstr "{now} · maks. {extra}"
+
+#: crates/rigg/src/widgets/chart/math.rs:818
+msgid "{verdi1} = {r}{verdi2}GT/s per lane"
+msgstr "{verdi1} = {r}{verdi2}GT/s na linię"
+
+#: crates/rigg/src/widgets/chart/math.rs:823
+msgid "Lenken går på {aktiv} nå fordi kortet sparer strøm i tomgang, og går opp til {maks} under last. {aktiv_hastighet}, {maks_hastighet}."
+msgstr "Łącze działa w trybie {aktiv}, aby oszczędzać energię w spoczynku. Pod obciążeniem przechodzi na {maks}. {aktiv_hastighet}, {maks_hastighet}."
+
+#: crates/rigg/src/widgets/chart/math.rs:825
+msgid "Lenken går på full hastighet. {verdi}."
+msgstr "Łącze działa z pełną prędkością. {verdi}."
+
+#: crates/rigg/src/widgets/chart/math.rs:833
+msgid "Tomgang"
+msgstr "Bezczynność"
+
+#: crates/rigg/src/widgets/chart/math.rs:834
+msgid "App-klokker"
+msgstr "Taktowania aplikacji"
+
+#: crates/rigg/src/widgets/chart/math.rs:835
+msgid "Effektgrense"
+msgstr "Limit mocy"
+
+#: crates/rigg/src/widgets/chart/math.rs:836
+msgid "HW-nedklokking"
+msgstr "Obniżone taktowanie (HW)"
+
+#: crates/rigg/src/widgets/chart/math.rs:838
+msgid "Termisk (SW)"
+msgstr "Termiczne (SW)"
+
+#: crates/rigg/src/widgets/chart/math.rs:839
+msgid "Termisk (HW)"
+msgstr "Termiczne (HW)"
+
+#: crates/rigg/src/widgets/chart/math.rs:840
+msgid "Strømbrems (HW)"
+msgstr "Hamulec mocy (HW)"
+
+#: crates/rigg/src/widgets/chart/math.rs:841
+msgid "Skjermklokke"
+msgstr "Taktowanie wyświetlania"
+
+#: crates/rigg/src/widgets/chart/math.rs:855
+msgid "Ingen"
+msgstr "Brak"
+
+#: crates/rigg/src/widgets/chart/math.rs:882
+msgid "Over rød varselgrense (Innstillinger › Grafer og sensorer)."
+msgstr "Powyżej progu krytycznego (Ustawienia › Wykresy i czujniki)."
+
+#: crates/rigg/src/widgets/chart/math.rs:883
+msgid "Over gul varselgrense (Innstillinger › Grafer og sensorer)."
+msgstr "Powyżej progu ostrzegawczego (Ustawienia › Wykresy i czujniki)."

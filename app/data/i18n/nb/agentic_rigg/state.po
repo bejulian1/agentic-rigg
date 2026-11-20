@@ -1,0 +1,16 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: nb\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: crates/rigg/src/state.rs:272
+msgid "Kunne ikke lagre innstillingen"
+msgstr "Kunne ikke lagre innstillingen"
+
+#: crates/rigg/src/state.rs:330
+msgid "Tjenesten tok ikke imot endringen"
+msgstr "Tjenesten tok ikke imot endringen"

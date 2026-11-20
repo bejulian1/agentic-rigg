@@ -1,0 +1,17 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/riggd/src/sampler.rs:112
+msgid "Prøvetråden fikk panikk. Starter den på nytt om 1 s."
+msgstr "A thread de amostragem falhou. Reinício em 1 s."
+
+#: crates/riggd/src/sampler.rs:118
+msgid "kunne ikke starte prøvetråden"
+msgstr "não foi possível iniciar a thread de amostragem"

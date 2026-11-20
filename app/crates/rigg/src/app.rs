@@ -6,6 +6,7 @@
 //! Med `RIGG_TIMING=1` skriver vinduet `RIGG_TIMING …` til stderr ved første
 //! bilde (`scripts/maal.sh`).
 
+use rigg_core::tr;
 use crate::state::{App, Conn};
 use gtk::prelude::*;
 use gtk::{gio, glib};
@@ -145,7 +146,7 @@ fn activate(gapp: &gtk::Application, state: &Rc<std::cell::RefCell<Option<Rc<App
         connect(&a);
         crate::easter::greet(&a);
         for n in a.notes.borrow_mut().drain(..) {
-            a.toast(crate::toast::Toast::new("Innstillingene kunne ikke leses").body(&n).error().ms(12_000));
+            a.toast(crate::toast::Toast::new(tr!("Innstillingene kunne ikke leses")).body(&n).error().ms(12_000));
         }
     });
 }

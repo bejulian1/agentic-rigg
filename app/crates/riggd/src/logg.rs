@@ -15,6 +15,7 @@
 //!   (`…-del2.csv`) ved 100 MB. Stopper med en melding når disken har under
 //!   500 MB ledig.
 
+use rigg_core::{tr, trf};
 use rigg_core::csv::{self, Column, CsvFormat};
 use rigg_core::model::Telemetry;
 use rigg_core::proto::{ErrorCode, OpResult, ProtoError};
@@ -103,52 +104,52 @@ impl Logger {
         }
         let wanted = match args.get("keys").filter(|v| !v.is_null()) {
             Some(v) => {
-                let a = v.as_array().ok_or_else(|| invalid("keys må være en liste"))?;
+                let a = v.as_array().ok_or_else(|| invalid(tr!("keys må være en liste")))?;
                 let mut out: Vec<String> = Vec::new();
                 for k in a.iter().take(512) {
-                    let s = k.as_str().filter(|s| rigg_core::sensor_key::valid(s)).ok_or_else(|| invalid("Ugyldig sensornøkkel"))?;
+                    let s = k.as_str().filter(|s| rigg_core::sensor_key::valid(s)).ok_or_else(|| invalid(tr!("Ugyldig sensornøkkel")))?;
                     if !out.iter().any(|x| x == s) {
                         out.push(s.to_string());
                     }
                 }
                 if out.is_empty() {
-                    return Err(invalid("Velg minst én sensor å logge."));
+                    return Err(invalid(tr!("Velg minst én sensor å logge.")));
                 }
                 Some(out)
             }
             None if !settings.all => {
                 if settings.keys.is_empty() {
-                    return Err(invalid("Ingen sensorer er valgt for loggen. Velg dem i Innstillinger › Logging og varsler, eller logg alle."));
+                    return Err(invalid(tr!("Ingen sensorer er valgt for loggen. Velg dem i Innstillinger › Logging og varsler, eller logg alle.")));
                 }
                 Some(settings.keys.clone())
             }
             None => None,
         };
         let interval_ms = match args.get("intervalMs").filter(|v| !v.is_null()) {
-            Some(v) => v.as_u64().map(|n| n as u32).filter(|n| LOG_INTERVALS.contains(n)).ok_or_else(|| invalid("Loggintervallet må være 0,5, 1, 2, 5 eller 10 s"))?,
+            Some(v) => v.as_u64().map(|n| n as u32).filter(|n| LOG_INTERVALS.contains(n)).ok_or_else(|| invalid(tr!("Loggintervallet må være 0,5, 1, 2, 5 eller 10 s")))?,
             None => settings.interval_ms,
         };
         let format = match args.get("format").and_then(Value::as_str) {
             Some("standard") => CsvFormat::Standard,
             Some("norsk") => CsvFormat::Norsk,
-            Some(_) => return Err(invalid("Formatet må være standard eller norsk")),
+            Some(_) => return Err(invalid(tr!("Formatet må være standard eller norsk"))),
             None => CsvFormat::from_name(&settings.format),
         };
         let dir = match args.get("dir").filter(|v| !v.is_null()) {
             Some(v) => {
-                let s = v.as_str().filter(|s| s.starts_with('/') && s.len() < 1024 && !s.contains('\0')).ok_or_else(|| invalid("Loggmappa må være en full sti"))?;
+                let s = v.as_str().filter(|s| s.starts_with('/') && s.len() < 1024 && !s.contains('\0')).ok_or_else(|| invalid(tr!("Loggmappa må være en full sti")))?;
                 PathBuf::from(s)
             }
             None => settings.dir.as_ref().map(PathBuf::from).unwrap_or_else(default_dir),
         };
         if let Err(e) = std::fs::create_dir_all(&dir) {
-            return Err(ProtoError::msg(ErrorCode::Internal, format!("Kunne ikke lage mappa {}: {e}", dir.display())));
+            return Err(ProtoError::msg(ErrorCode::Internal, trf!("Kunne ikke lage mappa {verdi}: {e}", e = e, verdi = dir.display())));
         }
         if free_bytes(&dir).is_some_and(|f| f < MIN_FREE_BYTES) {
-            return Err(ProtoError::msg(ErrorCode::Busy, "Det er under 500 MB ledig på disken. Loggen er ikke startet."));
+            return Err(ProtoError::msg(ErrorCode::Busy, tr!("Det er under 500 MB ledig på disken. Loggen er ikke startet.")));
         }
         let name_t = rigg_core::fmt::local(now, utc_offset(now));
-        let (path, file) = open_part(&dir, name_t, 1).map_err(|e| ProtoError::msg(ErrorCode::Internal, format!("Kunne ikke lage loggfila: {e}")))?;
+        let (path, file) = open_part(&dir, name_t, 1).map_err(|e| ProtoError::msg(ErrorCode::Internal, trf!("Kunne ikke lage loggfila: {e}", e = e)))?;
         self.on = Some(Active {
             dir,
             name_t,
@@ -180,7 +181,7 @@ impl Logger {
     fn finish(&mut self, now: i64, error: Option<String>) {
         if let Some(mut a) = self.on.take() {
             let flush_err = a.w.flush().err();
-            let error = error.or_else(|| flush_err.map(|e| format!("Kunne ikke skrive til loggfila: {e}")));
+            let error = error.or_else(|| flush_err.map(|e| trf!("Kunne ikke skrive til loggfila: {e}", e = e)));
             self.last = Some(json!({
                 "active": false,
                 "file": a.path.display().to_string(),
@@ -243,7 +244,7 @@ impl Logger {
             let cols: Vec<Column> = keys.iter().map(|k| csv::column(k, Some(t))).collect();
             let head = csv::header_line(&cols, a.format);
             if let Err(e) = a.write(head.as_bytes()) {
-                self.finish(now, Some(format!("Kunne ikke skrive til loggfila: {e}")));
+                self.finish(now, Some(trf!("Kunne ikke skrive til loggfila: {e}", e = e)));
                 return Some(self.status());
             }
             a.cols = Some(cols);
@@ -255,7 +256,7 @@ impl Logger {
         let secs = (t.t - a.started_at) as f64 / 1000.0;
         let line = csv::row_line(&time, secs.max(0.0), cols, &values, a.format);
         if let Err(e) = a.write(line.as_bytes()) {
-            self.finish(now, Some(format!("Kunne ikke skrive til loggfila: {e}")));
+            self.finish(now, Some(trf!("Kunne ikke skrive til loggfila: {e}", e = e)));
             return Some(self.status());
         }
         a.rows += 1;
@@ -264,7 +265,7 @@ impl Logger {
             return match a.next_part() {
                 Ok(()) => Some(self.status()),
                 Err(e) => {
-                    self.finish(now, Some(format!("Kunne ikke lage neste loggfil: {e}")));
+                    self.finish(now, Some(trf!("Kunne ikke lage neste loggfil: {e}", e = e)));
                     Some(self.status())
                 }
             };
@@ -278,14 +279,14 @@ impl Logger {
         if now - a.last_flush >= FLUSH_MS {
             a.last_flush = now;
             if let Err(e) = a.w.flush() {
-                self.finish(now, Some(format!("Kunne ikke skrive til loggfila: {e}")));
+                self.finish(now, Some(trf!("Kunne ikke skrive til loggfila: {e}", e = e)));
                 return Some(self.status());
             }
         }
         if now - a.last_space >= FLUSH_MS {
             a.last_space = now;
             if free_bytes(&a.dir).is_some_and(|f| f < MIN_FREE_BYTES) {
-                self.finish(now, Some("Loggen er stoppet: det er under 500 MB ledig på disken.".into()));
+                self.finish(now, Some(tr!("Loggen er stoppet: det er under 500 MB ledig på disken.").into()));
                 return Some(self.status());
             }
         }

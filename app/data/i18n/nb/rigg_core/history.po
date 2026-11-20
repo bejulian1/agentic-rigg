@@ -1,0 +1,64 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: nb\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: crates/rigg-core/src/history.rs:429
+msgid "fila er større enn grensen"
+msgstr "fila er større enn grensen"
+
+#: crates/rigg-core/src/history.rs:436
+msgid "{name} kunne ikke leses ({why}). Historikken begynner på nytt."
+msgstr "{name} kunne ikke leses ({why}). Historikken begynner på nytt."
+
+#: crates/rigg-core/src/history.rs:447
+msgid "ukjent format"
+msgstr "ukjent format"
+
+#: crates/rigg-core/src/history.rs:450
+msgid "ukjent versjon"
+msgstr "ukjent versjon"
+
+#: crates/rigg-core/src/history.rs:455
+msgid "for mange serier"
+msgstr "for mange serier"
+
+#: crates/rigg-core/src/history.rs:460
+msgid "ugyldig nøkkel"
+msgstr "ugyldig nøkkel"
+
+#: crates/rigg-core/src/history.rs:462
+msgid "ugyldige serier"
+msgstr "ugyldige serier"
+
+#: crates/rigg-core/src/history.rs:468
+msgid "ugyldig takt"
+msgstr "ugyldig takt"
+
+#: crates/rigg-core/src/history.rs:477
+msgid "ugyldige lag"
+msgstr "ugyldige lag"
+
+#: crates/rigg-core/src/history.rs:482
+msgid "for mange rader"
+msgstr "for mange rader"
+
+#: crates/rigg-core/src/history.rs:488
+msgid "ugyldig rad"
+msgstr "ugyldig rad"
+
+#: crates/rigg-core/src/history.rs:494
+msgid "ugyldig verdi"
+msgstr "ugyldig verdi"
+
+#: crates/rigg-core/src/history.rs:506
+msgid "ekstra data på slutten"
+msgstr "ekstra data på slutten"
+
+#: crates/rigg-core/src/history.rs:540
+msgid "fila er avkortet"
+msgstr "fila er avkortet"
