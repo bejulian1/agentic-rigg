@@ -1,13 +1,14 @@
 //! Formatering av tall og enheter (port av `web/js/fmt.js`). Regler:
 //!
 //! - Smalt, ikke-brytende mellomrom (U+202F) mellom tall og enhet, også «38 %».
-//! - Tusenskille er også U+202F (norsk standard), og desimalkomma.
+//! - Desimaltegn og siffergruppering følger visningsspråket.
 //! - Ekte minustegn (U+2212), og aldri «−0».
 //! - Enheter og desimaler følger Innstillinger ([`set_format`]).
 //!
 //! Valgene ligger i en trådlokal variabel, som demoens modul-variabel, så
 //! sidene kan kalle `fmt::temp(v, 0)` uten å sende innstillingene rundt.
 
+use crate::i18n::{self, Language};
 use std::cell::RefCell;
 
 pub const NNBSP: char = '\u{202F}';
@@ -53,6 +54,10 @@ fn with<R>(f: impl FnOnce(&Format) -> R) -> R {
 
 /// Tall med fast antall desimaler. `None`/NaN gir «–».
 pub fn num(v: Option<f64>, d: usize) -> String {
+    localized_num(v, d, i18n::active())
+}
+
+fn localized_num(v: Option<f64>, d: usize, lang: Language) -> String {
     let Some(mut v) = v.filter(|v| v.is_finite()) else { return DASH.into() };
     if v.abs() < 0.5 * 10f64.powi(-(d as i32)) {
         v = 0.0;
@@ -63,22 +68,25 @@ pub fn num(v: Option<f64>, d: usize) -> String {
         Some((a, b)) => (a, Some(b)),
         None => (s.as_str(), None),
     };
-    // nb-NO grupperer fra fire siffer: «1 350».
-    let mut grouped = String::new();
-    let digits: Vec<char> = int.chars().collect();
-    for (i, c) in digits.iter().enumerate() {
-        if i > 0 && (digits.len() - i).is_multiple_of(3) && digits.len() >= 4 {
-            grouped.push(NNBSP);
-        }
-        grouped.push(*c);
-    }
-    let mut out = String::new();
+    let (decimal, group, min_digits) = match lang {
+        Language::En | Language::ZhCn | Language::Ja => ('.', ',', 4),
+        Language::De | Language::PtBr | Language::It => (',', '.', 4),
+        Language::Es => (',', '.', 5),
+        Language::Pl => (',', NNBSP, 5),
+        Language::Fr | Language::Nb => (',', NNBSP, 4),
+    };
+    let mut out = String::with_capacity(s.len());
     if neg {
         out.push(MINUS);
     }
-    out.push_str(&grouped);
+    for (i, c) in int.bytes().enumerate() {
+        if i > 0 && (int.len() - i).is_multiple_of(3) && int.len() >= min_digits {
+            out.push(group);
+        }
+        out.push(char::from(c));
+    }
     if let Some(f) = frac {
-        out.push(',');
+        out.push(decimal);
         out.push_str(f);
     }
     out
@@ -260,22 +268,75 @@ pub fn local(ms: i64, utc_offset_s: i64) -> LocalTime {
     LocalTime { year, month, day, hour: (rem / 3600) as u32, minute: (rem % 3600 / 60) as u32, second: (rem % 60) as u32 }
 }
 
-fn hour12() -> bool {
-    with(|p| p.clock == "12")
+/// «14:32:10» eller «2:32:10 PM», avhengig av språk og klokkevalg.
+pub fn time(t: LocalTime, seconds: bool) -> String {
+    let lang = i18n::active();
+    let hour12 = with(|p| p.clock == "12" || (p.clock == "system" && matches!(lang, Language::En | Language::ZhCn)));
+    localized_time(t, seconds, lang, hour12)
 }
 
-/// «14:32:10» eller «2:32:10 p.m.».
-pub fn time(t: LocalTime, seconds: bool) -> String {
-    if hour12() {
-        let h = if t.hour.is_multiple_of(12) { 12 } else { t.hour % 12 };
-        let ap = if t.hour < 12 { "a.m." } else { "p.m." };
-        return if seconds { format!("{h:02}:{:02}:{:02} {ap}", t.minute, t.second) } else { format!("{h:02}:{:02} {ap}", t.minute) };
+fn localized_time(t: LocalTime, seconds: bool, lang: Language, hour12: bool) -> String {
+    if !hour12 {
+        return if seconds { format!("{:02}:{:02}:{:02}", t.hour, t.minute, t.second) } else { format!("{:02}:{:02}", t.hour, t.minute) };
     }
-    if seconds { format!("{:02}:{:02}:{:02}", t.hour, t.minute, t.second) } else { format!("{:02}:{:02}", t.hour, t.minute) }
+    let hour = if t.hour.is_multiple_of(12) { 12 } else { t.hour % 12 };
+    let pm = t.hour >= 12;
+    let mut clock = if lang == Language::Nb {
+        format!("{hour:02}:{:02}", t.minute)
+    } else {
+        format!("{hour}:{:02}", t.minute)
+    };
+    if seconds {
+        use std::fmt::Write;
+        let _ = write!(clock, ":{:02}", t.second);
+    }
+    match (lang, pm) {
+        (Language::ZhCn, false) => format!("上午{clock}"),
+        (Language::ZhCn, true) => format!("下午{clock}"),
+        (Language::Ja, false) => format!("午前{clock}"),
+        (Language::Ja, true) => format!("午後{clock}"),
+        (Language::Nb, false) => format!("{clock} a.m."),
+        (Language::Nb, true) => format!("{clock} p.m."),
+        (Language::Es, false) => format!("{clock} a. m."),
+        (Language::Es, true) => format!("{clock} p. m."),
+        (_, false) => format!("{clock} AM"),
+        (_, true) => format!("{clock} PM"),
+    }
 }
 
 pub const MONTHS: [&str; 12] = ["januar", "februar", "mars", "april", "mai", "juni", "juli", "august", "september", "oktober", "november", "desember"];
 pub const MON_SHORT: [&str; 12] = ["jan.", "feb.", "mars", "apr.", "mai", "juni", "juli", "aug.", "sep.", "okt.", "nov.", "des."];
+
+/// Brukerrettet dato, med månedsnavn på bokmål.
+pub fn date(year: i32, month: u32, day: u32, short: bool) -> String {
+    date_parts(i18n::active(), Some(year), month, day, short)
+}
+
+pub fn month_day(month: u32, day: u32) -> String {
+    date_parts(i18n::active(), None, month, day, true)
+}
+
+fn date_parts(lang: Language, year: Option<i32>, month: u32, day: u32, short: bool) -> String {
+    let m = month.clamp(1, 12) as usize - 1;
+    match (lang, year) {
+        (Language::Nb, y) => {
+            let name = if short { MON_SHORT[m] } else { MONTHS[m] };
+            y.map_or_else(|| format!("{day}. {name}"), |y| format!("{day}. {name} {y}"))
+        }
+        (Language::En, y) => {
+            let name = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][m];
+            y.map_or_else(|| format!("{name} {day}"), |y| format!("{name} {day}, {y}"))
+        }
+        (Language::ZhCn | Language::Ja, Some(y)) => format!("{y}年{month}月{day}日"),
+        (Language::ZhCn | Language::Ja, None) => format!("{month}月{day}日"),
+        (Language::De | Language::Pl, Some(y)) => format!("{day:02}.{month:02}.{y}"),
+        (Language::De | Language::Pl, None) => format!("{day:02}.{month:02}."),
+        (Language::Es, Some(y)) => format!("{day}/{month}/{y}"),
+        (Language::Es, None) => format!("{day}/{month}"),
+        (_, Some(y)) => format!("{day:02}/{month:02}/{y}"),
+        (_, None) => format!("{day:02}/{month:02}"),
+    }
+}
 
 /// «23:37» i dag, «3. nov. 23:37» en annen dag og «3. nov. 2025 23:37» et annet år.
 pub fn since(t: LocalTime, now: LocalTime) -> String {
@@ -283,8 +344,8 @@ pub fn since(t: LocalTime, now: LocalTime) -> String {
     if (t.year, t.month, t.day) == (now.year, now.month, now.day) {
         return hm;
     }
-    let day = format!("{}. {}", t.day, MON_SHORT[(t.month - 1) as usize]);
-    if t.year == now.year { format!("{day} {hm}") } else { format!("{day} {} {hm}", t.year) }
+    let date = date_parts(i18n::active(), (t.year != now.year).then_some(t.year), t.month, t.day, true);
+    format!("{date} {hm}")
 }
 
 pub fn uptime(sec: Option<f64>) -> String {
@@ -295,12 +356,12 @@ pub fn uptime(sec: Option<f64>) -> String {
     let m = sec % 3600 / 60;
     let mut parts = Vec::new();
     if d > 0 {
-        parts.push(format!("{d}{NNBSP}døgn"));
+        parts.push(crate::trf!("{verdi} døgn", verdi = d));
     }
     if d > 0 || h > 0 {
-        parts.push(format!("{h}{NNBSP}t"));
+        parts.push(crate::trf!("{verdi} t", verdi = h));
     }
-    parts.push(format!("{m}{NNBSP}min"));
+    parts.push(crate::trf!("{verdi} min", verdi = m));
     parts.join(" ")
 }
 
@@ -334,6 +395,32 @@ mod tests {
         assert_eq!(signed(5.0, 0), "+5");
         assert_eq!(seconds(500), "0,5\u{202F}s");
         assert_eq!(num(Some(1234567.0), 0), "1\u{202F}234\u{202F}567");
+    }
+
+    #[test]
+    fn lokal_tall_og_tid() {
+        let tests = [
+            (Language::Nb, "12 345,6"),
+            (Language::En, "12,345.6"),
+            (Language::De, "12.345,6"),
+            (Language::Fr, "12 345,6"),
+            (Language::Es, "12.345,6"),
+            (Language::PtBr, "12.345,6"),
+            (Language::It, "12.345,6"),
+            (Language::Pl, "12 345,6"),
+            (Language::ZhCn, "12,345.6"),
+            (Language::Ja, "12,345.6"),
+        ];
+        for (lang, value) in tests {
+            assert_eq!(localized_num(Some(12345.6), 1, lang), value);
+        }
+        assert_eq!(localized_num(Some(1234.0), 0, Language::Pl), "1234");
+        assert_eq!(date_parts(Language::En, Some(2026), 11, 7, true), "Nov 7, 2026");
+        assert_eq!(date_parts(Language::Ja, Some(2026), 11, 7, true), "2026年11月7日");
+        let t = LocalTime { year: 2026, month: 11, day: 7, hour: 14, minute: 5, second: 1 };
+        assert_eq!(localized_time(t, false, Language::En, true), "2:05 PM");
+        assert_eq!(localized_time(t, true, Language::ZhCn, true), "下午2:05:01");
+        assert_eq!(localized_time(t, false, Language::Nb, true), "02:05 p.m.");
     }
 
     #[test]

@@ -1,0 +1,37 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/settings/sprak.rs:12
+msgid "Følg systemet"
+msgstr "Usa la lingua di sistema"
+
+#: crates/rigg/src/settings/sprak.rs:22
+msgid "Visningsspråk"
+msgstr "Lingua dell’interfaccia"
+
+#: crates/rigg/src/settings/sprak.rs:25
+msgid "Start på nytt nå"
+msgstr "Riavvia ora"
+
+#: crates/rigg/src/settings/sprak.rs:26
+msgid "Nytt språk etter omstart"
+msgstr "La lingua cambierà al riavvio"
+
+#: crates/rigg/src/settings/sprak.rs:47
+msgid "Kunne ikke starte appen på nytt"
+msgstr "Impossibile riavviare l’app"
+
+#: crates/rigg/src/settings/sprak.rs:48
+msgid "Omstarten ble avbrutt: {feil}"
+msgstr "Riavvio annullato: {feil}"
+
+#: crates/rigg/src/settings/sprak.rs:53
+msgid "Språk"
+msgstr "Lingua"

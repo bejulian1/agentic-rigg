@@ -11,6 +11,7 @@ pub mod easter;
 pub mod fmt;
 pub mod hjelper;
 pub mod history;
+pub mod i18n;
 pub mod model;
 pub mod paths;
 pub mod proto;

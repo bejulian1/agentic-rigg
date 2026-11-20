@@ -22,33 +22,35 @@ pub mod om;
 pub mod search;
 pub mod sidefelt;
 pub mod styring;
+mod sprak;
 pub mod utseende;
 
 use crate::state::App;
 use crate::widgets::masonry::Masonry;
 use crate::widgets::{Icon, Seg, hbox, label, vbox};
 use gtk::prelude::*;
+use rigg_core::tr;
 use std::cell::{Cell, RefCell};
 use std::rc::{Rc, Weak};
 
 pub struct SectionDef {
     pub id: &'static str,
-    pub name: &'static str,
+    pub name: fn() -> &'static str,
     pub icon: &'static str,
-    pub lead: &'static str,
+    pub lead: fn() -> &'static str,
     pub build: fn(&Rc<App>) -> Vec<Group>,
 }
 
 pub const SECTIONS: [SectionDef; 9] = [
-    SectionDef { id: "generelt", name: "Generelt", icon: "settings", lead: "Oppstart, oppdatering og tjenesten i bakgrunnen", build: generelt::build },
-    SectionDef { id: "utseende", name: "Utseende", icon: "sun-moon", lead: "Lyst eller mørkt, farger, appikon, størrelse og bevegelse", build: utseende::build },
-    SectionDef { id: "format", name: "Enheter og format", icon: "ruler", lead: "Enheter, desimaler og klokkeslett", build: format::build },
-    SectionDef { id: "sidefelt", name: "Sidefelt", icon: "panel-left", lead: "Statusblokken, bredden og sidene i sidefeltet", build: sidefelt::build },
-    SectionDef { id: "grafer", name: "Grafer og sensorer", icon: "chart-area", lead: "Tidsvindu, grafer, sensorer og varselfarger", build: grafer::build },
-    SectionDef { id: "logging", name: "Logging og varsler", icon: "activity", lead: "Logg til fil og skrivebordsvarsler", build: logging::build },
-    SectionDef { id: "styring", name: "Skjermkortstyring", icon: "shield", lead: "Tillatelse, funksjonsstøtte og trygg gjenoppretting", build: styring::build },
-    SectionDef { id: "data", name: "Data og tilbakestilling", icon: "database", lead: "Mappene, eksport, import og tilbakestilling", build: data::build },
-    SectionDef { id: "om", name: "Om", icon: "info", lead: "Versjon, hjelp og feilsøking", build: om::build },
+    SectionDef { id: "generelt", name: || tr!("Generelt"), icon: "settings", lead: || tr!("Språk, oppstart, oppdatering og bakgrunnstjeneste"), build: generelt::build },
+    SectionDef { id: "utseende", name: || tr!("Utseende"), icon: "sun-moon", lead: || tr!("Lyst eller mørkt, farger, appikon, størrelse og bevegelse"), build: utseende::build },
+    SectionDef { id: "format", name: || tr!("Enheter og format"), icon: "ruler", lead: || tr!("Enheter, desimaler og klokkeslett"), build: format::build },
+    SectionDef { id: "sidefelt", name: || tr!("Sidefelt"), icon: "panel-left", lead: || tr!("Statusblokken, bredden og sidene i sidefeltet"), build: sidefelt::build },
+    SectionDef { id: "grafer", name: || tr!("Grafer og sensorer"), icon: "chart-area", lead: || tr!("Tidsvindu, grafer, sensorer og varselfarger"), build: grafer::build },
+    SectionDef { id: "logging", name: || tr!("Logging og varsler"), icon: "activity", lead: || tr!("Logg til fil og skrivebordsvarsler"), build: logging::build },
+    SectionDef { id: "styring", name: || tr!("Skjermkortstyring"), icon: "shield", lead: || tr!("Tillatelse, funksjonsstøtte og trygg gjenoppretting"), build: styring::build },
+    SectionDef { id: "data", name: || tr!("Data og tilbakestilling"), icon: "database", lead: || tr!("Mappene, eksport, import og tilbakestilling"), build: data::build },
+    SectionDef { id: "om", name: || tr!("Om"), icon: "info", lead: || tr!("Versjon, hjelp og feilsøking"), build: om::build },
 ];
 
 // ---------------------------------------------------------------- Byggeklossene
@@ -293,7 +295,7 @@ impl SettingsView {
         let side_head = hbox(4, &["set-side-head"]);
         let back = crate::widgets::button(Some("arrow-left"), None, &["flat", "icon-only", "btn-back"]);
         side_head.append(&back);
-        let title = label("Innstillinger", &["set-title"]);
+        let title = label(tr!("Innstillinger"), &["set-title"]);
         title.set_accessible_role(gtk::AccessibleRole::Heading);
         side_head.append(&title);
         let controls_start = crate::topbar::controls(gtk::PackType::Start, Rc::new(Cell::new(true)));
@@ -304,9 +306,9 @@ impl SettingsView {
         let search = gtk::SearchEntry::new();
         search.add_css_class("set-search");
         search.set_hexpand(true);
-        search.set_placeholder_text(Some("Søk i innstillinger"));
-        search.set_tooltip_text(Some("Søk i alle innstillingene. Ctrl+F eller / søker, Esc avslutter søket."));
-        search.update_property(&[gtk::accessible::Property::Label("Søk i innstillinger"), gtk::accessible::Property::KeyShortcuts("Control+F /")]);
+        search.set_placeholder_text(Some(tr!("Søk i innstillinger")));
+        search.set_tooltip_text(Some(tr!("Søk i alle innstillingene. Ctrl+F eller / søker, Esc avslutter søket.")));
+        search.update_property(&[gtk::accessible::Property::Label(tr!("Søk i innstillinger")), gtk::accessible::Property::KeyShortcuts("Control+F /")]);
         let overlay = gtk::Overlay::new();
         overlay.set_child(Some(&search));
         overlay.set_hexpand(true);
@@ -324,7 +326,7 @@ impl SettingsView {
         let nav = vbox(1, &["set-nav"]);
         nav.set_vexpand(true);
         nav.set_accessible_role(gtk::AccessibleRole::TabList);
-        nav.update_property(&[gtk::accessible::Property::Label("Deler av innstillingene")]);
+        nav.update_property(&[gtk::accessible::Property::Label(tr!("Deler av innstillingene"))]);
         let mut tabs = Vec::new();
         for s in SECTIONS.iter() {
             let b = gtk::Button::new();
@@ -332,7 +334,7 @@ impl SettingsView {
             b.set_accessible_role(gtk::AccessibleRole::Tab);
             let bx = hbox(10, &[]);
             bx.append(&Icon::new(s.icon, 16));
-            let nm = label(s.name, &["nm"]);
+            let nm = label((s.name)(), &["nm"]);
             nm.set_hexpand(true);
             nm.set_ellipsize(gtk::pango::EllipsizeMode::End);
             bx.append(&nm);
@@ -341,7 +343,7 @@ impl SettingsView {
             n.set_visible(false);
             bx.append(&n);
             b.set_child(Some(&bx));
-            b.update_property(&[gtk::accessible::Property::Label(s.name)]);
+            b.update_property(&[gtk::accessible::Property::Label((s.name)())]);
             nav.append(&b);
             tabs.push((s.id, b, nm, n));
         }
@@ -349,9 +351,9 @@ impl SettingsView {
         let foot = vbox(8, &["set-side-foot"]);
         let saved_line = hbox(8, &[]);
         saved_line.append(&Icon::new("check", 14));
-        saved_line.append(&label("Endringer lagres straks.", &[]));
+        saved_line.append(&label(tr!("Endringer lagres straks."), &[]));
         foot.append(&saved_line);
-        let version_log = crate::widgets::button(Some("rotate-ccw"), Some("Versjonslogg"), &["flat"]);
+        let version_log = crate::widgets::button(Some("rotate-ccw"), Some(tr!("Versjonslogg")), &["flat"]);
         version_log.set_halign(gtk::Align::Start);
         {
             let a = app.clone();
@@ -600,13 +602,13 @@ impl SettingsView {
         self.nav.set_homogeneous(top);
         for (id, b, nm, _) in &self.tabs {
             nm.set_visible(!top);
-            let name = SECTIONS.iter().find(|s| s.id == *id).map(|s| s.name).unwrap_or("");
+            let name = SECTIONS.iter().find(|s| s.id == *id).map(|s| (s.name)()).unwrap_or("");
             b.set_tooltip_text(if top { Some(name) } else { None });
         }
         self.saved_line.set_visible(!top);
         self.lead.set_visible(!top);
         self.slash.set_visible(!top && self.search.text().is_empty());
-        self.search.set_placeholder_text(Some(if top { "Søk" } else { "Søk i innstillinger" }));
+        self.search.set_placeholder_text(Some(if top { tr!("Søk") } else { tr!("Søk i innstillinger") }));
         crate::widgets::class(&self.body, "narrow", top);
     }
 
@@ -714,8 +716,8 @@ impl SettingsView {
         self.masonry.set_gap(gap);
         if q.is_empty() {
             let def = SECTIONS.iter().find(|s| s.id == cur).unwrap_or(&SECTIONS[0]);
-            self.heading.set_text(def.name);
-            self.lead.set_text(def.lead);
+            self.heading.set_text((def.name)());
+            self.lead.set_text((def.lead)());
             self.count.set_text("");
             let groups = (def.build)(&self.app);
             for g in groups {

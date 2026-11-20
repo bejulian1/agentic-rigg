@@ -42,6 +42,7 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     vec![
         // Bakgrunn først: det viktigste valget i appen er hva som skjer når vinduet lukkes.
         bakgrunn(app),
+        super::sprak::build(app),
         group("Oppstart", GroupOpts::default(), vec![row("Startside", Some("Siden som åpnes når appen starter."), &dd, "forside start")]),
         group(
             "Skjermkortdata",

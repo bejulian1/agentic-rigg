@@ -73,7 +73,7 @@ pub fn render(v: &Rc<SettingsView>, q: &str) {
     for (si, s) in SECTIONS.iter().enumerate() {
         let mut hits = 0;
         for g in (s.build)(&v.app) {
-            let base = format!("{} {}", s.name, g.text);
+            let base = format!("{} {}", (s.name)(), g.text);
             let matched = if g.whole || g.rows.is_empty() {
                 let mut all = vec![base.clone()];
                 all.extend(g.rows.iter().map(|r| r.text.clone()));
@@ -103,9 +103,9 @@ pub fn render(v: &Rc<SettingsView>, q: &str) {
             }
             mark(&g.title_label, &terms, &bg);
             // Hvor treffet står: «Utseende ›» foran panelets tittel, som en knapp dit.
-            let crumb = gtk::Button::with_label(s.name);
+            let crumb = gtk::Button::with_label((s.name)());
             crumb.add_css_class("set-crumb");
-            crumb.set_tooltip_text(Some(&format!("Gå til {}", s.name)));
+            crumb.set_tooltip_text(Some(&format!("Gå til {}", (s.name)())));
             let sep = label("›", &["set-crumb-sep"]);
             g.head.prepend(&sep);
             g.head.prepend(&crumb);

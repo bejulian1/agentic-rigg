@@ -378,7 +378,7 @@ pub fn clock_ticks(t0: i64, t_now: i64, plot_w: f32, utc_offset_s: i64) -> Vec<T
 /// «6. nov.»: dato på tidsaksen der døgnet skifter.
 pub fn day_short(t: i64, utc_offset_s: i64) -> String {
     let lt = F::local(t, utc_offset_s);
-    format!("{}. {}", lt.day, F::MON_SHORT[(lt.month as usize).clamp(1, 12) - 1])
+    F::month_day(lt.month, lt.day)
 }
 
 /// «i dag 16:43», «i går 23:10» eller «3. nov. 14:32».

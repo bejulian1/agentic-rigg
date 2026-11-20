@@ -1,0 +1,109 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/settings/mod.rs:45
+msgid "Generelt"
+msgstr "General"
+
+#: crates/rigg/src/settings/mod.rs:45
+msgid "Språk, oppstart, oppdatering og bakgrunnstjeneste"
+msgstr "Idioma, inicio, actualización y servicio en segundo plano"
+
+#: crates/rigg/src/settings/mod.rs:46
+msgid "Utseende"
+msgstr "Apariencia"
+
+#: crates/rigg/src/settings/mod.rs:46
+msgid "Lyst eller mørkt, farger, appikon, størrelse og bevegelse"
+msgstr "Claro u oscuro, colores, icono, tamaño y animaciones"
+
+#: crates/rigg/src/settings/mod.rs:47
+msgid "Enheter og format"
+msgstr "Unidades y formatos"
+
+#: crates/rigg/src/settings/mod.rs:47
+msgid "Enheter, desimaler og klokkeslett"
+msgstr "Unidades, decimales y formato de hora"
+
+#: crates/rigg/src/settings/mod.rs:48
+msgid "Sidefelt"
+msgstr "Barra lateral"
+
+#: crates/rigg/src/settings/mod.rs:48
+msgid "Statusblokken, bredden og sidene i sidefeltet"
+msgstr "Panel de estado, ancho y páginas visibles"
+
+#: crates/rigg/src/settings/mod.rs:49
+msgid "Grafer og sensorer"
+msgstr "Gráficos y sensores"
+
+#: crates/rigg/src/settings/mod.rs:49
+msgid "Tidsvindu, grafer, sensorer og varselfarger"
+msgstr "Intervalo de tiempo, gráficos, sensores y colores de aviso"
+
+#: crates/rigg/src/settings/mod.rs:50
+msgid "Logging og varsler"
+msgstr "Registro y avisos"
+
+#: crates/rigg/src/settings/mod.rs:50
+msgid "Logg til fil og skrivebordsvarsler"
+msgstr "Registro en archivo y notificaciones de escritorio"
+
+#: crates/rigg/src/settings/mod.rs:51
+msgid "Skjermkortstyring"
+msgstr "Control de GPU"
+
+#: crates/rigg/src/settings/mod.rs:51
+msgid "Tillatelse, funksjonsstøtte og trygg gjenoppretting"
+msgstr "Permisos, funciones compatibles y recuperación segura"
+
+#: crates/rigg/src/settings/mod.rs:52
+msgid "Data og tilbakestilling"
+msgstr "Datos y restablecimiento"
+
+#: crates/rigg/src/settings/mod.rs:52
+msgid "Mappene, eksport, import og tilbakestilling"
+msgstr "Carpetas, exportación, importación y restablecimiento"
+
+#: crates/rigg/src/settings/mod.rs:53
+msgid "Om"
+msgstr "Acerca de"
+
+#: crates/rigg/src/settings/mod.rs:53
+msgid "Versjon, hjelp og feilsøking"
+msgstr "Versión, ayuda y solución de problemas"
+
+#: crates/rigg/src/settings/mod.rs:298
+msgid "Innstillinger"
+msgstr "Configuración"
+
+#: crates/rigg/src/settings/mod.rs:309 crates/rigg/src/settings/mod.rs:311 crates/rigg/src/settings/mod.rs:611
+msgid "Søk i innstillinger"
+msgstr "Buscar en la configuración"
+
+#: crates/rigg/src/settings/mod.rs:310
+msgid "Søk i alle innstillingene. Ctrl+F eller / søker, Esc avslutter søket."
+msgstr "Busca en toda la configuración. Ctrl+F o / para buscar, Esc para salir."
+
+#: crates/rigg/src/settings/mod.rs:329
+msgid "Deler av innstillingene"
+msgstr "Secciones de configuración"
+
+#: crates/rigg/src/settings/mod.rs:354
+msgid "Endringer lagres straks."
+msgstr "Los cambios se guardan automáticamente."
+
+#: crates/rigg/src/settings/mod.rs:356
+msgid "Versjonslogg"
+msgstr "Historial de versiones"
+
+#: crates/rigg/src/settings/mod.rs:611
+msgid "Søk"
+msgstr "Buscar"

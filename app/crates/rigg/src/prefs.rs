@@ -33,18 +33,22 @@ pub fn load(profile: rigg_core::paths::Profile) -> (Settings, Option<String>) {
 }
 
 pub fn save_now(app: &App) {
+    if let Err(e) = try_save_now(app) {
+        eprintln!("Kunne ikke lagre ui.json: {e}");
+    }
+}
+
+pub fn try_save_now(app: &App) -> std::io::Result<()> {
     if let Some(t) = app.save_timer.borrow_mut().take() {
         t.remove();
     }
-    let text = serde_json::to_string_pretty(&app.settings().to_value()).unwrap_or_default();
+    let text = serde_json::to_string_pretty(&app.settings().to_value())?;
     if *app.saved_text.borrow() == text {
-        return;
+        return Ok(());
     }
-    if let Err(e) = rigg_core::write_atomic(&path(app), text.as_bytes()) {
-        eprintln!("Kunne ikke lagre ui.json: {e}");
-        return;
-    }
+    rigg_core::write_atomic(&path(app), text.as_bytes())?;
     *app.saved_text.borrow_mut() = text;
+    Ok(())
 }
 
 /// Lagrer 500 ms etter siste endring.

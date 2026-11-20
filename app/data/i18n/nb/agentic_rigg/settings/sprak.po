@@ -1,0 +1,37 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: nb\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/settings/sprak.rs:12
+msgid "Følg systemet"
+msgstr "Følg systemet"
+
+#: crates/rigg/src/settings/sprak.rs:22
+msgid "Visningsspråk"
+msgstr "Visningsspråk"
+
+#: crates/rigg/src/settings/sprak.rs:25
+msgid "Start på nytt nå"
+msgstr "Start på nytt nå"
+
+#: crates/rigg/src/settings/sprak.rs:26
+msgid "Nytt språk etter omstart"
+msgstr "Nytt språk etter omstart"
+
+#: crates/rigg/src/settings/sprak.rs:47
+msgid "Kunne ikke starte appen på nytt"
+msgstr "Kunne ikke starte appen på nytt"
+
+#: crates/rigg/src/settings/sprak.rs:48
+msgid "Omstarten ble avbrutt: {feil}"
+msgstr "Omstarten ble avbrutt: {feil}"
+
+#: crates/rigg/src/settings/sprak.rs:53
+msgid "Språk"
+msgstr "Språk"

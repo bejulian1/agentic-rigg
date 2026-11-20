@@ -12,6 +12,8 @@ use gtk::{gio, glib};
 use rigg_core::model::{GpuInfo, GpuStatic, Telemetry};
 use serde_json::{Value, json};
 use std::rc::Rc;
+use std::path::PathBuf;
+use std::os::unix::process::CommandExt;
 
 /// Valg fra kommandolinja som gjelder vinduet.
 #[derive(Clone, Debug, Default)]
@@ -40,6 +42,20 @@ pub fn local_time(ms: i64) -> rigg_core::fmt::LocalTime {
     rigg_core::fmt::local(ms, tm.tm_gmtoff)
 }
 
+thread_local! {
+    static RELAUNCH: std::cell::RefCell<Option<PathBuf>> = const { std::cell::RefCell::new(None) };
+}
+
+/// Lar vinduets vanlige lukking lagre geometrien før GTK slipper app-ID-en.
+pub fn restart(app: &App) -> std::io::Result<()> {
+    let Some(window) = app.window() else { return Ok(()) };
+    let exe = std::env::current_exe()?;
+    crate::prefs::try_save_now(app)?;
+    RELAUNCH.with(|pending| pending.replace(Some(exe)));
+    window.close();
+    Ok(())
+}
+
 pub fn run(cli: Cli) -> glib::ExitCode {
     let profile = rigg_core::paths::Profile::current();
     let gapp = gtk::Application::builder().application_id(profile.app_id()).flags(gio::ApplicationFlags::HANDLES_COMMAND_LINE).build();
@@ -57,7 +73,14 @@ pub fn run(cli: Cli) -> glib::ExitCode {
         });
     }
     let _ = cli;
-    gapp.run_with_args(&std::env::args().collect::<Vec<_>>())
+    let status = gapp.run_with_args(&std::env::args().collect::<Vec<_>>());
+    if let Some(exe) = RELAUNCH.with(|pending| pending.take()) {
+        #[allow(clippy::disallowed_methods)] // Erstatter vindusprosessen med samme kjørbare fil.
+        let error = std::process::Command::new(exe).args(["--innstillinger", "generelt"]).exec();
+        eprintln!("{}", rigg_core::trf!("Kunne ikke starte appen på nytt: {feil}", feil = error));
+        return glib::ExitCode::FAILURE;
+    }
+    status
 }
 
 fn activate(gapp: &gtk::Application, state: &Rc<std::cell::RefCell<Option<Rc<App>>>>, cli: &Cli) {
@@ -77,6 +100,7 @@ fn activate(gapp: &gtk::Application, state: &Rc<std::cell::RefCell<Option<Rc<App
     }
     let profile = rigg_core::paths::Profile::current();
     let (settings, note) = crate::prefs::load(profile);
+    rigg_core::i18n::init(&settings.language);
     rigg_core::fmt::set_format(rigg_core::fmt::Format::from_settings(&settings));
     crate::timing::mark("prefs");
     let display = gtk::gdk::Display::default().expect("ingen skjerm");

@@ -42,8 +42,9 @@ fn date_label(date: &str) -> String {
     if parts.len() == 3
         && let (Ok(month), Ok(day)) = (parts[1].parse::<usize>(), parts[2].parse::<u32>())
         && (1..=12).contains(&month)
+        && let Ok(year) = parts[0].parse()
     {
-        return format!("{day}. {} {}", rigg_core::fmt::MONTHS[month - 1], parts[0]);
+        return rigg_core::fmt::date(year, month as u32, day, false);
     }
     date.to_string()
 }

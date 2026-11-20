@@ -140,6 +140,8 @@ impl Default for WindowGeom {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Settings {
+    #[serde(default = "default_language")]
+    pub language: String,
     pub interval_ms: u32,
     pub unit: String,
     pub theme: String,
@@ -188,9 +190,14 @@ pub struct Settings {
     pub gpu_makers: std::collections::BTreeMap<String, String>,
 }
 
+fn default_language() -> String {
+    crate::i18n::SYSTEM.into()
+}
+
 impl Default for Settings {
     fn default() -> Self {
         Settings {
+            language: default_language(),
             // 1 s, ikke demoens 0,5 s (produktspesifikasjonen 3.10).
             interval_ms: 1000,
             unit: "C".into(),
@@ -329,6 +336,10 @@ pub fn merge(base: &Settings, patch: &Value) -> Result<Settings, ValidationError
     let mut o = base.clone();
     for (k, v) in p {
         match k.as_str() {
+            "language" => {
+                let code = v.as_str().filter(|code| *code == crate::i18n::SYSTEM || crate::i18n::Language::from_code(code).is_some());
+                o.language = code.ok_or_else(|| ValidationError(crate::tr!("Ukjent språkvalg").into()))?.into();
+            }
             "intervalMs" => o.interval_ms = one_of_num(v, &INTERVALS, "Ugyldig intervall")?,
             "unit" => o.unit = one_of(v, &["C", "F"], "Enhet må være C eller F")?,
             "theme" => o.theme = one_of(v, &THEMES, "Tema må være system, light eller dark")?,
