@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # Bygger og installerer Agentic Rigg for denne brukeren under ~/.local, rett
 # fra en klone av repoet. Bruker ikke sudo, og slår ingenting på ved
-# innlogging. Hjelperen for endring av skjermkortet legges bare klar; den er
-# av til du slår den på i Innstillinger › Styring.
+# innlogging. Valgfrie systemhjelpere installeres separat fra et verifisert arkiv.
 #
 # Bruk: ./install.sh [--no-build] [--no-start]
 #

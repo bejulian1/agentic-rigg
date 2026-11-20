@@ -3,7 +3,7 @@
 //! root, aldri systemctl (skriptene hopper over det med `--root`).
 #![allow(clippy::disallowed_methods)] // testene kjører skriptene
 
-use std::os::unix::fs::{MetadataExt, PermissionsExt};
+use std::os::unix::fs::{DirBuilderExt, PermissionsExt};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
 
@@ -24,246 +24,144 @@ fn tmpdir(tag: &str) -> PathBuf {
     d
 }
 
-/// Kildemappa slik `install.sh` legger den: skriptene, enheten, policyen og binæren.
-fn kilde(dir: &Path) -> PathBuf {
-    let k = dir.join("kilde");
-    std::fs::create_dir_all(&k).unwrap();
-    for e in std::fs::read_dir(app_dir().join("data/hjelper"))
-        .unwrap()
-        .flatten()
-    {
-        std::fs::copy(e.path(), k.join(e.file_name())).unwrap();
-    }
+const PCI: &str = "0000:01:00.0";
+const UUID: &str = "GPU-01234567-1234-1234-1234-0123456789ab";
+
+fn fixture(tag: &str) -> PathBuf {
+    let root = tmpdir(tag);
+    std::fs::set_permissions(&root, std::fs::Permissions::from_mode(0o700)).unwrap();
+    let lib = root.join("usr/local/libexec/agentic-rigg");
+    std::fs::DirBuilder::new()
+        .recursive(true)
+        .mode(0o755)
+        .create(&lib)
+        .unwrap();
     std::fs::copy(
-        env!("CARGO_BIN_EXE_agentic-rigg-helper"),
-        k.join("agentic-rigg-helper"),
+        app_dir().join("data/hjelper/agentic-rigg-helper.service"),
+        lib.join("agentic-rigg-helper.service"),
     )
     .unwrap();
-    k
-}
-
-fn run(script: &Path, args: &[&str], env: &[(&str, String)]) -> Output {
-    let mut c = Command::new("bash");
-    c.arg(script).args(args).env_remove("PKEXEC_UID");
-    for (k, v) in env {
-        c.env(k, v);
+    std::fs::write(
+        lib.parent().unwrap().join("agentic-rigg-helper"),
+        b"skal aldri kjores",
+    )
+    .unwrap();
+    for path in [
+        lib.join("agentic-rigg-helper.service"),
+        lib.parent().unwrap().join("agentic-rigg-helper"),
+    ] {
+        std::fs::set_permissions(path, std::fs::Permissions::from_mode(0o644)).unwrap();
     }
-    c.output().unwrap()
+    root
 }
 
-/// Alle filer under `root`, med modus, sortert («usr/local/libexec/… 755»).
-fn tree(root: &Path) -> Vec<String> {
-    fn walk(base: &Path, p: &Path, out: &mut Vec<String>) {
-        for e in std::fs::read_dir(p).unwrap().flatten() {
-            let path = e.path();
-            let m = std::fs::symlink_metadata(&path).unwrap();
-            if m.is_dir() {
-                walk(base, &path, out);
-            } else {
-                out.push(format!(
-                    "{} {:o}",
-                    path.strip_prefix(base).unwrap().display(),
-                    m.mode() & 0o777
-                ));
-            }
-        }
-    }
-    let mut out = Vec::new();
-    walk(root, root, &mut out);
-    out.sort();
-    out
-}
-
-fn uid() -> String {
-    unsafe { libc::geteuid() }.to_string()
+fn admin(root: &Path, action: &str, uid: &str, args: &[&str]) -> Output {
+    Command::new("/usr/bin/python3")
+        .args(["-I", "-S"])
+        .arg(app_dir().join("data/hjelper/nvml-admin.py"))
+        .arg(action)
+        .arg("--root")
+        .arg(root)
+        .args(["--uid", uid])
+        .args(args)
+        .output()
+        .unwrap()
 }
 
 #[test]
-fn aktiver_og_deaktiver_gir_riktig_filtre() {
-    let dir = tmpdir("tre");
-    let k = kilde(&dir);
-    let root = dir.join("rot");
-    std::fs::create_dir_all(&root).unwrap();
-    let r = root.to_str().unwrap();
-    let env = [("PKEXEC_UID", uid())];
-
-    let out = run(&k.join("aktiver.sh"), &["--root", r], &env);
+fn aktivering_binder_kort_og_deaktivering_krever_eier_ikke_kort() {
+    let root = fixture("binding");
+    let args = ["--pci", PCI, "--uuid", UUID];
+    let out = admin(&root, "activate", "1000", &args);
     assert!(
         out.status.success(),
         "{}",
         String::from_utf8_lossy(&out.stderr)
     );
-    let stdout = String::from_utf8_lossy(&out.stdout);
-    assert!(stdout.contains("hopper over systemctl"), "{stdout}");
+    let path = root.join("etc/agentic-rigg/helper.json");
+    let config: serde_json::Value = serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
     assert_eq!(
-        tree(&root),
-        vec![
-            "etc/agentic-rigg/helper.json 644",
-            "etc/systemd/system/agentic-rigg-helper.service 644",
-            "etc/systemd/system/agentic-rigg-helper.service.d/gpu.conf 644",
-            "usr/local/libexec/agentic-rigg-helper 755",
-            "usr/local/libexec/agentic-rigg/aktiver.sh 755",
-            "usr/local/libexec/agentic-rigg/deaktiver.sh 755",
-            "usr/local/libexec/agentic-rigg/trinn.sh 755",
-            "usr/share/polkit-1/actions/io.github.AgenticRigg.helper.policy 644",
-        ]
+        (config["versjon"].as_u64(), config["uid"].as_u64()),
+        (Some(2), Some(1000))
     );
-    let cfg: serde_json::Value = serde_json::from_str(
-        &std::fs::read_to_string(root.join("etc/agentic-rigg/helper.json")).unwrap(),
-    )
-    .unwrap();
-    assert_eq!(cfg["uid"].to_string(), uid());
-    assert_eq!(cfg["versjon"], 2);
-    assert_eq!(cfg["enabled"], true);
-    assert!(cfg.get("trinn").is_none());
-    assert!(cfg["bygg"].as_u64().unwrap() >= 17);
-    assert_eq!(
-        std::fs::metadata(root.join("etc/agentic-rigg"))
-            .unwrap()
-            .mode()
-            & 0o777,
-        0o755
-    );
-
-    // Eldre trinnkommandoer gir ingen nye tillatelser.
-    let trinn = root.join("usr/local/libexec/agentic-rigg/trinn.sh");
-    assert!(
-        !run(&trinn, &["effekt", "på", "--root", r], &[])
-            .status
-            .success()
-    );
-    let before = tree(&root);
-    assert!(
-        run(&k.join("aktiver.sh"), &["--root", r], &env)
-            .status
-            .success()
-    );
-    assert_eq!(tree(&root), before);
-    let text = std::fs::read_to_string(root.join("etc/agentic-rigg/helper.json")).unwrap();
-    let config: serde_json::Value = serde_json::from_str(&text).unwrap();
+    assert_eq!(config["pci"], PCI);
+    assert_eq!(config["uuid"], UUID);
     assert_eq!(config["enabled"], true);
-
-    // Deaktiver fra kopien bare root kan endre: ingen filer igjen.
-    let out = run(
-        &root.join("usr/local/libexec/agentic-rigg/deaktiver.sh"),
-        &["--root", r],
-        &[],
+    assert!(!admin(&root, "deactivate", "1001", &[]).status.success());
+    assert!(path.exists());
+    assert_eq!(
+        std::fs::read_to_string(
+            root.join("etc/systemd/system/agentic-rigg-helper.service.d/gpu.conf")
+        )
+        .unwrap(),
+        "[Service]\nDeviceAllow=\nDeviceAllow=/dev/nvidiactl rw\nDeviceAllow=/dev/nvidia0 rw\n"
     );
-    assert!(
-        out.status.success(),
-        "{}",
-        String::from_utf8_lossy(&out.stderr)
-    );
-    assert!(tree(&root).is_empty(), "igjen: {:?}", tree(&root));
-    assert!(!root.join("etc/agentic-rigg").exists());
-    assert!(!root.join("usr/local/libexec/agentic-rigg").exists());
-    // Idempotent.
-    let out = run(&k.join("deaktiver.sh"), &["--root", r], &[]);
-    assert!(out.status.success());
-    assert!(String::from_utf8_lossy(&out.stdout).contains("allerede slått av"));
-    let _ = std::fs::remove_dir_all(&dir);
+    assert!(admin(&root, "deactivate", "1000", &[]).status.success());
+    assert!(!path.exists());
+    assert!(root.join("usr/local/libexec/agentic-rigg-helper").exists());
+    std::fs::remove_dir_all(root).unwrap();
 }
 
 #[test]
-fn ny_ren_aktivering_arkiverer_opptaket_men_dirty_beholder_alt() {
-    let dir = tmpdir("grunnopptak");
-    let k = kilde(&dir);
-    let root = dir.join("rot");
+fn uavklart_nvml_beholdes_og_ren_aktivering_arkiverer_grunnverdiene() {
+    let root = fixture("grunnopptak");
     let state = root.join("var/lib/agentic-rigg");
-    std::fs::create_dir_all(&state).unwrap();
+    std::fs::DirBuilder::new()
+        .recursive(true)
+        .mode(0o700)
+        .create(&state)
+        .unwrap();
     std::fs::set_permissions(&state, std::fs::Permissions::from_mode(0o700)).unwrap();
     let baseline = state.join("baseline.json");
-    let original = r#"{"captured":{"powerLimitW":200,"clockOffsets":{"coreMhz":100}}}"#;
-    std::fs::write(&baseline, original).unwrap();
+    std::fs::write(&baseline, "opptak").unwrap();
     std::fs::set_permissions(&baseline, std::fs::Permissions::from_mode(0o600)).unwrap();
-    let r = root.to_str().unwrap();
-    let env = [("PKEXEC_UID", uid())];
     let dirty = state.join("dirty.json");
+    let args = ["--pci", PCI, "--uuid", UUID];
     std::fs::write(&dirty, "uavklart").unwrap();
-    let before = tree(&root);
-    let out = run(&k.join("aktiver.sh"), &["--root", r], &env);
-    assert!(!out.status.success());
-    assert_eq!(tree(&root), before);
-    assert_eq!(std::fs::read_to_string(&baseline).unwrap(), original);
-    // Også en dangling symlink er uavklart, ikke fravær av endringer.
+    assert!(!admin(&root, "activate", "1000", &args).status.success());
+    assert!(!admin(&root, "deactivate", "1000", &[]).status.success());
+    assert!(baseline.exists() && dirty.exists());
     std::fs::remove_file(&dirty).unwrap();
     std::os::unix::fs::symlink("mangler", &dirty).unwrap();
+    assert!(!admin(&root, "activate", "1000", &args).status.success());
+    std::fs::remove_file(dirty).unwrap();
+    assert!(admin(&root, "activate", "1000", &args).status.success());
+    let archive = std::fs::read_dir(state).unwrap().next().unwrap().unwrap();
     assert!(
-        !run(&k.join("aktiver.sh"), &["--root", r], &env)
-            .status
-            .success()
-    );
-    assert_eq!(std::fs::read_to_string(&baseline).unwrap(), original);
-    std::fs::remove_file(&dirty).unwrap();
-    let out = run(&k.join("aktiver.sh"), &["--root", r], &env);
-    assert!(
-        out.status.success(),
-        "{}",
-        String::from_utf8_lossy(&out.stderr)
-    );
-    assert!(
-        !baseline.exists(),
-        "Ny helper skal fange nye verdier ved oppstart"
-    );
-    let archives: Vec<_> = std::fs::read_dir(&state).unwrap().flatten().collect();
-    assert_eq!(archives.len(), 1);
-    assert!(
-        archives[0]
+        archive
             .file_name()
             .to_string_lossy()
             .starts_with("baseline-forrige-")
     );
-    assert_eq!(
-        std::fs::read_to_string(archives[0].path()).unwrap(),
-        original
-    );
-    assert_eq!(archives[0].metadata().unwrap().mode() & 0o777, 0o600);
-    let _ = std::fs::remove_dir_all(dir);
+    assert_eq!(std::fs::read_to_string(archive.path()).unwrap(), "opptak");
+    std::fs::remove_dir_all(root).unwrap();
 }
 
 #[test]
-fn skriptene_gir_tydelige_feil() {
-    let dir = tmpdir("feil");
-    let k = kilde(&dir);
-    let root = dir.join("rot");
-    std::fs::create_dir_all(&root).unwrap();
-    let r = root.to_str().unwrap();
-    // Uten uid (ikke via pkexec): feil, ingenting lagt inn.
-    let out = run(&k.join("aktiver.sh"), &["--root", r], &[]);
-    assert_eq!(out.status.code(), Some(2));
-    assert!(String::from_utf8_lossy(&out.stderr).contains("Kjør via pkexec"));
-    assert!(tree(&root).is_empty());
-    // uid 0 får aldri være klient.
-    let out = run(&k.join("aktiver.sh"), &["--root", r, "--uid", "0"], &[]);
-    assert_eq!(out.status.code(), Some(2));
-    // Ukjent argument og manglende fil.
-    assert_eq!(
-        run(&k.join("aktiver.sh"), &["--tull"], &[]).status.code(),
-        Some(2)
+fn faste_nvml_innganger_og_avviste_argumenter() {
+    let root = fixture("argument");
+    for args in [
+        &["--pci", PCI, "--uuid", UUID, "--pci", PCI][..],
+        &["--kilde", "x"],
+        &["--systemctl", "x"],
+    ] {
+        assert!(!admin(&root, "activate", "1000", args).status.success());
+    }
+    for (wrapper, action) in [("aktiver.sh", "activate"), ("deaktiver.sh", "deactivate")] {
+        let text = std::fs::read_to_string(app_dir().join("data/hjelper").join(wrapper)).unwrap();
+        assert_eq!(
+            text,
+            format!(
+                "#!/bin/sh\nexec /usr/bin/python3 -I -S /usr/local/libexec/agentic-rigg/nvml-admin.py {action} \"$@\"\n"
+            )
+        );
+    }
+    assert!(
+        !admin(&root, "activate", "0", &["--pci", PCI, "--uuid", UUID])
+            .status
+            .success()
     );
-    std::fs::remove_file(k.join("trinn.sh")).unwrap();
-    let out = run(&k.join("aktiver.sh"), &["--root", r, "--uid", &uid()], &[]);
-    assert!(!out.status.success());
-    assert!(String::from_utf8_lossy(&out.stderr).contains("Mangler"));
-    assert!(tree(&root).is_empty());
-    // Uten --root og uten root: nekter (rører aldri /).
-    let out = run(&k.join("deaktiver.sh"), &[], &[]);
-    assert!(!out.status.success());
-    assert!(String::from_utf8_lossy(&out.stderr).contains("Må kjøres som root"));
-    let out = run(&k.join("aktiver.sh"), &["--uid", &uid()], &[]);
-    assert!(String::from_utf8_lossy(&out.stderr).contains("Må kjøres som root"));
-    // Den eldre trinnkommandoen avviser alltid; ingen funksjonsgodkjenning.
-    let t = app_dir().join("data/hjelper/trinn.sh");
-    assert_eq!(
-        run(&t, &["alt", "på", "--root", r], &[]).status.code(),
-        Some(2)
-    );
-    let before = tree(&root);
-    let out = run(&t, &["effekt", "på", "--root", r], &[]);
-    assert_eq!(out.status.code(), Some(2));
-    assert!(String::from_utf8_lossy(&out.stderr).contains("Separate godkjenningstrinn er fjernet"));
-    assert_eq!(tree(&root), before);
-    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::remove_dir_all(root).unwrap();
 }
 
 #[test]
@@ -274,7 +172,7 @@ fn polkit_og_enheten_er_som_avtalt() {
     for id in ["aktiver", "deaktiver"] {
         assert!(
             p.contains(&format!(
-                "<action id=\"io.github.AgenticRigg.helper.{id}\">"
+                "<action id=\"io.github.AgenticRigg.helper.v2.{id}\">"
             )),
             "{id}"
         );
@@ -285,7 +183,7 @@ fn polkit_og_enheten_er_som_avtalt() {
     );
     assert_eq!(
         p.matches("<allow_active>auth_admin</allow_active>").count(),
-        1
+        2
     );
     let u = std::fs::read_to_string(app_dir().join("data/hjelper/agentic-rigg-helper.service"))
         .unwrap();
@@ -346,17 +244,7 @@ fn install_kopierer_bare_filene_og_uninstall_sier_fra() {
         String::from_utf8_lossy(&out.stderr)
     );
     let h = home.join(".local/share/agentic-rigg/hjelper");
-    assert_eq!(
-        tree(&h),
-        vec![
-            "agentic-rigg-helper 755",
-            "agentic-rigg-helper.service 644",
-            "aktiver.sh 755",
-            "deaktiver.sh 755",
-            "io.github.AgenticRigg.helper.policy 644",
-            "trinn.sh 755"
-        ]
-    );
+    assert!(!h.exists());
     assert!(String::from_utf8_lossy(&out.stdout).contains("ikke aktivert"));
 
     // Uten aktiv hjelper: alt fjernes, kode 0.
@@ -389,9 +277,9 @@ fn install_kopierer_bare_filene_og_uninstall_sier_fra() {
     env(&mut c);
     let out = c.output().unwrap();
     assert_eq!(out.status.code(), Some(3));
-    let s = String::from_utf8_lossy(&out.stdout);
+    let s = String::from_utf8_lossy(&out.stderr);
     assert!(
-        s.contains("fortsatt aktiv") && s.contains("deaktiver.sh"),
+        s.contains("fortsatt aktiv") && home.join(".local/bin/agentic-rigg").exists(),
         "{s}"
     );
     let _ = std::fs::remove_dir_all(&dir);

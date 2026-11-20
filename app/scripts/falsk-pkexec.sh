@@ -11,14 +11,14 @@
 #   avbrutt  som når passordvinduet lukkes (kode 126, ingenting kjøres)
 #   krasj    aktiver.sh kjøres, men hjelperen startes ikke (status «Feil»)
 set -euo pipefail
+umask 022
 
 [ "${RIGG_FALSK_HJELPER_BACKEND:-sim}" = sim ] || { echo "falsk-pkexec: bare backend sim er tillatt; NVML kan skrive til ekte maskinvare" >&2; exit 2; }
 
 ROT=${RIGG_HJELPER_ROT:-}
 [ -n "$ROT" ] && [ "$ROT" != / ] || { echo "falsk-pkexec: RIGG_HJELPER_ROT må være en tempmappe" >&2; exit 127; }
 [ $# -ge 1 ] || { echo "falsk-pkexec: mangler program" >&2; exit 127; }
-mkdir -p "$ROT"
-ROT=$(readlink -f "$ROT")
+[[ "$ROT" = /tmp/* && "$ROT" = "$(realpath -e -- "$ROT")" && $(stat -c %a "$ROT") = 700 && $(stat -c %u "$ROT") = "$EUID" && $EUID != 0 ]] || exit 2
 [ "$ROT" != / ] || { echo "falsk-pkexec: falsk rot kan ikke peke på /" >&2; exit 127; }
 
 case "${RIGG_FALSK_SVAR:-}" in
@@ -44,7 +44,15 @@ stopp() {
 [ "$navn" = deaktiver.sh ] && stopp
 [ "$navn" = aktiver.sh ] && stopp
 
-PKEXEC_UID=$(id -u) "$prog" "$@" --root "$ROT"
+case "$navn" in
+aktiver.sh) action=activate ;;
+deaktiver.sh) action=deactivate ;;
+*) exit 2 ;;
+esac
+src=${RIGG_HJELPER_DATA:?}
+install -Dm755 "$src/agentic-rigg-helper" "$ROT/usr/local/libexec/agentic-rigg-helper"
+install -Dm644 "$src/agentic-rigg-helper.service" "$ROT/usr/local/libexec/agentic-rigg/agentic-rigg-helper.service"
+/usr/bin/python3 -I -S "$src/nvml-admin.py" "$action" --uid "$EUID" --root "$ROT" "$@"
 
 if [ "$navn" = aktiver.sh ] && [ "${RIGG_FALSK_SVAR:-}" != krasj ]; then
     mkdir -p "$ROT/run/agentic-rigg" "$ROT/var/lib/agentic-rigg"

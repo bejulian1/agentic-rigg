@@ -5,7 +5,7 @@
 hjelperen eller systemctl. Produksjon godtar aldri et innsendt testresultat.
 """
 import argparse
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 import fcntl
 import json
 import os
@@ -32,7 +32,8 @@ CONFIG = Path("etc/agentic-rigg/rgb.json")
 STATE = Path("var/lib/agentic-rigg-rgb")
 INACTIVE_MARKER = Path("var/lib/agentic-rigg-rgb.inactive")
 UNIT_PATH = Path("etc/systemd/system") / UNIT
-DROPIN = Path("etc/systemd/system") / (UNIT + ".d/card.conf")
+OLD_DROPIN = Path("etc/systemd/system") / (UNIT + ".d/card.conf")
+DROPIN = Path("run/systemd/system") / (UNIT + ".d/card.conf")
 SOCKET = Path("run/agentic-rigg-rgb/helper.sock")
 MAX_JSON = 1024 * 1024
 
@@ -97,8 +98,8 @@ def fixture_root(raw):
 def parse(fixture):
     parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
     parser.add_argument("action", choices=("activate", "deactivate", "resolve", "restore"))
-    parser.add_argument("--pci", required=True)
-    parser.add_argument("--uuid", required=True)
+    parser.add_argument("--pci")
+    parser.add_argument("--uuid")
     parser.add_argument("--static-confirmed", action="store_true")
     parser.add_argument("--restore-original", action="store_true")
     parser.add_argument("--inspect", action="store_true")
@@ -114,10 +115,11 @@ def parse(fixture):
         if sum(arg == flag or arg.startswith(flag + "=") for arg in sys.argv[1:]) > 1:
             fail("Et RGB-argument er gitt flere ganger: " + flag)
     args = parser.parse_args()
-    args.pci = args.pci.lower()
-    if not re.fullmatch(r"[0-9a-f]{4}:[0-9a-f]{2}:[01][0-9a-f]\.0", args.pci):
+    uid_only = args.action == "deactivate" and args.pci is None and args.uuid is None
+    args.pci = (args.pci or "").lower()
+    if not uid_only and not re.fullmatch(r"[0-9a-f]{4}:[0-9a-f]{2}:[01][0-9a-f]\.0", args.pci):
         fail("Ugyldig grafikkfunksjon. Full PCI-adresse på funksjon 0 kreves.")
-    if not re.fullmatch(r"GPU-[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}", args.uuid):
+    if not uid_only and not re.fullmatch(r"GPU-[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}", args.uuid or ""):
         fail("Full GPU-UUID kreves.")
     if args.action != "resolve" and (args.inspect or args.recovery_id is not None):
         fail("Gjenopprettingsidentiteten gjelder bare avklaring.")
@@ -139,6 +141,9 @@ def parse(fixture):
 
 
 class Admin:
+    unit = UNIT
+    unit_path = UNIT_PATH
+
     def __init__(self, args, fixture):
         self.args = args
         self.fake = fixture
@@ -222,7 +227,7 @@ class Admin:
     def command(self, argv, timeout=30):
         env = {"PATH": "/usr/sbin:/usr/bin:/sbin:/bin", "LC_ALL": "C",
                "PKEXEC_UID": str(self.uid)}
-        result = subprocess.run(argv, check=False, capture_output=True,
+        result = subprocess.run(argv, check=False, capture_output=True, stdin=subprocess.DEVNULL,
                                 encoding="utf-8", errors="replace", timeout=timeout, env=env)
         if result.returncode:
             fail((result.stderr or result.stdout or "RGB-kommandoen feilet.").strip())
@@ -238,7 +243,7 @@ class Admin:
         state = bounded_json(path) if path else {}
         operation = args[0]
         if operation == "show":
-            load = state.get("LoadState", "loaded" if self.path(UNIT_PATH).exists() else "not-found")
+            load = state.get("LoadState", "loaded" if self.path(self.unit_path).exists() else "not-found")
             return f"LoadState={load}\nActiveState={state.get('ActiveState', 'inactive')}\nJob={state.get('Job', '')}\n"
         failure = state.get("fail", {}).get(operation)
         if failure == "before":
@@ -252,7 +257,7 @@ class Admin:
         return ""
 
     def unit_state(self):
-        output = self.systemctl("show", "--all", "--property=LoadState,ActiveState,Job", UNIT)
+        output = self.systemctl("show", "--all", "--property=LoadState,ActiveState,Job", self.unit)
         info = dict(line.split("=", 1) for line in output.splitlines() if "=" in line)
         load, active, job = info["LoadState"], info["ActiveState"], info["Job"]
         if load not in ("loaded", "not-found", "masked") or active not in (
@@ -269,7 +274,7 @@ class Admin:
         if self.stopped():
             return
         try:
-            self.systemctl("stop", UNIT)
+            self.systemctl("stop", self.unit)
         except (RuntimeError, OSError, subprocess.SubprocessError):
             if not self.stopped():
                 raise
@@ -277,7 +282,11 @@ class Admin:
         if not self.stopped():
             fail("RGB-tjenesten er fortsatt aktiv. Tillatelsen og journalen er beholdt.")
 
-    def helper(self, executable, flag, *options):
+    def helper(self, executable, flag, *options, stage=None):
+        prefix = []
+        if flag != "--rgb-adapter":
+            bus = self.bus(self.helper(executable, "--rgb-adapter"))
+            prefix = self.sandbox(bus, flag, stage)
         if self.fake:
             # Aldri kjør et faktisk hjelpeprogram fra en filfixture,
             # heller ikke dersom testprosessen tilfeldigvis er root.
@@ -285,7 +294,7 @@ class Admin:
         else:
             argv = [str(executable), flag, "--pci", self.args.pci,
                     "--uuid", self.args.uuid, "--uid", str(self.uid), *options]
-            payload = strict_json(self.command(argv))
+            payload = strict_json(self.command(prefix + argv))
         if type(payload) is not dict:
             fail("RGB-hjelperens svar må være et JSON-objekt.")
         if payload.get("ok") is not True:
@@ -293,6 +302,42 @@ class Admin:
         if type(payload.get("report")) is not dict:
             fail("RGB-hjelperens rapport mangler eller har feil type.")
         return payload["report"]
+
+    def sandbox(self, bus, flag, stage):
+        properties = [line for line in self.unit_template().decode().splitlines()
+                      if '=' in line and not line.startswith(('#', 'Description=', 'Condition', 'Type=',
+                          'Exec', 'Restart=', 'TimeoutStop', 'RuntimeDirectory', 'StateDirectory'))]
+        if 'DevicePolicy=closed' not in properties or 'ProtectSystem=strict' not in properties:
+            fail('Ufullstendig sandkasse i RGB-enhetsmalen.')
+        properties.extend((f'DeviceAllow=/dev/i2c-{bus} rw', 'RuntimeMaxSec=20s',
+                           'ReadWritePaths=/var/lib/agentic-rigg-rgb'))
+        if flag == '--rgb-forbered':
+            if stage is None:
+                fail('Forberedelse krever en privat tillatelsesmappe.')
+            properties.extend((f'BindPaths={stage}:/etc/agentic-rigg', 'ReadWritePaths=/etc/agentic-rigg'))
+        return ['/usr/bin/systemd-run', '--wait', '--pipe', '--collect', '--quiet',
+                '--service-type=exec', *('--property=' + line for line in properties), '--']
+
+    def prepare(self, binary):
+        self.directory(CONFIG.parent)
+        with tempfile.TemporaryDirectory(dir=self.directory(Path('run')), prefix='rigg-rgb-auth-') as tmp:
+            stage = Path(tmp).relative_to(self.root) / CONFIG.name
+            previous = self.check_file(CONFIG, missing=True)
+            if previous is not None:
+                self.atomic(stage, previous.read_bytes(), 0o600)
+            report = self.helper(binary, '--rgb-forbered', '--static-confirmed', stage=tmp)
+            self.bus(report)
+            auth = report['authorization']
+            if (type(auth['uid']) is not int or auth['uid'] != self.uid
+                    or auth['binding'] != report['baseline']['binding']
+                    or (auth['binding']['pci'], auth['binding']['uuid']) != (self.args.pci, self.args.uuid)):
+                fail('Grunnopptak eller tillatelse gjelder et annet kort.')
+            if not self.fake:
+                staged = self.check_file(stage)
+                if bounded_json(staged, 16384) != auth:
+                    fail('Den private RGB-tillatelsen samsvarer ikke med hjelperens svar.')
+                self.atomic(CONFIG, json.dumps(auth).encode(), 0o600)
+            return report
 
     def bus(self, report):
         metadata = report["metadata"]
@@ -340,9 +385,15 @@ class Admin:
         auth = bounded_json(path, 16_384)
         if type(auth) is not dict or type(auth.get("binding")) is not dict:
             fail("RGB-tillatelsen har feil format.")
-        if (type(auth["uid"]) is not int or auth["uid"] != self.uid or auth["binding"]["pci"] != self.args.pci
-                or auth["binding"]["uuid"] != self.args.uuid):
-            fail("RGB-tillatelsen gjelder en annen bruker eller et annet kort.")
+        binding = auth['binding']
+        if type(auth['uid']) is not int or auth['uid'] != self.uid:
+            fail('RGB-tillatelsen gjelder en annen bruker.')
+        if not self.args.pci and self.args.action == 'deactivate':
+            matches = self.stopped() and self.check_file(STATE / 'journal.json', missing=True) is None
+        else:
+            matches = binding['pci'] == self.args.pci and binding['uuid'] == self.args.uuid
+        if not matches:
+            fail(f"Bundet RGB-kort: {binding['pci']} {binding['uuid']}. Stopp og avklar arbeideren først.")
         return auth
 
     def unit_template(self):
@@ -391,14 +442,10 @@ class Admin:
         if any(self.check_file(path, missing=True) is not None for path in LEGACY_ASSETS):
             fail("Slå av den tidligere RGB-tilgangen før du aktiverer den nye hjelperen.")
         self.remove(INACTIVE_MARKER)
-        report = self.helper(binary, "--rgb-forbered", "--static-confirmed")
+        report = self.prepare(binary)
         bus = self.bus(report)
         if self.fake:
             baseline, auth = report["baseline"], report["authorization"]
-            if (auth["uid"] != self.uid or auth["binding"] != baseline["binding"]
-                    or auth["binding"]["pci"] != self.args.pci
-                    or auth["binding"]["uuid"] != self.args.uuid):
-                fail("Testens baseline/tillatelse matcher ikke valgt kort.")
             self.directory(STATE, 0o700)
             self.directory(Path("etc/agentic-rigg"))
             with self.lock("worker.lock"):
@@ -446,7 +493,12 @@ class Admin:
         # Verken start, resolve eller sletting av journal etter fysisk skriving.
 
     def deactivate(self):
-        self.selected_authorization(missing=True)
+        auth = self.selected_authorization(missing=True)
+        if not self.args.pci and not self.stopped():
+            fail('Stopp arbeideren før deaktivering uten kortidentitet.')
+        if auth and self.check_file(STATE / 'journal.json', missing=True) is not None:
+            binding = auth['binding']
+            fail(f"Uavklart RGB-journal for {binding['pci']} {binding['uuid']}. Velg «Gjenopprett lagret lys».")
         self.no_journal()
         self.stop()
         # systemctl stop alene utelukker ikke en manuelt startet arbeider.
@@ -455,7 +507,7 @@ class Admin:
         with self.lock("worker.lock"):
             self.selected_authorization(missing=True)
             self.no_journal()
-            for relative in (UNIT_PATH, DROPIN, *LEGACY_ASSETS):
+            for relative in (UNIT_PATH, DROPIN, OLD_DROPIN, *LEGACY_ASSETS):
                 self.remove(relative)
             self.systemctl("daemon-reload")
             # Tillatelsen fjernes sist. Den binder samme bruker/kort også
@@ -480,13 +532,21 @@ class Admin:
             os.close(fd)
 
 
+@contextmanager
+def system_lock():
+    fd = os.open('/run/agentic-rigg-system.lock', os.O_WRONLY | os.O_CREAT | os.O_NOFOLLOW, 0o600)
+    with os.fdopen(fd, 'wb') as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        yield
+
+
 def main():
     # Polkit-skriptene peker alltid hit med fast absolutt sti. Den installerte
     # inngangen registrerer aldri testflagg eller leser klientstyrte filer.
     fixture = Path(__file__).absolute() != Path("/") / SCRIPTS / "rgb-admin.py"
     args = parse(fixture)
     admin = Admin(args, fixture)
-    with admin.lock("admin.lock"):
+    with nullcontext() if fixture else system_lock(), admin.lock("admin.lock"):
         report = getattr(admin, args.action)()
     if args.inspect:
         print(json.dumps(report))

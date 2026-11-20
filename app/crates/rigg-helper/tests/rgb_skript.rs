@@ -15,7 +15,7 @@ const TRUSTED: &str = "usr/local/libexec/agentic-rigg-rgb-v2";
 const LEGACY_BIN: &str = "usr/local/libexec/agentic-rigg-rgb-helper";
 const PERMISSION: &str = "etc/agentic-rigg/rgb.json";
 const UNIT: &str = "etc/systemd/system/agentic-rigg-rgb.service";
-const DROPIN: &str = "etc/systemd/system/agentic-rigg-rgb.service.d/card.conf";
+const DROPIN: &str = "run/systemd/system/agentic-rigg-rgb.service.d/card.conf";
 const JOURNAL: &str = "var/lib/agentic-rigg-rgb/journal.json";
 const INACTIVE: &str = "var/lib/agentic-rigg-rgb.inactive";
 const RECOVERY_ID: &str = "0123456789abcdef0123456789abcdef";
@@ -53,7 +53,7 @@ impl Fixture {
             "rgb-avklar.sh",
             "rgb-gjenopprett.sh",
             "agentic-rigg-rgb.service",
-            "io.github.AgenticRigg.rgb.policy",
+            "io.github.AgenticRigg.rgb.v2.policy",
         ] {
             fs::copy(app().join("data/hjelper").join(name), source.join(name)).unwrap();
             fs::set_permissions(source.join(name), fs::Permissions::from_mode(0o644)).unwrap();
@@ -145,9 +145,11 @@ impl Fixture {
             .arg("--uid")
             .arg("1000")
             .arg("--report")
-            .arg(&self.report)
-            .args(["--pci", PCI, "--uuid", UUID])
-            .args(extra);
+            .arg(&self.report);
+        if action != "deactivate" || !extra.contains(&"uid-only") {
+            cmd.args(["--pci", PCI, "--uuid", UUID]);
+        }
+        cmd.args(extra.iter().filter(|arg| **arg != "uid-only"));
         cmd.output().unwrap()
     }
 
@@ -212,7 +214,7 @@ fn filfixture_installerer_bare_rgb_og_en_fersk_avgrenset_adapter() {
         assert_eq!(fs::read_to_string(f.at(relative)).unwrap(), value);
     }
     let dropin =
-        fs::read_to_string(f.at("etc/systemd/system/agentic-rigg-rgb.service.d/card.conf"))
+        fs::read_to_string(f.at("run/systemd/system/agentic-rigg-rgb.service.d/card.conf"))
             .unwrap();
     assert_eq!(
         dropin,
@@ -264,6 +266,21 @@ fn journal_og_manglende_bekreftelse_stanser_installasjon_eller_fjerning() {
 }
 
 #[test]
+fn uid_alene_krever_stoppet_ren_arbeider() {
+    let f = Fixture::new();
+    f.activate();
+    let out = f.run("deactivate", &["uid-only"]);
+    assert!(!out.status.success() && String::from_utf8_lossy(&out.stderr).contains(UUID));
+    f.systemd(json!({"ActiveState":"inactive"}));
+    f.write_fixture(JOURNAL, b"uavklart", 0o600);
+    let out = f.run("deactivate", &["uid-only"]);
+    assert!(!out.status.success() && String::from_utf8_lossy(&out.stderr).contains(PCI));
+    fs::remove_file(f.at(JOURNAL)).unwrap();
+    assert!(f.run("deactivate", &["uid-only"]).status.success());
+    assert!(!f.at(PERMISSION).exists());
+}
+
+#[test]
 fn avklart_deaktivering_beholder_originalen_og_ukjente_filer() {
     let f = Fixture::new();
     f.activate();
@@ -299,7 +316,7 @@ fn feil_busrapport_og_symlink_target_skriver_ikke_enhetsregel() {
     fs::write(&f.report, report.to_string()).unwrap();
     assert!(!f.run("activate", &["--static-confirmed"]).status.success());
     assert!(
-        !f.at("etc/systemd/system/agentic-rigg-rgb.service.d/card.conf")
+        !f.at("run/systemd/system/agentic-rigg-rgb.service.d/card.conf")
             .exists()
     );
 
@@ -376,13 +393,13 @@ fn duplisert_eller_ikke_regulaer_rapport_er_ikke_installasjonsbevis() {
 #[test]
 fn policy_peker_pa_faste_innganger_og_aktivering_avviser_utrygg_kilde() {
     let f = Fixture::new();
-    let policy = fs::read_to_string(f.source.join("io.github.AgenticRigg.rgb.policy")).unwrap();
+    let policy = fs::read_to_string(f.source.join("io.github.AgenticRigg.rgb.v2.policy")).unwrap();
     for script in ["aktiver", "avklar", "gjenopprett", "deaktiver"] {
         let name = format!("rgb-{script}.sh");
         assert!(policy.contains(&format!("exec.path\">/{TRUSTED}/{name}</annotate>")));
         let entry = fs::read_to_string(f.source.join(name)).unwrap();
         assert!(entry.starts_with(&format!(
-            "#!/bin/sh\nexec /usr/bin/python3 -I /{TRUSTED}/rgb-admin.py "
+            "#!/bin/sh\nexec /usr/bin/python3 -I -S /{TRUSTED}/rgb-admin.py "
         )));
     }
     assert!(

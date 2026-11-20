@@ -1,0 +1,263 @@
+#!/usr/bin/python3 -IS
+"""Installer bare navngitte systemfiler fra den kontrollerte pakkekopien."""
+import argparse
+import fcntl
+import hashlib
+import json
+import os
+from pathlib import Path
+from contextlib import ExitStack
+import re
+import shutil
+import stat
+import subprocess
+import sys
+import tarfile
+import tempfile
+
+LIB = Path('/usr/local/libexec')
+SYSTEM = LIB / 'agentic-rigg-system'
+NV = LIB / 'agentic-rigg'
+RGB = LIB / 'agentic-rigg-rgb-v2'
+POL = Path('/usr/share/polkit-1/actions')
+ETC = Path('/etc/agentic-rigg')
+UNITS = Path('/etc/systemd/system')
+RUN = Path('/run/systemd/system')
+STATE = Path('/var/lib')
+GPU_INFO = Path('/proc/driver/nvidia/gpus')
+MARK = SYSTEM / 'revision'
+VERSION = '1\n'
+DOMAINS = {'nvml': ('agentic-rigg-helper.service', 'helper.json', 'agentic-rigg', 'dirty.json'),
+           'rgb': ('agentic-rigg-rgb.service', 'rgb.json', 'agentic-rigg-rgb', 'journal.json')}
+ASSETS = {LIB / 'agentic-rigg-helper': ('bin/agentic-rigg-helper', 0o755),
+          RGB / 'agentic-rigg-helper': ('bin/agentic-rigg-helper', 0o755)}
+for directory, names in ((SYSTEM, ['system-install']), (NV, ['aktiver.sh', 'deaktiver.sh', 'nvml-admin.py', 'agentic-rigg-helper.service']),
+                         (RGB, ['rgb-admin.py', 'rgb-aktiver.sh', 'rgb-deaktiver.sh', 'rgb-avklar.sh',
+                                'rgb-gjenopprett.sh', 'agentic-rigg-rgb.service']),
+                         (POL, ['io.github.AgenticRigg.helper.policy', 'io.github.AgenticRigg.rgb.v2.policy'])):
+    for name in names:
+        ASSETS[directory / name] = ('data/hjelper/' + name, 0o755 if name.endswith('.sh') or name == 'system-install' else 0o644)
+
+
+def directory(path):
+    if path != Path('/'):
+        directory(path.parent)
+        path.mkdir(mode=0o755, exist_ok=True)
+    info = path.lstat()
+    if not stat.S_ISDIR(info.st_mode) or info.st_uid != 0 or info.st_mode & 0o022:
+        raise ValueError(f'Utrygg systemmappe: {path}')
+
+
+def put(path, data, mode):
+    directory(path.parent)
+    with tempfile.NamedTemporaryFile(dir=path.parent, delete=False) as out:
+        try:
+            out.write(data)
+            out.flush()
+            os.fchmod(out.fileno(), mode)
+            os.fsync(out.fileno())
+            os.replace(out.name, path)
+            sync_directory(path.parent)
+        finally:
+            Path(out.name).unlink(missing_ok=True)
+
+
+def sync_directory(path):
+    fd = os.open(path, os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
+def ctl(*args):
+    return subprocess.check_output(['/usr/bin/systemctl', *args], text=True, timeout=60,
+                                   env={'PATH': '/usr/bin:/bin', 'LC_ALL': 'C'}).strip()
+
+
+def stopped(unit):
+    fields = dict(line.split('=', 1) for line in ctl('show', '--all', '--property=ActiveState,Job', unit).splitlines())
+    return fields['ActiveState'] in ('inactive', 'failed') and fields['Job'] in ('', '0')
+
+
+def active_files(domain):
+    unit, config, state, journal = DOMAINS[domain]
+    return [ETC / config, STATE / state / journal, UNITS / unit,
+            (RUN if domain == 'rgb' else UNITS) / (unit + '.d') / ('card.conf' if domain == 'rgb' else 'gpu.conf')]
+
+
+def remove_active(domain):
+    config, _, unit, dropin = active_files(domain)
+    if domain == 'nvml' and unit.exists():
+        ctl('disable', unit.name)
+    obsolete = UNITS / (unit.name + '.d/card.conf') if domain == 'rgb' else UNITS / 'multi-user.target.wants' / unit.name
+    for path in (dropin, obsolete, unit, config):
+        if path.parent.exists():
+            directory(path.parent)
+            path.unlink(missing_ok=True)
+            sync_directory(path.parent)
+    ctl('daemon-reload')
+
+
+def archive_state(domain, removed_uuid=None):
+    config, journal, unit, _ = active_files(domain)
+    if not stopped(unit.name):
+        raise ValueError(f'Stopp først: sudo systemctl stop {unit.name}')
+    state = journal.parent
+    with ExitStack() as locked:
+        if state.exists():
+            directory(state)
+            if domain == 'rgb':
+                fd = os.open(state / 'worker.lock', os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
+                locked.callback(os.close, fd)
+                fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        if removed_uuid is not None:
+            directory(config.parent)
+            receipt = state / 'arkivert-tillatelse.json'
+            source = config if config.exists() else receipt
+            fd = os.open(source, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+            with os.fdopen(fd, 'rb') as stream:
+                info = os.fstat(stream.fileno())
+                if not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid() or info.st_mode & 0o022 or info.st_nlink != 1:
+                    raise ValueError('Utrygg fil for arkivbindingen.')
+                raw = stream.read(16385)
+            if len(raw) > 16384:
+                raise ValueError('For stor arkivbinding.')
+            auth = json.loads(raw)
+            binding = auth.get('binding', auth)
+            if binding['uuid'] != removed_uuid:
+                raise ValueError(f"Bundet kort: {binding['pci']} {binding['uuid']}")
+            if not re.fullmatch(r'[\da-fA-F]{4}:[\da-fA-F]{2}:[\da-fA-F]{2}\.[0-7]', binding['pci']):
+                raise ValueError('Ugyldig arkivbinding.')
+            try:
+                info = (GPU_INFO / binding['pci'] / 'information').read_text()
+            except FileNotFoundError:
+                pass
+            else:
+                fields = dict(line.split(':', 1) for line in info.splitlines() if ':' in line)
+                if fields['GPU UUID'].strip() == removed_uuid:
+                    raise ValueError('Bundet kort finnes fortsatt. Bruk vanlig gjenoppretting.')
+            if state.exists():
+                put(receipt, raw, 0o600)
+        elif config.exists() or os.path.lexists(journal):
+            raise ValueError(f'Slå av {domain}-tilgangen først. Tilstand og journal beholdes.')
+        remove_active(domain)
+        if state.exists():
+            archive_dir = STATE / 'agentic-rigg-arkiv'
+            directory(archive_dir)
+            dest = Path(tempfile.mkdtemp(prefix=domain + '-', dir=archive_dir))
+            state.rename(dest / 'tilstand')
+            for parent in (dest, archive_dir, STATE):
+                sync_directory(parent)
+            print(f'Bevart i {dest}. Arkivering er ikke en bekreftet gjenoppretting.')
+    if domain == 'rgb':
+        put(STATE / 'agentic-rigg-rgb.inactive', b'Inaktiv\n', 0o644)
+
+
+def approved_files(source, digest, staging='/var/tmp'):
+    if not re.fullmatch('[a-fA-F0-9]{64}', digest):
+        raise ValueError('Forventet en separat SHA-256 med 64 heksadesimale tegn.')
+    with tempfile.TemporaryDirectory(dir=staging) as temp:
+        copy = Path(temp) / 'release'
+        shutil.copyfile(source, copy)
+        with copy.open('rb') as stream:
+            if hashlib.file_digest(stream, 'sha256').hexdigest() != digest.lower():
+                raise ValueError('Kontrollsummen stemmer ikke. Ingen systemfiler endret.')
+        wanted = {name for name, _ in ASSETS.values()}
+        files = {}
+        roots = set()
+        with tarfile.open(copy, 'r:gz') as tar:
+            for member in tar:
+                root, _, key = member.name.partition('/')
+                roots.add(root)
+                if key not in wanted:
+                    continue
+                if key in files or not member.isfile() or member.size > 64 * 1024**2:
+                    raise ValueError('Ugyldig pakkemedlem: ' + key)
+                files[key] = tar.extractfile(member).read()
+        if files.keys() != wanted or len(roots) != 1:
+            raise ValueError('Ufullstendig eller tvetydig systempakke.')
+        return files
+
+
+def legacy():
+    old = LIB / 'agentic-rigg-rgb'
+    for path in (NV / 'trinn.sh', POL / 'io.github.AgenticRigg.rgb.policy', LIB / 'agentic-rigg-rgb-helper',
+                 *(old / name for name in ('rgb-admin.py', 'rgb-aktiver.sh', 'rgb-avklar.sh', 'rgb-gjenopprett.sh', 'rgb-deaktiver.sh'))):
+        if path.parent.exists():
+            directory(path.parent)
+            path.unlink(missing_ok=True)
+    if old.is_dir() and not any(old.iterdir()):
+        old.rmdir()
+
+
+def install(files):
+    for path in ASSETS:
+        directory(path.parent)
+    # Også en eldre, uavklart installasjon skal ha den verifiserte,
+    # rent administrative arkivveien uten å bytte en aktiv arbeider.
+    recovery = SYSTEM / 'system-install'
+    put(recovery, files[ASSETS[recovery][0]], 0o755)
+    if (ETC / 'rgb.json').exists() or not stopped(DOMAINS['rgb'][0]) or os.path.lexists(active_files('rgb')[1]):
+        raise ValueError('Avklar og slå av eksisterende RGB-tilgang før installasjon.')
+    config, journal, unit, _ = active_files('nvml')
+    if not stopped(unit.name):
+        ctl('stop', unit.name)
+    if not stopped(unit.name) or os.path.lexists(journal):
+        raise ValueError('NVML-gjenoppretting er uavklart; tillatelse og opptak beholdes.')
+    MARK.unlink(missing_ok=True)
+    remove_active('nvml')
+    remove_active('rgb')
+    legacy()
+    for path, (key, mode) in ASSETS.items():
+        put(path, files[key], mode)
+    put(MARK, VERSION.encode(), 0o644)
+    print('Systemkomponentene er installert. Aktiver ønsket tilgang separat i appen.')
+
+
+def uninstall():
+    for domain in DOMAINS:
+        config, journal, unit, _ = active_files(domain)
+        if config.exists() or os.path.lexists(journal) or not stopped(unit.name):
+            raise ValueError('Avklar og slå av begge hjelpere før avinstallasjon.')
+    for domain in DOMAINS:
+        archive_state(domain)
+    legacy()
+    for path in (MARK, *ASSETS, STATE / 'agentic-rigg-rgb.inactive'):
+        if path.parent.exists():
+            directory(path.parent)
+            path.unlink(missing_ok=True)
+    for path in (NV, RGB, SYSTEM, ETC, *(base / (unit + '.d') for unit, *_ in DOMAINS.values() for base in (RUN, UNITS))):
+        if path.is_dir() and not any(path.iterdir()):
+            path.rmdir()
+    print('Systemkomponentene er fjernet. Eventuelle arkiver er beholdt.')
+
+
+def main():
+    parser = argparse.ArgumentParser(allow_abbrev=False)
+    action = parser.add_mutually_exclusive_group()
+    action.add_argument('--uninstall', action='store_true')
+    action.add_argument('--archive-removed-card', choices=DOMAINS)
+    parser.add_argument('values', nargs='*')
+    args = parser.parse_args()
+    if os.geteuid() != 0:
+        parser.error('Systeminstallasjon krever administrator.')
+    os.umask(0o022)
+    fd = os.open('/run/agentic-rigg-system.lock', os.O_WRONLY | os.O_CREAT | os.O_NOFOLLOW, 0o600)
+    with os.fdopen(fd, 'wb') as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        if args.uninstall and not args.values:
+            uninstall()
+        elif args.archive_removed_card and len(args.values) == 1:
+            archive_state(args.archive_removed_card, args.values[0])
+        elif not args.uninstall and not args.archive_removed_card and len(args.values) == 2:
+            install(approved_files(*args.values))
+        else:
+            parser.error('Forventet ARKIV SHA256, --uninstall eller --archive-removed-card DOMENE UUID.')
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except (OSError, ValueError, KeyError, subprocess.SubprocessError, tarfile.TarError) as error:
+        sys.exit(str(error))

@@ -101,7 +101,7 @@ def file_list(bin_dir):
             continue
         if not path.is_file():
             fail(f"Uventet filtype: {path}")
-        files.append((f"data/{relative.as_posix()}", path, path.suffix == ".sh"))
+        files.append((f"data/{relative.as_posix()}", path, path.suffix == ".sh" or path.name == "system-install"))
     for _, path, _ in files:
         if not path.is_file():
             fail(f"En påkrevd pakkefil mangler: {path}")
@@ -130,7 +130,8 @@ Pakk ut arkivet og åpne en terminal i denne mappa. Kjør som vanlig bruker:
 Installereren trenger bash, standard GNU-verktøy og python3. Den legger
 appen under ~/.local, med ikon i programmenyen. Den bygger ingenting.
 En allerede kjørende Agentic Rigg-brukertjeneste kan startes på nytt.
-Root-hjelperens filer følger med, men hjelperen aktiveres ikke av installasjonen.
+Root-komponentene følger med. Installer dem separat fra det verifiserte arkivet
+med kommandoen i RGB-HJELPER.md. Brukerinstallasjonen aktiverer ingen hjelpere.
 Ekte GPU-styring aktiveres separat i Innstillinger › Skjermkortstyring,
 med én administratorgodkjenning. Støttede endringer i effekt, vifter og
 klokkeoffset sendes med Bruk og må beholdes innen fristen. Hjelperen bindes

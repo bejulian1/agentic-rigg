@@ -178,9 +178,8 @@ for plan in "${plans[@]}"; do
         # Som docs/produksjon/verktoy/runde7a/bilder7a.sh: filene til
         # hjelperen i en egen mappe (som install.sh) og en falsk rot. Ingen
         # root, ingen polkit, ingen systemctl.
-        fake=$target/7a-rot-$plan hdata=$target/7a-hjelper-$plan
-        rm -rf -- "$fake" "$hdata"
-        mkdir -m 700 -p "$fake" "$hdata"
+        fake=$(mktemp -d /tmp/rigg-nvml-ui-root.XXXXXX)
+        hdata=$(mktemp -d /tmp/rigg-nvml-ui-data.XXXXXX)
         cp "$here"/data/hjelper/* "$hdata/"
         cp "$bin/agentic-rigg-helper" "$hdata/"
         vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=$plan" "RIGG_PKEXEC=$here/scripts/falsk-pkexec.sh" "RIGG_HJELPER_DATA=$hdata" "RIGG_HJELPER_ROT=$fake")
