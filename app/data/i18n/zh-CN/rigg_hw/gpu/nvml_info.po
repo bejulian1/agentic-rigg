@@ -1,0 +1,32 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: crates/rigg-hw/src/gpu/nvml_info.rs:68
+msgid "NVIDIA virtuell GPU"
+msgstr ""
+
+#: crates/rigg-hw/src/gpu/nvml_info.rs:74
+msgid "Ukjent"
+msgstr ""
+
+#: crates/rigg-hw/src/gpu/nvml_info.rs:282
+msgid "grafikk"
+msgstr ""
+
+#: crates/rigg-hw/src/gpu/nvml_info.rs:282
+msgid "compute"
+msgstr ""
+
+#: crates/rigg-hw/src/gpu/nvml_info.rs:288
+msgid "grafikk og compute"
+msgstr ""
+
+#: crates/rigg-hw/src/gpu/nvml_info.rs:338
+msgid "Lukket kjernemodul"
+msgstr ""

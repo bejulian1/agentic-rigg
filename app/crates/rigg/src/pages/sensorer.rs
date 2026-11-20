@@ -36,6 +36,7 @@ use gtk::{glib, pango};
 use rigg_core::fmt as F;
 use rigg_core::sensor_key as SK;
 use rigg_core::sensormeta as SM;
+use rigg_core::{tr, trf};
 use serde_json::json;
 use std::cell::{Cell, RefCell};
 use std::collections::{HashMap, HashSet};
@@ -340,48 +341,48 @@ pub struct Sensorer {
 pub fn short_name(key: &str) -> Option<String> {
     if let Some((_, f)) = SK::split_gpu(key) {
         let s = match f {
-            "temp" => "GPU-temp".to_string(),
-            "gpuUtil" => "GPU-last".into(),
-            "memUtil" => "Minnekontr.".into(),
-            "encUtil" => "Encoder".into(),
-            "decUtil" => "Decoder".into(),
-            "coreClock" => "Kjerneklokke".into(),
-            "smClock" => "SM-klokke".into(),
-            "memClock" => "Minneklokke".into(),
-            "videoClock" => "Videoklokke".into(),
-            "power" => "Effekt".into(),
-            "powerLimit" => "Effektgrense".into(),
-            "fan" => "Vifte".into(),
+            "temp" => tr!("GPU-temp").to_string(),
+            "gpuUtil" => tr!("GPU-last").into(),
+            "memUtil" => tr!("Minnekontr.").into(),
+            "encUtil" => tr!("Encoder").into(),
+            "decUtil" => tr!("Decoder").into(),
+            "coreClock" => tr!("Kjerneklokke").into(),
+            "smClock" => tr!("SM-klokke").into(),
+            "memClock" => tr!("Minneklokke").into(),
+            "videoClock" => tr!("Videoklokke").into(),
+            "power" => tr!("Effekt").into(),
+            "powerLimit" => tr!("Effektgrense").into(),
+            "fan" => tr!("Vifte").into(),
             "vramUsed" => "VRAM".into(),
             "pcieGen" => "PCIe".into(),
-            f if f.starts_with("fanRpm") => format!("Vifte {} o/min", f[6..].parse::<usize>().map(|n| n + 1).unwrap_or(1)),
-            f if f.starts_with("fan") => format!("Vifte {}", f[3..].parse::<usize>().map(|n| n + 1).unwrap_or(1)),
+            f if f.starts_with("fanRpm") => trf!("Vifte {nr} o/min", nr = f[6..].parse::<usize>().map(|n| n + 1).unwrap_or(1)),
+            f if f.starts_with("fan") => trf!("Vifte {nr}", nr = f[3..].parse::<usize>().map(|n| n + 1).unwrap_or(1)),
             _ => return None,
         };
         return Some(s);
     }
     let parts: Vec<&str> = key.split('/').collect();
     Some(match parts.as_slice() {
-        ["cpu", "temp"] => "CPU-temp".into(),
+        ["cpu", "temp"] => tr!("CPU-temp").into(),
         ["cpu", "tctl"] => "CPU Tctl".into(),
-        ["cpu", "load"] => "CPU-last".into(),
-        ["cpu", "thread", n, "load"] => format!("CPU-tråd {n}"),
-        ["cpu", "thread", n, "mhz"] => format!("Tråd {n}"),
-        ["mem", "used"] => "RAM brukt".into(),
-        ["mem", "usedPct"] => "Minne".into(),
-        ["mem", "avail"] => "RAM ledig".into(),
-        ["mem", "swap"] => "Swap".into(),
-        ["net", "rx"] => "Mottatt".into(),
-        ["net", "tx"] => "Sendt".into(),
+        ["cpu", "load"] => tr!("CPU-last").into(),
+        ["cpu", "thread", n, "load"] => trf!("CPU-tråd {nr}", nr = n),
+        ["cpu", "thread", n, "mhz"] => trf!("Tråd {nr}", nr = n),
+        ["mem", "used"] => tr!("RAM brukt").into(),
+        ["mem", "usedPct"] => tr!("Minne").into(),
+        ["mem", "avail"] => tr!("RAM ledig").into(),
+        ["mem", "swap"] => tr!("Swap").into(),
+        ["net", "rx"] => tr!("Mottatt").into(),
+        ["net", "tx"] => tr!("Sendt").into(),
         ["net", name, d] => format!("{name} {}", if *d == "rx" { "↓" } else { "↑" }),
-        ["disk", "read"] => "Disk les".into(),
-        ["disk", "write"] => "Disk skriv".into(),
+        ["disk", "read"] => tr!("Disk les").into(),
+        ["disk", "write"] => tr!("Disk skriv").into(),
         // Uten disklista (før første prøve): bare hva det er. Med lista gir
         // `disk_name` kjernenavnet («sda temp»).
-        ["disk", _, "temp"] => "Disktemp".into(),
-        ["disk", _, "read"] => "Disk les".into(),
-        ["disk", _, "write"] => "Disk skriv".into(),
-        ["disk", _, "busy"] => "Disk aktiv".into(),
+        ["disk", _, "temp"] => tr!("Disktemp").into(),
+        ["disk", _, "read"] => tr!("Disk les").into(),
+        ["disk", _, "write"] => tr!("Disk skriv").into(),
+        ["disk", _, "busy"] => tr!("Disk aktiv").into(),
         ["hwmon", dev, k] => format!("{} {k}", SM::device_name(dev.trim_end_matches(|c: char| c == '_' || c.is_ascii_digit()))),
         _ => return None,
     })
@@ -398,10 +399,10 @@ pub fn disk_name(key: &str, disks: &[rigg_core::disk::DiskSample]) -> Option<(St
     };
     let d = disks.iter().find(|d| d.id == *id)?;
     let (short, long) = match *what {
-        "temp" => ("temp", "temperatur"),
-        "read" => ("les", "lesing"),
-        "write" => ("skriv", "skriving"),
-        "busy" => ("aktiv", "aktivitet"),
+        "temp" => (tr!("temp"), tr!("temperatur")),
+        "read" => (tr!("les"), tr!("lesing")),
+        "write" => (tr!("skriv"), tr!("skriving")),
+        "busy" => (tr!("aktiv"), tr!("aktivitet")),
         _ => return None,
     };
     let base = if d.model.is_empty() { d.name.clone() } else { format!("{} ({})", d.model, d.name) };
@@ -535,33 +536,33 @@ fn row_defs(app: &App, system: &serde_json::Value) -> Vec<(String, String, Strin
             s.na.iter().any(|x| x == base || x == f)
         };
         let mut rows = vec![
-            RowDef::new(&k("temp"), "Temperatur", Fmt::Temp, "temp").span(20.0).lvl(Lvl::GpuTemp).raw("NVML · den eneste temperatursensoren på kortet"),
-            RowDef::new(&k("gpuUtil"), "GPU-last", Fmt::Pct0, "load").pct().lvl(Lvl::Load),
-            RowDef::new(&k("memUtil"), "Minnekontroller-last", Fmt::Pct0, "memctl").pct(),
-            RowDef::new(&k("encUtil"), "Videokoder (encoder)", Fmt::Pct0, "memctl").pct(),
-            RowDef::new(&k("decUtil"), "Videodekoder (decoder)", Fmt::Pct0, "memctl").pct(),
-            RowDef::new(&k("coreClock"), "Kjerneklokke", Fmt::Mhz, "clock").span(400.0),
-            RowDef::new(&k("smClock"), "SM-klokke", Fmt::Mhz, "clock").span(400.0),
-            RowDef::new(&k("memClock"), "Minneklokke", Fmt::Mhz, "mem").span(400.0),
-            RowDef::new(&k("videoClock"), "Videoklokke", Fmt::Mhz, "clock").span(400.0),
-            RowDef::new(&k("power"), "Effekttrekk", Fmt::W, "power").span(40.0).tip("Snitt for perioden, regnet fra kortets energiteller."),
-            RowDef::new(&k("powerLimit"), "Effektgrense", Fmt::W0, "limit").tip("Grensen kortet håndhever nå."),
+            RowDef::new(&k("temp"), tr!("Temperatur"), Fmt::Temp, "temp").span(20.0).lvl(Lvl::GpuTemp).raw(tr!("NVML · den eneste temperatursensoren på kortet")),
+            RowDef::new(&k("gpuUtil"), tr!("GPU-last"), Fmt::Pct0, "load").pct().lvl(Lvl::Load),
+            RowDef::new(&k("memUtil"), tr!("Minnekontroller-last"), Fmt::Pct0, "memctl").pct(),
+            RowDef::new(&k("encUtil"), tr!("Videokoder (encoder)"), Fmt::Pct0, "memctl").pct(),
+            RowDef::new(&k("decUtil"), tr!("Videodekoder (decoder)"), Fmt::Pct0, "memctl").pct(),
+            RowDef::new(&k("coreClock"), tr!("Kjerneklokke"), Fmt::Mhz, "clock").span(400.0),
+            RowDef::new(&k("smClock"), tr!("SM-klokke"), Fmt::Mhz, "clock").span(400.0),
+            RowDef::new(&k("memClock"), tr!("Minneklokke"), Fmt::Mhz, "mem").span(400.0),
+            RowDef::new(&k("videoClock"), tr!("Videoklokke"), Fmt::Mhz, "clock").span(400.0),
+            RowDef::new(&k("power"), tr!("Effekttrekk"), Fmt::W, "power").span(40.0).tip(tr!("Snitt for perioden, regnet fra kortets energiteller.")),
+            RowDef::new(&k("powerLimit"), tr!("Effektgrense"), Fmt::W0, "limit").tip(tr!("Grensen kortet håndhever nå.")),
         ];
         if s.fans.len() > 1 {
             for i in 0..s.fans.len() {
-                rows.push(RowDef::new(&k(&format!("fan{i}")), &format!("Vifte {}", i + 1), Fmt::Pct0, "clock").pct());
+                rows.push(RowDef::new(&k(&format!("fan{i}")), &trf!("Vifte {nr}", nr = i + 1), Fmt::Pct0, "clock").pct());
             }
         } else {
-            rows.push(RowDef::new(&k("fan"), "Viftefart", Fmt::Pct0, "clock").pct());
+            rows.push(RowDef::new(&k("fan"), tr!("Viftefart"), Fmt::Pct0, "clock").pct());
         }
         let nrpm = s.fan_rpm.len();
         for i in 0..nrpm {
-            let l = if nrpm > 1 { format!("Vifte {}, turtall", i + 1) } else { "Viftens turtall".into() };
+            let l = if nrpm > 1 { trf!("Vifte {nr}, turtall", nr = i + 1) } else { tr!("Viftens turtall").into() };
             rows.push(RowDef::new(&k(&format!("fanRpm{i}")), &l, Fmt::Rpm, "clock").span(200.0));
         }
-        rows.push(RowDef::new(&k("vramUsed"), "Videominne brukt", Fmt::Mib, "mem").raw("NVML · nvmlDeviceGetMemoryInfo_v2"));
-        let mut pcie = RowDef::new(&k("pcieGen"), "PCIe-generasjon", Fmt::Gen, "limit")
-            .tip("Generasjonen lenken går på nå. Kortet går ned i tomgang for å spare strøm.")
+        rows.push(RowDef::new(&k("vramUsed"), tr!("Videominne brukt"), Fmt::Mib, "mem").raw("NVML · nvmlDeviceGetMemoryInfo_v2"));
+        let mut pcie = RowDef::new(&k("pcieGen"), tr!("PCIe-generasjon"), Fmt::Gen, "limit")
+            .tip(tr!("Generasjonen lenken går på nå. Kortet går ned i tomgang for å spare strøm."))
             .raw("sysfs · current_link_speed");
         pcie.discrete = true;
         rows.push(pcie);
@@ -573,7 +574,7 @@ fn row_defs(app: &App, system: &serde_json::Value) -> Vec<(String, String, Strin
             }
         }
         let name = gpus.iter().find(|g| &g.id == id).map(|g| rigg_core::model::short_gpu_name(&g.name)).or_else(|| app.data.borrow().statics.get(id).map(|s| rigg_core::model::short_gpu_name(&s.0.name))).unwrap_or_default();
-        let title = if multi { format!("Skjermkort {} · {name}", n + 1) } else { "Skjermkort".into() };
+        let title = if multi { trf!("Skjermkort {nr} · {navn}", nr = n + 1, navn = name) } else { tr!("Skjermkort").into() };
         let note = format!("{} · NVML", if name.is_empty() { "NVIDIA".to_string() } else { name });
         out.push((gid, title, note, rows));
     }
@@ -583,21 +584,22 @@ fn row_defs(app: &App, system: &serde_json::Value) -> Vec<(String, String, Strin
     let dev = sys.hwmon.iter().find(|d| matches!(d.name.as_str(), "k10temp" | "coretemp" | "zenpower"));
     let ct = SM::cpu_temp_sensor(sys).map(|x| x.id.clone());
     if let Some(d) = dev {
+        let prefix = format!("{} · ", SM::device_name(&d.name));
         for x in &d.sensors {
             if x.value.is_none() && x.err.is_none() {
                 continue;
             }
             let (f, serie) = hwmon_fmt(&x.kind);
             let r = if Some(&x.id) == ct.as_ref() {
-                let label = if !x.label.is_empty() && x.label != x.key { format!("Temperatur ({})", x.label) } else { "CPU-temperatur".into() };
-                RowDef::new("cpu/temp", &label, Fmt::Temp, "temp").span(20.0).lvl(Lvl::CpuTemp).tip("Temperatur fra den valgte CPU-sensoren. Samme verdi brukes i sidefeltet, på Oversikt og i Grafer.")
+                let label = if !x.label.is_empty() && x.label != x.key { trf!("Temperatur ({sensor})", sensor = x.label) } else { tr!("CPU-temperatur").into() };
+                RowDef::new("cpu/temp", &label, Fmt::Temp, "temp").span(20.0).lvl(Lvl::CpuTemp).tip(tr!("Temperatur fra den valgte CPU-sensoren. Samme verdi brukes i sidefeltet, på Oversikt og i Grafer."))
             } else if x.label == "Tctl" {
-                RowDef::new("cpu/tctl", "Temperatur (Tctl)", Fmt::Temp, "temp")
+                RowDef::new("cpu/tctl", tr!("Temperatur (Tctl)"), Fmt::Temp, "temp")
                     .span(20.0)
-                    .tip("Tctl rapporteres av CPU-driveren. Eventuell forskyvning fra brikketemperaturen avhenger av CPU-modellen.")
+                    .tip(tr!("Tctl rapporteres av CPU-driveren. Eventuell forskyvning fra brikketemperaturen avhenger av CPU-modellen."))
             } else {
                 let (n, _) = SM::sensor_name(d, x);
-                let mut r = RowDef::new(&format!("hwmon/{}/{}", d.name, x.key), n.trim_start_matches("Prosessor · "), f, serie);
+                let mut r = RowDef::new(&format!("hwmon/{}/{}", d.name, x.key), n.strip_prefix(&prefix).unwrap_or(&n), f, serie);
                 if f == Fmt::Temp {
                     r.min_span = 20.0;
                 }
@@ -606,23 +608,23 @@ fn row_defs(app: &App, system: &serde_json::Value) -> Vec<(String, String, Strin
             cpu.push(r.raw(&format!("{} · {}", d.name, x.key)));
         }
     }
-    cpu.push(RowDef::new("cpu/load", "Total last", Fmt::Pct, "load").pct().lvl(Lvl::Load).raw("/proc/stat"));
+    cpu.push(RowDef::new("cpu/load", tr!("Total last"), Fmt::Pct, "load").pct().lvl(Lvl::Load).raw("/proc/stat"));
     for i in rigg_core::report::system::cpu_thread_ids(&system["cpu"]) {
-        let mut r = RowDef::new(&format!("cpu/thread/{i}/load"), &format!("Tråd {i}"), Fmt::Pct, "load").pct().lvl(Lvl::Load).raw("/proc/stat · cpufreq");
+        let mut r = RowDef::new(&format!("cpu/thread/{i}/load"), &trf!("Tråd {nr}", nr = i), Fmt::Pct, "load").pct().lvl(Lvl::Load).raw("/proc/stat · cpufreq");
         r.thread = Some(i);
         cpu.push(r);
     }
-    out.push(("cpu".into(), "Prosessor".into(), "/proc/stat, cpufreq og hwmon".into(), cpu));
+    out.push(("cpu".into(), tr!("Prosessor").into(), tr!("/proc/stat, cpufreq og hwmon").into(), cpu));
     // ---- Minne ----
     out.push((
         "mem".into(),
-        "Minne".into(),
+        tr!("Minne").into(),
         "/proc/meminfo".into(),
         vec![
-            RowDef::new("mem/used", "Brukt", Fmt::Gib, "mem").tip("Det programmene bruker. Buffer og cache er ikke med."),
-            RowDef::new("mem/usedPct", "Brukt av totalt", Fmt::Pct, "mem").pct(),
-            RowDef::new("mem/avail", "Tilgjengelig", Fmt::Gib, "mem").tip("Det som kan tas i bruk uten å bytte ut noe (MemAvailable)."),
-            RowDef::new("mem/swap", "Swap brukt", Fmt::Gib, "mem"),
+            RowDef::new("mem/used", tr!("Brukt"), Fmt::Gib, "mem").tip(tr!("Det programmene bruker. Buffer og cache er ikke med.")),
+            RowDef::new("mem/usedPct", tr!("Brukt av totalt"), Fmt::Pct, "mem").pct(),
+            RowDef::new("mem/avail", tr!("Tilgjengelig"), Fmt::Gib, "mem").tip(tr!("Det som kan tas i bruk uten å bytte ut noe (MemAvailable).")),
+            RowDef::new("mem/swap", tr!("Swap brukt"), Fmt::Gib, "mem"),
         ],
     ));
     // ---- Disker (runde 6A): temperatur fra SMART, MB/s og aktivitet ----
@@ -635,23 +637,23 @@ fn row_defs(app: &App, system: &serde_json::Value) -> Vec<(String, String, Strin
         };
         if d.temp.is_some() {
             dk.push(
-                RowDef::new(&format!("disk/{}/temp", d.id), &lbl("temperatur"), Fmt::Temp, "temp")
+                RowDef::new(&format!("disk/{}/temp", d.id), &lbl(tr!("temperatur")), Fmt::Temp, "temp")
                     .span(10.0)
-                    .tip("Fra SMART. UDisks2 leser den selv omtrent hvert 10. min, uten å vekke disken.")
+                    .tip(tr!("Fra SMART. UDisks2 leser den selv omtrent hvert 10. min, uten å vekke disken."))
                     .raw("SMART · UDisks2"),
             );
         }
-        dk.push(RowDef::new(&format!("disk/{}/read", d.id), &lbl("lesing"), Fmt::DiskRate, "load").raw(&format!("{} · /proc/diskstats", d.name)));
-        dk.push(RowDef::new(&format!("disk/{}/write", d.id), &lbl("skriving"), Fmt::DiskRate, "memctl").raw(&format!("{} · /proc/diskstats", d.name)));
+        dk.push(RowDef::new(&format!("disk/{}/read", d.id), &lbl(tr!("lesing")), Fmt::DiskRate, "load").raw(&format!("{} · /proc/diskstats", d.name)));
+        dk.push(RowDef::new(&format!("disk/{}/write", d.id), &lbl(tr!("skriving")), Fmt::DiskRate, "memctl").raw(&format!("{} · /proc/diskstats", d.name)));
         dk.push(
-            RowDef::new(&format!("disk/{}/busy", d.id), &lbl("aktivitet"), Fmt::Pct0, "load")
+            RowDef::new(&format!("disk/{}/busy", d.id), &lbl(tr!("aktivitet")), Fmt::Pct0, "load")
                 .pct()
-                .tip("Andel av tiden disken hadde lesing eller skriving i gang.")
+                .tip(tr!("Andel av tiden disken hadde lesing eller skriving i gang."))
                 .raw(&format!("{} · io_ticks", d.name)),
         );
     }
     if !dk.is_empty() {
-        out.push(("disk".into(), "Disker".into(), "/proc/diskstats og SMART fra UDisks2".into(), dk));
+        out.push(("disk".into(), tr!("Disker").into(), tr!("/proc/diskstats og SMART fra UDisks2").into(), dk));
     }
     // ---- Andre sensorer ----
     let mut hw = Vec::new();
@@ -682,7 +684,7 @@ fn row_defs(app: &App, system: &serde_json::Value) -> Vec<(String, String, Strin
         }
     }
     if !hw.is_empty() {
-        out.push(("hwmon".into(), "Andre sensorer".into(), "/sys/class/hwmon".into(), hw));
+        out.push(("hwmon".into(), tr!("Andre sensorer").into(), "/sys/class/hwmon".into(), hw));
     }
     // ---- Nett ----
     let mut net = Vec::new();
@@ -691,16 +693,16 @@ fn row_defs(app: &App, system: &serde_json::Value) -> Vec<(String, String, Strin
     for (name, n) in names {
         let base = SM::net_name(name, n.wireless);
         let down = n.state.as_deref().is_some_and(|s| s != "up" && s != "unknown");
-        for (dir, word, serie) in [("rx", "mottatt", "load"), ("tx", "sendt", "memctl")] {
+        for (dir, word, serie) in [("rx", tr!("mottatt"), "load"), ("tx", tr!("sendt"), "memctl")] {
             let mut r = RowDef::new(&format!("net/{name}/{dir}"), &format!("{base} · {word}"), Fmt::Rate, serie).raw(&format!("{name} · {dir}_bytes"));
             if down {
-                r.extra = Some("ikke tilkoblet".into());
+                r.extra = Some(tr!("ikke tilkoblet").into());
             }
             net.push(r);
         }
     }
     if !net.is_empty() {
-        out.push(("net".into(), "Nett".into(), "/sys/class/net".into(), net));
+        out.push(("net".into(), tr!("Nett").into(), "/sys/class/net".into(), net));
     }
     out
 }
@@ -778,32 +780,32 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     toggle.add_css_class("icon-only");
     let toggle_icon = Icon::new("chevrons-down-up", 16);
     toggle.set_child(Some(&toggle_icon));
-    tip(&toggle, "Fold sammen alle", None);
-    toggle.update_property(&[gtk::accessible::Property::Label("Fold sammen alle")]);
+    tip(&toggle, tr!("Fold sammen alle"), None);
+    toggle.update_property(&[gtk::accessible::Property::Label(tr!("Fold sammen alle"))]);
     actions.append(&toggle);
     let sep = gtk::Box::new(gtk::Orientation::Horizontal, 0);
     sep.add_css_class("sep");
     sep.set_valign(gtk::Align::Center);
     actions.append(&sep);
     let search = gtk::SearchEntry::new();
-    search.set_placeholder_text(Some("Filtrer"));
+    search.set_placeholder_text(Some(tr!("Filtrer")));
     search.add_css_class("search-field");
     search.add_css_class("sensor-filter");
     search.set_width_chars(10);
-    search.update_property(&[gtk::accessible::Property::Label("Filtrer sensorer")]);
-    tip(&search, "Filtrer sensorer. Esc tømmer filteret og avslutter søket.", Some("Ctrl+F"));
+    search.update_property(&[gtk::accessible::Property::Label(tr!("Filtrer sensorer"))]);
+    tip(&search, tr!("Filtrer sensorer. Esc tømmer filteret og avslutter søket."), Some("Ctrl+F"));
     search.set_valign(gtk::Align::Center);
     actions.append(&search);
     let since = label("–", &["head-note"]);
-    since.set_tooltip_text(Some("Min, maks og snitt regnes fra tjenesten startet eller du trykket ↺."));
+    since.set_tooltip_text(Some(tr!("Min, maks og snitt regnes fra tjenesten startet eller du trykket ↺.")));
     // I smale vinduer faller «Min/maks siden …» bort (verktøytipset på ↺ sier det samme).
     actions.append(&chart::Adaptive::new(&since, &gtk::Box::new(gtk::Orientation::Horizontal, 0)));
     let reset = gtk::Button::new();
     reset.add_css_class("flat");
     reset.add_css_class("icon-only");
     reset.set_child(Some(&Icon::new("rotate-ccw", 16)));
-    tip(&reset, "Nullstill min, maks og snitt", Some("Ctrl+R"));
-    reset.update_property(&[gtk::accessible::Property::Label("Nullstill min, maks og snitt")]);
+    tip(&reset, tr!("Nullstill min, maks og snitt"), Some("Ctrl+R"));
+    reset.update_property(&[gtk::accessible::Property::Label(tr!("Nullstill min, maks og snitt"))]);
     actions.append(&reset);
     if let Some(log) = crate::logg_ui::button(app) {
         let sep = gtk::Box::new(gtk::Orientation::Horizontal, 0);
@@ -817,7 +819,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     let content = vbox(8, &["page", "sn-page"]);
     let table = vbox(0, &["group", "sn-panel"]);
     table.set_overflow(gtk::Overflow::Hidden);
-    table.update_property(&[gtk::accessible::Property::Label("Sensorer")]);
+    table.update_property(&[gtk::accessible::Property::Label(tr!("Sensorer"))]);
     let sparks = app.settings().sensor_sparks;
     let header = head_row(sparks, false);
     table.append(&header);
@@ -827,14 +829,14 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     let empty = vbox(8, &["empty", "sn-empty"]);
     empty.set_halign(gtk::Align::Center);
     empty.append(&Icon::new("search", 32));
-    let empty_text = label("Ingen sensorer passer filteret.", &[]);
+    let empty_text = label(tr!("Ingen sensorer passer filteret."), &[]);
     empty_text.set_wrap(true);
     empty_text.set_justify(gtk::Justification::Center);
     empty.append(&empty_text);
     empty.set_visible(false);
     content.append(&empty);
-    let notes_panel = Panel::new("Ikke tilgjengelig");
-    notes_panel.aside.append(&label("Det som ikke kan leses, og hvorfor", &[]));
+    let notes_panel = Panel::new(tr!("Ikke tilgjengelig"));
+    notes_panel.aside.append(&label(tr!("Det som ikke kan leses, og hvorfor"), &[]));
     let notes_box = vbox(0, &["sn-notes"]);
     notes_panel.body.append(&notes_box);
     notes_panel.root.set_visible(false);
@@ -900,9 +902,9 @@ fn head_row(sparks: bool, sticky: bool) -> TRow {
         }
         l.upcast::<gtk::Widget>()
     };
-    let snitt = mk("Snitt", true);
-    snitt.set_tooltip_text(Some("Snitt siden tjenesten startet eller siden siste nullstilling"));
-    let cells = [mk("Sensor", false), mk("Nå", true), mk("Min", true), mk("Maks", true), snitt, mk("60 s", false)];
+    let snitt = mk(tr!("Snitt"), true);
+    snitt.set_tooltip_text(Some(tr!("Snitt siden tjenesten startet eller siden siste nullstilling")));
+    let cells = [mk(tr!("Sensor"), false), mk(tr!("Nå"), true), mk(tr!("Min"), true), mk(tr!("Maks"), true), snitt, mk("60 s", false)];
     cells[5].add_css_class("sn-th-spark");
     let r = TRow::new(&cells, sparks);
     r.add_css_class("sn-head");
@@ -1212,7 +1214,7 @@ impl Inner {
                     let sbx = hbox(8, &[]);
                     let ic = Icon::new("chevron-down", 14);
                     sbx.append(&ic);
-                    sbx.append(&label(&format!("Per tråd ({n})"), &[]));
+                    sbx.append(&label(&trf!("Per tråd ({antall})", antall = n), &[]));
                     sb.set_child(Some(&sbx));
                     rows_box.append(&sb);
                     let tb = vbox(0, &["sn-threads"]);
@@ -1280,8 +1282,8 @@ impl Inner {
         name.set_child(Some(&nl));
         name.set_hexpand(true);
         name.set_halign(gtk::Align::Start);
-        let tip_text = [d.tip.clone(), d.raw.as_ref().map(|r| format!("Kilde: {r}"))].into_iter().flatten().collect::<Vec<_>>().join("\n");
-        let full = if tip_text.is_empty() { format!("{}. Klikk for graf.", d.label) } else { format!("{}\n{tip_text}", d.label) };
+        let tip_text = [d.tip.clone(), d.raw.as_ref().map(|r| trf!("Kilde: {kilde}", kilde = r))].into_iter().flatten().collect::<Vec<_>>().join("\n");
+        let full = if tip_text.is_empty() { trf!("{navn}. Klikk for graf.", navn = d.label) } else { format!("{}\n{tip_text}", d.label) };
         name.set_tooltip_text(Some(&full));
         name.update_property(&[gtk::accessible::Property::Label(&d.label), gtk::accessible::Property::Description(&tip_text)]);
         name_box.append(&name);
@@ -1417,7 +1419,7 @@ impl Inner {
     fn render_toggle(&self) {
         let all_closed = self.groups.borrow().iter().all(|g| self.collapsed.borrow().contains(&g.id));
         self.toggle_icon.set_icon(if all_closed { "chevrons-up-down" } else { "chevrons-down-up" });
-        let t = if all_closed { "Fold ut alle" } else { "Fold sammen alle" };
+        let t = if all_closed { tr!("Fold ut alle") } else { tr!("Fold sammen alle") };
         tip(&self.toggle, t, None);
         self.toggle.update_property(&[gtk::accessible::Property::Label(t)]);
     }
@@ -1493,7 +1495,7 @@ impl Inner {
         self.empty.set_visible(none);
         if none {
             // Påskeegg 7: noen få ord får sitt eget svar.
-            let q = crate::easter::filter_quip(&self.app, &self.filter.borrow()).unwrap_or("Ingen sensorer passer filteret.");
+            let q = crate::easter::filter_quip(&self.app, &self.filter.borrow()).unwrap_or(tr!("Ingen sensorer passer filteret."));
             set_text(&self.empty_text, q);
         }
         if let Some(d) = self.detail.borrow().as_ref().map(|d| d.key.clone())
@@ -1549,8 +1551,8 @@ impl Inner {
                 let v = app.value(&d.key);
                 let (mn, mx, av) = self.stat(&d.key);
                 if d.na {
-                    set_text(&r.now, "Ikke støttet");
-                    r.now.set_tooltip_text(Some("Kan ikke leses på dette kortet. Driveren svarer at verdien ikke støttes (NOT_SUPPORTED)."));
+                    set_text(&r.now, tr!("Ikke støttet"));
+                    r.now.set_tooltip_text(Some(tr!("Kan ikke leses på dette kortet. Driveren svarer at verdien ikke støttes (NOT_SUPPORTED).")));
                     for l in [&r.min, &r.max, &r.avg] {
                         set_text(l, "");
                     }
@@ -1575,7 +1577,7 @@ impl Inner {
                 if d.discrete {
                     set_text(&r.avg, F::DASH);
                     if r.avg.tooltip_text().is_none() {
-                        r.avg.set_tooltip_text(Some("Snitt gir ikke mening for en generasjon."));
+                        r.avg.set_tooltip_text(Some(tr!("Snitt gir ikke mening for en generasjon.")));
                     }
                 } else {
                     set_num(&r.avg, &f(av));
@@ -1616,14 +1618,14 @@ impl Inner {
         let avg_since = self.app.data.borrow().stats["avgSince"].as_i64();
         if let Some(s) = since {
             let text = F::since(crate::app::local_time(s), crate::app::local_now());
-            set_text(&self.since, &format!("Min/maks siden {text}"));
+            set_text(&self.since, &trf!("Min/maks siden {tid}", tid = text));
             let keep = app.settings().sensor_keep_min_max;
             let avg = avg_since.map(|a| F::since(crate::app::local_time(a), crate::app::local_now())).unwrap_or_else(|| text.clone());
-            tip(&self.reset, &format!("Nullstill min, maks og snitt (regnet fra {text})"), Some("Ctrl+R"));
+            tip(&self.reset, &trf!("Nullstill min, maks og snitt (regnet fra {tid})", tid = text), Some("Ctrl+R"));
             let tipt = if keep {
-                format!("Min og maks huskes mellom økter, også når appen er lukket. Snitt gjelder siden {avg}.")
+                trf!("Min og maks huskes mellom økter, også når appen er lukket. Snitt gjelder siden {tid}.", tid = avg)
             } else {
-                format!("Min og maks gjelder siden tjenesten startet ({text}). Snitt gjelder siden {avg}.")
+                trf!("Min og maks gjelder siden tjenesten startet ({tid}). Snitt gjelder siden {snitt}.", tid = text, snitt = avg)
             };
             if self.since.tooltip_text().as_deref() != Some(tipt.as_str()) {
                 self.since.set_tooltip_text(Some(&tipt));
@@ -1640,10 +1642,10 @@ impl Inner {
                 *g.state_sig.borrow_mut() = "borte".into();
                 crate::widgets::clear(&g.state);
                 let info = self.app.data.borrow().gpus.iter().find(|x| x.id == id).cloned();
-                let t = crate::widgets::rows::tag("Svarer ikke", Some("circle-alert"), "warn");
+                let t = crate::widgets::rows::tag(tr!("Svarer ikke"), Some("circle-alert"), "warn");
                 t.set_tooltip_text(Some(&match info.and_then(|i| i.detail) {
-                    Some(d) => format!("Skjermkortet svarer ikke ({d}). Tjenesten prøver å finne det igjen hvert 10. s."),
-                    None => "Skjermkortet svarer ikke. Tjenesten prøver å finne det igjen hvert 10. s.".into(),
+                    Some(d) => trf!("Skjermkortet svarer ikke ({detalj}). Tjenesten prøver å finne det igjen hvert 10. s.", detalj = d),
+                    None => tr!("Skjermkortet svarer ikke. Tjenesten prøver å finne det igjen hvert 10. s.").into(),
                 }));
                 g.state.append(&t);
             }
@@ -1658,15 +1660,19 @@ impl Inner {
         crate::widgets::clear(&g.state);
         if let Some(p) = &s.pstate {
             let t = crate::widgets::rows::tag(p, None, "");
-            t.set_tooltip_text(Some("P-tilstand. P0 er full ytelse, P8 er dyp tomgang."));
+            t.set_tooltip_text(Some(tr!("P-tilstand. P0 er full ytelse, P8 er dyp tomgang.")));
             g.state.append(&t);
         }
         if s.throttle.is_some() {
-            let text = if th == "Ingen" { "Ingen begrensning".to_string() } else { th };
+            let text = if s.throttle == Some(0) || th == "Ingen" { tr!("Ingen begrensning").to_string() } else { th };
             let t = crate::widgets::rows::tag(&text, None, if math::throttle_serious(s.throttle) { "warn" } else { "" });
-            let more = if full.is_empty() { String::new() } else { format!(": {full}") };
-            let inferred = if s.throttle_inferred { " I P8 leses den ikke (kallet koster 25 ms)." } else { "" };
-            t.set_tooltip_text(Some(&format!("Klokkebegrensning akkurat nå{more}.{inferred}")));
+            let tip_text = match (full.is_empty(), s.throttle_inferred) {
+                (true, false) => tr!("Klokkebegrensning akkurat nå.").to_string(),
+                (true, true) => tr!("Klokkebegrensning akkurat nå. I P8 leses den ikke (kallet koster 25 ms).").to_string(),
+                (false, false) => trf!("Klokkebegrensning akkurat nå: {arsaker}.", arsaker = full),
+                (false, true) => trf!("Klokkebegrensning akkurat nå: {arsaker}. I P8 leses den ikke (kallet koster 25 ms).", arsaker = full),
+            };
+            t.set_tooltip_text(Some(&tip_text));
             g.state.append(&t);
         }
     }
@@ -1682,7 +1688,7 @@ impl Inner {
                 class(&r.root, "pinned", on);
                 r.pin_icon.set_icon("pin");
                 let short = disk_name(&r.def.key, &disks).map(|d| d.0).or_else(|| short_name(&r.def.key)).unwrap_or_else(|| r.def.label.clone());
-                let t = if on { format!("Løsne «{short}» fra statusblokken") } else { format!("Fest «{short}» i statusblokken") };
+                let t = if on { trf!("Løsne «{navn}» fra statusblokken", navn = short) } else { trf!("Fest «{navn}» i statusblokken", navn = short) };
                 tip(&r.pin, &t, None);
                 r.pin.update_property(&[gtk::accessible::Property::Label(&t)]);
                 r.pin.update_state(&[gtk::accessible::State::Pressed(if on { gtk::AccessibleTristate::True } else { gtk::AccessibleTristate::False })]);
@@ -1701,7 +1707,7 @@ impl Inner {
         let max = rigg_core::settings::STATUS_MAX;
         if cur.len() >= max {
             let a = self.app.clone();
-            self.app.toast(Toast::new(&format!("Statusblokken er full ({max} av {max})")).body("Løsne en verdi først, eller bytt ut en under Innstillinger › Sidefelt.").action("Åpne", move || a.open_settings("sidefelt")));
+            self.app.toast(Toast::new(&trf!("Statusblokken er full ({maks} av {maks})", maks = max)).body(tr!("Løsne en verdi først, eller bytt ut en under Innstillinger › Sidefelt.")).action(tr!("Åpne"), move || a.open_settings("sidefelt")));
             return;
         }
         let mut next = cur;
@@ -1717,7 +1723,7 @@ impl Inner {
         m.popover.set_pointing_to(Some(&gtk::gdk::Rectangle::new(x as i32, y as i32, 1, 1)));
         m.heading(&r.def.label);
         let (w, k) = (Rc::downgrade(self), key.to_string());
-        m.item(Some(if pinned { "pin-off" } else { "pin" }), if pinned { "Løsne fra statusblokken" } else { "Fest i statusblokken" }, None, move || {
+        m.item(Some(if pinned { "pin-off" } else { "pin" }), if pinned { tr!("Løsne fra statusblokken") } else { tr!("Fest i statusblokken") }, None, move || {
             if let Some(s) = w.upgrade() {
                 s.toggle_pin(&k);
             }
@@ -1728,24 +1734,24 @@ impl Inner {
         let in_log = log["keys"].as_array().is_some_and(|a| a.iter().any(|x| x.as_str() == Some(key)));
         if all {
             let a = self.app.clone();
-            m.item(Some("circle-check"), "Logges · alle sensorer er valgt", None, move || a.open_settings("logging"));
+            m.item(Some("circle-check"), tr!("Logges · alle sensorer er valgt"), None, move || a.open_settings("logging"));
         } else {
             let (a, k) = (self.app.clone(), key.to_string());
-            m.item(Some(if in_log { "minus" } else { "plus" }), if in_log { "Ta ut av loggen" } else { "Ta med i loggen" }, None, move || {
+            m.item(Some(if in_log { "minus" } else { "plus" }), if in_log { tr!("Ta ut av loggen") } else { tr!("Ta med i loggen") }, None, move || {
                 let cur: Vec<String> = a.data.borrow().service["log"]["keys"].as_array().map(|x| x.iter().filter_map(|v| v.as_str().map(String::from)).collect()).unwrap_or_default();
                 let next: Vec<String> = if cur.contains(&k) { cur.into_iter().filter(|x| *x != k).collect() } else { cur.into_iter().chain(std::iter::once(k.clone())).collect() };
                 a.set_service(json!({"log": {"keys": next}}));
             });
         }
         let (w, k) = (Rc::downgrade(self), key.to_string());
-        m.item(Some("rotate-ccw"), "Nullstill min og maks", None, move || {
+        m.item(Some("rotate-ccw"), tr!("Nullstill min og maks"), None, move || {
             if let Some(s) = w.upgrade() {
                 s.reset(Some(vec![k.clone()]));
             }
         });
         m.sep();
         let a = self.app.clone();
-        m.item(Some("arrow-down-up"), "Rekkefølge i statusblokken …", None, move || a.open_settings("sidefelt"));
+        m.item(Some("arrow-down-up"), tr!("Rekkefølge i statusblokken …"), None, move || a.open_settings("sidefelt"));
         self.menu_open.set(true);
         let w = Rc::downgrade(self);
         m.popover.connect_closed(move |_| {
@@ -1783,16 +1789,16 @@ impl Inner {
         self.paint();
         let (title, body) = match &keys {
             None => (
-                "Min, maks og snitt er nullstilt".to_string(),
-                old_since.map(|s| format!("Tallene var regnet fra {}.", F::since(crate::app::local_time(s), crate::app::local_now()))).unwrap_or_default(),
+                tr!("Min, maks og snitt er nullstilt").to_string(),
+                old_since.map(|s| trf!("Tallene var regnet fra {tid}.", tid = F::since(crate::app::local_time(s), crate::app::local_now()))).unwrap_or_default(),
             ),
             Some(k) => {
                 let n = k.first().and_then(|k| self.row(k)).map(|r| r.def.label.clone()).unwrap_or_default();
-                (format!("Min og maks for «{n}» er nullstilt"), String::new())
+                (trf!("Min og maks for «{navn}» er nullstilt", navn = n), String::new())
             }
         };
         let w = Rc::downgrade(self);
-        let mut t = Toast::new(&title).action("Angre", move || {
+        let mut t = Toast::new(&title).action(tr!("Angre"), move || {
             if let Some(s) = w.upgrade() {
                 if let Some(p) = s.pending.borrow_mut().take()
                     && let Some(id) = p.timer
@@ -1823,7 +1829,7 @@ impl Inner {
                 a.data.borrow_mut().stats = v;
                 a.on_stats.emit(&());
             }
-            Err(e) => a.toast(Toast::new("Kunne ikke nullstille").body(&e.message).error()),
+            Err(e) => a.toast(Toast::new(tr!("Kunne ikke nullstille")).body(&e.message).error()),
         });
     }
 
@@ -1865,7 +1871,7 @@ impl Inner {
         let tools = hbox(4, &["sn-detail-tools"]);
         let dd = {
             let a = app.clone();
-            chart::window_dropdown(win, "Tidsvindu for grafen", move |sec| {
+            chart::window_dropdown(win, tr!("Tidsvindu for grafen"), move |sec| {
                 a.set(json!({"windows": {"sensorer": sec}}));
             })
         };
@@ -1875,8 +1881,8 @@ impl Inner {
         close.add_css_class("sm");
         close.add_css_class("icon-only");
         close.set_child(Some(&Icon::new("x", 14)));
-        tip(&close, "Lukk grafen", Some("Esc"));
-        close.update_property(&[gtk::accessible::Property::Label("Lukk grafen")]);
+        tip(&close, tr!("Lukk grafen"), Some("Esc"));
+        close.update_property(&[gtk::accessible::Property::Label(tr!("Lukk grafen"))]);
         tools.append(&close);
         let color: &'static str = match d.serie {
             "temp" => "--c-temp",
@@ -1937,7 +1943,11 @@ impl Inner {
             _ => 0,
         };
         let panel = ChartPanel::new(app, PanelOpts { title: d.label.clone(), series: vec![s], window: win, chart: opts, sync: None, stats: true, now: false, extra: Some(tools.upcast()), flat: true });
-        panel.chart.update_property(&[gtk::accessible::Property::Label(&format!("Graf: {}{}. Mellomrom setter på pause.", d.label, d.raw.as_ref().map(|r| format!(", kilde {r}")).unwrap_or_default()))]);
+        let chart_label = match &d.raw {
+            Some(r) => trf!("Graf: {navn}, kilde {kilde}. Mellomrom setter på pause.", navn = d.label, kilde = r),
+            None => trf!("Graf: {navn}. Mellomrom setter på pause.", navn = d.label),
+        };
+        panel.chart.update_property(&[gtk::accessible::Property::Label(&chart_label)]);
         let root = vbox(0, &["sn-detail"]);
         root.append(&panel.root);
         if let Some(parent) = r.root.parent().and_downcast::<gtk::Box>() {
@@ -2110,21 +2120,21 @@ impl Inner {
         let backend = self.app.data.borrow().backend.clone();
         let has_gpu = self.app.telemetry().is_some_and(|t| !t.gpus.is_empty());
         if has_gpu && backend != "sim" {
-            let why = "Ikke innsamlet av appen. Tilgjengelighet for dette kortet og denne driveren er ikke verifisert her.";
-            notes.push(("circle-slash", "Skjermkort · Hotspot-temperatur".into(), why.into()));
-            notes.push(("circle-slash", "Skjermkort · Minnetemperatur".into(), why.into()));
-            notes.push(("circle-slash", "Skjermkort · Kjernespenning".into(), "Ikke innsamlet: appen samler ikke inn GPU-kjernespenning.".into()));
+            let why = tr!("Ikke innsamlet av appen. Tilgjengelighet for dette kortet og denne driveren er ikke verifisert her.");
+            notes.push(("circle-slash", tr!("Skjermkort · Hotspot-temperatur").into(), why.into()));
+            notes.push(("circle-slash", tr!("Skjermkort · Minnetemperatur").into(), why.into()));
+            notes.push(("circle-slash", tr!("Skjermkort · Kjernespenning").into(), tr!("Ikke innsamlet: appen samler ikke inn GPU-kjernespenning.").into()));
         }
         if let Some(tel) = self.app.telemetry() {
-            notes.push(("circle-slash", "Prosessor · Kjernespenning".into(), "Ikke innsamlet av appen. Målekilde og tilgang avhenger av CPU, hovedkort og driver.".into()));
-            if !tel.sys.hwmon.iter().any(|d| SM::device_name(&d.name) == "Hovedkort") {
-                notes.push(("circle-slash", "Hovedkort · vifter, spenninger og temperaturer".into(), "Ingen gjenkjent hovedkortsensor er tilgjengelig i hwmon. Sensorbrikke og driverstøtte er ikke verifisert; appen laster ikke kjernemoduler.".into()));
+            notes.push(("circle-slash", tr!("Prosessor · Kjernespenning").into(), tr!("Ikke innsamlet av appen. Målekilde og tilgang avhenger av CPU, hovedkort og driver.").into()));
+            if !tel.sys.hwmon.iter().any(|d| SM::is_motherboard(&d.name)) {
+                notes.push(("circle-slash", tr!("Hovedkort · vifter, spenninger og temperaturer").into(), tr!("Ingen gjenkjent hovedkortsensor er tilgjengelig i hwmon. Sensorbrikke og driverstøtte er ikke verifisert; appen laster ikke kjernemoduler.").into()));
             }
             for d in &tel.sys.hwmon {
                 for x in &d.sensors {
                     if x.err.as_deref() == Some("root") {
                         let (n, _) = SM::sensor_name(d, x);
-                        notes.push(("lock", n, "Krever root".into()));
+                        notes.push(("lock", n, tr!("Krever root").into()));
                     }
                 }
             }
@@ -2134,7 +2144,7 @@ impl Inner {
             let r = hbox(12, &["sn-note"]);
             let ic = Icon::new(icon, 14);
             ic.add_css_class("dim");
-            ic.set_tooltip_text(Some(if icon == "lock" { "Krever root" } else { "Ikke støttet eller ikke tilgjengelig" }));
+            ic.set_tooltip_text(Some(if icon == "lock" { tr!("Krever root") } else { tr!("Ikke støttet eller ikke tilgjengelig") }));
             r.append(&ic);
             let w = label(&what, &["bold", "sn-note-what"]);
             // Samme bredde i alle radene (forklaringene står i én kolonne).

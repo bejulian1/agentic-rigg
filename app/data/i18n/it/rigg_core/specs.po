@@ -1,0 +1,28 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: crates/rigg-core/src/specs.rs:141
+msgid "Minneleverandøren (Samsung eller Micron) står i VBIOS-en. NVML oppgir den ikke, og VBIOS kan ikke leses uten root."
+msgstr ""
+
+#: crates/rigg-core/src/specs.rs:161
+msgid "{rop} ROP × {mhz} MHz (referanse-boost) = {verdi} GPixel/s"
+msgstr ""
+
+#: crates/rigg-core/src/specs.rs:170
+msgid "{tmu} TMU × {mhz} MHz (referanse-boost) = {verdi} GTexel/s"
+msgstr ""
+
+#: crates/rigg-core/src/specs.rs:179
+msgid "{cuda} CUDA-kjerner × 2 operasjoner (FMA) × {mhz} MHz = {verdi} TFLOPS"
+msgstr ""
+
+#: crates/rigg-core/src/specs.rs:189
+msgid "{bredde} bit ÷ 8 × {gbps} Gbps = {verdi} GB/s"
+msgstr ""

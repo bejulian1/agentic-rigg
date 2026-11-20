@@ -20,6 +20,7 @@ use gtk::prelude::*;
 use rigg_core::fmt as F;
 use rigg_core::model::{DeviceState, GpuInfo, GpuStatic};
 use rigg_core::report::{self, Item, Kv, ReportFormat, Section};
+use rigg_core::{tr, trf};
 use serde_json::{Value, json};
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
@@ -85,28 +86,28 @@ impl Page for Grafikkort {
 /// Feilkodene står bare i verktøytipset.
 fn state_section(i: &GpuInfo) -> Option<Section> {
     let since = F::since(crate::app::local_time(i.since), crate::app::local_now());
-    let mut s = Section::new("tilstand", "Tilstand");
+    let mut s = Section::new("tilstand", tr!("Tilstand"));
     match i.state {
         DeviceState::Ok => return None,
         DeviceState::DriverUpdated => {
-            s.kv(Kv::new("tilstand", "Tilstand", Some("Driveren er oppdatert".into())).info_opt(i.detail.clone()));
-            s.kv(Kv::new("kjorer", "Kjører", i.driver.clone()));
-            s.kv(Kv::new("installert", "Installert", i.driver_installed.clone()));
-            s.kv(Kv::new("gjor", "Hva du kan gjøre", Some("Start maskinen på nytt. Da lastes den nye driveren, og kortet leses som før.".into())));
-            s.items.push(Item::Note("Tjenesten sjekker driveren hvert 60. s. Verdiene under er de siste som ble lest.".into()));
+            s.kv(Kv::new("tilstand", tr!("Tilstand"), Some(tr!("Driveren er oppdatert").into())).info_opt(i.detail.clone()));
+            s.kv(Kv::new("kjorer", tr!("Kjører"), i.driver.clone()));
+            s.kv(Kv::new("installert", tr!("Installert"), i.driver_installed.clone()));
+            s.kv(Kv::new("gjor", tr!("Hva du kan gjøre"), Some(tr!("Start maskinen på nytt. Da lastes den nye driveren, og kortet leses som før.").into())));
+            s.items.push(Item::Note(tr!("Tjenesten sjekker driveren hvert 60. s. Verdiene under er de siste som ble lest.").into()));
         }
         DeviceState::Lost => {
-            s.kv(Kv::new("tilstand", "Tilstand", Some("Skjermkortet svarer ikke".into())).info_opt(i.detail.clone()));
-            s.kv(Kv::new("siden", "Siden", Some(since)));
-            s.kv(Kv::new("hvorfor", "Hvorfor", Some("Det skjer når kortet faller av bussen (Xid 79) eller trekkes ut.".into())));
-            s.items.push(Item::Note("Tjenesten prøver å finne kortet igjen hvert 10. s. Tallene før det er tatt vare på, og historikken får et hull. Verdiene som leses nå, står som «–».".into()));
+            s.kv(Kv::new("tilstand", tr!("Tilstand"), Some(tr!("Skjermkortet svarer ikke").into())).info_opt(i.detail.clone()));
+            s.kv(Kv::new("siden", tr!("Siden"), Some(since)));
+            s.kv(Kv::new("hvorfor", tr!("Hvorfor"), Some(tr!("Det skjer når kortet faller av bussen (Xid 79) eller trekkes ut.").into())));
+            s.items.push(Item::Note(tr!("Tjenesten prøver å finne kortet igjen hvert 10. s. Tallene før det er tatt vare på, og historikken får et hull. Verdiene som leses nå, står som «–».").into()));
         }
         DeviceState::Suspended => {
-            s.kv(Kv::new("tilstand", "Tilstand", Some("Maskinen sover".into())));
-            s.items.push(Item::Note("Prøvene står stille og starter igjen 2 s etter at maskinen våkner.".into()));
+            s.kv(Kv::new("tilstand", tr!("Tilstand"), Some(tr!("Maskinen sover").into())));
+            s.items.push(Item::Note(tr!("Prøvene står stille og starter igjen 2 s etter at maskinen våkner.").into()));
         }
         DeviceState::NoDriver => {
-            s.kv(Kv::new("tilstand", "Tilstand", Some("Fant ingen NVIDIA-driver".into())).info_opt(i.detail.clone()));
+            s.kv(Kv::new("tilstand", tr!("Tilstand"), Some(tr!("Fant ingen NVIDIA-driver").into())).info_opt(i.detail.clone()));
         }
     }
     Some(s)
@@ -189,15 +190,15 @@ impl State {
         if no_card {
             let (title, text) = match info.as_ref().map(|i| i.state) {
                 Some(DeviceState::NoDriver) => (
-                    "Fant ingen NVIDIA-driver",
-                    "Prosessor, minne og sensorer vises som vanlig. Når driveren er installert og lastet, leses kortet av seg selv. Tjenesten prøver hvert 60. s.",
+                    tr!("Fant ingen NVIDIA-driver"),
+                    tr!("Prosessor, minne og sensorer vises som vanlig. Når driveren er installert og lastet, leses kortet av seg selv. Tjenesten prøver hvert 60. s."),
                 ),
                 Some(DeviceState::DriverUpdated) => (
-                    "Driveren er oppdatert",
-                    "En ny NVIDIA-driver er installert, men den gamle kjører fortsatt. Start maskinen på nytt for å lese skjermkortet.",
+                    tr!("Driveren er oppdatert"),
+                    tr!("En ny NVIDIA-driver er installert, men den gamle kjører fortsatt. Start maskinen på nytt for å lese skjermkortet."),
                 ),
-                _ if !self.app.client.is_connected() => ("Venter på tjenesten", "Skjermkortet vises når tjenesten svarer."),
-                _ => ("Leser skjermkortet …", "De faste dataene leses de første sekundene."),
+                _ if !self.app.client.is_connected() => (tr!("Venter på tjenesten"), tr!("Skjermkortet vises når tjenesten svarer.")),
+                _ => (tr!("Leser skjermkortet …"), tr!("De faste dataene leses de første sekundene.")),
             };
             set_text(&self.empty_title, title);
             set_text(&self.empty_text, text);
@@ -239,7 +240,7 @@ impl State {
                 let complete = v["complete"].as_bool().unwrap_or(false);
                 a.data.borrow_mut().statics.insert(st.id.clone(), (st, complete));
                 a.on_devices.emit(&());
-                a.toast(crate::toast::Toast::new("Faste data er lest på nytt").ms(2500));
+                a.toast(crate::toast::Toast::new(tr!("Faste data er lest på nytt")).ms(2500));
             }
         });
     }
@@ -260,14 +261,14 @@ fn spec_name(st: &GpuStatic) -> Option<String> {
 }
 
 fn clocks_panel(app: &Rc<App>) -> Clocks {
-    let panel = Panel::new("Klokker");
+    let panel = Panel::new(tr!("Klokker"));
     panel.root.add_css_class("sec");
     panel.aside.append(&label("MHz", &[]));
     let g = gtk::Grid::new();
     g.add_css_class("rtable");
     g.add_css_class("clock-table");
     g.set_column_spacing(16);
-    for (c, h) in ["", "", "Nå", "Maks (driver)"].iter().enumerate() {
+    for (c, h) in ["", "", tr!("Nå"), tr!("Maks (driver)")].iter().enumerate() {
         let l = label(h, &["th"]);
         if c >= 2 {
             l.set_xalign(1.0);
@@ -275,7 +276,7 @@ fn clocks_panel(app: &Rc<App>) -> Clocks {
         g.attach(&l, c as i32, 0, 1, 1);
     }
     let mut rows = Vec::new();
-    for (r, name) in ["Kjerne", "SM", "Minne", "Video"].iter().enumerate() {
+    for (r, name) in [tr!("Kjerne"), "SM", tr!("Minne"), tr!("Video")].iter().enumerate() {
         let cls: &[&str] = if r == 3 { &["td", "last"] } else { &["td"] };
         let n = label(name, cls);
         let bar = Bar::new(app, true);
@@ -317,7 +318,7 @@ fn uuid_buttons(st: &Rc<State>, p: &SectionPanel) {
     r.value.add_css_class("uuid");
     let shown = st.show_uuid.get();
     let eye = crate::widgets::button(Some(if shown { "eye-off" } else { "eye" }), None, &["flat", "sm", "icon-only"]);
-    let t = if shown { "Skjul UUID" } else { "Vis UUID" };
+    let t = if shown { tr!("Skjul UUID") } else { tr!("Vis UUID") };
     eye.set_tooltip_text(Some(t));
     eye.update_property(&[gtk::accessible::Property::Label(t)]);
     let s2 = Rc::downgrade(st);
@@ -325,7 +326,7 @@ fn uuid_buttons(st: &Rc<State>, p: &SectionPanel) {
         if let Some(s) = s2.upgrade() {
             let shown = !s.show_uuid.get();
             s.show_uuid.set(shown);
-            let t = if shown { "Skjul UUID" } else { "Vis UUID" };
+            let t = if shown { tr!("Skjul UUID") } else { tr!("Vis UUID") };
             b.set_child(Some(&crate::widgets::Icon::new(if shown { "eye-off" } else { "eye" }, 14)));
             b.set_tooltip_text(Some(t));
             b.update_property(&[gtk::accessible::Property::Label(t)]);
@@ -333,13 +334,13 @@ fn uuid_buttons(st: &Rc<State>, p: &SectionPanel) {
         }
     });
     let cp = crate::widgets::button(Some("copy"), None, &["flat", "sm", "icon-only"]);
-    cp.set_tooltip_text(Some("Kopier UUID"));
-    cp.update_property(&[gtk::accessible::Property::Label("Kopier UUID")]);
+    cp.set_tooltip_text(Some(tr!("Kopier UUID")));
+    cp.update_property(&[gtk::accessible::Property::Label(tr!("Kopier UUID"))]);
     let a = st.app.clone();
     cp.connect_clicked(move |b| {
         if let (Some(u), Some(d)) = (card_statics(&a).and_then(|s| s.uuid), gtk::gdk::Display::default()) {
             d.clipboard().set_text(&u);
-            crate::rapport_ui::confirm_done(b, "copy", "UUID kopiert");
+            crate::rapport_ui::confirm_done(b, "copy", tr!("UUID kopiert"));
         }
     });
     r.value_box.append(&eye);
@@ -391,9 +392,9 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     let copy = crate::rapport_ui::copy_button(app, move |fmt: ReportFormat| {
         let s = w.upgrade()?;
         let (secs, _) = s.sections(s.show_uuid.get())?;
-        let src = if s.app.data.borrow().backend == "nvml" { "NVML og sysfs" } else { "testdata" };
-        let title = format!("{} – Grafikkort ({src}, {})", rigg_core::version::NAME, crate::rapport_ui::stamp_long(rigg_core::now_ms()));
-        let note = if s.show_uuid.get() || card_statics(&s.app).and_then(|x| x.uuid).is_none() { String::new() } else { "UUID maskert".to_string() };
+        let src = if s.app.data.borrow().backend == "nvml" { tr!("NVML og sysfs") } else { tr!("testdata") };
+        let title = trf!("{app} – Grafikkort ({kilde}, {dato})", app = rigg_core::version::NAME, kilde = src, dato = crate::rapport_ui::stamp_long(rigg_core::now_ms()));
+        let note = if s.show_uuid.get() || card_statics(&s.app).and_then(|x| x.uuid).is_none() { String::new() } else { tr!("UUID maskert").to_string() };
         Some((report::render_page(&title, &secs, fmt), note))
     });
     actions.append(&copy);

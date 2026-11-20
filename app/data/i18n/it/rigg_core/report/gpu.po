@@ -1,0 +1,788 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: crates/rigg-core/src/report/gpu.rs:87
+msgid "{na} · maks {maks}"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:106
+msgid "Gen {gen} = {rate} per lane"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:114
+msgid "Lenken går på Gen {na} nå fordi kortet sparer strøm i tomgang, og går opp til Gen {maks} under last. {rate_na}, {rate_maks}."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:122
+msgid "Lenken går på full hastighet. {rate}."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:129
+msgid "Tomgang"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:130
+msgid "App-klokker"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:131
+msgid "Effektgrense"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:132
+msgid "HW-nedklokking"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:133
+msgid "Sync boost"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:134
+msgid "Termisk (SW)"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:135
+msgid "Termisk (HW)"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:136
+msgid "Strømbrems (HW)"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:137
+msgid "Skjermklokke"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:148
+msgid "NVIDIA virtuell GPU"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:149
+msgid "Ukjent"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:156
+msgid "Lukket kjernemodul"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:163
+msgid "grafikk"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:164
+msgid "compute"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:165
+msgid "grafikk og compute"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:190 crates/rigg-core/src/report/gpu.rs:542
+msgid "Ikke støttet"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:191
+msgid "Kunne ikke leses"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:207
+msgid "Fra driveren"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:208
+msgid "Navn"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:209
+msgid "Merke"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:211 crates/rigg-core/src/report/gpu.rs:212 crates/rigg-core/src/report/gpu.rs:584
+msgid "Arkitektur"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:212
+msgid "Fra referansetabellen."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:214
+msgid "GPU-brikke"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:214
+msgid "Slått opp på PCI-ID. NVML oppgir ikke delenummeret."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:216
+msgid "PCI-ID, enhet"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:216
+msgid "ukjent leverandør"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:221
+msgid "PCI-ID, subsystem"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:222
+msgid "samme som enheten"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:222
+msgid "ukjent produsent"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:224
+msgid "Subsystemet melder NVIDIAs egen ID, ikke kortprodusentens. Derfor kan ikke appen lese hvem som har laget kortet."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:226
+msgid "Bus-ID"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:226
+msgid "Kjernedriver: {driver}"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:227
+msgid "Revisjon"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:230
+msgid "Driver"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:235
+msgid "CUDA (driver)"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:240
+msgid "{versjon} · på"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:241
+msgid "{versjon} · av"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:245
+msgid "GSP-fastvare"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:245
+msgid "Fastvaren på kortet som driveren snakker med. «På» er standard med åpen kjernemodul."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:255
+msgid "NVML svarer «ikke støttet». Det er vanlig for GeForce-kort."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:256
+msgid "Skjult"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:257
+msgid "Serienummer"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:257
+msgid "Ikke oppgitt av kortet"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:258
+msgid "Persistence-modus"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:258
+msgid "På"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:258
+msgid "Av"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:258
+msgid "Holder driveren lastet når ingen program bruker kortet."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:260
+msgid "Skjerm aktiv (driverens flagg)"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:260
+msgid "Ja"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:260
+msgid "Nei"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:261
+msgid "NVML displayActive. Med den åpne kjernemodulen på Wayland står det ofte «Nei» selv når en skjerm er koblet til."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:266
+msgid "Minne og buss"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:267 crates/rigg-core/src/report/gpu.rs:553
+msgid "Videominne"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:267
+msgid "{minne} er reservert av driveren og regnes ikke som brukt (MemoryInfo_v2)."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:268
+msgid "Minnebuss"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:268
+msgid "Lest fra driveren, ikke fra referansetabellen."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:269 crates/rigg-core/src/report/gpu.rs:588
+msgid "CUDA-kjerner"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:269
+msgid "Lest fra driveren."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:276
+msgid "sysfs: {hastighet} x{bredde}, maks {maks_hastighet} x{maks_bredde}"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:282
+msgid "PCIe maks"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:284
+msgid "Kortet {kort} · hovedkortet {hovedkort}"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:285
+msgid "Kortet {kort}"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:294
+msgid "{totalt} · {brukt} i bruk"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:298
+msgid "Lest fra sysfs (resource1 og resource1_resize)."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:303
+msgid "PCIe-feil"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:308
+msgid "{antall} gjentatt sending"
+msgid_plural "{antall} gjentatte sendinger"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/rigg-core/src/report/gpu.rs:309
+msgid "{antall} korrigert"
+msgid_plural "{antall} korrigerte"
+msgstr[0] ""
+msgstr[1] ""
+
+#: crates/rigg-core/src/report/gpu.rs:318
+msgid "Telleren for gjentatte sendinger (replay) fra NVML og korrigerte AER-feil fra sysfs, siden oppstart. Null er normalt."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:322
+msgid "Klokker"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:324 crates/rigg-core/src/report/gpu.rs:363
+msgid "Kjerne"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:324 crates/rigg-core/src/report/gpu.rs:363 crates/rigg-core/src/report/gpu.rs:595
+msgid "Minne"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:324
+msgid "Video"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:327
+msgid "Nå"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:327
+msgid "Maks (driver)"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:333
+msgid "Driveren oppgir ikke standardklokker (applications clocks er avviklet)."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:336
+msgid "Boost etter spesifikasjonen er {klokke} (referanse, ikke målt)."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:340
+msgid "ingen"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:342
+msgid "Begrenser nå: {arsaker} (i P8 leses ikke årsaken; kortet er i tomgang)."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:344
+msgid "Begrenser nå: {arsaker}."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:353
+msgid "P-tilstander"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:369
+msgid "{navn} · nå"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:374
+msgid "Område per P-tilstand fra driveren. P0 er full ytelse, P8 er tomgang."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:376
+msgid "Støttede minneklokker: {klokker} MHz."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:383
+msgid "Grenser"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:385
+msgid "Effektgrense nå"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:385
+msgid "Håndhevet grense fra driveren."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:388
+msgid "Standard / område"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:398
+msgid "Temperaturmål"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:400
+msgid "{mal} · område {min}–{maks}"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:404
+msgid "Akustisk mål: kortet senker klokken for å holde seg her."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:406
+msgid "Maks driftstemperatur"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:407
+msgid "Nedklokking"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:408
+msgid "Avstenging"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:410
+msgid "Avstand til nedklokking"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:411
+msgid "Utregnet: nedklokkingsgrensen minus temperaturen nå. Dette er ikke en direkte måling av T.Limit."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:416
+msgid "{na} · område {min}…{maks}"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:418
+msgid "Klokkeoffset, kjerne"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:418
+msgid "Lest med NVML. Klokker og effekt er låst; appen endrer ikke offset."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:420
+msgid "Klokkeoffset, minne"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:421
+msgid "I effektiv MHz, som Klokker og effekt bruker. NVML oppgir minneoffset i dobbel dataklokke (dobbelt så store tall)."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:426
+msgid "Vifter og kjøling"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:434
+msgid "av/på"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:435
+msgid "variabel fart"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:436
+msgid "ukjent styring"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:439
+msgid "minne"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:439
+msgid "strømforsyning"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:444
+msgid "Kjølerinfo fra driveren: {signal}, kjøler {mal}."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:444 crates/rigg-core/src/report/gpu.rs:577
+msgid "ukjent"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:451
+msgid "Vifter"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:467
+msgid "turtall ikke støttet"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:470
+msgid "mål {prosent}"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:473
+msgid "Vifte {nr}"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:479
+msgid "Styring"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:480
+msgid "Auto · driveren styrer"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:480
+msgid "Manuell · rapportert av driveren"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:482
+msgid "Lest med NVML (viftepolicy). Viser driverens rapporterte modus; angir ikke hvilket program som satte den."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:487
+msgid "Termiske sensorer"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:491
+msgid "intern GPU-kontroller"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:493
+msgid "kontroller {id}"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:506
+msgid "Datatilgjengelighet"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:507
+msgid "ikke innsamlet eller utilgjengelig"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:508
+msgid "Hotspot-temperatur"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:508 crates/rigg-core/src/report/gpu.rs:513 crates/rigg-core/src/report/gpu.rs:514
+msgid "Ikke innsamlet"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:508
+msgid "Appen samler ikke inn en egen hotspot-temperatur. De termiske sensorene som driveren rapporterer, vises over; dette avklarer ikke alene om kortet har en hotspot-sensor."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:509
+msgid "Appen har ingen tilgjengelig minnetemperatur fra NVML for denne prøven. Tilgjengelighet avhenger av kortet og driveren."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:510
+msgid "Minnetemperatur"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:510 crates/rigg-core/src/report/gpu.rs:512
+msgid "Ikke verifisert"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:511
+msgid "Appen har ingen tilgjengelig T.Limit-margin fra NVML for denne prøven. Avstanden til nedklokking under Grenser er regnet ut av appen."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:512
+msgid "T.Limit (margin)"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:513
+msgid "Kjernespenning"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:513
+msgid "Appen samler ikke inn GPU-kjernespenning. Tilgang for dette kortet og denne driveren er ikke verifisert."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:514
+msgid "Gjennomsnittseffekt fra driveren"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:514
+msgid "Appen samler ikke inn driverens eget effektgjennomsnitt. Effekten beregnes fra energitelleren når den finnes, ellers brukes den rapporterte øyeblikksverdien."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:516
+msgid "Standardklokker (applications clocks)"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:516
+msgid "Avviklet"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:516
+msgid "Avviklet i driveren for dette kortet."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:519
+msgid "Delenummer (board part number)"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:519
+msgid "Ikke oppgitt"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:519
+msgid "Driveren svarer, men feltet er tomt på dette kortet."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:524
+msgid "Viftens turtall"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:524
+msgid "NVML gir «ikke støttet» for turtallet."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:525
+msgid "Videokoder"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:525
+msgid "NVML gir «ikke støttet» for koderen."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:526
+msgid "Videodekoder"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:526
+msgid "NVML gir «ikke støttet» for dekoderen."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:527
+msgid "Klokkebegrensninger"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:527
+msgid "NVML gir «ikke støttet» for årsakene."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:528
+msgid "Effekttrekk"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:528
+msgid "Verken energitelleren eller effekten kan leses."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:529
+msgid "Energiteller"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:529
+msgid "Effekten leses som øyeblikksverdi i stedet."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:530
+msgid "Temperatur"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:530
+msgid "NVML gir «ikke støttet» for temperaturen."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:548
+msgid "Prosesser som bruker skjermkortet"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:553 crates/rigg-core/src/report/gpu.rs:585
+msgid "Prosess"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:553 crates/rigg-core/src/report/gpu.rs:596
+msgid "Type"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:563
+msgid "Ingen prosesser brukte skjermkortet kl. {tid}."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:564
+msgid "Ingen prosesser bruker skjermkortet (lest kl. {tid}). Lista oppdateres hvert 5. s mens siden vises."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:565
+msgid "Øyeblikksbilde fra kl. {tid}, da tjenesten leste de faste dataene. Videominne per prosess fra driveren."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:566
+msgid "Lest kl. {tid}. Lista oppdateres hvert 5. s mens siden vises. Videominne per prosess fra driveren."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:569
+msgid "Lista leses sammen med de faste dataene."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:574
+msgid "Spesifikasjon"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:575
+msgid "Referanse, ikke målt"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:577
+msgid "Ingen oppføring for PCI-ID {id} i den innebygde tabellen."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:581 crates/rigg-core/src/report/gpu.rs:583
+msgid "Brikke"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:582
+msgid "Modell"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:586
+msgid "Brikkestørrelse"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:587
+msgid "Transistorer"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:587
+msgid "{antall} mrd."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:589
+msgid "SM-er"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:592
+msgid "L2-cache"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:593
+msgid "Grunnklokke"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:594
+msgid "Boostklokke"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:597
+msgid "Buss"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:598
+msgid "Mengde"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:599
+msgid "Hastighet"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:599
+msgid "{verdi} effektivt"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:600
+msgid "Båndbredde"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:601
+msgid "Leverandør"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:601
+msgid "Ukjent på Linux"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:602
+msgid "Ytelse og kort"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:603
+msgid "Pikselfyllrate"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:604
+msgid "Teksturfyllrate"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:606
+msgid "TDP (referansekort)"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:606
+msgid "Kortprodusenten kan sette en annen grense. Driveren oppgir standardgrensen under Grenser."
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:614
+msgid "Lansert"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:639
+msgid "På · BAR1 dekker hele videominnet"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:644
+msgid "Ikke støttet · største BAR1 er {storrelse}"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:646
+msgid "Av · kortet støtter opptil {storrelse}"
+msgstr ""
+
+#: crates/rigg-core/src/report/gpu.rs:648
+msgid "Av · BAR1 er {storrelse}"
+msgstr ""

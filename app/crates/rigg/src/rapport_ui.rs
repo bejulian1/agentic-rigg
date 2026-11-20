@@ -21,7 +21,6 @@ use std::rc::Rc;
 
 /// Merket i overskriften på spesifikasjonstabellen.
 pub const REFERENCE: &str = "Referanse, ikke målt";
-const REFERENCE_TIP: &str = "Tallene kommer fra en innebygd tabell slått opp på PCI-ID. De gjelder brikken og referansekortet og er ikke målt på denne maskinen.";
 
 /// Tidssonen akkurat nå (sekunder fra UTC).
 pub fn utc_offset(ms: i64) -> i64 {
@@ -98,9 +97,9 @@ impl SectionPanel {
         panel.root.add_css_class("sec");
         panel.root.add_css_class(&format!("sec-{}", s.id));
         if let Some(a) = &s.aside {
-            if a == REFERENCE {
-                let t = crate::widgets::rows::tag(REFERENCE, Some("info"), "quiet");
-                t.set_tooltip_text(Some(REFERENCE_TIP));
+            if s.id == "spesifikasjon" || a == REFERENCE {
+                let t = crate::widgets::rows::tag(a, Some("info"), "quiet");
+                t.set_tooltip_text(Some(tr!("Tallene kommer fra en innebygd tabell slått opp på PCI-ID. De gjelder brikken og referansekortet og er ikke målt på denne maskinen.")));
                 panel.aside.append(&t);
             } else {
                 panel.aside.append(&label(a, &[]));
@@ -398,7 +397,7 @@ fn renderer_name(app: &App) -> Option<String> {
         } else if n.contains("Ngl") || n.contains("GL") {
             "GL"
         } else if n.contains("Cairo") {
-            "programvare (cairo)"
+            tr!("programvare (cairo)")
         } else {
             return Some(n);
         }
@@ -435,17 +434,17 @@ pub fn gather(app: &Rc<App>, include_serials: bool, done: impl FnOnce(ReportInpu
             let mut statics: Vec<_> = d.statics.values().map(|s| s.0.clone()).collect();
             statics.sort_by(|x, y| x.id.cmp(&y.id));
             let mut env = vec![(
-                "Vindu".to_string(),
+                tr!("Vindu").to_string(),
                 format!(
                     "GTK {}.{}.{}{}",
                     gtk::major_version(),
                     gtk::minor_version(),
                     gtk::micro_version(),
-                    renderer_name(&app).map(|r| format!(" · tegner {r}")).unwrap_or_default()
+                    renderer_name(&app).map(|r| trf!(" · tegner {tegner}", tegner = r)).unwrap_or_default()
                 ),
             )];
             if let Some(s) = &session {
-                env.push(("Økttype".into(), s.clone()));
+                env.push((tr!("Økttype").into(), s.clone()));
             }
             let input = ReportInput {
                 gpus: serde_json::to_value(&d.gpus).unwrap_or(Value::Null),

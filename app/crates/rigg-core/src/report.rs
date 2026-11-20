@@ -14,6 +14,7 @@ pub mod gpu;
 pub mod system;
 
 use crate::model::{DeviceState, GpuInfo, GpuStatic, Telemetry};
+use crate::{tr, trf};
 use serde_json::Value;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -162,7 +163,7 @@ pub fn render_sections(sections: &[Section], fmt: ReportFormat, level: usize) ->
             match item {
                 Item::Kv(kv) => {
                     if fmt == ReportFormat::Markdown && !in_kv {
-                        out.push_str("| Felt | Verdi |\n|---|---|\n");
+                        out.push_str(&format!("| {} | {} |\n|---|---|\n", tr!("Felt"), tr!("Verdi")));
                         in_kv = true;
                     }
                     // Forklaringen tas med der verdien mangler: den sier hvorfor.
@@ -280,20 +281,20 @@ pub struct ReportInput {
 /// Tilstanden til et kort i klartekst (produktspesifikasjonen 3.8).
 pub fn state_text(g: &GpuInfo) -> String {
     match g.state {
-        DeviceState::Ok => "Leses med NVML".into(),
-        DeviceState::DriverUpdated => format!(
-            "Driveren er oppdatert ({} er installert, {} kjører). Start maskinen på nytt for å lese skjermkortet.",
-            g.driver_installed.as_deref().unwrap_or("ny"),
-            g.driver.as_deref().unwrap_or("den gamle")
+        DeviceState::Ok => tr!("Leses med NVML").into(),
+        DeviceState::DriverUpdated => trf!(
+            "Driveren er oppdatert ({installert} er installert, {kjorer} kjører). Start maskinen på nytt for å lese skjermkortet.",
+            installert = g.driver_installed.as_deref().unwrap_or(tr!("ny")),
+            kjorer = g.driver.as_deref().unwrap_or(tr!("den gamle"))
         ),
-        DeviceState::NoDriver => "Fant ingen NVIDIA-driver".into(),
-        DeviceState::Lost => "Skjermkortet svarer ikke".into(),
-        DeviceState::Suspended => "Maskinen sover".into(),
+        DeviceState::NoDriver => tr!("Fant ingen NVIDIA-driver").into(),
+        DeviceState::Lost => tr!("Skjermkortet svarer ikke").into(),
+        DeviceState::Suspended => tr!("Maskinen sover").into(),
     }
 }
 
 fn sensors_section(input: &ReportInput, tele: Option<&Telemetry>) -> Section {
-    let mut s = Section::new("sensorer", "Sensorer");
+    let mut s = Section::new("sensorer", tr!("Sensorer"));
     let flat = tele.map(crate::sensor_key::flatten).unwrap_or_default();
     let stats = input.stats.get("stats").and_then(Value::as_object);
     let mut rows = Vec::new();
@@ -307,17 +308,17 @@ fn sensors_section(input: &ReportInput, tele: Option<&Telemetry>) -> Section {
         let g = |f: &str| st.and_then(|x| x.get(f)).and_then(Value::as_f64);
         rows.push(vec![c.name, f(Some(*v)), f(g("min")), f(g("max")), f(g("avg"))]);
     }
-    s.items.push(Item::Table(Table { id: "sensorer", head: ["Sensor", "Nå", "Min", "Maks", "Snitt"].map(String::from).to_vec(), end: vec![false, true, true, true, true], rows }));
+    s.items.push(Item::Table(Table { id: "sensorer", head: [tr!("Sensor"), tr!("Nå"), tr!("Min"), tr!("Maks"), tr!("Snitt")].map(String::from).to_vec(), end: vec![false, true, true, true, true], rows }));
     let when = |key: &str| input.stats.get(key).and_then(Value::as_i64).filter(|t| *t > 0).map(|t| crate::csv::iso_time(t, input.utc_offset_s, false));
     let mut note = Vec::new();
     if let Some(t) = tele.filter(|t| t.t > 0) {
-        note.push(format!("Nå: prøven fra {}.", crate::csv::iso_time(t.t, input.utc_offset_s, false)));
+        note.push(trf!("Nå: prøven fra {tid}.", tid = crate::csv::iso_time(t.t, input.utc_offset_s, false)));
     }
     if let Some(t) = when("since") {
-        note.push(format!("Min og maks siden {t}."));
+        note.push(trf!("Min og maks siden {tid}.", tid = t));
     }
     if let Some(t) = when("avgSince") {
-        note.push(format!("Snitt siden {t}."));
+        note.push(trf!("Snitt siden {tid}.", tid = t));
     }
     if !note.is_empty() {
         s.items.push(Item::Note(note.join(" ")));
@@ -329,7 +330,7 @@ fn sensors_section(input: &ReportInput, tele: Option<&Telemetry>) -> Section {
 /// referansen hver for seg), prosessor, hovedkort, minne, disker, alle
 /// sensorer med Nå/Min/Maks/Snitt og tilstanden til hvert kort.
 pub fn render(input: &ReportInput, fmt: ReportFormat) -> String {
-    let title = format!("{} · rapport", crate::version::NAME);
+    let title = trf!("{app} · rapport", app = crate::version::NAME);
     let mut out = String::new();
     match fmt {
         ReportFormat::Markdown => out.push_str(&format!("# {title}\n\n")),
@@ -342,57 +343,67 @@ pub fn render(input: &ReportInput, fmt: ReportFormat) -> String {
 
     // ---- Oversikt ----
     let mut head = Section::new("rapport", "");
-    head.kv(Kv::new("app", "App", Some(format!("{} {}", crate::version::NAME, crate::version::about().replace("Versjon ", "")))));
-    head.kv(Kv::new("laget", "Laget", Some(input.created.clone())));
+    head.kv(Kv::new("app", tr!("App"), Some(format!("{} {}", crate::version::NAME, crate::version::about().replace("Versjon ", "")))));
+    head.kv(Kv::new("laget", tr!("Laget"), Some(input.created.clone())));
     let svc = &input.service;
     if svc.is_object() {
         head.kv(Kv::new(
             "tjeneste",
-            "Tjenesten",
-            Some(format!("{} {} · bygg {} · {}", svc["name"].as_str().unwrap_or("agentic-riggd"), svc["version"].as_str().unwrap_or("?"), svc["build"], match svc["backend"].as_str() {
-                Some("nvml") => "NVML, bare lesing",
-                Some("sim") => "testdata",
-                Some("ingen") => "uten skjermkort",
-                _ => "ukjent kilde",
-            })),
+            tr!("Tjenesten"),
+            Some(trf!(
+                "{navn} {versjon} · bygg {bygg} · {kilde}",
+                navn = svc["name"].as_str().unwrap_or("agentic-riggd"),
+                versjon = svc["version"].as_str().unwrap_or("?"),
+                bygg = svc["build"],
+                kilde = match svc["backend"].as_str() {
+                    Some("nvml") => tr!("NVML, bare lesing"),
+                    Some("sim") => tr!("testdata"),
+                    Some("ingen") => tr!("uten skjermkort"),
+                    _ => tr!("ukjent kilde"),
+                }
+            )),
         ));
     }
-    head.kv(Kv::new("os", "Operativsystem", os["distro"].as_str().map(str::to_string)));
-    head.kv(Kv::new("kjerne", "Kjerne", os["kernel"].as_str().map(str::to_string)));
+    head.kv(Kv::new("os", tr!("Operativsystem"), os["distro"].as_str().map(str::to_string)));
+    head.kv(Kv::new("kjerne", tr!("Kjerne"), os["kernel"].as_str().map(str::to_string)));
     for (k, v) in &input.env {
         head.kv(Kv { id: "env", k: k.clone(), v: Some(v.clone()), ..Default::default() });
     }
     let first = statics.first();
-    head.kv(Kv::new("driver", "NVIDIA-driver", first.and_then(|s| s.driver.clone()).or_else(|| gpus.first().and_then(|g| g.driver.clone()))).na("Ikke funnet"));
+    head.kv(Kv::new("driver", tr!("NVIDIA-driver"), first.and_then(|s| s.driver.clone()).or_else(|| gpus.first().and_then(|g| g.driver.clone()))).na(tr!("Ikke funnet")));
     head.kv(Kv::new("nvml", "NVML", first.and_then(|s| s.nvml_version.clone())).na("–"));
-    head.kv(Kv::new("cuda", "CUDA (driver)", first.and_then(|s| s.cuda_version.clone())).na("–"));
+    head.kv(Kv::new("cuda", tr!("CUDA (driver)"), first.and_then(|s| s.cuda_version.clone())).na("–"));
     head.kv(Kv::new(
         "serienumre",
-        "Serienumre og UUID",
-        Some(if input.include_serials { "Tatt med".into() } else { "Ikke tatt med (velg «Ta med serienumre og UUID» når du lagrer)".into() }),
+        tr!("Serienumre og UUID"),
+        Some(if input.include_serials { tr!("Tatt med").into() } else { tr!("Ikke tatt med (velg «Ta med serienumre og UUID» når du lagrer)").into() }),
     ));
     out.push_str(&render_sections(&[head], fmt, 2));
 
     // ---- Skjermkortene ----
     let real: Vec<&GpuInfo> = gpus.iter().filter(|g| !g.id.is_empty()).collect();
     if real.is_empty() {
-        let mut s = Section::new("gpu", "Skjermkort");
-        let why = gpus.first().map(state_text).unwrap_or_else(|| "Ingen skjermkort funnet".into());
-        s.kv(Kv::new("tilstand", "Tilstand", Some(why)).info_opt(gpus.first().and_then(|g| g.detail.clone())));
+        let mut s = Section::new("gpu", tr!("Skjermkort"));
+        let why = gpus.first().map(state_text).unwrap_or_else(|| tr!("Ingen skjermkort funnet").into());
+        s.kv(Kv::new("tilstand", tr!("Tilstand"), Some(why)).info_opt(gpus.first().and_then(|g| g.detail.clone())));
         out.push_str(&render_sections(&[s], fmt, 2));
     }
     for (i, g) in real.iter().enumerate() {
         let st = statics.iter().find(|s| s.id == g.id).cloned().unwrap_or_else(|| GpuStatic { id: g.id.clone(), name: g.name.clone(), ..Default::default() });
         let sample = tele.as_ref().and_then(|t| t.gpus.get(&g.id));
-        let label = if real.len() > 1 { format!("Skjermkort {} · {}", i + 1, crate::model::short_gpu_name(&st.name)) } else { format!("Skjermkort · {}", crate::model::short_gpu_name(&st.name)) };
+        let label = if real.len() > 1 {
+            trf!("Skjermkort {nr} · {navn}", nr = i + 1, navn = crate::model::short_gpu_name(&st.name))
+        } else {
+            trf!("Skjermkort · {navn}", navn = crate::model::short_gpu_name(&st.name))
+        };
         match fmt {
             ReportFormat::Markdown => out.push_str(&format!("\n## {label}\n")),
             ReportFormat::Text => out.push_str(&format!("\n{label}\n{}\n", "-".repeat(label.chars().count()))),
         }
-        let mut state = Section::new("tilstand", "Tilstand");
-        state.kv(Kv::new("tilstand", "Tilstand", Some(state_text(g))).info_opt(g.detail.clone()));
+        let mut state = Section::new("tilstand", tr!("Tilstand"));
+        state.kv(Kv::new("tilstand", tr!("Tilstand"), Some(state_text(g))).info_opt(g.detail.clone()));
         if g.state != DeviceState::Ok {
-            state.kv(Kv::new("siden", "Siden", Some(crate::csv::iso_time(g.since, input.utc_offset_s, false))));
+            state.kv(Kv::new("siden", tr!("Siden"), Some(crate::csv::iso_time(g.since, input.utc_offset_s, false))));
         }
         let secs = gpu::sections(&gpu::GpuInput { info: Some(g), st: &st, s: sample, show_uuid: input.include_serials, egg: None, utc_offset_s: input.utc_offset_s });
         let mut all = vec![state];
@@ -402,7 +413,7 @@ pub fn render(input: &ReportInput, fmt: ReportFormat) -> String {
 
     // ---- Maskinen ----
     if input.system.is_object() {
-        let label = "Maskinen";
+        let label = tr!("Maskinen");
         match fmt {
             ReportFormat::Markdown => out.push_str(&format!("\n## {label}\n")),
             ReportFormat::Text => out.push_str(&format!("\n{label}\n{}\n", "-".repeat(label.chars().count()))),

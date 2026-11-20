@@ -8,104 +8,124 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg/src/rapport_ui.rs:356 crates/rigg/src/rapport_ui.rs:357
+#: crates/rigg/src/rapport_ui.rs:102
+msgid "Tallene kommer fra en innebygd tabell slått opp på PCI-ID. De gjelder brikken og referansekortet og er ikke målt på denne maskinen."
+msgstr ""
+
+#: crates/rigg/src/rapport_ui.rs:355 crates/rigg/src/rapport_ui.rs:356
 msgid "Kopier"
 msgstr "复制"
 
-#: crates/rigg/src/rapport_ui.rs:363
+#: crates/rigg/src/rapport_ui.rs:362
 msgid "Kopier som tekst"
 msgstr "复制为文本"
 
-#: crates/rigg/src/rapport_ui.rs:363
+#: crates/rigg/src/rapport_ui.rs:362
 msgid "Kopier som Markdown"
 msgstr "复制为 Markdown"
 
-#: crates/rigg/src/rapport_ui.rs:367
+#: crates/rigg/src/rapport_ui.rs:366
 msgid "Ingenting å kopiere ennå"
 msgstr "暂无内容可复制"
 
-#: crates/rigg/src/rapport_ui.rs:367
+#: crates/rigg/src/rapport_ui.rs:366
 msgid "Dataene er ikke lest ferdig."
 msgstr "数据仍在加载。"
 
-#: crates/rigg/src/rapport_ui.rs:371
+#: crates/rigg/src/rapport_ui.rs:370
 msgid "Kunne ikke kopiere"
 msgstr "无法复制"
 
-#: crates/rigg/src/rapport_ui.rs:371
+#: crates/rigg/src/rapport_ui.rs:370
 msgid "Utklippstavlen er ikke tilgjengelig."
 msgstr "剪贴板不可用。"
 
-#: crates/rigg/src/rapport_ui.rs:376
+#: crates/rigg/src/rapport_ui.rs:375
 msgid "tekst"
 msgstr "文本"
 
-#: crates/rigg/src/rapport_ui.rs:378
+#: crates/rigg/src/rapport_ui.rs:377
 msgid "Kopiert som {format} ({linjer} linje)"
 msgid_plural "Kopiert som {format} ({linjer} linjer)"
 msgstr[0] "已复制为 {format}（{linjer} 行）"
 
-#: crates/rigg/src/rapport_ui.rs:380
+#: crates/rigg/src/rapport_ui.rs:379
 msgid "Kopiert som {format} ({linjer} linje, {merknad})"
 msgid_plural "Kopiert som {format} ({linjer} linjer, {merknad})"
 msgstr[0] "已复制为 {format}（{linjer} 行，{merknad}）"
 
-#: crates/rigg/src/rapport_ui.rs:492
+#: crates/rigg/src/rapport_ui.rs:400
+msgid "programvare (cairo)"
+msgstr ""
+
+#: crates/rigg/src/rapport_ui.rs:437
+msgid "Vindu"
+msgstr ""
+
+#: crates/rigg/src/rapport_ui.rs:443
+msgid " · tegner {tegner}"
+msgstr ""
+
+#: crates/rigg/src/rapport_ui.rs:447
+msgid "Økttype"
+msgstr ""
+
+#: crates/rigg/src/rapport_ui.rs:491
 msgid "Kunne ikke åpne mappa"
 msgstr "无法打开文件夹"
 
-#: crates/rigg/src/rapport_ui.rs:500 crates/rigg/src/rapport_ui.rs:536
+#: crates/rigg/src/rapport_ui.rs:499 crates/rigg/src/rapport_ui.rs:535
 msgid "Lagre rapport"
 msgstr "保存报告"
 
-#: crates/rigg/src/rapport_ui.rs:504 crates/rigg/src/rapport_ui.rs:541
+#: crates/rigg/src/rapport_ui.rs:503 crates/rigg/src/rapport_ui.rs:540
 msgid "Tekst"
 msgstr "文本"
 
-#: crates/rigg/src/rapport_ui.rs:521
+#: crates/rigg/src/rapport_ui.rs:520
 msgid "Rapporten er lagret"
 msgstr "报告已保存"
 
-#: crates/rigg/src/rapport_ui.rs:522
+#: crates/rigg/src/rapport_ui.rs:521
 msgid "{fil} · uten serienumre og UUID"
 msgstr "{fil} · 不含序列号和 UUID"
 
-#: crates/rigg/src/rapport_ui.rs:524
+#: crates/rigg/src/rapport_ui.rs:523
 msgid "Vis i Filer"
 msgstr "在“文件”中显示"
 
-#: crates/rigg/src/rapport_ui.rs:527
+#: crates/rigg/src/rapport_ui.rs:526
 msgid "Kunne ikke lagre rapporten"
 msgstr "无法保存报告"
 
-#: crates/rigg/src/rapport_ui.rs:537
+#: crates/rigg/src/rapport_ui.rs:536
 msgid "Program og versjon, operativsystem, driver, skjermkort, prosessor, hovedkort, minne, disker og alle sensorer med nå, min, maks og snitt."
 msgstr "应用及版本、操作系统、驱动程序、GPU、CPU、主板、内存、磁盘，以及所有传感器的当前值、最小值、最大值和平均值。"
 
-#: crates/rigg/src/rapport_ui.rs:541 crates/rigg/src/rapport_ui.rs:543
+#: crates/rigg/src/rapport_ui.rs:540 crates/rigg/src/rapport_ui.rs:542
 msgid "Format"
 msgstr "格式"
 
-#: crates/rigg/src/rapport_ui.rs:550
+#: crates/rigg/src/rapport_ui.rs:549
 msgid "Ta med serienumre og UUID"
 msgstr "包含序列号和 UUID"
 
-#: crates/rigg/src/rapport_ui.rs:552
+#: crates/rigg/src/rapport_ui.rs:551
 msgid "Rapporten lagres bare på denne maskinen. Appen sender ingenting ut."
 msgstr "报告仅保存在本机，应用不会发送报告。"
 
-#: crates/rigg/src/rapport_ui.rs:556
+#: crates/rigg/src/rapport_ui.rs:555
 msgid "Velg fil …"
 msgstr "选择文件…"
 
-#: crates/rigg/src/rapport_ui.rs:573 crates/rigg/src/rapport_ui.rs:574 crates/rigg/src/rapport_ui.rs:582
+#: crates/rigg/src/rapport_ui.rs:572 crates/rigg/src/rapport_ui.rs:573 crates/rigg/src/rapport_ui.rs:581
 msgid "Lagre rapport …"
 msgstr "保存报告…"
 
-#: crates/rigg/src/rapport_ui.rs:586
+#: crates/rigg/src/rapport_ui.rs:585
 msgid "Rapport"
 msgstr "报告"
 
-#: crates/rigg/src/rapport_ui.rs:587
+#: crates/rigg/src/rapport_ui.rs:586
 msgid "Alt appen vet om maskinen i én fil, som tekst eller Markdown. Serienumre og UUID er ikke med, med mindre du velger det."
 msgstr "将所有系统信息保存为一份文本或 Markdown 文件。可选择是否包含序列号和 UUID。"

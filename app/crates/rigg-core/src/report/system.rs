@@ -10,7 +10,7 @@
 //! siste `SysSample`.
 
 use super::{Item, Kv, Section, Table};
-use crate::{tr, trf};
+use crate::{tr, trf, trn};
 use crate::fmt as F;
 use crate::model::{CpuSample, SysSample};
 use serde_json::Value;
@@ -40,13 +40,13 @@ pub const SYSTEM: &[&str] = &["hovedkort", "minne", "os", "kontrollere"];
 pub fn vuln_text(s: &str) -> String {
     let s = s.trim();
     if s == "Not affected" {
-        return "Ikke berørt".into();
+        return tr!("Ikke berørt").into();
     }
     if let Some(r) = s.strip_prefix("Mitigation: ") {
-        return format!("Tiltak: {r}");
+        return trf!("Tiltak: {detalj}", detalj = r);
     }
     if let Some(r) = s.strip_prefix("Vulnerable") {
-        return format!("Sårbar{r}");
+        return trf!("Sårbar{detalj}", detalj = r);
     }
     s.to_string()
 }
@@ -64,7 +64,7 @@ fn vuln_name(n: &str) -> String {
         "mds" => "MDS",
         "meltdown" => "Meltdown",
         "mmio_stale_data" => "MMIO Stale Data",
-        "old_microcode" => "Gammel mikrokode",
+        "old_microcode" => tr!("Gammel mikrokode"),
         "reg_file_data_sampling" => "Register File Data Sampling",
         "retbleed" => "Retbleed",
         "spec_rstack_overflow" => "Return Stack Overflow (SRSO)",
@@ -87,7 +87,40 @@ fn vuln_name(n: &str) -> String {
     t
 }
 
-const CACHE_TYPE: [(&str, &str); 3] = [("Data", "Data"), ("Instruction", "Instruksjon"), ("Unified", "Felles")];
+fn cache_type_text(ty: &str) -> &str {
+    match ty {
+        "Data" => tr!("Data"),
+        "Instruction" => tr!("Instruksjon"),
+        "Unified" => tr!("Felles"),
+        other => other,
+    }
+}
+
+fn chassis_text(raw: &str) -> String {
+    if let Some(n) = raw.strip_prefix("Type ") {
+        return trf!("Type {nr}", nr = n);
+    }
+    match raw {
+        "Stasjonær" => tr!("Stasjonær"),
+        "Lavprofil stasjonær" => tr!("Lavprofil stasjonær"),
+        "Pizzaboks" => tr!("Pizzaboks"),
+        "Minitårn" => tr!("Minitårn"),
+        "Tårn" => tr!("Tårn"),
+        "Bærbar" => tr!("Bærbar"),
+        "Håndholdt" => tr!("Håndholdt"),
+        "Alt-i-ett" => tr!("Alt-i-ett"),
+        "Plassbesparende" => tr!("Plassbesparende"),
+        "Server (hovedenhet)" => tr!("Server (hovedenhet)"),
+        "Rackmontert" => tr!("Rackmontert"),
+        "Nettbrett" => tr!("Nettbrett"),
+        "Konvertibel" => tr!("Konvertibel"),
+        "Mini-PC" => tr!("Mini-PC"),
+        "Stick-PC" => tr!("Stick-PC"),
+        other => other,
+    }
+    .to_string()
+}
+
 const MON: [&str; 12] = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 fn st(v: &Value) -> Option<String> {
@@ -210,107 +243,120 @@ pub fn sections(i: &SysInput) -> Vec<Section> {
     let mut out = Vec::new();
 
     // ---- Prosessor ----
-    let mut c = Section::new("prosessor", "Prosessor");
-    c.kv(Kv::new("navn", "Navn", st(&cpu["name"])));
+    let mut c = Section::new("prosessor", tr!("Prosessor"));
+    c.kv(Kv::new("navn", tr!("Navn"), st(&cpu["name"]).map(|n| if n == "Ukjent prosessor" { tr!("Ukjent prosessor").into() } else { n })));
     let spec = cpu["vendor"].as_str().zip(cpu["name"].as_str()).and_then(|(vendor, name)| crate::cpu_specs::lookup(vendor, name));
-    let launch_source = spec.map(|s| format!("Modelloppslag, ikke målt. Kilde: AMD, {}: {}", s.name, s.source_url));
+    let launch_source = spec.map(|s| trf!("Modelloppslag, ikke målt. Kilde: AMD, {navn}: {url}", navn = s.name, url = s.source_url));
     c.kv(
-        Kv::new("lansert", "Lansert", spec.map(|s| s.launched.to_string()))
-            .na("Ikke i modelloppslaget")
-            .info(launch_source.clone().unwrap_or_else(|| "Lanseringsdato krever et kjent modellnavn og riktig leverandør. CPUID-familie og kodenavn brukes ikke som erstatning.".into())),
+        Kv::new("lansert", tr!("Lansert"), spec.map(|s| s.launched.to_string()))
+            .na(tr!("Ikke i modelloppslaget"))
+            .info(launch_source.clone().unwrap_or_else(|| tr!("Lanseringsdato krever et kjent modellnavn og riktig leverandør. CPUID-familie og kodenavn brukes ikke som erstatning.").into())),
     );
     let cn = &cpu["codename"];
     c.kv(
         Kv::new(
             "kodenavn",
-            "Kodenavn",
+            tr!("Kodenavn"),
             st(&cn["name"]).map(|n| [Some(n), st(&cn["process"]), st(&cn["socket"]), st(&cn["revision"])].into_iter().flatten().collect::<Vec<_>>().join(" · ")),
         )
-        .na("Ikke i oppslagstabellen")
-        .info("Slått opp fra produsent, familie og modell. Kjernen oppgir ikke kodenavn, prosess og sokkel."),
+        .na(tr!("Ikke i oppslagstabellen"))
+        .info(tr!("Slått opp fra produsent, familie og modell. Kjernen oppgir ikke kodenavn, prosess og sokkel.")),
     );
-    c.kv(Kv::new("produsent", "Produsent", st(&cpu["vendorName"])).info_opt(st(&cpu["vendor"])));
+    c.kv(Kv::new("produsent", tr!("Produsent"), st(&cpu["vendorName"])).info_opt(st(&cpu["vendor"])));
     let (fa, mo, se) = (cpu["family"].as_u64(), cpu["model"].as_u64(), cpu["stepping"].as_u64());
     c.kv(
-        Kv::new("fms", "Familie · modell · rev.", match (fa, mo, se) {
+        Kv::new("fms", tr!("Familie · modell · rev."), match (fa, mo, se) {
             // Som CPU-Z: «17h (23) · 8 · 2».
             (Some(a), Some(b), Some(d)) => Some(format!("{a:X}h ({a}) · {b} · {d}")),
             _ => None,
         })
         .info_opt(match (fa, mo, se) {
-            (Some(_), Some(b), Some(d)) => Some(format!("Familie, modell og stepping (revisjon). Familien står heksadesimalt og desimalt; modell {b:X}h, stepping {d:X}h.")),
+            (Some(_), Some(b), Some(d)) => Some(trf!("Familie, modell og stepping (revisjon). Familien står heksadesimalt og desimalt; modell {modell}h, stepping {stepping}h.", modell = format!("{b:X}"), stepping = format!("{d:X}"))),
             _ => None,
         }),
     );
-    c.kv(Kv::new("mikrokode", "Mikrokode-revisjon", st(&cpu["microcode"])));
+    c.kv(Kv::new("mikrokode", tr!("Mikrokode-revisjon"), st(&cpu["microcode"])));
     let (cores, threads) = (cpu["cores"].as_i64(), cpu["threads"].as_i64());
     c.kv(Kv::new(
         "kjerner",
-        "Kjerner og tråder",
+        tr!("Kjerner og tråder"),
         match (cores, threads) {
-            (Some(k), Some(t)) => Some(format!("{} · {}", F::plural(k, "kjerne", "kjerner"), F::plural(t, "tråd", "tråder"))),
-            (None, Some(t)) => Some(F::plural(t, "tråd", "tråder")),
+            (Some(k), Some(t)) => Some(format!(
+                "{} · {}",
+                trn!(k, "{antall} kjerne", "{antall} kjerner", antall = F::num(Some(k as f64), 0)),
+                trn!(t, "{antall} tråd", "{antall} tråder", antall = F::num(Some(t as f64), 0))
+            )),
+            (None, Some(t)) => Some(trn!(t, "{antall} tråd", "{antall} tråder", antall = F::num(Some(t as f64), 0))),
             _ => None,
         },
     ));
     if let Some(g) = cpu["l3Groups"].as_array().filter(|g| g.len() > 1) {
         let list: Vec<String> = g.iter().filter_map(Value::as_str).map(cpu_list).collect();
-        c.kv(Kv::new("ccx", "L3-grupper", Some(format!("{} · tråd {}", g.len(), list.join(" og ")))).info("Grupper av tråder som deler L3-cache, slik kjernen rapporterer dem. Gruppene er ikke nødvendigvis CCX-er."));
+        c.kv(Kv::new("ccx", tr!("L3-grupper"), Some(trf!("{antall} · tråd {liste}", antall = g.len(), liste = list.join(tr!(" og "))))).info(tr!("Grupper av tråder som deler L3-cache, slik kjernen rapporterer dem. Gruppene er ikke nødvendigvis CCX-er.")));
     }
     let fq = &cpu["freq"];
     c.kv(
         Kv::new(
             "klokke",
-            "Klokke (cpufreq)",
+            tr!("Klokke (cpufreq)"),
             match (fq["minKHz"].as_f64(), fq["maxKHz"].as_f64()) {
                 // «2 200–3 700 MHz · boost til 4,35 GHz (målt)», når boost er målt over maks.
                 (Some(a), Some(b)) => Some(match i.max_thread_mhz.filter(|m| *m > b / 1000.0 + 25.0) {
-                    Some(m) => format!("{}–{} · boost til {} (målt)", F::num(Some(a / 1000.0), 0), F::mhz(Some(b / 1000.0)), F::with_unit(F::num(Some(m / 1000.0), 2), "GHz")),
+                    Some(m) => trf!(
+                        "{min}–{maks} · boost til {boost} (målt)",
+                        min = F::num(Some(a / 1000.0), 0),
+                        maks = F::mhz(Some(b / 1000.0)),
+                        boost = F::with_unit(F::num(Some(m / 1000.0), 2), "GHz")
+                    ),
                     None => format!("{}–{}", F::num(Some(a / 1000.0), 0), F::mhz(Some(b / 1000.0))),
                 }),
                 _ => None,
             },
         )
-        .na("cpufreq er ikke tilgjengelig")
-        .info("Nominelt område fra cpufreq. Med boost på går kjernene over maks; «målt» er den høyeste trådklokken tjenesten har sett."),
+        .na(tr!("cpufreq er ikke tilgjengelig"))
+        .info(tr!("Nominelt område fra cpufreq. Med boost på går kjernene over maks; «målt» er den høyeste trådklokken tjenesten har sett.")),
     );
     if let Some(p) = fq["pstatesKHz"].as_array().filter(|a| a.len() > 1) {
-        c.kv(Kv::new("pstates", "P-tilstander", Some(F::with_unit(p.iter().filter_map(Value::as_f64).map(|k| F::num(Some(k / 1000.0), 0)).collect::<Vec<_>>().join(", "), "MHz"))));
+        c.kv(Kv::new("pstates", tr!("P-tilstander"), Some(F::with_unit(p.iter().filter_map(Value::as_f64).map(|k| F::num(Some(k / 1000.0), 0)).collect::<Vec<_>>().join(", "), "MHz"))));
     }
     c.kv(Kv::new(
         "governor",
-        "Governor og driver",
+        tr!("Governor og driver"),
         Some([sys.cpu.governor.clone(), st(&fq["driver"])].into_iter().flatten().collect::<Vec<_>>().join(" · ")).filter(|s| !s.is_empty()),
     ));
-    c.kv(Kv::new("boost", "Boost", sys.cpu.boost.map(|b| if b { "På".into() } else { "Av".into() })).na("Ikke oppgitt"));
+    c.kv(Kv::new("boost", "Boost", sys.cpu.boost.map(|b| if b { tr!("På").into() } else { tr!("Av").into() })).na(tr!("Ikke oppgitt")));
     let temp_source = crate::sensormeta::cpu_temp_sensor(&sys).filter(|s| s.value.is_some() && !s.label.is_empty() && s.label != s.key).map(|s| s.label.as_str());
     c.kv(
-        Kv::new("temp", "CPU-temperatur", crate::sensormeta::cpu_temp(&sys).map(|t| match temp_source {
+        Kv::new("temp", tr!("CPU-temperatur"), crate::sensormeta::cpu_temp(&sys).map(|t| match temp_source {
             Some(source) => format!("{} ({source})", F::temp(Some(t), 1)),
             None => F::temp(Some(t), 1),
         }))
-        .info_opt(sys.cpu.tctl.map(|t| format!("Tctl rapporteres separat: {}. Sensorbetydningen avhenger av CPU-modellen og driveren.", F::temp(Some(t), 1)))),
+        .info_opt(sys.cpu.tctl.map(|t| trf!("Tctl rapporteres separat: {temp}. Sensorbetydningen avhenger av CPU-modellen og driveren.", temp = F::temp(Some(t), 1)))),
     );
     c.kv(Kv::new(
         "adresser",
-        "Adresser",
-        st(&cpu["addressSizes"]).map(|a| a.replace(" bits physical", &format!("{}bit fysisk", F::NNBSP)).replace(" bits virtual", &format!("{}bit virtuelt", F::NNBSP)))));
-    c.kv(Kv::new("spenning", "Kjernespenning", None).na("Ikke innsamlet").info("Appen samler ikke inn CPU-kjernespenning. Tilgang og målekilde avhenger av CPU, hovedkort og driver; SVI2-støtte er ikke verifisert her."));
-    c.kv(Kv::new("effekt", "Pakkeeffekt", None).na("Ikke innsamlet").info("Appen samler ikke inn CPU-pakkeeffekt. Tilgjengelige energitellere, eventuell RAPL-støtte og lesetilgang avhenger av maskinen og kjernen."));
-    c.kv(Kv::new("multiplikator", "Multiplikator og bussklokke", None).na("Ikke innsamlet").info("Appen samler ikke inn multiplikator og bussklokke. Trådklokken leses separat fra cpufreq; målekilden avhenger av driveren."));
+        tr!("Adresser"),
+        st(&cpu["addressSizes"]).map(|a| {
+            a.replace(" bits physical", &format!("{}{}", F::NNBSP, tr!("bit fysisk")))
+                .replace(" bits virtual", &format!("{}{}", F::NNBSP, tr!("bit virtuelt")))
+        }),
+    ));
+    c.kv(Kv::new("spenning", tr!("Kjernespenning"), None).na(tr!("Ikke innsamlet")).info(tr!("Appen samler ikke inn CPU-kjernespenning. Tilgang og målekilde avhenger av CPU, hovedkort og driver; SVI2-støtte er ikke verifisert her.")));
+    c.kv(Kv::new("effekt", tr!("Pakkeeffekt"), None).na(tr!("Ikke innsamlet")).info(tr!("Appen samler ikke inn CPU-pakkeeffekt. Tilgjengelige energitellere, eventuell RAPL-støtte og lesetilgang avhenger av maskinen og kjernen.")));
+    c.kv(Kv::new("multiplikator", tr!("Multiplikator og bussklokke"), None).na(tr!("Ikke innsamlet")).info(tr!("Appen samler ikke inn multiplikator og bussklokke. Trådklokken leses separat fra cpufreq; målekilden avhenger av driveren.")));
     if i.report
         && let Some(source) = launch_source
     {
-        c.items.push(Item::Note(format!("Lanseringsdato: {source}")));
+        c.items.push(Item::Note(trf!("Lanseringsdato: {kilde}", kilde = source)));
     }
     out.push(c);
 
     // ---- Cache ----
-    let mut k = Section::new("cache", "Cache");
+    let mut k = Section::new("cache", tr!("Cache"));
     let caches = cpu["caches"].as_array().cloned().unwrap_or_default();
     k.items.push(Item::Table(Table {
         id: "cache",
-        head: ["Nivå", "Type", "Per instans", "Antall", "Totalt", "Assosiativitet"].map(String::from).to_vec(),
+        head: [tr!("Nivå"), tr!("Type"), tr!("Per instans"), tr!("Antall"), tr!("Totalt"), tr!("Assosiativitet")].map(String::from).to_vec(),
         end: vec![false, false, true, true, true, true],
         rows: caches
             .iter()
@@ -318,11 +364,11 @@ pub fn sections(i: &SysInput) -> Vec<Section> {
                 let ty = x["type"].as_str().unwrap_or("");
                 vec![
                     format!("L{}", x["level"].as_u64().unwrap_or(0)),
-                    CACHE_TYPE.iter().find(|(a, _)| *a == ty).map(|(_, b)| b.to_string()).unwrap_or_else(|| ty.to_string()),
+                    cache_type_text(ty).to_string(),
                     F::bytes(x["size"].as_f64(), 0),
                     x["instances"].as_u64().map(|n| format!("×{}{n}", F::NNBSP)).unwrap_or_else(|| F::DASH.into()),
                     F::bytes(x["total"].as_f64(), 0),
-                    x["ways"].as_u64().map(|w| format!("{w}-veis")).unwrap_or_else(|| F::DASH.into()),
+                    x["ways"].as_u64().map(|w| trf!("{veier}-veis", veier = w)).unwrap_or_else(|| F::DASH.into()),
                 ]
             })
             .collect(),
@@ -330,11 +376,11 @@ pub fn sections(i: &SysInput) -> Vec<Section> {
     out.push(k);
 
     // ---- Instruksjonssett ----
-    let mut fl = Section::new("flagg", "Instruksjonssett");
+    let mut fl = Section::new("flagg", tr!("Instruksjonssett"));
     let imp: Vec<String> = cpu["important"].as_array().map(|a| a.iter().filter_map(|x| x["label"].as_str().map(str::to_string)).collect()).unwrap_or_default();
     let all: Vec<String> = cpu["flags"].as_array().map(|a| a.iter().filter_map(|x| x.as_str().map(str::to_string)).collect()).unwrap_or_default();
-    fl.kv(Kv::new("utvalgte", "Utvalgte", (!imp.is_empty()).then(|| imp.join(", "))));
-    fl.kv(Kv::new("antall", "Alle flagg", (!all.is_empty()).then(|| format!("{} i alt", all.len()))));
+    fl.kv(Kv::new("utvalgte", tr!("Utvalgte"), (!imp.is_empty()).then(|| imp.join(", "))));
+    fl.kv(Kv::new("antall", tr!("Alle flagg"), (!all.is_empty()).then(|| trf!("{antall} i alt", antall = all.len()))));
     if !all.is_empty() {
         fl.items.push(Item::Text(all.join(" ")));
     }
@@ -342,9 +388,13 @@ pub fn sections(i: &SysInput) -> Vec<Section> {
 
     // ---- Sårbarheter (sysfs, lesbart for alle) ----
     if let Some(v) = cpu["vulnerabilities"].as_object().filter(|v| !v.is_empty()) {
-        let mut sv = Section::new("sarbarheter", "Sårbarheter");
+        let mut sv = Section::new("sarbarheter", tr!("Sårbarheter"));
         let affected = v.values().filter_map(Value::as_str).filter(|t| t.starts_with("Vulnerable")).count();
-        sv.aside = Some(if affected == 0 { "ingen åpne".to_string() } else { F::plural(affected as i64, "åpen", "åpne") });
+        sv.aside = Some(if affected == 0 {
+            tr!("ingen åpne").to_string()
+        } else {
+            trn!(affected, "{antall} åpen", "{antall} åpne", antall = F::num(Some(affected as f64), 0))
+        });
         for (k, t) in v {
             let text = t.as_str().unwrap_or("");
             sv.kv(Kv::new("vuln", &vuln_name(k), Some(vuln_text(text))));
@@ -366,7 +416,7 @@ pub fn sections(i: &SysInput) -> Vec<Section> {
     b.kv(Kv::new("system", tr!("System"), Some([dm("sys_vendor"), dm("product_name")].into_iter().flatten().collect::<Vec<_>>().join(" · ")).filter(|s| !s.is_empty())).na(tr!("Ikke oppgitt")));
     b.kv(Kv::new("bios", "BIOS", Some([dm("bios_vendor"), dm("bios_version")].into_iter().flatten().collect::<Vec<_>>().join(" · ")).filter(|s| !s.is_empty())).na(tr!("Ikke oppgitt")).info_opt(dm("bios_release").map(|r| trf!("Utgave {versjon}", versjon = r))));
     b.kv(Kv::new("bios-dato", tr!("BIOS-dato"), dm("bios_date").map(|d| dmi_date(&d).unwrap_or(d))).na(tr!("Ikke oppgitt")).info_opt(dm("bios_date").map(|d| trf!("Rå verdi: {dato}", dato = d))));
-    b.kv(Kv::new("kabinett", tr!("Kabinett"), st(&board["chassis"])).na(tr!("Ikke oppgitt")));
+    b.kv(Kv::new("kabinett", tr!("Kabinett"), st(&board["chassis"]).map(|c| chassis_text(&c))).na(tr!("Ikke oppgitt")));
     b.kv(Kv::new("serienumre", tr!("Serienumre"), None).na(tr!("Leses ikke (krever root)")).info(tr!("Serienummerfilene i /sys/class/dmi/id er bare lesbare for root. Appen åpner dem ikke.")));
     out.push(b);
 
@@ -471,10 +521,10 @@ pub fn sections(i: &SysInput) -> Vec<Section> {
     // ---- Klokke og last per tråd (bare i rapporten; siden har rutenettet) ----
     let thread_ids = cpu_thread_ids(cpu);
     if i.report && !thread_ids.is_empty() {
-        let mut t = Section::new("trader", "Klokke og last per tråd");
+        let mut t = Section::new("trader", tr!("Klokke og last per tråd"));
         t.items.push(Item::Table(Table {
             id: "trader",
-            head: ["Tråd", "Klokke", "Last"].map(String::from).to_vec(),
+            head: [tr!("Tråd"), tr!("Klokke"), tr!("Last")].map(String::from).to_vec(),
             end: vec![false, true, true],
             rows: thread_ids.iter()
                 .map(|&n| vec![format!("T{n}"), F::mhz(sys.cpu.core_mhz.get(n).copied().flatten()), F::pct(sys.cpu.core_load.get(n).copied().flatten(), 0)])
@@ -488,20 +538,20 @@ pub fn sections(i: &SysInput) -> Vec<Section> {
 /// Diskene med helse og temperatur fra `get_system` › `disks` (tjenestens
 /// disklista, runde 6A), ellers den enkle lista fra sysfs.
 fn disks_section(system: &Value) -> Section {
-    let mut d = Section::new("disker", "Disker");
+    let mut d = Section::new("disker", tr!("Disker"));
     let list: Option<crate::disk::DiskList> = serde_json::from_value(system["disks"].clone()).ok().filter(|l: &crate::disk::DiskList| !l.disks.is_empty());
     match list {
         Some(l) => {
             d.items.push(Item::Table(Table {
                 id: "disker",
-                head: ["Disk", "Modell", "Type", "Størrelse", "Helse", "Temperatur"].map(String::from).to_vec(),
+                head: [tr!("Disk"), tr!("Modell"), tr!("Type"), tr!("Størrelse"), tr!("Helse"), tr!("Temperatur")].map(String::from).to_vec(),
                 end: vec![false, false, false, true, false, true],
                 rows: l
                     .disks
                     .iter()
                     .map(|x| {
                         vec![
-                            format!("{}{}", x.name, if x.system { " · system" } else { "" }),
+                            if x.system { trf!("{navn} · system", navn = x.name) } else { x.name.clone() },
                             [x.vendor.clone(), Some(x.model.clone())].into_iter().flatten().filter(|s| !s.is_empty()).collect::<Vec<_>>().join(" "),
                             [x.kind.clone(), x.bus.clone()].into_iter().filter(|s| !s.is_empty()).collect::<Vec<_>>().join(" · "),
                             x.size.map(crate::disk::disk_size_label).unwrap_or_else(|| F::DASH.into()),
@@ -516,22 +566,21 @@ fn disks_section(system: &Value) -> Section {
                 d.items.push(Item::Note(reasons.join(". ")));
             }
             if l.source == "sysfs" {
-                d.items.push(Item::Note("SMART mangler: UDisks2 svarte ikke.".into()));
+                d.items.push(Item::Note(tr!("SMART mangler: UDisks2 svarte ikke.").into()));
             }
         }
         None => {
             let disks = system["os"]["disks"].as_array().cloned().unwrap_or_default();
             d.items.push(Item::Table(Table {
                 id: "disker",
-                head: ["Disk", "Modell", "Type", "Størrelse"].map(String::from).to_vec(),
+                head: [tr!("Disk"), tr!("Modell"), tr!("Type"), tr!("Størrelse")].map(String::from).to_vec(),
                 end: vec![false, false, false, true],
                 rows: disks
                     .iter()
                     .map(|x| {
                         let name = x["name"].as_str().unwrap_or("?");
-                        let sysd = if x["system"].as_bool() == Some(true) { " · system" } else { "" };
                         vec![
-                            format!("{name}{sysd}"),
+                            if x["system"].as_bool() == Some(true) { trf!("{navn} · system", navn = name) } else { name.to_string() },
                             [st(&x["vendor"]), st(&x["model"])].into_iter().flatten().collect::<Vec<_>>().join(" "),
                             [st(&x["kind"]), st(&x["bus"])].into_iter().flatten().collect::<Vec<_>>().join(" · "),
                             x["bytes"].as_f64().map(crate::disk::disk_size_label).unwrap_or_else(|| F::DASH.into()),
@@ -539,7 +588,7 @@ fn disks_section(system: &Value) -> Section {
                     })
                     .collect(),
             }));
-            d.items.push(Item::Note("Helse og temperatur står på Disker-siden når tjenesten har lest diskene.".into()));
+            d.items.push(Item::Note(tr!("Helse og temperatur står på Disker-siden når tjenesten har lest diskene.").into()));
         }
     }
     d

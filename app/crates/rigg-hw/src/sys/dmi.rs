@@ -7,6 +7,7 @@
 //! Selve EEPROM-fila leses **ikke**: det er I2C-trafikk på hovedkortets
 //! SMBus og krever brukerens godkjenning (maskinvare-revisjon kap. 10).
 
+use rigg_core::{tr, trf};
 use serde_json::{Map, Value, json};
 use std::path::Path;
 
@@ -45,21 +46,21 @@ pub fn placeholder(s: &str) -> bool {
 /// SMBIOS-kabinettypene som er vanlige på skrivebordet.
 pub fn chassis_name(t: u32) -> Option<&'static str> {
     Some(match t {
-        3 => "Stasjonær",
-        4 => "Lavprofil stasjonær",
-        5 => "Pizzaboks",
-        6 => "Minitårn",
-        7 => "Tårn",
-        8 | 9 | 10 | 14 => "Bærbar",
-        11 => "Håndholdt",
-        13 => "Alt-i-ett",
-        15 => "Plassbesparende",
-        17 => "Server (hovedenhet)",
-        23 => "Rackmontert",
-        30 => "Nettbrett",
-        31 | 32 => "Konvertibel",
-        35 => "Mini-PC",
-        36 => "Stick-PC",
+        3 => tr!("Stasjonær"),
+        4 => tr!("Lavprofil stasjonær"),
+        5 => tr!("Pizzaboks"),
+        6 => tr!("Minitårn"),
+        7 => tr!("Tårn"),
+        8 | 9 | 10 | 14 => tr!("Bærbar"),
+        11 => tr!("Håndholdt"),
+        13 => tr!("Alt-i-ett"),
+        15 => tr!("Plassbesparende"),
+        17 => tr!("Server (hovedenhet)"),
+        23 => tr!("Rackmontert"),
+        30 => tr!("Nettbrett"),
+        31 | 32 => tr!("Konvertibel"),
+        35 => tr!("Mini-PC"),
+        36 => tr!("Stick-PC"),
         _ => return None,
     })
 }
@@ -98,7 +99,7 @@ pub fn read(root: &Path) -> Value {
         out.insert((*f).to_string(), v);
     }
     if let Some(t) = out.get("chassis_type").and_then(Value::as_str).and_then(|s| s.parse::<u32>().ok()) {
-        out.insert("chassis".into(), json!(chassis_name(t).map(str::to_string).unwrap_or_else(|| format!("Type {t}"))));
+        out.insert("chassis".into(), json!(chassis_name(t).map(str::to_string).unwrap_or_else(|| trf!("Type {nr}", nr = t))));
     }
     // Hvilke root-filer som finnes (uten å åpne dem).
     let root_files: Vec<&str> = ROOT_ONLY.iter().copied().filter(|f| dir.join(f).exists()).collect();

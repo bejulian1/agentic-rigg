@@ -1,0 +1,40 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: crates/rigg-hw/src/sys/udisks.rs:190
+msgid "Disken støtter ikke SMART."
+msgstr ""
+
+#: crates/rigg-hw/src/sys/udisks.rs:192
+msgid "SMART er slått av på disken."
+msgstr ""
+
+#: crates/rigg-hw/src/sys/udisks.rs:194
+msgid "UDisks2 har ikke lest SMART ennå."
+msgstr ""
+
+#: crates/rigg-hw/src/sys/udisks.rs:228
+msgid "USB-broen sender ikke SMART videre."
+msgstr ""
+
+#: crates/rigg-hw/src/sys/udisks.rs:228
+msgid "UDisks2 har ingen SMART for denne disken."
+msgstr ""
+
+#: crates/rigg-hw/src/sys/udisks.rs:252
+msgid "Fikk ikke kontakt med systembussen ({feil})."
+msgstr ""
+
+#: crates/rigg-hw/src/sys/udisks.rs:271
+msgid "UDisks2 svarer ikke på systembussen."
+msgstr ""
+
+#: crates/rigg-hw/src/sys/udisks.rs:273
+msgid "UDisks2 svarte ikke ({feil})."
+msgstr ""

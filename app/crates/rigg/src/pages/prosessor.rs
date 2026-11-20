@@ -18,6 +18,7 @@ use gtk::glib;
 use gtk::prelude::*;
 use rigg_core::fmt as F;
 use rigg_core::report::{self, ReportFormat, Section};
+use rigg_core::{tr, trf, trn};
 use serde_json::{Value, json};
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
@@ -186,15 +187,15 @@ pub fn groups(thread_ids: &[usize], l3: &[String], core_of: &[Option<u32>], pack
                 }
             }
             cores.sort_by_key(|(c, v)| (package_of.get(v[0]).copied().flatten().unwrap_or(u32::MAX), c.unwrap_or(u32::MAX), v[0]));
-            (if many { format!("L3-gruppe {i}") } else { "Alle kjerner".to_string() }, cores)
+            (if many { trf!("L3-gruppe {nr}", nr = i) } else { tr!("Alle kjerner").to_string() }, cores)
         })
         .collect()
 }
 
 fn core_label(core: Option<u32>, thread: usize, package_of: &[Option<u32>], many_packages: bool) -> String {
     match (core, package_of.get(thread).copied().flatten()) {
-        (Some(c), Some(p)) if many_packages => format!("Pakke {p} · kjerne {c}"),
-        (Some(c), Some(_)) => format!("Kjerne {c}"),
+        (Some(c), Some(p)) if many_packages => trf!("Pakke {pakke} · kjerne {kjerne}", pakke = p, kjerne = c),
+        (Some(c), Some(_)) => trf!("Kjerne {kjerne}", kjerne = c),
         _ => format!("T{thread}"),
     }
 }
@@ -320,12 +321,12 @@ impl State {
                     s.groups_sig.borrow_mut().clear();
                     s.refresh();
                     if announce {
-                        s.app.toast(crate::toast::Toast::new("Faste data er lest på nytt").ms(2500));
+                        s.app.toast(crate::toast::Toast::new(tr!("Faste data er lest på nytt")).ms(2500));
                     }
                 }
                 Err(e) => {
                     if announce {
-                        s.app.toast(crate::toast::Toast::new("Kunne ikke hente prosessordata").body(&e.message).error());
+                        s.app.toast(crate::toast::Toast::new(tr!("Kunne ikke hente prosessordata")).body(&e.message).error());
                     }
                 }
             }
@@ -411,7 +412,7 @@ impl State {
         for c in ["warn", "danger"] {
             class(&self.live.temp.value, c, c == lvl);
         }
-        let source = rigg_core::sensormeta::cpu_temp_sensor(&sys).filter(|s| s.value.is_some() && !s.label.is_empty() && s.label != s.key).map(|s| s.label.clone()).unwrap_or_else(|| "CPU-temperatur".into());
+        let source = rigg_core::sensormeta::cpu_temp_sensor(&sys).filter(|s| s.value.is_some() && !s.label.is_empty() && s.label != s.key).map(|s| s.label.clone()).unwrap_or_else(|| tr!("CPU-temperatur").into());
         let detail = match sys.cpu.tctl.filter(|_| source != "Tctl") {
             Some(c) => format!("{source} · Tctl {}", F::temp(Some(c), 1)),
             None => source,
@@ -424,7 +425,7 @@ impl State {
         // Last: total, og den travleste tråden.
         set_text(&self.live.load.value, &F::pct(sys.cpu.load, 1));
         let busiest = thread_ids.iter().filter_map(|&i| sys.cpu.core_load.get(i).copied().flatten().map(|l| (i, l))).max_by(|a, b| a.1.total_cmp(&b.1));
-        set_text(&self.live.load.sub, &busiest.map(|(i, l)| format!("travlest T{i} {}", F::pct(Some(l), 0))).unwrap_or_default());
+        set_text(&self.live.load.sub, &busiest.map(|(i, l)| trf!("travlest T{nr} {last}", nr = i, last = F::pct(Some(l), 0))).unwrap_or_default());
         if let Some(sp) = &self.live.load.spark {
             sp.set_points(&self.app.recent("cpu/load"), now, SparkOpts { span_ms: 60_000, fixed: Some((0.0, 100.0)), min_span: 0.0 });
         }
@@ -437,13 +438,13 @@ impl State {
         // «T14 3 950 · maks 4 125 MHz»: høyeste tråd nå, og høyeste målt.
         let sub = match (top, max_seen) {
             (Some((i, m)), Some(x)) => {
-                format!("T{i} {} · maks {}", F::num(Some(*m), 0), F::mhz(Some(x)))
+                trf!("T{nr} {na} · maks {maks}", nr = i, na = F::num(Some(*m), 0), maks = F::mhz(Some(x)))
             }
             (Some((i, m)), None) => format!("T{i} {}", F::mhz(Some(*m))),
             _ => String::new(),
         };
         set_text(&self.live.clock.sub, &sub);
-        self.live.clock.sub.set_tooltip_text(Some("Tråden med høyest klokke nå, og den høyeste trådklokken tjenesten har målt siden min og maks ble nullstilt."));
+        self.live.clock.sub.set_tooltip_text(Some(tr!("Tråden med høyest klokke nå, og den høyeste trådklokken tjenesten har målt siden min og maks ble nullstilt.")));
         if let Some(sp) = &self.live.clock.spark {
             // Snittet over trådene per prøve, fra sparklinjene til hver tråd.
             let series: Vec<Vec<(i64, f64)>> = thread_ids.iter().map(|i| self.app.recent(&format!("cpu/thread/{i}/mhz"))).collect();
@@ -459,14 +460,14 @@ impl State {
         let gov = [sys.cpu.governor.clone(), self.system.borrow()["cpu"]["freq"]["driver"].as_str().map(str::to_string)].into_iter().flatten().collect::<Vec<_>>().join(" · ");
         set_text(&self.live.gov.value, if gov.is_empty() { F::DASH } else { &gov });
         let boost = match sys.cpu.boost {
-            Some(true) => "boost på",
-            Some(false) => "boost av",
-            None => "boost ukjent",
+            Some(true) => tr!("boost på"),
+            Some(false) => tr!("boost av"),
+            None => tr!("boost ukjent"),
         };
-        let la = sys.loadavg.first().map(|v| format!("lastsnitt {}", F::num(Some(*v), 2)));
+        let la = sys.loadavg.first().map(|v| trf!("lastsnitt {verdi}", verdi = F::num(Some(*v), 2)));
         set_text(&self.live.gov.sub, &[Some(boost.to_string()), la].into_iter().flatten().collect::<Vec<_>>().join(" · "));
         let all = (!sys.loadavg.is_empty()).then(|| sys.loadavg.iter().map(|v| F::num(Some(*v), 2)).collect::<Vec<_>>().join(" / "));
-        self.live.gov.sub.set_tooltip_text(all.map(|a| format!("Lastsnitt 1 / 5 / 15 min: {a}. Over antall tråder betyr kø.")).as_deref());
+        self.live.gov.sub.set_tooltip_text(all.map(|a| trf!("Lastsnitt 1 / 5 / 15 min: {snitt}. Over antall tråder betyr kø.", snitt = a)).as_deref());
     }
 
     fn render_flags(&self) {
@@ -508,9 +509,9 @@ impl State {
                 f.chips.append(&chip(x, Some(x.as_str()), is_key));
             }
             if list.is_empty() {
-                f.chips.append(&label("Ingen treff.", &["muted"]));
+                f.chips.append(&label(tr!("Ingen treff."), &["muted"]));
             }
-            set_text(&f.count, &if filter.is_empty() { format!("{} i alt", all.len()) } else { format!("{} av {}", list.len(), all.len()) });
+            set_text(&f.count, &if filter.is_empty() { trf!("{antall} i alt", antall = all.len()) } else { trf!("{vist} av {totalt}", vist = list.len(), totalt = all.len()) });
         } else {
             for (fl, l) in &imp {
                 f.chips.append(&chip(l, Some(fl), true));
@@ -520,8 +521,8 @@ impl State {
             for x in &rest {
                 f.chips.append(&chip(x, Some(x.as_str()), false));
             }
-            set_text(&f.count, &format!("{} av {}", imp.len() + rest.len(), all.len()));
-            f.count.set_tooltip_text(Some(&format!("{} utvalgte først, så noen av de andre. Vis alle for å se og søke i alle {}.", imp.len(), all.len())));
+            set_text(&f.count, &trf!("{vist} av {totalt}", vist = imp.len() + rest.len(), totalt = all.len()));
+            f.count.set_tooltip_text(Some(&trf!("{utvalgte} utvalgte først, så noen av de andre. Vis alle for å se og søke i alle {totalt}.", utvalgte = imp.len(), totalt = all.len())));
         }
     }
 
@@ -539,12 +540,19 @@ impl State {
         }
         *self.groups_sig.borrow_mut() = sig;
         let l3_size = cpu["caches"].as_array().filter(|c| c.iter().filter(|x| x["level"].as_u64() == Some(3)).count() == 1).and_then(|c| c.iter().find(|x| x["level"].as_u64() == Some(3))).and_then(|x| x["size"].as_f64());
-        let defs = groups(thread_ids, &l3, &core_of, &package_of)
+        let grps = groups(thread_ids, &l3, &core_of, &package_of);
+        let many_groups = grps.len() > 1;
+        let defs = grps
             .into_iter()
             .map(|(name, cores)| {
                 let known = cores.iter().all(|(core, ts)| core.is_some() && package_of.get(ts[0]).is_some_and(Option::is_some));
-                let count = if known { F::plural(cores.len() as i64, "kjerne", "kjerner") } else { F::plural(cores.len() as i64, "trådgruppe", "trådgrupper") };
-                let info = [Some(count), l3_size.filter(|_| name.starts_with("L3-gruppe ")).map(|s| format!("{} L3", F::bytes(Some(s), 0)))].into_iter().flatten().collect::<Vec<_>>().join(" · ");
+                let n = cores.len();
+                let count = if known {
+                    trn!(n, "{antall} kjerne", "{antall} kjerner", antall = F::num(Some(n as f64), 0))
+                } else {
+                    trn!(n, "{antall} trådgruppe", "{antall} trådgrupper", antall = F::num(Some(n as f64), 0))
+                };
+                let info = [Some(count), l3_size.filter(|_| many_groups).map(|s| format!("{} L3", F::bytes(Some(s), 0)))].into_iter().flatten().collect::<Vec<_>>().join(" · ");
                 let cores = cores.into_iter().map(|(c, ts)| (core_label(c, ts[0], &package_of, many_packages), ts)).collect();
                 GroupDef { name, info, cores }
             })
@@ -569,27 +577,27 @@ impl State {
 }
 
 fn flags_panel() -> Flags {
-    let panel = Panel::new("Instruksjonssett");
+    let panel = Panel::new(tr!("Instruksjonssett"));
     panel.root.add_css_class("sec");
     panel.root.add_css_class("flags-card");
     let search = gtk::SearchEntry::new();
-    search.set_placeholder_text(Some("Søk"));
+    search.set_placeholder_text(Some(tr!("Søk")));
     search.add_css_class("flags-search");
-    search.update_property(&[gtk::accessible::Property::Label("Søk i instruksjonssett")]);
+    search.update_property(&[gtk::accessible::Property::Label(tr!("Søk i instruksjonssett"))]);
     search.set_visible(false);
     search.set_max_width_chars(12);
     panel.aside.append(&search);
     let count = label("", &["num"]);
     panel.aside.append(&count);
     let toggle = crate::widgets::button(Some("chevron-down"), None, &["flat", "sm", "icon-only"]);
-    toggle.set_tooltip_text(Some("Vis alle og søk"));
-    toggle.update_property(&[gtk::accessible::Property::Label("Vis alle og søk")]);
+    toggle.set_tooltip_text(Some(tr!("Vis alle og søk")));
+    toggle.update_property(&[gtk::accessible::Property::Label(tr!("Vis alle og søk"))]);
     toggle.update_state(&[gtk::accessible::State::Expanded(Some(false))]);
     panel.aside.append(&toggle);
     let chips = Wrap::new();
     chips.add_css_class("chips");
     panel.body.append(&chips);
-    let note = label("Uthevet: viktige for spill og koding. Navnet i /proc/cpuinfo står i verktøytipset.", &["muted", "sm", "flags-note"]);
+    let note = label(tr!("Uthevet: viktige for spill og koding. Navnet i /proc/cpuinfo står i verktøytipset."), &["muted", "sm", "flags-note"]);
     note.set_wrap(true);
     panel.body.append(&note);
     Flags { panel, chips, count, toggle, search, all: Cell::new(false), filter: RefCell::new(String::new()), shown_for: RefCell::new(String::new()) }
@@ -598,22 +606,22 @@ fn flags_panel() -> Flags {
 pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     let root = vbox(8, &["page", "pr-page"]);
     // ---- Nå: de levende tallene ----
-    let now_panel = Panel::new("Nå");
+    let now_panel = Panel::new(tr!("Nå"));
     now_panel.root.add_css_class("pr-now");
     // Fire fliser på rad, to og to i smale vinduer (render_live).
     let tiles = gtk::Grid::new();
     tiles.add_css_class("pr-tiles");
     tiles.set_column_homogeneous(true);
     let live = Live {
-        temp: tile(&tiles, "CPU-temperatur", "Temperatur fra CPU-sensoren. Sensorens navn står under verdien når det er tilgjengelig; det kan for eksempel være Tdie, Tctl eller Package id 0.", Some("temp")),
-        load: tile(&tiles, "Last", "Total last fra /proc/stat, siste minutt i linja.", Some("load")),
-        clock: tile(&tiles, "Klokke (snitt)", "Snittet over alle trådene (APERF/MPERF fra cpufreq). Med boost går enkelttråder over maks.", Some("clock")),
-        gov: tile(&tiles, "Governor", "Strategien kjernen bruker for klokken, og driveren (cpufreq).", None),
+        temp: tile(&tiles, tr!("CPU-temperatur"), tr!("Temperatur fra CPU-sensoren. Sensorens navn står under verdien når det er tilgjengelig; det kan for eksempel være Tdie, Tctl eller Package id 0."), Some("temp")),
+        load: tile(&tiles, tr!("Last"), tr!("Total last fra /proc/stat, siste minutt i linja."), Some("load")),
+        clock: tile(&tiles, tr!("Klokke (snitt)"), tr!("Snittet over alle trådene (APERF/MPERF fra cpufreq). Med boost går enkelttråder over maks."), Some("clock")),
+        gov: tile(&tiles, tr!("Governor"), tr!("Strategien kjernen bruker for klokken, og driveren (cpufreq)."), None),
     };
     now_panel.body.append(&tiles);
     root.append(&now_panel.root);
     // ---- Klokke og last per tråd, gruppert etter L3-gruppe og kjerne ----
-    let cores_panel = Panel::new("Klokke og last per tråd");
+    let cores_panel = Panel::new(tr!("Klokke og last per tråd"));
     cores_panel.root.add_css_class("sec");
     cores_panel.root.add_css_class("pr-cores");
     let legend = hbox(4, &["legend"]);
@@ -621,7 +629,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     sw.add_css_class("lg");
     sw.set_valign(gtk::Align::Center);
     legend.append(&sw);
-    legend.append(&label("stolpe = last", &[]));
+    legend.append(&label(tr!("stolpe = last"), &[]));
     cores_panel.aside.append(&legend);
     let grid = ThreadGrid::new(app);
     grid.add_css_class("pr-groups");
@@ -657,7 +665,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
             s.flags.all.set(all);
             s.flags.search.set_visible(all);
             b.set_child(Some(&Icon::new(if all { "chevrons-down-up" } else { "chevron-down" }, 14)));
-            let t = if all { "Vis utvalget" } else { "Vis alle og søk" };
+            let t = if all { tr!("Vis utvalget") } else { tr!("Vis alle og søk") };
             b.set_tooltip_text(Some(t));
             b.update_property(&[gtk::accessible::Property::Label(t)]);
             b.update_state(&[gtk::accessible::State::Expanded(Some(all))]);
@@ -686,8 +694,8 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
             return None;
         }
         let secs = s.sections(true);
-        let title = format!("{} – Prosessor ({})", rigg_core::version::NAME, crate::rapport_ui::stamp_long(rigg_core::now_ms()));
-        Some((report::render_page(&title, &secs, fmt), "med klokke og last per tråd".to_string()))
+        let title = trf!("{app} – Prosessor ({dato})", app = rigg_core::version::NAME, dato = crate::rapport_ui::stamp_long(rigg_core::now_ms()));
+        Some((report::render_page(&title, &secs, fmt), tr!("med klokke og last per tråd").to_string()))
     }));
 
     let r = {

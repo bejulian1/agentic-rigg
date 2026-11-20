@@ -1,0 +1,100 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: crates/rigg-core/src/sensormeta.rs:10 crates/rigg-core/src/sensormeta.rs:11 crates/rigg-core/src/sensormeta.rs:12
+msgid "Prosessor"
+msgstr ""
+
+#: crates/rigg-core/src/sensormeta.rs:13 crates/rigg-core/src/sensormeta.rs:49
+msgid "Wi-Fi-kort"
+msgstr ""
+
+#: crates/rigg-core/src/sensormeta.rs:14
+msgid "USB-C-kontroller (skjermkort)"
+msgstr ""
+
+#: crates/rigg-core/src/sensormeta.rs:15
+msgid "Batteri i trådløs mus/tastatur"
+msgstr ""
+
+#: crates/rigg-core/src/sensormeta.rs:16
+msgid "NVMe-disk"
+msgstr ""
+
+#: crates/rigg-core/src/sensormeta.rs:17
+msgid "Disk"
+msgstr ""
+
+#: crates/rigg-core/src/sensormeta.rs:18
+msgid "AMD-grafikk"
+msgstr ""
+
+#: crates/rigg-core/src/sensormeta.rs:19
+msgid "Skjermkort (nouveau)"
+msgstr ""
+
+#: crates/rigg-core/src/sensormeta.rs:20
+msgid "ACPI-termisk sone"
+msgstr ""
+
+#: crates/rigg-core/src/sensormeta.rs:21 crates/rigg-core/src/sensormeta.rs:22
+msgid "Minnemodul"
+msgstr ""
+
+#: crates/rigg-core/src/sensormeta.rs:23
+msgid "Innebygd kontroller"
+msgstr ""
+
+#: crates/rigg-core/src/sensormeta.rs:52
+msgid "Hovedkort"
+msgstr ""
+
+#: crates/rigg-core/src/sensormeta.rs:55
+msgid "Batteri"
+msgstr ""
+
+#: crates/rigg-core/src/sensormeta.rs:58
+msgid "Nettverkskort"
+msgstr ""
+
+#: crates/rigg-core/src/sensormeta.rs:65
+msgid "temperatur"
+msgstr ""
+
+#: crates/rigg-core/src/sensormeta.rs:66
+msgid "vifte"
+msgstr ""
+
+#: crates/rigg-core/src/sensormeta.rs:67
+msgid "spenning"
+msgstr ""
+
+#: crates/rigg-core/src/sensormeta.rs:68
+msgid "effekt"
+msgstr ""
+
+#: crates/rigg-core/src/sensormeta.rs:69
+msgid "strøm"
+msgstr ""
+
+#: crates/rigg-core/src/sensormeta.rs:97
+msgid "Virtuelt ({navn})"
+msgstr ""
+
+#: crates/rigg-core/src/sensormeta.rs:100
+msgid "Wi-Fi ({navn})"
+msgstr ""
+
+#: crates/rigg-core/src/sensormeta.rs:103
+msgid "Ethernet ({navn})"
+msgstr ""
+
+#: crates/rigg-core/src/sensormeta.rs:106
+msgid "Mobilnett ({navn})"
+msgstr ""
