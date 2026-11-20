@@ -327,7 +327,7 @@ impl Shell {
             crate::motion::fade_in(&app, &c, 3, 0.0);
         }
         *app.page.borrow_mut() = id.to_string();
-        self.topbar.show(id, def.title);
+        self.topbar.show(id, def.title());
         self.sidebar.mark_current(id);
         self.window.set_title(Some(&format!("{} · {}", crate::pages::full_title(id), rigg_core::version::NAME)));
         self.send_focus();
@@ -372,7 +372,7 @@ impl Shell {
                 p.hide();
             }
             *self.back.borrow_mut() = Some(from.clone());
-            v.set_back(pages::def(&from).map(|d| d.title).unwrap_or(tr!("Oversikt")));
+            v.set_back(pages::def(&from).map(|d| d.title()).unwrap_or(tr!("Oversikt")));
             self.outer.set_visible_child_name("innstillinger");
             crate::motion::fade_in(&app, &v.root, 4, 0.0);
             *app.page.borrow_mut() = "innstillinger".into();

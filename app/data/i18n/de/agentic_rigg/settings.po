@@ -98,7 +98,7 @@ msgstr "Einstellungsbereiche"
 
 #: crates/rigg/src/settings/mod.rs:364
 msgid "Endringer lagres straks."
-msgstr "Änderungen werden automatisch gespeichert."
+msgstr "Wird sofort gespeichert."
 
 #: crates/rigg/src/settings/mod.rs:366
 msgid "Versjonslogg"

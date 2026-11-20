@@ -1664,7 +1664,7 @@ impl Inner {
             g.state.append(&t);
         }
         if s.throttle.is_some() {
-            let text = if s.throttle == Some(0) || th == "Ingen" { tr!("Ingen begrensning").to_string() } else { th };
+            let text = if s.throttle == Some(0) || math::throttle_list(s.throttle).is_none_or(|reasons| reasons.is_empty()) { tr!("Ingen begrensning").to_string() } else { th };
             let t = crate::widgets::rows::tag(&text, None, if math::throttle_serious(s.throttle) { "warn" } else { "" });
             let tip_text = match (full.is_empty(), s.throttle_inferred) {
                 (true, false) => tr!("Klokkebegrensning akkurat nå.").to_string(),

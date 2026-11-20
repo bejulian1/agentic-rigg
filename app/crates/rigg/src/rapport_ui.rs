@@ -582,6 +582,9 @@ pub fn about_row(app: &Rc<App>) -> Option<Row> {
         tr!("Rapport"),
         Some(tr!("Alt appen vet om maskinen i én fil, som tekst eller Markdown. Serienumre og UUID er ikke med, med mindre du velger det.")),
         &b,
-        "rapport lagre feilsøking tekst markdown serienummer",
+        &crate::settings::kw(
+            "rapport lagre feilsøking tekst markdown serienummer",
+            tr!("søkeord", "rapport lagre feilsøking tekst markdown serienummer"),
+        ),
     ))
 }

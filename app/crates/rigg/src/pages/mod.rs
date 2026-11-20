@@ -22,6 +22,7 @@ pub mod system;
 pub mod viftekurve;
 
 use crate::state::App;
+use rigg_core::tr;
 use std::rc::Rc;
 
 /// Tastetrykk som skallet sender videre til siden som vises.
@@ -68,24 +69,30 @@ pub enum Section {
 
 pub struct PageDef {
     pub id: &'static str,
-    pub title: &'static str,
+    pub title: fn() -> &'static str,
     pub icon: &'static str,
     pub section: Section,
     pub build: fn(&Rc<App>) -> Box<dyn Page>,
 }
 
+impl PageDef {
+    pub fn title(&self) -> &'static str {
+        (self.title)()
+    }
+}
+
 pub const PAGES: [PageDef; 11] = [
-    PageDef { id: "oversikt", title: "Oversikt", icon: "layout-dashboard", section: Section::Monitor, build: oversikt::build },
-    PageDef { id: "sensorer", title: "Sensorer", icon: "thermometer", section: Section::Monitor, build: sensorer::build },
-    PageDef { id: "grafer", title: "Grafer", icon: "chart-line", section: Section::Monitor, build: grafer::build },
-    PageDef { id: "grafikkort", title: "Grafikkort", icon: "gpu", section: Section::Hardware, build: grafikkort::build },
-    PageDef { id: "prosessor", title: "Prosessor", icon: "cpu", section: Section::Hardware, build: prosessor::build },
-    PageDef { id: "disker", title: "Disker", icon: "hard-drive", section: Section::Hardware, build: disker::build },
-    PageDef { id: "system", title: "System", icon: "monitor", section: Section::Hardware, build: system::build },
-    PageDef { id: "kontroller", title: "Klokker og effekt", icon: "sliders-horizontal", section: Section::Control, build: kontroller::build },
-    PageDef { id: "viftekurve", title: "Vifter", icon: "fan", section: Section::Control, build: viftekurve::build },
-    PageDef { id: "lys", title: "RGB-lys", icon: "palette", section: Section::Control, build: lys::build },
-    PageDef { id: "oppgaver", title: "Oppgaver", icon: "activity", section: Section::Monitor, build: oppgaver::build },
+    PageDef { id: "oversikt", title: || tr!("Oversikt"), icon: "layout-dashboard", section: Section::Monitor, build: oversikt::build },
+    PageDef { id: "sensorer", title: || tr!("Sensorer"), icon: "thermometer", section: Section::Monitor, build: sensorer::build },
+    PageDef { id: "grafer", title: || tr!("Grafer"), icon: "chart-line", section: Section::Monitor, build: grafer::build },
+    PageDef { id: "grafikkort", title: || tr!("Grafikkort"), icon: "gpu", section: Section::Hardware, build: grafikkort::build },
+    PageDef { id: "prosessor", title: || tr!("Prosessor"), icon: "cpu", section: Section::Hardware, build: prosessor::build },
+    PageDef { id: "disker", title: || tr!("Disker"), icon: "hard-drive", section: Section::Hardware, build: disker::build },
+    PageDef { id: "system", title: || tr!("System"), icon: "monitor", section: Section::Hardware, build: system::build },
+    PageDef { id: "kontroller", title: || tr!("Klokker og effekt"), icon: "sliders-horizontal", section: Section::Control, build: kontroller::build },
+    PageDef { id: "viftekurve", title: || tr!("Vifter"), icon: "fan", section: Section::Control, build: viftekurve::build },
+    PageDef { id: "lys", title: || tr!("RGB-lys"), icon: "palette", section: Section::Control, build: lys::build },
+    PageDef { id: "oppgaver", title: || tr!("Oppgaver"), icon: "activity", section: Section::Monitor, build: oppgaver::build },
 ];
 
 pub fn def(id: &str) -> Option<&'static PageDef> {
@@ -94,16 +101,16 @@ pub fn def(id: &str) -> Option<&'static PageDef> {
 
 pub fn section_title(s: Section) -> &'static str {
     match s {
-        Section::Monitor => "Overvåking",
-        Section::Hardware => "Maskinvare",
-        Section::Control => "Skjermkortstyring",
+        Section::Monitor => tr!("Overvåking"),
+        Section::Hardware => tr!("Maskinvare"),
+        Section::Control => tr!("Skjermkortstyring"),
     }
 }
 
 /// Det som står foran sidetittelen i toppfeltet (runde 8A): Styring-sidene
 /// gjelder skjermkortet, så toppfeltet sier «Skjermkort › Vifter».
 pub fn crumb(id: &str) -> Option<&'static str> {
-    def(id).filter(|d| d.section == Section::Control).map(|_| "Skjermkort")
+    def(id).filter(|d| d.section == Section::Control).map(|_| tr!("Skjermkort"))
 }
 
 /// Hele navnet på en side der den står alene (vindustittelen, Startside og
@@ -111,7 +118,7 @@ pub fn crumb(id: &str) -> Option<&'static str> {
 pub fn full_title(id: &str) -> String {
     let Some(d) = def(id) else { return id.to_string() };
     match crumb(id) {
-        Some(c) => format!("{c} › {}", d.title),
-        None => d.title.to_string(),
+        Some(c) => format!("{c} › {}", d.title()),
+        None => d.title().to_string(),
     }
 }
