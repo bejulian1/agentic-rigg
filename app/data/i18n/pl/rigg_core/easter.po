@@ -46,7 +46,7 @@ msgstr "Udało się znaleźć ten sekret. Dobra robota!"
 
 #: crates/rigg-core/src/easter.rs:111
 msgid "På Lys finnes det en effekt som ikke står i lista. Den er norsk."
-msgstr "W Podświetleniu RGB kryje się efekt spoza listy. Po norwesku nazywa się «nordlys»."
+msgstr "W Podświetleniu RGB kryje się efekt spoza listy. Ma norweską nazwę."
 
 #: crates/rigg-core/src/easter.rs:150
 msgid "Juksekode godtatt"
@@ -74,27 +74,27 @@ msgstr "Jesteś teraz programistą. Pewnie i tak już nim byłeś."
 
 #: crates/rigg-core/src/easter.rs:196
 msgid "Ett klikk til, så er du utvikler."
-msgstr "Jeszcze jedno kliknięcie do zostania programistą."
+msgstr "Jeszcze jedno kliknięcie i jesteś programistą."
 
 #: crates/rigg-core/src/easter.rs:197
 msgid "To klikk til, så er du utvikler."
-msgstr "Jeszcze dwa kliknięcia do zostania programistą."
+msgstr "Jeszcze dwa kliknięcia i jesteś programistą."
 
 #: crates/rigg-core/src/easter.rs:198
 msgid "Tre klikk til, så er du utvikler."
-msgstr "Jeszcze trzy kliknięcia do zostania programistą."
+msgstr "Jeszcze trzy kliknięcia i jesteś programistą."
 
 #: crates/rigg-core/src/easter.rs:199
 msgid "Fire klikk til, så er du utvikler."
-msgstr "Jeszcze cztery kliknięcia do zostania programistą."
+msgstr "Jeszcze cztery kliknięcia i jesteś programistą."
 
 #: crates/rigg-core/src/easter.rs:200
 msgid "Fem klikk til, så er du utvikler."
-msgstr "Jeszcze pięć kliknięć do zostania programistą."
+msgstr "Jeszcze pięć kliknięć i jesteś programistą."
 
 #: crates/rigg-core/src/easter.rs:201
 msgid "Seks klikk til, så er du utvikler."
-msgstr "Jeszcze sześć kliknięć do zostania programistą."
+msgstr "Jeszcze sześć kliknięć i jesteś programistą."
 
 #: crates/rigg-core/src/easter.rs:215
 msgid "42 °C – svaret på livet, universet og alt. Målingen er ekte; det er bare tallet som er morsomt."
@@ -113,7 +113,7 @@ msgstr "Wszystkiego najlepszego! GeForce RTX 2080 trafił do sklepów 20 wrześn
 
 #: crates/rigg-core/src/easter.rs:243
 msgid "Sent oppe? Skjermkortet er våkent det også."
-msgstr "Późno jeszcze? Karta graficzna też nie śpi."
+msgstr "Jeszcze nie śpisz? Karta graficzna też nie."
 
 #: crates/rigg-core/src/easter.rs:251
 msgid "Ingen sensor måler kaffe ennå. Det nærmeste er CPU-temperaturen."
@@ -137,7 +137,7 @@ msgstr "Biblioteka"
 
 #: crates/rigg-core/src/easter.rs:270
 msgid "Alle punktene står på 35 %, så lavt kortet tillater. Hysj."
-msgstr "Wszystkie punkty na 35 %, najciszej jak pozwala karta. Cii."
+msgstr "Wszystkie punkty na 35 %, najniżej, jak pozwala karta. Cii…"
 
 #: crates/rigg-core/src/easter.rs:278
 msgid "{navn} {versjon} · bygg {bygg}\nHei, nysgjerrige utvikler. Alt her leser bare; ingenting sendes til skjermkortet.\nDet finnes {antall} små overraskelser – agentic-rigg --hint gir et hint."

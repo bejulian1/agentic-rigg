@@ -103,7 +103,7 @@ msgstr "「{sok}」に一致する項目はありません"
 
 #: crates/rigg/src/settings/sidefelt.rs:235
 msgid "Full"
-msgstr "フル"
+msgstr "展開"
 
 #: crates/rigg/src/settings/sidefelt.rs:235
 msgid "Ikonlist"

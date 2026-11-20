@@ -132,7 +132,7 @@ msgstr "Almacenamiento"
 
 #: crates/rigg/src/settings/data.rs:203
 msgid "Ingenting her leses eller sendes ut av maskinen."
-msgstr "Nada aquí se lee ni se envía fuera del equipo."
+msgstr "Estos datos no salen del equipo."
 
 #: crates/rigg/src/settings/data.rs:205
 msgid "Innstillinger"

@@ -103,7 +103,7 @@ msgstr "Kein Wert passt zu „{sok}“"
 
 #: crates/rigg/src/settings/sidefelt.rs:235
 msgid "Full"
-msgstr "Voll"
+msgstr "Ausgeklappt"
 
 #: crates/rigg/src/settings/sidefelt.rs:235
 msgid "Ikonlist"
@@ -115,7 +115,7 @@ msgstr "Breite der Seitenleiste"
 
 #: crates/rigg/src/settings/sidefelt.rs:244
 msgid "Vinduet er smalt, så sidefeltet er en ikonlist nå. Valget gjelder i bredere vinduer."
-msgstr "Das Fenster ist schmal, daher ist die Seitenleiste als Symbolleiste eingeklappt. Die Wahl gilt für breitere Fenster."
+msgstr "Schmale Fenster zeigen nur Symbole. Diese Einstellung gilt für breitere Fenster."
 
 #: crates/rigg/src/settings/sidefelt.rs:246
 msgid "Ikonlista viser bare ikoner og korte tall. Også Ctrl+B og knappen nederst i sidefeltet."
@@ -140,7 +140,7 @@ msgstr "symbolleiste einklappen erweitern schmal breite"
 
 #: crates/rigg/src/settings/sidefelt.rs:283
 msgid "Sparklinjer"
-msgstr "Sparklines"
+msgstr "Minidiagramme"
 
 #: crates/rigg/src/settings/sidefelt.rs:283
 msgid "Liten graf for siste minutt ved hver verdi i statusblokken."
@@ -149,7 +149,7 @@ msgstr "Kleines Diagramm der letzten Minute neben jedem Wert im Statusblock."
 #: crates/rigg/src/settings/sidefelt.rs:283
 msgctxt "søkeord"
 msgid "statusblokk graf"
-msgstr "statusblock diagramm sparkline"
+msgstr "statusblock diagramm minidiagramm sparkline"
 
 #: crates/rigg/src/settings/sidefelt.rs:289
 msgid "Sider"

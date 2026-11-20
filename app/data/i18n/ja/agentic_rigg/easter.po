@@ -11,3 +11,7 @@ msgstr ""
 #: crates/rigg/src/easter.rs:117
 msgid "{funnet} av {totalt} funnet"
 msgstr "{totalt} 個中 {funnet} 個発見"
+
+#: crates/rigg/src/easter.rs:34
+msgid "Små overraskelser er slått av (Innstillinger › Generelt)."
+msgstr "ちょっとしたお楽しみはオフです（設定 › 一般）。"

@@ -43,7 +43,7 @@ msgstr "ログ記録を停止しました"
 
 #: crates/rigg/src/logg_ui.rs:189 crates/rigg/src/logg_ui.rs:225 crates/rigg/src/logg_ui.rs:258
 msgid "Vis i Filer"
-msgstr "ファイルで表示"
+msgstr "ファイルマネージャーで表示"
 
 #: crates/rigg/src/logg_ui.rs:223
 msgid "Logger til fil"

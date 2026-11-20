@@ -46,7 +46,7 @@ msgstr "被你找到了，干得漂亮。"
 
 #: crates/rigg-core/src/easter.rs:111
 msgid "På Lys finnes det en effekt som ikke står i lista. Den er norsk."
-msgstr "「RGB 灯光」里藏着一个不在列表中的挪威语特效（nordlys）。"
+msgstr "「RGB 灯光」里藏着一个不在列表中的特效，名字是挪威语。"
 
 #: crates/rigg-core/src/easter.rs:150
 msgid "Juksekode godtatt"
@@ -127,7 +127,7 @@ msgstr "喷气引擎"
 
 #: crates/rigg-core/src/easter.rs:267
 msgid "Alle punktene står på 100 %. Naboene hilser."
-msgstr "所有节点均设为 100 %。邻居向你问好。"
+msgstr "所有节点均为 100%。邻居托我向你问好。"
 
 #: crates/rigg-core/src/easter.rs:270
 msgid "Bibliotek"
@@ -135,7 +135,7 @@ msgstr "图书馆"
 
 #: crates/rigg-core/src/easter.rs:270
 msgid "Alle punktene står på 35 %, så lavt kortet tillater. Hysj."
-msgstr "所有节点均设为 35 %，已达显卡允许下限。嘘。"
+msgstr "所有节点均为 35%，已到显卡允许的下限。嘘。"
 
 #: crates/rigg-core/src/easter.rs:278
 msgid "{navn} {versjon} · bygg {bygg}\nHei, nysgjerrige utvikler. Alt her leser bare; ingenting sendes til skjermkortet.\nDet finnes {antall} små overraskelser – agentic-rigg --hint gir et hint."

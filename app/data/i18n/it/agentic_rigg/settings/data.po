@@ -132,7 +132,7 @@ msgstr "Archiviazione"
 
 #: crates/rigg/src/settings/data.rs:203
 msgid "Ingenting her leses eller sendes ut av maskinen."
-msgstr "Nulla qui viene letto o inviato fuori dal computer."
+msgstr "Questi dati restano sul computer."
 
 #: crates/rigg/src/settings/data.rs:205
 msgid "Innstillinger"

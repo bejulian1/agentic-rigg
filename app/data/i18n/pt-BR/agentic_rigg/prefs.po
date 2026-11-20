@@ -11,3 +11,7 @@ msgstr ""
 #: crates/rigg/src/prefs.rs:33
 msgid "ui.json kunne ikke leses. Kopien heter {fil}. Standardverdiene brukes."
 msgstr "Não foi possível ler ui.json. Uma cópia foi salva como {fil}. Usando valores padrão."
+
+#: crates/rigg/src/prefs.rs:46
+msgid "Kunne ikke lagre ui.json: {feil}"
+msgstr "Não foi possível salvar ui.json: {feil}"

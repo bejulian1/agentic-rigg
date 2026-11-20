@@ -86,7 +86,7 @@ msgstr "时间格式"
 
 #: crates/rigg/src/settings/format.rs:50
 msgid "Min/maks på Sensorer, profiler og grafer. Nå: {na}."
-msgstr "传感器、配置文件和图表中的最小/最大时间戳。当前：{na}。"
+msgstr "用于传感器、配置文件和图表的最小值与最大值时间。当前：{na}。"
 
 #: crates/rigg/src/settings/format.rs:51
 msgid "System"

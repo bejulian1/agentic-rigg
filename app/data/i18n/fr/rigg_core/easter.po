@@ -46,7 +46,7 @@ msgstr "Vous avez trouvé celui-ci. Bien joué."
 
 #: crates/rigg-core/src/easter.rs:111
 msgid "På Lys finnes det en effekt som ikke står i lista. Den er norsk."
-msgstr "Dans Éclairage RGB se cache un effet secret. Son nom norvégien est « nordlys »."
+msgstr "Un effet absent de la liste se cache dans Éclairage RGB. Son nom est norvégien."
 
 #: crates/rigg-core/src/easter.rs:150
 msgid "Juksekode godtatt"
@@ -112,11 +112,11 @@ msgstr "Joyeux anniversaire ! La GeForce RTX 2080 est sortie le 20 septembre 201
 
 #: crates/rigg-core/src/easter.rs:243
 msgid "Sent oppe? Skjermkortet er våkent det også."
-msgstr "Couché tard ? Votre GPU est encore réveillé lui aussi."
+msgstr "Encore debout ? Votre GPU aussi."
 
 #: crates/rigg-core/src/easter.rs:251
 msgid "Ingen sensor måler kaffe ennå. Det nærmeste er CPU-temperaturen."
-msgstr "Aucun capteur ne mesure encore le café. Le plus proche, c’est la température du CPU."
+msgstr "Aucun capteur ne mesure le café. On n’a que la température du processeur !"
 
 #: crates/rigg-core/src/easter.rs:254
 msgid "Hei! Ingen sensor heter det, men takk for at du spør."

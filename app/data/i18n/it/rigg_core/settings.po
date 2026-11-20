@@ -242,7 +242,7 @@ msgstr "L’intervallo di registro deve essere 0,5, 1, 2, 5 o 10 s"
 
 #: crates/rigg-core/src/settings.rs:612
 msgid "Loggmappa må være en full sti"
-msgstr "La cartella del registro deve essere un percorso completo"
+msgstr "La cartella del registro richiede un percorso assoluto"
 
 #: crates/rigg-core/src/settings.rs:615
 msgid "Formatet må være standard eller norsk"

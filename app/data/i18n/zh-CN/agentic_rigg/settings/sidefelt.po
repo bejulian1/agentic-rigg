@@ -103,7 +103,7 @@ msgstr "没有匹配「{sok}」的项目"
 
 #: crates/rigg/src/settings/sidefelt.rs:235
 msgid "Full"
-msgstr "完整"
+msgstr "展开"
 
 #: crates/rigg/src/settings/sidefelt.rs:235
 msgid "Ikonlist"

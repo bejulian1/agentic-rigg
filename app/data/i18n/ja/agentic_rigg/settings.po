@@ -38,7 +38,7 @@ msgstr "サイドバー"
 
 #: crates/rigg/src/settings/mod.rs:49
 msgid "Statusblokken, bredden og sidene i sidefeltet"
-msgstr "ステータスパネル、幅、表示するページ"
+msgstr "ステータス欄、幅、表示するページ"
 
 #: crates/rigg/src/settings/mod.rs:50
 msgid "Grafer og sensorer"
@@ -50,7 +50,7 @@ msgstr "時間範囲、グラフ、センサー、警告色"
 
 #: crates/rigg/src/settings/mod.rs:51
 msgid "Logging og varsler"
-msgstr "ログと警告"
+msgstr "ログと通知"
 
 #: crates/rigg/src/settings/mod.rs:51
 msgid "Logg til fil og skrivebordsvarsler"

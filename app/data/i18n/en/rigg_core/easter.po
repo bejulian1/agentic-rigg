@@ -46,7 +46,7 @@ msgstr "You found this one. Nice work."
 
 #: crates/rigg-core/src/easter.rs:111
 msgid "På Lys finnes det en effekt som ikke står i lista. Den er norsk."
-msgstr "On RGB lighting there's an unlisted effect. Its name is Norwegian (nordlys)."
+msgstr "There’s an unlisted effect under RGB lighting. Its name is Norwegian."
 
 #: crates/rigg-core/src/easter.rs:150
 msgid "Juksekode godtatt"

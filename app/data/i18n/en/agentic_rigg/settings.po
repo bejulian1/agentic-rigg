@@ -50,7 +50,7 @@ msgstr "Time range, charts, sensors and warning colors"
 
 #: crates/rigg/src/settings/mod.rs:51
 msgid "Logging og varsler"
-msgstr "Logging and alerts"
+msgstr "Logging and notifications"
 
 #: crates/rigg/src/settings/mod.rs:51
 msgid "Logg til fil og skrivebordsvarsler"

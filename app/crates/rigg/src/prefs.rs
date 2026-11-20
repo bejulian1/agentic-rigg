@@ -28,8 +28,10 @@ pub fn load(profile: rigg_core::paths::Profile) -> (Settings, Option<String>) {
             let mut bad = p.as_os_str().to_owned();
             bad.push(format!(".ødelagt-{stamp}"));
             let _ = std::fs::copy(&p, &bad);
+            let settings = Settings::default();
+            rigg_core::i18n::init(&settings.language);
             (
-                Settings::default(),
+                settings,
                 Some(trf!(
                     "ui.json kunne ikke leses. Kopien heter {fil}. Standardverdiene brukes.",
                     fil = PathBuf::from(bad).file_name().unwrap_or_default().to_string_lossy(),
@@ -41,7 +43,7 @@ pub fn load(profile: rigg_core::paths::Profile) -> (Settings, Option<String>) {
 
 pub fn save_now(app: &App) {
     if let Err(e) = try_save_now(app) {
-        eprintln!("Kunne ikke lagre ui.json: {e}");
+        eprintln!("{}", trf!("Kunne ikke lagre ui.json: {feil}", feil = e));
     }
 }
 

@@ -131,7 +131,7 @@ msgstr "存储位置"
 
 #: crates/rigg/src/settings/data.rs:203
 msgid "Ingenting her leses eller sendes ut av maskinen."
-msgstr "此处内容绝不会被外部读取或发送到本机之外。"
+msgstr "这些数据仅保存在本机。"
 
 #: crates/rigg/src/settings/data.rs:205
 msgid "Innstillinger"

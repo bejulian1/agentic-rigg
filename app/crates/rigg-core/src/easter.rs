@@ -8,6 +8,7 @@
 //!
 //! Krokene i vinduet står i `rigg/src/easter.rs`; sidene kaller én funksjon hver.
 
+use crate::i18n::{self, Language};
 use crate::{tr, trf, trn};
 
 pub struct Egg {
@@ -246,13 +247,37 @@ pub fn night_tip() -> &'static str {
 // ---- 7 · Kaffe ----
 
 pub fn filter_quip(filter: &str) -> Option<&'static str> {
-    match filter.trim().to_lowercase().as_str() {
-        "kaffe" | "kaffi" | "kaffen" | "coffee" | "kaffee" | "café" | "cafe" | "caffè" | "caffe" | "kawa" | "咖啡" | "コーヒー" => {
-            Some(tr!("Ingen sensor måler kaffe ennå. Det nærmeste er CPU-temperaturen."))
-        }
-        "hei" | "hallo" | "heisann" | "hei hei" | "hoi" | "hi" | "hello" | "hey" | "bonjour" | "salut" | "hola" | "olá" | "ola" | "ciao" | "cześć" | "czesc" | "hej" | "你好" | "こんにちは" => {
-            Some(tr!("Hei! Ingen sensor heter det, men takk for at du spør."))
-        }
+    match filter_kind(filter, i18n::active())? {
+        FilterQuip::Coffee => Some(tr!("Ingen sensor måler kaffe ennå. Det nærmeste er CPU-temperaturen.")),
+        FilterQuip::Greeting => Some(tr!("Hei! Ingen sensor heter det, men takk for at du spør.")),
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+enum FilterQuip {
+    Coffee,
+    Greeting,
+}
+
+fn filter_kind(filter: &str, language: Language) -> Option<FilterQuip> {
+    use FilterQuip::{Coffee, Greeting};
+    match (language, filter.trim().to_lowercase().as_str()) {
+        (_, "kaffe" | "kaffi" | "kaffen" | "coffee")
+        | (Language::De, "kaffee")
+        | (Language::Fr | Language::Es | Language::PtBr, "café")
+        | (Language::It, "caffè")
+        | (Language::Pl, "kawa")
+        | (Language::ZhCn, "咖啡")
+        | (Language::Ja, "コーヒー") => Some(Coffee),
+        (_, "hei" | "hallo" | "heisann" | "hei hei" | "hoi")
+        | (Language::En, "hello")
+        | (Language::Fr, "bonjour" | "salut")
+        | (Language::Es, "hola")
+        | (Language::PtBr, "olá")
+        | (Language::It, "ciao")
+        | (Language::Pl, "cześć")
+        | (Language::ZhCn, "你好")
+        | (Language::Ja, "こんにちは") => Some(Greeting),
         _ => None,
     }
 }
@@ -365,6 +390,18 @@ mod tests {
         assert!(!(0..4).any(|i| dust_click(&mut c, i * 100)));
         assert!(dust_click(&mut c, 500));
         assert!(hint(&IDS.map(String::from), 0).contains("alle 10"));
+    }
+
+    #[test]
+    fn sensorfilter_spøker_bare_for_hele_ord_i_riktig_språk() {
+        assert_eq!(filter_kind(" CAFÉ ", Language::Fr), Some(FilterQuip::Coffee));
+        assert_eq!(filter_kind("こんにちは", Language::Ja), Some(FilterQuip::Greeting));
+        assert_eq!(filter_kind("café", Language::Nb), None);
+        for language in Language::ALL {
+            for query in ["hi", "CAFE", "caffe", "Coffee Lake", "GPU temp", "咖啡 温度"] {
+                assert_eq!(filter_kind(query, language), None, "{language:?}: {query}");
+            }
+        }
     }
 
     #[test]

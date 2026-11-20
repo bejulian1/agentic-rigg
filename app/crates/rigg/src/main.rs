@@ -72,8 +72,9 @@ fn main() -> gtk::glib::ExitCode {
             }
             "--hint" => {
                 let (s, _) = prefs::load(rigg_core::paths::Profile::current());
+                rigg_core::i18n::init(&s.language);
                 if !s.surprises {
-                    println!("Små overraskelser er slått av (Innstillinger › Generelt).");
+                    println!("{}", crate::easter::disabled_hint());
                 } else {
                     let pick = (rigg_core::now_ms() / 1000) as usize;
                     println!("{}", rigg_core::easter::hint(&s.eggs_found, pick));

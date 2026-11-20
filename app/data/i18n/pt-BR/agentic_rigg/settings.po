@@ -50,7 +50,7 @@ msgstr "Intervalo de tempo, gráficos, sensores e cores de alerta"
 
 #: crates/rigg/src/settings/mod.rs:51
 msgid "Logging og varsler"
-msgstr "Registro e alertas"
+msgstr "Registro e notificações"
 
 #: crates/rigg/src/settings/mod.rs:51
 msgid "Logg til fil og skrivebordsvarsler"

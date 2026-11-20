@@ -22,7 +22,7 @@ msgstr "パスをコピー"
 
 #: crates/rigg/src/settings/data.rs:49
 msgid "Vis i Filer"
-msgstr "ファイルで表示"
+msgstr "ファイルマネージャーで表示"
 
 #: crates/rigg/src/settings/data.rs:66
 msgid "Eksporter innstillinger"
@@ -131,7 +131,7 @@ msgstr "保存先"
 
 #: crates/rigg/src/settings/data.rs:203
 msgid "Ingenting her leses eller sendes ut av maskinen."
-msgstr "このデータは外部に読み取られたり送信されたりしません。"
+msgstr "このデータは端末の外に送信されません。"
 
 #: crates/rigg/src/settings/data.rs:205
 msgid "Innstillinger"

@@ -50,11 +50,11 @@ msgstr "Période, graphiques, capteurs et couleurs d’alerte"
 
 #: crates/rigg/src/settings/mod.rs:51
 msgid "Logging og varsler"
-msgstr "Journal et alertes"
+msgstr "Journal et notifications"
 
 #: crates/rigg/src/settings/mod.rs:51
 msgid "Logg til fil og skrivebordsvarsler"
-msgstr "Journal dans un fichier et notifications du bureau"
+msgstr "Journal sur fichier et notifications du bureau"
 
 #: crates/rigg/src/settings/mod.rs:52
 msgid "Skjermkortstyring"

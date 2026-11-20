@@ -10,7 +10,7 @@ msgstr ""
 
 #: crates/rigg/src/settings/grafer.rs:22 crates/rigg/src/settings/grafer.rs:26 crates/rigg/src/settings/grafer.rs:82
 msgid "Tidsvindu på Grafer"
-msgstr "Zeitbereich unter Diagramme"
+msgstr "Diagrammzeitraum"
 
 #: crates/rigg/src/settings/grafer.rs:34
 msgid "Tilpass"
@@ -99,7 +99,7 @@ msgstr "Sensoren"
 
 #: crates/rigg/src/settings/grafer.rs:128
 msgid "Sparklinjer"
-msgstr "Sparklines"
+msgstr "Minidiagramme"
 
 #: crates/rigg/src/settings/grafer.rs:129
 msgid "Liten graf for siste 60 sekunder ved hver sensor."

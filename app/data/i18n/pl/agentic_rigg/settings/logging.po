@@ -90,7 +90,7 @@ msgstr "Standardowy CSV"
 
 #: crates/rigg/src/settings/logging.rs:223
 msgid "Norsk regneark"
-msgstr "Norweski arkusz"
+msgstr "Norweski format arkusza"
 
 #: crates/rigg/src/settings/logging.rs:223 crates/rigg/src/settings/logging.rs:242
 msgid "Format"
@@ -128,7 +128,7 @@ msgstr "Czujniki"
 
 #: crates/rigg/src/settings/logging.rs:239
 msgid "Alle sensorene, eller bare de du velger (også med høyreklikk på Sensorer › «Ta med i loggen»)."
-msgstr "Wszystkie czujniki lub tylko wybrane (także prawy klik na Czujnikach › «Uwzględnij w logu»)."
+msgstr "Wszystkie czujniki lub tylko wybrane. Kliknij czujnik prawym przyciskiem i wybierz „Uwzględnij w logu”."
 
 #: crates/rigg/src/settings/logging.rs:239
 msgctxt "søkeord"

@@ -132,7 +132,7 @@ msgstr "Stockage"
 
 #: crates/rigg/src/settings/data.rs:203
 msgid "Ingenting her leses eller sendes ut av maskinen."
-msgstr "Rien ici n’est lu ou envoyé hors de cet ordinateur."
+msgstr "Ces données restent sur cet ordinateur."
 
 #: crates/rigg/src/settings/data.rs:205
 msgid "Innstillinger"
@@ -218,7 +218,7 @@ msgstr "Réinitialiser tous les paramètres"
 
 #: crates/rigg/src/settings/data.rs:223
 msgid "Alt i Innstillinger går tilbake til standard. Profiler og lysvalg blir. Kan angres i noen sekunder."
-msgstr "Tous les paramètres reviennent par défaut. Profils et éclairage sont conservés. Annulable quelques secondes."
+msgstr "Rétablit les paramètres par défaut sans toucher aux profils ni à l’éclairage. Annulable quelques secondes."
 
 #: crates/rigg/src/settings/data.rs:223
 msgctxt "søkeord"

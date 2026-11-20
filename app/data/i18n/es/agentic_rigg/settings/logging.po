@@ -90,7 +90,7 @@ msgstr "CSV estándar"
 
 #: crates/rigg/src/settings/logging.rs:223
 msgid "Norsk regneark"
-msgstr "Hoja de cálculo noruega"
+msgstr "Formato de hoja noruego"
 
 #: crates/rigg/src/settings/logging.rs:223 crates/rigg/src/settings/logging.rs:242
 msgid "Format"

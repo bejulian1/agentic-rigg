@@ -10,7 +10,7 @@ msgstr ""
 
 #: crates/rigg/src/settings/grafer.rs:22 crates/rigg/src/settings/grafer.rs:26 crates/rigg/src/settings/grafer.rs:82
 msgid "Tidsvindu på Grafer"
-msgstr "Zakres czasu na Wykresach"
+msgstr "Zakres czasu wykresów"
 
 #: crates/rigg/src/settings/grafer.rs:34
 msgid "Tilpass"

@@ -38,7 +38,7 @@ msgstr "Seitenleiste"
 
 #: crates/rigg/src/settings/mod.rs:49
 msgid "Statusblokken, bredden og sidene i sidefeltet"
-msgstr "Statusbereich, Breite und sichtbare Seiten"
+msgstr "Statusblock, Breite und sichtbare Seiten"
 
 #: crates/rigg/src/settings/mod.rs:50
 msgid "Grafer og sensorer"
@@ -50,7 +50,7 @@ msgstr "Zeitraum, Diagramme, Sensoren und Warnfarben"
 
 #: crates/rigg/src/settings/mod.rs:51
 msgid "Logging og varsler"
-msgstr "Protokollierung und Warnungen"
+msgstr "Protokoll und Benachrichtigungen"
 
 #: crates/rigg/src/settings/mod.rs:51
 msgid "Logg til fil og skrivebordsvarsler"

@@ -38,7 +38,7 @@ msgstr "侧边栏"
 
 #: crates/rigg/src/settings/mod.rs:49
 msgid "Statusblokken, bredden og sidene i sidefeltet"
-msgstr "状态面板、侧边栏宽度和可见页面"
+msgstr "状态栏、宽度和可见页面"
 
 #: crates/rigg/src/settings/mod.rs:50
 msgid "Grafer og sensorer"
@@ -50,7 +50,7 @@ msgstr "时间范围、图表、传感器和警告颜色"
 
 #: crates/rigg/src/settings/mod.rs:51
 msgid "Logging og varsler"
-msgstr "日志和警报"
+msgstr "日志和通知"
 
 #: crates/rigg/src/settings/mod.rs:51
 msgid "Logg til fil og skrivebordsvarsler"

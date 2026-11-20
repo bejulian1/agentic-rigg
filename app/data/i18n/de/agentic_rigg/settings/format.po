@@ -48,7 +48,7 @@ msgstr "binär dezimal gigabyte"
 
 #: crates/rigg/src/settings/format.rs:31 crates/rigg/src/settings/format.rs:33
 msgid "Nettrate"
-msgstr "Netzwerkrate"
+msgstr "Netzwerkdatenrate"
 
 #: crates/rigg/src/settings/format.rs:32
 msgid "Byte per sekund eller bit per sekund."

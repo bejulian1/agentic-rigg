@@ -46,7 +46,7 @@ msgstr "Du hast dieses gefunden. Gut gemacht."
 
 #: crates/rigg-core/src/easter.rs:111
 msgid "På Lys finnes det en effekt som ikke står i lista. Den er norsk."
-msgstr "Unter RGB-Beleuchtung gibt es einen geheimen Effekt. Er heißt auf Norwegisch „nordlys“."
+msgstr "Unter RGB-Beleuchtung gibt es einen Effekt, der nicht in der Liste steht. Sein Name ist norwegisch."
 
 #: crates/rigg-core/src/easter.rs:150
 msgid "Juksekode godtatt"
@@ -136,7 +136,7 @@ msgstr "Bibliothek"
 
 #: crates/rigg-core/src/easter.rs:270
 msgid "Alle punktene står på 35 %, så lavt kortet tillater. Hysj."
-msgstr "Alle Punkte auf 35 %, so leise wie die Karte es zulässt. Pssst."
+msgstr "Alle Punkte auf 35 %, dem niedrigsten zulässigen Wert. Pssst."
 
 #: crates/rigg-core/src/easter.rs:278
 msgid "{navn} {versjon} · bygg {bygg}\nHei, nysgjerrige utvikler. Alt her leser bare; ingenting sendes til skjermkortet.\nDet finnes {antall} små overraskelser – agentic-rigg --hint gir et hint."

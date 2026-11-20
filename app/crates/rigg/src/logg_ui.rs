@@ -61,9 +61,9 @@ fn file_name(v: &Value) -> String {
 
 /// «1 234 rader · 2,1 MB».
 pub fn rows_text(v: &Value) -> String {
-    let rows = v["rows"].as_f64().unwrap_or(0.0);
+    let rows = v["rows"].as_f64().unwrap_or(0.0) as i64;
     let bytes = v["bytes"].as_f64();
-    format!("{} · {}", trn!(rows as i64, "{antall} rad", "{antall} rader", antall = F::num(Some(rows), 0)), F::bytes(bytes, 1))
+    format!("{} · {}", trn!(rows, "{antall} rad", "{antall} rader", antall = F::num(Some(rows as f64), 0)), F::bytes(bytes, 1))
 }
 
 struct Btn {

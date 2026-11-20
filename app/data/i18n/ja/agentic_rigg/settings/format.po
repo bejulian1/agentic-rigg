@@ -86,7 +86,7 @@ msgstr "時刻形式"
 
 #: crates/rigg/src/settings/format.rs:50
 msgid "Min/maks på Sensorer, profiler og grafer. Nå: {na}."
-msgstr "センサー・プロファイル・グラフの最小/最大時刻。現在：{na}。"
+msgstr "センサー・プロファイル・グラフの最小値と最大値の記録時刻。現在：{na}。"
 
 #: crates/rigg/src/settings/format.rs:51
 msgid "System"

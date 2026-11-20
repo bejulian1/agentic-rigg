@@ -520,7 +520,7 @@ impl Sidebar {
         moon.add_css_class("moon");
         moon.set_visible(false);
         moon.set_can_target(true);
-        moon.set_tooltip_text(Some(rigg_core::easter::NIGHT_TIP));
+        moon.set_tooltip_text(Some(rigg_core::easter::night_tip()));
         head.append(&moon);
         let head_handle = gtk::WindowHandle::new();
         head_handle.set_child(Some(&head));

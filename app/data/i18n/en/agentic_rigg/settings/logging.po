@@ -34,7 +34,7 @@ msgstr "Filter"
 
 #: crates/rigg/src/settings/logging.rs:82
 msgid "Sensorene vises når tjenesten har sendt første prøve."
-msgstr "Sensors appear once the service sends its first sample."
+msgstr "Sensors appear after the first reading."
 
 #: crates/rigg/src/settings/logging.rs:91
 msgid "Trådene (last og klokke per tråd) er med når du logger alle sensorene."

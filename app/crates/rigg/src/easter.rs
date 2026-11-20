@@ -22,12 +22,16 @@ use crate::state::App;
 use crate::toast::Toast;
 use gtk::prelude::*;
 use rigg_core::easter as E;
-use rigg_core::trf;
+use rigg_core::{tr, trf};
 use std::cell::RefCell;
 use std::rc::Rc;
 
 pub fn enabled(app: &App) -> bool {
     app.settings().surprises
+}
+
+pub fn disabled_hint() -> &'static str {
+    tr!("Små overraskelser er slått av (Innstillinger › Generelt).")
 }
 
 fn say(app: &App, title: &str, body: &str) {

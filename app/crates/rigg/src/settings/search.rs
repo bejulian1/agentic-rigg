@@ -156,4 +156,11 @@ mod tests {
         assert!(!fits("Lyst eller lyst", &t));
         assert_eq!(norm("  Søk   I  Innstillinger "), "søk i innstillinger");
     }
+
+    #[test]
+    fn søkeord_finner_både_bokmål_og_oversettelsen() {
+        let words = super::super::kw("temperatur varsel", "temperature alert");
+        assert!(fits(&words, &["varsel".into(), "alert".into()]));
+        assert!(matches!(super::super::kw("sensor", "sensor"), std::borrow::Cow::Borrowed("sensor")));
+    }
 }

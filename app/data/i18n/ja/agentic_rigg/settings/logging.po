@@ -50,7 +50,7 @@ msgstr "ログを開始"
 
 #: crates/rigg/src/settings/logging.rs:115
 msgid "Vis i Filer"
-msgstr "ファイルで表示"
+msgstr "ファイルマネージャーで表示"
 
 #: crates/rigg/src/settings/logging.rs:152
 msgid "Alle"
@@ -90,7 +90,7 @@ msgstr "標準 CSV"
 
 #: crates/rigg/src/settings/logging.rs:223
 msgid "Norsk regneark"
-msgstr "ノルウェー表計算"
+msgstr "ノルウェー式の表計算形式"
 
 #: crates/rigg/src/settings/logging.rs:223 crates/rigg/src/settings/logging.rs:242
 msgid "Format"

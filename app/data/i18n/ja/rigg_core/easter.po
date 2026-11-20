@@ -46,7 +46,7 @@ msgstr "見つけましたね。お見事！"
 
 #: crates/rigg-core/src/easter.rs:111
 msgid "På Lys finnes det en effekt som ikke står i lista. Den er norsk."
-msgstr "「RGB ライティング」には一覧にない隠しエフェクトがあります。ノルウェー語で「nordlys」。"
+msgstr "「RGB ライティング」には一覧にない効果が隠れています。名前はノルウェー語です。"
 
 #: crates/rigg-core/src/easter.rs:150
 msgid "Juksekode godtatt"
@@ -74,31 +74,31 @@ msgstr "開発者になりました。たぶん最初からそうでしたよね
 
 #: crates/rigg-core/src/easter.rs:196
 msgid "Ett klikk til, så er du utvikler."
-msgstr "あと 1 回クリックで開発者になれます。"
+msgstr "あと 1 回クリックすると開発者になれます。"
 
 #: crates/rigg-core/src/easter.rs:197
 msgid "To klikk til, så er du utvikler."
-msgstr "あと 2 回クリックで開発者になれます。"
+msgstr "あと 2 回クリックすると開発者になれます。"
 
 #: crates/rigg-core/src/easter.rs:198
 msgid "Tre klikk til, så er du utvikler."
-msgstr "あと 3 回クリックで開発者になれます。"
+msgstr "あと 3 回クリックすると開発者になれます。"
 
 #: crates/rigg-core/src/easter.rs:199
 msgid "Fire klikk til, så er du utvikler."
-msgstr "あと 4 回クリックで開発者になれます。"
+msgstr "あと 4 回クリックすると開発者になれます。"
 
 #: crates/rigg-core/src/easter.rs:200
 msgid "Fem klikk til, så er du utvikler."
-msgstr "あと 5 回クリックで開発者になれます。"
+msgstr "あと 5 回クリックすると開発者になれます。"
 
 #: crates/rigg-core/src/easter.rs:201
 msgid "Seks klikk til, så er du utvikler."
-msgstr "あと 6 回クリックで開発者になれます。"
+msgstr "あと 6 回クリックすると開発者になれます。"
 
 #: crates/rigg-core/src/easter.rs:215
 msgid "42 °C – svaret på livet, universet og alt. Målingen er ekte; det er bare tallet som er morsomt."
-msgstr "42 °C――生命、宇宙、そして万物についての究極の答え。計測値は本物です、数字がちょっと面白いだけ。"
+msgstr "42 °C――生命、宇宙、そして万物についての究極の答え。測定値は本物。面白いのは数字だけ。"
 
 #: crates/rigg-core/src/easter.rs:229
 msgid "{ar} år i dag"
@@ -127,7 +127,7 @@ msgstr "ジェットエンジン"
 
 #: crates/rigg-core/src/easter.rs:267
 msgid "Alle punktene står på 100 %. Naboene hilser."
-msgstr "全ポイント 100 %。ご近所さんが挨拶しています。"
+msgstr "全ポイント 100 %。ご近所さんからよろしくとのこと。"
 
 #: crates/rigg-core/src/easter.rs:270
 msgid "Bibliotek"

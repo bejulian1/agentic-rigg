@@ -103,7 +103,7 @@ msgstr "Ningún valor coincide con «{sok}»"
 
 #: crates/rigg/src/settings/sidefelt.rs:235
 msgid "Full"
-msgstr "Completo"
+msgstr "Expandida"
 
 #: crates/rigg/src/settings/sidefelt.rs:235
 msgid "Ikonlist"
@@ -115,7 +115,7 @@ msgstr "Ancho de la barra lateral"
 
 #: crates/rigg/src/settings/sidefelt.rs:244
 msgid "Vinduet er smalt, så sidefeltet er en ikonlist nå. Valget gjelder i bredere vinduer."
-msgstr "La ventana es estrecha, así que la barra lateral está contraída. Esta opción se aplica en ventanas más anchas."
+msgstr "En ventanas estrechas solo se ven los iconos. Este ajuste se aplica a ventanas más anchas."
 
 #: crates/rigg/src/settings/sidefelt.rs:246
 msgid "Ikonlista viser bare ikoner og korte tall. Også Ctrl+B og knappen nederst i sidefeltet."

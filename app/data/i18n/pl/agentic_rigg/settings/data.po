@@ -133,7 +133,7 @@ msgstr "Przechowywanie"
 
 #: crates/rigg/src/settings/data.rs:203
 msgid "Ingenting her leses eller sendes ut av maskinen."
-msgstr "Nic stąd nie jest odczytywane ani wysyłane poza komputer."
+msgstr "Te dane pozostają na komputerze."
 
 #: crates/rigg/src/settings/data.rs:205
 msgid "Innstillinger"
