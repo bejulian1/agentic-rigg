@@ -1,22 +1,40 @@
 # Patchlog
 
-## Pågående · Palit-RGB på feature/palit-rgb
+## 1.5.0 · bygg 25 – 21. november 2026: ti språk, Oppgaver og lys på kortet
+
+### Åpen kildekode
+- Repoet er offentlig under MIT. Engelsk README, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, maler for saker og PR-er og privat sårbarhetsrapportering. Forfatteradressen i første commit er byttet til GitHubs noreply-adresse; ellers er historikken bevart. Localhost-demoen og demoens `version.json` er tatt ut av sporingen og ligger bare lokalt.
+
+### Språk
+- `rigg_core::i18n` med `tr!`, `trf!` og `trn!`. Nøkkelen er den norske kildeteksten, og gettext-katalogene ligger per språk og modul i `app/data/i18n/`. Byggskriptet validerer og bygger dem inn, så pakken trenger ingen katalogfiler. Statiske oppslag returnerer `&'static str`.
+- Språkvalg med «Følg systemet» og ti språk i Innstillinger › Generelt. «Start på nytt nå» starter vinduet på nytt. `riggd` leser språket ved oppstart. Meldinger fra hjelperne oversettes ved visning, ut fra stabile identifikatorer; protokollene er uendret.
+- Tall-, dato- og klokkeformat per språk. Turtallsenheten følger språket. `i18n-trekk-ut.py --check` kontrollerer kataloger, plassholdere og flertall. `i18n-revisjon.py --check` finner bokmålstekst utenfor makroene.
+
+### Demo fjernet
+- 2D/3D-lysmodellen (`rgb.rs`, `lys3d/`, `data/lys3d/`), lokal lagring av lysvalg, innstillingen «3D-kortet», påskeegget «nordlys» og tekster om forhåndsvisning er fjernet. Eldre `ui.json` og `profiler.json` med disse nøklene leses fortsatt.
+
+### Sikkerhet i systemkomponentene
+- Felles `system-install` for NVML og RGB. Kjøres fra en root-eid kopi av arkivet etter SHA-256-kontroll, med `--uninstall` og `--revoke nvml|rgb`. NVML-aktivering bruker faste innganger under `/usr/local/libexec/agentic-rigg/` med `auth_admin` uten lagring. Testflagg er utilgjengelige i installert kode. Gammel aktivering fra `~/.local` tilbakekalles ved migrering.
+- Administrative RGB-trinn og NVML-gjenoppretting kjører via `systemd-run` med lukket enhetspolicy. Flyktig RGB-kortregel ligger under `/run`. `python3 -I -S`, `ProtectProc=invisible` og avvisning av dupliserte JSON-felt.
+- `MIN_COMPATIBLE_BUILD` er 25 for NVML og RGB, og `strictRequests: true` kreves. GPU-styring må aktiveres på nytt én gang.
+
+### Palit-RGB
 
 - Pusting, regnbue og fargesyklus i «Lys på kortet» bruker den egne RGB-hjelperen. Bruk viser startfargen, Behold starter animasjonen, og Stopp gjenoppretter lagret utgangspunkt. Fysisk verifikasjon av animasjonene på PALIT 100 gjenstår.
 
 - Eget kildegrunnlag fra ThunderMaster-opptak og installert NVIDIA-driver; eksakte Palit 100/150-signaturer, faktisk fargeprotokoll og begrensninger ved ukjent effektmodus.
-- Typet RGB-identitet, observasjon og baseline skiller registerverdier, brukerbekreftelse og faktisk avlest modus. Forhåndsvisningens tegnede soner blir ikke fysisk maskinvare.
+- Typet RGB-identitet, observasjon og baseline skiller registerverdier, brukerbekreftelse og faktisk avlest modus.
 - Egen, streng RGB-tillatelsesmodell uten klientvalgte enhetsstier. Eksisterende v2-GPU-tillatelse gir ikke RGB; eldre eksplisitte simulerte trinn beholdes.
 - Smal statisk/av-skrivetransport med fersk kort-/signatur-/fd-kontroll, fem faste registerskrivinger, avvisning av endrede fargefelt før skriving og separat gjenopprettingssti. Feil etter et forsøkt skrivekall behandles som mulig delvis endring.
 - Selvstendig RGB-transaksjon med klientbinding, Behold, frist og tilbakerulling. Samsvarende farge/lysstyrke oppgraderes aldri til avlest effektmodus eller full gjenopprettingsbekreftelse.
 - Separat `--rgb-server` med egen socket, peer-UID, RGB-kompatibilitet, 15-sekunders lease og privat journal før setterkall. Oppstart/status åpner ikke I2C; eksisterende journal sperrer oppstart uten automatisk fargeendring. Avgrenset socketbehandling og stopp/klienttap er testet mot fakes. [Protokoll og begrensninger](../docs/produksjon/rgb-hjelper.md).
 - Egen administratoraktivering med brukerbekreftet statisk utgangspunkt, separate root-filer og systemd-tjeneste med kun ferskt identifisert I2C-enhet i DeviceAllow. Ingen automatisk oppstartsaktivering. Avklaring, eksplisitt tilbakeføring og deaktivering beholder journal ved uavklart tilstand; eksisterende NVML-hjelper endres ikke.
 - Asynkron, avgrenset RGB-klient i daemonen med egen eier, kø, tidsfrist inkludert hviletid og heartbeat. GUI-tråden blokkeres ikke av RGB-socketen. Bare en levende eierøkt fornyer leasen.
-- «Lys på kortet» har én fysisk sone, fast farge/av, lysstyrke, Bruk/Behold og gjenoppretting. Den lokale lysmodellen og lagring i appen sender ingen maskinvareendring. Visuell bekreftelse krever aktiv avkryssing og gjelder det bestemte gjenopprettingsmålet fra dialogåpning; den gir ikke en avlest effektmodus.
+- «Lys på kortet» har én fysisk sone, fast farge/av, lysstyrke, Bruk/Behold og gjenoppretting. Visuell bekreftelse krever aktiv avkryssing og gjelder det bestemte gjenopprettingsmålet fra dialogåpning; den gir ikke en avlest effektmodus.
 - Separat, lesende `--rgb-identifiser --pci PCI --uuid UUID` i hjelperen. Streng GPU-/adapterbinding, én adresse og et fast lesesett; ingen registerskriving, skanning, konfigurasjonsendring eller omstart av GPU-hjelperen.
 - Nye isolerte modell-/transport-/argumenttester, private administrasjonsskriptprøver og GTK-betjening mot en eksplisitt merket falsk RGB-arbeider. På brukerens Palit RTX 2080 Super JetStream er fast blått og automatisk tilbakeføring til grønt fysisk bekreftet ved 100 % lysstyrke. [Status og kilder](../docs/produksjon/palit-rgb-2026-11-17.md).
 
-## Ikke utgitt · Oppgaver på feature/task-manager
+### Oppgaver
 
 - Egen side under Overvåking, med søk etter navn/PID/bruker, kolonnesortering, prosesstre og avgrensede sider med gjenbrukte rader. Ctrl+Shift+Esc åpner siden; de ti opprinnelige tallsnarveiene beholdes.
 - Den eksisterende prøvetråden samler prosessdata høyst hvert andre sekund ved behov. Behovet utløper etter fem sekunder uten forespørsler. Ingen ekstra overvåkingstråd eller eksterne prosesskommandoer; systemgrafene deler eksisterende App-data.
@@ -24,7 +42,7 @@
 - GPU-minne gjenbruker NVML-prosessleseren og krever ferske data og uendret prosessidentitet. Manglende kortdata eller ukjent delbidrag gir ingen ufullstendig sum. GPU-prosent per prosess er foreløpig ikke implementert.
 - Avslutning gjelder én bekreftet prosess og bare SIGTERM via pidfd. Ny kontroll av identitet, brukerrettigheter, kjernetråder og beskyttede prosesser, inkludert tilkoblede klienters foreldre. Ingen GPU-hjelper, administratoropptrapping eller automatisk eskalering.
 - Pause/F5, gamle tjenester, frakobling og foreldede prøver har egne tilstander. Søk og sortering sender ikke et nytt signalmål ved radflytting.
-- [Gjennomføring, kilder og verifikasjon](../docs/produksjon/oppgavebehandling.md). Forslaget har ingen ny stabil versjon, Release, merge eller installasjon.
+- [Gjennomføring, kilder og verifikasjon](../docs/produksjon/oppgavebehandling.md).
 
 ## 1.4.1 · bygg 24 – 14. november 2026: enklere viftestyring og synlig bekreftelse
 

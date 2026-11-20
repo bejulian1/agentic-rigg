@@ -1,24 +1,18 @@
 # Versjonslogg
 
-Gjeldende versjon: **1.4.1 · bygg 24**. Nedlastinger og utgivelsesnotater ligger under [Releases](https://github.com/bejulian1/agentic-rigg/releases).
+Gjeldende versjon: **1.5.0 · bygg 25**. Nedlastinger og utgivelsesnotater ligger under [Releases](https://github.com/bejulian1/agentic-rigg/releases).
 
-## Under arbeid · feature/palit-rgb
+## 1.5.0 · bygg 25 – 21. november 2026
 
-- Pusting, regnbue og fargesyklus i «Lys på kortet» bruker den egne RGB-hjelperen. Bruk viser startfargen, Behold starter animasjonen, og Stopp gjenoppretter lagret utgangspunkt. Fysisk verifikasjon av animasjonene på PALIT 100 gjenstår.
+Første utgave som åpen kildekode (MIT), med offentlig repo, engelsk README og retningslinjer for bidrag.
 
-- Kortbundet Palit-identifikasjon og statisk farge/av for RTX 2080 Super JetStream, med separat RGB-hjelper, tillatelse, privat journal og lease. Gammel GPU-godkjenning gir ikke RGB-tilgang.
-- Egen administratoraktivering og smal systemd-tjeneste, asynkron daemonkobling og panelet «Lys på kortet» med Bruk/Behold, tilbakeføring og tydelig skille fra lokal forhåndsvisning. Ukjent effektmodus forblir ukjent; menneskelig bekreftelse registreres separat fra tilbakelesing.
-- Isolerte tester og faktisk GTK-betjening mot en merket falsk arbeider er verifisert. På brukerens Palit RTX 2080 Super JetStream er fast blått og automatisk tilbakeføring til grønt fysisk bekreftet ved 100 % lysstyrke. Featurebranchen er ikke utgitt eller installert.
-- [Faktisk status, kontrollerprotokoll og verifikasjon](docs/produksjon/palit-rgb-2026-11-17.md). Eksisterende GPU-autorisasjon og installasjon endres ikke av dette forarbeidet.
-
-## Ikke utgitt · feature/task-manager
-
-- Ny Oppgaver-side med behovsstyrt Linux-prosessoversikt, CPU, RSS, tilgjengelig NVML-prosessminne, PID/bruker/status, prosesstre, søk og sortering.
-- Systemets CPU/RAM/GPU-minigrafer bruker eksisterende telemetri. Prosess-CPU bruker én logisk CPU som 100 %; RSS inkluderer delte sider og summeres ikke til systemets minnebruk.
-- Bekreftet SIGTERM til én prosess med pidfd, fersk identitets-/tillatelseskontroll og vern av system-/øktprosesser, appen, tilkoblede klienter og deres foreldre. Ingen administratoropptrapping, automatisk avslutning eller SIGKILL.
-- Prosesslesing opphører når behovet utløper; tabellen har høyst 100 gjenbrukte rader per side. Tastene 1–9/0 beholdes, og Ctrl+Shift+Esc åpner Oppgaver.
-- GPU-prosent per prosess er ikke tilgjengelig. GPU-minne vises som ukjent ved manglende data; AMD-/Intel-GPU-backender er fortsatt ikke implementert. [Detaljer og verifikasjon](docs/produksjon/oppgavebehandling.md).
-- Leveres som Draft PR. Ingen merge, PC-installasjon eller stabil Release inngår i denne gjennomgangen.
+- **Ti språk:** Hele brukerflaten, varsler, systemfeltet og rapporter finnes på norsk bokmål, engelsk, tysk, fransk, spansk, portugisisk (Brasil), italiensk, polsk, forenklet kinesisk og japansk. «Følg systemet» er standard; valget ligger i Innstillinger › Generelt › Språk og tas i bruk etter omstart av vinduet. Tall, datoer og klokkeslett følger språket. Bakgrunnstjenesten leser språket ved oppstart.
+- **Oppgaver:** Ny side med Linux-prosesser: CPU, RSS-minne, tilgjengelig GPU-minne, PID, bruker og status, søk, sortering og prosesstre. Én bekreftet prosess kan få SIGTERM via pidfd; system- og øktprosesser, appen og klientene er vernet. Pause, søk og sidebytte bruker samme frosne prosessbilde (#7). Ctrl+Shift+Esc åpner siden.
+- **Lys på kortet:** Kortbundet RGB-styring for Palit GeForce RTX 2080 Super JetStream med fast farge, av, lysstyrke og de programvaredrevne effektene pusting, regnbue og fargesyklus. Bruk/Behold, automatisk tilbakeføring, lagret utgangspunkt og visuell bekreftelse av sluttilstanden. Hvert gjenopprettingsforsøk har egen identitet (#4), og aktivering, gjenoppretting og avinstallering tåler avbrudd og omstart (#6).
+- **Ingen demo i appen:** Den lokale 2D/3D-lysmodellen, valget «3D-kortet», lokal lagring av lysvalg og påskeegget «nordlys» er fjernet. RGB-siden viser bare det kortet faktisk kan styre, ellers en tydelig tomtilstand. Localhost-demoen er tatt ut av repoet.
+- **Sikrere systemkomponenter:** GPU- og RGB-hjelperen installeres med én kontrollert systeminstallasjon som kopierer arkivet til en root-eid mappe og kontrollerer SHA-256 fra utgivelsessiden før noe kjøres (#5). Appen bruker bare faste, root-eide polkit-innganger uten lagret godkjenning. Administrative I2C-trinn kjører i samme systemd-sandkasse som arbeideren. Hjelperne avviser dupliserte felt. NVML-protokoll 2 beholdes, men laveste kompatible hjelperbygg er 25, så **GPU-styring må aktiveres på nytt én gang**. RGB bruker egen protokoll 2.
+- **CPU-hotplug:** Sensorer, Prosessor og sidefeltet følger endrede aktive CPU-ID-er, også når antall tråder er uendret (#3).
+- **Begrensninger:** RGB støtter bare Palit 100-kontrolleren på RTX 2080 Super JetStream. AMD-/Intel-GPU-backender er ikke implementert. Oversettelsene er laget og kryssjekket av AI-modeller.
 
 ## 1.4.1 · bygg 24 – 14. november 2026
 
