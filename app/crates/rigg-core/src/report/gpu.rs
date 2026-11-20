@@ -347,7 +347,13 @@ pub fn sections(g: &GpuInput) -> Vec<Section> {
     }
     if let Some(m) = smp.throttle {
         let l = throttle_list(m);
-        let what = if l.is_empty() { tr!("ingen").to_string() } else { l.join(", ").to_lowercase() };
+        let what = if l.is_empty() {
+            tr!("ingen").to_string()
+        } else if crate::i18n::active() == crate::i18n::Language::Nb {
+            l.join(", ").to_lowercase()
+        } else {
+            l.join(", ")
+        };
         note.push(if smp.throttle_inferred {
             trf!("Begrenser nå: {arsaker} (i P8 leses ikke årsaken; kortet er i tomgang).", arsaker = what)
         } else {

@@ -590,7 +590,7 @@ msgstr "Der Treiber antwortet, liefert für diese GPU aber keinen Wert."
 
 #: crates/rigg-core/src/report/gpu.rs:534
 msgid "Viftens turtall"
-msgstr "Lüfterdrehzahl in U/min"
+msgstr "Lüfterdrehzahl (U/min)"
 
 #: crates/rigg-core/src/report/gpu.rs:534
 msgid "NVML gir «ikke støttet» for turtallet."

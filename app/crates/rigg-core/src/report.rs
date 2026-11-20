@@ -132,7 +132,11 @@ impl Section {
 }
 
 /// «Referanse, ikke målt» → «referanse, ikke målt», men «MHz» står.
+/// På tysk beholdes stor forbokstav i substantiver («Referenzwert, nicht gemessen»).
 fn lower_first(s: &str) -> String {
+    if crate::i18n::active() == crate::i18n::Language::De {
+        return s.to_string();
+    }
     let mut c = s.chars();
     match (c.next(), c.next()) {
         (Some(a), Some(b)) if a.is_uppercase() && b.is_lowercase() => a.to_lowercase().chain(s.chars().skip(1)).collect(),

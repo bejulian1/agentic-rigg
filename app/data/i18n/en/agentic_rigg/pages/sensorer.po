@@ -190,11 +190,11 @@ msgstr "Fan speed"
 
 #: crates/rigg/src/pages/sensorer.rs:560
 msgid "Vifte {nr}, turtall"
-msgstr "Fan {nr} speed"
+msgstr "Fan {nr} RPM"
 
 #: crates/rigg/src/pages/sensorer.rs:560
 msgid "Viftens turtall"
-msgstr "Fan speed in RPM"
+msgstr "Fan RPM"
 
 #: crates/rigg/src/pages/sensorer.rs:563
 msgid "Videominne brukt"

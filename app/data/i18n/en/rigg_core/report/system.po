@@ -198,7 +198,7 @@ msgstr "L3 groups"
 
 #: crates/rigg-core/src/report/system.rs:295
 msgid "{antall} · tråd {liste}"
-msgstr "{antall} · thread {liste}"
+msgstr "{antall} · threads {liste}"
 
 #: crates/rigg-core/src/report/system.rs:295
 msgid " og "

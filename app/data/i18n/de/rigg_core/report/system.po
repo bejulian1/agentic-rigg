@@ -30,7 +30,7 @@ msgstr "Daten"
 
 #: crates/rigg-core/src/report/system.rs:93
 msgid "Instruksjon"
-msgstr "Instruktionen"
+msgstr "Befehle"
 
 #: crates/rigg-core/src/report/system.rs:94
 msgid "Felles"
@@ -278,7 +278,7 @@ msgstr "Die App erfasst keine CPU-Kernspannung. Lesezugriff und Messquelle häng
 
 #: crates/rigg-core/src/report/system.rs:345
 msgid "Pakkeeffekt"
-msgstr "CPU-Paketleistung"
+msgstr "Paketleistung"
 
 #: crates/rigg-core/src/report/system.rs:345
 msgid "Appen samler ikke inn CPU-pakkeeffekt. Tilgjengelige energitellere, eventuell RAPL-støtte og lesetilgang avhenger av maskinen og kjernen."

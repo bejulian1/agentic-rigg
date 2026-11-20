@@ -102,7 +102,7 @@ msgstr "PCIe generation"
 
 #: crates/rigg-core/src/report.rs:316
 msgid "Vifte {nr}, turtall"
-msgstr "Fan {nr} speed"
+msgstr "Fan {nr} RPM"
 
 #: crates/rigg-core/src/report.rs:318
 msgid "Vifte {nr}"

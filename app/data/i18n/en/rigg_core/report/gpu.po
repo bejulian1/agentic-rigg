@@ -590,7 +590,7 @@ msgstr "The driver responds, but the field is empty for this GPU."
 
 #: crates/rigg-core/src/report/gpu.rs:534
 msgid "Viftens turtall"
-msgstr "Fan speed in RPM"
+msgstr "Fan RPM"
 
 #: crates/rigg-core/src/report/gpu.rs:534
 msgid "NVML gir «ikke støttet» for turtallet."
