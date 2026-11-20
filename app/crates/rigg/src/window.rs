@@ -234,13 +234,20 @@ impl Shell {
             let Some(surface) = w.surface() else { return };
             let Ok(top) = surface.downcast::<gdk::Toplevel>() else { return };
             let me = me.clone();
-            top.connect_state_notify(move |t| {
+            top.connect_state_notify(move |_| {
                 if let Some(s) = me.upgrade() {
-                    let hidden = t.state().intersects(gdk::ToplevelState::MINIMIZED | gdk::ToplevelState::SUSPENDED);
-                    s.send_focus(hidden);
+                    s.send_focus();
                 }
             });
         });
+        let me = Rc::downgrade(self);
+        let sync_focus = move |_: &gtk::ApplicationWindow| {
+            if let Some(s) = me.upgrade() {
+                s.send_focus();
+            }
+        };
+        self.window.connect_map(sync_focus.clone());
+        self.window.connect_unmap(sync_focus);
         let me = Rc::downgrade(self);
         app.on_conn.connect(move |_| {
             if let Some(s) = me.upgrade() {
@@ -261,13 +268,17 @@ impl Shell {
     }
 
     /// Sier til tjenesten hvilke sider som synes (`[]` når vinduet er minimert).
-    pub fn send_focus(&self, hidden: bool) {
+    pub fn send_focus(&self) {
         let app = self.app();
+        let state = self.window.surface()
+            .and_downcast::<gdk::Toplevel>()
+            .map_or_else(gdk::ToplevelState::empty, |top| top.state());
+        let hidden = window_hidden(self.window.is_mapped(), state);
+        let pages: Vec<String> = if hidden { vec![] } else { vec![app.page.borrow().clone()] };
+        app.client.request("set_focus", serde_json::json!({"pages": pages}), |_| {});
         if let Some(p) = self.pages.borrow().get(app.page.borrow().as_str()) {
             p.window_hidden(hidden);
         }
-        let pages: Vec<String> = if hidden { vec![] } else { vec![app.page.borrow().clone()] };
-        app.client.request("set_focus", serde_json::json!({"pages": pages}), |_| {});
     }
 
     /// Går til en side. Siden bygges første gang den vises.
@@ -318,11 +329,11 @@ impl Shell {
         self.topbar.show(id, def.title);
         self.sidebar.mark_current(id);
         self.window.set_title(Some(&format!("{} · {}", crate::pages::full_title(id), rigg_core::version::NAME)));
+        self.send_focus();
         if let Some(p) = self.pages.borrow().get(id) {
             p.show(query);
         }
         app.on_page.emit(&id.to_string());
-        self.send_focus(false);
         if app.settings().last_page != id {
             app.settings.borrow_mut().last_page = id.to_string();
             crate::prefs::schedule_save(&app);
@@ -399,5 +410,24 @@ impl Shell {
         } else {
             self.open_settings(None);
         }
+    }
+}
+
+fn window_hidden(mapped: bool, state: gdk::ToplevelState) -> bool {
+    !mapped || state.intersects(gdk::ToplevelState::MINIMIZED | gdk::ToplevelState::SUSPENDED)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn fokus_etter_hello_respekterer_vindustilstanden() {
+        use gdk::ToplevelState as State;
+
+        assert!(window_hidden(true, State::MINIMIZED | State::FOCUSED));
+        assert!(window_hidden(true, State::SUSPENDED));
+        assert!(window_hidden(false, State::empty()));
+        assert!(!window_hidden(true, State::FOCUSED));
     }
 }

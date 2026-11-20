@@ -1,7 +1,7 @@
 //! Oppgavebehandling. Bare den synlige siden ber om prosesser; høyst 100
 //! gjenbrukte rader og én forespørsel om gangen. Systemgrafene deler App-data.
 use super::{Key, Page};
-use crate::state::App;
+use crate::state::{App, Conn};
 use crate::widgets::spark::SparkOpts;
 use crate::widgets::{Spark, class, hbox, label, set_text, vbox};
 use gtk::{glib, prelude::*};
@@ -11,6 +11,7 @@ use rigg_core::proto::ErrorCode;
 use serde_json::{Value, json};
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
+use std::time::{Duration, Instant};
 
 const LIMIT: usize = 100;
 const COLS: [(&str, &str, i32); 7] = [
@@ -32,6 +33,13 @@ struct Summary {
     spark: Spark,
     key: &'static str,
 }
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Load {
+    Live,
+    Displayed(usize),
+    Fresh,
+}
+
 struct State {
     app: Rc<App>,
     visible: Cell<bool>,
@@ -39,11 +47,12 @@ struct State {
     paused: Cell<bool>,
     timer: RefCell<Option<glib::SourceId>>,
     refresh_retry: RefCell<Option<glib::SourceId>>,
-    refresh_left: Cell<u8>,
-    refresh_until: Cell<Option<std::time::Instant>>,
+    refresh_until: Cell<Option<Instant>>,
+    pending: Cell<Option<Load>>,
     busy: Cell<bool>,
     generation: Cell<u64>,
     snapshot: Cell<Option<u64>>,
+    snapshot_lost: Cell<bool>,
     search: gtk::SearchEntry,
     tree: gtk::ToggleButton,
     pause: gtk::ToggleButton,
@@ -57,6 +66,7 @@ struct State {
     headers: Vec<gtk::Button>,
     offset: Cell<usize>,
     next: Cell<Option<usize>>,
+    previous_offsets: RefCell<Vec<usize>>,
     previous: gtk::Button,
     following: gtk::Button,
     count: gtk::Label,
@@ -89,7 +99,9 @@ impl Page for Oppgaver {
         self.st.cancel_timer();
     }
     fn window_hidden(&self, hidden: bool) {
-        self.st.suspended.set(hidden);
+        if self.st.suspended.replace(hidden) == hidden {
+            return;
+        }
         if hidden {
             self.st.cancel_timer();
         } else {
@@ -123,7 +135,6 @@ impl State {
         self.visible.get() && !self.suspended.get() && !self.paused.get()
     }
     fn cancel_refresh(&self) {
-        self.refresh_left.set(0);
         self.refresh_until.set(None);
         if let Some(t) = self.refresh_retry.borrow_mut().take() {
             t.remove();
@@ -131,15 +142,17 @@ impl State {
     }
     fn cancel_timer(&self) {
         self.cancel_refresh();
+        self.pending.set(None);
+        self.generation.set(self.generation.get().wrapping_add(1));
         if let Some(t) = self.timer.borrow_mut().take() {
             t.remove();
         }
     }
     fn start(self: &Rc<Self>) {
-        if !self.active() {
+        if !self.active() || self.app.conn.get() != Conn::Connected {
             return;
         }
-        self.load(false);
+        self.load(Load::Live);
         if self.timer.borrow().is_some() {
             return;
         }
@@ -148,100 +161,110 @@ impl State {
             let Some(s) = w.upgrade() else {
                 return glib::ControlFlow::Break;
             };
-            s.load(false);
+            s.load(Load::Live);
             glib::ControlFlow::Continue
         });
         *self.timer.borrow_mut() = Some(id);
     }
-    fn invalidate(&self) {
+    fn request_page(self: &Rc<Self>, load: Load) {
+        if !self.visible.get() || self.suspended.get() || self.app.conn.get() != Conn::Connected {
+            return;
+        }
         self.cancel_refresh();
         self.generation.set(self.generation.get().wrapping_add(1));
-        self.offset.set(0);
         self.stale.set(true);
         self.update_selection();
+        self.refresh_until.set(Some(Instant::now() + Duration::from_secs(5)));
+        self.load(load);
     }
-    /// F5 leser alltid nyeste prøve, også mens listen er pauset.
-    /// «Loading» prøves igjen i høyst fem sekunder uten å starte polling.
     fn refresh_now(self: &Rc<Self>) {
-        let offset = self.offset.get();
-        self.invalidate();
-        self.offset.set(offset);
-        self.snapshot.set(None);
-        self.refresh_left.set(10);
-        self.refresh_until.set(Some(
-            std::time::Instant::now() + std::time::Duration::from_secs(5),
-        ));
-        self.load(true);
+        self.request_page(Load::Fresh);
     }
-    fn retry_refresh(self: &Rc<Self>) {
-        if let Some(t) = self.refresh_retry.borrow_mut().take() {
-            t.remove();
-        }
-        let generation = self.generation.get();
+    fn retry_refresh(self: &Rc<Self>, load: Load) {
         let weak = Rc::downgrade(self);
-        let id = glib::timeout_add_local_once(std::time::Duration::from_millis(500), move || {
+        let id = glib::timeout_add_local_once(Duration::from_millis(500), move || {
             let Some(s) = weak.upgrade() else { return };
             s.refresh_retry.borrow_mut().take();
-            if s.generation.get() == generation && s.refresh_left.get() > 0 {
-                s.load(true);
-            }
+            s.load(load);
         });
         *self.refresh_retry.borrow_mut() = Some(id);
     }
     fn changed(self: &Rc<Self>) {
-        self.invalidate();
-        self.load(true);
+        self.previous_offsets.borrow_mut().clear();
+        self.request_page(Load::Displayed(0));
     }
-    fn load(self: &Rc<Self>, manual: bool) {
+    fn load(self: &Rc<Self>, load: Load) {
         if !self.visible.get()
             || self.suspended.get()
-            || (self.paused.get() && !manual)
-            || self.busy.replace(true)
+            || self.app.conn.get() != Conn::Connected
+            || (load == Load::Live && (self.paused.get() || self.refresh_until.get().is_some()))
         {
             return;
         }
+        if self.busy.replace(true) {
+            if load != Load::Live {
+                self.pending.set(Some(load));
+            }
+            return;
+        }
         let generation = self.generation.get();
+        let (offset, snapshot, newer_than) = match load {
+            Load::Live => (self.offset.get(), None, None),
+            Load::Displayed(offset) => (offset, self.snapshot.get(), None),
+            Load::Fresh => (self.offset.get(), None, self.snapshot.get()),
+        };
+        let lost = matches!(load, Load::Displayed(_)) && self.snapshot_lost.get();
         let args = json!({"filter": self.search.text().to_string(), "sort": &*self.sort.borrow(),
             "descending": self.descending.get(), "tree": self.tree.is_active(),
-            "offset": self.offset.get(), "limit": LIMIT, "snapshotId": if self.paused.get() && self.refresh_left.get() == 0 { self.snapshot.get() } else { None }});
+            "offset": if lost { 0 } else { offset }, "limit": LIMIT,
+            "snapshotId": snapshot, "newerThan": newer_than});
         let w = Rc::downgrade(self);
         self.app.client.request("get_tasks", args, move |result| {
             let Some(s) = w.upgrade() else { return };
             s.busy.set(false);
-            if !s.visible.get() || s.suspended.get() {
-                return;
-            }
             if generation != s.generation.get() {
-                s.load(true);
+                if let Some(pending) = s.pending.take() {
+                    s.load(pending);
+                }
                 return;
             }
             match result {
-                Ok(v) => {
-                    if v["snapshotChanged"].as_bool() == Some(true) && s.offset.get() > 0 {
-                        s.changed();
-                    } else {
+                Ok(v) if v["loading"] == true => {
+                    if s.snapshot.get().is_none() && !s.snapshot_lost.get() {
                         s.apply(&v);
-                        if s.refresh_left.get() > 0 {
-                            if v["loading"].as_bool() == Some(true) {
-                                let left = s.refresh_left.get() - 1;
-                                s.refresh_left.set(left);
-                                if left > 0
-                                    && s.refresh_until
-                                        .get()
-                                        .is_some_and(|until| std::time::Instant::now() < until)
-                                {
-                                    s.retry_refresh();
-                                } else {
-                                    s.cancel_refresh();
-                                    set_text(
-                                        &s.status,
-                                        "Tjenesten bruker lengre tid. Prøv igjen med F5.",
-                                    );
-                                }
-                            } else {
-                                s.cancel_refresh();
-                            }
+                    } else {
+                        s.stale.set(true);
+                        s.update_selection();
+                        set_text(&s.status, "Henter ny prøve …");
+                    }
+                    if load != Load::Live {
+                        if s.refresh_until.get().is_some_and(|until| Instant::now() < until) {
+                            s.retry_refresh(load);
+                        } else {
+                            s.cancel_refresh();
+                            set_text(&s.status, "Tjenesten bruker lengre tid. Prøv igjen med F5.");
                         }
+                    }
+                }
+                Ok(v) => {
+                    s.cancel_refresh();
+                    let replaced = lost || v["snapshotChanged"] == true;
+                    let mut previous = s.previous_offsets.borrow_mut();
+                    if replaced || v["offset"].as_u64() != Some(offset as u64) {
+                        previous.clear();
+                    } else if matches!(load, Load::Displayed(_)) {
+                        if offset > s.offset.get() {
+                            previous.push(s.offset.get());
+                        } else if previous.last() == Some(&offset) {
+                            previous.pop();
+                        }
+                    }
+                    drop(previous);
+                    s.apply(&v);
+                    if replaced {
+                        s.app.toast(crate::toast::Toast::new(
+                            "Prosessbildet er ikke lenger tilgjengelig",
+                        ).body("Viser første side i et nytt prosessbilde."));
                     }
                 }
                 Err(e) => {
@@ -297,7 +320,10 @@ impl State {
                 || v["loading"].as_bool().unwrap_or(false)
                 || v["error"].as_str().is_some_and(|s| !s.is_empty()),
         );
-        self.snapshot.set(v["snapshotId"].as_u64());
+        if v["loading"] != true {
+            self.snapshot.set(v["snapshotId"].as_u64());
+            self.snapshot_lost.set(false);
+        }
         let selected = *self.selected.borrow();
         self.updating.set(true);
         self.list.unselect_all();
@@ -494,7 +520,9 @@ impl State {
                     Ok(_) => a.toast(crate::toast::Toast::new("Avslutning sendt").body("Oppgaven har mottatt SIGTERM. Den kan bruke litt tid på å avslutte.")),
                     Err(e) => a.toast(crate::toast::Toast::new("Oppgaven ble ikke avsluttet").body(&e.message).error()),
                 }
-                if let Some(s) = weak.upgrade() { s.load(true); }
+                if let Some(s) = weak.upgrade() {
+                    s.request_page(Load::Displayed(s.offset.get()));
+                }
             });
         });
         window.present();
@@ -709,11 +737,12 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         paused: Cell::new(false),
         timer: RefCell::new(None),
         refresh_retry: RefCell::new(None),
-        refresh_left: Cell::new(0),
         refresh_until: Cell::new(None),
+        pending: Cell::new(None),
         busy: Cell::new(false),
         generation: Cell::new(0),
         snapshot: Cell::new(None),
+        snapshot_lost: Cell::new(false),
         search,
         tree,
         pause,
@@ -727,6 +756,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         headers,
         offset: Cell::new(0),
         next: Cell::new(None),
+        previous_offsets: RefCell::new(Vec::new()),
         previous,
         following,
         count,
@@ -832,14 +862,18 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         let b = if forward { &st.following } else { &st.previous };
         b.connect_clicked(move |_| {
             if let Some(s) = w.upgrade() {
+                if s.refresh_until.get().is_some() {
+                    return;
+                }
+                let offset = s.offset.get();
                 let next = if forward {
-                    s.next.get().unwrap_or(s.offset.get())
+                    let Some(next) = s.next.get() else { return };
+                    next
                 } else {
-                    s.offset.get().saturating_sub(LIMIT)
+                    s.previous_offsets.borrow().last().copied()
+                        .unwrap_or_else(|| offset.saturating_sub(LIMIT))
                 };
-                s.invalidate();
-                s.offset.set(next);
-                s.load(true);
+                s.request_page(Load::Displayed(next));
             }
         });
     }
@@ -853,12 +887,17 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     }
     {
         let w = Rc::downgrade(&st);
-        app.on_conn.connect(move |_| {
+        app.on_conn.connect(move |conn| {
             if let Some(s) = w.upgrade() {
                 s.stale.set(true);
                 s.update_selection();
-                if s.active() {
-                    s.load(false);
+                if *conn == Conn::Connected {
+                    s.start();
+                } else {
+                    s.cancel_timer();
+                    if s.snapshot.take().is_some() {
+                        s.snapshot_lost.set(true);
+                    }
                 }
             }
         });

@@ -32,6 +32,10 @@ fn tmpdir(tag: &str) -> PathBuf {
 
 impl Daemon {
     fn start_in(dir: &Path, backend: &str, grace_ms: u32) -> Daemon {
+        Daemon::start_with_root(dir, backend, grace_ms, Path::new("/"))
+    }
+
+    fn start_with_root(dir: &Path, backend: &str, grace_ms: u32, root: &Path) -> Daemon {
         let socket = dir.join("run/riggd.sock");
         // En aktivert hjelper på verten må aldri bli del av kontrakttesten.
         let helper_root = dir.join("tom-hjelper-rot");
@@ -39,6 +43,8 @@ impl Daemon {
         let child = Command::new(env!("CARGO_BIN_EXE_agentic-riggd"))
             .args(["--backend", backend, "--socket"])
             .arg(&socket)
+            .arg("--root")
+            .arg(root)
             .arg("--hjelper-rot")
             .arg(&helper_root)
             .args(["--grace-ms", &grace_ms.to_string()])
@@ -859,11 +865,78 @@ fn oppgaver_har_egne_sider_og_nullstilles_etter_skjult_vindu() {
     assert_eq!(frozen["snapshotId"], first["snapshotId"]);
     assert_eq!(frozen["sampledAtMs"], first["sampledAtMs"]);
     std::thread::sleep(Duration::from_millis(5_300));
-    assert_eq!(c.ok("get_tasks", query.clone())["loading"], true);
+    let paused = c.ok("get_tasks", json!({
+        "snapshotId": first["snapshotId"], "filter": std::process::id().to_string(), "sort": "name"
+    }));
+    assert_eq!(paused["snapshotId"], first["snapshotId"]);
+    assert_eq!(paused["sampledAtMs"], first["sampledAtMs"]);
+    assert_eq!(paused["loading"], false);
+    assert_eq!(paused["stale"], true);
+    assert_eq!(c.ok("get_tasks", json!({"newerThan": first["snapshotId"]}))["loading"], true);
     let resumed = wait(&mut c);
     assert!(resumed["snapshotId"].as_u64() > first["snapshotId"].as_u64());
     let row = resumed["rows"].as_array().unwrap().iter().find(|row| row["pid"] == std::process::id()).unwrap();
     assert!(row["cpuPercent"].is_null(), "skjult tid skal ikke bli en CPU-rate");
+}
+
+#[test]
+fn oppgaver_sidebytte_beholder_cpu_rekkefolgen_fra_vist_bilde() {
+    let dir = tmpdir("oppgaver");
+    let root = dir.join("fixture");
+    let write_stat = |pid, ticks: u64| {
+        let proc = root.join(format!("proc/{pid}"));
+        std::fs::create_dir_all(&proc).unwrap();
+        let mut fields = ["0"; 22];
+        let ticks = ticks.to_string();
+        fields[0] = "S";
+        fields[1] = "1";
+        fields[11] = &ticks;
+        fields[19] = "42";
+        // Bytt fil atomisk slik at prøvetråden aldri leser en halv stat-linje.
+        std::fs::write(proc.join("new-stat"), format!("{pid} (fixture) {}", fields.join(" "))).unwrap();
+        std::fs::rename(proc.join("new-stat"), proc.join("stat")).unwrap();
+    };
+    for pid in [101, 202, 303] {
+        write_stat(pid, 0);
+    }
+    let d = Daemon::start_with_root(&dir, "ingen", 60_000, &root);
+    let mut c = d.connect();
+    c.hello();
+    let wait = |c: &mut Conn, args: Value| {
+        let start = Instant::now();
+        loop {
+            let page = c.ok("get_tasks", args.clone());
+            if page["loading"] == false {
+                break page;
+            }
+            assert!(start.elapsed() < Duration::from_secs(8), "oppgavelista kom ikke");
+            std::thread::sleep(Duration::from_millis(100));
+        }
+    };
+    let first = wait(&mut c, json!({"limit": 1}));
+    assert_eq!(first["rows"][0]["pid"], 101);
+
+    write_stat(303, 300);
+    // En annen klient holder innsamlingen i gang og observerer ny rangering.
+    let mut live = d.connect();
+    live.hello();
+    let latest = wait(&mut live, json!({"limit": 1, "newerThan": first["snapshotId"]}));
+    assert_eq!(latest["rows"][0]["pid"], 303);
+
+    let next = c.ok("get_tasks", json!({
+        "limit": 1, "offset": first["nextOffset"], "snapshotId": first["snapshotId"]
+    }));
+    assert_eq!(next["snapshotId"], first["snapshotId"]);
+    assert_eq!(next["rows"][0]["pid"], 202);
+    let previous = c.ok("get_tasks", json!({"limit": 1, "snapshotId": next["snapshotId"]}));
+    assert_eq!(previous["rows"][0]["pid"], 101);
+
+    let missing = c.ok("get_tasks", json!({
+        "snapshotId": u64::MAX, "sort": "pid", "descending": false, "offset": 2, "limit": 1
+    }));
+    assert_eq!(missing["snapshotChanged"], true);
+    assert_eq!(missing["offset"], 0);
+    assert_eq!(missing["rows"][0]["pid"], 101);
 }
 
 /// Bare vår egen sovende barneprosess er signalmål. PID-gjenbruk og

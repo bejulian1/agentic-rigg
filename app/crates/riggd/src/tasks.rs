@@ -5,11 +5,13 @@ use crate::daemon::Daemon;
 use rigg_core::process::{MAX_PAGE_ROWS, ProcessIdentity, ProcessQuery, ProcessSnapshot};
 use rigg_core::proto::{ErrorCode, OpResult, ProtoError};
 use serde_json::{Value, json};
+use std::rc::Rc;
 use std::time::{Duration, Instant};
 
 pub const TASK_INTERVAL_MS: u32 = 2_000;
 pub const TASK_KEEP: Duration = Duration::from_secs(5);
 
+#[derive(Debug)]
 pub struct TaskSnapshot {
     pub processes: ProcessSnapshot,
     pub collected_at: Instant,
@@ -74,31 +76,71 @@ fn invalid(message: &str) -> ProtoError {
 }
 
 impl Daemon {
-    pub(crate) fn op_get_tasks(&mut self, args: &Value) -> OpResult {
-        let query: ProcessQuery = serde_json::from_value(args.clone()).map_err(|_| invalid("Ugyldig søk eller sortering av oppgaver."))?;
+    pub(crate) fn op_get_tasks(&mut self, sid: u64, args: &Value) -> OpResult {
+        let mut query: ProcessQuery = serde_json::from_value(args.clone()).map_err(|_| invalid("Ugyldig søk eller sortering av oppgaver."))?;
         if query.filter.chars().count() > 128 || query.limit == 0 || query.limit > MAX_PAGE_ROWS || query.offset > 1_000_000 {
             return Err(invalid("Høyst 128 tegn i søket og 1–100 oppgaver per side."));
         }
-        let requested_id = match args.get("snapshotId") {
-            None | Some(Value::Null) => None,
-            Some(value) => Some(value.as_u64().ok_or_else(|| invalid("snapshotId må være et positivt heltall."))?),
+        let snapshot_arg = |key| match args.get(key) {
+            None | Some(Value::Null) => Ok(None),
+            Some(value) => value.as_u64().map(Some).ok_or_else(|| {
+                invalid(&format!("{key} må være et positivt heltall."))
+            }),
         };
-        let now = Instant::now();
-        if self.tasks_until.is_none_or(|until| now >= until) {
-            self.tasks_generation = self.tasks_generation.wrapping_add(1);
-            self.tasks = None;
-            self.tasks_previous.clear();
+        let requested_id = snapshot_arg("snapshotId")?;
+        let newer_than = snapshot_arg("newerThan")?;
+        if requested_id.is_some() && newer_than.is_some() {
+            return Err(invalid("Velg enten et eksisterende eller et nyere prosessbilde."));
         }
-        let until = now + TASK_KEEP;
-        self.tasks_until = Some(until);
-        self.sampler.send(crate::sampler::Cmd::Tasks {
-            generation: self.tasks_generation,
-            until,
-        });
-        self.reschedule();
 
-        let selected = requested_id.and_then(|id| self.tasks_previous.iter().find(|(stored_id, _)| *stored_id == id));
-        let (snapshot_id, snapshot) = selected.map_or((self.tasks_snapshot_id, self.tasks.as_ref()), |(id, snapshot)| (*id, Some(snapshot)));
+        let now = Instant::now();
+        let expired = self.tasks_until.is_none_or(|until| now >= until);
+        let retained = requested_id.and_then(|id| {
+            self.sessions.get(&sid).into_iter().flat_map(|s| &s.task_snapshots)
+                .chain(self.tasks_previous.iter().filter(|_| !expired))
+                .find(|(stored_id, _)| *stored_id == id)
+                .map(|(id, snapshot)| (*id, Rc::clone(snapshot)))
+                .or_else(|| {
+                    self.tasks.as_ref()
+                        .filter(|_| !expired && id == self.tasks_snapshot_id)
+                        .map(|snapshot| (id, Rc::clone(snapshot)))
+                })
+        });
+        let selected = if retained.is_some() {
+            // Navigasjon i et lagret bilde forlenger ikke prosessinnsamlingen.
+            retained
+        } else {
+            if expired {
+                self.tasks_generation = self.tasks_generation.wrapping_add(1);
+                self.tasks = None;
+                self.tasks_previous.clear();
+            }
+            let until = now + TASK_KEEP;
+            self.tasks_until = Some(until);
+            self.sampler.send(crate::sampler::Cmd::Tasks {
+                generation: self.tasks_generation,
+                until,
+            });
+            self.reschedule();
+            self.tasks.as_ref()
+                .filter(|_| newer_than.is_none_or(|id| self.tasks_snapshot_id > id))
+                .map(|snapshot| (self.tasks_snapshot_id, Rc::clone(snapshot)))
+        };
+        let snapshot_id = selected.as_ref().map(|(id, _)| *id);
+        let snapshot_changed = requested_id.is_some() && requested_id != snapshot_id;
+        if snapshot_changed {
+            query.offset = 0;
+        }
+        if let Some((id, snapshot)) = selected.as_ref()
+            && let Some(session) = self.sessions.get_mut(&sid)
+        {
+            session.task_snapshots.retain(|(stored_id, _)| stored_id != id);
+            session.task_snapshots.push_back((*id, Rc::clone(snapshot)));
+            if session.task_snapshots.len() > 2 {
+                session.task_snapshots.pop_front();
+            }
+        }
+        let snapshot = selected.as_ref().map(|(_, snapshot)| snapshot.as_ref());
         let empty = ProcessSnapshot::default();
         let mut page = snapshot.map_or(&empty, |s| &s.processes).page(&query);
         // Klientlisten kan ha endret seg etter prøven. Beskytt alle tilkoblede
@@ -116,7 +158,7 @@ impl Daemon {
         let age = snapshot.map(|s| now.saturating_duration_since(s.collected_at).as_millis() as u64);
         let mut value = serde_json::to_value(page).map_err(|_| ProtoError::new(ErrorCode::Internal))?;
         value["snapshotId"] = json!(snapshot_id);
-        value["snapshotChanged"] = json!(requested_id.is_some_and(|id| id != snapshot_id));
+        value["snapshotChanged"] = json!(snapshot_changed);
         value["ageMs"] = json!(age);
         value["loading"] = json!(snapshot.is_none());
         value["stale"] = json!(age.is_none_or(|age| age > 5_000));

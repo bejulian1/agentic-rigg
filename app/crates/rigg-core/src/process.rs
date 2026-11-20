@@ -196,7 +196,12 @@ impl ProcessSnapshot {
         } else {
             ordered.extend(rows.into_iter().map(|r| (r, 0)));
         }
-        let offset = query.offset.min(matched);
+        let limit = query.limit.clamp(1, MAX_PAGE_ROWS);
+        let offset = if query.offset < matched {
+            query.offset
+        } else {
+            (matched.saturating_sub(1) / limit) * limit
+        };
         let mut page = ProcessPage {
             sampled_at_ms: self.sampled_at_ms,
             rows: vec![],
@@ -210,7 +215,7 @@ impl ProcessSnapshot {
         for (row, depth) in ordered
             .into_iter()
             .skip(offset)
-            .take(query.limit.clamp(1, MAX_PAGE_ROWS))
+            .take(limit)
         {
             let mut row = row.clone();
             row.name = row.name.chars().take(128).collect();
@@ -276,7 +281,15 @@ mod tests {
         q.filter = "arbeid 2".into();
         assert_eq!(s.page(&q).matched, 1);
         q.offset = usize::MAX;
-        assert!(s.page(&q).rows.is_empty());
+        let page = s.page(&q);
+        assert_eq!(page.offset, 0);
+        assert_eq!(page.rows[0].identity.pid, 2);
+        q.filter.clear();
+        q.limit = 2;
+        let page = s.page(&q);
+        assert_eq!(page.offset, 2);
+        assert_eq!(page.rows.len(), 1);
+        assert_eq!(page.next_offset, None);
     }
     #[test]
     fn tree_handles_orphans_reused_parents_cycles_and_depth() {

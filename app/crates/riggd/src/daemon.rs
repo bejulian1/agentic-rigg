@@ -71,8 +71,8 @@ pub struct Daemon {
     /// Til når prøvetråden skal lese prosesslista (ms). 0 = av.
     pub processes_until: i64,
     /// Oppgavelista har egen etterspørsel og egen CPU-baseline.
-    pub tasks: Option<crate::tasks::TaskSnapshot>,
-    pub tasks_previous: std::collections::VecDeque<(u64, crate::tasks::TaskSnapshot)>,
+    pub tasks: Option<Rc<crate::tasks::TaskSnapshot>>,
+    pub tasks_previous: std::collections::VecDeque<(u64, Rc<crate::tasks::TaskSnapshot>)>,
     pub tasks_until: Option<Instant>,
     pub tasks_generation: u64,
     pub tasks_snapshot_id: u64,
@@ -501,7 +501,7 @@ impl Daemon {
                 }
             }
             self.tasks_snapshot_id = self.tasks_snapshot_id.wrapping_add(1);
-            self.tasks = Some(tasks);
+            self.tasks = Some(Rc::new(tasks));
         }
         if self.tasks_until.is_some_and(|until| Instant::now() >= until) {
             self.tasks_until = None;
