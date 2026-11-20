@@ -1,0 +1,29 @@
+name: Feature Request
+description: Suggest an improvement or new feature for Agentic Rigg
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement! You can write in English or Norwegian.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: What problem does this solve, or what workflow would it improve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe how you would like this to work.
+    validations:
+      required: true
+  - type: textarea
+    id: hardware
+    attributes:
+      label: Hardware or platform context (optional)
+      description: Mention relevant GPU, CPU, sensors, distro, or desktop environment if applicable.
+    validations:
+      required: false

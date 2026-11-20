@@ -24,7 +24,7 @@ Ved sikkerhetsrettinger som eldre hjelpere ikke må få omgå, skal minimumsbygg
 ## Filutvalg og kreditering
 
 - Hold lokale samtaler (`System meldinger/`), logger, installasjonsbackup, målerådata og store skjermbildeserier utenfor publisering. Nedlastingspakken skal være uten tester og testdata. Eksisterende små kildekodetester i repoet vedlikeholdes sammen med koden.
-- Repoets nåværende private synlighet beholdes til brukeren uttrykkelig ber om noe annet.
+- Repoet er åpen kildekode (MIT) og offentlig etter brukerens beslutning 20. november 2026. Publiser aldri private data: e-postadresser utenom noreply, `System meldinger/`, logger fra brukerens maskin, installasjonsbackup eller den lokale demoen. Commits skal bruke GitHub noreply-adresser.
 - Vedlikehold `CONTRIBUTORS.md` med faktisk rollefordeling. Krediter Claude Code og Codex som AI-assistanse og bruk faktiske medforfattere i commits. GitHubs automatiske Contributors-statistikk skal ikke manipuleres med kunstige commits eller omskriving av historikk.
 - Desktop-pakken distribueres under Releases. GitHub Packages brukes bare dersom et reelt støttet pakkeformat og behov er innført.
 - Oppgi faktisk verifisert plattformstøtte; pakkeskriptet er nå for Ubuntu 26.04 amd64 med GTK ≥ 4.22 og glibc ≥ 2.39.

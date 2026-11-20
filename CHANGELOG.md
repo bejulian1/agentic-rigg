@@ -11,6 +11,15 @@ Gjeldende versjon: **1.4.1 · bygg 24**. Nedlastinger og utgivelsesnotater ligge
 - Isolerte tester og faktisk GTK-betjening mot en merket falsk arbeider er verifisert. På brukerens Palit RTX 2080 Super JetStream er fast blått og automatisk tilbakeføring til grønt fysisk bekreftet ved 100 % lysstyrke. Featurebranchen er ikke utgitt eller installert.
 - [Faktisk status, kontrollerprotokoll og verifikasjon](docs/produksjon/palit-rgb-2026-11-17.md). Eksisterende GPU-autorisasjon og installasjon endres ikke av dette forarbeidet.
 
+## Ikke utgitt · feature/task-manager
+
+- Ny Oppgaver-side med behovsstyrt Linux-prosessoversikt, CPU, RSS, tilgjengelig NVML-prosessminne, PID/bruker/status, prosesstre, søk og sortering.
+- Systemets CPU/RAM/GPU-minigrafer bruker eksisterende telemetri. Prosess-CPU bruker én logisk CPU som 100 %; RSS inkluderer delte sider og summeres ikke til systemets minnebruk.
+- Bekreftet SIGTERM til én prosess med pidfd, fersk identitets-/tillatelseskontroll og vern av system-/øktprosesser, appen, tilkoblede klienter og deres foreldre. Ingen administratoropptrapping, automatisk avslutning eller SIGKILL.
+- Prosesslesing opphører når behovet utløper; tabellen har høyst 100 gjenbrukte rader per side. Tastene 1–9/0 beholdes, og Ctrl+Shift+Esc åpner Oppgaver.
+- GPU-prosent per prosess er ikke tilgjengelig. GPU-minne vises som ukjent ved manglende data; AMD-/Intel-GPU-backender er fortsatt ikke implementert. [Detaljer og verifikasjon](docs/produksjon/oppgavebehandling.md).
+- Leveres som Draft PR. Ingen merge, PC-installasjon eller stabil Release inngår i denne gjennomgangen.
+
 ## 1.4.1 · bygg 24 – 14. november 2026
 
 - Vifter får Enkel/Avansert visning: vanlig valg av Auto/Manuell først, kurver og detaljert oppførsel under Avansert. En aktiv kurve fortsetter i Enkel visning og forklares der.

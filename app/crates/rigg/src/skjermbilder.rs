@@ -24,6 +24,9 @@ use std::time::Duration;
 #[path = "skjermbilder_ui140.rs"]
 mod ui140;
 
+#[path = "skjermbilder_oppgaver.rs"]
+mod oppgaver;
+
 enum Step {
     Set(Value),
     Size(i32, i32),
@@ -69,6 +72,7 @@ fn plan() -> Vec<Step> {
         Ok("1.4.0-ui") => ui140::plan(),
         Ok("rgb-ui") => plan_rgb(),
         Ok("rgb-flow") => plan_rgb_flow(),
+        Ok("oppgaver") => oppgaver::plan(),
         _ => plan_grunnmur(),
     }
 }
@@ -525,7 +529,7 @@ fn plan_3a_borte() -> Vec<Step> {
 }
 
 /// Alle ti sidene i rekkefølgen i sidefeltet (tastene 1–9 og 0).
-const PAGES: [&str; 10] = ["oversikt", "sensorer", "grafer", "grafikkort", "prosessor", "disker", "system", "kontroller", "viftekurve", "lys"];
+const PAGES: [&str; 11] = ["oversikt", "sensorer", "grafer", "grafikkort", "prosessor", "disker", "system", "kontroller", "viftekurve", "lys", "oppgaver"];
 
 /// Navn til et bilde som lages i løkka (planen kjører én gang per prosess).
 fn name(s: String) -> &'static str {

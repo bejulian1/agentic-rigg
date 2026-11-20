@@ -28,10 +28,11 @@ fn err<T>(m: impl Into<String>) -> Result<T, ValidationError> {
     Err(ValidationError(m.into()))
 }
 
-/// Sidene i rekkefølgen i sidefeltet (også tastene 1–9 og 0): (id, navn).
+/// Sidene og navnene deres. De første ti beholder tastene 1–9 og 0;
+/// Oppgaver åpnes med Ctrl+Shift+Esc og grupperes under Overvåking.
 /// Prosessor og Disker kom i 1.1.0 (runde 6A), og Styring-sidene fikk nye
 /// navn i runde 6B (`id` er den samme).
-pub const PAGES: [(&str, &str); 10] = [
+pub const PAGES: [(&str, &str); 11] = [
     ("oversikt", "Oversikt"),
     ("sensorer", "Sensorer"),
     ("grafer", "Grafer"),
@@ -42,6 +43,7 @@ pub const PAGES: [(&str, &str); 10] = [
     ("kontroller", "Skjermkort › Klokker og effekt"),
     ("viftekurve", "Skjermkort › Vifter"),
     ("lys", "Skjermkort › RGB-lys"),
+    ("oppgaver", "Oppgaver"),
 ];
 pub const INTERVALS: [u32; 3] = [500, 1000, 2000];
 pub const THEMES: [&str; 3] = ["system", "light", "dark"];

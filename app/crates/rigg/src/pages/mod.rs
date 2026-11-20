@@ -1,5 +1,5 @@
-//! Registeret med alle ti sidene, i rekkefølgen i sidefeltet (også tastene
-//! 1–9 og 0). Sidene bygges første gang de vises, og blir liggende til vinduet
+//! Registeret med sidene. De ti opprinnelige beholder tastene
+//! 1–9 og 0; Oppgaver åpnes også med Ctrl+Shift+Esc. Sidene bygges første gang de vises, og blir liggende til vinduet
 //! lukkes (arkitektur.md 3.3, punkt 3).
 //!
 //! **Slik lager en side seg (runde 2):** fila eksporterer
@@ -15,6 +15,7 @@ pub mod kontroller;
 pub mod lys;
 pub(crate) mod lys_kort;
 pub mod oversikt;
+pub mod oppgaver;
 pub mod prosessor;
 pub mod sensorer;
 pub mod system;
@@ -50,6 +51,8 @@ pub trait Page {
     fn show(&self, _query: Option<&str>) {}
     /// Siden skjules: stopp tidtakere og tick-callbacks.
     fn hide(&self) {}
+    /// Vinduet er minimert eller suspendert. Ressurskrevende sider stanser polling.
+    fn window_hidden(&self, _hidden: bool) {}
     /// Tastetrykk. `true` betyr at siden brukte det.
     fn on_key(&self, _k: &Key) -> bool {
         false
@@ -71,7 +74,7 @@ pub struct PageDef {
     pub build: fn(&Rc<App>) -> Box<dyn Page>,
 }
 
-pub const PAGES: [PageDef; 10] = [
+pub const PAGES: [PageDef; 11] = [
     PageDef { id: "oversikt", title: "Oversikt", icon: "layout-dashboard", section: Section::Monitor, build: oversikt::build },
     PageDef { id: "sensorer", title: "Sensorer", icon: "thermometer", section: Section::Monitor, build: sensorer::build },
     PageDef { id: "grafer", title: "Grafer", icon: "chart-line", section: Section::Monitor, build: grafer::build },
@@ -82,6 +85,7 @@ pub const PAGES: [PageDef; 10] = [
     PageDef { id: "kontroller", title: "Klokker og effekt", icon: "sliders-horizontal", section: Section::Control, build: kontroller::build },
     PageDef { id: "viftekurve", title: "Vifter", icon: "fan", section: Section::Control, build: viftekurve::build },
     PageDef { id: "lys", title: "RGB-lys", icon: "palette", section: Section::Control, build: lys::build },
+    PageDef { id: "oppgaver", title: "Oppgaver", icon: "activity", section: Section::Monitor, build: oppgaver::build },
 ];
 
 pub fn def(id: &str) -> Option<&'static PageDef> {

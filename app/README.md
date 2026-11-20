@@ -1,5 +1,7 @@
 # Agentic Rigg
 
+På featurebranchen finnes også **Oppgaver** under Overvåking (Ctrl+Shift+Esc), med prosess-CPU, RSS-minne, tilgjengelig GPU-minne, prosesstre, søk, sortering og bekreftet SIGTERM. Systemgrafene deler eksisterende telemetri. GPU-prosent per prosess er ikke implementert. Modulen er et forslag for Draft PR; [verifikasjon og begrensninger](../docs/produksjon/oppgavebehandling.md) gjelder separat fra den stabile versjonen omtalt under.
+
 Agentic Rigg er et overvåkingsverktøy for skjermkort og maskin på Ubuntu, skrevet i Rust med GTK 4. Det samler det du ellers bruker MSI Afterburner, HWiNFO, GPU-Z og CPU-Z til på Windows:
 
 - **Oversikt** over hele maskinen, i stil med GNOME Resources: fliser for prosessor, skjermkort, minne, VRAM, disker og nettverk, en tilstand-linje når noe er verdt å se (nedklokking, varm GPU, disk med advarsel, kortet borte), grafer for last, temperaturer, effekt, minne, disk og nett fra siste minutt til 48 timer, og skjermkortets målere nederst.

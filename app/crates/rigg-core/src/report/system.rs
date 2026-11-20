@@ -11,7 +11,7 @@
 
 use super::{Item, Kv, Section, Table};
 use crate::fmt as F;
-use crate::model::SysSample;
+use crate::model::{CpuSample, SysSample};
 use serde_json::Value;
 
 pub struct SysInput<'a> {
@@ -149,9 +149,54 @@ fn cpu_list(s: &str) -> String {
 /// Linux-CPU-ID-ene som er online. En eksplisitt tom liste betyr ingen tråder;
 /// bare eldre tjenestesvar uten feltet bruker det sammenhengende trådtallet.
 pub fn cpu_thread_ids(cpu: &Value) -> Vec<usize> {
-    match cpu.get("threadIds") {
-        Some(ids) => ids.as_array().map(|ids| ids.iter().filter_map(|v| v.as_u64().and_then(|v| usize::try_from(v).ok())).collect()).unwrap_or_default(),
-        None => (0..cpu["threads"].as_u64().and_then(|n| usize::try_from(n).ok()).unwrap_or(0)).collect(),
+    cpu_thread_iter(cpu).collect()
+}
+
+fn cpu_thread_iter(cpu: &Value) -> impl Iterator<Item = usize> + '_ {
+    let (ids, count) = match cpu.get("threadIds") {
+        Some(ids) => (ids.as_array(), 0),
+        None => (None, cpu["threads"].as_u64().and_then(|n| usize::try_from(n).ok()).unwrap_or(0)),
+    };
+    ids.into_iter()
+        .flatten()
+        .filter_map(|v| v.as_u64().and_then(|v| usize::try_from(v).ok()))
+        .chain(0..count)
+}
+
+/// Begrenser nye `get_system`-forespørsler mens samme avvik vedvarer.
+#[derive(Default)]
+pub struct CpuTopologySync {
+    requested: Vec<usize>,
+    attempts: u8,
+}
+
+impl CpuTopologySync {
+    pub fn should_request(&mut self, system: &Value, cpu: &CpuSample, pending: bool) -> bool {
+        let live = cpu.active_thread_ids();
+        if system.is_null() || live.clone().next().is_none() {
+            return false;
+        }
+        if live.clone().eq(cpu_thread_iter(&system["cpu"])) {
+            self.requested.clear();
+            self.attempts = 0;
+            return false;
+        }
+        if pending {
+            return false;
+        }
+        if !live.clone().eq(self.requested.iter().copied()) {
+            self.requested.clear();
+            self.requested.extend(live);
+            self.attempts = 0;
+        }
+        // Telemetri og systemsvaret kan ha blitt lest på hver sin side av et CPU-bytte.
+        // Eldre tjenester kan beholde den opprinnelige topologien hele økten.
+        let limit = if cpu.thread_ids.is_empty() { 1 } else { 2 };
+        if self.attempts >= limit {
+            return false;
+        }
+        self.attempts += 1;
+        true
     }
 }
 
@@ -557,5 +602,42 @@ mod tests {
         let d = disks_section(&sys);
         let t = crate::report::render_sections(&[d], crate::report::ReportFormat::Text, 2);
         assert!(t.contains("Advarsel") && t.contains("38") && t.contains("sda: 10 dårlige sektorer"), "{t}");
+    }
+
+    #[test]
+    fn cpu_topology_sync_gjenopptar_etter_samsvar_og_begrenser_forsok() {
+        let mut sync = CpuTopologySync::default();
+        let system = serde_json::json!({"cpu": {"threads": 2, "threadIds": [0, 1]}});
+        let same = crate::model::CpuSample { thread_ids: vec![0, 1], ..Default::default() };
+        assert!(!sync.should_request(&system, &same, false));
+
+        // Hotplug [0, 1] -> [0, 8]: samme antall tråder, men nytt ID-sett.
+        let hotplugged = crate::model::CpuSample { thread_ids: vec![0, 8], ..Default::default() };
+        assert!(sync.should_request(&system, &hotplugged, false));
+        assert!(!sync.should_request(&system, &hotplugged, true));
+        assert!(sync.should_request(&system, &hotplugged, false));
+        assert!(!sync.should_request(&system, &hotplugged, false));
+        // Topologien kan gå tilbake mens et systemkall pågår.
+        assert!(!sync.should_request(&system, &same, true));
+        assert!(sync.should_request(&system, &hotplugged, false));
+
+        let updated = serde_json::json!({"cpu": {"threads": 2, "threadIds": [0, 8]}});
+        assert!(!sync.should_request(&updated, &hotplugged, false));
+        assert!(sync.should_request(&updated, &same, false));
+
+        assert!(!sync.should_request(&Value::Null, &hotplugged, false));
+    }
+
+    #[test]
+    fn cpu_topology_sync_taler_eldre_telemetri_uten_trad_ider() {
+        let mut sync = CpuTopologySync::default();
+        let system = serde_json::json!({"cpu": {"threads": 2}});
+        assert!(!sync.should_request(&system, &CpuSample::default(), false));
+        let legacy = CpuSample {
+            core_load: vec![Some(12.0), None, Some(31.0)],
+            ..Default::default()
+        };
+        assert!(sync.should_request(&system, &legacy, false));
+        assert!(!sync.should_request(&system, &legacy, false));
     }
 }

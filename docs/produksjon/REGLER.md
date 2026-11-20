@@ -9,7 +9,7 @@ Agentic Rigg skal bli en ekte Ubuntu-desktop-app, skrevet i Rust med GTK4, ikke 
 - Appen skal åpne og lukke seg øyeblikkelig og bruke lite RAM.
 - Den skal ligge i appmenyen («Vis programmer»).
 - Alpha-merket skal fjernes, men versjon og byggnummer skal fortsatt stå i Innstillinger › Om.
-- Localhost-demoen (`web/`, `server/`, `daemon-mock/`) er fasiten for design, ordlyd og oppførsel. Den skal ikke slettes eller flyttes, for brukeren kjører den fra disse stiene.
+- Localhost-demoen (`web/`, `server/`, `daemon-mock/`, `prototyper/`, `scripts/`, `package.json`) er designreferanse og ikke en del av appen. Etter brukerens beslutning 20. november 2026 er den tatt ut av git-sporingen og står i `.gitignore`, men mappene blir liggende lokalt på samme stier fordi brukeren kjører demoen derfra. De skal ikke slettes eller flyttes, og de skal ikke publiseres igjen.
 
 ## Maskinen
 
@@ -42,9 +42,9 @@ Disse reglene kan ikke brytes.
 
 ## Struktur
 
-- Rust-arbeidsområdet ligger i `agentic-rigg/app/` (Cargo-workspace). Demoen ligger der den ligger.
+- Rust-arbeidsområdet ligger i `agentic-rigg/app/` (Cargo-workspace). Den lokale demoen ligger der den ligger, utenfor git.
 - App-ID er `io.github.AgenticRigg`.
-- All tekst i brukerflaten og alle dokumenter er på norsk bokmål.
+- All tekst i brukerflaten og interne produksjonsdokumenter er på norsk bokmål. Etter at repoet ble åpen kildekode 20. november 2026 er de offentlige inngangsdokumentene på engelsk: `README.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `CONTRIBUTORS.md` og malene under `.github/`. Applikasjonen skal ikke inneholde demo-, forhåndsvisnings- eller plassholderfunksjoner; simulering er bare for isolerte tester.
 - Dokumenter for produksjonsarbeidet ligger i `agentic-rigg/docs/produksjon/`.
 - Hver agent oppdaterer `docs/produksjon/LOGG.md` med en kort oppføring om hva den har gjort.
 

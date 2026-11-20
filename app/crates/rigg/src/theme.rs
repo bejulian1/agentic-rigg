@@ -17,7 +17,7 @@ use std::rc::Rc;
 pub const THEME_KEYS: &[&str] = &["theme", "accent", "palette", "highContrast", "density", "fontScale", "motion"];
 
 const SHEETS: &[&str] = &[
-    "tokens", "base", "skall", "innstillinger", "oversikt", "sensorer", "grafer", "grafikkort", "system", "prosessor", "disker", "kontroller", "viftekurve", "lys",
+    "tokens", "base", "skall", "innstillinger", "oversikt", "sensorer", "grafer", "grafikkort", "system", "prosessor", "disker", "kontroller", "viftekurve", "lys", "oppgaver",
 ];
 
 /// Skallets regler som må vinne over sidenes egne ark. Arkene har samme
