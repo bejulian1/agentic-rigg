@@ -238,6 +238,9 @@ fn on_conn(app: &Rc<App>, up: bool) {
         a.data.borrow_mut().backend = h["daemon"]["backend"].as_str().unwrap_or("").to_string();
         a.data.borrow_mut().hello = Some(h);
         crate::timing::mark_once("hello");
+        if let Some(s) = a.shell.get() {
+            s.send_focus();
+        }
         a.conn.set(Conn::Connected);
         a.on_conn.emit(&Conn::Connected);
         after_hello(&a);
@@ -248,9 +251,6 @@ fn after_hello(app: &Rc<App>) {
     crate::widgets::locked::poll_helper(app);
     let iv = app.settings().interval_ms;
     app.client.request("subscribe", json!({"topics": crate::client::TOPICS, "intervalMs": iv}), |_| {});
-    if let Some(s) = app.shell.get() {
-        s.send_focus(false);
-    }
     let a = app.clone();
     app.client.request("get_telemetry", json!({}), move |res| {
         if let Ok(v) = res

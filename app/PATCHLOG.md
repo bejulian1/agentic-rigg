@@ -1,5 +1,15 @@
 # Patchlog
 
+## Ikke utgitt · Oppgaver på feature/task-manager
+
+- Egen side under Overvåking, med søk etter navn/PID/bruker, kolonnesortering, prosesstre og avgrensede sider med gjenbrukte rader. Ctrl+Shift+Esc åpner siden; de ti opprinnelige tallsnarveiene beholdes.
+- Den eksisterende prøvetråden samler prosessdata høyst hvert andre sekund ved behov. Behovet utløper etter fem sekunder uten forespørsler. Ingen ekstra overvåkingstråd eller eksterne prosesskommandoer; systemgrafene deler eksisterende App-data.
+- CPU-delta følger PID og starttid med monoton klokke. Én logisk CPU er 100 %. RAM er RSS og inneholder delte sider; systemets minnebruk vises separat. Utilgjengelige målinger blir ukjente.
+- GPU-minne gjenbruker NVML-prosessleseren og krever ferske data og uendret prosessidentitet. Manglende kortdata eller ukjent delbidrag gir ingen ufullstendig sum. GPU-prosent per prosess er foreløpig ikke implementert.
+- Avslutning gjelder én bekreftet prosess og bare SIGTERM via pidfd. Ny kontroll av identitet, brukerrettigheter, kjernetråder og beskyttede prosesser, inkludert tilkoblede klienters foreldre. Ingen GPU-hjelper, administratoropptrapping eller automatisk eskalering.
+- Pause/F5, gamle tjenester, frakobling og foreldede prøver har egne tilstander. Søk og sortering sender ikke et nytt signalmål ved radflytting.
+- [Gjennomføring, kilder og verifikasjon](../docs/produksjon/oppgavebehandling.md). Forslaget har ingen ny stabil versjon, Release, merge eller installasjon.
+
 ## 1.4.1 · bygg 24 – 14. november 2026: enklere viftestyring og synlig bekreftelse
 
 - **Versjonslogg og bidrag:** Innstillinger har en fast Versjonslogg-knapp, og Om har Vis versjonslogg. Dialogen viser de ni dokumenterte desktoputgavene fra 1.4.1 bygg 24 til 1.0.0 bygg 16, nyeste først, med korte endringer og uten løpende testtall. Historikken ligger som en egen innebygd ressurs. Om krediterer Julian, Anthropic Claude Opus 5.5 (Claude Code) og OpenAI GPT 6.1 Sol (Codex), og den gamle påstanden om at appen bare leser er erstattet med presis tekst om overvåking og støttet GPU-styring.

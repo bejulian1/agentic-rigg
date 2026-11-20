@@ -1,7 +1,9 @@
 //! Én klient: hva den har sagt hei med, hva den abonnerer på, takten den vil
 //! ha, og hvilke sider som synes i vinduet (`set_focus`).
 
-use std::collections::BTreeSet;
+use crate::tasks::TaskSnapshot;
+use std::collections::{BTreeSet, VecDeque};
+use std::rc::Rc;
 
 #[derive(Debug, Default)]
 pub struct Session {
@@ -14,6 +16,8 @@ pub struct Session {
     pub interval_ms: Option<u32>,
     /// Sidene som synes. `Some([])` betyr at vinduet er minimert eller skjult.
     pub focus: Option<Vec<String>>,
+    /// Sist viste bilde og ett svar som kan være underveis til klienten.
+    pub task_snapshots: VecDeque<(u64, Rc<TaskSnapshot>)>,
 }
 
 impl Session {

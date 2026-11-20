@@ -22,6 +22,7 @@ mod schedule;
 mod server;
 mod session;
 mod store;
+mod tasks;
 mod tray;
 mod varsler;
 
