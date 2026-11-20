@@ -1,5 +1,19 @@
 [
   {
+    "version": "1.5.0",
+    "build": 25,
+    "date": "2026-11-21",
+    "title": "Ti språk, Oppgaver og lys på kortet",
+    "changes": [
+      "Appen finnes på ti språk: norsk bokmål, engelsk, tysk, fransk, spansk, portugisisk (Brasil), italiensk, polsk, forenklet kinesisk og japansk. Språket velges i Innstillinger › Generelt.",
+      "Ny side, Oppgaver, viser prosesser med CPU, minne og GPU-minne, søk, sortering og prosesstre. En valgt prosess kan avsluttes etter bekreftelse. Ctrl+Shift+Esc åpner siden.",
+      "Lys på kortet styrer RGB på Palit GeForce RTX 2080 Super JetStream: fast farge, av, lysstyrke, pusting, regnbue og fargesyklus, med Bruk, Behold og tilbakeføring.",
+      "RGB-siden viser bare det kortet faktisk kan styre. Den lokale lysmodellen er fjernet.",
+      "Hjelperne installeres med én kontrollert systeminstallasjon og bruker faste innganger eid av root. GPU-styring må aktiveres på nytt én gang.",
+      "Sensorer og Prosessor følger med når CPU-er kobles inn eller ut, også når antallet tråder er uendret."
+    ]
+  },
+  {
     "version": "1.4.1",
     "build": 24,
     "date": "2026-11-14",
