@@ -1,0 +1,261 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/widgets/locked.rs:38
+msgid "Skjermkortet eller tjenesten svarer ikke. Endringer er låst."
+msgstr "Die GPU oder der Dienst antwortet nicht. Änderungen sind gesperrt."
+
+#: crates/rigg/src/widgets/locked.rs:41
+msgid "Hjelperen er aktivert for et annet kort. Aktiver styring for kortet som vises."
+msgstr "Der Hilfsdienst ist für eine andere GPU aktiviert. Aktiviere die Steuerung für die hier angezeigte GPU."
+
+#: crates/rigg/src/widgets/locked.rs:85
+msgid "Funksjonen er ikke tilgjengelig på dette kortet."
+msgstr "Diese Funktion ist auf dieser GPU nicht verfügbar."
+
+#: crates/rigg/src/widgets/locked.rs:304
+msgid "Valgt kort ble endret. Endringen på det opprinnelige kortet er rullet tilbake."
+msgstr "Die Kartenauswahl wurde geändert. Die Änderung auf der ursprünglichen Karte wurde zurückgesetzt."
+
+#: crates/rigg/src/widgets/locked.rs:305
+msgid "Valgt kort ble endret. Tilbakestilling på det opprinnelige kortet er ikke bekreftet. Se status i Innstillinger › Skjermkortstyring."
+msgstr "Die Kartenauswahl wurde geändert. Die Rücksetzung auf der ursprünglichen Karte ist nicht bestätigt. Prüfen Sie den Status unter Einstellungen › GPU-Steuerung."
+
+#: crates/rigg/src/widgets/locked.rs:306
+msgid "Valgt kort ble endret. Tilbakestilling på det opprinnelige kortet kunne ikke bekreftes: {feil}"
+msgstr "Die Kartenauswahl wurde geändert. Die Rücksetzung auf der ursprünglichen Karte konnte nicht bestätigt werden: {feil}"
+
+#: crates/rigg/src/widgets/locked.rs:312
+msgid "Valgt kort ble endret mens forespørselen ventet. Svaret brukes ikke på det nye kortet."
+msgstr "Die ausgewählte GPU hat sich während der Anfrage geändert. Die Antwort wird nicht für die neue GPU verwendet."
+
+#: crates/rigg/src/widgets/locked.rs:340 crates/rigg/src/widgets/locked.rs:675
+msgid "Simulert kort"
+msgstr "Simulierte GPU"
+
+#: crates/rigg/src/widgets/locked.rs:340
+msgid "Endringer gjelder bare simuleringen."
+msgstr "Änderungen gelten nur für die Simulation."
+
+#: crates/rigg/src/widgets/locked.rs:342 crates/rigg/src/widgets/locked.rs:679
+msgid "Styring klar"
+msgstr "Steuerung bereit"
+
+#: crates/rigg/src/widgets/locked.rs:342
+msgid "Støttede endringer sendes til det valgte kortet når du trykker Bruk."
+msgstr "Unterstützte Änderungen werden mit „Anwenden“ an die ausgewählte Karte gesendet."
+
+#: crates/rigg/src/widgets/locked.rs:343
+msgid "Simulert styring"
+msgstr "Simulierte Steuerung"
+
+#: crates/rigg/src/widgets/locked.rs:343
+msgid "Endringer gjelder bare det simulerte kortet."
+msgstr "Änderungen gelten nur für die simulierte Karte."
+
+#: crates/rigg/src/widgets/locked.rs:344
+msgid "Styring utilgjengelig"
+msgstr "Steuerung nicht verfügbar"
+
+#: crates/rigg/src/widgets/locked.rs:345
+msgid "Styring: feil"
+msgstr "Steuerungsfehler"
+
+#: crates/rigg/src/widgets/locked.rs:346
+msgid "Oppdater hjelper"
+msgstr "Hilfsdienst aktualisieren"
+
+#: crates/rigg/src/widgets/locked.rs:347
+msgid "Bare visning"
+msgstr "Nur Anzeige"
+
+#: crates/rigg/src/widgets/locked.rs:347
+msgid "Endringer på skjermkortet er slått av. Aktiver én gang med administratorpassord i Innstillinger › Skjermkortstyring."
+msgstr "Die GPU-Steuerung ist aus. Aktiviere sie einmalig mit deinem Administratorpasswort unter Einstellungen › GPU-Steuerung."
+
+#: crates/rigg/src/widgets/locked.rs:355
+msgid "Hjelperen er ikke skriveklar for kortet som vises."
+msgstr "Der Hilfsdienst ist für Änderungen an dieser GPU nicht bereit."
+
+#: crates/rigg/src/widgets/locked.rs:356
+msgid "Hjelperen svarer ikke. Endringer er låst."
+msgstr "Der Hilfsdienst antwortet nicht. Änderungen sind gesperrt."
+
+#: crates/rigg/src/widgets/locked.rs:357
+msgid "Hjelperen må oppdateres. Oppdater systemkomponentene fra Innstillinger › Skjermkortstyring."
+msgstr "Der Hilfsdienst muss aktualisiert werden. Aktualisieren Sie die Systemkomponenten unter Einstellungen › GPU-Steuerung."
+
+#: crates/rigg/src/widgets/locked.rs:516
+msgid "Utkastet må oppdateres"
+msgstr "Entwurf muss aktualisiert werden"
+
+#: crates/rigg/src/widgets/locked.rs:544
+msgid "Dette eldre utkastet mangler opprinnelig grunnlag. Behold det som referanse, eller forkast det og lag et nytt utkast fra kortets verdier."
+msgstr "Für diesen älteren Entwurf sind keine Ausgangswerte gespeichert. Behalte ihn als Referenz oder verwirf ihn und erstelle einen neuen Entwurf aus den aktuellen GPU-Werten."
+
+#: crates/rigg/src/widgets/locked.rs:547
+msgid "Utkastet tilhører en annen kortidentitet. Velg det opprinnelige kortet, eller forkast utkastet før du lager et nytt."
+msgstr "Dieser Entwurf gehört zu einer anderen GPU. Wähle die ursprüngliche GPU oder verwirf den Entwurf, bevor du einen neuen erstellst."
+
+#: crates/rigg/src/widgets/locked.rs:553
+msgid "Det finnes ikke noe utkast å bruke."
+msgstr "Kein Entwurf zum Anwenden vorhanden."
+
+#: crates/rigg/src/widgets/locked.rs:650 crates/rigg/src/widgets/locked.rs:683
+msgid "Låst"
+msgstr "Gesperrt"
+
+#: crates/rigg/src/widgets/locked.rs:657
+msgid "Hva skal til?"
+msgstr "Was ist erforderlich?"
+
+#: crates/rigg/src/widgets/locked.rs:659
+msgid "Aktivering og støtte for kortet"
+msgstr "Aktivierung und Kartenunterstützung"
+
+#: crates/rigg/src/widgets/locked.rs:673
+msgid "Kortet svarer ikke"
+msgstr "GPU antwortet nicht"
+
+#: crates/rigg/src/widgets/locked.rs:673
+msgid "Verdiene vises igjen når kortet er tilbake. Utkastet beholdes."
+msgstr "Die Werte erscheinen wieder, sobald die Karte verfügbar ist. Der Entwurf bleibt erhalten."
+
+#: crates/rigg/src/widgets/locked.rs:675
+msgid "Bruk sender utkastet til den simulerte backenden, med Behold eller Rull tilbake. Det ekte kortet røres ikke."
+msgstr "„Anwenden“ sendet den Entwurf an das simulierte Backend. Sie können die Änderung beibehalten oder zurücksetzen. Die physische Karte bleibt unverändert."
+
+#: crates/rigg/src/widgets/locked.rs:677 crates/rigg/src/widgets/locked.rs:717
+msgid "Utilgjengelig"
+msgstr "Nicht verfügbar"
+
+#: crates/rigg/src/widgets/locked.rs:679
+msgid "Utkast"
+msgstr "Entwurf"
+
+#: crates/rigg/src/widgets/locked.rs:679
+msgid "Endringene sendes til kortet når du trykker Bruk. Behold dem innen fristen, ellers rulles de tilbake."
+msgstr "Mit „Anwenden“ werden Änderungen an die Karte gesendet. Behalten Sie sie innerhalb der Frist bei, sonst werden sie zurückgesetzt."
+
+#: crates/rigg/src/widgets/locked.rs:679
+msgid "Støttede funksjoner kan endres med Bruk og Behold."
+msgstr "Unterstützte Funktionen lassen sich über „Anwenden“ und „Beibehalten“ ändern."
+
+#: crates/rigg/src/widgets/locked.rs:681
+msgid "Utkast · låst"
+msgstr "Entwurf · gesperrt"
+
+#: crates/rigg/src/widgets/locked.rs:681
+msgid "Utkastet lagres i appen og sendes ikke til kortet. Styring er ikke tilgjengelig for kortet som vises, så Bruk er låst."
+msgstr "Der Entwurf wird in der App gespeichert und nicht an die Karte gesendet. Für diese Karte ist keine Steuerung verfügbar, deshalb ist „Anwenden“ gesperrt."
+
+#: crates/rigg/src/widgets/locked.rs:706
+msgid "Skjermkortstyring"
+msgstr "GPU-Steuerung"
+
+#: crates/rigg/src/widgets/locked.rs:707
+msgid "Aktiver styring én gang med administratorpassord i Innstillinger. Funksjonene under blir tilgjengelige der kortet og driveren støtter dem."
+msgstr "Aktivieren Sie die Steuerung einmalig mit einem Administratorkennwort in den Einstellungen. Die folgenden Funktionen werden verfügbar, sofern Karte und Treiber sie unterstützen."
+
+#: crates/rigg/src/widgets/locked.rs:711
+msgid "Effektgrense"
+msgstr "Leistungslimit"
+
+#: crates/rigg/src/widgets/locked.rs:711
+msgid "Vifter"
+msgstr "Lüfter"
+
+#: crates/rigg/src/widgets/locked.rs:711
+msgid "Viftekurve"
+msgstr "Lüfterkurve"
+
+#: crates/rigg/src/widgets/locked.rs:711
+msgid "Kjerneklokke"
+msgstr "Kerntakt"
+
+#: crates/rigg/src/widgets/locked.rs:711
+msgid "Minneklokke"
+msgstr "Speichertakt"
+
+#: crates/rigg/src/widgets/locked.rs:711
+msgid "Temperaturmål"
+msgstr "Temperaturziel"
+
+#: crates/rigg/src/widgets/locked.rs:717
+msgid "Tilgjengelig"
+msgstr "Verfügbar"
+
+#: crates/rigg/src/widgets/locked.rs:717
+msgid "Ikke undersøkt"
+msgstr "Nicht geprüft"
+
+#: crates/rigg/src/widgets/locked.rs:721
+msgid "Hver endring må beholdes innen fristen. Du kan alltid velge Rull tilbake."
+msgstr "Behalten Sie jede Änderung vor Fristablauf bei. Sie können jederzeit „Zurücksetzen“ wählen."
+
+#: crates/rigg/src/widgets/locked.rs:725
+msgid "Åpne Innstillinger › Skjermkortstyring"
+msgstr "Einstellungen › GPU-Steuerung öffnen"
+
+#: crates/rigg/src/widgets/locked.rs:940
+msgid "Rull tilbake"
+msgstr "Zurücksetzen"
+
+#: crates/rigg/src/widgets/locked.rs:941
+msgid "Behold"
+msgstr "Beibehalten"
+
+#: crates/rigg/src/widgets/locked.rs:961
+msgid "Tilbakestilling kunne ikke bekreftes. Kortets tilstand er usikker. Prøv Rull tilbake, og se status i Innstillinger › Skjermkortstyring."
+msgstr "Die Rücksetzung konnte nicht bestätigt werden. Der Kartenzustand ist ungewiss. Wählen Sie „Zurücksetzen“ und prüfen Sie Einstellungen › GPU-Steuerung."
+
+#: crates/rigg/src/widgets/locked.rs:965 crates/rigg/src/widgets/locked.rs:1053 crates/rigg/src/widgets/locked.rs:1107
+msgid "Endringene er rullet tilbake"
+msgstr "Änderungen zurückgesetzt"
+
+#: crates/rigg/src/widgets/locked.rs:1025
+msgid "Behold ({sek})"
+msgstr "Beibehalten ({sek})"
+
+#: crates/rigg/src/widgets/locked.rs:1026
+msgid "Kortet er byttet. Venter på bekreftet tilbakestilling på det opprinnelige kortet …"
+msgstr "Die Kartenauswahl wurde geändert. Warte auf bestätigte Rücksetzung der ursprünglichen Karte …"
+
+#: crates/rigg/src/widgets/locked.rs:1027
+msgid "Fristen er ute. Venter på bekreftet tilbakestilling fra tjenesten …"
+msgstr "Die Frist ist abgelaufen. Warte auf Bestätigung der Rücksetzung durch den Dienst …"
+
+#: crates/rigg/src/widgets/locked.rs:1028
+msgid "Behold endringene? Uten svar rulles de tilbake om {tid}."
+msgstr "Änderungen beibehalten? Ohne Antwort werden sie in {tid} zurückgesetzt."
+
+#: crates/rigg/src/widgets/locked.rs:1046
+msgid "Tjenesten kan ikke bekrefte kortets tilstand eller tilbakestilling. Prøv Rull tilbake, og se status i Innstillinger › Skjermkortstyring."
+msgstr "Der Dienst kann den Kartenzustand oder die Rücksetzung nicht bestätigen. Wählen Sie „Zurücksetzen“ und prüfen Sie Einstellungen › GPU-Steuerung."
+
+#: crates/rigg/src/widgets/locked.rs:1058
+msgid "Kortets tilstand er bekreftet"
+msgstr "Kartenzustand bestätigt"
+
+#: crates/rigg/src/widgets/locked.rs:1058
+msgid "Ingen ubekreftet endring venter."
+msgstr "Es stehen keine unbestätigten Änderungen aus."
+
+#: crates/rigg/src/widgets/locked.rs:1107
+msgid "Endringene er beholdt"
+msgstr "Änderungen beibehalten"
+
+#: crates/rigg/src/widgets/locked.rs:1111
+msgid "Tjenesten kan ikke bekrefte tilbakestillingen. Kortets tilstand er usikker. Prøv Rull tilbake."
+msgstr "Der Dienst kann die Rücksetzung nicht bestätigen. Der Kartenzustand ist ungewiss. Wählen Sie „Zurücksetzen“."
+
+#: crates/rigg/src/widgets/locked.rs:1112
+msgid "Kunne ikke bekrefte svaret: {feil}. Prøv Rull tilbake. Endringen regnes ikke som tilbakestilt før tjenesten bekrefter det."
+msgstr "Die Antwort konnte nicht bestätigt werden: {feil}. Wählen Sie „Zurücksetzen“. Die Änderung gilt erst als zurückgesetzt, wenn der Dienst dies bestätigt."

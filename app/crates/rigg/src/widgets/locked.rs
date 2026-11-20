@@ -1,11 +1,10 @@
-//! Låst-tilstanden (produktspesifikasjonen 6.2): banneret «Endringer er
-//! låst» (Lys), popoveren «Hva skal til?» med trinnene fra
+//! Låst-tilstanden (produktspesifikasjonen 6.2): popoveren «Hva skal til?» med støtte fra
 //! `capabilities.write`, og porten som avgjør om en skriveoperasjon i det
 //! hele tatt sendes.
 //!
-//! Her ligger også det Kontroller, Viftekurve og Lys lagrer i appen
-//! (`profiler.json`: profilene, utkastet, lysvalget og 3D-visningen), og
-//! to små byggeklosser de tre sidene deler: [`Columns`] (hovedflate og
+//! Her ligger også det Kontroller og Viftekurve lagrer i appen
+//! (`profiler.json`: profilene og utkastet), og
+//! to små byggeklosser de deler: [`Columns`] (hovedflate og
 //! sidekolonne, under hverandre i smale vinduer) og [`ConfirmBar`]
 //! (Behold eller Rull tilbake, med autoritativ status fra tjenesten).
 //!
@@ -21,6 +20,8 @@ use crate::widgets::{Icon, button, hbox, label, set_text, vbox};
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::glib;
+use rigg_core::hjelper::{display_diagnostic, display_error};
+use rigg_core::{tr, trf};
 use rigg_core::proto::{ErrorCode, OpResult, ProtoError};
 use rigg_core::txn::{self, Gate};
 use serde_json::{Value, json};
@@ -34,10 +35,10 @@ pub fn gate(app: &App) -> Gate {
     let g = txn::write_gate(app.data.borrow().hello.as_ref(), app.profile.is_dev());
     if g != Gate::Real { return g; }
     if !app.client.is_connected() || app.gpu_info().is_none_or(|i| i.state != rigg_core::model::DeviceState::Ok) {
-        return Gate::Locked("Skjermkortet eller tjenesten svarer ikke. Endringer er låst.");
+        return Gate::Locked(tr!("Skjermkortet eller tjenesten svarer ikke. Endringer er låst."));
     }
     if !helper_targets_selected(app) {
-        return Gate::Locked("Hjelperen er aktivert for et annet kort. Aktiver styring for kortet som vises.");
+        return Gate::Locked(tr!("Hjelperen er aktivert for et annet kort. Aktiver styring for kortet som vises."));
     }
     Gate::Real
 }
@@ -80,7 +81,8 @@ pub fn supports(app: &App, field: &str) -> bool {
 }
 
 pub fn capability_reason(app: &App, field: &str) -> String {
-    capabilities(app)[field]["reason"].as_str().unwrap_or("Funksjonen er ikke tilgjengelig på dette kortet.").to_string()
+    let caps = capabilities(app);
+    caps[field]["reason"].as_str().map(display_diagnostic).map_or_else(|| tr!("Funksjonen er ikke tilgjengelig på dette kortet.").into(), |text| text.into_owned())
 }
 
 pub fn capability_range(app: &App, field: &str) -> Option<(f64, f64)> {
@@ -299,15 +301,15 @@ pub fn send_write(app: &Rc<App>, op: &str, mut args: Value, cb: impl FnOnce(OpRe
                 let a2 = a.clone();
                 a.client.request("revert", origin.args(json!({"txn": id})), move |reverted| {
                     let message = match reverted {
-                        Ok(v) if v["hardwareError"].is_null() && v["hardwareKnown"] != false => "Valgt kort ble endret. Endringen på det opprinnelige kortet er rullet tilbake.".to_string(),
-                        Ok(_) => "Valgt kort ble endret. Tilbakestilling på det opprinnelige kortet er ikke bekreftet. Se status i Innstillinger › Skjermkortstyring.".to_string(),
-                        Err(e) => format!("Valgt kort ble endret. Tilbakestilling på det opprinnelige kortet kunne ikke bekreftes: {}", e.message),
+                        Ok(v) if v["hardwareError"].is_null() && v["hardwareKnown"] != false => tr!("Valgt kort ble endret. Endringen på det opprinnelige kortet er rullet tilbake.").to_string(),
+                        Ok(_) => tr!("Valgt kort ble endret. Tilbakestilling på det opprinnelige kortet er ikke bekreftet. Se status i Innstillinger › Skjermkortstyring.").to_string(),
+                        Err(e) => trf!("Valgt kort ble endret. Tilbakestilling på det opprinnelige kortet kunne ikke bekreftes: {feil}", feil = display_error(&e)),
                     };
                     cb(Err(ProtoError::msg(ErrorCode::WriteLocked, message)));
                     refresh_helper(&a2, || {});
                 });
             } else {
-                cb(Err(ProtoError::msg(ErrorCode::WriteLocked, "Valgt kort ble endret mens forespørselen ventet. Svaret brukes ikke på det nye kortet.")));
+                cb(Err(ProtoError::msg(ErrorCode::WriteLocked, tr!("Valgt kort ble endret mens forespørselen ventet. Svaret brukes ikke på det nye kortet."))));
             }
             return;
         }
@@ -329,33 +331,30 @@ pub fn mark_topbar(app: &Rc<App>, page: &'static str) {
 pub fn sync_topbar(app: &Rc<App>, page: &'static str) {
     if let Some(s) = app.shell.get() {
         // Lys har egen RGB-tillatelse og viser status ved sine kontroller.
-        // Den lokale forhåndsvisningen skal aldri arve NVML-låsemerket.
         let open = page == "lys" || !matches!(gate(app), Gate::Locked(_));
         s.topbar.set_locked(page, !open);
     }
 }
 
 pub fn badge(app: &App) -> (String, &'static str, String) {
-    if gate(app) == Gate::Sim { return ("Simulert kort".into(), "circle-dot", "Endringer gjelder bare simuleringen.".into()); }
+    if gate(app) == Gate::Sim { return (tr!("Simulert kort").into(), "circle-dot", tr!("Endringer gjelder bare simuleringen.").into()); }
     match helper_state(app).as_str() {
-        "on" if control_ready(app) => ("Styring klar".into(), "shield", "Støttede endringer sendes til det valgte kortet når du trykker Bruk.".into()),
-        "on" if gate(app) == Gate::Sim => ("Simulert styring".into(), "circle-dot", "Endringer gjelder bare det simulerte kortet.".into()),
-        "on" => ("Styring utilgjengelig".into(), "triangle-alert", helper_line(app).unwrap_or_default()),
-        "error" => ("Styring: feil".into(), "triangle-alert", helper_line(app).unwrap_or_default()),
-        "outdated" => ("Oppdater hjelper".into(), "circle-alert", helper_line(app).unwrap_or_default()),
-        _ => ("Bare visning".into(), "lock", HELPER_OFF_TIP.into()),
+        "on" if control_ready(app) => (tr!("Styring klar").into(), "shield", tr!("Støttede endringer sendes til det valgte kortet når du trykker Bruk.").into()),
+        "on" if gate(app) == Gate::Sim => (tr!("Simulert styring").into(), "circle-dot", tr!("Endringer gjelder bare det simulerte kortet.").into()),
+        "on" => (tr!("Styring utilgjengelig").into(), "triangle-alert", helper_line(app).unwrap_or_default()),
+        "error" => (tr!("Styring: feil").into(), "triangle-alert", helper_line(app).unwrap_or_default()),
+        "outdated" => (tr!("Oppdater hjelper").into(), "circle-alert", helper_line(app).unwrap_or_default()),
+        _ => (tr!("Bare visning").into(), "lock", tr!("Endringer på skjermkortet er slått av. Aktiver én gang med administratorpassord i Innstillinger › Skjermkortstyring.").into()),
     }
 }
-
-pub const HELPER_OFF_TIP: &str = "Endringer på skjermkortet er slått av. Aktiver én gang med administratorpassord i Innstillinger › Skjermkortstyring.";
 
 pub fn helper_line(app: &App) -> Option<String> {
     let h = helper(app);
     match helper_state(app).as_str() {
         "on" if control_ready(app) || gate(app) == Gate::Sim => None,
-        "on" => Some(h["message"].as_str().unwrap_or("Hjelperen er ikke skriveklar for kortet som vises.").into()),
-        "error" => Some(h["message"].as_str().unwrap_or("Hjelperen svarer ikke. Endringer er låst.").into()),
-        "outdated" => Some("Hjelperen må oppdateres. Oppdater systemkomponentene fra Innstillinger › Skjermkortstyring.".into()),
+        "on" => Some(h["message"].as_str().map(display_diagnostic).map_or_else(|| tr!("Hjelperen er ikke skriveklar for kortet som vises.").into(), |text| text.into_owned())),
+        "error" => Some(h["message"].as_str().map(display_diagnostic).map_or_else(|| tr!("Hjelperen svarer ikke. Endringer er låst.").into(), |text| text.into_owned())),
+        "outdated" => Some(tr!("Hjelperen må oppdateres. Oppdater systemkomponentene fra Innstillinger › Skjermkortstyring.").into()),
         _ => None,
     }
 }
@@ -383,7 +382,7 @@ impl Profile {
 
 pub const SLOTS: usize = 5;
 
-/// Innholdet i `profiler.json`. Eies av vinduet; bare disse tre sidene skriver.
+/// Innholdet i `profiler.json`. Eies av vinduet.
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct Stored {
     pub profiles: Vec<Option<Profile>>,
@@ -394,10 +393,6 @@ pub struct Stored {
     pub utkast_gpu: Option<String>,
     /// Visningsnivå på Vifter. Endrer aldri kortet eller utkastet.
     pub fan_advanced: bool,
-    /// Lysvalget («Lagre i appen»).
-    pub rgb: Value,
-    /// 3D-visningen på Lys: vinkel, zoom, lagtrinn, skill lagene, 2D/3D, sone.
-    pub lys: Value,
 }
 
 impl Stored {
@@ -409,8 +404,6 @@ impl Stored {
             "utkastBase": self.utkast_base,
             "utkastGpu": self.utkast_gpu,
             "fanAdvanced": self.fan_advanced,
-            "rgb": self.rgb,
-            "lys": self.lys,
         })
     }
     /// Ett dårlig felt nullstiller ikke resten.
@@ -421,8 +414,6 @@ impl Stored {
             utkast_base: serde_json::from_value(v["utkastBase"].clone()).ok(),
             utkast_gpu: v["utkastGpu"].as_str().map(str::to_string),
             fan_advanced: v["fanAdvanced"].as_bool().unwrap_or(false),
-            rgb: if v["rgb"].is_object() { v["rgb"].clone() } else { Value::Null },
-            lys: if v["lys"].is_object() { v["lys"].clone() } else { Value::Null },
         };
         s.profiles.resize(SLOTS, None);
         s.profiles.truncate(SLOTS);
@@ -461,7 +452,7 @@ pub fn set_fan_advanced(app: &Rc<App>, advanced: bool) {
 }
 
 /// Endrer det som er lagret, sier fra til sidene (`what`: «utkast»,
-/// «profiler», «rgb», «lys») og lagrer 500 ms etter siste endring.
+/// «profiler») og lagrer 500 ms etter siste endring.
 pub fn update(app: &Rc<App>, what: &str, f: impl FnOnce(&mut Stored)) {
     let (changed, draft_before, binding_changed) = STORE.with(|st| {
         let mut b = st.borrow_mut();
@@ -522,7 +513,7 @@ pub fn edit_draft(app: &Rc<App>, base: txn::Values, f: impl FnOnce(&mut txn::Val
     let mut d = match validated_draft(app, &base) {
         Ok(d) => d.unwrap_or_else(|| base.clone()),
         Err(why) => {
-            app.toast(crate::toast::Toast::new("Utkastet må oppdateres").body(&why).error());
+            app.toast(crate::toast::Toast::new(tr!("Utkastet må oppdateres")).body(&why).error());
             return;
         }
     };
@@ -550,16 +541,16 @@ pub fn validated_draft(app: &App, current: &txn::Values) -> Result<Option<txn::V
 fn validate_draft_binding(s: Stored, key: &str, current: &txn::Values) -> Result<Option<txn::Values>, String> {
     let Some(d) = s.utkast else { return Ok(None) };
     let Some(original) = s.utkast_base else {
-        return Err("Dette eldre utkastet mangler opprinnelig grunnlag. Behold det som referanse, eller forkast det og lag et nytt utkast fra kortets verdier.".into());
+        return Err(tr!("Dette eldre utkastet mangler opprinnelig grunnlag. Behold det som referanse, eller forkast det og lag et nytt utkast fra kortets verdier.").into());
     };
     if s.utkast_gpu.as_deref() != Some(key) {
-        return Err("Utkastet tilhører en annen kortidentitet. Velg det opprinnelige kortet, eller forkast utkastet før du lager et nytt.".into());
+        return Err(tr!("Utkastet tilhører en annen kortidentitet. Velg det opprinnelige kortet, eller forkast utkastet før du lager et nytt.").into());
     }
     Ok(Some(rebase_draft(&original, &d, current)))
 }
 
 pub fn draft_for_apply(app: &App, current: &txn::Values) -> Result<txn::Values, String> {
-    validated_draft(app, current)?.ok_or_else(|| "Det finnes ikke noe utkast å bruke.".into())
+    validated_draft(app, current)?.ok_or_else(|| tr!("Det finnes ikke noe utkast å bruke.").into())
 }
 
 /// Profilinnlasting og eksplisitt reset er en ny intensjon på valgt kort.
@@ -656,16 +647,16 @@ impl LockStrip {
         let icon = Icon::new("lock", 14);
         icon.set_valign(gtk::Align::Center);
         icon.add_css_class("ls-icon");
-        let title = label("Låst", &["ls-title"]);
+        let title = label(tr!("Låst"), &["ls-title"]);
         title.set_valign(gtk::Align::Center);
         let text = label(base, &["ls-text"]);
         text.set_wrap(true);
         text.set_wrap_mode(gtk::pango::WrapMode::WordChar);
         text.set_hexpand(true);
         text.set_valign(gtk::Align::Center);
-        let what = button(None, Some("Hva skal til?"), &["sm", "flat", "ls-what"]);
+        let what = button(None, Some(tr!("Hva skal til?")), &["sm", "flat", "ls-what"]);
         what.set_valign(gtk::Align::Center);
-        crate::widgets::tip(&what, "Aktivering og støtte for kortet", None);
+        crate::widgets::tip(&what, tr!("Aktivering og støtte for kortet"), None);
         let a = app.clone();
         what.connect_clicked(move |b| what_it_takes(&a, b));
         root.append(&icon);
@@ -679,18 +670,17 @@ impl LockStrip {
     pub fn sync(&self, app: &App, lost: bool, drafting: bool) {
         let sim = gate(app) == Gate::Sim;
         let (icon, title, text, kind) = if lost {
-            ("unplug", "Kortet svarer ikke", "Verdiene vises igjen når kortet er tilbake. Utkastet beholdes.".to_string(), "lost")
+            ("unplug", tr!("Kortet svarer ikke"), tr!("Verdiene vises igjen når kortet er tilbake. Utkastet beholdes.").to_string(), "lost")
         } else if sim {
-            ("circle-dot", "Simulert kort", "Bruk sender utkastet til den simulerte backenden, med Behold eller Rull tilbake. Det ekte kortet røres ikke.".to_string(), "sim")
+            ("circle-dot", tr!("Simulert kort"), tr!("Bruk sender utkastet til den simulerte backenden, med Behold eller Rull tilbake. Det ekte kortet røres ikke.").to_string(), "sim")
         } else if control_ready(app) && self.required.is_some_and(|f| !supports(app, f)) {
-            ("lock", "Utilgjengelig", capability_reason(app, self.required.unwrap()), "")
+            ("lock", tr!("Utilgjengelig"), capability_reason(app, self.required.unwrap()), "")
         } else if control_ready(app) {
-            ("shield", if drafting { "Utkast" } else { "Styring klar" }, if drafting { "Endringene sendes til kortet når du trykker Bruk. Behold dem innen fristen, ellers rulles de tilbake.".into() } else { "Støttede funksjoner kan endres med Bruk og Behold.".into() }, "")
+            ("shield", if drafting { tr!("Utkast") } else { tr!("Styring klar") }, if drafting { tr!("Endringene sendes til kortet når du trykker Bruk. Behold dem innen fristen, ellers rulles de tilbake.").into() } else { tr!("Støttede funksjoner kan endres med Bruk og Behold.").into() }, "")
         } else if drafting {
-            let why = "Styring er ikke tilgjengelig for kortet som vises";
-            ("pencil", "Utkast · låst", format!("Utkastet lagres i appen og sendes ikke til kortet. {why}, så Bruk er låst."), "draft")
+            ("pencil", tr!("Utkast · låst"), tr!("Utkastet lagres i appen og sendes ikke til kortet. Styring er ikke tilgjengelig for kortet som vises, så Bruk er låst.").into(), "draft")
         } else {
-            ("lock", "Låst", helper_line(app).unwrap_or_else(|| self.base.clone()), "")
+            ("lock", tr!("Låst"), helper_line(app).unwrap_or_else(|| self.base.clone()), "")
         };
         if self.icon.icon_name() != icon {
             self.icon.set_icon(icon);
@@ -713,26 +703,26 @@ pub fn on_store(f: impl Fn(&str) + 'static) {
 /// ordene som i Innstillinger › Skjermkortstyring.
 pub fn what_it_takes(app: &Rc<App>, anchor: &gtk::Button) {
     let bx = vbox(8, &["steps-pop"]);
-    bx.append(&label("Skjermkortstyring", &["pop-title"]));
-    let lead = label("Aktiver styring én gang med administratorpassord i Innstillinger. Funksjonene under blir tilgjengelige der kortet og driveren støtter dem.", &["pop-sub"]);
+    bx.append(&label(tr!("Skjermkortstyring"), &["pop-title"]));
+    let lead = label(tr!("Aktiver styring én gang med administratorpassord i Innstillinger. Funksjonene under blir tilgjengelige der kortet og driveren støtter dem."), &["pop-sub"]);
     lead.set_wrap(true);
     lead.set_max_width_chars(46);
     bx.append(&lead);
-    for (key, name) in [("power", "Effektgrense"), ("fan_manual", "Vifter"), ("fan_curve", "Viftekurve"), ("core_clock", "Kjerneklokke"), ("mem_clock", "Minneklokke"), ("temp_target", "Temperaturmål"), ("rgb", "RGB-lys")] {
+    for (key, name) in [("power", tr!("Effektgrense")), ("fan_manual", tr!("Vifter")), ("fan_curve", tr!("Viftekurve")), ("core_clock", tr!("Kjerneklokke")), ("mem_clock", tr!("Minneklokke")), ("temp_target", tr!("Temperaturmål"))] {
         let row = hbox(12, &[]);
         let title = label(name, &[]);
         title.set_hexpand(true);
         row.append(&title);
         let available = supports(app, key);
-        row.append(&label(if available { "Tilgjengelig" } else if helper_state(app) == "off" { "Ikke undersøkt" } else { "Utilgjengelig" }, &["muted", "sm"]));
+        row.append(&label(if available { tr!("Tilgjengelig") } else if helper_state(app) == "off" { tr!("Ikke undersøkt") } else { tr!("Utilgjengelig") }, &["muted", "sm"]));
         row.set_tooltip_text((!available).then(|| capability_reason(app, key)).as_deref());
         bx.append(&row);
     }
-    let foot = label("Hver endring må beholdes innen fristen. Du kan alltid velge Rull tilbake. RGB krever en egen identifisert lyskontroller.", &["pop-foot"]);
+    let foot = label(tr!("Hver endring må beholdes innen fristen. Du kan alltid velge Rull tilbake."), &["pop-foot"]);
     foot.set_wrap(true);
     foot.set_max_width_chars(46);
     bx.append(&foot);
-    let open = button(Some("settings"), Some("Åpne Innstillinger › Skjermkortstyring"), &["sm", "flat", "pop-open"]);
+    let open = button(Some("settings"), Some(tr!("Åpne Innstillinger › Skjermkortstyring")), &["sm", "flat", "pop-open"]);
     bx.append(&open);
     let p = crate::widgets::popover::popover(anchor, &bx);
     p.add_css_class("pop-wide");
@@ -947,8 +937,8 @@ impl ConfirmBar {
         text.set_hexpand(true);
         text.set_wrap(true);
         bx.append(&text);
-        let revert = button(None, Some("Rull tilbake"), &["sm"]);
-        let keep = button(None, Some("Behold"), &["sm", "suggested"]);
+        let revert = button(None, Some(tr!("Rull tilbake")), &["sm"]);
+        let keep = button(None, Some(tr!("Behold")), &["sm", "suggested"]);
         bx.append(&revert);
         bx.append(&keep);
         root.set_child(Some(&bx));
@@ -968,11 +958,11 @@ impl ConfirmBar {
             let mine = c.txn.borrow().as_ref().is_some_and(|p| ev["txn"].as_str() == Some(p.id.as_str()));
             if !mine { return; }
             if ev["status"] == "failed" || ev["reason"] == "recovery_failed" {
-                c.show_failure("Tilbakestilling kunne ikke bekreftes. Kortets tilstand er usikker. Prøv Rull tilbake, og se status i Innstillinger › Skjermkortstyring.");
+                c.show_failure(tr!("Tilbakestilling kunne ikke bekreftes. Kortets tilstand er usikker. Prøv Rull tilbake, og se status i Innstillinger › Skjermkortstyring."));
             } else if ev["status"] == "rolled_back" {
                 let why = ev["reason"].as_str().unwrap_or("revert").to_string();
                 c.finish(&why);
-                a.toast(crate::toast::Toast::new("Endringene er rullet tilbake"));
+                a.toast(crate::toast::Toast::new(tr!("Endringene er rullet tilbake")));
             }
         });
         for hub in [&app.on_devices, &app.on_service] {
@@ -1032,10 +1022,10 @@ impl ConfirmBar {
         let left = ((p.deadline - rigg_core::now_ms()) as f64 / 1000.0).ceil().max(0.0) as i64;
         self.keep.set_sensitive(same_card && left > 0 && !self.answering.get());
         self.revert.set_sensitive(!self.answering.get());
-        self.keep.set_label(&format!("Behold ({left})"));
-        let message = if !same_card { "Kortet er byttet. Venter på bekreftet tilbakestilling på det opprinnelige kortet …".to_string() }
-            else if left == 0 { "Fristen er ute. Venter på bekreftet tilbakestilling fra tjenesten …".to_string() }
-            else { format!("Behold endringene? Uten svar rulles de tilbake om {left}{}s.", rigg_core::fmt::NNBSP) };
+        self.keep.set_label(&trf!("Behold ({sek})", sek = rigg_core::fmt::num(Some(left as f64), 0)));
+        let message = if !same_card { tr!("Kortet er byttet. Venter på bekreftet tilbakestilling på det opprinnelige kortet …").to_string() }
+            else if left == 0 { tr!("Fristen er ute. Venter på bekreftet tilbakestilling fra tjenesten …").to_string() }
+            else { trf!("Behold endringene? Uten svar rulles de tilbake om {tid}.", tid = rigg_core::fmt::with_unit(rigg_core::fmt::num(Some(left as f64), 0), "s")) };
         set_text(&self.text, &message);
         self.poll(app);
     }
@@ -1053,19 +1043,19 @@ impl ConfirmBar {
             if !c.txn.borrow().as_ref().is_some_and(|t| t.id == p.id && t.origin.key == p.origin.key) { return; }
             let Ok(v) = res else { return }; // Behold ventestatus ved transportfeil.
             if !v["hardwareError"].is_null() || v["hardwareKnown"] == false {
-                c.show_failure("Tjenesten kan ikke bekrefte kortets tilstand eller tilbakestilling. Prøv Rull tilbake, og se status i Innstillinger › Skjermkortstyring.");
+                c.show_failure(tr!("Tjenesten kan ikke bekrefte kortets tilstand eller tilbakestilling. Prøv Rull tilbake, og se status i Innstillinger › Skjermkortstyring."));
                 return;
             }
             if v["pending"].is_object() { return; }
             let active = state_values(&v, "active");
             if active.is_object() && active == p.before {
                 c.finish("revert");
-                a.toast(crate::toast::Toast::new("Endringene er rullet tilbake"));
+                a.toast(crate::toast::Toast::new(tr!("Endringene er rullet tilbake")));
             } else if active.is_object() && active == p.wanted && state_values(&v, "confirmed") == p.wanted {
                 c.finish(if p.origin.key == control_key(&a) { "confirm" } else { "context_changed" });
             } else if c.failed.get() && active.is_object() && active == state_values(&v, "confirmed") {
                 c.finish("resolved");
-                a.toast(crate::toast::Toast::new("Kortets tilstand er bekreftet").body("Ingen ubekreftet endring venter."));
+                a.toast(crate::toast::Toast::new(tr!("Kortets tilstand er bekreftet")).body(tr!("Ingen ubekreftet endring venter.")));
             }
         });
     }
@@ -1114,12 +1104,12 @@ impl ConfirmBar {
                 Ok(v) if v["hardwareError"].is_null() && v["hardwareKnown"] != false => {
                     if p.origin.key == control_key(&a) { remember_control(&a, &v); }
                     c.finish(if op == "confirm" && p.origin.key != control_key(&a) { "context_changed" } else { op });
-                    a.toast(crate::toast::Toast::new(if op == "confirm" { "Endringene er beholdt" } else { "Endringene er rullet tilbake" }));
+                    a.toast(crate::toast::Toast::new(if op == "confirm" { tr!("Endringene er beholdt") } else { tr!("Endringene er rullet tilbake") }));
                     a.on_service.emit(&());
                     refresh_control(&a, true);
                 }
-                Ok(_) => c.show_failure("Tjenesten kan ikke bekrefte tilbakestillingen. Kortets tilstand er usikker. Prøv Rull tilbake."),
-                Err(e) => c.show_failure(&format!("Kunne ikke bekrefte svaret: {}. Prøv Rull tilbake. Endringen regnes ikke som tilbakestilt før tjenesten bekrefter det.", e.message)),
+                Ok(_) => c.show_failure(tr!("Tjenesten kan ikke bekrefte tilbakestillingen. Kortets tilstand er usikker. Prøv Rull tilbake.")),
+                Err(e) => c.show_failure(&trf!("Kunne ikke bekrefte svaret: {feil}. Prøv Rull tilbake. Endringen regnes ikke som tilbakestilt før tjenesten bekrefter det.", feil = display_error(&e))),
             }
         });
     }
@@ -1152,6 +1142,19 @@ mod tests {
 
     fn v(w: f64) -> Option<txn::Values> {
         Some(txn::Values { power_limit_w: w, ..Default::default() })
+    }
+
+    #[test]
+    fn gamle_lysvalg_ignoreres_uten_aa_miste_profiler() {
+        let stored = Stored::from_json(&json!({
+            "version": 2, "rgb": {"color": "#32B487"}, "lys": {"picked": "3d"},
+            "profiles": [{"name": "Stille", "values": v(180.0)}], "utkast": v(200.0), "fanAdvanced": true,
+        }));
+        let saved = stored.to_json();
+        assert_eq!(saved["profiles"][0]["name"], "Stille");
+        assert_eq!(stored.utkast, v(200.0));
+        assert!(stored.fan_advanced);
+        assert!(saved.get("rgb").is_none() && saved.get("lys").is_none());
     }
 
     #[test]

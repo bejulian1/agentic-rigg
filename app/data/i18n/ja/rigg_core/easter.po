@@ -8,143 +8,139 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg-core/src/easter.rs:102
+#: crates/rigg-core/src/easter.rs:96
 msgid "Noen koder husker man fra åttitallet. Opp, opp …"
 msgstr "80 年代のコマンドは体が覚えている。上、上……"
 
-#: crates/rigg-core/src/easter.rs:103
+#: crates/rigg-core/src/easter.rs:97
 msgid "Appikonet har en vifte. Vifter samler støv."
 msgstr "アプリアイコンにはファンがあります。ファンはホコリが溜まるもの。"
 
-#: crates/rigg-core/src/easter.rs:104
+#: crates/rigg-core/src/easter.rs:98
 msgid "På telefoner blir man utvikler ved å trykke på byggnummeret. Hvor står versjonen her?"
 msgstr "スマホならビルド番号連打で開発者になれます。ここのバージョンはどこ？"
 
-#: crates/rigg-core/src/easter.rs:105
+#: crates/rigg-core/src/easter.rs:99
 msgid "Ett tall er viktigere enn alle andre. Følg med på GPU-temperaturen."
 msgstr "ほかのどんな数字より大切な数字が 1 つあります。GPU 温度に注目。"
 
-#: crates/rigg-core/src/easter.rs:106
+#: crates/rigg-core/src/easter.rs:100
 msgid "Kortet har bursdag én gang i året. Se etter lanseringen på Grafikkort."
 msgstr "カードにも年に一度の誕生日があります。「グラフィックスカード」で発売日を見てみよう。"
 
-#: crates/rigg-core/src/easter.rs:107
+#: crates/rigg-core/src/easter.rs:101
 msgid "Noen detaljer viser seg bare når resten av huset sover."
 msgstr "家中が寝静まった深夜にだけ現れる小さな仕掛けがあります。"
 
-#: crates/rigg-core/src/easter.rs:108
+#: crates/rigg-core/src/easter.rs:102
 msgid "Filteret på Sensorer leter etter mer enn sensorer. Hva drikker du nå?"
 msgstr "「センサー」のフィルターはセンサー以外も探します。今、何を飲んでいますか？"
 
-#: crates/rigg-core/src/easter.rs:109
+#: crates/rigg-core/src/easter.rs:103
 msgid "En viftekurve som står rett på taket, fortjener et navn."
 msgstr "天井に張り付いたファンカーブには、ふさわしい通り名があります。"
 
-#: crates/rigg-core/src/easter.rs:110
+#: crates/rigg-core/src/easter.rs:104
 msgid "Du fant denne. Godt jobbet."
 msgstr "見つけましたね。お見事！"
 
-#: crates/rigg-core/src/easter.rs:111
-msgid "På Lys finnes det en effekt som ikke står i lista. Den er norsk."
-msgstr "「RGB ライティング」には一覧にない効果が隠れています。名前はノルウェー語です。"
-
-#: crates/rigg-core/src/easter.rs:150
+#: crates/rigg-core/src/easter.rs:143
 msgid "Juksekode godtatt"
 msgstr "隠しコマンド承認"
 
-#: crates/rigg-core/src/easter.rs:154
+#: crates/rigg-core/src/easter.rs:147
 msgid "+30 liv. Klokkene, effekten og viften er som før – kortet får aldri vite om dette."
 msgstr "残機 +30。クロック・電力・ファンはそのまま――GPU には内緒です。"
 
-#: crates/rigg-core/src/easter.rs:163
+#: crates/rigg-core/src/easter.rs:156
 msgid "Pff!"
 msgstr "ふっ！"
 
-#: crates/rigg-core/src/easter.rs:167
+#: crates/rigg-core/src/easter.rs:160
 msgid "Støvet er blåst av viften. Bare på ikonet – den ekte viften går som før."
 msgstr "ファンのホコリを吹き飛ばしました。アイコンだけですけど――本物はそのまま回転中。"
 
-#: crates/rigg-core/src/easter.rs:191
+#: crates/rigg-core/src/easter.rs:184
 msgid "Du er allerede utvikler."
 msgstr "すでに開発者です。"
 
-#: crates/rigg-core/src/easter.rs:195
+#: crates/rigg-core/src/easter.rs:188
 msgid "Du er nå utvikler. Det var du nok fra før."
 msgstr "開発者になりました。たぶん最初からそうでしたよね。"
 
-#: crates/rigg-core/src/easter.rs:196
+#: crates/rigg-core/src/easter.rs:189
 msgid "Ett klikk til, så er du utvikler."
 msgstr "あと 1 回クリックすると開発者になれます。"
 
-#: crates/rigg-core/src/easter.rs:197
+#: crates/rigg-core/src/easter.rs:190
 msgid "To klikk til, så er du utvikler."
 msgstr "あと 2 回クリックすると開発者になれます。"
 
-#: crates/rigg-core/src/easter.rs:198
+#: crates/rigg-core/src/easter.rs:191
 msgid "Tre klikk til, så er du utvikler."
 msgstr "あと 3 回クリックすると開発者になれます。"
 
-#: crates/rigg-core/src/easter.rs:199
+#: crates/rigg-core/src/easter.rs:192
 msgid "Fire klikk til, så er du utvikler."
 msgstr "あと 4 回クリックすると開発者になれます。"
 
-#: crates/rigg-core/src/easter.rs:200
+#: crates/rigg-core/src/easter.rs:193
 msgid "Fem klikk til, så er du utvikler."
 msgstr "あと 5 回クリックすると開発者になれます。"
 
-#: crates/rigg-core/src/easter.rs:201
+#: crates/rigg-core/src/easter.rs:194
 msgid "Seks klikk til, så er du utvikler."
 msgstr "あと 6 回クリックすると開発者になれます。"
 
-#: crates/rigg-core/src/easter.rs:215
+#: crates/rigg-core/src/easter.rs:208
 msgid "42 °C – svaret på livet, universet og alt. Målingen er ekte; det er bare tallet som er morsomt."
 msgstr "42 °C――生命、宇宙、そして万物についての究極の答え。測定値は本物。面白いのは数字だけ。"
 
-#: crates/rigg-core/src/easter.rs:229
+#: crates/rigg-core/src/easter.rs:222
 msgid "{ar} år i dag"
 msgid_plural "{ar} år i dag"
 msgstr[0] "今日で {ar} 歳"
 
-#: crates/rigg-core/src/easter.rs:230
+#: crates/rigg-core/src/easter.rs:223
 msgid "Gratulerer med dagen! GeForce RTX 2080 kom i butikkene 20. september 2018."
 msgstr "お誕生日おめでとう！GeForce RTX 2080 は 2018 年 9 月 20 日に発売されました。"
 
-#: crates/rigg-core/src/easter.rs:243
+#: crates/rigg-core/src/easter.rs:236
 msgid "Sent oppe? Skjermkortet er våkent det også."
 msgstr "夜更かしですか？GPU も起きていますよ。"
 
-#: crates/rigg-core/src/easter.rs:251
+#: crates/rigg-core/src/easter.rs:243
 msgid "Ingen sensor måler kaffe ennå. Det nærmeste er CPU-temperaturen."
 msgstr "コーヒーを測るセンサーはまだありません。一番近いのは CPU 温度です。"
 
-#: crates/rigg-core/src/easter.rs:254
+#: crates/rigg-core/src/easter.rs:244
 msgid "Hei! Ingen sensor heter det, men takk for at du spør."
 msgstr "こんにちは！その名前のセンサーはありませんが、声をかけてくれてありがとう。"
 
-#: crates/rigg-core/src/easter.rs:267
+#: crates/rigg-core/src/easter.rs:284
 msgid "Jetmotor"
 msgstr "ジェットエンジン"
 
-#: crates/rigg-core/src/easter.rs:267
+#: crates/rigg-core/src/easter.rs:284
 msgid "Alle punktene står på 100 %. Naboene hilser."
 msgstr "全ポイント 100 %。ご近所さんからよろしくとのこと。"
 
-#: crates/rigg-core/src/easter.rs:270
+#: crates/rigg-core/src/easter.rs:287
 msgid "Bibliotek"
 msgstr "図書館"
 
-#: crates/rigg-core/src/easter.rs:270
+#: crates/rigg-core/src/easter.rs:287
 msgid "Alle punktene står på 35 %, så lavt kortet tillater. Hysj."
 msgstr "全ポイント 35 %、カードが許す最小値です。しーっ。"
 
-#: crates/rigg-core/src/easter.rs:278
+#: crates/rigg-core/src/easter.rs:295
 msgid "{navn} {versjon} · bygg {bygg}\nHei, nysgjerrige utvikler. Alt her leser bare; ingenting sendes til skjermkortet.\nDet finnes {antall} små overraskelser – agentic-rigg --hint gir et hint."
 msgstr "{navn} {versjon} · ビルド {bygg}\nこんにちは、好奇心旺盛な開発者さん。ここはすべて読み取り専用で、GPU に書き込みは行いません。\n小さな隠し要素が {antall} 個あります――ヒントは agentic-rigg --hint で確認できます。"
 
-#: crates/rigg-core/src/easter.rs:291
+#: crates/rigg-core/src/easter.rs:308
 msgid "Du har funnet alle {antall}. Fasiten står i docs/paaskeegg.md."
 msgstr "全 {antall} 個コンプリート！答え合わせは docs/paaskeegg.md にあります。"
 
-#: crates/rigg-core/src/easter.rs:294
+#: crates/rigg-core/src/easter.rs:311
 msgid "{hint} ({funnet} av {totalt} funnet)"
 msgstr "{hint}（{totalt} 個中 {funnet} 個発見）"

@@ -137,8 +137,8 @@ med én administratorgodkjenning. Støttede endringer i effekt, vifter og
 klokkeoffset sendes med Bruk og må beholdes innen fristen. Hjelperen bindes
 til kortet og lagrer utgangspunktet før skriving. Kortlys krever at en
 administrator setter opp de betrodde RGB-komponentene som beskrevet i
-RGB-HJELPER.md, og deretter en egen aktivering for kortet. Lokal lysmodell
-er forhåndsvisning. Fast blått og tilbakeføring til grønt er prøvd på ett Palit-kort.
+RGB-HJELPER.md, og deretter en egen aktivering for et støttet kort.
+Fast blått og tilbakeføring til grønt er prøvd på Palit GeForce RTX 2080 Super JetStream.
 Se PATCHLOG.md for prøveresultat og omfang.
 
 Start «Agentic Rigg» fra programmenyen, eller ~/.local/bin/agentic-rigg.

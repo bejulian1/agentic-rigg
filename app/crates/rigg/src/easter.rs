@@ -13,7 +13,6 @@
 //! | 7 Kaffe | [`filter_quip`] | `pages/sensorer.rs` (2A) |
 //! | 8 Kallenavn | [`curve_nickname`] | `pages/viftekurve.rs` (2C) |
 //! | 9 Hilsen | [`greet`] | `app.rs` ved oppstart, og `--hint` |
-//! | 10 Nordlys | [`on_type_lys`], [`aurora`] | `pages/lys.rs` (2C) |
 //!
 //! Alle sjekker bryteren «Små overraskelser» selv, og husker funnet i
 //! `ui.json` (`eggsFound`).
@@ -41,7 +40,6 @@ fn say(app: &App, title: &str, body: &str) {
 thread_local! {
     static KONAMI: RefCell<E::Konami> = RefCell::new(E::Konami::default());
     static CLICKS: RefCell<Vec<i64>> = const { RefCell::new(Vec::new()) };
-    static TYPED: RefCell<String> = const { RefCell::new(String::new()) };
 }
 
 /// 1 · Juksekoden. Kalles for hvert tastetrykk utenfor tekstfelt.
@@ -190,30 +188,3 @@ pub fn greet(app: &Rc<App>) {
         app.egg_found("konsoll");
     }
 }
-
-/// 10 · Nordlys: tastene på Lys. Gir `Some(true)` når ordet er skrevet,
-/// `Some(false)` ved Esc (avslutt), ellers `None`.
-pub fn on_type_lys(app: &Rc<App>, key: gtk::gdk::Key) -> Option<bool> {
-    if key == gtk::gdk::Key::Escape {
-        return Some(false);
-    }
-    let c = key.to_unicode()?;
-    let hit = TYPED.with(|t| {
-        let mut t = t.borrow_mut();
-        t.push(c.to_ascii_lowercase());
-        let n = t.chars().count();
-        if n > E::AURORA_WORD.len() {
-            let skip = n - E::AURORA_WORD.len();
-            *t = t.chars().skip(skip).collect();
-        }
-        *t == E::AURORA_WORD
-    });
-    if hit && enabled(app) {
-        TYPED.with(|t| t.borrow_mut().clear());
-        app.egg_found("nordlys");
-        return Some(true);
-    }
-    None
-}
-
-pub use rigg_core::easter::aurora;

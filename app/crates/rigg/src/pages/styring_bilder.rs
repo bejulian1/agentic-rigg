@@ -1,5 +1,4 @@
-//! Skjermbilder og målinger av Kontroller og Viftekurve (runde 6C), og Lys
-//! (2C). Bare med `RIGG_PROFIL=dev` og `RIGG_BILDER_2C=<mappe>`, i en privat
+//! Skjermbilder og målinger av Kontroller og Viftekurve (runde 6C). Bare med `RIGG_PROFIL=dev` og `RIGG_BILDER_2C=<mappe>`, i en privat
 //! økt (`scripts/okt.sh`), og bare når vinduet startes med `--side kontroller`
 //! (planen starter når Kontroller bygges). Finnes også i release-bygget,
 //! fordi målingene i `maalinger.md` skal gjøres med det.
@@ -11,7 +10,6 @@
 //!   `RIGG_6C_PLAN` velges `ekte` når skriving er låst.
 //! - `sim`: `--backend sim`. Utkast, Bruk → Behold, Bruk → Rull tilbake og
 //!   Tilbakestill alt, på begge sidene.
-//! - `lys`: Lys i 3D og 2D, og målingene fra 2C (`RIGG_MAAL_LYS=1`).
 //! - `7b-ekte` og `7b-sim` (runde 7B): Vifter med viftemotoren. Låst mot det
 //!   ekte kortet (utkast med stille flate, per vifte, hysterese, °F, høy
 //!   kontrast, 640 og 1920 px, CPU i ro), og mot `sim:spill` med kurven i
@@ -43,9 +41,7 @@ enum Step {
     Click(&'static str),
     /// Popoveren fra knappen med denne teksten eller dette verktøytipset.
     Popover(&'static str, &'static str),
-    WaitReady,
     Eval(fn(&Rc<App>)),
-    Measure(&'static str, u64),
     /// CPU og bilder tegnet mens vinduet står i ro (ms).
     Idle(&'static str, u64),
 }
@@ -389,59 +385,6 @@ fn plan_sim() -> Vec<Step> {
     ]
 }
 
-/// Lys (2C): 3D og 2D, og målingene med `RIGG_MAAL_LYS=1`.
-fn plan_lys(measure: bool) -> Vec<Step> {
-    use Step::*;
-    let mut v = vec![
-        Size(1440, 900),
-        Set(base()),
-        Go("lys"),
-        Click("3D"),
-        WaitReady,
-        Wait(1200),
-        Shot("lys-3d-lys"),
-        Set(json!({"theme": "dark"})),
-        Wait(900),
-        Shot("lys-3d-mork"),
-        Eval(|_| crate::pages::lys::debug_explode(0.6)),
-        Wait(900),
-        Shot("lys-3d-skill-lagene-mork"),
-        Eval(|_| crate::pages::lys::debug_explode(0.0)),
-        Click("2D"),
-        Wait(900),
-        Shot("lys-2d-mork"),
-        Set(json!({"theme": "light"})),
-        Wait(700),
-        Shot("lys-2d-lys"),
-    ];
-    if measure {
-        v.extend([
-            Click("3D"),
-            WaitReady,
-            Set(json!({"motion": "full"})),
-            Eval(|_| crate::pages::lys::debug_effect("static")),
-            Wait(3000),
-            Measure("i-ro-statisk", 5000),
-            Eval(|_| crate::pages::lys::debug_effect("rainbow")),
-            Wait(3000),
-            Measure("regnbue-og-vifter", 10_000),
-            Eval(|_| crate::pages::lys::debug_spin(true)),
-            Wait(1000),
-            Measure("dreier-kameraet", 10_000),
-            Eval(|_| crate::pages::lys::debug_spin(false)),
-            Eval(|_| crate::pages::lys::debug_effect("static")),
-            Set(json!({"motion": "reduced"})),
-            Wait(2000),
-            Measure("i-ro-redusert-bevegelse", 5000),
-            Set(json!({"motion": "full"})),
-            Click("2D"),
-            Wait(2000),
-            Measure("2d-vifter", 10_000),
-        ]);
-    }
-    v
-}
-
 /// Starter planen (én gang) når Kontroller bygges.
 pub fn maybe_start(app: &Rc<App>) {
     let Some(dir) = std::env::var_os("RIGG_BILDER_2C").map(PathBuf::from) else { return };
@@ -455,7 +398,6 @@ pub fn maybe_start(app: &Rc<App>) {
         let name = std::env::var("RIGG_6C_PLAN").unwrap_or_else(|_| if locked::gate(&a) == rigg_core::txn::Gate::Sim { "sim".into() } else { "ekte".into() });
         let steps = match name.as_str() {
             "sim" => plan_sim(),
-            "lys" => plan_lys(std::env::var_os("RIGG_MAAL_LYS").is_some()),
             "7b-ekte" => plan_7b_ekte(),
             "7b-sim" => plan_7b_sim(),
             _ => plan_ekte(),
@@ -602,43 +544,7 @@ fn run(app: Rc<App>, steps: Rc<Vec<Step>>, i: usize, dir: PathBuf) {
             }
             None => eprintln!("RIGG_BILDER_2C fant ikke knappen «{t}»"),
         },
-        Step::WaitReady => {
-            // Venter til 3D-kortet er bygd (høyst 15 s).
-            let start = std::time::Instant::now();
-            gtk::glib::timeout_add_local(Duration::from_millis(200), move || {
-                if crate::pages::lys::debug_ready() || start.elapsed().as_secs() > 15 {
-                    eprintln!("RIGG_2C_KLAR {:.0} ms {}", start.elapsed().as_secs_f64() * 1000.0, crate::pages::lys::debug_info());
-                    next(400);
-                    return gtk::glib::ControlFlow::Break;
-                }
-                gtk::glib::ControlFlow::Continue
-            });
-            return;
-        }
         Step::Eval(f) => f(&app),
-        Step::Measure(name, ms) => {
-            let before = crate::pages::lys::debug_frames();
-            let cpu0 = cpu_ticks();
-            let t0 = std::time::Instant::now();
-            let name = *name;
-            let ms = *ms;
-            let n = next;
-            gtk::glib::timeout_add_local_once(Duration::from_millis(ms), move || {
-                let after = crate::pages::lys::debug_frames();
-                let secs = t0.elapsed().as_secs_f64();
-                let cpu = (cpu_ticks() - cpu0) as f64 / 100.0 / secs * 100.0;
-                let frames = after.0 - before.0;
-                let draw = if frames > 0 { (after.1 - before.1) / frames as f64 } else { 0.0 };
-                let bench = if name == "regnbue-og-vifter" { crate::pages::lys::debug_bench() } else { None };
-                eprintln!(
-                    "RIGG_2C_MAAL {name}: {frames} bilder på {secs:.1} s = {:.1} bilder/s, CPU-tid per bilde i render {draw:.2} ms, vinduets CPU {cpu:.1} % av én kjerne{}",
-                    frames as f64 / secs,
-                    bench.map(|b| format!(", helt bilde ventet ferdig på GPU-en {b:.2} ms")).unwrap_or_default()
-                );
-                n(100);
-            });
-            return;
-        }
         Step::Idle(name, ms) => {
             let clock = app.window().and_then(|w| w.frame_clock());
             let f0 = clock.as_ref().map(|c| c.frame_counter()).unwrap_or(0);

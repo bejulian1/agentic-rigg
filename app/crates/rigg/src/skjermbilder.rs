@@ -82,7 +82,7 @@ fn plan_rgb_flow() -> Vec<Step> {
     use Step::*;
     use crate::pages::lys_kort::debug_flow as flow;
     let mut steps = vec![
-        Size(1440, 1000), Set(base()), Set(json!({"lys3d":"2d"})), Go("lys"), Wait(1800),
+        Size(1440, 1000), Set(base()), Go("lys"), Wait(1800),
         Eval(|_| flow("ready")), Eval(|_| flow("edit")), Wait(700), Eval(|_| flow("unchanged")),
         Eval(|_| flow("apply")), Wait(1000), Eval(|_| flow("pending")), Shot("rgb-flow-pending-sim"),
         Eval(|_| flow("keep")), Wait(1000), Eval(|_| flow("kept")), Shot("rgb-flow-beholdt-sim"),
@@ -94,16 +94,16 @@ fn plan_rgb_flow() -> Vec<Step> {
         Eval(|_| flow("release")), Wait(1000), Eval(|_| flow("released")), Shot("rgb-flow-frigitt-sim"),
         Eval(|_| flow("ack")), Wait(1000), Eval(|_| flow("acknowledged")),
     ];
-    for (select, shot_name) in [
-        ((|_: &Rc<App>| flow("effect_breathing")) as fn(&Rc<App>), "rgb-flow-pusting-aktiv-sim"),
-        ((|_: &Rc<App>| flow("effect_rainbow")) as fn(&Rc<App>), "rgb-flow-regnbue-aktiv-sim"),
-        ((|_: &Rc<App>| flow("effect_cycle")) as fn(&Rc<App>), "rgb-flow-fargesyklus-aktiv-sim"),
+    for (select, shot_name, wait_for_frame_ms) in [
+        ((|_: &Rc<App>| flow("effect_breathing")) as fn(&Rc<App>), "rgb-flow-pusting-aktiv-sim", 2400),
+        ((|_: &Rc<App>| flow("effect_rainbow")) as fn(&Rc<App>), "rgb-flow-regnbue-aktiv-sim", 2400),
+        ((|_: &Rc<App>| flow("effect_cycle")) as fn(&Rc<App>), "rgb-flow-fargesyklus-aktiv-sim", 3800),
     ] {
         steps.extend([
             Eval(select), Wait(500), Eval(|_| flow("effect_edit_unchanged")),
             Eval(|_| flow("apply")), Wait(1000), Eval(|_| flow("effect_pending")),
             Wait(700), Eval(|_| flow("effect_not_started")),
-            Eval(|_| flow("keep")), Wait(2400), Eval(|_| flow("effect_active")), Shot(shot_name),
+            Eval(|_| flow("keep")), Wait(wait_for_frame_ms), Eval(|_| flow("effect_active")), Shot(shot_name),
             Eval(|_| flow("release")), Wait(1000), Eval(|_| flow("released")),
             Eval(|_| flow("ack")), Wait(1000), Eval(|_| flow("acknowledged")),
         ]);
@@ -116,7 +116,7 @@ fn plan_rgb_flow() -> Vec<Step> {
 fn plan_rgb() -> Vec<Step> {
     use Step::*;
     vec![
-        Size(1920, 1080), Set(base()), Set(json!({"lys3d":"2d"})), Go("lys"), Wait(1200),
+        Size(1920, 1080), Set(base()), Go("lys"), Wait(1200),
         Eval(|_| crate::pages::lys_kort::debug_fixture("off")), Wait(400), Shot("rgb-1920-av-sim"),
         Eval(|_| crate::pages::lys_kort::debug_fixture("stored")), Wait(400), Shot("rgb-1920-lagret-sim"),
         Eval(|_| crate::pages::lys_kort::debug_fixture("pending")), Wait(400), Shot("rgb-1920-pending-sim"),
@@ -479,15 +479,6 @@ fn plan_3a_egg() -> Vec<Step> {
         Wait(700),
         Shot("egg-7-kaffe-lys"),
         Eval(|_| sensor_filter("")),
-        Go("lys"),
-        Wait(4000),
-        Eval(|app| {
-            use gtk::gdk::Key as K;
-            type_keys(app, &[K::n, K::o, K::r, K::d, K::l, K::y, K::s]);
-        }),
-        Wait(2500),
-        Shot("egg-10-nordlys-lys"),
-        Eval(|app| type_keys(app, &[gtk::gdk::Key::Escape])),
         Wait(600),
     ]
 }
@@ -548,7 +539,7 @@ fn plan_3c() -> Vec<Step> {
             v.push(Set(json!({"palette": pal, "theme": theme, "highContrast": false})));
             for p in PAGES {
                 v.push(Go(p));
-                // Første gang bygges siden (og 3D-kortet på Lys).
+                // Første gang bygges siden.
                 v.push(Wait(if first { if p == "lys" { 2500 } else { 1200 } } else { 600 }));
                 v.push(Shot(name(format!("{p}-{pal}-{t}"))));
             }
@@ -591,7 +582,7 @@ fn plan_3c() -> Vec<Step> {
     v.push(Keys("tastatursnarveier-lys"));
     v.push(CloseSettings);
     // Runde 4B: festede nøkler i statusblokken med standard skrift og «Stor»
-    // (kuttet.txt skal ikke nevne dem), og Lys i 3D etter ett klikk.
+    // (kuttet.txt skal ikke nevne dem).
     v.push(Eval(pin_keys));
     v.push(Go("sensorer"));
     v.push(Wait(1500));
@@ -602,10 +593,7 @@ fn plan_3c() -> Vec<Step> {
     v.push(Set(json!({"fontScale": 100})));
     v.push(Go("lys"));
     v.push(Wait(800));
-    v.push(Shot("lys-apner-i-2d-lys"));
-    v.push(Click("3D"));
-    v.push(Wait(3000));
-    v.push(Shot("lys-3d-valgt-lys"));
+    v.push(Shot("lys-uten-stottet-kontroller"));
     v
 }
 

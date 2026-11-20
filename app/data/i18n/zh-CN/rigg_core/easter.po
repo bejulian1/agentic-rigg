@@ -8,143 +8,139 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg-core/src/easter.rs:102
+#: crates/rigg-core/src/easter.rs:96
 msgid "Noen koder husker man fra åttitallet. Opp, opp …"
 msgstr "有些八十年代的秘籍刻在 DNA 里。上，上……"
 
-#: crates/rigg-core/src/easter.rs:103
+#: crates/rigg-core/src/easter.rs:97
 msgid "Appikonet har en vifte. Vifter samler støv."
 msgstr "应用图标里有个风扇，风扇可是会积灰的。"
 
-#: crates/rigg-core/src/easter.rs:104
+#: crates/rigg-core/src/easter.rs:98
 msgid "På telefoner blir man utvikler ved å trykke på byggnummeret. Hvor står versjonen her?"
 msgstr "手机上连点版本号能解锁开发者模式，这里的版本号在哪呢？"
 
-#: crates/rigg-core/src/easter.rs:105
+#: crates/rigg-core/src/easter.rs:99
 msgid "Ett tall er viktigere enn alle andre. Følg med på GPU-temperaturen."
 msgstr "有一个数字比其他所有数字都重要。留意一下 GPU 温度。"
 
-#: crates/rigg-core/src/easter.rs:106
+#: crates/rigg-core/src/easter.rs:100
 msgid "Kortet har bursdag én gang i året. Se etter lanseringen på Grafikkort."
 msgstr "你的显卡每年也有一天生日。去「显卡」页看看发布日期。"
 
-#: crates/rigg-core/src/easter.rs:107
+#: crates/rigg-core/src/easter.rs:101
 msgid "Noen detaljer viser seg bare når resten av huset sover."
 msgstr "有些小细节只在万籁俱寂的深夜现身。"
 
-#: crates/rigg-core/src/easter.rs:108
+#: crates/rigg-core/src/easter.rs:102
 msgid "Filteret på Sensorer leter etter mer enn sensorer. Hva drikker du nå?"
 msgstr "「传感器」的筛选框不仅能找传感器。你现在在喝什么？"
 
-#: crates/rigg-core/src/easter.rs:109
+#: crates/rigg-core/src/easter.rs:103
 msgid "En viftekurve som står rett på taket, fortjener et navn."
 msgstr "一条拉满到顶的风扇曲线，配得上一个专属外号。"
 
-#: crates/rigg-core/src/easter.rs:110
+#: crates/rigg-core/src/easter.rs:104
 msgid "Du fant denne. Godt jobbet."
 msgstr "被你找到了，干得漂亮。"
 
-#: crates/rigg-core/src/easter.rs:111
-msgid "På Lys finnes det en effekt som ikke står i lista. Den er norsk."
-msgstr "「RGB 灯光」里藏着一个不在列表中的特效，名字是挪威语。"
-
-#: crates/rigg-core/src/easter.rs:150
+#: crates/rigg-core/src/easter.rs:143
 msgid "Juksekode godtatt"
 msgstr "秘籍已生效"
 
-#: crates/rigg-core/src/easter.rs:154
+#: crates/rigg-core/src/easter.rs:147
 msgid "+30 liv. Klokkene, effekten og viften er som før – kortet får aldri vite om dette."
 msgstr "+30 条命。频率、功耗和风扇纹丝不动——显卡永远不会知道。"
 
-#: crates/rigg-core/src/easter.rs:163
+#: crates/rigg-core/src/easter.rs:156
 msgid "Pff!"
 msgstr "呼！"
 
-#: crates/rigg-core/src/easter.rs:167
+#: crates/rigg-core/src/easter.rs:160
 msgid "Støvet er blåst av viften. Bare på ikonet – den ekte viften går som før."
 msgstr "风扇灰尘已吹净。不过仅限图标——真风扇照常转动。"
 
-#: crates/rigg-core/src/easter.rs:191
+#: crates/rigg-core/src/easter.rs:184
 msgid "Du er allerede utvikler."
 msgstr "你已经是开发者了。"
 
-#: crates/rigg-core/src/easter.rs:195
+#: crates/rigg-core/src/easter.rs:188
 msgid "Du er nå utvikler. Det var du nok fra før."
 msgstr "你现在是开发者了。其实你本来就是吧。"
 
-#: crates/rigg-core/src/easter.rs:196
+#: crates/rigg-core/src/easter.rs:189
 msgid "Ett klikk til, så er du utvikler."
 msgstr "再点 1 次即可成为开发者。"
 
-#: crates/rigg-core/src/easter.rs:197
+#: crates/rigg-core/src/easter.rs:190
 msgid "To klikk til, så er du utvikler."
 msgstr "再点 2 次即可成为开发者。"
 
-#: crates/rigg-core/src/easter.rs:198
+#: crates/rigg-core/src/easter.rs:191
 msgid "Tre klikk til, så er du utvikler."
 msgstr "再点 3 次即可成为开发者。"
 
-#: crates/rigg-core/src/easter.rs:199
+#: crates/rigg-core/src/easter.rs:192
 msgid "Fire klikk til, så er du utvikler."
 msgstr "再点 4 次即可成为开发者。"
 
-#: crates/rigg-core/src/easter.rs:200
+#: crates/rigg-core/src/easter.rs:193
 msgid "Fem klikk til, så er du utvikler."
 msgstr "再点 5 次即可成为开发者。"
 
-#: crates/rigg-core/src/easter.rs:201
+#: crates/rigg-core/src/easter.rs:194
 msgid "Seks klikk til, så er du utvikler."
 msgstr "再点 6 次即可成为开发者。"
 
-#: crates/rigg-core/src/easter.rs:215
+#: crates/rigg-core/src/easter.rs:208
 msgid "42 °C – svaret på livet, universet og alt. Målingen er ekte; det er bare tallet som er morsomt."
 msgstr "42 °C——生命、宇宙以及一切的终极答案。读数是真的，只是数字刚好有趣。"
 
-#: crates/rigg-core/src/easter.rs:229
+#: crates/rigg-core/src/easter.rs:222
 msgid "{ar} år i dag"
 msgid_plural "{ar} år i dag"
 msgstr[0] "今天满 {ar} 岁"
 
-#: crates/rigg-core/src/easter.rs:230
+#: crates/rigg-core/src/easter.rs:223
 msgid "Gratulerer med dagen! GeForce RTX 2080 kom i butikkene 20. september 2018."
 msgstr "生日快乐！GeForce RTX 2080 于 2018 年 9 月 20 日正式发售。"
 
-#: crates/rigg-core/src/easter.rs:243
+#: crates/rigg-core/src/easter.rs:236
 msgid "Sent oppe? Skjermkortet er våkent det også."
 msgstr "还没睡？你的显卡也陪你熬夜呢。"
 
-#: crates/rigg-core/src/easter.rs:251
+#: crates/rigg-core/src/easter.rs:243
 msgid "Ingen sensor måler kaffe ennå. Det nærmeste er CPU-temperaturen."
 msgstr "目前还没有测咖啡的传感器，最接近的大概是 CPU 温度。"
 
-#: crates/rigg-core/src/easter.rs:254
+#: crates/rigg-core/src/easter.rs:244
 msgid "Hei! Ingen sensor heter det, men takk for at du spør."
 msgstr "你好！没有叫这个名字的传感器，不过谢谢打招呼。"
 
-#: crates/rigg-core/src/easter.rs:267
+#: crates/rigg-core/src/easter.rs:284
 msgid "Jetmotor"
 msgstr "喷气引擎"
 
-#: crates/rigg-core/src/easter.rs:267
+#: crates/rigg-core/src/easter.rs:284
 msgid "Alle punktene står på 100 %. Naboene hilser."
 msgstr "所有节点均为 100%。邻居托我向你问好。"
 
-#: crates/rigg-core/src/easter.rs:270
+#: crates/rigg-core/src/easter.rs:287
 msgid "Bibliotek"
 msgstr "图书馆"
 
-#: crates/rigg-core/src/easter.rs:270
+#: crates/rigg-core/src/easter.rs:287
 msgid "Alle punktene står på 35 %, så lavt kortet tillater. Hysj."
 msgstr "所有节点均为 35%，已到显卡允许的下限。嘘。"
 
-#: crates/rigg-core/src/easter.rs:278
+#: crates/rigg-core/src/easter.rs:295
 msgid "{navn} {versjon} · bygg {bygg}\nHei, nysgjerrige utvikler. Alt her leser bare; ingenting sendes til skjermkortet.\nDet finnes {antall} små overraskelser – agentic-rigg --hint gir et hint."
 msgstr "{navn} {versjon} · 构建 {bygg}\n你好，好奇的开发者。这里全部为只读操作，不会向显卡发送任何写入指令。\n共有 {antall} 个小彩蛋——运行 agentic-rigg --hint 获取提示。"
 
-#: crates/rigg-core/src/easter.rs:291
+#: crates/rigg-core/src/easter.rs:308
 msgid "Du har funnet alle {antall}. Fasiten står i docs/paaskeegg.md."
 msgstr "你已集齐全部 {antall} 个彩蛋！完整说明见 docs/paaskeegg.md。"
 
-#: crates/rigg-core/src/easter.rs:294
+#: crates/rigg-core/src/easter.rs:311
 msgid "{hint} ({funnet} av {totalt} funnet)"
 msgstr "{hint}（已发现 {funnet} / {totalt}）"

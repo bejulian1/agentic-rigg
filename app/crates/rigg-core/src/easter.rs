@@ -19,7 +19,7 @@ pub struct Egg {
     pub hint: &'static str,
 }
 
-pub const EGGS: [Egg; 10] = [
+pub const EGGS: [Egg; 9] = [
     Egg {
         id: "konami",
         name: "Juksekoden",
@@ -83,16 +83,9 @@ pub const EGGS: [Egg; 10] = [
         what: "En hilsen på standard ut, og --hint gir et hint om et egg du ikke har funnet.",
         hint: "Du fant denne. Godt jobbet.",
     },
-    Egg {
-        id: "nordlys",
-        name: "Nordlys",
-        trigger: "Skriv «nordlys» på RGB-lys (utenfor et tekstfelt)",
-        what: "Forhåndsvisningen viser nordlys til du trykker Esc, velger noe eller går til en annen side. Lagres ikke.",
-        hint: "På Lys finnes det en effekt som ikke står i lista. Den er norsk.",
-    },
 ];
 
-pub const IDS: [&str; 10] = ["konami", "stov", "utvikler", "svaret", "bursdag", "natt", "kaffe", "kallenavn", "konsoll", "nordlys"];
+pub const IDS: [&str; 9] = ["konami", "stov", "utvikler", "svaret", "bursdag", "natt", "kaffe", "kallenavn", "konsoll"];
 
 pub fn egg(id: &str) -> Option<&'static Egg> {
     EGGS.iter().find(|e| e.id == id)
@@ -109,7 +102,6 @@ pub fn egg_hint(id: &str) -> &'static str {
         "kaffe" => tr!("Filteret på Sensorer leter etter mer enn sensorer. Hva drikker du nå?"),
         "kallenavn" => tr!("En viftekurve som står rett på taket, fortjener et navn."),
         "konsoll" => tr!("Du fant denne. Godt jobbet."),
-        "nordlys" => tr!("På Lys finnes det en effekt som ikke står i lista. Den er norsk."),
         _ => "",
     }
 }
@@ -319,43 +311,6 @@ pub fn hint(found: &[String], pick: usize) -> String {
     trf!("{hint} ({funnet} av {totalt} funnet)", hint = egg_hint(e.id), funnet = found.len(), totalt = EGGS.len())
 }
 
-// ---- 10 · Nordlys ----
-
-pub const AURORA_WORD: &str = "nordlys";
-
-/// Nordlys som farge for én lysdiode: `u` er plassen langs sonen (0–1), `t`
-/// tiden i sekunder. Ingen gul, oransje eller rød, og aldri under 15 % styrke.
-pub fn aurora(u: f64, t: f64) -> [f64; 3] {
-    use std::f64::consts::TAU;
-    let w1 = 0.5 + 0.5 * (u * TAU * 1.3 + t * 0.9).sin();
-    let w2 = 0.5 + 0.5 * (u * TAU * 2.1 - t * 0.55 + 1.7).sin();
-    let w3 = 0.5 + 0.5 * (u * TAU * 0.7 + t * 0.3 + 4.1).sin();
-    let mut hue = 128.0 + 48.0 * w2;
-    if w3 > 0.7 {
-        hue += (285.0 - hue) * ((w3 - 0.7) / 0.3);
-    }
-    let k = 0.15 + 0.85 * w1 * w1;
-    let [r, g, b] = hsl_to_rgb(hue, 0.85, 0.5);
-    [r * k, g * k, b * k]
-}
-
-/// HSL (grader, 0–1, 0–1) til RGB (0–255).
-pub fn hsl_to_rgb(h: f64, s: f64, l: f64) -> [f64; 3] {
-    let c = (1.0 - (2.0 * l - 1.0).abs()) * s;
-    let hp = (h.rem_euclid(360.0)) / 60.0;
-    let x = c * (1.0 - (hp % 2.0 - 1.0).abs());
-    let (r, g, b) = match hp as i32 {
-        0 => (c, x, 0.0),
-        1 => (x, c, 0.0),
-        2 => (0.0, c, x),
-        3 => (0.0, x, c),
-        4 => (x, 0.0, c),
-        _ => (c, 0.0, x),
-    };
-    let m = l - c / 2.0;
-    [(r + m) * 255.0, (g + m) * 255.0, (b + m) * 255.0]
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -389,7 +344,7 @@ mod tests {
         let mut c = vec![];
         assert!(!(0..4).any(|i| dust_click(&mut c, i * 100)));
         assert!(dust_click(&mut c, 500));
-        assert!(hint(&IDS.map(String::from), 0).contains("alle 10"));
+        assert!(hint(&IDS.map(String::from), 0).contains("alle 9"));
     }
 
     #[test]
@@ -401,14 +356,6 @@ mod tests {
             for query in ["hi", "CAFE", "caffe", "Coffee Lake", "GPU temp", "咖啡 温度"] {
                 assert_eq!(filter_kind(query, language), None, "{language:?}: {query}");
             }
-        }
-    }
-
-    #[test]
-    fn nordlys_er_grønt_til_fiolett() {
-        for i in 0..200 {
-            let [r, g, b] = aurora(i as f64 / 200.0, i as f64 * 0.37);
-            assert!(r <= g.max(b) + 1.0, "ingen rødt: {r} {g} {b}");
         }
     }
 }

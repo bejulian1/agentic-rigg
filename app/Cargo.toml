@@ -22,8 +22,6 @@ gio = "0.22"
 glib-unix = "0.22"
 async-channel = "2.5"
 gtk = { package = "gtk4", version = "0.11", features = ["v4_22"] }
-glow = "0.16"
-glam = "0.30"
 glib-build-tools = "0.22"
 
 # Som Klipp, men uten panic = "abort": tjenesten fanger panikk i prøvetråden

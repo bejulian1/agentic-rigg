@@ -13,7 +13,7 @@
 #   3a                skjermbilder.rs RIGG_PLAN=3a, det ekte kortet
 #   3a-sim            skjermbilder.rs RIGG_PLAN=3a-sim, --backend sim (Bruk/Behold)
 #   3a-borte          skjermbilder.rs RIGG_PLAN=3a-borte, --backend sim:borte
-#   3a-egg            skjermbilder.rs RIGG_PLAN=3a-egg, sim (påskeegg 1, 7 og 10)
+#   3a-egg            skjermbilder.rs RIGG_PLAN=3a-egg, sim (påskeegg 1 og 7)
 #   3c                skjermbilder.rs RIGG_PLAN=3c, det ekte kortet: alle sidene ×
 #                     lyst/mørkt × fire temaer, høy kontrast, 640 og 1920 px
 #   2a                pages/oversikt/bilder.rs, det ekte kortet
@@ -34,7 +34,6 @@
 #                     med samme navn (maskinhodet i feiltilstandene)
 #   6c-ekte           pages/styring_bilder.rs planen «ekte»: Klokker og effekt
 #                     og Vifter låst mot det ekte kortet (bare lesing)
-#   6c-lys            pages/styring_bilder.rs planen «lys», sim: RGB-lys 2D/3D
 #   7a                skjermbilder.rs RIGG_PLAN=7a, sim: Innstillinger › Styring
 #                     med den falske pkexec (scripts/falsk-pkexec.sh) og en falsk
 #                     rot i ~/.cache/rigg-build: av, på, godkjenn, feil, av igjen
@@ -51,9 +50,10 @@
 #   adaptive-akser    110 °C, 2500/10000 MHz, 400 W og 108 % vifte, bare
 #                     simulerte verdier i testvinduet; fast/tilpass, °F og 48 t
 #   1.4.0-ui          sim/falsk pkexec: filter/fokus, tidsmeny, globalaktivering,
-#                     eksplisitt simulert klar-status og PCIe i 2D/3D (bruk gl)
+#                     eksplisitt simulert klar-status
 #   rgb-ui            fysisk RGB-panel med merkede simulerte visningstilstander;
 #                     alle administratorhandlinger og RGB-RPC-er er blokkert
+#   rgb-flow          vanlig RGB-flyt mot en privat, merket fake-arbeider
 #   oppgaver          ekte /proc uten GPU: søk/sortering/tre, pause, sideskifte,
 #                     lyst/mørkt og 640 px. Ingen signalprøve som standard.
 #
@@ -63,6 +63,7 @@
 # Vinduet får høyst RIGG_PLAN_FRIST sekunder (standard 900). RIGG_OPPVARMING=SEK lar
 # tjenesten samle historikk før bildene (standard 62 s, så sparklinjene er
 # fulle; 8 s for sim-planene).
+# RIGG_BILDER_SPRAK velger UI-språket i den isolerte økten (standard nb).
 set -euo pipefail
 here=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 plans=()
@@ -70,12 +71,12 @@ out=
 while [ $# -gt 0 ]; do
     case "$1" in
     --plan) plans+=("$2"); shift 2 ;;
-    -h | --help) sed -n '2,55p' "$0"; exit 0 ;;
+    -h | --help) sed -n '2,/^set -/ { /^set -/!p; }' "$0"; exit 0 ;;
     *) out=$1; shift ;;
     esac
 done
 all=(3c grunnmur 3a 3a-sim 3a-borte 3a-egg 2a 2a-historikk 2b-kort 2b-ingen-driver 2b-driver-oppdatert 2b-borte 2b-to-kort 2b-dvale 2b-bygg 2c
-    6a 6a-ekte 6b 6b-borte 6b-ingen-driver 6b-driver-oppdatert 6b-to-kort 6c-ekte 6c-lys 7a 7b-ekte 7b-sim 8a 8a-hete kortmeny innstillinger-sok adaptive-akser)
+    6a 6a-ekte 6b 6b-borte 6b-ingen-driver 6b-driver-oppdatert 6b-to-kort 6c-ekte 7a 7b-ekte 7b-sim 8a 8a-hete kortmeny innstillinger-sok adaptive-akser)
 [ ${#plans[@]} -gt 0 ] || plans=(grunnmur)
 [ "${plans[0]}" = alle ] && plans=("${all[@]}")
 many=$([ ${#plans[@]} -gt 1 ] && echo 1 || true)
@@ -93,6 +94,7 @@ runner=$(mktemp)
 trap 'rm -f -- "$runner"' EXIT
 cat >"$runner" <<'RUN'
 set -u
+export LANGUAGE="${RIGG_BILDER_SPRAK:-nb}"
 # Private UI-prøver får alltid egen hjelperrot, også når den ekte hjelperen
 # er aktivert på verten. NVML-lesing kan fortsatt brukes til sensordata.
 export RIGG_HJELPER_ROT="${RIGG_HJELPER_ROT:-$OKT_BASE/hjelper-rot}"
@@ -172,7 +174,6 @@ for plan in "${plans[@]}"; do
         [ "$name" = borte ] && vars+=("RIGG_6B_VENT=24000")
         ;;
     6c-ekte) vars=("RIGG_BILDER_2C=$dir" "RIGG_6C_PLAN=ekte") wargs="--side kontroller" ;;
-    6c-lys) vars=("RIGG_BILDER_2C=$dir" "RIGG_6C_PLAN=lys") backend=sim wargs="--side kontroller" warm=${RIGG_OPPVARMING:-8} ;;
     7a-ekte) echo "7a-ekte er utgått: falsk pkexec starter aldri NVML. Bruk --plan 1.4.0-ui." >&2; exit 2 ;;
     7a | 1.4.0-ui)
         # Som docs/produksjon/verktoy/runde7a/bilder7a.sh: filene til

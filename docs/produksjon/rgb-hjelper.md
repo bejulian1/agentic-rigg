@@ -1,4 +1,4 @@
-# Separat RGB-hjelper · implementert på featurebranchen
+# Separat RGB-hjelper
 
 RGB har et eget domene i hjelperbinæren, en separat systemd-prosess, daemonklient og kontroller på Lys-siden. Det deler ikke motor, socket, tillatelse, grunnopptak eller lease med NVML-styringen. Aktivering, menneskelig bekreftelse og manuell gjenoppretting er implementert og prøvd med isolerte fakes. På brukerens Palit RTX 2080 Super JetStream er fast blått og automatisk tilbakeføring til grønt fysisk bekreftet ved 100 % lysstyrke.
 
@@ -33,7 +33,7 @@ Aktiveringen legger inn den root-installerte enhetsmalen og starter `agentic-rig
 
 Arbeiderkommandoen er `agentic-rigg-helper --rgb-server`. Den krever root, egen RGB-tillatelse og et allerede lagret `user_confirmed_static`-grunnopptak. Ingen I2C åpnes ved oppstart. Et avbrudd mellom lagring av tillatelsen, installasjon av enheten og oppstart kan følges av ny aktivering med samme kort og utgangspunkt.
 
-## Fysisk kontroll ved installasjon (ikke utført på denne grenen)
+## Sjekkliste for fysisk kontroll ved installasjon
 
 1. Kontroller utgavens SHA-256 fra utgivelsessiden i en separat kanal. Kjør bootstraplinjen ovenfor med arkivet og denne summen. Kontroller at `/usr/local/libexec/agentic-rigg-system/revision` oppgir `2:` og forventet bygg. Installasjonen skal ikke aktivere noen tilgang.
 2. Velg ett kort og kontroller PCI, UUID og synlig statisk lys før du godkjenner RGB-aktivering. Forbered en annen terminal før godkjenning: kjør `for i in $(seq 1 600); do s=$(systemctl show agentic-rigg-rgb-admin.service -p LoadState -p DevicePolicy -p DeviceAllow -p CapabilityBoundingSet -p ProtectProc); if grep -qx 'LoadState=loaded' <<<"$s"; then printf '%s\n' "$s"; break; fi; sleep 0.05; done` i Bash. Tjenesten samles inn etter handlingen. Uteblitt måling er **ikke verifisert**; ikke gjenta en maskinvareskriving bare for å måle.
@@ -61,7 +61,7 @@ Socketklienten må ha tillatelsens faktiske `SO_PEERCRED`-UID. Tillatelsen laste
 
 ## App og daemon
 
-«Lys på kortet» styrer én fysisk sone. Hjelperens statusfelt `softwareEffects` angir hvilke programvaredrevne effekter panelet kan tilby. Redigering av farge og lysstyrke sender ingen endring; bare «Bruk på kortet» gjør det. Behold/Rull tilbake bruker RGBs egen bekreftelse, uten NVML-lås eller GPU-bekreftelseslinje. Den lokale lysmodellen, de illustrerte sonene og «Lagre i appen» er atskilt fra fysisk styring. Profilvalg, oppstart og forhåndsvisning skriver ikke RGB.
+«Lys på kortet» styrer én fysisk sone. Hjelperens statusfelt `softwareEffects` angir hvilke programvaredrevne effekter panelet kan tilby. Redigering av farge og lysstyrke sender ingen endring; bare «Bruk» gjør det. Behold/Rull tilbake bruker RGBs egen bekreftelse, uten NVML-lås eller GPU-bekreftelseslinje. Profilvalg og oppstart skriver ikke RGB. Når ingen støttet kontroller er klar til styring, viser siden status og støttekrav, uten farge- eller effektkontroller.
 
 Daemonens `get_rgb_helper` gir `state`, `message`, `status`, `owned`, `busy` og `systemAdmin`. Bare vanlig produksjonsoppsett med NVML og vertens rot kan bruke vertens RGB-hjelper. Simulering og utvikling trenger en uttrykkelig valgt, kanonisk, privat `0700`-rot eid av daemonbrukeren. Uten den er RGB slått av i daemonen. `owned` gjelder denne UI-forbindelsen, ikke arbeiderens interne forbindelsesnummer. Uten `refresh` brukes cache; oppdatering og mutasjoner går på en egen IPC-tråd. Køen er begrenset, totalfristen er fire sekunder fra innlegging, og hver IPC-runde har høyst tre sekunder innenfor totalfristen. `CLOCK_BOOTTIME` kontrollerer også alder etter suspend: for gamle jobber sendes ikke, og foreldede svar tas ikke som nytt suksessbevis. Et tidsavbrudd beviser ikke at et allerede sendt maskinvarekall var uten virkning.
 
