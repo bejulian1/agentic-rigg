@@ -73,7 +73,7 @@ impl Daemon {
         Daemon::start_in(&tmpdir("k"), backend, 60_000)
     }
 
-    fn start_with_root(dir: &Path, backend: &str, root: &Path) -> Daemon {
+    fn start_with_root_uten_disker(dir: &Path, backend: &str, root: &Path) -> Daemon {
         let socket = dir.join("run/riggd.sock");
         let helper_root = dir.join("tom-hjelper-rot");
         std::fs::create_dir_all(&helper_root).unwrap();
@@ -1184,7 +1184,7 @@ fn cpu_hotplug_oppdaterer_get_system_og_telemetri_i_samme_okt() {
     write_cpu(1, 1, 2_100_000);
     write_stat(&[(0, 10, 90), (1, 10, 90)]);
 
-    let d = Daemon::start_with_root(&dir, "ingen", &root);
+    let d = Daemon::start_with_root_uten_disker(&dir, "ingen", &root);
     let mut c = d.connect();
     c.hello();
     c.ok("subscribe", json!({"topics": ["telemetry"], "intervalMs": 500}));
