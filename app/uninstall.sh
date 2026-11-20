@@ -19,12 +19,25 @@ unit_file=$config_dir/systemd/user/$unit
 # 0. Root-hjelperen. RIGG_HJELPER_ROT er en falsk rot (bare testene).
 hjelper_rot=${RIGG_HJELPER_ROT:-}
 hjelper_aktiv=0
-rgb_aktiv=0
 if [ -e "$hjelper_rot/etc/agentic-rigg/helper.json" ] || [ -e "$hjelper_rot/etc/systemd/system/agentic-rigg-helper.service" ] || [ -S "$hjelper_rot/run/agentic-rigg/helper.sock" ]; then
     hjelper_aktiv=1
 fi
-if [ -e "$hjelper_rot/etc/agentic-rigg/rgb.json" ] || [ -e "$hjelper_rot/etc/systemd/system/agentic-rigg-rgb.service" ] || [ -S "$hjelper_rot/run/agentic-rigg-rgb/helper.sock" ]; then
-    rgb_aktiv=1
+if [ -e "$hjelper_rot/etc/agentic-rigg/rgb.json" ] ||
+   [ -e "$hjelper_rot/etc/systemd/system/agentic-rigg-rgb.service" ] ||
+   [ -e "$hjelper_rot/etc/systemd/system/agentic-rigg-rgb.service.d/card.conf" ] ||
+   [ -S "$hjelper_rot/run/agentic-rigg-rgb/helper.sock" ] ||
+   [ -e "$hjelper_rot/usr/local/libexec/agentic-rigg-rgb-helper" ] ||
+   { [ -d "$hjelper_rot/var/lib/agentic-rigg-rgb" ] &&
+     [ ! -f "$hjelper_rot/var/lib/agentic-rigg-rgb.inactive" ]; }; then
+    cat >&2 <<'EOF'
+Slå av RGB-tilgangen før du avinstallerer Agentic Rigg.
+Åpne Lys › Lys på kortet. Gjenopprett utgangspunktet og bekreft det visuelt
+hvis en endring venter. Hvis arbeideren er stoppet eller utdatert, bruk
+«Gjenopprett lagret lys» ved behov, deretter «Avklar tidligere økt».
+Velg «Slå av RGB-tilgang» og kjør dette skriptet igjen. Se RGB-HJELPER.md
+i apppakken for administratorkommandoer.
+EOF
+    exit 3
 fi
 
 # 1. Tjenesten: stopp og slå av bare vår enhet.
@@ -62,10 +75,4 @@ if [ $hjelper_aktiv -eq 1 ]; then
     echo "Slå den av med:"
     echo "  pkexec /usr/local/libexec/agentic-rigg/deaktiver.sh"
 fi
-if [ $rgb_aktiv -eq 1 ]; then
-    echo
-    echo "OBS: Den separate RGB-tilgangen er fortsatt aktiv. RGB-filer og lagret"
-    echo "utgangspunkt er beholdt. Avklar eventuell gjenoppretting før deaktivering:"
-    echo "  pkexec /usr/local/libexec/agentic-rigg-rgb/rgb-deaktiver.sh --pci PCI --uuid UUID"
-fi
-if [ $hjelper_aktiv -eq 1 ] || [ $rgb_aktiv -eq 1 ]; then exit 3; fi
+if [ $hjelper_aktiv -eq 1 ]; then exit 3; fi

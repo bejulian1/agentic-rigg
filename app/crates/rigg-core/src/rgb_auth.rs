@@ -12,10 +12,11 @@ use std::path::PathBuf;
 pub const CONFIG_PATH: &str = "/etc/agentic-rigg/rgb.json";
 pub const SOCKET_PATH: &str = "/run/agentic-rigg-rgb/helper.sock";
 pub const STATE_DIR: &str = "/var/lib/agentic-rigg-rgb";
-pub const BINARY_PATH: &str = "/usr/local/libexec/agentic-rigg-rgb-helper";
-pub const LIBEXEC_DIR: &str = "/usr/local/libexec/agentic-rigg-rgb";
+pub const BINARY_PATH: &str = "/usr/local/libexec/agentic-rigg-rgb-v2/agentic-rigg-helper";
+pub const LIBEXEC_DIR: &str = "/usr/local/libexec/agentic-rigg-rgb-v2";
+pub const POLICY_PATH: &str = "/usr/share/polkit-1/actions/io.github.AgenticRigg.rgb.v2.policy";
 pub const UNIT: &str = "agentic-rigg-rgb.service";
-pub const PROTOCOL: u32 = 1;
+pub const PROTOCOL: u32 = 2;
 pub const DOMAIN: &str = "palit_rgb";
 pub const HELPER_NAME: &str = "agentic-rigg-rgb-helper";
 pub const UI_OPS: &[&str] = &[
@@ -25,6 +26,7 @@ pub const UI_OPS: &[&str] = &[
     "rgb_reset",
     "rgb_release",
     "rgb_ack_recovery",
+    "rgb_read",
 ];
 
 /// Faste RGB-stier under en uttrykkelig valgt rot. Ingen fallback til verten.

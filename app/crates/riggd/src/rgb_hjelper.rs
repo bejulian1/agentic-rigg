@@ -518,8 +518,8 @@ fn validate_args(op: &str, args: &Value) -> Result<(), ProtoError> {
         "get_rgb_helper" => &["refresh"],
         "rgb_apply" => &["gpu", "uuid", "request", "confirmTimeoutS", "effect"],
         "rgb_confirm" | "rgb_revert" => &["gpu", "uuid", "txn"],
-        "rgb_ack_recovery" => &["gpu", "uuid", "confirmedStatic", "expected"],
-        "rgb_reset" | "rgb_release" => &["gpu", "uuid"],
+        "rgb_ack_recovery" => &["gpu", "uuid", "confirmedStatic", "expected", "recoveryId"],
+        "rgb_reset" | "rgb_release" | "rgb_read" => &["gpu", "uuid"],
         _ => return Err(ProtoError::new(ErrorCode::UnknownOp)),
     };
     if object.keys().any(|key| !allowed.contains(&key.as_str())) {
@@ -565,6 +565,9 @@ fn validate_args(op: &str, args: &Value) -> Result<(), ProtoError> {
     }
     if op == "rgb_ack_recovery"
         && (args["confirmedStatic"] != true
+            || !args["recoveryId"]
+                .as_str()
+                .is_some_and(|id| !id.is_empty() && id.len() <= 53)
             || serde_json::from_value::<ColorRequest>(args["expected"].clone()).is_err())
     {
         return Err(invalid(
@@ -1187,6 +1190,7 @@ mod tests {
             "rgb_ack_recovery" => {
                 args["confirmedStatic"] = json!(true);
                 args["expected"] = initial_status()["state"]["confirmed"].clone();
+                args["recoveryId"] = json!("private-fixture-1");
             }
             _ => {}
         }
@@ -1335,7 +1339,7 @@ mod tests {
         for (field, value) in [
             ("name", json!("agentic-rigg-helper")),
             ("domain", json!("nvml")),
-            ("protocol", json!(2)),
+            ("protocol", json!(1)),
             ("build", json!(rigg_core::version::build() + 1)),
         ] {
             let mut status = initial_status();

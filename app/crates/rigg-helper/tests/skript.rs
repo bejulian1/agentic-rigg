@@ -351,16 +351,9 @@ fn install_kopierer_bare_filene_og_uninstall_sier_fra() {
         vec![
             "agentic-rigg-helper 755",
             "agentic-rigg-helper.service 644",
-            "agentic-rigg-rgb.service 644",
             "aktiver.sh 755",
             "deaktiver.sh 755",
             "io.github.AgenticRigg.helper.policy 644",
-            "io.github.AgenticRigg.rgb.policy 644",
-            "rgb-admin.py 755",
-            "rgb-aktiver.sh 755",
-            "rgb-avklar.sh 755",
-            "rgb-deaktiver.sh 755",
-            "rgb-gjenopprett.sh 755",
             "trinn.sh 755"
         ]
     );

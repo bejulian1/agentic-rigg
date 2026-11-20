@@ -5,7 +5,7 @@ ConditionPathExists=/etc/agentic-rigg/rgb.json
 
 [Service]
 Type=simple
-ExecStart=/usr/local/libexec/agentic-rigg-rgb-helper --rgb-server
+ExecStart=/usr/local/libexec/agentic-rigg-rgb-v2/agentic-rigg-helper --rgb-server
 Restart=no
 TimeoutStopSec=10s
 RuntimeDirectory=agentic-rigg-rgb

@@ -19,7 +19,7 @@ use rigg_core::rgb_txn::{Backend, Book, Error, Outcome, Status};
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use serde_json::{Value, json};
 
-pub const PROTOCOL: u32 = 1;
+pub const PROTOCOL: u32 = rgb_auth::PROTOCOL;
 pub const LEASE_MS: u64 = 15_000;
 const FRAME_INTERVAL_MS: u64 = 250;
 
@@ -88,6 +88,7 @@ struct RecoveryAckArgs {
     /// Echo fra dialogens hjelperstatus, bare en compare-and-swap-betingelse.
     /// Dette blir aldri et nytt skrive- eller gjenopprettingsmål.
     expected: Request,
+    recovery_id: String,
 }
 
 enum Action {
@@ -96,6 +97,7 @@ enum Action {
     Confirm(TransactionArgs),
     Revert(TransactionArgs),
     Reset(IdentityArgs),
+    Read(IdentityArgs),
     Release(IdentityArgs),
     Heartbeat(IdentityArgs),
     AckRecovery(RecoveryAckArgs),
@@ -151,6 +153,7 @@ impl Action {
                 }
             }
             "rgb_reset" => Self::Reset(parse(args)?),
+            "rgb_read" => Self::Read(parse(args)?),
             "rgb_release" => Self::Release(parse(args)?),
             "rgb_heartbeat" => Self::Heartbeat(parse(args)?),
             "rgb_ack_recovery" => {
@@ -173,7 +176,7 @@ impl Action {
             Self::Apply(args) => Some((&args.gpu, &args.uuid)),
             Self::AckRecovery(args) => Some((&args.gpu, &args.uuid)),
             Self::Confirm(args) | Self::Revert(args) => Some((&args.gpu, &args.uuid)),
-            Self::Reset(args) | Self::Release(args) | Self::Heartbeat(args) => {
+            Self::Reset(args) | Self::Read(args) | Self::Release(args) | Self::Heartbeat(args) => {
                 Some((&args.gpu, &args.uuid))
             }
         }
@@ -193,6 +196,7 @@ pub struct Runtime<B: Backend> {
     static_baseline: bool,
     animation: Option<Animation>,
     effect_error: Option<String>,
+    instance_id: String,
 }
 
 impl<B: Backend> Runtime<B> {
@@ -211,6 +215,7 @@ impl<B: Backend> Runtime<B> {
         }
         let static_baseline = baseline.expected_mode() == Mode::Static;
         let book = Book::new(baseline).map_err(|error| error.to_string())?;
+        let instance_id = crate::rgb_store::new_recovery_id()?;
         Ok(Self {
             authorization,
             book,
@@ -224,11 +229,20 @@ impl<B: Backend> Runtime<B> {
             static_baseline,
             animation: None,
             effect_error: None,
+            instance_id,
         })
     }
 
     pub fn authorized_uid(&self) -> u32 {
         self.authorization.uid()
+    }
+
+    fn recovery_id(&self) -> Option<String> {
+        let state = self.book.snapshot();
+        let attempt = state
+            .recovery_attempt
+            .filter(|_| state.recovery_needs_confirmation && state.error.is_none())?;
+        Some(format!("{}-{attempt}", self.instance_id))
     }
 
     /// Ren cache: ingen backend-kall, klokkeoppdatering eller leasefornyelse.
@@ -245,6 +259,7 @@ impl<B: Backend> Runtime<B> {
             "authorized": !self.revoked,
             "holding": self.holding,
             "state": self.book.snapshot(),
+            "recoveryId": self.recovery_id(),
             "observationSource": self.observation_source,
             "lastOutcome": self.last_outcome,
             "softwareEffects": [Effect::Breathing, Effect::Rainbow, Effect::Cycle],
@@ -303,15 +318,9 @@ impl<B: Backend> Runtime<B> {
                 "RGB-klokken er utenfor gyldig område.",
             )
         })?;
-        let ack_before_tick =
-            matches!(action, Action::AckRecovery(_)).then(|| self.book.snapshot());
         self.tick(now_ms)?;
-        if ack_before_tick.is_some_and(|before| before != self.book.snapshot()) {
-            return Err(ProtoError::msg(ErrorCode::WriteLocked,
-                "RGB-tilstanden endret seg ved fristutløp. Se det nye målet før du bekrefter lyset.")
-                .details(json!({"status": self.status()})));
-        }
-        let before_observation = self.book.snapshot().observed;
+        let before = self.book.snapshot();
+        let clean_read = !before.dirty && matches!(action, Action::Read(_) | Action::Reset(_));
         let (result, renew) = match action {
             Action::Status => unreachable!("status ble håndtert uten sideeffekter"),
             Action::Apply(args) => {
@@ -329,6 +338,7 @@ impl<B: Backend> Runtime<B> {
                         || state.owner.is_some()
                         || state.recovery_needs_confirmation
                         || state.error.is_some()
+                        || state.read_error.is_some()
                     {
                         return Err(self.transaction_error(Error::RecoveryRequired));
                     }
@@ -413,16 +423,23 @@ impl<B: Backend> Runtime<B> {
             Action::Reset(_) => {
                 self.require_owner(conn, true)?;
                 self.animation = None;
-                (Ok(self.book.restore_baseline(&mut self.backend)), false)
+                if self.book.snapshot().dirty {
+                    (Ok(self.book.restore_baseline(&mut self.backend)), false)
+                } else {
+                    (self.read_clean(), false)
+                }
             }
+            Action::Read(_) => (self.read_clean(), false),
             Action::AckRecovery(args) => {
                 self.require_owner(conn, true)?;
                 if self.animation.is_some() {
                     return Err(self.transaction_error(Error::Busy));
                 }
-                if args.expected != self.book.snapshot().confirmed {
+                if self.recovery_id().as_deref() != Some(&args.recovery_id)
+                    || args.expected != self.book.snapshot().confirmed
+                {
                     return Err(ProtoError::msg(ErrorCode::WriteLocked,
-                        "RGB-målet er endret siden dialogen ble åpnet. Se den nye tilstanden før du bekrefter.")
+                        "RGB-bekreftelsen gjelder et tidligere forsøk. Se på kortet og åpne en ny bekreftelse.")
                         .details(json!({"status": self.status()})));
                 }
                 (
@@ -445,12 +462,26 @@ impl<B: Backend> Runtime<B> {
                 Ok(json!({"outcome": outcome, "status": self.status()}))
             }
             Err(error) => {
-                if self.book.snapshot().observed != before_observation {
+                if !clean_read && self.book.snapshot().observed != before.observed {
                     self.observation_source = ObservationSource::Unknown;
                 }
                 Err(self.transaction_error(error))
             }
         }
+    }
+
+    fn read_clean(&mut self) -> Result<Option<Outcome>, Error> {
+        if self.book.snapshot().dirty {
+            return Err(Error::RecoveryRequired);
+        }
+        let result = self.book.read_clean(&mut self.backend);
+        let observed = self.book.snapshot().observed;
+        self.observation_source = if observed.color.is_some() && observed.brightness_raw.is_some() {
+            ObservationSource::OperationReadback
+        } else {
+            ObservationSource::Unknown
+        };
+        result.map(|()| None)
     }
 
     fn record_outcome(&mut self, outcome: &Outcome) {
@@ -717,12 +748,16 @@ mod tests {
         fail_recovery: bool,
         acknowledgments: usize,
         fail_ack: bool,
+        fail_read: bool,
     }
 
     impl Backend for Fake {
         fn read(&mut self, binding: &Binding) -> Result<Observed, String> {
             assert_eq!(binding, &self::binding());
             self.reads += 1;
+            if self.fail_read {
+                return Err("Midlertidig lesefeil".into());
+            }
             Ok(self.current.clone())
         }
         fn mark_dirty(&mut self, journal: &Journal) -> Result<(), String> {
@@ -844,14 +879,19 @@ mod tests {
         args
     }
 
-    fn ack_args() -> Value {
-        ack_args_for(color([1, 2, 3]))
+    fn ack_args(runtime: &Runtime<Fake>) -> Value {
+        ack_args_for(runtime, color([1, 2, 3]))
     }
 
-    fn ack_args_for(expected: Request) -> Value {
+    fn ack_args_for(runtime: &Runtime<Fake>, expected: Request) -> Value {
         let mut args = identity();
         args["confirmedStatic"] = json!(true);
         args["expected"] = serde_json::to_value(expected).unwrap();
+        args["recoveryId"] = json!(
+            runtime
+                .recovery_id()
+                .unwrap_or_else(|| "gammelt-forsøk".into())
+        );
         args
     }
 
@@ -874,12 +914,12 @@ mod tests {
         for args in [
             identity(),
             {
-                let mut a = ack_args();
+                let mut a = ack_args(&runtime);
                 a["confirmedStatic"] = json!(false);
                 a
             },
             {
-                let mut a = ack_args();
+                let mut a = ack_args(&runtime);
                 a["target"] = json!([1, 2, 3]);
                 a
             },
@@ -894,21 +934,21 @@ mod tests {
         }
         assert_eq!(
             runtime
-                .handle(1001, 7, "rgb_ack_recovery", &ack_args(), 30)
+                .handle(1001, 7, "rgb_ack_recovery", &ack_args(&runtime), 30)
                 .unwrap_err()
                 .code,
             ErrorCode::PermissionDenied
         );
         assert_eq!(
             runtime
-                .handle(1000, 8, "rgb_ack_recovery", &ack_args(), 30)
+                .handle(1000, 8, "rgb_ack_recovery", &ack_args(&runtime), 30)
                 .unwrap_err()
                 .code,
             ErrorCode::NotOwner
         );
         assert_eq!(runtime.backend.reads, reads);
         let result = runtime
-            .handle(1000, 7, "rgb_ack_recovery", &ack_args(), 40)
+            .handle(1000, 7, "rgb_ack_recovery", &ack_args(&runtime), 40)
             .unwrap();
         assert_eq!(result["outcome"]["status"], "user_confirmed");
         assert_eq!(result["outcome"]["readback"], "readable_fields_match");
@@ -924,6 +964,88 @@ mod tests {
     }
 
     #[test]
+    fn samme_lysmal_krever_ny_bekreftelse_etter_leaseutlop_eller_arbeiderbytte() {
+        let mut runtime = setup();
+        let txn = apply(&mut runtime, 10, color([4, 5, 6]), 10);
+        runtime
+            .handle(1000, 7, "rgb_revert", &txn_args(txn), 20)
+            .unwrap();
+        let old = ack_args(&runtime);
+
+        for now in [10 + LEASE_MS, 11 + LEASE_MS] {
+            assert_eq!(
+                runtime
+                    .handle(1000, 7, "rgb_ack_recovery", &old, now)
+                    .unwrap_err()
+                    .code,
+                ErrorCode::WriteLocked
+            );
+        }
+        assert_eq!(runtime.backend.writes.len(), 3);
+        assert_eq!(runtime.backend.acknowledgments, 0);
+        let new = ack_args(&runtime);
+        assert_eq!(old["expected"], new["expected"]);
+        assert_ne!(old["recoveryId"], new["recoveryId"]);
+        runtime
+            .handle(1000, 7, "rgb_ack_recovery", &new, 12 + LEASE_MS)
+            .unwrap();
+
+        let mut restarted = setup();
+        let txn = apply(&mut restarted, 10, color([4, 5, 6]), 10);
+        restarted
+            .handle(1000, 7, "rgb_revert", &txn_args(txn), 20)
+            .unwrap();
+        assert_eq!(
+            restarted
+                .handle(1000, 7, "rgb_ack_recovery", &old, 30)
+                .unwrap_err()
+                .code,
+            ErrorCode::WriteLocked
+        );
+        assert_eq!(restarted.backend.acknowledgments, 0);
+    }
+
+    #[test]
+    fn ny_feltlesing_etter_midlertidig_lesefeil_i_ren_okt() {
+        let mut runtime = setup();
+        let txn = apply(&mut runtime, 10, color([4, 5, 6]), 10);
+        runtime
+            .handle(1000, 7, "rgb_revert", &txn_args(txn), 20)
+            .unwrap();
+        let ack = ack_args(&runtime);
+        runtime
+            .handle(1000, 7, "rgb_ack_recovery", &ack, 30)
+            .unwrap();
+        runtime.backend.fail_read = true;
+        let error = runtime
+            .handle(1000, 7, "rgb_apply", &apply_args(color([4, 5, 6]), 10), 40)
+            .unwrap_err();
+        let state = &error.details.unwrap()["status"]["state"];
+        assert_eq!(state["dirty"], false);
+        assert!(state["readError"].is_string());
+
+        let reads = runtime.backend.reads;
+        runtime
+            .handle(1000, 7, "rgb_status", &json!({}), 50)
+            .unwrap();
+        assert_eq!(runtime.backend.reads, reads);
+        runtime.backend.fail_read = false;
+        let view = runtime
+            .handle(1000, 7, "rgb_read", &identity(), 60)
+            .unwrap();
+        assert_eq!(runtime.backend.reads, reads + 1);
+        assert_eq!(runtime.backend.writes.len(), 2);
+        assert!(view["status"]["holding"].is_null());
+        assert!(view["status"]["state"]["readError"].is_null());
+        assert_eq!(
+            view["status"]["state"]["recoveryConfirmationSource"],
+            "userVisual"
+        );
+        assert_eq!(view["status"]["observationSource"], "operation_readback");
+        apply(&mut runtime, 70, color([4, 5, 6]), 10);
+    }
+
+    #[test]
     fn samme_uid_kan_bekrefte_etter_klienttap_men_ikke_drift_eller_io() {
         for fault in 0..3 {
             let mut runtime = setup();
@@ -934,7 +1056,7 @@ mod tests {
                 2 => runtime.backend.fail_ack = true,
                 _ => {}
             }
-            let result = runtime.handle(1000, 8, "rgb_ack_recovery", &ack_args(), 30);
+            let result = runtime.handle(1000, 8, "rgb_ack_recovery", &ack_args(&runtime), 30);
             assert_eq!(result.is_ok(), fault == 0);
             assert_eq!(runtime.backend.acknowledgments, usize::from(fault == 0));
             assert_eq!(runtime.backend.writes.len(), 2);
@@ -958,7 +1080,7 @@ mod tests {
                 1000,
                 7,
                 "rgb_ack_recovery",
-                &ack_args_for(color([4, 5, 6])),
+                &ack_args_for(&runtime, color([4, 5, 6])),
                 4,
             )
             .unwrap();
@@ -976,7 +1098,7 @@ mod tests {
                 1000,
                 7,
                 "rgb_ack_recovery",
-                &ack_args_for(color([4, 5, 6])),
+                &ack_args_for(&runtime, color([4, 5, 6])),
                 5 + LEASE_MS,
             )
             .unwrap_err();
@@ -994,7 +1116,7 @@ mod tests {
                     1000,
                     8,
                     "rgb_ack_recovery",
-                    &ack_args_for(color([4, 5, 6])),
+                    &ack_args_for(&runtime, color([4, 5, 6])),
                     6 + LEASE_MS
                 )
                 .unwrap_err()
@@ -1453,7 +1575,7 @@ mod tests {
             .handle(1000, 7, "rgb_reset", &identity(), 2)
             .unwrap();
         runtime
-            .handle(1000, 7, "rgb_ack_recovery", &ack_args(), 3)
+            .handle(1000, 7, "rgb_ack_recovery", &ack_args(&runtime), 3)
             .unwrap();
         start_effect(&mut runtime, Effect::Rainbow, 4);
         assert_eq!(

@@ -1,4 +1,2 @@
-#!/bin/bash
-set -euo pipefail
-here=$(dirname "$(readlink -f "$0")")
-exec /usr/bin/python3 -I "$here/rgb-admin.py" deactivate "$@"
+#!/bin/sh
+exec /usr/bin/python3 -I /usr/local/libexec/agentic-rigg-rgb-v2/rgb-admin.py deactivate "$@"

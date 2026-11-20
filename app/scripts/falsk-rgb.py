@@ -20,6 +20,7 @@ import stat
 import struct
 import sys
 import time
+import uuid
 
 
 MARKER = "agentic-rigg-rgb-fake-v1"
@@ -152,20 +153,28 @@ class FakeState:
         self.observation_source = "stored_baseline"
         self.last_outcome = None
         self.sequence = 1
+        self.instance_id = uuid.uuid4().hex
+        self.recovery_attempt = 0
         self.effect = None
         self.effect_seed = None
         self.effect_start = None
         self.effect_frame = None
+
+    def recovery_id(self):
+        if self.recovery == "readable_fields_match" and self.confirmation_source is None:
+            return f"{self.instance_id}-{self.recovery_attempt}"
+        return None
 
     def status(self):
         return {
             "testMarker": MARKER,
             "helper": {
                 "name": "agentic-rigg-rgb-helper", "domain": "palit_rgb",
-                "protocol": 1, "build": self.build, "version": "testfixture",
+                "protocol": 2, "build": self.build, "version": "testfixture",
             },
             "identity": copy.deepcopy(BINDING),
             "authorized": True,
+            "recoveryId": self.recovery_id(),
             "softwareEffects": list(SOFTWARE_EFFECTS),
             "effect": self.effect,
             "holding": None if self.owner is None else {
@@ -202,6 +211,7 @@ class FakeState:
         self.observed = observed(target)
         self.observation_source = "operation_readback"
         self.recovery = "readable_fields_match"
+        self.recovery_attempt += 1
         self.confirmation_source = None
         self.error = None
         self.dirty = True
@@ -244,9 +254,10 @@ class FakeState:
             "rgb_confirm": ("gpu", "uuid", "txn"),
             "rgb_revert": ("gpu", "uuid", "txn"),
             "rgb_reset": ("gpu", "uuid"),
+            "rgb_read": ("gpu", "uuid"),
             "rgb_release": ("gpu", "uuid"),
             "rgb_heartbeat": ("gpu", "uuid"),
-            "rgb_ack_recovery": ("gpu", "uuid", "confirmedStatic", "expected"),
+            "rgb_ack_recovery": ("gpu", "uuid", "confirmedStatic", "expected", "recoveryId"),
         }
         if op not in shapes:
             raise RpcError("unknown_op", "Ukjent operasjon i RGB-fixturen.")
@@ -271,7 +282,7 @@ class FakeState:
             color_request(args["expected"])
             if args["confirmedStatic"] is not True:
                 raise RpcError("invalid_argument", "Visuell bekreftelse mangler.")
-        changed_at_deadline = self.tick(now)
+        self.tick(now)
         result = None
         if op == "rgb_apply":
             self.require_owner(sid, allow_unowned=True)
@@ -331,9 +342,17 @@ class FakeState:
             self.require_owner(sid, allow_unowned=True)
             if self.dirty:
                 result = self.recovery_to(BASELINE, "reset")
+            else:
+                self.observed = observed(self.confirmed)
+                self.observation_source = "operation_readback"
+        elif op == "rgb_read":
+            if self.dirty:
+                raise RpcError("write_locked", "Ny feltlesing krever en ren økt.")
+            self.observed = observed(self.confirmed)
+            self.observation_source = "operation_readback"
         elif op == "rgb_ack_recovery":
             self.require_owner(sid, allow_unowned=True)
-            if changed_at_deadline or args["expected"] != self.confirmed:
+            if args["recoveryId"] != self.recovery_id() or args["expected"] != self.confirmed:
                 raise RpcError("write_locked", "Målet er endret siden bekreftelsen ble åpnet.")
             if (not self.dirty or self.pending or self.error
                     or self.recovery != "readable_fields_match"

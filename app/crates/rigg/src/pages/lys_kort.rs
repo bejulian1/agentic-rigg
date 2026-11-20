@@ -58,6 +58,7 @@ pub(super) struct CardLight {
 enum AdminAction {
     Activate,
     Deactivate,
+    Inspect,
     Resolve,
     Restore,
 }
@@ -67,7 +68,7 @@ impl AdminAction {
         match self {
             Self::Activate => "rgb-aktiver.sh",
             Self::Deactivate => "rgb-deaktiver.sh",
-            Self::Resolve => "rgb-avklar.sh",
+            Self::Inspect | Self::Resolve => "rgb-avklar.sh",
             Self::Restore => "rgb-gjenopprett.sh",
         }
     }
@@ -106,6 +107,7 @@ fn clean_effect_start(status: &Value) -> bool {
         && state["owner"].is_null()
         && state["pending"].is_null()
         && state["error"].is_null()
+        && state["readError"].is_null()
         && status["effect"].is_null()
         && (state["recovery"].is_null()
             || state["recovery"] == "verified"
@@ -455,7 +457,16 @@ impl CardLight {
         let weak = Rc::downgrade(self);
         self.refresh.connect_clicked(move |_| {
             if let Some(p) = weak.upgrade() {
-                p.refresh();
+                let clean = {
+                    let helper = p.helper.borrow();
+                    bound_status(&helper, selected_identity(&p.app).as_ref())
+                        && helper["status"]["state"]["dirty"] == false
+                };
+                if clean {
+                    p.operation("rgb_read", json!({}));
+                } else {
+                    p.refresh();
+                }
             }
         });
         for (button, op) in [
@@ -474,7 +485,7 @@ impl CardLight {
         for (button, action) in [
             (&self.activate, AdminAction::Activate),
             (&self.deactivate, AdminAction::Deactivate),
-            (&self.resolve, AdminAction::Resolve),
+            (&self.resolve, AdminAction::Inspect),
             (&self.repair, AdminAction::Restore),
         ] {
             let weak = Rc::downgrade(self);
@@ -487,7 +498,11 @@ impl CardLight {
         let weak = Rc::downgrade(self);
         self.ack.connect_clicked(move |_| {
             let Some(p) = weak.upgrade() else { return };
-            let expected = p.helper.borrow()["status"]["state"]["confirmed"].clone();
+            let status = p.helper.borrow()["status"].clone();
+            let expected = status["state"]["confirmed"].clone();
+            let Some(recovery_id) = status["recoveryId"].as_str().map(str::to_owned) else {
+                return;
+            };
             let selected = selected_identity(&p.app);
             let check = if expected["mode"] == "off" {
                 "Jeg ser at lyset på kortet er slukket."
@@ -497,12 +512,13 @@ impl CardLight {
                 let Some(p) = w.upgrade() else { return };
                 if selected_identity(&p.app) != selected
                     || p.helper.borrow()["status"]["state"]["confirmed"] != expected
+                    || p.helper.borrow()["status"]["recoveryId"] != recovery_id
                 {
                     p.app.toast(Toast::new("Lystilstanden er endret").body("Kontroller det nye forventede lyset og åpne bekreftelsen på nytt."));
                     p.refresh();
                     return;
                 }
-                p.operation("rgb_ack_recovery", json!({"confirmedStatic": true, "expected": expected}));
+                p.operation("rgb_ack_recovery", json!({"confirmedStatic": true, "expected": expected, "recoveryId": recovery_id}));
             });
         });
         let weak = Rc::downgrade(self);
@@ -721,6 +737,7 @@ impl CardLight {
         let chosen_effect = effect_name(&selected_mode);
         let visually_confirmed = state["recoveryConfirmationSource"] == "userVisual";
         let blocked = state["error"].is_string()
+            || state["readError"].is_string()
             || matches!(state["recovery"].as_str(), Some("unknown" | "mismatch"))
             || (state["recovery"] == "readable_fields_match" && !visually_confirmed);
         let available = connected && bound && !self.busy.get() && helper["busy"] != true;
@@ -778,7 +795,7 @@ impl CardLight {
         set_text(&self.summary, &message);
         set_text(
             &self.identity,
-            &selected.map_or_else(
+            &selected.as_ref().map_or_else(
                 || "Venter på kortets PCI-adresse og UUID.".into(),
                 |(pci, _)| format!("Valgt kort: {pci} · én fysisk lyssone"),
             ),
@@ -852,7 +869,9 @@ impl CardLight {
             ),
         );
         self.confirmed.set_visible(bound);
-        let recovery = if visually_confirmed {
+        let recovery = if let Some(error) = state["readError"].as_str() {
+            error.to_string()
+        } else if visually_confirmed {
             "Gjenopprettingen er bekreftet av deg. Effektmodusen er fortsatt ikke maskinelt avlest."
                 .to_string()
         } else if let Some(error) = state["error"].as_str() {
@@ -928,10 +947,10 @@ impl CardLight {
         self.refresh
             .set_sensitive(connected && !self.reading.get() && !self.busy.get());
         self.activate.set_visible(!bound);
-        let activation = admin_paths(&self.app, AdminAction::Activate);
-        let resolution = admin_paths(&self.app, AdminAction::Resolve);
-        let restoration = admin_paths(&self.app, AdminAction::Restore);
-        let deactivation = admin_paths(&self.app, AdminAction::Deactivate);
+        let activation = admin_paths(&self.app, &helper, AdminAction::Activate);
+        let resolution = admin_paths(&self.app, &helper, AdminAction::Resolve);
+        let restoration = admin_paths(&self.app, &helper, AdminAction::Restore);
+        let deactivation = admin_paths(&self.app, &helper, AdminAction::Deactivate);
         let admin_available = connected
             && present
             && !self.busy.get()
@@ -952,14 +971,20 @@ impl CardLight {
         self.repair
             .set_sensitive(admin_available && restoration.is_ok());
         self.repair.set_tooltip_text(restoration.err().as_deref());
-        self.deactivate
-            .set_visible(bound && state["dirty"] == false && !pending && !blocked);
-        self.deactivate
-            .set_sensitive(available && present && deactivation.is_ok());
+        let offline = matches!(helper["state"].as_str(), Some("off" | "error" | "outdated"));
+        self.deactivate.set_visible(
+            (bound && state["dirty"] == false && !pending) || (offline && deactivation.is_ok()),
+        );
+        self.deactivate.set_sensitive(
+            connected && !self.busy.get() && !other && selected.is_some() && deactivation.is_ok(),
+        );
         self.deactivate
             .set_tooltip_text(deactivation.err().as_deref());
-        self.reset
-            .set_visible(bound && state["dirty"] == true && worker_effect.is_none());
+        self.reset.set_visible(
+            bound
+                && worker_effect.is_none()
+                && (state["dirty"] == true || state["readError"].is_string()),
+        );
         self.reset.set_sensitive(available && !pending);
         self.release.set_visible(bound && owned);
         self.release.set_sensitive(available);
@@ -970,7 +995,7 @@ impl CardLight {
         });
         self.release.set_tooltip_text(Some("Gjenopprett det lagrede utgangspunktet og frigi lysstyringen. Se på kortet før du bekrefter gjenopprettingen."));
         self.ack
-            .set_visible(bound && state["recoveryNeedsConfirmation"] == true);
+            .set_visible(bound && status["recoveryId"].is_string());
         self.ack.set_sensitive(available && !pending);
         if let Some(shell) = self.app.shell.get() {
             shell.topbar.set_locked("lys", false);
@@ -978,13 +1003,13 @@ impl CardLight {
     }
 
     fn admin_dialog(self: &Rc<Self>, action: AdminAction) {
-        if self.busy.get() || !card_present(&self.app) {
+        if self.busy.get() || (action != AdminAction::Deactivate && !card_present(&self.app)) {
             return;
         }
         let Some(identity) = selected_identity(&self.app) else {
             return;
         };
-        if let Err(error) = admin_paths(&self.app, action) {
+        if let Err(error) = admin_paths(&self.app, &self.helper.borrow(), action) {
             self.app.toast(
                 Toast::new("RGB-oppsettet er ikke klart")
                     .body(&error)
@@ -992,20 +1017,20 @@ impl CardLight {
             );
             return;
         }
+        if action == AdminAction::Inspect {
+            self.run_admin(action, identity, None);
+            return;
+        }
         let (title, text, check) = match action {
             AdminAction::Deactivate => (
                 "Slå av RGB-tilgang",
-                "Dette fjerner administratoraktiveringen for kortlyset. Hjelperen tillater det bare når ingen RGB-endring eller gjenoppretting gjenstår. Det lagrede utgangspunktet beholdes, og GPU-tillatelsen endres ikke.",
+                "Dette stopper RGB-arbeideren og fjerner kortets RGB-tillatelse når gjenopprettingen er avklart. Det lagrede utgangspunktet beholdes.",
                 "Jeg vil slå av RGB-tilgangen for dette kortet.",
             ),
-            AdminAction::Resolve => (
-                "Avklar tidligere RGB-økt",
-                "Se på kortet. Fortsett bare hvis lyset viser det opprinnelige, faste utgangspunktet. Hvis fargen er feil, effekten beveger seg eller utgangspunktet er ukjent, avbryt. Administratorhjelperen kontrollerer de lesbare verdiene før en gammel økt kan avsluttes.",
-                "Jeg ser at kortet viser det opprinnelige, faste utgangspunktet.",
-            ),
+            AdminAction::Inspect | AdminAction::Resolve => unreachable!("egen avklaringsdialog"),
             AdminAction::Restore => (
                 "Gjenopprett lagret lys",
-                "Dette ber administratorhjelperen om ett avgrenset forsøk på å skrive det lagrede utgangspunktet tilbake til kortet. Ingen ny farge velges her. Etterpå må du se på kortet og velge «Avklar tidligere økt»; et vellykket skrivekall beviser ikke effektmodusen.",
+                "Administratorhjelperen stopper RGB-arbeideren hvis den kjører. Hvis det finnes en uavklart journal, forsøker den deretter å gjenopprette det lagrede utgangspunktet. Kontroller lyset og velg «Avklar tidligere økt» etterpå.",
                 "Jeg vil gjenopprette det lagrede utgangspunktet på dette kortet.",
             ),
             AdminAction::Activate => (
@@ -1025,17 +1050,44 @@ impl CardLight {
                 if let Some(p) = weak.upgrade()
                     && selected_identity(&p.app).as_ref() == Some(&identity)
                 {
-                    p.run_admin(action, identity);
+                    p.run_admin(action, identity, None);
                 }
             },
         );
     }
 
-    fn run_admin(self: &Rc<Self>, action: AdminAction, identity: (String, String)) {
-        if self.fixture.get() || !card_present(&self.app) {
+    fn confirm_offline(self: &Rc<Self>, identity: (String, String), expected: &Value, id: String) {
+        let weak = Rc::downgrade(self);
+        confirm(
+            &self.app,
+            "Avklar tidligere RGB-økt",
+            &format!(
+                "Lagret lys for {}: {}.\n\nSe på kortet. Fortsett bare hvis lyset viser dette utgangspunktet som én fast farge.",
+                identity.0,
+                request_text(expected)
+            ),
+            "Jeg ser at kortlyset viser det lagrede, faste utgangspunktet.",
+            "Fortsett til administratorgodkjenning",
+            move || {
+                if let Some(p) = weak.upgrade()
+                    && selected_identity(&p.app).as_ref() == Some(&identity)
+                {
+                    p.run_admin(AdminAction::Resolve, identity, Some(id));
+                }
+            },
+        );
+    }
+
+    fn run_admin(
+        self: &Rc<Self>,
+        action: AdminAction,
+        identity: (String, String),
+        recovery_id: Option<String>,
+    ) {
+        if self.fixture.get() || (action != AdminAction::Deactivate && !card_present(&self.app)) {
             return;
         }
-        let Ok((pkexec, script)) = admin_paths(&self.app, action) else {
+        let Ok((pkexec, script)) = admin_paths(&self.app, &self.helper.borrow(), action) else {
             return;
         };
         if self.busy.replace(true) {
@@ -1047,13 +1099,23 @@ impl CardLight {
             pkexec.into_os_string(),
             script.into_os_string(),
             "--pci".into(),
-            identity.0.into(),
+            identity.0.clone().into(),
             "--uuid".into(),
-            identity.1.into(),
+            identity.1.clone().into(),
         ];
         match action {
             AdminAction::Restore => argv.push("--restore-original".into()),
-            AdminAction::Activate | AdminAction::Resolve => argv.push("--static-confirmed".into()),
+            AdminAction::Activate => argv.push("--static-confirmed".into()),
+            AdminAction::Inspect => argv.push("--inspect".into()),
+            AdminAction::Resolve => {
+                argv.extend([
+                    "--static-confirmed".into(),
+                    "--recovery-id".into(),
+                    recovery_id
+                        .expect("avklaringsdialogen har en identitet")
+                        .into(),
+                ]);
+            }
             AdminAction::Deactivate => {}
         }
         let argv: Vec<&std::ffi::OsStr> = argv.iter().map(|s| s.as_os_str()).collect();
@@ -1062,7 +1124,7 @@ impl CardLight {
         #[allow(clippy::disallowed_methods)]
         let result = gtk::gio::Subprocess::newv(
             &argv,
-            gtk::gio::SubprocessFlags::STDOUT_SILENCE | gtk::gio::SubprocessFlags::STDERR_PIPE,
+            gtk::gio::SubprocessFlags::STDOUT_PIPE | gtk::gio::SubprocessFlags::STDERR_PIPE,
         );
         let proc = match result {
             Ok(proc) => proc,
@@ -1078,10 +1140,29 @@ impl CardLight {
             let result = proc.communicate_utf8_future(None).await;
             let Some(p) = weak.upgrade() else { return };
             p.busy.set(false);
-            let code = if proc.has_exited() { proc.exit_status() } else { 1 };
-            let error = result.ok().and_then(|(_, err)| err).map(|s| s.to_string()).unwrap_or_default();
+            let mut code = if result.is_ok() && proc.has_exited() { proc.exit_status() } else { 1 };
+            let (output, error) = result.unwrap_or_default();
+            let mut error = error.map(|value| value.to_string()).unwrap_or_default();
+            if code == 0 && action == AdminAction::Inspect {
+                let report = output.and_then(|out| serde_json::from_str::<Value>(&out).ok());
+                if let Some(report) = &report
+                    && let Some(id) = report["recoveryId"].as_str()
+                    && serde_json::from_value::<Request>(report["expected"].clone()).is_ok()
+                    && selected_identity(&p.app).as_ref() == Some(&identity)
+                {
+                    p.render();
+                    p.confirm_offline(identity, &report["expected"], id.to_owned());
+                    return;
+                }
+                if !matches!(report, Some(Value::Object(fields)) if fields.is_empty()) {
+                    code = 1;
+                    error = "Avklaringsmålet er ugyldig eller gjelder et annet valgt kort.".into();
+                }
+            }
             let message = match code {
-                0 if action == AdminAction::Restore => "Gjenopprettingsforsøket er utført. Se på kortet og velg «Avklar tidligere økt» når utgangspunktet stemmer.".to_string(),
+                0 if action == AdminAction::Restore => "RGB-arbeideren er stoppet. Kontroller lyset og velg «Avklar tidligere økt» hvis en gjenoppretting gjenstår.".to_string(),
+                0 if action == AdminAction::Inspect => "Ingen uavklart RGB-journal for kortet. Du kan slå av RGB-tilgangen.".to_string(),
+                0 if action == AdminAction::Resolve => "Gjenopprettingen er avklart. Du kan slå av RGB-tilgangen eller aktivere lysstyring på nytt.".to_string(),
                 0 if action == AdminAction::Deactivate => "RGB-tilgangen er slått av. Den lokale forhåndsvisningen kan fortsatt brukes.".to_string(),
                 0 => "RGB-oppsettet er oppdatert. Kontroller status før du bruker en farge.".to_string(),
                 126 => "Administratorgodkjenningen ble avbrutt.".to_string(),
@@ -1095,58 +1176,41 @@ impl CardLight {
     }
 }
 
-fn admin_paths(app: &App, action: AdminAction) -> Result<(PathBuf, PathBuf), String> {
-    if flow_requested(app) {
-        return Err("Administratorhandlinger er sperret i RGB-funksjonsprøven.".into());
-    }
-    let name = action.script();
-    let (pkexec, data) = if app.profile.is_dev() {
-        let get = |key| {
-            std::env::var_os(key).filter(|v| !v.is_empty()).map(PathBuf::from).ok_or_else(|| "Utviklerprofilen krever egne, falske RGB-hjelperstier. Ingen systemaktivering er tilgjengelig her.".to_string())
-        };
-        let pkexec = get("RIGG_PKEXEC")?;
-        let data = get("RIGG_HJELPER_DATA")?;
-        let root = get("RIGG_HJELPER_ROT")?;
-        if !pkexec.is_absolute()
-            || !data.is_absolute()
-            || !root.is_absolute()
-            || std::fs::canonicalize(&root)
-                .ok()
-                .is_none_or(|p| p == Path::new("/"))
-            || std::fs::canonicalize(&pkexec)
-                .ok()
-                .is_none_or(|p| p == Path::new("/usr/bin/pkexec") || p == Path::new("/bin/pkexec"))
-        {
-            return Err(
-                "Utviklerprofilen trenger en eksisterende privat rot og en falsk pkexec.".into(),
-            );
-        }
-        (pkexec, data)
-    } else {
-        let data = std::env::var_os("XDG_DATA_HOME")
-            .filter(|v| !v.is_empty())
-            .map(PathBuf::from)
-            .unwrap_or_else(|| {
-                PathBuf::from(std::env::var_os("HOME").unwrap_or_default()).join(".local/share")
-            });
-        (
-            PathBuf::from("/usr/bin/pkexec"),
-            data.join("agentic-rigg/hjelper"),
-        )
-    };
-    let installed = rgb_auth::Paths::new("/").libexec(name);
-    let script = if !app.profile.is_dev() && action != AdminAction::Activate && installed.is_file()
-    {
-        installed
-    } else {
-        data.join(name)
-    };
-    if !script.is_file() {
+fn admin_paths(
+    app: &App,
+    helper: &Value,
+    action: AdminAction,
+) -> Result<(PathBuf, PathBuf), String> {
+    if app.profile.is_dev() || helper["systemAdmin"] != true {
         return Err(
-            "RGB-hjelperfilene mangler. Installer en utgave som inkluderer RGB-oppsettet.".into(),
+            "Administratorhandlinger for RGB krever appens vanlige maskinvareoppsett.".into(),
         );
     }
+    let pkexec = PathBuf::from("/usr/bin/pkexec");
+    let script = rgb_auth::Paths::new("/").libexec(action.script());
+    if [pkexec.as_path(), &script, Path::new(rgb_auth::POLICY_PATH)]
+        .into_iter()
+        .any(|path| !trusted_system_file(path))
+    {
+        return Err("En administrator må først installere de betrodde RGB-komponentene. Se RGB-HJELPER.md i apppakken.".into());
+    }
     Ok((pkexec, script))
+}
+
+fn trusted_system_file(path: &Path) -> bool {
+    use std::os::unix::fs::MetadataExt;
+
+    path.ancestors().enumerate().all(|(index, part)| {
+        std::fs::symlink_metadata(part).is_ok_and(|info| {
+            info.uid() == 0
+                && info.mode() & 0o022 == 0
+                && if index == 0 {
+                    info.is_file()
+                } else {
+                    info.is_dir()
+                }
+        })
+    })
 }
 
 fn confirm(
@@ -1224,7 +1288,7 @@ pub(crate) fn debug_flow(step: &str) {
                 assert_eq!(state["dirty"], false);
                 assert!(state["pending"].is_null());
                 assert_ne!(state["confirmed"]["mode"], "off");
-                assert!(admin_paths(&p.app, AdminAction::Activate).is_err());
+                assert!(admin_paths(&p.app, &helper, AdminAction::Activate).is_err());
                 FLOW_INITIAL.with(|v| *v.borrow_mut() = state.clone());
             }
             "edit" => {
@@ -1333,7 +1397,8 @@ pub(crate) fn debug_flow(step: &str) {
             // velger aldri et skrivemål og er bare tilgjengelig i fake-flow.
             "stale_ack" => p.operation(
                 "rgb_ack_recovery",
-                json!({"confirmedStatic":true,"expected":{"mode":"off"}}),
+                json!({"confirmedStatic":true,"expected":{"mode":"off"},
+                    "recoveryId":helper["status"]["recoveryId"]}),
             ),
             "stale_rejected" => {
                 assert!(
@@ -1441,6 +1506,7 @@ pub(crate) fn debug_fixture(kind: &str) {
                     value["status"]["state"]["recovery"] = json!("readable_fields_match");
                     value["status"]["state"]["recoveryNeedsConfirmation"] = json!(kind == "recovery");
                     if kind == "confirmed" { value["status"]["state"]["recoveryConfirmationSource"] = json!("userVisual"); }
+                    else { value["status"]["recoveryId"] = json!("rgb-visningsfixture-1"); }
                 }
                 "error" => value = json!({"state":"error","owned":false,"busy":false,"message":"RecoveryRequired: En tidligere RGB-økt må avklares. Ingen automatisk endring er utført.","status":null}),
                 "effect_error" => {
@@ -1450,6 +1516,7 @@ pub(crate) fn debug_fixture(kind: &str) {
                     value["status"]["state"]["dirty"] = json!(true);
                     value["status"]["state"]["recovery"] = json!("readable_fields_match");
                     value["status"]["state"]["recoveryNeedsConfirmation"] = json!(true);
+                    value["status"]["recoveryId"] = json!("rgb-visningsfixture-1");
                 }
                 _ => {}
             }

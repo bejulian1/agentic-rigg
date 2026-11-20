@@ -146,12 +146,17 @@ fi
 #    kjører «pkexec $hjelper_dir/aktiver.sh», som kopierer dem dit bare root
 #    kan skrive (docs/produksjon/hjelper-sikkerhet.md).
 install -Dm755 "$bin_src/agentic-rigg-helper" "$hjelper_dir/agentic-rigg-helper"
-for f in aktiver.sh deaktiver.sh trinn.sh rgb-aktiver.sh rgb-deaktiver.sh rgb-avklar.sh rgb-gjenopprett.sh rgb-admin.py; do
+for f in aktiver.sh deaktiver.sh trinn.sh; do
     install -Dm755 "$here/data/hjelper/$f" "$hjelper_dir/$f"
 done
-for f in agentic-rigg-helper.service io.github.AgenticRigg.helper.policy agentic-rigg-rgb.service io.github.AgenticRigg.rgb.policy; do
+for f in agentic-rigg-helper.service io.github.AgenticRigg.helper.policy; do
     install -Dm644 "$here/data/hjelper/$f" "$hjelper_dir/$f"
 done
+if [ -f "$here/RGB-HJELPER.md" ]; then
+    install -Dm644 "$here/RGB-HJELPER.md" "$doc_dir/RGB-HJELPER.md"
+elif [ -f "$here/../docs/produksjon/rgb-hjelper.md" ]; then
+    install -Dm644 "$here/../docs/produksjon/rgb-hjelper.md" "$doc_dir/RGB-HJELPER.md"
+fi
 
 # 6. Programlisten.
 if command -v update-desktop-database >/dev/null; then

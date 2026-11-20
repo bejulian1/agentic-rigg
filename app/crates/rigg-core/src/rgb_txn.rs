@@ -65,6 +65,11 @@ pub trait Backend {
     fn read(&mut self, binding: &Binding) -> Result<Observed, String>;
     /// Atomisk, privat og varig før `Ok`; skal bevare tidligere dirty-tilstand.
     fn mark_dirty(&mut self, journal: &Journal) -> Result<(), String>;
+    /// Etter en lagringsfeil kan en omdøping eller sletting være synlig.
+    /// En adapter må beholde ansvaret hvis trygg rydding ikke kan bekreftes.
+    fn journal_present(&self) -> Option<bool> {
+        None
+    }
     /// Sammenlign `expected_before` med fersk avlesning på samme bundne
     /// enhet rett før første setter. Samme fargeregistre kan ikke utelukke en
     /// ekstern effektendring når modus ikke kan leses. `Ok` er fersk avlesning.
@@ -149,6 +154,8 @@ pub struct Snapshot {
     pub recovery: Option<RecoveryReadback>,
     pub recovery_needs_confirmation: bool,
     pub recovery_confirmation_source: Option<RecoveryConfirmationSource>,
+    pub recovery_attempt: Option<u64>,
+    pub read_error: Option<String>,
     pub error: Option<String>,
 }
 
@@ -261,6 +268,9 @@ pub struct Book {
     automatic_recovery_blocked: bool,
     recovery: Option<RecoveryReadback>,
     recovery_confirmation_source: Option<RecoveryConfirmationSource>,
+    recovery_attempt: u64,
+    current_recovery_attempt: Option<u64>,
+    read_error: Option<String>,
     error: Option<String>,
     next_txn: u64,
     last_ms: Option<u64>,
@@ -326,6 +336,9 @@ impl Book {
             automatic_recovery_blocked: false,
             recovery: None,
             recovery_confirmation_source: None,
+            recovery_attempt: 0,
+            current_recovery_attempt: None,
+            read_error: None,
             error: None,
             next_txn: 1,
             last_ms: None,
@@ -346,12 +359,15 @@ impl Book {
                 == Some(RecoveryReadback::ReadableFieldsMatch)
                 && self.recovery_confirmation_source.is_none(),
             recovery_confirmation_source: self.recovery_confirmation_source,
+            recovery_attempt: self.current_recovery_attempt,
+            read_error: self.read_error.clone(),
             error: self.error.clone(),
         }
     }
 
     fn blocked(&self) -> bool {
         self.error.is_some()
+            || self.read_error.is_some()
             || self.recovery.is_some_and(|r| {
                 r != RecoveryReadback::Verified && self.recovery_confirmation_source.is_none()
             })
@@ -369,11 +385,14 @@ impl Book {
                         Some("Lyset har endret seg etter den visuelle bekreftelsen.".into());
                 }
                 self.observed = observed;
+                self.read_error = None;
                 Ok(())
             }
             Err(message) => {
                 self.observed = Observed::default();
-                if self.recovery_confirmation_source.take().is_some() {
+                if !self.dirty {
+                    self.read_error = Some(format!("Fersk RGB-lesing feilet: {message}"));
+                } else if self.recovery_confirmation_source.take().is_some() {
                     self.recovery = Some(RecoveryReadback::Unknown);
                     self.error = Some("Fersk lesing etter visuell bekreftelse feilet.".into());
                 }
@@ -383,6 +402,19 @@ impl Book {
                 })
             }
         }
+    }
+
+    /// Eksplisitt ny feltlesing for en ren økt. Endrer verken lys eller lease.
+    pub fn read_clean<B: Backend>(&mut self, backend: &mut B) -> Result<(), Error> {
+        if self.dirty || self.pending.is_some() || self.owner.is_some() {
+            return Err(Error::RecoveryRequired);
+        }
+        self.observe(backend)?;
+        let readback = request_readback(&self.confirmed, &self.observed);
+        if !matched(readback) {
+            return Err(Error::Readback(readback));
+        }
+        Ok(())
     }
 
     /// `now_ms` er monoton tid levert av kalleren, aldri veggklokke. Produksjon
@@ -473,18 +505,27 @@ impl Book {
             owner,
             txn: pending.txn,
         };
-        backend
-            .mark_dirty(&journal)
-            .map_err(|message| Error::Backend {
+        if let Err(message) = backend.mark_dirty(&journal) {
+            if backend.journal_present() == Some(true) {
+                self.dirty = true;
+                self.automatic_recovery_blocked = true;
+                self.current_recovery_attempt = None;
+                self.recovery = Some(RecoveryReadback::Unknown);
+                self.recovery_confirmation_source = None;
+                self.error = Some(format!("RGB-journalen er uavklart: {message}"));
+            }
+            return Err(Error::Backend {
                 operation: "journalføring",
                 message,
-            })?;
+            });
+        }
         self.dirty = true;
         self.owner = Some(owner);
         self.next_txn = next;
         self.pending = Some(pending.clone());
         self.recovery = None;
         self.recovery_confirmation_source = None;
+        self.current_recovery_attempt = None;
         let result = backend.apply(
             self.baseline.binding(),
             &request,
@@ -792,6 +833,11 @@ impl Book {
             &self.baseline,
         ) {
             self.error = Some(format!("Brukerbekreftelsen kunne ikke lagres: {message}"));
+            if original && backend.journal_present() == Some(false) {
+                self.dirty = false;
+                self.may_have_written = false;
+                self.owner = None;
+            }
             return Err(Error::Backend {
                 operation: "brukerbekreftelse",
                 message,
@@ -820,6 +866,10 @@ impl Book {
         txn: Option<u64>,
         reason: Reason,
     ) -> Outcome {
+        self.current_recovery_attempt = self.recovery_attempt.checked_add(1);
+        if let Some(attempt) = self.current_recovery_attempt {
+            self.recovery_attempt = attempt;
+        }
         self.automatic_recovery_blocked = false;
         self.pending = None;
         self.recovery = Some(RecoveryReadback::Unknown);

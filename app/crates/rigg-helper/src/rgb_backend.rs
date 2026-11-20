@@ -3,7 +3,7 @@
 
 use crate::rgb_store::{
     EvidenceContext, Operation, Phase, PrivateStore, StoredJournal, VisualEvidence, fields_match,
-    load_authorization,
+    load_authorization, load_recovery_authorization, new_recovery_id,
 };
 use rigg_core::rgb::{
     Baseline, BaselineSource, Binding, Discovery, DiscoveryState, Observed, RecoveryReadback,
@@ -172,7 +172,7 @@ impl NativeBackend {
 
     fn current_authorization(&self) -> Result<(), String> {
         if self.production {
-            let current = load_authorization(Path::new(rgb_auth::CONFIG_PATH))?;
+            let current = load_recovery_authorization()?;
             if current != self.authorization {
                 return Err("RGB-tillatelsen er endret eller tilbakekalt.".into());
             }
@@ -187,7 +187,7 @@ impl NativeBackend {
         if !confirmed || unsafe { libc::geteuid() } != 0 {
             return Err("RGB-restartavklaring krever eksplisitt administratorbekreftelse.".into());
         }
-        let authorization = load_authorization(Path::new(rgb_auth::CONFIG_PATH))?;
+        let authorization = load_recovery_authorization()?;
         if uid == 0
             || uid != authorization.uid()
             || pci != authorization.binding().pci
@@ -215,7 +215,6 @@ impl NativeBackend {
         let baseline = store.baseline()?;
         if baseline.source() != BaselineSource::UserConfirmedStatic
             || baseline.binding() != authorization.binding()
-            || !rgb_auth::compatible_build(authorization.build())
         {
             return Err(
                 "RGB-restartavklaring mangler samme brukerbekreftede original og kortbinding."
@@ -247,9 +246,48 @@ impl NativeBackend {
         uid: u32,
         pci: &str,
         uuid: &str,
-        confirmed_static: bool,
+        recovery_id: &str,
     ) -> Result<VisualEvidence, String> {
-        Self::open_resolution(uid, pci, uuid, confirmed_static)?.resolve_original()
+        Self::open_resolution(uid, pci, uuid, true)?.resolve_for(recovery_id)
+    }
+
+    pub fn inspect_production(
+        uid: u32,
+        pci: &str,
+        uuid: &str,
+    ) -> Result<(Request, String), String> {
+        Self::open_resolution(uid, pci, uuid, true)?.inspect_original()
+    }
+
+    fn inspect_original(&mut self) -> Result<(Request, String), String> {
+        let mut record = self.record.clone().ok_or("RGB-journalen mangler.")?;
+        let id = match record.recovery_id.clone() {
+            Some(id) => id,
+            None => {
+                // Journal fra protokoll 1. Ingen feltlesing eller setter.
+                let id = new_recovery_id()?;
+                record.recovery_id = Some(id.clone());
+                self.persist(record)?;
+                id
+            }
+        };
+        let target = Book::new(self.baseline.clone())
+            .map_err(|error| error.to_string())?
+            .snapshot()
+            .confirmed;
+        Ok((target, id))
+    }
+
+    fn resolve_for(&mut self, recovery_id: &str) -> Result<VisualEvidence, String> {
+        if self
+            .record
+            .as_ref()
+            .and_then(|record| record.recovery_id.as_deref())
+            != Some(recovery_id)
+        {
+            return Err("RGB-bekreftelsen gjelder et tidligere forsøk. Hent utgangspunktet og se på kortet på nytt.".into());
+        }
+        self.resolve_original()
     }
 
     fn resolve_original(&mut self) -> Result<VisualEvidence, String> {
@@ -405,6 +443,7 @@ impl Backend for NativeBackend {
         if journal.baseline != self.baseline {
             return Err("RGB-journalen kan ikke erstatte det opprinnelige grunnopptaket.".into());
         }
+        self.store.visual_evidence(&self.baseline)?;
         let previous = self.own_write_responsibility
             || self
                 .record
@@ -420,7 +459,12 @@ impl Backend for NativeBackend {
             target: journal.requested.clone(),
             phase: Phase::Prepared,
             prior_write_responsibility: previous,
+            recovery_id: Some(new_recovery_id()?),
         })
+    }
+
+    fn journal_present(&self) -> Option<bool> {
+        Some(self.record.is_some() || !matches!(self.store.journal(&self.baseline), Ok(None)))
     }
 
     fn apply(
@@ -525,6 +569,7 @@ impl Backend for NativeBackend {
         next.operation = Operation::Recover;
         next.target = request.clone();
         next.phase = Phase::Prepared;
+        next.recovery_id = Some(new_recovery_id().map_err(no_write)?);
         next.validate(baseline).map_err(no_write)?;
         self.last_recovery = None;
         self.last_read = None;
@@ -584,19 +629,27 @@ impl Backend for NativeBackend {
             observed,
             EvidenceContext::LiveRecovery,
         )?;
-        self.store.acknowledge_visual(baseline, record, &evidence)?;
+        let result = self.store.acknowledge_visual(baseline, record, &evidence);
         let original = Book::new(baseline.clone())
             .map_err(|e| e.to_string())?
             .snapshot()
             .confirmed;
-        if target == &original {
+        if target == &original
+            && (result.is_ok()
+                || (matches!(self.store.journal(baseline), Ok(None))
+                    && self
+                        .store
+                        .visual_evidence(baseline)
+                        .as_ref()
+                        .is_ok_and(|current| current.as_ref() == Some(&evidence))))
+        {
             self.record = None;
             self.own_write_responsibility = false;
             self.last_recovery = None;
             self.last_read = None;
             self.last_apply = None;
         }
-        Ok(())
+        result
     }
 }
 
@@ -604,7 +657,7 @@ impl Backend for NativeBackend {
 mod tests {
     use super::*;
     use crate::rgb_store::fixtures::{
-        self, Fixture, authorization, baseline, binding, journal, observed,
+        self, Fixture, authorization, baseline, binding, journal, observed, record,
     };
     use rigg_core::rgb::{Mode, Signature};
     use std::sync::atomic::{AtomicBool, Ordering};
@@ -1300,6 +1353,108 @@ mod tests {
                 .write_attempted
         );
         assert!(state.lock().unwrap().actions.is_empty());
+    }
+
+    #[test]
+    fn forste_journal_synlig_etter_mappefsync_feil_sperrer_automatisk_setter() {
+        let baseline = baseline();
+        let (_fixture, mut backend, hardware) = backend(&baseline);
+        let mut book = Book::new(baseline.clone()).unwrap();
+        backend
+            .store
+            .fail_directory_sync
+            .store(true, Ordering::Relaxed);
+        book.apply(&mut backend, 7, Request::Off {}, 10, 10_000)
+            .unwrap_err();
+        let disk = backend.store.journal(&baseline).unwrap().unwrap();
+        assert_eq!(disk.phase, Phase::Prepared);
+        assert_eq!(backend.record.as_ref(), Some(&disk));
+        let view = book.snapshot();
+        assert!(view.dirty);
+        assert!(view.error.is_some());
+        assert!(!view.may_have_written);
+        assert!(view.pending.is_none());
+        assert!(book.tick(&mut backend, 100_000).unwrap().is_none());
+        assert!(book.release(&mut backend).is_none());
+        assert_eq!(hardware.lock().unwrap().actions, ["read"]);
+
+        backend
+            .store
+            .fail_directory_sync
+            .store(false, Ordering::Relaxed);
+        hardware.lock().unwrap().result = Ok(observed());
+        assert!(book.restore_baseline(&mut backend).is_some());
+        assert_eq!(hardware.lock().unwrap().actions, ["read", "recover"]);
+    }
+
+    #[test]
+    fn ugyldig_eldre_kvittering_sperrer_forste_setter_og_journal() {
+        let baseline = baseline();
+        let (fixture, mut backend, hardware) = backend(&baseline);
+        fixture.write("visual-confirmation.json", b"{}");
+        let mut book = Book::new(baseline.clone()).unwrap();
+        let error = book
+            .apply(&mut backend, 7, Request::Off {}, 10, 10_000)
+            .unwrap_err();
+        assert!(error.to_string().contains("Ugyldig visuell RGB-kvittering"));
+        assert!(!book.snapshot().dirty);
+        assert!(backend.store.journal(&baseline).unwrap().is_none());
+        assert_eq!(hardware.lock().unwrap().actions, ["read"]);
+    }
+
+    #[test]
+    fn synlig_journalrydding_med_fsync_feil_svarer_feil_uten_dirty_status() {
+        let baseline = baseline();
+        let (_fixture, mut backend, hardware) = backend(&baseline);
+        let mut book = Book::new(baseline.clone()).unwrap();
+        let txn = book
+            .apply(&mut backend, 7, Request::Off {}, 10, 10_000)
+            .unwrap()
+            .txn
+            .unwrap();
+        hardware.lock().unwrap().result = Ok(observed());
+        book.revert(&mut backend, 7, txn, 20).unwrap();
+        backend
+            .store
+            .fail_sync_after_unlink
+            .store(true, Ordering::Relaxed);
+        assert!(book.ack_recovery(&mut backend, 7, 30).is_err());
+        assert!(backend.store.journal(&baseline).unwrap().is_none());
+        assert!(backend.store.visual_evidence(&baseline).unwrap().is_some());
+        assert!(!book.snapshot().dirty);
+        assert!(book.snapshot().error.is_some());
+        assert!(book.release(&mut backend).is_none());
+        assert_eq!(
+            hardware.lock().unwrap().actions,
+            ["read", "apply", "recover", "read"]
+        );
+    }
+
+    #[test]
+    fn avklaring_uten_arbeider_bindes_til_journalforsok_og_kjent_diskskjema() {
+        let baseline = baseline();
+        let f = Fixture::new();
+        let store = f.store(&baseline);
+        let initial = record(&baseline);
+        store.write_journal(&baseline, None, &initial).unwrap();
+        f.write("visual-confirmation.json", b"{}");
+        let (device, hardware) = hardware();
+        let auth = Authorization::new(1000, binding(), rigg_core::version::build() + 1).unwrap();
+        let mut backend = NativeBackend::from_existing(auth, store, device, false).unwrap();
+        let (expected, old_id) = backend.inspect_original().unwrap();
+        assert!(hardware.lock().unwrap().actions.is_empty());
+
+        hardware.lock().unwrap().result = Ok(observed());
+        backend.restore_original().unwrap();
+        let (new_target, new_id) = backend.inspect_original().unwrap();
+        assert_eq!(expected, new_target);
+        assert_ne!(old_id, new_id);
+        assert!(backend.resolve_for(&old_id).is_err());
+        assert_eq!(hardware.lock().unwrap().actions, ["recover"]);
+        backend.resolve_for(&new_id).unwrap();
+        assert_eq!(hardware.lock().unwrap().actions, ["recover", "read"]);
+        assert!(backend.store.journal(&baseline).unwrap().is_none());
+        assert!(backend.store.visual_evidence(&baseline).unwrap().is_some());
     }
 
     #[test]

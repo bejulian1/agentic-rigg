@@ -21,6 +21,18 @@ const VISUAL: &str = "visual-confirmation.json";
 const LIMIT: u64 = 65_536;
 static TEMP_ID: AtomicU64 = AtomicU64::new(1);
 
+pub(crate) fn new_recovery_id() -> Result<String, String> {
+    let mut bytes = [0; 16];
+    File::open("/dev/urandom")
+        .and_then(|mut file| file.read_exact(&mut bytes))
+        .map_err(|error| format!("Kunne ikke opprette RGB-identitet: {error}"))?;
+    Ok(format!("{:032x}", u128::from_ne_bytes(bytes)))
+}
+
+pub(crate) fn valid_recovery_id(id: &str) -> bool {
+    id.len() == 32 && id.bytes().all(|byte| byte.is_ascii_hexdigit())
+}
+
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub(crate) enum Phase {
@@ -47,11 +59,19 @@ pub(crate) struct StoredJournal {
     pub target: Request,
     pub phase: Phase,
     pub prior_write_responsibility: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub recovery_id: Option<String>,
 }
 
 impl StoredJournal {
     pub fn validate(&self, baseline: &Baseline) -> Result<(), String> {
-        if self.version != 1 || &self.journal.baseline != baseline {
+        if self.version != 1
+            || &self.journal.baseline != baseline
+            || self
+                .recovery_id
+                .as_deref()
+                .is_some_and(|id| !valid_recovery_id(id))
+        {
             return Err("RGB-journalens format eller opprinnelige grunnopptak er endret.".into());
         }
         self.journal.validate(baseline.binding())?;
@@ -190,9 +210,16 @@ pub(crate) fn load_authorization(path: &Path) -> Result<Authorization, String> {
     load_authorization_owned(path, 0, true)
 }
 
+/// Bare den allerede kjente, strenge diskmodellen brukes til administrativ
+/// gjenoppretting. Byggnummeret sperrer fortsatt enhver live-arbeider.
+pub(crate) fn load_recovery_authorization() -> Result<Authorization, String> {
+    read_authorization_owned(Path::new(rgb_auth::CONFIG_PATH), 0, true)
+}
+
 /// Bare eksplisitt administratoraktivering etter hjelperens egen ferske
 /// identifikasjon og menneskelig bekreftelse. Ingen automatisk capture her.
-/// Baseline skrives før tillatelsen; en eksisterende original erstattes aldri.
+/// Baseline skrives før tillatelsen. En tidligere ren økt arkiveres ved
+/// endret utgangspunkt; en eksisterende tillatelse beholder samme baseline.
 pub(crate) fn prepare_production(auth: &Authorization, baseline: &Baseline) -> Result<(), String> {
     require_root()?;
     ensure_production_directory(Path::new(STATE_DIR), true)?;
@@ -223,51 +250,61 @@ fn prepare_documents(
     }
     // Kontroller eksisterende tillatelse FØR en ny original eventuelt lagres.
     // En annen brukers/korts oppsett skal ikke etterlate en feil baseline.
-    let check_auth = || {
+    let check_auth = || -> Result<Option<Authorization>, String> {
         let current_dir = open_directory(auth_parent, store.owner, store.trusted_ancestors, false)?;
         let old = auth_directory.metadata().map_err(|e| e.to_string())?;
         let current = current_dir.metadata().map_err(|e| e.to_string())?;
         if (old.dev(), old.ino()) != (current.dev(), current.ino()) {
             return Err("RGB-tillatelsens mappe er byttet.".into());
         }
-        if let Some(text) = read_private(auth_directory, "rgb.json", store.owner)? {
-            let old = Authorization::parse(&text)?;
-            if old.uid() != auth.uid() || old.binding() != auth.binding() {
-                return Err(
-                    "Eksisterende RGB-tillatelse tilhører en annen bruker eller et annet kort."
-                        .into(),
-                );
-            }
+        let current = read_private(auth_directory, "rgb.json", store.owner)?
+            .map(|text| Authorization::parse(&text))
+            .transpose()?;
+        if let Some(old) = &current
+            && (old.uid() != auth.uid() || old.binding() != auth.binding())
+        {
+            return Err(
+                "Eksisterende RGB-tillatelse tilhører en annen bruker eller et annet kort.".into(),
+            );
         }
-        Ok(())
+        Ok(current)
     };
-    check_auth()?;
+    let previous_auth = check_auth()?;
     if read_private(&store.directory, JOURNAL, store.owner)?.is_some() {
         return Err("RecoveryRequired: eksisterende RGB-journal må avklares særskilt.".into());
     }
-    match store.baseline_optional()? {
-        Some(existing) if &existing != baseline => {
-            return Err(
-                "Det opprinnelige RGB-grunnopptaket kan ikke erstattes ved aktivering.".into(),
-            );
+    let previous_baseline = store.baseline_optional()?;
+    let invalid_receipt = previous_auth.is_none()
+        && previous_baseline
+            .as_ref()
+            .is_some_and(|previous| store.visual_evidence(previous).is_err());
+    if previous_baseline.as_ref() != Some(baseline) || invalid_receipt {
+        if let Some(existing) = &previous_baseline {
+            if previous_auth.is_some() {
+                return Err(
+                    "Slå av den rene RGB-tilgangen før et nytt utgangspunkt kan lagres.".into(),
+                );
+            }
+            store.archive_baseline(existing)?;
         }
-        Some(_) => {}
-        None => {
-            let bytes = serde_json::to_vec(baseline).map_err(|e| e.to_string())?;
-            store.replace(BASELINE, &bytes, || {
-                store.revalidate()?;
-                if store.baseline_optional()?.is_some()
-                    || read_private(&store.directory, JOURNAL, store.owner)?.is_some()
-                {
-                    return Err("RGB-tilstanden endret seg under forberedelsen.".into());
-                }
-                Ok(())
-            })?;
-        }
+        let bytes = serde_json::to_vec(baseline).map_err(|e| e.to_string())?;
+        store.replace(BASELINE, &bytes, || {
+            store.revalidate()?;
+            if store.baseline_optional()?.is_some()
+                || read_private(&store.directory, JOURNAL, store.owner)?.is_some()
+                || check_auth()? != previous_auth
+            {
+                return Err("RGB-tilstanden endret seg under forberedelsen.".into());
+            }
+            Ok(())
+        })?;
     }
     let check = || {
         store.validate_state(baseline, None)?;
-        check_auth()
+        if check_auth()? != previous_auth {
+            return Err("RGB-tillatelsen ble endret under forberedelsen.".into());
+        }
+        Ok(())
     };
     check()?;
     replace_private(
@@ -318,6 +355,18 @@ fn load_authorization_owned(
     owner: u32,
     trusted_ancestors: bool,
 ) -> Result<Authorization, String> {
+    let auth = read_authorization_owned(path, owner, trusted_ancestors)?;
+    if !rgb_auth::compatible_build(auth.build()) {
+        return Err("RGB-tillatelsen gjelder et inkompatibelt hjelperbygg.".into());
+    }
+    Ok(auth)
+}
+
+fn read_authorization_owned(
+    path: &Path,
+    owner: u32,
+    trusted_ancestors: bool,
+) -> Result<Authorization, String> {
     let parent = path.parent().ok_or("RGB-tillatelsen mangler mappe.")?;
     let name = path
         .file_name()
@@ -325,11 +374,7 @@ fn load_authorization_owned(
         .ok_or("Ugyldig filnavn for RGB-tillatelsen.")?;
     let dir = open_directory(parent, owner, trusted_ancestors, false)?;
     let text = read_private(&dir, name, owner)?.ok_or("RGB-tillatelsen mangler.")?;
-    let auth = Authorization::parse(&text)?;
-    if !rgb_auth::compatible_build(auth.build()) {
-        return Err("RGB-tillatelsen gjelder et inkompatibelt hjelperbygg.".into());
-    }
-    Ok(auth)
+    Authorization::parse(&text)
 }
 
 /// Produksjon bruker en fast root-eid mappe. Tester må uttrykkelig velge en
@@ -344,6 +389,8 @@ pub(crate) struct PrivateStore {
     pub fail_before_rename: std::sync::Arc<std::sync::atomic::AtomicBool>,
     #[cfg(test)]
     pub fail_directory_sync: std::sync::atomic::AtomicBool,
+    #[cfg(test)]
+    pub fail_sync_after_unlink: std::sync::atomic::AtomicBool,
 }
 
 impl PrivateStore {
@@ -383,6 +430,8 @@ impl PrivateStore {
             fail_before_rename: Default::default(),
             #[cfg(test)]
             fail_directory_sync: Default::default(),
+            #[cfg(test)]
+            fail_sync_after_unlink: Default::default(),
         })
     }
 
@@ -422,6 +471,32 @@ impl PrivateStore {
                 serde_json::from_str(&text).map_err(|e| format!("Ugyldig RGB-grunnopptak: {e}"))
             })
             .transpose()
+    }
+
+    /// Under arbeiderlåsen, med ren journal og uten en aktiv tillatelse.
+    /// Kvitteringen flyttes først. Hvis det avbrytes før baseline flyttes,
+    /// vil samme ledige baseline-nummer brukes ved neste forsøk.
+    fn archive_baseline(&self, baseline: &Baseline) -> Result<(), String> {
+        self.validate_state(baseline, None)?;
+        for number in 1..=u64::MAX {
+            let archived = format!("baseline-{number}.json");
+            if read_private(&self.directory, &archived, self.owner)?.is_some() {
+                continue;
+            }
+            let archived_receipt = format!("visual-confirmation-{number}.json");
+            if read_private(&self.directory, VISUAL, self.owner)?.is_some() {
+                if read_private(&self.directory, &archived_receipt, self.owner)?.is_some() {
+                    return Err("RGB-arkivet har allerede en kvittering på dette nummeret.".into());
+                }
+                rename_at(&self.directory, VISUAL, &archived_receipt)?;
+            }
+            // Gjør også en eventuell tidligere, avbrutt kvitteringsflytting
+            // varig før det forrige grunnopptaket får arkivnavn.
+            self.directory.sync_all().map_err(|e| e.to_string())?;
+            rename_at(&self.directory, BASELINE, &archived)?;
+            return self.directory.sync_all().map_err(|e| e.to_string());
+        }
+        Err("RGB-arkivet har ingen ledige numre.".into())
     }
 
     pub fn journal(&self, baseline: &Baseline) -> Result<Option<StoredJournal>, String> {
@@ -498,7 +573,10 @@ impl PrivateStore {
         )
     }
 
-    fn visual_evidence(&self, baseline: &Baseline) -> Result<Option<VisualEvidence>, String> {
+    pub(crate) fn visual_evidence(
+        &self,
+        baseline: &Baseline,
+    ) -> Result<Option<VisualEvidence>, String> {
         self.revalidate()?;
         read_private(&self.directory, VISUAL, self.owner)?
             .map(|text| {
@@ -518,13 +596,15 @@ impl PrivateStore {
     ) -> Result<(), String> {
         evidence.validate_record(baseline, record)?;
         self.validate_state(baseline, Some(record))?;
-        let previous = self.visual_evidence(baseline)?;
+        // En gyldig, ny visuell avklaring kan overskrive en gammel korrupt
+        // kvittering fra protokoll 1. Krav til eier, filtype og modus består.
+        let previous = read_private(&self.directory, VISUAL, self.owner)?;
         self.replace(
             VISUAL,
             &serde_json::to_vec(evidence).map_err(|e| e.to_string())?,
             || {
                 self.validate_state(baseline, Some(record))?;
-                if self.visual_evidence(baseline)? != previous {
+                if read_private(&self.directory, VISUAL, self.owner)? != previous {
                     return Err("RGB-kvitteringen er endret under bekreftelsen.".into());
                 }
                 Ok(())
@@ -554,6 +634,10 @@ impl PrivateStore {
         }
         self.validate_state(baseline, Some(expected))?;
         unlink_at(&self.directory, JOURNAL)?;
+        #[cfg(test)]
+        if self.fail_sync_after_unlink.load(Ordering::Relaxed) {
+            return Err("Simulert fsync-feil etter sletting av RGB-journal.".into());
+        }
         self.directory.sync_all().map_err(|e| e.to_string())
     }
 }
@@ -855,6 +939,7 @@ pub(crate) mod fixtures {
             operation: Operation::Apply,
             phase: Phase::Prepared,
             prior_write_responsibility: false,
+            recovery_id: None,
         }
     }
 }
@@ -924,6 +1009,68 @@ mod tests {
             .is_err()
         );
         assert_eq!(store.journal(&baseline).unwrap(), Some(intent));
+    }
+
+    #[test]
+    fn ny_ren_okt_arkiverer_tidligere_baseline_og_taaler_avbrutt_lagring() {
+        let f = Fixture::new();
+        let original = baseline();
+        let store = f.store(&original);
+        f.write(VISUAL, b"{}");
+        let next = Baseline::user_confirmed_static(
+            binding(),
+            Observed {
+                color: Some([11, 22, 33]),
+                ..observed()
+            },
+        )
+        .unwrap();
+
+        store.fail_before_rename.store(true, Ordering::Relaxed);
+        assert!(
+            prepare_documents(&authorization(), &next, &store, &f.path, &store.directory).is_err()
+        );
+        assert!(store.baseline_optional().unwrap().is_none());
+        assert_eq!(
+            fs::read(f.path.join("visual-confirmation-1.json")).unwrap(),
+            b"{}"
+        );
+        assert_eq!(
+            serde_json::from_slice::<Baseline>(&fs::read(f.path.join("baseline-1.json")).unwrap())
+                .unwrap(),
+            original
+        );
+        assert!(!f.path.join("rgb.json").exists());
+
+        store.fail_before_rename.store(false, Ordering::Relaxed);
+        for _ in 0..2 {
+            prepare_documents(&authorization(), &next, &store, &f.path, &store.directory).unwrap();
+        }
+        assert_eq!(store.baseline().unwrap(), next);
+        assert!(store.visual_evidence(&next).unwrap().is_none());
+        assert!(!f.path.join("baseline-2.json").exists());
+    }
+
+    #[test]
+    fn ren_ny_aktivering_kan_reparere_kvittering_med_samme_utgangspunkt() {
+        let f = Fixture::new();
+        let baseline = baseline();
+        let store = f.store(&baseline);
+        f.write(VISUAL, b"{}");
+        prepare_documents(
+            &authorization(),
+            &baseline,
+            &store,
+            &f.path,
+            &store.directory,
+        )
+        .unwrap();
+        assert_eq!(store.baseline().unwrap(), baseline);
+        assert!(store.visual_evidence(&baseline).unwrap().is_none());
+        assert_eq!(
+            fs::read(f.path.join("visual-confirmation-1.json")).unwrap(),
+            b"{}"
+        );
     }
 
     #[test]

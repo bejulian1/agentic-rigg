@@ -38,7 +38,9 @@ const HELP: &str =
     "Bruk: agentic-rigg-helper [--backend nvml|sim] [--socket STI] [--config STI] [--tilbakestill]
       agentic-rigg-helper --rgb-identifiser --pci PCI --uuid UUID
       agentic-rigg-helper --rgb-server
-      agentic-rigg-helper --rgb-forbered|--rgb-avklar --pci PCI --uuid UUID --uid UID --static-confirmed
+      agentic-rigg-helper --rgb-forbered --pci PCI --uuid UUID --uid UID --static-confirmed
+      agentic-rigg-helper --rgb-avklaringsmal --pci PCI --uuid UUID --uid UID
+      agentic-rigg-helper --rgb-avklar --pci PCI --uuid UUID --uid UID --static-confirmed --recovery-id ID
       agentic-rigg-helper --rgb-gjenopprett --pci PCI --uuid UUID --uid UID --restore-original
       agentic-rigg-helper --rgb-adapter --pci PCI --uuid UUID --uid UID
 

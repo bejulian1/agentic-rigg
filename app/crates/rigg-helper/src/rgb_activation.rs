@@ -13,6 +13,7 @@ use std::path::Path;
 const FLAGS: &[&str] = &[
     "--rgb-forbered",
     "--rgb-avklar",
+    "--rgb-avklaringsmal",
     "--rgb-gjenopprett",
     "--rgb-adapter",
 ];
@@ -21,6 +22,7 @@ const FLAGS: &[&str] = &[
 enum Mode {
     Prepare,
     Resolve,
+    Inspect,
     Restore,
     Metadata,
 }
@@ -31,6 +33,7 @@ struct Args {
     pci: String,
     uuid: String,
     uid: u32,
+    recovery_id: Option<String>,
 }
 
 fn parse(args: &[OsString]) -> Result<Args, String> {
@@ -38,6 +41,7 @@ fn parse(args: &[OsString]) -> Result<Args, String> {
     let mut pci = None;
     let mut uuid = None;
     let mut uid = None;
+    let mut recovery_id = None;
     let mut static_confirmed = false;
     let mut restore_original = false;
     let mut it = args.iter();
@@ -48,6 +52,7 @@ fn parse(args: &[OsString]) -> Result<Args, String> {
                 mode = Some(match flag {
                     "--rgb-forbered" => Mode::Prepare,
                     "--rgb-avklar" => Mode::Resolve,
+                    "--rgb-avklaringsmal" => Mode::Inspect,
                     "--rgb-gjenopprett" => Mode::Restore,
                     _ => Mode::Metadata,
                 });
@@ -62,6 +67,7 @@ fn parse(args: &[OsString]) -> Result<Args, String> {
                 );
             }
             "--static-confirmed" if !static_confirmed => static_confirmed = true,
+            "--recovery-id" if recovery_id.is_none() => recovery_id = Some(value(&mut it)?),
             "--restore-original" if !restore_original => restore_original = true,
             _ => {
                 return Err(format!(
@@ -80,9 +86,18 @@ fn parse(args: &[OsString]) -> Result<Args, String> {
         return Err("RGB trenger valgt grafikkfunksjon og full GPU-UUID.".into());
     }
     let valid = match mode {
-        Mode::Prepare | Mode::Resolve => static_confirmed && !restore_original,
-        Mode::Restore => restore_original && !static_confirmed,
-        Mode::Metadata => !static_confirmed && !restore_original,
+        Mode::Prepare => static_confirmed && !restore_original && recovery_id.is_none(),
+        Mode::Resolve => {
+            static_confirmed
+                && !restore_original
+                && recovery_id
+                    .as_deref()
+                    .is_some_and(rgb_store::valid_recovery_id)
+        }
+        Mode::Restore => restore_original && !static_confirmed && recovery_id.is_none(),
+        Mode::Inspect | Mode::Metadata => {
+            !static_confirmed && !restore_original && recovery_id.is_none()
+        }
     };
     if !valid {
         return Err("RGB-handlingen mangler riktig uttrykkelig bekreftelse.".into());
@@ -92,6 +107,7 @@ fn parse(args: &[OsString]) -> Result<Args, String> {
         pci,
         uuid,
         uid,
+        recovery_id,
     })
 }
 
@@ -107,6 +123,7 @@ fn operation(mode: Mode) -> &'static str {
     match mode {
         Mode::Prepare => "rgb_prepare",
         Mode::Resolve => "rgb_resolve",
+        Mode::Inspect => "rgb_inspect_recovery",
         Mode::Restore => "rgb_restore",
         Mode::Metadata => "rgb_metadata",
     }
@@ -163,9 +180,17 @@ fn execute(args: Args) -> Result<Value, String> {
             )
         }
         Mode::Resolve => {
-            let evidence =
-                NativeBackend::resolve_production(args.uid, &args.pci, &args.uuid, true)?;
+            let id = args
+                .recovery_id
+                .as_deref()
+                .ok_or("Mangler RGB-identitet.")?;
+            let evidence = NativeBackend::resolve_production(args.uid, &args.pci, &args.uuid, id)?;
             serde_json::to_value(evidence).map_err(|e| e.to_string())
+        }
+        Mode::Inspect => {
+            let (expected, id) =
+                NativeBackend::inspect_production(args.uid, &args.pci, &args.uuid)?;
+            Ok(json!({"expected": expected, "recoveryId": id}))
         }
         Mode::Restore => {
             let observed =

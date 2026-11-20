@@ -87,6 +87,7 @@ def file_list(bin_dir):
         ("PATCHLOG.md", APP / "PATCHLOG.md", False),
         ("version.json", APP / "version.json", False),
         ("LISENSER.md", APP / "data/LISENSER.md", False),
+        ("RGB-HJELPER.md", APP.parent / "docs/produksjon/rgb-hjelper.md", False),
     ])
     data_dir = APP / "data"
     if not data_dir.is_dir() or data_dir.is_symlink():
@@ -133,8 +134,9 @@ Root-hjelperens filer følger med, men hjelperen aktiveres ikke av installasjone
 Ekte GPU-styring aktiveres separat i Innstillinger › Skjermkortstyring,
 med én administratorgodkjenning. Støttede endringer i effekt, vifter og
 klokkeoffset sendes med Bruk og må beholdes innen fristen. Hjelperen bindes
-til kortet og lagrer utgangspunktet før skriving. Pågående RGB-arbeid krever
-egen aktivering og et visuelt bekreftet statisk utgangspunkt. Lokal lysmodell
+til kortet og lagrer utgangspunktet før skriving. Kortlys krever at en
+administrator setter opp de betrodde RGB-komponentene som beskrevet i
+RGB-HJELPER.md, og deretter en egen aktivering for kortet. Lokal lysmodell
 er forhåndsvisning. Fast blått og tilbakeføring til grønt er prøvd på ett Palit-kort.
 Se PATCHLOG.md for prøveresultat og omfang.
 
