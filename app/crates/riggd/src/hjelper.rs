@@ -51,6 +51,7 @@ fn state_for_status(status: &Value) -> State {
         .and_then(|v| u32::try_from(v).ok());
     if let (Some(protocol), Some(build)) = (protocol, build)
         && hjelper::compatible(protocol, build)
+        && status["helper"]["strictRequests"] == true
     {
         State::On
     } else {
@@ -529,10 +530,14 @@ mod compatibility_tests {
     use super::*;
 
     #[test]
-    fn app24_kan_bruke_autorisert_hjelper23_med_samme_protokoll() {
+    fn krever_rettet_binaer_ogsa_nar_byggnummeret_er_likt() {
         assert!(rigg_core::version::build() >= 24);
         assert_eq!(
-            state_for_status(&json!({"helper":{"build":23,"protocol":2}})),
+            state_for_status(&json!({"helper":{"build":24,"protocol":2}})),
+            State::Outdated(24)
+        );
+        assert_eq!(
+            state_for_status(&json!({"helper":{"build":24,"protocol":2,"strictRequests":true}})),
             State::On
         );
         assert_eq!(

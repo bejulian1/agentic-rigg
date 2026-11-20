@@ -253,7 +253,7 @@ impl<B: Backend> Runtime<B> {
                 "domain": "palit_rgb",
                 "version": rigg_core::version::VERSION,
                 "build": rigg_core::version::build(),
-                "protocol": PROTOCOL
+                "protocol": PROTOCOL, "strictRequests": true
             },
             "identity": self.authorization.binding(),
             "authorized": !self.revoked,

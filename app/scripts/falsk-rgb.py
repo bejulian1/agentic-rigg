@@ -170,7 +170,7 @@ class FakeState:
             "testMarker": MARKER,
             "helper": {
                 "name": "agentic-rigg-rgb-helper", "domain": "palit_rgb",
-                "protocol": 2, "build": self.build, "version": "testfixture",
+                "protocol": 2, "strictRequests": True, "build": self.build, "version": "testfixture",
             },
             "identity": copy.deepcopy(BINDING),
             "authorized": True,

@@ -24,7 +24,7 @@ use std::path::{Path, PathBuf};
 pub const PROTOCOL: u32 = 2;
 /// Gjennomgått sikkerhetsmotor. Øk ved sikkerhetsrettinger som eldre hjelpere
 /// ikke må få omgå; rene UI-patcher kan beholde autorisasjonen fra dette bygget.
-pub const MIN_COMPATIBLE_BUILD: u32 = 23;
+pub const MIN_COMPATIBLE_BUILD: u32 = 24;
 
 /// Bare kjente hjelpere innen samme protokoll godtas. En nyere hjelper enn
 /// appen krever også oppdatering; ingen fremtidig kompatibilitet antas.
@@ -390,7 +390,8 @@ mod tests {
     #[test]
     fn uioppdatering_beholder_kompatibel_hjelper_men_ikke_eldre_motor() {
         assert!(crate::version::build() >= 24);
-        assert!(compatible(PROTOCOL, 23));
+        assert!(!compatible(PROTOCOL, 23));
+        assert!(compatible(PROTOCOL, 24));
         assert!(compatible(PROTOCOL, crate::version::build()));
         assert!(!compatible(PROTOCOL, 22));
         assert!(!compatible(PROTOCOL - 1, 23));

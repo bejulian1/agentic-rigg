@@ -111,7 +111,8 @@ impl View {
                 "Socketen svarte ikke som den separate RGB-hjelperen.",
             ));
         }
-        if helper["protocol"].as_u64() != Some(u64::from(rgb_auth::PROTOCOL))
+        if helper["strictRequests"] != true
+            || helper["protocol"].as_u64() != Some(u64::from(rgb_auth::PROTOCOL))
             || !helper["build"]
                 .as_u64()
                 .and_then(|n| u32::try_from(n).ok())
@@ -1166,7 +1167,7 @@ mod tests {
         }
     }
     fn initial_status() -> Value {
-        json!({"helper":{"name":rgb_auth::HELPER_NAME,"domain":rgb_auth::DOMAIN,"protocol":rgb_auth::PROTOCOL,"build":rigg_core::version::build()},
+        json!({"helper":{"name":rgb_auth::HELPER_NAME,"domain":rgb_auth::DOMAIN,"protocol":rgb_auth::PROTOCOL,"strictRequests":true,"build":rigg_core::version::build()},
             "identity":binding(),"authorized":true,"observationSource":"stored_baseline","holding":null,
             "state":{"confirmed":{"mode":"static","color":[1,2,3],"brightness":80},
                 "observed":{"color":[1,2,3],"brightnessRaw":80,"mode":null},"owner":null,

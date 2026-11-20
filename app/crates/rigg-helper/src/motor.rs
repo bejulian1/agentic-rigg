@@ -358,7 +358,7 @@ impl Motor {
         let l = &self.limits;
         json!({
             "helper": {"name": "agentic-rigg-helper", "version": rigg_core::version::VERSION,
-                "build": rigg_core::version::build(), "protocol": hjelper::PROTOCOL,
+                "build": rigg_core::version::build(), "protocol": hjelper::PROTOCOL, "strictRequests": true,
                 "pid": std::process::id(), "backend": self.backend,
                 "realWrites": self.backend == "nvml" && self.hw.is_some(), "locked": self.locked,
                 "enabled": self.authorized(), "ready": ready, "identity": identity,
