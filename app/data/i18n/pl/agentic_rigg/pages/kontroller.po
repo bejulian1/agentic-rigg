@@ -1,0 +1,302 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n == 1 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : 2);\n"
+
+#: crates/rigg/src/pages/kontroller.rs:229
+msgid "vifte auto"
+msgstr "wentylatory auto"
+
+#: crates/rigg/src/pages/kontroller.rs:230
+msgid "vifte kurve"
+msgstr "krzywa wentylatorów"
+
+#: crates/rigg/src/pages/kontroller.rs:231
+msgid "vifte {fart}"
+msgstr "wentylatory {fart}"
+
+#: crates/rigg/src/pages/kontroller.rs:233
+msgid "{effekt} · kjerne {kjerne} · minne {minne} · mål {temp} · {fan}"
+msgstr "{effekt} · rdzeń {kjerne} · pamięć {minne} · cel {temp} · {fan}"
+
+#: crates/rigg/src/pages/kontroller.rs:240
+msgid "{antall} punkt"
+msgid_plural "{antall} punkter"
+msgstr[0] "{antall} punkt"
+msgstr[1] "{antall} punkty"
+msgstr[2] "{antall} punktów"
+
+#: crates/rigg/src/pages/kontroller.rs:246 crates/rigg/src/pages/kontroller.rs:285 crates/rigg/src/pages/kontroller.rs:530
+msgid "Effektgrense"
+msgstr "Limit mocy"
+
+#: crates/rigg/src/pages/kontroller.rs:247
+msgid "Kjerneklokke-offset"
+msgstr "Przesunięcie taktowania rdzenia"
+
+#: crates/rigg/src/pages/kontroller.rs:248
+msgid "Minneklokke-offset"
+msgstr "Przesunięcie taktowania pamięci"
+
+#: crates/rigg/src/pages/kontroller.rs:249 crates/rigg/src/pages/kontroller.rs:288 crates/rigg/src/pages/kontroller.rs:533
+msgid "Temperaturmål"
+msgstr "Temperatura docelowa"
+
+#: crates/rigg/src/pages/kontroller.rs:250 crates/rigg/src/pages/kontroller.rs:562
+msgid "Viftemodus"
+msgstr "Tryb wentylatorów"
+
+#: crates/rigg/src/pages/kontroller.rs:251
+msgid "Viftefart (manuell)"
+msgstr "Prędkość wentylatorów (ręczna)"
+
+#: crates/rigg/src/pages/kontroller.rs:253
+msgid "Viftekurver"
+msgstr "Krzywe wentylatorów"
+
+#: crates/rigg/src/pages/kontroller.rs:253
+msgid "per vifte"
+msgstr "dla każdego wentylatora"
+
+#: crates/rigg/src/pages/kontroller.rs:253
+msgid "felles"
+msgstr "wspólna"
+
+#: crates/rigg/src/pages/kontroller.rs:254
+msgid "Kurvene per vifte"
+msgstr "Krzywe poszczególnych wentylatorów"
+
+#: crates/rigg/src/pages/kontroller.rs:255
+msgid "Hysterese"
+msgstr "Histereza"
+
+#: crates/rigg/src/pages/kontroller.rs:256
+msgid "Rampe opp"
+msgstr "Tempo wzrostu"
+
+#: crates/rigg/src/pages/kontroller.rs:257
+msgid "Rampe ned"
+msgstr "Tempo spadku"
+
+#: crates/rigg/src/pages/kontroller.rs:258
+msgid "Utjevning"
+msgstr "Wygładzanie"
+
+#: crates/rigg/src/pages/kontroller.rs:259
+msgid "Hold minimum til"
+msgstr "Utrzymuj minimum do"
+
+#: crates/rigg/src/pages/kontroller.rs:260
+msgid "Viftekurve"
+msgstr "Krzywa wentylatorów"
+
+#: crates/rigg/src/pages/kontroller.rs:267 crates/rigg/src/pages/kontroller.rs:562
+msgid "Kurve"
+msgstr "Krzywa"
+
+#: crates/rigg/src/pages/kontroller.rs:268 crates/rigg/src/pages/kontroller.rs:562
+msgid "Manuell"
+msgstr "Ręczny"
+
+#: crates/rigg/src/pages/kontroller.rs:283 crates/rigg/src/pages/kontroller.rs:706
+msgid "Tomgang"
+msgstr "Bezczynność"
+
+#: crates/rigg/src/pages/kontroller.rs:331 crates/rigg/src/pages/kontroller.rs:334 crates/rigg/src/pages/kontroller.rs:587 crates/rigg/src/pages/kontroller.rs:703
+msgid "Temperatur"
+msgstr "Temperatura"
+
+#: crates/rigg/src/pages/kontroller.rs:332 crates/rigg/src/pages/kontroller.rs:335 crates/rigg/src/pages/kontroller.rs:587 crates/rigg/src/pages/kontroller.rs:702
+msgid "Effekt"
+msgstr "Moc"
+
+#: crates/rigg/src/pages/kontroller.rs:333 crates/rigg/src/pages/kontroller.rs:705
+msgid "Maskinvare"
+msgstr "Sprzęt"
+
+#: crates/rigg/src/pages/kontroller.rs:362 crates/rigg/src/pages/kontroller.rs:704
+msgid "Spenning"
+msgstr "Napięcie"
+
+#: crates/rigg/src/pages/kontroller.rs:486
+msgid "Viser det kortet har nå. Det du endrer, blir et utkast som lagres i appen og ikke sendes til kortet."
+msgstr "Pokazuje bieżące ustawienia karty. Zmiany są zapisywane w aplikacji jako szkic i nie trafiają do karty."
+
+#: crates/rigg/src/pages/kontroller.rs:501
+msgid "GPU-klokke nå"
+msgstr "Bieżące taktowanie GPU"
+
+#: crates/rigg/src/pages/kontroller.rs:501
+msgid "Minneklokke nå"
+msgstr "Bieżące taktowanie pamięci"
+
+#: crates/rigg/src/pages/kontroller.rs:501
+msgid "Temperatur nå"
+msgstr "Bieżąca temperatura"
+
+#: crates/rigg/src/pages/kontroller.rs:501
+msgid "Forbruk nå"
+msgstr "Bieżący pobór mocy"
+
+#: crates/rigg/src/pages/kontroller.rs:501
+msgid "GPU-last"
+msgstr "Obciążenie GPU"
+
+#: crates/rigg/src/pages/kontroller.rs:501
+msgid "Viftefart nå"
+msgstr "Bieżące obroty"
+
+#: crates/rigg/src/pages/kontroller.rs:501
+msgid "P-tilstand"
+msgstr "Stan P"
+
+#: crates/rigg/src/pages/kontroller.rs:501
+msgid "Begrenset av"
+msgstr "Ograniczenie"
+
+#: crates/rigg/src/pages/kontroller.rs:515
+msgid "Juster klokker og effekt"
+msgstr "Regulacja taktowania i mocy"
+
+#: crates/rigg/src/pages/kontroller.rs:516
+msgid "Utkast · ikke sendt til kortet"
+msgstr "Szkic · niewysłany do karty"
+
+#: crates/rigg/src/pages/kontroller.rs:518
+msgid "Gjenopprett utgangspunkt"
+msgstr "Przywróć ustawienia początkowe"
+
+#: crates/rigg/src/pages/kontroller.rs:531
+msgid "GPU-justering"
+msgstr "Przesunięcie taktowania GPU"
+
+#: crates/rigg/src/pages/kontroller.rs:532
+msgid "Minnejustering"
+msgstr "Przesunięcie taktowania pamięci"
+
+#: crates/rigg/src/pages/kontroller.rs:534
+msgid "Vifte"
+msgstr "Wentylator"
+
+#: crates/rigg/src/pages/kontroller.rs:541
+msgid "Avansert · temperaturmål og vifter"
+msgstr "Zaawansowane · temperatura docelowa i wentylatory"
+
+#: crates/rigg/src/pages/kontroller.rs:545
+msgid "Auto, fast viftefart og egen kurve"
+msgstr "Automatyka, stałe obroty i własna krzywa"
+
+#: crates/rigg/src/pages/kontroller.rs:549
+msgid "Åpne Vifter"
+msgstr "Otwórz wentylatory"
+
+#: crates/rigg/src/pages/kontroller.rs:563
+msgid "Rediger kurven"
+msgstr "Edytuj krzywą"
+
+#: crates/rigg/src/pages/kontroller.rs:564
+msgid "Gå til Vifter, der kurven redigeres"
+msgstr "Otwórz stronę wentylatorów, aby edytować krzywą"
+
+#: crates/rigg/src/pages/kontroller.rs:587
+msgid "Kjerneklokke"
+msgstr "Taktowanie rdzenia"
+
+#: crates/rigg/src/pages/kontroller.rs:600
+msgid "Utkast"
+msgstr "Szkic"
+
+#: crates/rigg/src/pages/kontroller.rs:606
+msgid "Profiler"
+msgstr "Profile"
+
+#: crates/rigg/src/pages/kontroller.rs:615
+msgid "Begrensninger"
+msgstr "Ograniczenia wydajności"
+
+#: crates/rigg/src/pages/kontroller.rs:627
+msgid "Funksjonsstøtte på kortet"
+msgstr "Funkcje obsługiwane przez kartę"
+
+#: crates/rigg/src/pages/kontroller.rs:631
+msgid "Spenningsoffset"
+msgstr "Przesunięcie napięcia"
+
+#: crates/rigg/src/pages/kontroller.rs:632
+msgid "Klokkekurven (V/F)"
+msgstr "Krzywa napięcie–taktowanie (V/F)"
+
+#: crates/rigg/src/pages/kontroller.rs:633
+msgid "Låst minneklokke"
+msgstr "Stałe taktowanie pamięci"
+
+#: crates/rigg/src/pages/kontroller.rs:634
+msgid "Viftestopp (0 %)"
+msgstr "Zatrzymanie wentylatorów (0%)"
+
+#: crates/rigg/src/pages/kontroller.rs:653
+msgid "Forkast utkast"
+msgstr "Odrzuć szkic"
+
+#: crates/rigg/src/pages/kontroller.rs:655
+msgid "Bruk"
+msgstr "Zastosuj"
+
+#: crates/rigg/src/pages/kontroller.rs:707
+msgid "Annet"
+msgstr "Inne"
+
+#: crates/rigg/src/pages/kontroller.rs:867
+msgid "Utkastet er forkastet"
+msgstr "Odrzucono szkic"
+
+#: crates/rigg/src/pages/kontroller.rs:867 crates/rigg/src/pages/kontroller.rs:961 crates/rigg/src/pages/kontroller.rs:1482
+msgid "Angre"
+msgstr "Cofnij"
+
+#: crates/rigg/src/pages/kontroller.rs:942
+msgid "Kortets utgangspunkt er gjenopprettet"
+msgstr "Przywrócono ustawienia początkowe karty"
+
+#: crates/rigg/src/pages/kontroller.rs:944
+msgid "Kunne ikke bekrefte gjenoppretting"
+msgstr "Nie udało się potwierdzić przywrócenia"
+
+#: crates/rigg/src/pages/kontroller.rs:961
+msgid "Ingenting er sendt til kortet."
+msgstr "Niczego nie wysłano do karty."
+
+#: crates/rigg/src/pages/kontroller.rs:998
+msgid "Funksjonen er utilgjengelig"
+msgstr "Funkcja niedostępna"
+
+#: crates/rigg/src/pages/kontroller.rs:1009
+msgid "Kunne ikke bruke utkastet"
+msgstr "Nie udało się zastosować szkicu"
+
+#: crates/rigg/src/pages/kontroller.rs:1273
+msgid "Ingen endringer"
+msgstr "Brak zmian"
+
+#: crates/rigg/src/pages/kontroller.rs:1274
+msgid "{n} endring i utkastet"
+msgid_plural "{n} endringer i utkastet"
+msgstr[0] "{n} zmiana w szkicu"
+msgstr[1] "{n} zmiany w szkicu"
+msgstr[2] "{n} zmian w szkicu"
+
+#: crates/rigg/src/pages/kontroller.rs:1308
+msgid "{used} av {plasser}"
+msgstr "{used} z {plasser}"
+
+#: crates/rigg/src/pages/kontroller.rs:1310
+msgid "Ingen profiler ennå. En profil husker alle verdiene på siden, også viftekurven."
+msgstr "Nie ma jeszcze profili. Profil zapisuje wszystkie ustawienia na tej stronie, w tym krzywą wentylatorów."
+
+#: crates/rigg/src/pages/kontroller.rs:1327
+msgid "Nytt navn på {profil}"
+msgstr "Nowa nazwa dla {profil}"

@@ -1,0 +1,300 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: crates/rigg/src/pages/kontroller.rs:229
+msgid "vifte auto"
+msgstr "Lüfter automatisch"
+
+#: crates/rigg/src/pages/kontroller.rs:230
+msgid "vifte kurve"
+msgstr "Lüfterkurve"
+
+#: crates/rigg/src/pages/kontroller.rs:231
+msgid "vifte {fart}"
+msgstr "Lüfter {fart}"
+
+#: crates/rigg/src/pages/kontroller.rs:233
+msgid "{effekt} · kjerne {kjerne} · minne {minne} · mål {temp} · {fan}"
+msgstr "{effekt} · Kern {kjerne} · Speicher {minne} · Ziel {temp} · {fan}"
+
+#: crates/rigg/src/pages/kontroller.rs:240
+msgid "{antall} punkt"
+msgid_plural "{antall} punkter"
+msgstr[0] "{antall} Punkt"
+msgstr[1] "{antall} Punkte"
+
+#: crates/rigg/src/pages/kontroller.rs:246 crates/rigg/src/pages/kontroller.rs:285 crates/rigg/src/pages/kontroller.rs:530
+msgid "Effektgrense"
+msgstr "Leistungslimit"
+
+#: crates/rigg/src/pages/kontroller.rs:247
+msgid "Kjerneklokke-offset"
+msgstr "Kerntakt-Offset"
+
+#: crates/rigg/src/pages/kontroller.rs:248
+msgid "Minneklokke-offset"
+msgstr "Speichertakt-Offset"
+
+#: crates/rigg/src/pages/kontroller.rs:249 crates/rigg/src/pages/kontroller.rs:288 crates/rigg/src/pages/kontroller.rs:533
+msgid "Temperaturmål"
+msgstr "Temperaturziel"
+
+#: crates/rigg/src/pages/kontroller.rs:250 crates/rigg/src/pages/kontroller.rs:562
+msgid "Viftemodus"
+msgstr "Lüftermodus"
+
+#: crates/rigg/src/pages/kontroller.rs:251
+msgid "Viftefart (manuell)"
+msgstr "Lüfterdrehzahl (manuell)"
+
+#: crates/rigg/src/pages/kontroller.rs:253
+msgid "Viftekurver"
+msgstr "Lüfterkurven"
+
+#: crates/rigg/src/pages/kontroller.rs:253
+msgid "per vifte"
+msgstr "je Lüfter"
+
+#: crates/rigg/src/pages/kontroller.rs:253
+msgid "felles"
+msgstr "gemeinsam"
+
+#: crates/rigg/src/pages/kontroller.rs:254
+msgid "Kurvene per vifte"
+msgstr "Kurven je Lüfter"
+
+#: crates/rigg/src/pages/kontroller.rs:255
+msgid "Hysterese"
+msgstr "Hysterese"
+
+#: crates/rigg/src/pages/kontroller.rs:256
+msgid "Rampe opp"
+msgstr "Anstiegsrate"
+
+#: crates/rigg/src/pages/kontroller.rs:257
+msgid "Rampe ned"
+msgstr "Absenkrate"
+
+#: crates/rigg/src/pages/kontroller.rs:258
+msgid "Utjevning"
+msgstr "Glättung"
+
+#: crates/rigg/src/pages/kontroller.rs:259
+msgid "Hold minimum til"
+msgstr "Minimum halten bis"
+
+#: crates/rigg/src/pages/kontroller.rs:260
+msgid "Viftekurve"
+msgstr "Lüfterkurve"
+
+#: crates/rigg/src/pages/kontroller.rs:267 crates/rigg/src/pages/kontroller.rs:562
+msgid "Kurve"
+msgstr "Kurve"
+
+#: crates/rigg/src/pages/kontroller.rs:268 crates/rigg/src/pages/kontroller.rs:562
+msgid "Manuell"
+msgstr "Manuell"
+
+#: crates/rigg/src/pages/kontroller.rs:283 crates/rigg/src/pages/kontroller.rs:706
+msgid "Tomgang"
+msgstr "Leerlauf"
+
+#: crates/rigg/src/pages/kontroller.rs:331 crates/rigg/src/pages/kontroller.rs:334 crates/rigg/src/pages/kontroller.rs:587 crates/rigg/src/pages/kontroller.rs:703
+msgid "Temperatur"
+msgstr "Temperatur"
+
+#: crates/rigg/src/pages/kontroller.rs:332 crates/rigg/src/pages/kontroller.rs:335 crates/rigg/src/pages/kontroller.rs:587 crates/rigg/src/pages/kontroller.rs:702
+msgid "Effekt"
+msgstr "Leistung"
+
+#: crates/rigg/src/pages/kontroller.rs:333 crates/rigg/src/pages/kontroller.rs:705
+msgid "Maskinvare"
+msgstr "Hardware"
+
+#: crates/rigg/src/pages/kontroller.rs:362 crates/rigg/src/pages/kontroller.rs:704
+msgid "Spenning"
+msgstr "Spannung"
+
+#: crates/rigg/src/pages/kontroller.rs:486
+msgid "Viser det kortet har nå. Det du endrer, blir et utkast som lagres i appen og ikke sendes til kortet."
+msgstr "Zeigt die aktuellen GPU-Einstellungen. Änderungen werden als Entwurf in der App gespeichert und nicht an die GPU gesendet."
+
+#: crates/rigg/src/pages/kontroller.rs:501
+msgid "GPU-klokke nå"
+msgstr "Aktueller GPU-Takt"
+
+#: crates/rigg/src/pages/kontroller.rs:501
+msgid "Minneklokke nå"
+msgstr "Aktueller Speichertakt"
+
+#: crates/rigg/src/pages/kontroller.rs:501
+msgid "Temperatur nå"
+msgstr "Aktuelle Temperatur"
+
+#: crates/rigg/src/pages/kontroller.rs:501
+msgid "Forbruk nå"
+msgstr "Aktuelle Leistungsaufnahme"
+
+#: crates/rigg/src/pages/kontroller.rs:501
+msgid "GPU-last"
+msgstr "GPU-Auslastung"
+
+#: crates/rigg/src/pages/kontroller.rs:501
+msgid "Viftefart nå"
+msgstr "Aktuelle Lüfterdrehzahl"
+
+#: crates/rigg/src/pages/kontroller.rs:501
+msgid "P-tilstand"
+msgstr "P-State"
+
+#: crates/rigg/src/pages/kontroller.rs:501
+msgid "Begrenset av"
+msgstr "Begrenzt durch"
+
+#: crates/rigg/src/pages/kontroller.rs:515
+msgid "Juster klokker og effekt"
+msgstr "Takt und Leistung einstellen"
+
+#: crates/rigg/src/pages/kontroller.rs:516
+msgid "Utkast · ikke sendt til kortet"
+msgstr "Entwurf · nicht an GPU gesendet"
+
+#: crates/rigg/src/pages/kontroller.rs:518
+msgid "Gjenopprett utgangspunkt"
+msgstr "Ausgangswerte wiederherstellen"
+
+#: crates/rigg/src/pages/kontroller.rs:531
+msgid "GPU-justering"
+msgstr "GPU-Takt-Offset"
+
+#: crates/rigg/src/pages/kontroller.rs:532
+msgid "Minnejustering"
+msgstr "Speichertakt-Offset"
+
+#: crates/rigg/src/pages/kontroller.rs:534
+msgid "Vifte"
+msgstr "Lüfter"
+
+#: crates/rigg/src/pages/kontroller.rs:541
+msgid "Avansert · temperaturmål og vifter"
+msgstr "Erweitert · Temperaturziel und Lüfter"
+
+#: crates/rigg/src/pages/kontroller.rs:545
+msgid "Auto, fast viftefart og egen kurve"
+msgstr "Automatik, feste Drehzahl und eigene Kurve"
+
+#: crates/rigg/src/pages/kontroller.rs:549
+msgid "Åpne Vifter"
+msgstr "Lüfter öffnen"
+
+#: crates/rigg/src/pages/kontroller.rs:563
+msgid "Rediger kurven"
+msgstr "Kurve bearbeiten"
+
+#: crates/rigg/src/pages/kontroller.rs:564
+msgid "Gå til Vifter, der kurven redigeres"
+msgstr "Zum Bearbeiten der Kurve die Lüfterseite öffnen"
+
+#: crates/rigg/src/pages/kontroller.rs:587
+msgid "Kjerneklokke"
+msgstr "Kerntakt"
+
+#: crates/rigg/src/pages/kontroller.rs:600
+msgid "Utkast"
+msgstr "Entwurf"
+
+#: crates/rigg/src/pages/kontroller.rs:606
+msgid "Profiler"
+msgstr "Profile"
+
+#: crates/rigg/src/pages/kontroller.rs:615
+msgid "Begrensninger"
+msgstr "Leistungsbegrenzungen"
+
+#: crates/rigg/src/pages/kontroller.rs:627
+msgid "Funksjonsstøtte på kortet"
+msgstr "GPU-Funktionsumfang"
+
+#: crates/rigg/src/pages/kontroller.rs:631
+msgid "Spenningsoffset"
+msgstr "Spannungs-Offset"
+
+#: crates/rigg/src/pages/kontroller.rs:632
+msgid "Klokkekurven (V/F)"
+msgstr "Spannungs-/Frequenzkurve (V/F)"
+
+#: crates/rigg/src/pages/kontroller.rs:633
+msgid "Låst minneklokke"
+msgstr "Fester Speichertakt"
+
+#: crates/rigg/src/pages/kontroller.rs:634
+msgid "Viftestopp (0 %)"
+msgstr "Lüfterstopp (0 %)"
+
+#: crates/rigg/src/pages/kontroller.rs:653
+msgid "Forkast utkast"
+msgstr "Entwurf verwerfen"
+
+#: crates/rigg/src/pages/kontroller.rs:655
+msgid "Bruk"
+msgstr "Anwenden"
+
+#: crates/rigg/src/pages/kontroller.rs:707
+msgid "Annet"
+msgstr "Sonstiges"
+
+#: crates/rigg/src/pages/kontroller.rs:867
+msgid "Utkastet er forkastet"
+msgstr "Entwurf verworfen"
+
+#: crates/rigg/src/pages/kontroller.rs:867 crates/rigg/src/pages/kontroller.rs:961 crates/rigg/src/pages/kontroller.rs:1482
+msgid "Angre"
+msgstr "Rückgängig"
+
+#: crates/rigg/src/pages/kontroller.rs:942
+msgid "Kortets utgangspunkt er gjenopprettet"
+msgstr "GPU-Ausgangswerte wiederhergestellt"
+
+#: crates/rigg/src/pages/kontroller.rs:944
+msgid "Kunne ikke bekrefte gjenoppretting"
+msgstr "Wiederherstellung konnte nicht bestätigt werden"
+
+#: crates/rigg/src/pages/kontroller.rs:961
+msgid "Ingenting er sendt til kortet."
+msgstr "Es wurde nichts an die GPU gesendet."
+
+#: crates/rigg/src/pages/kontroller.rs:998
+msgid "Funksjonen er utilgjengelig"
+msgstr "Funktion nicht verfügbar"
+
+#: crates/rigg/src/pages/kontroller.rs:1009
+msgid "Kunne ikke bruke utkastet"
+msgstr "Entwurf konnte nicht angewendet werden"
+
+#: crates/rigg/src/pages/kontroller.rs:1273
+msgid "Ingen endringer"
+msgstr "Keine Änderungen"
+
+#: crates/rigg/src/pages/kontroller.rs:1274
+msgid "{n} endring i utkastet"
+msgid_plural "{n} endringer i utkastet"
+msgstr[0] "{n} Änderung im Entwurf"
+msgstr[1] "{n} Änderungen im Entwurf"
+
+#: crates/rigg/src/pages/kontroller.rs:1308
+msgid "{used} av {plasser}"
+msgstr "{used} von {plasser}"
+
+#: crates/rigg/src/pages/kontroller.rs:1310
+msgid "Ingen profiler ennå. En profil husker alle verdiene på siden, også viftekurven."
+msgstr "Noch keine Profile. Ein Profil speichert alle Einstellungen auf dieser Seite, auch die Lüfterkurve."
+
+#: crates/rigg/src/pages/kontroller.rs:1327
+msgid "Nytt navn på {profil}"
+msgstr "Neuer Name für {profil}"

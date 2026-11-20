@@ -1,0 +1,125 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n == 1 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : 2);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/widgets/styrer.rs:32
+msgid "NVIDIA-referansekort"
+msgstr "Karta referencyjna NVIDIA"
+
+#: crates/rigg/src/widgets/styrer.rs:33
+msgid "PCI-leverandør {id}"
+msgstr "Dostawca PCI {id}"
+
+#: crates/rigg/src/widgets/styrer.rs:53
+msgid "Produsenten er satt av deg. Kortet melder NVIDIAs referanse i PCI-subsystemet ({s})."
+msgstr "Producenta ustawiono ręcznie. Karta zgłasza referencyjny identyfikator NVIDIA w podsystemie PCI ({s})."
+
+#: crates/rigg/src/widgets/styrer.rs:54
+msgid "Produsenten er satt av deg."
+msgstr "Producenta ustawiono ręcznie."
+
+#: crates/rigg/src/widgets/styrer.rs:55
+msgid "Kortet melder NVIDIAs referanse i PCI-subsystemet ({s}). Det er et referansekort, eller en produsent som ikke setter sin egen ID. Du kan sette produsenten selv."
+msgstr "Karta zgłasza referencyjny identyfikator NVIDIA w podsystemie PCI ({s}). Może to być karta referencyjna lub karta bez własnego identyfikatora producenta. Producenta można ustawić ręcznie."
+
+#: crates/rigg/src/widgets/styrer.rs:56
+msgid "Fra PCI-subsystemet ({s})."
+msgstr "Z podsystemu PCI ({s})."
+
+#: crates/rigg/src/widgets/styrer.rs:57
+msgid "Produsenten er ikke lest."
+msgstr "Nie wykryto producenta."
+
+#: crates/rigg/src/widgets/styrer.rs:81
+msgid "Styrer"
+msgstr "Steruje"
+
+#: crates/rigg/src/widgets/styrer.rs:101 crates/rigg/src/widgets/styrer.rs:102
+msgid "Sett produsenten"
+msgstr "Ustaw producenta"
+
+#: crates/rigg/src/widgets/styrer.rs:114
+msgid "Velg kortet som styres"
+msgstr "Wybierz kartę do sterowania"
+
+#: crates/rigg/src/widgets/styrer.rs:173
+msgid "Venter på tjenesten"
+msgstr "Oczekiwanie na usługę"
+
+#: crates/rigg/src/widgets/styrer.rs:173
+msgid "kortet vises når tjenesten svarer"
+msgstr "karta pojawi się, gdy usługa odpowie"
+
+#: crates/rigg/src/widgets/styrer.rs:174
+msgid "Leser skjermkortet …"
+msgstr "Wykrywanie karty…"
+
+#: crates/rigg/src/widgets/styrer.rs:175
+msgid "Fant ingen NVIDIA-driver"
+msgstr "Nie znaleziono sterownika NVIDIA"
+
+#: crates/rigg/src/widgets/styrer.rs:175
+msgid "ingen skjermkort å styre"
+msgstr "brak karty do sterowania"
+
+#: crates/rigg/src/widgets/styrer.rs:178 crates/rigg/src/widgets/styrer.rs:186
+msgid "Skjermkortet"
+msgstr "Karta graficzna"
+
+#: crates/rigg/src/widgets/styrer.rs:179
+msgid "driveren er oppdatert · start maskinen på nytt for å styre kortet"
+msgstr "zaktualizowano sterownik · uruchom ponownie komputer, aby sterować kartą"
+
+#: crates/rigg/src/widgets/styrer.rs:187
+msgid "svarer ikke siden {since} · styringen er utilgjengelig"
+msgstr "brak odpowiedzi od {since} · sterowanie niedostępne"
+
+#: crates/rigg/src/widgets/styrer.rs:203
+msgid "driver {d}"
+msgstr "sterownik {d}"
+
+#: crates/rigg/src/widgets/styrer.rs:205
+msgid "{kort}\nProdusent: {produsent}\nPCI-adresse: {pci}\nVBIOS: {vbios}\n{detalj}"
+msgstr "{kort}\nProducent: {produsent}\nAdres PCI: {pci}\nVBIOS: {vbios}\n{detalj}"
+
+#: crates/rigg/src/widgets/styrer.rs:213
+msgid "Skjermkort"
+msgstr "Karta graficzna"
+
+#: crates/rigg/src/widgets/styrer.rs:232
+msgid "Kort {i} av {antall}"
+msgstr "Karta {i} z {antall}"
+
+#: crates/rigg/src/widgets/styrer.rs:234
+msgid "Styrer: {name}. {meta}"
+msgstr "Sterowanie kartą: {name}. {meta}"
+
+#: crates/rigg/src/widgets/styrer.rs:240
+msgid "Kortet som styres"
+msgstr "Karta do sterowania"
+
+#: crates/rigg/src/widgets/styrer.rs:280
+msgid "Produsent (valgfritt)"
+msgstr "Producent (opcjonalnie)"
+
+#: crates/rigg/src/widgets/styrer.rs:292
+msgid "Produsent"
+msgstr "Producent"
+
+#: crates/rigg/src/widgets/styrer.rs:294
+msgid "Vises bare i appen, i Styrer-linja og i maskinhodet. Kortet endres ikke."
+msgstr "Widać go tylko w selektorze GPU i nagłówku systemu w aplikacji. Nie zmienia ustawień karty."
+
+#: crates/rigg/src/widgets/styrer.rs:303
+msgid "Fjern"
+msgstr "Usuń"
+
+#: crates/rigg/src/widgets/styrer.rs:305
+msgid "Lagre"
+msgstr "Zapisz"

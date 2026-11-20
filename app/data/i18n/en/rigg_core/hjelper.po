@@ -1,0 +1,133 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg-core/src/hjelper.rs:407
+msgid "{felt}: Kortet tillater {min}–{max}. Ingenting er endret."
+msgstr "{felt}: the GPU allows {min}–{max}. Nothing changed."
+
+#: crates/rigg-core/src/hjelper.rs:410 crates/rigg-core/src/hjelper.rs:458
+msgid "Kortet eller driveren støtter ikke denne funksjonen."
+msgstr "The GPU or driver does not support this feature."
+
+#: crates/rigg-core/src/hjelper.rs:418
+msgid "Effektgrense"
+msgstr "Power limit"
+
+#: crates/rigg-core/src/hjelper.rs:419
+msgid "Temperaturmål"
+msgstr "Temperature target"
+
+#: crates/rigg-core/src/hjelper.rs:420
+msgid "GPU-justering"
+msgstr "GPU clock offset"
+
+#: crates/rigg-core/src/hjelper.rs:421
+msgid "Minnejustering"
+msgstr "Memory clock offset"
+
+#: crates/rigg-core/src/hjelper.rs:422
+msgid "Viftefart"
+msgstr "Fan speed"
+
+#: crates/rigg-core/src/hjelper.rs:434
+msgid "celsius må være 0–120"
+msgstr "celsius must be 0–120"
+
+#: crates/rigg-core/src/hjelper.rs:435
+msgid "RGB-backenden er ikke identifisert eller tilgjengelig."
+msgstr "The RGB backend is not identified or unavailable."
+
+#: crates/rigg-core/src/hjelper.rs:436
+msgid "Viftestyring krever en lesbar temperatur for overtemperaturvernet."
+msgstr "Fan control needs a temperature reading for overheat protection."
+
+#: crates/rigg-core/src/hjelper.rs:437
+msgid "Nødregelen gjelder. Vent til kortet er under 80 °C."
+msgstr "Emergency cooling is active. Wait until the GPU is below 80 °C."
+
+#: crates/rigg-core/src/hjelper.rs:438
+msgid "Endringer er låst: endring av skjermkortet er ikke slått på. Slå på «Tillat endring av skjermkortet» i Innstillinger › Styring."
+msgstr "Changes are locked because GPU tuning is off. Turn on Allow GPU tuning in Settings › GPU tuning."
+
+#: crates/rigg-core/src/hjelper.rs:439
+msgid "Hjelperen for endring svarer ikke. Se Innstillinger › Styring."
+msgstr "The GPU helper is not responding. See Settings › GPU tuning."
+
+#: crates/rigg-core/src/hjelper.rs:440
+msgid "Hjelperen er fra en annen versjon av appen. Slå bryteren i Innstillinger › Styring av og på igjen."
+msgstr "The helper is from a different app version. Turn the switch in Settings › GPU tuning off and back on."
+
+#: crates/rigg-core/src/hjelper.rs:441
+msgid "Hjelperen og tjenesten bruker ulike kort (simulert og ekte). Ingenting er sendt."
+msgstr "The helper and service use different GPUs (simulated and real). Nothing was sent."
+
+#: crates/rigg-core/src/hjelper.rs:442
+msgid "NVML-hjelperen er ikke klar til å endre dette kortet."
+msgstr "The NVML helper is not ready to tune this GPU."
+
+#: crates/rigg-core/src/hjelper.rs:443
+msgid "Skjermkortstyring må aktiveres med bryteren i Innstillinger."
+msgstr "Enable GPU tuning with the switch in Settings."
+
+#: crates/rigg-core/src/hjelper.rs:444 crates/rigg-core/src/hjelper.rs:460
+msgid "Det valgte kortet er ikke kortet hjelperen er aktivert for."
+msgstr "The helper was enabled for a different GPU."
+
+#: crates/rigg-core/src/hjelper.rs:445
+msgid "Gjenoppretting kunne ikke bekreftes. Nye endringer er sperret."
+msgstr "Restoration could not be verified. Further changes are blocked."
+
+#: crates/rigg-core/src/hjelper.rs:446
+msgid "Lys er ikke laget ennå."
+msgstr "Lighting control is not implemented yet."
+
+#: crates/rigg-core/src/hjelper.rs:447
+msgid "Endringer er låst. Skriving til skjermkortet er ikke slått på."
+msgstr "Changes are locked. GPU writes are disabled."
+
+#: crates/rigg-core/src/hjelper.rs:448
+msgid "Funksjonen er ikke tilgjengelig på dette kortet."
+msgstr "This feature is unavailable on this GPU."
+
+#: crates/rigg-core/src/hjelper.rs:449
+msgid "Hjelperen er aktivert for en annen bruker."
+msgstr "The helper is enabled for another user."
+
+#: crates/rigg-core/src/hjelper.rs:450
+msgid "Hjelperen kjører, men helper.json mangler."
+msgstr "The helper is running, but helper.json is missing."
+
+#: crates/rigg-core/src/hjelper.rs:451
+msgid "Gjenopprettingsmerkøren har feil identitet eller utrygg eier/modus."
+msgstr "The recovery marker has a mismatched identity or insecure ownership or permissions."
+
+#: crates/rigg-core/src/hjelper.rs:459
+msgid "Driveren ga ikke tilgang til å endre kortet."
+msgstr "The driver denied permission to change GPU settings."
+
+#: crates/rigg-core/src/hjelper.rs:461
+msgid "Kortet svarer ikke."
+msgstr "The GPU is not responding."
+
+#: crates/rigg-core/src/hjelper.rs:462
+msgid "Kortets innstillinger kunne ikke bekreftes ved tilbakelesing."
+msgstr "The GPU settings could not be verified by reading them back."
+
+#: crates/rigg-core/src/hjelper.rs:463
+msgid "De opprinnelige innstillingene for kortet mangler."
+msgstr "The GPU’s original settings are missing."
+
+#: crates/rigg-core/src/hjelper.rs:464
+msgid "NVML avviste en ugyldig verdi."
+msgstr "NVML rejected an invalid value."
+
+#: crates/rigg-core/src/hjelper.rs:465
+msgid "En NVML-operasjon mislyktes."
+msgstr "An NVML operation failed."

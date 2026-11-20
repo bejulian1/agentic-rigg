@@ -1,0 +1,125 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/widgets/styrer.rs:32
+msgid "NVIDIA-referansekort"
+msgstr "Carte de référence NVIDIA"
+
+#: crates/rigg/src/widgets/styrer.rs:33
+msgid "PCI-leverandør {id}"
+msgstr "Fournisseur PCI {id}"
+
+#: crates/rigg/src/widgets/styrer.rs:53
+msgid "Produsenten er satt av deg. Kortet melder NVIDIAs referanse i PCI-subsystemet ({s})."
+msgstr "Vous avez défini le fabricant. La carte indique l’identifiant de référence NVIDIA dans le sous-système PCI ({s})."
+
+#: crates/rigg/src/widgets/styrer.rs:54
+msgid "Produsenten er satt av deg."
+msgstr "Vous avez défini le fabricant."
+
+#: crates/rigg/src/widgets/styrer.rs:55
+msgid "Kortet melder NVIDIAs referanse i PCI-subsystemet ({s}). Det er et referansekort, eller en produsent som ikke setter sin egen ID. Du kan sette produsenten selv."
+msgstr "La carte indique l’identifiant de référence NVIDIA dans le sous-système PCI ({s}). Il peut s’agir d’une carte de référence ou d’un fabricant sans identifiant propre. Vous pouvez définir le fabricant manuellement."
+
+#: crates/rigg/src/widgets/styrer.rs:56
+msgid "Fra PCI-subsystemet ({s})."
+msgstr "D’après le sous-système PCI ({s})."
+
+#: crates/rigg/src/widgets/styrer.rs:57
+msgid "Produsenten er ikke lest."
+msgstr "Fabricant non détecté."
+
+#: crates/rigg/src/widgets/styrer.rs:81
+msgid "Styrer"
+msgstr "Pilote"
+
+#: crates/rigg/src/widgets/styrer.rs:101 crates/rigg/src/widgets/styrer.rs:102
+msgid "Sett produsenten"
+msgstr "Définir le fabricant"
+
+#: crates/rigg/src/widgets/styrer.rs:114
+msgid "Velg kortet som styres"
+msgstr "Sélectionner le GPU à piloter"
+
+#: crates/rigg/src/widgets/styrer.rs:173
+msgid "Venter på tjenesten"
+msgstr "En attente du service"
+
+#: crates/rigg/src/widgets/styrer.rs:173
+msgid "kortet vises når tjenesten svarer"
+msgstr "le GPU s’affiche dès que le service répond"
+
+#: crates/rigg/src/widgets/styrer.rs:174
+msgid "Leser skjermkortet …"
+msgstr "Détection du GPU…"
+
+#: crates/rigg/src/widgets/styrer.rs:175
+msgid "Fant ingen NVIDIA-driver"
+msgstr "Pilote NVIDIA introuvable"
+
+#: crates/rigg/src/widgets/styrer.rs:175
+msgid "ingen skjermkort å styre"
+msgstr "aucun GPU à piloter"
+
+#: crates/rigg/src/widgets/styrer.rs:178 crates/rigg/src/widgets/styrer.rs:186
+msgid "Skjermkortet"
+msgstr "GPU"
+
+#: crates/rigg/src/widgets/styrer.rs:179
+msgid "driveren er oppdatert · start maskinen på nytt for å styre kortet"
+msgstr "pilote mis à jour · redémarrez l’ordinateur pour piloter le GPU"
+
+#: crates/rigg/src/widgets/styrer.rs:187
+msgid "svarer ikke siden {since} · styringen er utilgjengelig"
+msgstr "sans réponse depuis {since} · contrôle indisponible"
+
+#: crates/rigg/src/widgets/styrer.rs:203
+msgid "driver {d}"
+msgstr "pilote {d}"
+
+#: crates/rigg/src/widgets/styrer.rs:205
+msgid "{kort}\nProdusent: {produsent}\nPCI-adresse: {pci}\nVBIOS: {vbios}\n{detalj}"
+msgstr "{kort}\nFabricant : {produsent}\nAdresse PCI : {pci}\nVBIOS : {vbios}\n{detalj}"
+
+#: crates/rigg/src/widgets/styrer.rs:213
+msgid "Skjermkort"
+msgstr "GPU"
+
+#: crates/rigg/src/widgets/styrer.rs:232
+msgid "Kort {i} av {antall}"
+msgstr "GPU {i} sur {antall}"
+
+#: crates/rigg/src/widgets/styrer.rs:234
+msgid "Styrer: {name}. {meta}"
+msgstr "GPU piloté : {name}. {meta}"
+
+#: crates/rigg/src/widgets/styrer.rs:240
+msgid "Kortet som styres"
+msgstr "GPU à piloter"
+
+#: crates/rigg/src/widgets/styrer.rs:280
+msgid "Produsent (valgfritt)"
+msgstr "Fabricant (facultatif)"
+
+#: crates/rigg/src/widgets/styrer.rs:292
+msgid "Produsent"
+msgstr "Fabricant"
+
+#: crates/rigg/src/widgets/styrer.rs:294
+msgid "Vises bare i appen, i Styrer-linja og i maskinhodet. Kortet endres ikke."
+msgstr "Affiché uniquement dans le sélecteur de GPU et l’en-tête système de l’application. La carte n’est pas modifiée."
+
+#: crates/rigg/src/widgets/styrer.rs:303
+msgid "Fjern"
+msgstr "Supprimer"
+
+#: crates/rigg/src/widgets/styrer.rs:305
+msgid "Lagre"
+msgstr "Enregistrer"

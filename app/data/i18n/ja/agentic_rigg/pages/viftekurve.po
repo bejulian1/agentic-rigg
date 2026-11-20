@@ -1,0 +1,269 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: crates/rigg/src/pages/viftekurve.rs:59
+msgid "Stille"
+msgstr "静音"
+
+#: crates/rigg/src/pages/viftekurve.rs:66
+msgid "Minste fart til 55 °C, 5 °C hysterese, rolig rampe (5 %/s opp, 2 %/s ned) og 5 s utjevning"
+msgstr "55 °Cまでは最低速度、ヒステリシス5 °C、緩やかな変化（上昇5 %/s、下降2 %/s）、平滑化5 s"
+
+#: crates/rigg/src/pages/viftekurve.rs:70
+msgid "Balansert"
+msgstr "バランス"
+
+#: crates/rigg/src/pages/viftekurve.rs:77
+msgid "Standardkurven: 3 °C hysterese, 10 %/s opp og 3 %/s ned, ingen utjevning"
+msgstr "標準カーブ：ヒステリシス3 °C、上昇10 %/s、下降3 %/s、平滑化なし"
+
+#: crates/rigg/src/pages/viftekurve.rs:81
+msgid "Ytelse"
+msgstr "パフォーマンス"
+
+#: crates/rigg/src/pages/viftekurve.rs:88
+msgid "Kjøligst: høyere kurve, 2 °C hysterese og rask rampe (20 %/s opp, 5 %/s ned)"
+msgstr "冷却優先：高めのファンカーブ、ヒステリシス2 °C、急速な変化（上昇20 %/s、下降5 %/s）"
+
+#: crates/rigg/src/pages/viftekurve.rs:121
+msgid "{navn} · endret"
+msgstr "{navn} · 変更済み"
+
+#: crates/rigg/src/pages/viftekurve.rs:1227 crates/rigg/src/pages/viftekurve.rs:2605
+msgid "Auto (driveren)"
+msgstr "自動（ドライバー）"
+
+#: crates/rigg/src/pages/viftekurve.rs:1227
+msgid "Driveren styrer viftene etter temperaturen, som uten appen. Standard."
+msgstr "アプリを使用しないときと同様に、ドライバーが温度に応じてファン速度を調整します。標準モードです。"
+
+#: crates/rigg/src/pages/viftekurve.rs:1228 crates/rigg/src/pages/viftekurve.rs:2607
+msgid "Kurve"
+msgstr "カーブ"
+
+#: crates/rigg/src/pages/viftekurve.rs:1228
+msgid "Agentic Rigg setter farten etter viftekurven hvert sekund."
+msgstr "Agentic Riggがカーブに従って毎秒ファン速度を調整します。"
+
+#: crates/rigg/src/pages/viftekurve.rs:1229 crates/rigg/src/pages/viftekurve.rs:2606
+msgid "Manuell"
+msgstr "手動"
+
+#: crates/rigg/src/pages/viftekurve.rs:1229
+msgid "Fast fart, uansett temperatur. Pass på temperaturen under last."
+msgstr "温度にかかわらず一定の速度で回転します。負荷時の温度に注意してください。"
+
+#: crates/rigg/src/pages/viftekurve.rs:1306
+msgid "Effektgrense"
+msgstr "電力制限"
+
+#: crates/rigg/src/pages/viftekurve.rs:1309
+msgid "Temperaturmål"
+msgstr "目標温度"
+
+#: crates/rigg/src/pages/viftekurve.rs:1314 crates/rigg/src/pages/viftekurve.rs:1711 crates/rigg/src/pages/viftekurve.rs:1713
+msgid "Hysterese"
+msgstr "ヒステリシス"
+
+#: crates/rigg/src/pages/viftekurve.rs:1315 crates/rigg/src/pages/viftekurve.rs:1717 crates/rigg/src/pages/viftekurve.rs:1719
+msgid "Rampe opp"
+msgstr "上昇レート"
+
+#: crates/rigg/src/pages/viftekurve.rs:1316 crates/rigg/src/pages/viftekurve.rs:1720 crates/rigg/src/pages/viftekurve.rs:1722
+msgid "Rampe ned"
+msgstr "下降レート"
+
+#: crates/rigg/src/pages/viftekurve.rs:1318 crates/rigg/src/pages/viftekurve.rs:1727
+msgid "Hold minimum til"
+msgstr "最低速度を保つ温度"
+
+#: crates/rigg/src/pages/viftekurve.rs:1552
+msgid "Enkel"
+msgstr "基本"
+
+#: crates/rigg/src/pages/viftekurve.rs:1552
+msgid "Avansert"
+msgstr "詳細"
+
+#: crates/rigg/src/pages/viftekurve.rs:1552
+msgid "Visning av viftestyring"
+msgstr "ファン制御の表示モード"
+
+#: crates/rigg/src/pages/viftekurve.rs:1576 crates/rigg/src/pages/viftekurve.rs:1776 crates/rigg/src/pages/viftekurve.rs:1985
+msgid "Temperatur"
+msgstr "温度"
+
+#: crates/rigg/src/pages/viftekurve.rs:1576
+msgid "Viftefart nå"
+msgstr "現在のファン速度"
+
+#: crates/rigg/src/pages/viftekurve.rs:1576
+msgid "Vifter oppdaget"
+msgstr "検出されたファン"
+
+#: crates/rigg/src/pages/viftekurve.rs:1576
+msgid "Mål-fart"
+msgstr "目標速度"
+
+#: crates/rigg/src/pages/viftekurve.rs:1576
+msgid "Modus"
+msgstr "モード"
+
+#: crates/rigg/src/pages/viftekurve.rs:1576 crates/rigg/src/pages/viftekurve.rs:2702
+msgid "Kurven gir"
+msgstr "カーブの出力"
+
+#: crates/rigg/src/pages/viftekurve.rs:1602
+msgid "Kortets viftekurve"
+msgstr "GPUファンカーブ"
+
+#: crates/rigg/src/pages/viftekurve.rs:1616
+msgid "{navn}: {om} (i utkastet, felles for kortets vifter)"
+msgstr "{navn}：{om}（下書き内、GPUの全ファンで共通）"
+
+#: crates/rigg/src/pages/viftekurve.rs:1620
+msgid "Tilbakestill kurven"
+msgstr "カーブをリセット"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "Tidsvindu for målingene"
+msgstr "計測期間"
+
+#: crates/rigg/src/pages/viftekurve.rs:1690
+msgid "Bruk kurven"
+msgstr "カーブを使用"
+
+#: crates/rigg/src/pages/viftekurve.rs:1700
+msgid "Oppførsel"
+msgstr "動作設定"
+
+#: crates/rigg/src/pages/viftekurve.rs:1714
+msgid "Av"
+msgstr "オフ"
+
+#: crates/rigg/src/pages/viftekurve.rs:1714 crates/rigg/src/pages/viftekurve.rs:1715
+msgid "Utjevning av temperaturen"
+msgstr "温度の平滑化"
+
+#: crates/rigg/src/pages/viftekurve.rs:1763 crates/rigg/src/pages/viftekurve.rs:2435
+msgid "Siste 5 minutter med kurven"
+msgstr "直近5分間のカーブ適用結果"
+
+#: crates/rigg/src/pages/viftekurve.rs:1776 crates/rigg/src/pages/viftekurve.rs:2453
+msgid "Med kurven"
+msgstr "カーブ適用時"
+
+#: crates/rigg/src/pages/viftekurve.rs:1776 crates/rigg/src/pages/viftekurve.rs:2456
+msgid "Vifte 2 med kurven"
+msgstr "カーブ適用時のファン2"
+
+#: crates/rigg/src/pages/viftekurve.rs:1776
+msgid "Slik viftene gikk"
+msgstr "実際のファン速度"
+
+#: crates/rigg/src/pages/viftekurve.rs:1804
+msgid "Viftestyring"
+msgstr "ファン制御"
+
+#: crates/rigg/src/pages/viftekurve.rs:1830
+msgid "kortet nå"
+msgstr "現在"
+
+#: crates/rigg/src/pages/viftekurve.rs:1855
+msgid "Fast viftefart"
+msgstr "固定ファン速度"
+
+#: crates/rigg/src/pages/viftekurve.rs:1877
+msgid "Åpne avansert"
+msgstr "詳細表示を開く"
+
+#: crates/rigg/src/pages/viftekurve.rs:1887
+msgid "Endringer som brukes"
+msgstr "適用する変更"
+
+#: crates/rigg/src/pages/viftekurve.rs:1898
+msgid "Åpne Klokker og effekt"
+msgstr "クロックと電力を開く"
+
+#: crates/rigg/src/pages/viftekurve.rs:1899
+msgid "Åpne Avansert"
+msgstr "詳細表示を開く"
+
+#: crates/rigg/src/pages/viftekurve.rs:1906
+msgid "Punktene"
+msgstr "制御点"
+
+#: crates/rigg/src/pages/viftekurve.rs:1907
+msgid "Legg til"
+msgstr "追加"
+
+#: crates/rigg/src/pages/viftekurve.rs:1914
+msgid "Slik følges kurven"
+msgstr "カーブの動作"
+
+#: crates/rigg/src/pages/viftekurve.rs:2000
+msgid "Forkast utkast"
+msgstr "下書きを破棄"
+
+#: crates/rigg/src/pages/viftekurve.rs:2002
+msgid "Bruk"
+msgstr "適用"
+
+#: crates/rigg/src/pages/viftekurve.rs:2324
+msgid "Utkastet er forkastet"
+msgstr "下書きを破棄しました"
+
+#: crates/rigg/src/pages/viftekurve.rs:2324
+msgid "Angre"
+msgstr "元に戻す"
+
+#: crates/rigg/src/pages/viftekurve.rs:2494
+msgid "Ingen data"
+msgstr "データなし"
+
+#: crates/rigg/src/pages/viftekurve.rs:2559
+msgid "Funksjonen er utilgjengelig"
+msgstr "この機能は利用できません"
+
+#: crates/rigg/src/pages/viftekurve.rs:2570
+msgid "Kunne ikke bruke utkastet"
+msgstr "下書きを適用できませんでした"
+
+#: crates/rigg/src/pages/viftekurve.rs:2604 crates/rigg/src/pages/viftekurve.rs:2659 crates/rigg/src/pages/viftekurve.rs:2774
+msgid "Fast fart"
+msgstr "固定速度"
+
+#: crates/rigg/src/pages/viftekurve.rs:2663
+msgid "utkast: {modus}"
+msgstr "下書き：{modus}"
+
+#: crates/rigg/src/pages/viftekurve.rs:2737
+msgid "Balansert · standard"
+msgstr "バランス · 標準"
+
+#: crates/rigg/src/pages/viftekurve.rs:2740
+msgid "Egne kurver per vifte"
+msgstr "ファンごとのカスタムカーブ"
+
+#: crates/rigg/src/pages/viftekurve.rs:2741
+msgid "Egendefinert"
+msgstr "カスタム"
+
+#: crates/rigg/src/pages/viftekurve.rs:2808
+msgid "Ingen endringer"
+msgstr "変更なし"
+
+#: crates/rigg/src/pages/viftekurve.rs:2809
+msgid "{n} endring i utkastet"
+msgid_plural "{n} endringer i utkastet"
+msgstr[0] "下書きに{n}件の変更"
+
+#: crates/rigg/src/pages/viftekurve.rs:2931
+msgid "Fjern punktet"
+msgstr "点を削除"

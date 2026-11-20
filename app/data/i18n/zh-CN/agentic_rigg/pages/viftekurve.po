@@ -1,0 +1,269 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: crates/rigg/src/pages/viftekurve.rs:59
+msgid "Stille"
+msgstr "静音"
+
+#: crates/rigg/src/pages/viftekurve.rs:66
+msgid "Minste fart til 55 °C, 5 °C hysterese, rolig rampe (5 %/s opp, 2 %/s ned) og 5 s utjevning"
+msgstr "55 °C 前保持最低转速，温度滞回 5 °C，缓慢变速（上升 5 %/s，下降 2 %/s），平滑 5 s"
+
+#: crates/rigg/src/pages/viftekurve.rs:70
+msgid "Balansert"
+msgstr "均衡"
+
+#: crates/rigg/src/pages/viftekurve.rs:77
+msgid "Standardkurven: 3 °C hysterese, 10 %/s opp og 3 %/s ned, ingen utjevning"
+msgstr "默认曲线：温度滞回 3 °C，上升 10 %/s，下降 3 %/s，不平滑"
+
+#: crates/rigg/src/pages/viftekurve.rs:81
+msgid "Ytelse"
+msgstr "性能"
+
+#: crates/rigg/src/pages/viftekurve.rs:88
+msgid "Kjøligst: høyere kurve, 2 °C hysterese og rask rampe (20 %/s opp, 5 %/s ned)"
+msgstr "散热优先：较高转速曲线，温度滞回 2 °C，快速变速（上升 20 %/s，下降 5 %/s）"
+
+#: crates/rigg/src/pages/viftekurve.rs:121
+msgid "{navn} · endret"
+msgstr "{navn} · 已修改"
+
+#: crates/rigg/src/pages/viftekurve.rs:1227 crates/rigg/src/pages/viftekurve.rs:2605
+msgid "Auto (driveren)"
+msgstr "自动（驱动程序）"
+
+#: crates/rigg/src/pages/viftekurve.rs:1227
+msgid "Driveren styrer viftene etter temperaturen, som uten appen. Standard."
+msgstr "驱动程序按温度控制风扇，与不运行应用时相同。默认模式。"
+
+#: crates/rigg/src/pages/viftekurve.rs:1228 crates/rigg/src/pages/viftekurve.rs:2607
+msgid "Kurve"
+msgstr "曲线"
+
+#: crates/rigg/src/pages/viftekurve.rs:1228
+msgid "Agentic Rigg setter farten etter viftekurven hvert sekund."
+msgstr "Agentic Rigg 每秒根据曲线调整风扇转速。"
+
+#: crates/rigg/src/pages/viftekurve.rs:1229 crates/rigg/src/pages/viftekurve.rs:2606
+msgid "Manuell"
+msgstr "手动"
+
+#: crates/rigg/src/pages/viftekurve.rs:1229
+msgid "Fast fart, uansett temperatur. Pass på temperaturen under last."
+msgstr "不随温度变化的固定转速。请关注负载下的温度。"
+
+#: crates/rigg/src/pages/viftekurve.rs:1306
+msgid "Effektgrense"
+msgstr "功率限制"
+
+#: crates/rigg/src/pages/viftekurve.rs:1309
+msgid "Temperaturmål"
+msgstr "目标温度"
+
+#: crates/rigg/src/pages/viftekurve.rs:1314 crates/rigg/src/pages/viftekurve.rs:1711 crates/rigg/src/pages/viftekurve.rs:1713
+msgid "Hysterese"
+msgstr "温度滞回"
+
+#: crates/rigg/src/pages/viftekurve.rs:1315 crates/rigg/src/pages/viftekurve.rs:1717 crates/rigg/src/pages/viftekurve.rs:1719
+msgid "Rampe opp"
+msgstr "升速速率"
+
+#: crates/rigg/src/pages/viftekurve.rs:1316 crates/rigg/src/pages/viftekurve.rs:1720 crates/rigg/src/pages/viftekurve.rs:1722
+msgid "Rampe ned"
+msgstr "降速速率"
+
+#: crates/rigg/src/pages/viftekurve.rs:1318 crates/rigg/src/pages/viftekurve.rs:1727
+msgid "Hold minimum til"
+msgstr "保持最低转速直至"
+
+#: crates/rigg/src/pages/viftekurve.rs:1552
+msgid "Enkel"
+msgstr "基础"
+
+#: crates/rigg/src/pages/viftekurve.rs:1552
+msgid "Avansert"
+msgstr "高级"
+
+#: crates/rigg/src/pages/viftekurve.rs:1552
+msgid "Visning av viftestyring"
+msgstr "风扇控制视图"
+
+#: crates/rigg/src/pages/viftekurve.rs:1576 crates/rigg/src/pages/viftekurve.rs:1776 crates/rigg/src/pages/viftekurve.rs:1985
+msgid "Temperatur"
+msgstr "温度"
+
+#: crates/rigg/src/pages/viftekurve.rs:1576
+msgid "Viftefart nå"
+msgstr "当前风扇转速"
+
+#: crates/rigg/src/pages/viftekurve.rs:1576
+msgid "Vifter oppdaget"
+msgstr "检测到的风扇"
+
+#: crates/rigg/src/pages/viftekurve.rs:1576
+msgid "Mål-fart"
+msgstr "目标转速"
+
+#: crates/rigg/src/pages/viftekurve.rs:1576
+msgid "Modus"
+msgstr "模式"
+
+#: crates/rigg/src/pages/viftekurve.rs:1576 crates/rigg/src/pages/viftekurve.rs:2702
+msgid "Kurven gir"
+msgstr "曲线设定值"
+
+#: crates/rigg/src/pages/viftekurve.rs:1602
+msgid "Kortets viftekurve"
+msgstr "显卡风扇曲线"
+
+#: crates/rigg/src/pages/viftekurve.rs:1616
+msgid "{navn}: {om} (i utkastet, felles for kortets vifter)"
+msgstr "{navn}：{om}（草稿中，所有显卡风扇共用）"
+
+#: crates/rigg/src/pages/viftekurve.rs:1620
+msgid "Tilbakestill kurven"
+msgstr "重置曲线"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "Tidsvindu for målingene"
+msgstr "测量时间范围"
+
+#: crates/rigg/src/pages/viftekurve.rs:1690
+msgid "Bruk kurven"
+msgstr "使用曲线"
+
+#: crates/rigg/src/pages/viftekurve.rs:1700
+msgid "Oppførsel"
+msgstr "控制参数"
+
+#: crates/rigg/src/pages/viftekurve.rs:1714
+msgid "Av"
+msgstr "关闭"
+
+#: crates/rigg/src/pages/viftekurve.rs:1714 crates/rigg/src/pages/viftekurve.rs:1715
+msgid "Utjevning av temperaturen"
+msgstr "温度平滑"
+
+#: crates/rigg/src/pages/viftekurve.rs:1763 crates/rigg/src/pages/viftekurve.rs:2435
+msgid "Siste 5 minutter med kurven"
+msgstr "最近 5 分钟的曲线效果"
+
+#: crates/rigg/src/pages/viftekurve.rs:1776 crates/rigg/src/pages/viftekurve.rs:2453
+msgid "Med kurven"
+msgstr "使用曲线"
+
+#: crates/rigg/src/pages/viftekurve.rs:1776 crates/rigg/src/pages/viftekurve.rs:2456
+msgid "Vifte 2 med kurven"
+msgstr "风扇 2 使用曲线"
+
+#: crates/rigg/src/pages/viftekurve.rs:1776
+msgid "Slik viftene gikk"
+msgstr "实际风扇转速"
+
+#: crates/rigg/src/pages/viftekurve.rs:1804
+msgid "Viftestyring"
+msgstr "风扇控制"
+
+#: crates/rigg/src/pages/viftekurve.rs:1830
+msgid "kortet nå"
+msgstr "当前"
+
+#: crates/rigg/src/pages/viftekurve.rs:1855
+msgid "Fast viftefart"
+msgstr "固定风扇转速"
+
+#: crates/rigg/src/pages/viftekurve.rs:1877
+msgid "Åpne avansert"
+msgstr "打开高级视图"
+
+#: crates/rigg/src/pages/viftekurve.rs:1887
+msgid "Endringer som brukes"
+msgstr "待应用的更改"
+
+#: crates/rigg/src/pages/viftekurve.rs:1898
+msgid "Åpne Klokker og effekt"
+msgstr "打开频率和功率"
+
+#: crates/rigg/src/pages/viftekurve.rs:1899
+msgid "Åpne Avansert"
+msgstr "打开高级视图"
+
+#: crates/rigg/src/pages/viftekurve.rs:1906
+msgid "Punktene"
+msgstr "控制点"
+
+#: crates/rigg/src/pages/viftekurve.rs:1907
+msgid "Legg til"
+msgstr "添加"
+
+#: crates/rigg/src/pages/viftekurve.rs:1914
+msgid "Slik følges kurven"
+msgstr "曲线工作方式"
+
+#: crates/rigg/src/pages/viftekurve.rs:2000
+msgid "Forkast utkast"
+msgstr "放弃草稿"
+
+#: crates/rigg/src/pages/viftekurve.rs:2002
+msgid "Bruk"
+msgstr "应用"
+
+#: crates/rigg/src/pages/viftekurve.rs:2324
+msgid "Utkastet er forkastet"
+msgstr "已放弃草稿"
+
+#: crates/rigg/src/pages/viftekurve.rs:2324
+msgid "Angre"
+msgstr "撤销"
+
+#: crates/rigg/src/pages/viftekurve.rs:2494
+msgid "Ingen data"
+msgstr "无数据"
+
+#: crates/rigg/src/pages/viftekurve.rs:2559
+msgid "Funksjonen er utilgjengelig"
+msgstr "功能不可用"
+
+#: crates/rigg/src/pages/viftekurve.rs:2570
+msgid "Kunne ikke bruke utkastet"
+msgstr "无法应用草稿"
+
+#: crates/rigg/src/pages/viftekurve.rs:2604 crates/rigg/src/pages/viftekurve.rs:2659 crates/rigg/src/pages/viftekurve.rs:2774
+msgid "Fast fart"
+msgstr "固定转速"
+
+#: crates/rigg/src/pages/viftekurve.rs:2663
+msgid "utkast: {modus}"
+msgstr "草稿：{modus}"
+
+#: crates/rigg/src/pages/viftekurve.rs:2737
+msgid "Balansert · standard"
+msgstr "均衡 · 默认"
+
+#: crates/rigg/src/pages/viftekurve.rs:2740
+msgid "Egne kurver per vifte"
+msgstr "各风扇的自定义曲线"
+
+#: crates/rigg/src/pages/viftekurve.rs:2741
+msgid "Egendefinert"
+msgstr "自定义"
+
+#: crates/rigg/src/pages/viftekurve.rs:2808
+msgid "Ingen endringer"
+msgstr "无更改"
+
+#: crates/rigg/src/pages/viftekurve.rs:2809
+msgid "{n} endring i utkastet"
+msgid_plural "{n} endringer i utkastet"
+msgstr[0] "草稿中有 {n} 项更改"
+
+#: crates/rigg/src/pages/viftekurve.rs:2931
+msgid "Fjern punktet"
+msgstr "移除点"

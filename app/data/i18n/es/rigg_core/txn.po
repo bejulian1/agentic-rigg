@@ -1,0 +1,48 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: crates/rigg-core/src/txn.rs:278
+msgid "Viftekurven må være en liste med punkter"
+msgstr "La curva de ventiladores debe ser una lista de puntos"
+
+#: crates/rigg-core/src/txn.rs:279
+msgid "Temperaturene i viftekurven må stige"
+msgstr "Las temperaturas de la curva de ventiladores deben ser crecientes"
+
+#: crates/rigg-core/src/txn.rs:280
+msgid "fan.curves må være en liste med kurver"
+msgstr "fan.curves debe ser una lista de curvas"
+
+#: crates/rigg-core/src/txn.rs:281
+msgid "settings må være et objekt"
+msgstr "settings debe ser un objeto"
+
+#: crates/rigg-core/src/txn.rs:282
+msgid "clockOffsets må være et objekt"
+msgstr "clockOffsets debe ser un objeto"
+
+#: crates/rigg-core/src/txn.rs:283
+msgid "fan må være et objekt"
+msgstr "fan debe ser un objeto"
+
+#: crates/rigg-core/src/txn.rs:284
+msgid "fan.mode må være auto, curve eller manual"
+msgstr "fan.mode debe ser auto, curve o manual"
+
+#: crates/rigg-core/src/txn.rs:285
+msgid "fan.perFan må være true eller false"
+msgstr "fan.perFan debe ser true o false"
+
+#: crates/rigg-core/src/txn.rs:286
+msgid "confirmTimeoutS må være et tall"
+msgstr "confirmTimeoutS debe ser un número"
+
+#: crates/rigg-core/src/txn.rs:287
+msgid "Oppsettet må være innenfor rapporterte grenser og viftekurven må være stigende."
+msgstr "Los ajustes deben estar dentro de los límites indicados y la curva de ventiladores debe ser creciente."

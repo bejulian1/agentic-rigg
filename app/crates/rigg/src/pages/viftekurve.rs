@@ -29,6 +29,7 @@ use gtk::{gdk, glib, graphene};
 use rigg_core::fmt as F;
 use rigg_core::txn::{self, FanMode, Gate, Values};
 use rigg_core::vifte;
+use rigg_core::{tr, trf, trn};
 use serde_json::{Value, json};
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
@@ -40,7 +41,7 @@ pub type CurveFn = dyn Fn(Vec<(f64, f64)>);
 #[derive(Clone, Copy, Debug)]
 pub struct Preset {
     pub id: &'static str,
-    pub name: &'static str,
+    pub name: fn() -> &'static str,
     pub curve: &'static [(f64, f64)],
     pub hyst: f64,
     pub up: f64,
@@ -48,43 +49,43 @@ pub struct Preset {
     pub smooth: f64,
     pub quiet: Option<f64>,
     /// Verktøytipset på knappen.
-    pub about: &'static str,
+    pub about: fn() -> &'static str,
 }
 
 /// Forhåndsvalgene. Balansert er standarden (`Values::default`).
 pub const PRESETS: [Preset; 3] = [
     Preset {
         id: "quiet",
-        name: "Stille",
+        name: || tr!("Stille"),
         curve: &[(45.0, 35.0), (60.0, 40.0), (70.0, 50.0), (78.0, 65.0), (85.0, 85.0), (92.0, 100.0)],
         hyst: 5.0,
         up: 5.0,
         down: 2.0,
         smooth: 5.0,
         quiet: Some(55.0),
-        about: "Minste fart til 55 °C, 5 °C hysterese, rolig rampe (5 %/s opp, 2 %/s ned) og 5 s utjevning",
+        about: || tr!("Minste fart til 55 °C, 5 °C hysterese, rolig rampe (5 %/s opp, 2 %/s ned) og 5 s utjevning"),
     },
     Preset {
         id: "balanced",
-        name: "Balansert",
+        name: || tr!("Balansert"),
         curve: &txn::DEFAULT_CURVE,
         hyst: vifte::HYSTERESE_STANDARD_C,
         up: vifte::RAMPE_OPP_STANDARD,
         down: vifte::RAMPE_NED_STANDARD,
         smooth: 0.0,
         quiet: None,
-        about: "Standardkurven: 3 °C hysterese, 10 %/s opp og 3 %/s ned, ingen utjevning",
+        about: || tr!("Standardkurven: 3 °C hysterese, 10 %/s opp og 3 %/s ned, ingen utjevning"),
     },
     Preset {
         id: "perf",
-        name: "Ytelse",
+        name: || tr!("Ytelse"),
         curve: &[(30.0, 40.0), (45.0, 50.0), (58.0, 66.0), (68.0, 80.0), (76.0, 92.0), (84.0, 100.0)],
         hyst: 2.0,
         up: 20.0,
         down: 5.0,
         smooth: 0.0,
         quiet: None,
-        about: "Kjøligst: høyere kurve, 2 °C hysterese og rask rampe (20 %/s opp, 5 %/s ned)",
+        about: || tr!("Kjøligst: høyere kurve, 2 °C hysterese og rask rampe (20 %/s opp, 5 %/s ned)"),
     },
 ];
 
@@ -115,9 +116,9 @@ impl Preset {
 /// forhåndsvalg, men oppførselen er endret) eller `None` (egendefinert).
 pub fn preset_name(v: &Values) -> Option<String> {
     if let Some(p) = PRESETS.iter().find(|p| p.matches(v)) {
-        return Some(p.name.to_string());
+        return Some((p.name)().to_string());
     }
-    PRESETS.iter().find(|p| p.curve_matches(v)).map(|p| format!("{} · endret", p.name))
+    PRESETS.iter().find(|p| p.curve_matches(v)).map(|p| trf!("{navn} · endret", navn = (p.name)()))
 }
 
 /// Kurven og alt om hvordan den følges tilbake til standard (`st`).
@@ -1221,11 +1222,13 @@ impl Preview {
 // ================================================================ siden
 
 /// Modusene med forklaring.
-const MODES: [(FanMode, &str, &str); 3] = [
-    (FanMode::Auto, "Auto (driveren)", "Driveren styrer viftene etter temperaturen, som uten appen. Standard."),
-    (FanMode::Curve, "Kurve", "Agentic Rigg setter farten etter viftekurven hvert sekund."),
-    (FanMode::Manual, "Manuell", "Fast fart, uansett temperatur. Pass på temperaturen under last."),
-];
+fn mode_options() -> [(FanMode, &'static str, &'static str); 3] {
+    [
+        (FanMode::Auto, tr!("Auto (driveren)"), tr!("Driveren styrer viftene etter temperaturen, som uten appen. Standard.")),
+        (FanMode::Curve, tr!("Kurve"), tr!("Agentic Rigg setter farten etter viftekurven hvert sekund.")),
+        (FanMode::Manual, tr!("Manuell"), tr!("Fast fart, uansett temperatur. Pass på temperaturen under last.")),
+    ]
+}
 
 fn simple_curve_message(card: FanMode, shown: FanMode, editing: bool) -> Option<&'static str> {
     if card == FanMode::Curve {
@@ -1300,19 +1303,19 @@ fn simple_hidden_draft(before: &Values, after: &Values) -> HiddenDraft {
     }
     fn text(v: &Values, field: &str) -> (&'static str, String) {
         match field {
-            "powerLimitW" => ("Effektgrense", F::watt(Some(v.power_limit_w), 0)),
+            "powerLimitW" => (tr!("Effektgrense"), F::watt(Some(v.power_limit_w), 0)),
             "clockOffsets.coreMhz" => ("GPU-justering", locked::signed(v.core_offset_mhz, "MHz")),
             "clockOffsets.memMhz" => ("Minnejustering", locked::signed(v.mem_offset_mhz, "MHz")),
-            "tempTargetC" => ("Temperaturmål", F::temp(Some(v.temp_target_c), 0)),
+            "tempTargetC" => (tr!("Temperaturmål"), F::temp(Some(v.temp_target_c), 0)),
             "fan.manualPercent" => ("Lagret fast fart", F::pct(Some(v.fan_percent), 0)),
             "fan.curve" => ("Felles viftekurve", curve(&v.fan_curve)),
             "fan.perFan" => ("Viftekurver", if v.fan_per_fan { "per vifte" } else { "felles" }.into()),
             "fan.curves" => ("Kurver per vifte", if v.fan_curves.is_empty() { "ingen egne kurver".into() } else { v.fan_curves.iter().enumerate().map(|(i, c)| format!("Vifte {}: {}", i + 1, curve(c))).collect::<Vec<_>>().join("; ") }),
-            "fan.hysteresisC" => ("Hysterese", F::temp_delta(v.fan_hysteresis_c, 0)),
-            "fan.rampUpPctS" => ("Rampe opp", rate_text(v.fan_ramp_up_pct_s)),
-            "fan.rampDownPctS" => ("Rampe ned", rate_text(v.fan_ramp_down_pct_s)),
+            "fan.hysteresisC" => (tr!("Hysterese"), F::temp_delta(v.fan_hysteresis_c, 0)),
+            "fan.rampUpPctS" => (tr!("Rampe opp"), rate_text(v.fan_ramp_up_pct_s)),
+            "fan.rampDownPctS" => (tr!("Rampe ned"), rate_text(v.fan_ramp_down_pct_s)),
             "fan.smoothingS" => ("Utjevning", if v.fan_smoothing_s > 0.0 { format!("{}{}s", v.fan_smoothing_s, F::NNBSP) } else { "av".into() }),
-            "fan.quietUntilC" => ("Hold minimum til", v.fan_quiet_until_c.map(|t| F::temp(Some(t), 0)).unwrap_or_else(|| "av".into())),
+            "fan.quietUntilC" => (tr!("Hold minimum til"), v.fan_quiet_until_c.map(|t| F::temp(Some(t), 0)).unwrap_or_else(|| "av".into())),
             _ => ("Annen innstilling", field.into()),
         }
     }
@@ -1546,7 +1549,7 @@ impl Page for Wrap {
 pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     let root = vbox(8, &["page", "styring", "viftekurve"]);
     root.append(&crate::widgets::styrer::TargetLine::new(app).root);
-    let view_seg = Seg::new(&[("simple", "Enkel"), ("advanced", "Avansert")], if locked::fan_advanced(app) { "advanced" } else { "simple" }, "Visning av viftestyring");
+    let view_seg = Seg::new(&[("simple", tr!("Enkel")), ("advanced", tr!("Avansert"))], if locked::fan_advanced(app) { "advanced" } else { "simple" }, tr!("Visning av viftestyring"));
     view_seg.root.add_css_class("fan-view-switch");
     view_seg.root.set_hexpand(true);
     for id in ["simple", "advanced"] {
@@ -1570,7 +1573,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     // ---- Viftene nå ----
     let st = StatStrip::new(6);
     st.root.set_min_children_per_line(3);
-    let stats: Vec<Rc<Stat>> = ["Temperatur", "Viftefart nå", "Vifter oppdaget", "Mål-fart", "Modus", "Kurven gir"].iter().map(|n| Stat::new(app, n)).collect();
+    let stats: Vec<Rc<Stat>> = [tr!("Temperatur"), tr!("Viftefart nå"), tr!("Vifter oppdaget"), tr!("Mål-fart"), tr!("Modus"), tr!("Kurven gir")].iter().map(|n| Stat::new(app, n)).collect();
     for s in &stats {
         st.add(s);
     }
@@ -1596,7 +1599,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     root.append(&live);
 
     // ---- Kurven ----
-    let main = Panel::new("Kortets viftekurve");
+    let main = Panel::new(tr!("Kortets viftekurve"));
     main.root.add_css_class("curve-card");
     let name = label("", &["tag", "quiet", "curve-name"]);
     name.set_valign(gtk::Align::Center);
@@ -1609,12 +1612,12 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     let mut preset_btns = Vec::new();
     let presets = hbox(2, &["preset-row"]);
     for p in PRESETS {
-        let b = button(None, Some(p.name), &["sm", "flat"]);
-        tip(&b, &format!("{}: {} (i utkastet, felles for kortets vifter)", p.name, p.about), None);
+        let b = button(None, Some((p.name)()), &["sm", "flat"]);
+        tip(&b, &trf!("{navn}: {om} (i utkastet, felles for kortets vifter)", navn = (p.name)(), om = (p.about)()), None);
         presets.append(&b);
         preset_btns.push((p.id, b));
     }
-    let reset_curve = button(Some("rotate-ccw"), Some("Tilbakestill kurven"), &["sm"]);
+    let reset_curve = button(Some("rotate-ccw"), Some(tr!("Tilbakestill kurven")), &["sm"]);
     tip(&reset_curve, "Kurven, hysteresen, rampen og resten av oppførselen tilbake til standard (Balansert)", None);
     main.aside.append(&presets);
     main.aside.append(&reset_curve);
@@ -1666,7 +1669,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     // 48 t» får alltid plass, også ved 640 px.
     let count = label("", &["muted", "sm", "num", "curve-count"]);
     count.set_xalign(1.0);
-    let win_seg = Seg::new(&[("3600", "1 t"), ("21600", "6 t"), ("86400", "24 t"), ("172800", "48 t")], "172800", "Tidsvindu for målingene").small();
+    let win_seg = Seg::new(&[("3600", "1 t"), ("21600", "6 t"), ("86400", "24 t"), ("172800", "48 t")], "172800", tr!("Tidsvindu for målingene")).small();
     let win_box = vbox(2, &["curve-window"]);
     win_box.set_valign(gtk::Align::Start);
     win_box.set_hexpand(true);
@@ -1684,7 +1687,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     let head_note = label("", &["muted", "sm"]);
     head_note.set_wrap(true);
     head_note.set_hexpand(true);
-    let use_curve = button(None, Some("Bruk kurven"), &["sm"]);
+    let use_curve = button(None, Some(tr!("Bruk kurven")), &["sm"]);
     tip(&use_curve, "Setter viftemodus til Kurve i utkastet", None);
     foot.append(&head_note);
     foot.append(&use_curve);
@@ -1694,7 +1697,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     main.body.append(&help);
 
     // ---- Oppførsel: hysterese, rampe, utjevning og stille flate ----
-    let tune_p = Panel::new("Oppførsel");
+    let tune_p = Panel::new(tr!("Oppførsel"));
     tune_p.root.add_css_class("tune-card");
     let tune_grid = Cols::new(&[1.0, 1.0], 16, 520);
     let mk_slider = |name: &str, lo: f64, hi: f64, step: f64, big: f64, fmt: fn(f64) -> String| {
@@ -1705,23 +1708,23 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         sl.set_fmt(fmt);
         sl
     };
-    let hyst = mk_slider("Hysterese", vifte::HYSTERESE.min, vifte::HYSTERESE.max, 1.0, 2.0, |v| F::temp_delta(v, 0));
+    let hyst = mk_slider(tr!("Hysterese"), vifte::HYSTERESE.min, vifte::HYSTERESE.max, 1.0, 2.0, |v| F::temp_delta(v, 0));
     hyst.set_stock(Some(vifte::HYSTERESE_STANDARD_C));
-    let (hyst_cell, hyst_val, hyst_note) = tune_cell("Hysterese", &hyst);
-    let smooth = Seg::new(&[("0", "Av"), ("3", "3 s"), ("5", "5 s"), ("10", "10 s")], "0", "Utjevning av temperaturen").small();
-    let (smooth_cell, smooth_val, smooth_note) = tune_cell("Utjevning av temperaturen", &smooth.root);
+    let (hyst_cell, hyst_val, hyst_note) = tune_cell(tr!("Hysterese"), &hyst);
+    let smooth = Seg::new(&[("0", tr!("Av")), ("3", "3 s"), ("5", "5 s"), ("10", "10 s")], "0", tr!("Utjevning av temperaturen")).small();
+    let (smooth_cell, smooth_val, smooth_note) = tune_cell(tr!("Utjevning av temperaturen"), &smooth.root);
     smooth_val.set_visible(false);
-    let up = mk_slider("Rampe opp", vifte::RAMPE.min, 50.0, 1.0, 5.0, rate_text);
+    let up = mk_slider(tr!("Rampe opp"), vifte::RAMPE.min, 50.0, 1.0, 5.0, rate_text);
     up.set_stock(Some(vifte::RAMPE_OPP_STANDARD));
-    let (up_cell, up_val, up_note) = tune_cell("Rampe opp", &up);
-    let down = mk_slider("Rampe ned", vifte::RAMPE.min, 50.0, 1.0, 5.0, rate_text);
+    let (up_cell, up_val, up_note) = tune_cell(tr!("Rampe opp"), &up);
+    let down = mk_slider(tr!("Rampe ned"), vifte::RAMPE.min, 50.0, 1.0, 5.0, rate_text);
     down.set_stock(Some(vifte::RAMPE_NED_STANDARD));
-    let (down_cell, down_val, down_note) = tune_cell("Rampe ned", &down);
+    let (down_cell, down_val, down_note) = tune_cell(tr!("Rampe ned"), &down);
     let quiet_row = hbox(8, &["quiet-row"]);
     let quiet_sw = gtk::Switch::new();
     quiet_sw.set_valign(gtk::Align::Center);
     quiet_sw.update_property(&[gtk::accessible::Property::Label("Hold minste fart til en temperatur")]);
-    let ql = label("Hold minimum til", &["sm"]);
+    let ql = label(tr!("Hold minimum til"), &["sm"]);
     let quiet_spin = gtk::SpinButton::with_range(vifte::STILLE.min, vifte::STILLE.max, 1.0);
     quiet_spin.set_digits(0);
     quiet_spin.set_width_chars(4);
@@ -1757,7 +1760,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     let tune = Tuning { hyst, hyst_val, hyst_note, up, up_val, up_note, down, down_val, down_note, smooth, smooth_note, quiet_sw, quiet_spin, quiet_unit: qu, quiet_note, stop_note };
 
     // ---- Forhåndsvisning: siste 5 minutter med kurven ----
-    let prev_p = Panel::new("Siste 5 minutter med kurven");
+    let prev_p = Panel::new(tr!("Siste 5 minutter med kurven"));
     prev_p.root.add_css_class("preview-card");
     let preview_title = prev_p.title.clone();
     let plg = gtk::FlowBox::new();
@@ -1770,7 +1773,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     plg.set_halign(gtk::Align::Start);
     plg.set_focusable(false);
     let mut lg = Vec::new();
-    for (cls, txt) in [("lg-curve", "Med kurven"), ("lg-curve2", "Vifte 2 med kurven"), ("lg-actual", "Slik viftene gikk"), ("lg-temp", "Temperatur")] {
+    for (cls, txt) in [("lg-curve", tr!("Med kurven")), ("lg-curve2", tr!("Vifte 2 med kurven")), ("lg-actual", tr!("Slik viftene gikk")), ("lg-temp", tr!("Temperatur"))] {
         let b = hbox(5, &[]);
         let sw = gtk::Box::new(gtk::Orientation::Horizontal, 0);
         sw.add_css_class("lg");
@@ -1798,14 +1801,14 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
 
     // ---- Sidekolonnen ----
     let side = vbox(8, &[]);
-    let mode_p = Panel::new("Viftestyring");
+    let mode_p = Panel::new(tr!("Viftestyring"));
     mode_p.root.add_css_class("fan-mode-card");
     let modes = Cols::new(&[1.0, 1.0, 1.0], 8, 620);
     modes.add_css_class("mode-list");
     let mut mode_btns = Vec::new();
     let mut mode_titles = Vec::new();
     let mut first: Option<gtk::ToggleButton> = None;
-    for (m, title, desc) in MODES {
+    for (m, title, desc) in mode_options() {
         let b = gtk::ToggleButton::new();
         b.add_css_class("mode-opt");
         if let Some(f) = &first {
@@ -1824,7 +1827,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         t.set_wrap(true);
         mode_titles.push((m, t.clone()));
         top.append(&t);
-        let now_tag = tag("kortet nå", None, "quiet");
+        let now_tag = tag(tr!("kortet nå"), None, "quiet");
         now_tag.set_visible(false);
         top.append(&now_tag);
         bx.append(&top);
@@ -1849,7 +1852,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     mode_p.body.append(&readings);
     let manual_box = hbox(8, &["manual-row"]);
     let manual = oc::Slider::new(app);
-    manual.update_property(&[gtk::accessible::Property::Label("Fast viftefart")]);
+    manual.update_property(&[gtk::accessible::Property::Label(tr!("Fast viftefart"))]);
     manual.set_steps(1.0, 5.0);
     manual.set_fmt(|v| F::pct(Some(v), 0));
     let manual_spin = gtk::SpinButton::with_range(35.0, 100.0, 1.0);
@@ -1871,7 +1874,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     let simple_curve_text = label("", &["sm"]);
     simple_curve_text.set_wrap(true);
     simple_curve.append(&simple_curve_text);
-    let open_advanced = button(Some("sliders-horizontal"), Some("Åpne avansert"), &["sm"]);
+    let open_advanced = button(Some("sliders-horizontal"), Some(tr!("Åpne avansert")), &["sm"]);
     open_advanced.set_halign(gtk::Align::Start);
     simple_curve.append(&open_advanced);
     mode_p.body.append(&simple_curve);
@@ -1881,7 +1884,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     mode_p.body.append(&apply_note);
     root.append(&mode_p.root);
 
-    let changes = Panel::new("Endringer som brukes");
+    let changes = Panel::new(tr!("Endringer som brukes"));
     let simple_changes_text = label("", &["sm"]);
     simple_changes_text.set_wrap(true);
     simple_changes_text.set_wrap_mode(gtk::pango::WrapMode::WordChar);
@@ -1892,23 +1895,23 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     simple_changes_note.set_xalign(0.0);
     changes.body.append(&simple_changes_note);
     let change_links = hbox(8, &[]);
-    let open_controls = button(Some("arrow-right"), Some("Åpne Klokker og effekt"), &["sm", "flat"]);
-    let changes_advanced = button(Some("sliders-horizontal"), Some("Åpne Avansert"), &["sm", "flat"]);
+    let open_controls = button(Some("arrow-right"), Some(tr!("Åpne Klokker og effekt")), &["sm", "flat"]);
+    let changes_advanced = button(Some("sliders-horizontal"), Some(tr!("Åpne Avansert")), &["sm", "flat"]);
     change_links.append(&open_controls);
     change_links.append(&changes_advanced);
     changes.body.append(&change_links);
     changes.root.set_visible(false);
     root.append(&changes.root);
 
-    let pts_p = Panel::new("Punktene");
-    let add_pt = button(Some("plus"), Some("Legg til"), &["sm", "flat"]);
+    let pts_p = Panel::new(tr!("Punktene"));
+    let add_pt = button(Some("plus"), Some(tr!("Legg til")), &["sm", "flat"]);
     tip(&add_pt, "Nytt punkt etter det valgte (+)", None);
     pts_p.aside.append(&add_pt);
     let pts_box = vbox(0, &["pts"]);
     pts_p.body.append(&pts_box);
     side.append(&pts_p.root);
 
-    let rules_p = Panel::new("Slik følges kurven");
+    let rules_p = Panel::new(tr!("Slik følges kurven"));
     let mut rule_emerg: Option<gtk::Label> = None;
     let rb = vbox(8, &["rules"]);
     let rules = label("", &["sm"]);
@@ -1979,7 +1982,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         move || {
             row.clear();
             set.clear();
-            let t = chart::def_panel(&app, "gpuTemp", DefOpts { window: 300, sync: None, title: Some("Temperatur".into()), stats: false, now: false });
+            let t = chart::def_panel(&app, "gpuTemp", DefOpts { window: 300, sync: None, title: Some(tr!("Temperatur").into()), stats: false, now: false });
             row.append(&t.root);
             set.add(&t);
             let f = fans_panel(&app);
@@ -1994,9 +1997,9 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     let actions = hbox(6, &["styring-actions"]);
     actions.set_valign(gtk::Align::Center);
     let dirty = label("", &["muted", "sm", "dirty-text"]);
-    let discard = button(None, Some("Forkast utkast"), &["sm", "flat"]);
+    let discard = button(None, Some(tr!("Forkast utkast")), &["sm", "flat"]);
     tip(&discard, "Tilbake til det kortet har. Utkastet slettes (Ctrl+Z angrer).", None);
-    let apply = button(None, Some("Bruk"), &["sm", "suggested"]);
+    let apply = button(None, Some(tr!("Bruk")), &["sm", "suggested"]);
     actions.append(&dirty);
     actions.append(&discard);
     actions.append(&apply);
@@ -2318,7 +2321,7 @@ impl Viftekurve {
             if let Some(p) = w.upgrade() {
                 locked::update(&p.app, "utkast", |s| s.utkast = None);
                 let a = p.app.clone();
-                p.app.toast(crate::toast::Toast::new("Utkastet er forkastet").action("Angre", move || {
+                p.app.toast(crate::toast::Toast::new(tr!("Utkastet er forkastet")).action(tr!("Angre"), move || {
                     locked::undo_draft(&a, false);
                 }));
             }
@@ -2429,7 +2432,7 @@ impl Viftekurve {
         }
         *self.preview_key.borrow_mut() = Some(key);
         let editing = locked::stored(&self.app).utkast.is_some();
-        set_text(&self.preview_title, if editing { "Siste 5 minutter med utkastet" } else { "Siste 5 minutter med kurven" });
+        set_text(&self.preview_title, if editing { "Siste 5 minutter med utkastet" } else { tr!("Siste 5 minutter med kurven") });
         if n == 0 || n > vifte::MAKS_VIFTER {
             self.preview_lg.1.set_visible(false);
             self.preview.set_data(PreviewData::default(), floor, "Forhåndsvisning venter på støttet vifteantall.");
@@ -2447,10 +2450,10 @@ impl Viftekurve {
         let sim = simulate(&v, n, floor, t, temp, start);
         // Egne kurver: den første viften heltrukket, den andre stiplet.
         let per_fan = sim.len() > 1;
-        set_text(&self.preview_lg.0, if per_fan { "Vifte 1 med kurven" } else { "Med kurven" });
+        set_text(&self.preview_lg.0, if per_fan { "Vifte 1 med kurven" } else { tr!("Med kurven") });
         self.preview_lg.1.set_visible(per_fan);
         if let Some(label) = self.preview_lg.1.child().and_then(|w| w.last_child()).and_downcast::<gtk::Label>() {
-            set_text(&label, if n > 2 { "Øvrige vifter med kurven" } else { "Vifte 2 med kurven" });
+            set_text(&label, if n > 2 { "Øvrige vifter med kurven" } else { tr!("Vifte 2 med kurven") });
         }
         let mine = sim.iter().map(|r| fan_summary(r)).collect::<Vec<_>>();
         let real: Vec<f64> = actual.iter().flatten().copied().collect();
@@ -2488,7 +2491,7 @@ impl Viftekurve {
             let count = match span {
                 Some((a, b)) if (b - a) as f64 >= win as f64 * 1000.0 * 0.98 => format!("Data for hele {}", span_text(win * 1000)),
                 Some((a, b)) => format!("Data for {} av {}", span_text(b - a), span_text(win * 1000)),
-                None => "Ingen data".into(),
+                None => tr!("Ingen data").into(),
             };
             set_text(&p.count, &count);
             p.editor.set_points(pts, empty);
@@ -2553,7 +2556,7 @@ impl Viftekurve {
             return;
         }
         if let Some(why) = locked::patch_error(&self.app, &base, &d) {
-            self.app.toast(crate::toast::Toast::new("Funksjonen er utilgjengelig").body(&why).error());
+            self.app.toast(crate::toast::Toast::new(tr!("Funksjonen er utilgjengelig")).body(&why).error());
             return;
         }
         let patch = locked::changed_patch(&base, &d);
@@ -2564,7 +2567,7 @@ impl Viftekurve {
             match res {
                 Ok(v) if v["txn"].is_string() => p.confirm.start(&p.app, &v),
                 Ok(_) => p.app.toast(crate::toast::Toast::new("Ingen endringer å bruke")),
-                Err(e) => p.app.toast(crate::toast::Toast::new("Kunne ikke bruke utkastet").body(&e.message).error()),
+                Err(e) => p.app.toast(crate::toast::Toast::new(tr!("Kunne ikke bruke utkastet")).body(rigg_core::hjelper::display_error(&e).as_ref()).error()),
             }
             p.refresh();
         });
@@ -2598,10 +2601,10 @@ impl Viftekurve {
         for (mode, title) in &self.mode_titles {
             let text = match mode {
                 FanMode::Auto if !advanced => "Auto",
-                FanMode::Manual if !advanced => "Fast fart",
-                FanMode::Auto => "Auto (driveren)",
-                FanMode::Manual => "Manuell",
-                FanMode::Curve => "Kurve",
+                FanMode::Manual if !advanced => tr!("Fast fart"),
+                FanMode::Auto => tr!("Auto (driveren)"),
+                FanMode::Manual => tr!("Manuell"),
+                FanMode::Curve => tr!("Kurve"),
             };
             set_text(title, text);
         }
@@ -2644,15 +2647,20 @@ impl Viftekurve {
         s[3].set(&F::num(tmax, 0), "%", if has_fans { &tsub } else { "ikke avlest" });
         s[3].set_tip("Farten driveren vil ha for hver vifte (nvmlDeviceGetTargetFanSpeed).");
         let card_mode = base.fan_mode;
-        let mode_now = match &r.fan_policy {
-            _ if !has_fans => F::DASH,
-            None => F::DASH,
-            Some(p) if p.iter().all(|x| *x == 0) => "Auto",
+        let mode_read = match &r.fan_policy {
+            _ if !has_fans => None,
+            None => None,
+            Some(p) if p.iter().all(|x| *x == 0) => Some(FanMode::Auto),
             // Bare det simulerte kortet melder kurven tjenesten følger.
-            Some(_) if card_mode == FanMode::Curve => "Kurve",
-            Some(_) => if advanced { "Manuell" } else { "Fast fart" },
+            Some(_) if card_mode == FanMode::Curve => Some(FanMode::Curve),
+            Some(_) => Some(FanMode::Manual),
         };
-        s[4].set(mode_now, "", &if !has_fans { "vifteantall mangler eller er null".into() } else if editing && shown.fan_mode != card_mode { format!("utkast: {}", mode_name(shown.fan_mode)) } else if mode_now == "Auto" { "driveren styrer".into() } else if mode_now == "Kurve" { "tjenesten styrer".into() } else if card_mode == FanMode::Manual && (locked::control_values(&self.app).is_some() || locked::gate(&self.app) == Gate::Sim) { "fast fart fra Agentic Rigg".into() } else if r.fan_policy.is_some() { "satt utenfor appen".into() } else { String::new() });
+        let mode_now = match mode_read {
+            Some(FanMode::Manual) if !advanced => tr!("Fast fart"),
+            Some(mode) => mode_name(mode),
+            None => F::DASH,
+        };
+        s[4].set(mode_now, "", &if !has_fans { "vifteantall mangler eller er null".into() } else if editing && shown.fan_mode != card_mode { trf!("utkast: {modus}", modus = mode_name(shown.fan_mode)) } else if mode_read == Some(FanMode::Auto) { "driveren styrer".into() } else if mode_read == Some(FanMode::Curve) { "tjenesten styrer".into() } else if card_mode == FanMode::Manual && (locked::control_values(&self.app).is_some() || locked::gate(&self.app) == Gate::Sim) { "fast fart fra Agentic Rigg".into() } else if r.fan_policy.is_some() { "satt utenfor appen".into() } else { String::new() });
         s[4].set_tip("Fra nvmlDeviceGetFanControlPolicy_v2. Policy 0 betyr at driveren styrer viftene.");
         // Det kurven ville gitt nå: stille flate, minste fart og per vifte (uten rampe og hysterese).
         let o = vifte::Oppsett::fra_values(&shown, n_fans, floor);
@@ -2691,7 +2699,7 @@ impl Viftekurve {
             set_text(&readings.max_note, &why);
         }
         if let Some(cap) = s[5].root.first_child().and_downcast::<gtk::Label>() {
-            set_text(&cap, if advanced { "Kurven gir" } else { "Manuelt minimum" });
+            set_text(&cap, if advanced { tr!("Kurven gir") } else { "Manuelt minimum" });
         }
         if advanced {
             s[5].set(&F::num(at, 0), "%", &match (r.temp, shown.fan_mode == FanMode::Curve) {
@@ -2726,11 +2734,11 @@ impl Viftekurve {
         self.editor.set_curve(curve.clone(), card_curve || editing && (!fan_shape_is(&shown, &base) || shown.fan_mode == FanMode::Curve));
         let nick = if shown.fan_per_fan { None } else { crate::easter::curve_nickname(&self.app, &shown.fan_curve) };
         let (cname, tipx): (String, Option<&str>) = match (preset_name(&shown), nick) {
-            (Some(p), _) if p == "Balansert" => ("Balansert · standard".into(), None),
+            (Some(_), _) if PRESETS[1].matches(&shown) => (tr!("Balansert · standard").into(), None),
             (Some(p), _) => (p, None),
             (None, Some((n, t))) => (n.into(), Some(t)),
-            _ if shown.fan_per_fan => ("Egne kurver per vifte".into(), None),
-            _ => ("Egendefinert".into(), None),
+            _ if shown.fan_per_fan => (tr!("Egne kurver per vifte").into(), None),
+            _ => (tr!("Egendefinert").into(), None),
         };
         set_text(&self.name, &cname);
         // Navnet kan være kuttet i smale vinduer: hele står i verktøytipset.
@@ -2761,8 +2769,9 @@ impl Viftekurve {
             let unavailable = fan_control_unavailable(actual_count, *m);
             let available = unavailable.is_none() && (!locked::control_ready(&self.app) || locked::supports(&self.app, key));
             b.set_sensitive(available);
-            b.set_tooltip_text(unavailable.or_else(|| (!available).then(|| locked::capability_reason(&self.app, key))).as_deref());
-            let title = if *m == FanMode::Manual && !advanced { "Fast fart" } else { mode_name(*m) };
+            let unavailable = unavailable.or_else(|| (!available).then(|| locked::capability_reason(&self.app, key)));
+            b.set_tooltip_text(unavailable.as_deref().map(rigg_core::hjelper::display_message));
+            let title = if *m == FanMode::Manual && !advanced { tr!("Fast fart") } else { mode_name(*m) };
             b.update_property(&[gtk::accessible::Property::Label(title)]);
             if (*m == shown.fan_mode) != b.is_active() && *m == shown.fan_mode {
                 b.set_active(true);
@@ -2796,9 +2805,8 @@ impl Viftekurve {
         // for inaktive kurvefelt gjennom n/draft_diff nedenfor.
         let stored_changes = base.diff(&d).len();
         set_text(&self.dirty, &match stored_changes {
-            0 => "Ingen endringer".to_string(),
-            1 => "1 endring i utkastet".to_string(),
-            n => format!("{n} endringer i utkastet"),
+            0 => tr!("Ingen endringer").to_string(),
+            n => trn!(n, "{n} endring i utkastet", "{n} endringer i utkastet", n = F::num(Some(n as f64), 0)),
         });
         for w in [self.discard.clone().upcast::<gtk::Widget>(), self.apply.clone().upcast()] {
             w.set_visible(true);
@@ -2920,7 +2928,7 @@ impl Viftekurve {
                 }
                 let rm = button(Some("x"), None, &["sm", "flat"]);
                 rm.update_property(&[gtk::accessible::Property::Label(&format!("Fjern punkt {}", i + 1))]);
-                tip(&rm, "Fjern punktet", None);
+                tip(&rm, tr!("Fjern punktet"), None);
                 rm.set_sensitive(c.len() > txn::CURVE_MIN_POINTS);
                 let w = Rc::downgrade(self);
                 rm.connect_clicked(move |_| {
@@ -3201,19 +3209,19 @@ mod tests {
         for p in PRESETS {
             let mut d = Values { fan_per_fan: true, fan_curves: vec![C.to_vec(); 2], ..Default::default() };
             p.apply(&mut d);
-            assert!(p.matches(&d), "{}", p.name);
+            assert!(p.matches(&d), "{}", (p.name)());
             assert!(!d.fan_per_fan, "forhåndsvalgene er felles for viftene");
-            assert_eq!(preset_name(&d).as_deref(), Some(p.name));
+            assert_eq!(preset_name(&d).as_deref(), Some((p.name)()));
             // Kurven er gyldig for tjenesten.
             let v = json!(p.curve.iter().map(|q| json!([q.0, q.1])).collect::<Vec<_>>());
             let (ok, lifted) = txn::check_curve(&v).unwrap();
-            assert!(!lifted && ok == p.curve.to_vec(), "{}", p.name);
+            assert!(!lifted && ok == p.curve.to_vec(), "{}", (p.name)());
             // Og oppførselen tas imot uten klemming.
             let (back, cl) = txn::merge(&Values::default(), &d.to_json()).unwrap();
-            assert!(cl.is_empty(), "{}: {cl:?}", p.name);
+            assert!(cl.is_empty(), "{}: {cl:?}", (p.name)());
             assert_eq!(back, d);
             d.fan_hysteresis_c += 1.0;
-            assert_eq!(preset_name(&d), Some(format!("{} · endret", p.name)));
+            assert_eq!(preset_name(&d), Some(format!("{} · endret", (p.name)())));
         }
         // Stille er roligst, Ytelse raskest.
         let (q, b, y) = (&PRESETS[0], &PRESETS[1], &PRESETS[2]);

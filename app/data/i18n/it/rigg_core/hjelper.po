@@ -1,0 +1,133 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg-core/src/hjelper.rs:407
+msgid "{felt}: Kortet tillater {min}–{max}. Ingenting er endret."
+msgstr "{felt}: la GPU consente {min}–{max}. Nessuna modifica apportata."
+
+#: crates/rigg-core/src/hjelper.rs:410 crates/rigg-core/src/hjelper.rs:458
+msgid "Kortet eller driveren støtter ikke denne funksjonen."
+msgstr "La GPU o il driver non supporta questa funzione."
+
+#: crates/rigg-core/src/hjelper.rs:418
+msgid "Effektgrense"
+msgstr "Limite di potenza"
+
+#: crates/rigg-core/src/hjelper.rs:419
+msgid "Temperaturmål"
+msgstr "Temperatura obiettivo"
+
+#: crates/rigg-core/src/hjelper.rs:420
+msgid "GPU-justering"
+msgstr "Offset frequenza GPU"
+
+#: crates/rigg-core/src/hjelper.rs:421
+msgid "Minnejustering"
+msgstr "Offset frequenza memoria"
+
+#: crates/rigg-core/src/hjelper.rs:422
+msgid "Viftefart"
+msgstr "Velocità ventole"
+
+#: crates/rigg-core/src/hjelper.rs:434
+msgid "celsius må være 0–120"
+msgstr "celsius deve essere compreso tra 0 e 120"
+
+#: crates/rigg-core/src/hjelper.rs:435
+msgid "RGB-backenden er ikke identifisert eller tilgjengelig."
+msgstr "Il backend RGB non è stato identificato o non è disponibile."
+
+#: crates/rigg-core/src/hjelper.rs:436
+msgid "Viftestyring krever en lesbar temperatur for overtemperaturvernet."
+msgstr "Il controllo delle ventole richiede una lettura della temperatura per la protezione da surriscaldamento."
+
+#: crates/rigg-core/src/hjelper.rs:437
+msgid "Nødregelen gjelder. Vent til kortet er under 80 °C."
+msgstr "Il raffreddamento di emergenza è attivo. Attendi che la GPU scenda sotto 80 °C."
+
+#: crates/rigg-core/src/hjelper.rs:438
+msgid "Endringer er låst: endring av skjermkortet er ikke slått på. Slå på «Tillat endring av skjermkortet» i Innstillinger › Styring."
+msgstr "Le modifiche sono bloccate perché la regolazione della GPU è disattivata. Attiva Consenti modifiche alla GPU in Impostazioni › Regolazione della GPU."
+
+#: crates/rigg-core/src/hjelper.rs:439
+msgid "Hjelperen for endring svarer ikke. Se Innstillinger › Styring."
+msgstr "Il servizio di supporto della GPU non risponde. Vedi Impostazioni › Regolazione della GPU."
+
+#: crates/rigg-core/src/hjelper.rs:440
+msgid "Hjelperen er fra en annen versjon av appen. Slå bryteren i Innstillinger › Styring av og på igjen."
+msgstr "Il servizio di supporto appartiene a un’altra versione dell’app. Disattiva e riattiva l’opzione in Impostazioni › Regolazione della GPU."
+
+#: crates/rigg-core/src/hjelper.rs:441
+msgid "Hjelperen og tjenesten bruker ulike kort (simulert og ekte). Ingenting er sendt."
+msgstr "Il servizio di supporto e il servizio principale usano GPU diverse (simulata e reale). Non è stato inviato nulla."
+
+#: crates/rigg-core/src/hjelper.rs:442
+msgid "NVML-hjelperen er ikke klar til å endre dette kortet."
+msgstr "Il servizio di supporto NVML non è pronto a regolare questa GPU."
+
+#: crates/rigg-core/src/hjelper.rs:443
+msgid "Skjermkortstyring må aktiveres med bryteren i Innstillinger."
+msgstr "Attiva la regolazione della GPU con l’interruttore nelle impostazioni."
+
+#: crates/rigg-core/src/hjelper.rs:444 crates/rigg-core/src/hjelper.rs:460
+msgid "Det valgte kortet er ikke kortet hjelperen er aktivert for."
+msgstr "Il servizio di supporto è stato attivato per un’altra GPU."
+
+#: crates/rigg-core/src/hjelper.rs:445
+msgid "Gjenoppretting kunne ikke bekreftes. Nye endringer er sperret."
+msgstr "Impossibile verificare il ripristino. Ulteriori modifiche sono bloccate."
+
+#: crates/rigg-core/src/hjelper.rs:446
+msgid "Lys er ikke laget ennå."
+msgstr "Il controllo dell’illuminazione non è ancora disponibile."
+
+#: crates/rigg-core/src/hjelper.rs:447
+msgid "Endringer er låst. Skriving til skjermkortet er ikke slått på."
+msgstr "Le modifiche sono bloccate. La scrittura sulla GPU è disattivata."
+
+#: crates/rigg-core/src/hjelper.rs:448
+msgid "Funksjonen er ikke tilgjengelig på dette kortet."
+msgstr "Questa funzione non è disponibile su questa GPU."
+
+#: crates/rigg-core/src/hjelper.rs:449
+msgid "Hjelperen er aktivert for en annen bruker."
+msgstr "Il servizio di supporto è attivo per un altro utente."
+
+#: crates/rigg-core/src/hjelper.rs:450
+msgid "Hjelperen kjører, men helper.json mangler."
+msgstr "Il servizio di supporto è in esecuzione, ma manca helper.json."
+
+#: crates/rigg-core/src/hjelper.rs:451
+msgid "Gjenopprettingsmerkøren har feil identitet eller utrygg eier/modus."
+msgstr "Il marcatore di ripristino ha un’identità errata oppure un proprietario o permessi non sicuri."
+
+#: crates/rigg-core/src/hjelper.rs:459
+msgid "Driveren ga ikke tilgang til å endre kortet."
+msgstr "Il driver ha negato il permesso di modificare le impostazioni della GPU."
+
+#: crates/rigg-core/src/hjelper.rs:461
+msgid "Kortet svarer ikke."
+msgstr "La GPU non risponde."
+
+#: crates/rigg-core/src/hjelper.rs:462
+msgid "Kortets innstillinger kunne ikke bekreftes ved tilbakelesing."
+msgstr "Non è stato possibile verificare le impostazioni della GPU rileggendole."
+
+#: crates/rigg-core/src/hjelper.rs:463
+msgid "De opprinnelige innstillingene for kortet mangler."
+msgstr "Le impostazioni originali della GPU sono mancanti."
+
+#: crates/rigg-core/src/hjelper.rs:464
+msgid "NVML avviste en ugyldig verdi."
+msgstr "NVML ha rifiutato un valore non valido."
+
+#: crates/rigg-core/src/hjelper.rs:465
+msgid "En NVML-operasjon mislyktes."
+msgstr "Un’operazione NVML non è riuscita."

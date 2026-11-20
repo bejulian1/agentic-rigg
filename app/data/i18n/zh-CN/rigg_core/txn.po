@@ -1,0 +1,48 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: crates/rigg-core/src/txn.rs:278
+msgid "Viftekurven må være en liste med punkter"
+msgstr "风扇曲线必须是点列表"
+
+#: crates/rigg-core/src/txn.rs:279
+msgid "Temperaturene i viftekurven må stige"
+msgstr "风扇曲线的温度必须递增"
+
+#: crates/rigg-core/src/txn.rs:280
+msgid "fan.curves må være en liste med kurver"
+msgstr "fan.curves 必须是曲线列表"
+
+#: crates/rigg-core/src/txn.rs:281
+msgid "settings må være et objekt"
+msgstr "settings 必须是对象"
+
+#: crates/rigg-core/src/txn.rs:282
+msgid "clockOffsets må være et objekt"
+msgstr "clockOffsets 必须是对象"
+
+#: crates/rigg-core/src/txn.rs:283
+msgid "fan må være et objekt"
+msgstr "fan 必须是对象"
+
+#: crates/rigg-core/src/txn.rs:284
+msgid "fan.mode må være auto, curve eller manual"
+msgstr "fan.mode 必须为 auto、curve 或 manual"
+
+#: crates/rigg-core/src/txn.rs:285
+msgid "fan.perFan må være true eller false"
+msgstr "fan.perFan 必须为 true 或 false"
+
+#: crates/rigg-core/src/txn.rs:286
+msgid "confirmTimeoutS må være et tall"
+msgstr "confirmTimeoutS 必须是数字"
+
+#: crates/rigg-core/src/txn.rs:287
+msgid "Oppsettet må være innenfor rapporterte grenser og viftekurven må være stigende."
+msgstr "设置必须在报告的限制范围内，且风扇曲线必须递增。"

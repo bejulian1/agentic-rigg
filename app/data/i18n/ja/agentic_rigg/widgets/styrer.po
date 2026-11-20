@@ -1,0 +1,125 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/widgets/styrer.rs:32
+msgid "NVIDIA-referansekort"
+msgstr "NVIDIAリファレンスカード"
+
+#: crates/rigg/src/widgets/styrer.rs:33
+msgid "PCI-leverandør {id}"
+msgstr "PCIベンダー {id}"
+
+#: crates/rigg/src/widgets/styrer.rs:53
+msgid "Produsenten er satt av deg. Kortet melder NVIDIAs referanse i PCI-subsystemet ({s})."
+msgstr "メーカーは手動で設定されています。カードはPCIサブシステムにNVIDIAのリファレンスIDを報告しています（{s}）。"
+
+#: crates/rigg/src/widgets/styrer.rs:54
+msgid "Produsenten er satt av deg."
+msgstr "メーカーは手動で設定されています。"
+
+#: crates/rigg/src/widgets/styrer.rs:55
+msgid "Kortet melder NVIDIAs referanse i PCI-subsystemet ({s}). Det er et referansekort, eller en produsent som ikke setter sin egen ID. Du kan sette produsenten selv."
+msgstr "カードはPCIサブシステムにNVIDIAのリファレンスIDを報告しています（{s}）。リファレンスカードか、メーカーが独自のIDを設定していないカードです。メーカーは手動で設定できます。"
+
+#: crates/rigg/src/widgets/styrer.rs:56
+msgid "Fra PCI-subsystemet ({s})."
+msgstr "PCIサブシステムから取得（{s}）。"
+
+#: crates/rigg/src/widgets/styrer.rs:57
+msgid "Produsenten er ikke lest."
+msgstr "メーカーを取得できませんでした。"
+
+#: crates/rigg/src/widgets/styrer.rs:81
+msgid "Styrer"
+msgstr "制御対象"
+
+#: crates/rigg/src/widgets/styrer.rs:101 crates/rigg/src/widgets/styrer.rs:102
+msgid "Sett produsenten"
+msgstr "メーカーを設定"
+
+#: crates/rigg/src/widgets/styrer.rs:114
+msgid "Velg kortet som styres"
+msgstr "制御するGPUを選択"
+
+#: crates/rigg/src/widgets/styrer.rs:173
+msgid "Venter på tjenesten"
+msgstr "サービスを待機中"
+
+#: crates/rigg/src/widgets/styrer.rs:173
+msgid "kortet vises når tjenesten svarer"
+msgstr "サービスが応答するとGPUが表示されます"
+
+#: crates/rigg/src/widgets/styrer.rs:174
+msgid "Leser skjermkortet …"
+msgstr "GPUを検出中…"
+
+#: crates/rigg/src/widgets/styrer.rs:175
+msgid "Fant ingen NVIDIA-driver"
+msgstr "NVIDIAドライバーが見つかりません"
+
+#: crates/rigg/src/widgets/styrer.rs:175
+msgid "ingen skjermkort å styre"
+msgstr "制御できるGPUがありません"
+
+#: crates/rigg/src/widgets/styrer.rs:178 crates/rigg/src/widgets/styrer.rs:186
+msgid "Skjermkortet"
+msgstr "GPU"
+
+#: crates/rigg/src/widgets/styrer.rs:179
+msgid "driveren er oppdatert · start maskinen på nytt for å styre kortet"
+msgstr "ドライバーを更新しました · GPUを制御するにはPCを再起動してください"
+
+#: crates/rigg/src/widgets/styrer.rs:187
+msgid "svarer ikke siden {since} · styringen er utilgjengelig"
+msgstr "{since}から応答なし · 制御不可"
+
+#: crates/rigg/src/widgets/styrer.rs:203
+msgid "driver {d}"
+msgstr "ドライバー {d}"
+
+#: crates/rigg/src/widgets/styrer.rs:205
+msgid "{kort}\nProdusent: {produsent}\nPCI-adresse: {pci}\nVBIOS: {vbios}\n{detalj}"
+msgstr "{kort}\nメーカー：{produsent}\nPCIアドレス：{pci}\nVBIOS：{vbios}\n{detalj}"
+
+#: crates/rigg/src/widgets/styrer.rs:213
+msgid "Skjermkort"
+msgstr "GPU"
+
+#: crates/rigg/src/widgets/styrer.rs:232
+msgid "Kort {i} av {antall}"
+msgstr "GPU {i}/{antall}"
+
+#: crates/rigg/src/widgets/styrer.rs:234
+msgid "Styrer: {name}. {meta}"
+msgstr "制御対象：{name}。{meta}"
+
+#: crates/rigg/src/widgets/styrer.rs:240
+msgid "Kortet som styres"
+msgstr "制御するGPU"
+
+#: crates/rigg/src/widgets/styrer.rs:280
+msgid "Produsent (valgfritt)"
+msgstr "メーカー（任意）"
+
+#: crates/rigg/src/widgets/styrer.rs:292
+msgid "Produsent"
+msgstr "メーカー"
+
+#: crates/rigg/src/widgets/styrer.rs:294
+msgid "Vises bare i appen, i Styrer-linja og i maskinhodet. Kortet endres ikke."
+msgstr "アプリのGPUセレクターとシステムヘッダーにのみ表示されます。カードの設定は変更されません。"
+
+#: crates/rigg/src/widgets/styrer.rs:303
+msgid "Fjern"
+msgstr "削除"
+
+#: crates/rigg/src/widgets/styrer.rs:305
+msgid "Lagre"
+msgstr "保存"

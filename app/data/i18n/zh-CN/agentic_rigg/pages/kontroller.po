@@ -1,0 +1,298 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: crates/rigg/src/pages/kontroller.rs:229
+msgid "vifte auto"
+msgstr "风扇自动"
+
+#: crates/rigg/src/pages/kontroller.rs:230
+msgid "vifte kurve"
+msgstr "风扇曲线"
+
+#: crates/rigg/src/pages/kontroller.rs:231
+msgid "vifte {fart}"
+msgstr "风扇 {fart}"
+
+#: crates/rigg/src/pages/kontroller.rs:233
+msgid "{effekt} · kjerne {kjerne} · minne {minne} · mål {temp} · {fan}"
+msgstr "{effekt} · 核心 {kjerne} · 显存 {minne} · 目标 {temp} · {fan}"
+
+#: crates/rigg/src/pages/kontroller.rs:240
+msgid "{antall} punkt"
+msgid_plural "{antall} punkter"
+msgstr[0] "{antall} 个点"
+
+#: crates/rigg/src/pages/kontroller.rs:246 crates/rigg/src/pages/kontroller.rs:285 crates/rigg/src/pages/kontroller.rs:530
+msgid "Effektgrense"
+msgstr "功率限制"
+
+#: crates/rigg/src/pages/kontroller.rs:247
+msgid "Kjerneklokke-offset"
+msgstr "核心频率偏移"
+
+#: crates/rigg/src/pages/kontroller.rs:248
+msgid "Minneklokke-offset"
+msgstr "显存频率偏移"
+
+#: crates/rigg/src/pages/kontroller.rs:249 crates/rigg/src/pages/kontroller.rs:288 crates/rigg/src/pages/kontroller.rs:533
+msgid "Temperaturmål"
+msgstr "目标温度"
+
+#: crates/rigg/src/pages/kontroller.rs:250 crates/rigg/src/pages/kontroller.rs:562
+msgid "Viftemodus"
+msgstr "风扇模式"
+
+#: crates/rigg/src/pages/kontroller.rs:251
+msgid "Viftefart (manuell)"
+msgstr "风扇转速（手动）"
+
+#: crates/rigg/src/pages/kontroller.rs:253
+msgid "Viftekurver"
+msgstr "风扇曲线"
+
+#: crates/rigg/src/pages/kontroller.rs:253
+msgid "per vifte"
+msgstr "各风扇独立"
+
+#: crates/rigg/src/pages/kontroller.rs:253
+msgid "felles"
+msgstr "共用"
+
+#: crates/rigg/src/pages/kontroller.rs:254
+msgid "Kurvene per vifte"
+msgstr "各风扇的曲线"
+
+#: crates/rigg/src/pages/kontroller.rs:255
+msgid "Hysterese"
+msgstr "温度滞回"
+
+#: crates/rigg/src/pages/kontroller.rs:256
+msgid "Rampe opp"
+msgstr "升速速率"
+
+#: crates/rigg/src/pages/kontroller.rs:257
+msgid "Rampe ned"
+msgstr "降速速率"
+
+#: crates/rigg/src/pages/kontroller.rs:258
+msgid "Utjevning"
+msgstr "平滑"
+
+#: crates/rigg/src/pages/kontroller.rs:259
+msgid "Hold minimum til"
+msgstr "保持最低转速直至"
+
+#: crates/rigg/src/pages/kontroller.rs:260
+msgid "Viftekurve"
+msgstr "风扇曲线"
+
+#: crates/rigg/src/pages/kontroller.rs:267 crates/rigg/src/pages/kontroller.rs:562
+msgid "Kurve"
+msgstr "曲线"
+
+#: crates/rigg/src/pages/kontroller.rs:268 crates/rigg/src/pages/kontroller.rs:562
+msgid "Manuell"
+msgstr "手动"
+
+#: crates/rigg/src/pages/kontroller.rs:283 crates/rigg/src/pages/kontroller.rs:706
+msgid "Tomgang"
+msgstr "空闲"
+
+#: crates/rigg/src/pages/kontroller.rs:331 crates/rigg/src/pages/kontroller.rs:334 crates/rigg/src/pages/kontroller.rs:587 crates/rigg/src/pages/kontroller.rs:703
+msgid "Temperatur"
+msgstr "温度"
+
+#: crates/rigg/src/pages/kontroller.rs:332 crates/rigg/src/pages/kontroller.rs:335 crates/rigg/src/pages/kontroller.rs:587 crates/rigg/src/pages/kontroller.rs:702
+msgid "Effekt"
+msgstr "功率"
+
+#: crates/rigg/src/pages/kontroller.rs:333 crates/rigg/src/pages/kontroller.rs:705
+msgid "Maskinvare"
+msgstr "硬件"
+
+#: crates/rigg/src/pages/kontroller.rs:362 crates/rigg/src/pages/kontroller.rs:704
+msgid "Spenning"
+msgstr "电压"
+
+#: crates/rigg/src/pages/kontroller.rs:486
+msgid "Viser det kortet har nå. Det du endrer, blir et utkast som lagres i appen og ikke sendes til kortet."
+msgstr "显示显卡的当前设置。更改只会作为草稿保存在应用中，不会发送到显卡。"
+
+#: crates/rigg/src/pages/kontroller.rs:501
+msgid "GPU-klokke nå"
+msgstr "当前 GPU 频率"
+
+#: crates/rigg/src/pages/kontroller.rs:501
+msgid "Minneklokke nå"
+msgstr "当前显存频率"
+
+#: crates/rigg/src/pages/kontroller.rs:501
+msgid "Temperatur nå"
+msgstr "当前温度"
+
+#: crates/rigg/src/pages/kontroller.rs:501
+msgid "Forbruk nå"
+msgstr "当前功耗"
+
+#: crates/rigg/src/pages/kontroller.rs:501
+msgid "GPU-last"
+msgstr "GPU 负载"
+
+#: crates/rigg/src/pages/kontroller.rs:501
+msgid "Viftefart nå"
+msgstr "当前风扇转速"
+
+#: crates/rigg/src/pages/kontroller.rs:501
+msgid "P-tilstand"
+msgstr "P 状态"
+
+#: crates/rigg/src/pages/kontroller.rs:501
+msgid "Begrenset av"
+msgstr "限制因素"
+
+#: crates/rigg/src/pages/kontroller.rs:515
+msgid "Juster klokker og effekt"
+msgstr "调整频率和功率"
+
+#: crates/rigg/src/pages/kontroller.rs:516
+msgid "Utkast · ikke sendt til kortet"
+msgstr "草稿 · 未发送到显卡"
+
+#: crates/rigg/src/pages/kontroller.rs:518
+msgid "Gjenopprett utgangspunkt"
+msgstr "恢复原始设置"
+
+#: crates/rigg/src/pages/kontroller.rs:531
+msgid "GPU-justering"
+msgstr "GPU 频率偏移"
+
+#: crates/rigg/src/pages/kontroller.rs:532
+msgid "Minnejustering"
+msgstr "显存频率偏移"
+
+#: crates/rigg/src/pages/kontroller.rs:534
+msgid "Vifte"
+msgstr "风扇"
+
+#: crates/rigg/src/pages/kontroller.rs:541
+msgid "Avansert · temperaturmål og vifter"
+msgstr "高级 · 目标温度和风扇"
+
+#: crates/rigg/src/pages/kontroller.rs:545
+msgid "Auto, fast viftefart og egen kurve"
+msgstr "自动、固定转速和自定义曲线"
+
+#: crates/rigg/src/pages/kontroller.rs:549
+msgid "Åpne Vifter"
+msgstr "打开风扇页面"
+
+#: crates/rigg/src/pages/kontroller.rs:563
+msgid "Rediger kurven"
+msgstr "编辑曲线"
+
+#: crates/rigg/src/pages/kontroller.rs:564
+msgid "Gå til Vifter, der kurven redigeres"
+msgstr "转到风扇页面编辑曲线"
+
+#: crates/rigg/src/pages/kontroller.rs:587
+msgid "Kjerneklokke"
+msgstr "核心频率"
+
+#: crates/rigg/src/pages/kontroller.rs:600
+msgid "Utkast"
+msgstr "草稿"
+
+#: crates/rigg/src/pages/kontroller.rs:606
+msgid "Profiler"
+msgstr "配置文件"
+
+#: crates/rigg/src/pages/kontroller.rs:615
+msgid "Begrensninger"
+msgstr "性能限制"
+
+#: crates/rigg/src/pages/kontroller.rs:627
+msgid "Funksjonsstøtte på kortet"
+msgstr "显卡功能支持"
+
+#: crates/rigg/src/pages/kontroller.rs:631
+msgid "Spenningsoffset"
+msgstr "电压偏移"
+
+#: crates/rigg/src/pages/kontroller.rs:632
+msgid "Klokkekurven (V/F)"
+msgstr "电压/频率曲线（V/F）"
+
+#: crates/rigg/src/pages/kontroller.rs:633
+msgid "Låst minneklokke"
+msgstr "锁定显存频率"
+
+#: crates/rigg/src/pages/kontroller.rs:634
+msgid "Viftestopp (0 %)"
+msgstr "风扇停转（0%）"
+
+#: crates/rigg/src/pages/kontroller.rs:653
+msgid "Forkast utkast"
+msgstr "放弃草稿"
+
+#: crates/rigg/src/pages/kontroller.rs:655
+msgid "Bruk"
+msgstr "应用"
+
+#: crates/rigg/src/pages/kontroller.rs:707
+msgid "Annet"
+msgstr "其他"
+
+#: crates/rigg/src/pages/kontroller.rs:867
+msgid "Utkastet er forkastet"
+msgstr "已放弃草稿"
+
+#: crates/rigg/src/pages/kontroller.rs:867 crates/rigg/src/pages/kontroller.rs:961 crates/rigg/src/pages/kontroller.rs:1482
+msgid "Angre"
+msgstr "撤销"
+
+#: crates/rigg/src/pages/kontroller.rs:942
+msgid "Kortets utgangspunkt er gjenopprettet"
+msgstr "已恢复显卡原始设置"
+
+#: crates/rigg/src/pages/kontroller.rs:944
+msgid "Kunne ikke bekrefte gjenoppretting"
+msgstr "无法确认恢复成功"
+
+#: crates/rigg/src/pages/kontroller.rs:961
+msgid "Ingenting er sendt til kortet."
+msgstr "未向显卡发送任何更改。"
+
+#: crates/rigg/src/pages/kontroller.rs:998
+msgid "Funksjonen er utilgjengelig"
+msgstr "功能不可用"
+
+#: crates/rigg/src/pages/kontroller.rs:1009
+msgid "Kunne ikke bruke utkastet"
+msgstr "无法应用草稿"
+
+#: crates/rigg/src/pages/kontroller.rs:1273
+msgid "Ingen endringer"
+msgstr "无更改"
+
+#: crates/rigg/src/pages/kontroller.rs:1274
+msgid "{n} endring i utkastet"
+msgid_plural "{n} endringer i utkastet"
+msgstr[0] "草稿中有 {n} 项更改"
+
+#: crates/rigg/src/pages/kontroller.rs:1308
+msgid "{used} av {plasser}"
+msgstr "{used}/{plasser}"
+
+#: crates/rigg/src/pages/kontroller.rs:1310
+msgid "Ingen profiler ennå. En profil husker alle verdiene på siden, også viftekurven."
+msgstr "暂无配置文件。配置文件可保存此页面的所有设置，包括风扇曲线。"
+
+#: crates/rigg/src/pages/kontroller.rs:1327
+msgid "Nytt navn på {profil}"
+msgstr "{profil} 的新名称"

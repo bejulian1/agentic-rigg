@@ -1,0 +1,48 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: crates/rigg-core/src/txn.rs:278
+msgid "Viftekurven må være en liste med punkter"
+msgstr "ファンカーブは点のリストで指定してください"
+
+#: crates/rigg-core/src/txn.rs:279
+msgid "Temperaturene i viftekurven må stige"
+msgstr "ファンカーブの温度は昇順で指定してください"
+
+#: crates/rigg-core/src/txn.rs:280
+msgid "fan.curves må være en liste med kurver"
+msgstr "fan.curvesはカーブのリストで指定してください"
+
+#: crates/rigg-core/src/txn.rs:281
+msgid "settings må være et objekt"
+msgstr "settingsはオブジェクトで指定してください"
+
+#: crates/rigg-core/src/txn.rs:282
+msgid "clockOffsets må være et objekt"
+msgstr "clockOffsetsはオブジェクトで指定してください"
+
+#: crates/rigg-core/src/txn.rs:283
+msgid "fan må være et objekt"
+msgstr "fanはオブジェクトで指定してください"
+
+#: crates/rigg-core/src/txn.rs:284
+msgid "fan.mode må være auto, curve eller manual"
+msgstr "fan.modeにはauto、curve、manualのいずれかを指定してください"
+
+#: crates/rigg-core/src/txn.rs:285
+msgid "fan.perFan må være true eller false"
+msgstr "fan.perFanにはtrueまたはfalseを指定してください"
+
+#: crates/rigg-core/src/txn.rs:286
+msgid "confirmTimeoutS må være et tall"
+msgstr "confirmTimeoutSは数値で指定してください"
+
+#: crates/rigg-core/src/txn.rs:287
+msgid "Oppsettet må være innenfor rapporterte grenser og viftekurven må være stigende."
+msgstr "設定は報告された範囲内とし、ファンカーブは右上がりにしてください。"

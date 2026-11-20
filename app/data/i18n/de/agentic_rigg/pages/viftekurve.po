@@ -1,0 +1,270 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: crates/rigg/src/pages/viftekurve.rs:59
+msgid "Stille"
+msgstr "Leise"
+
+#: crates/rigg/src/pages/viftekurve.rs:66
+msgid "Minste fart til 55 °C, 5 °C hysterese, rolig rampe (5 %/s opp, 2 %/s ned) og 5 s utjevning"
+msgstr "Mindestdrehzahl bis 55 °C, 5 °C Hysterese, sanfte Rampe (5 %/s aufwärts, 2 %/s abwärts) und 5 s Glättung"
+
+#: crates/rigg/src/pages/viftekurve.rs:70
+msgid "Balansert"
+msgstr "Ausgewogen"
+
+#: crates/rigg/src/pages/viftekurve.rs:77
+msgid "Standardkurven: 3 °C hysterese, 10 %/s opp og 3 %/s ned, ingen utjevning"
+msgstr "Standardkurve: 3 °C Hysterese, 10 %/s aufwärts und 3 %/s abwärts, keine Glättung"
+
+#: crates/rigg/src/pages/viftekurve.rs:81
+msgid "Ytelse"
+msgstr "Leistung"
+
+#: crates/rigg/src/pages/viftekurve.rs:88
+msgid "Kjøligst: høyere kurve, 2 °C hysterese og rask rampe (20 %/s opp, 5 %/s ned)"
+msgstr "Kühlste Einstellung: höhere Lüfterkurve, 2 °C Hysterese und schnelle Rampe (20 %/s aufwärts, 5 %/s abwärts)"
+
+#: crates/rigg/src/pages/viftekurve.rs:121
+msgid "{navn} · endret"
+msgstr "{navn} · geändert"
+
+#: crates/rigg/src/pages/viftekurve.rs:1227 crates/rigg/src/pages/viftekurve.rs:2605
+msgid "Auto (driveren)"
+msgstr "Auto (Treiber)"
+
+#: crates/rigg/src/pages/viftekurve.rs:1227
+msgid "Driveren styrer viftene etter temperaturen, som uten appen. Standard."
+msgstr "Der Treiber regelt die Lüfter wie ohne App nach Temperatur. Standard."
+
+#: crates/rigg/src/pages/viftekurve.rs:1228 crates/rigg/src/pages/viftekurve.rs:2607
+msgid "Kurve"
+msgstr "Kurve"
+
+#: crates/rigg/src/pages/viftekurve.rs:1228
+msgid "Agentic Rigg setter farten etter viftekurven hvert sekund."
+msgstr "Agentic Rigg passt die Lüfterdrehzahl jede Sekunde anhand der Kurve an."
+
+#: crates/rigg/src/pages/viftekurve.rs:1229 crates/rigg/src/pages/viftekurve.rs:2606
+msgid "Manuell"
+msgstr "Manuell"
+
+#: crates/rigg/src/pages/viftekurve.rs:1229
+msgid "Fast fart, uansett temperatur. Pass på temperaturen under last."
+msgstr "Feste Drehzahl unabhängig von der Temperatur. Unter Last die Temperatur im Blick behalten."
+
+#: crates/rigg/src/pages/viftekurve.rs:1306
+msgid "Effektgrense"
+msgstr "Leistungslimit"
+
+#: crates/rigg/src/pages/viftekurve.rs:1309
+msgid "Temperaturmål"
+msgstr "Temperaturziel"
+
+#: crates/rigg/src/pages/viftekurve.rs:1314 crates/rigg/src/pages/viftekurve.rs:1711 crates/rigg/src/pages/viftekurve.rs:1713
+msgid "Hysterese"
+msgstr "Hysterese"
+
+#: crates/rigg/src/pages/viftekurve.rs:1315 crates/rigg/src/pages/viftekurve.rs:1717 crates/rigg/src/pages/viftekurve.rs:1719
+msgid "Rampe opp"
+msgstr "Anstiegsrate"
+
+#: crates/rigg/src/pages/viftekurve.rs:1316 crates/rigg/src/pages/viftekurve.rs:1720 crates/rigg/src/pages/viftekurve.rs:1722
+msgid "Rampe ned"
+msgstr "Absenkrate"
+
+#: crates/rigg/src/pages/viftekurve.rs:1318 crates/rigg/src/pages/viftekurve.rs:1727
+msgid "Hold minimum til"
+msgstr "Minimum halten bis"
+
+#: crates/rigg/src/pages/viftekurve.rs:1552
+msgid "Enkel"
+msgstr "Einfach"
+
+#: crates/rigg/src/pages/viftekurve.rs:1552
+msgid "Avansert"
+msgstr "Erweitert"
+
+#: crates/rigg/src/pages/viftekurve.rs:1552
+msgid "Visning av viftestyring"
+msgstr "Ansicht der Lüftersteuerung"
+
+#: crates/rigg/src/pages/viftekurve.rs:1576 crates/rigg/src/pages/viftekurve.rs:1776 crates/rigg/src/pages/viftekurve.rs:1985
+msgid "Temperatur"
+msgstr "Temperatur"
+
+#: crates/rigg/src/pages/viftekurve.rs:1576
+msgid "Viftefart nå"
+msgstr "Aktuelle Lüfterdrehzahl"
+
+#: crates/rigg/src/pages/viftekurve.rs:1576
+msgid "Vifter oppdaget"
+msgstr "Erkannte Lüfter"
+
+#: crates/rigg/src/pages/viftekurve.rs:1576
+msgid "Mål-fart"
+msgstr "Solldrehzahl"
+
+#: crates/rigg/src/pages/viftekurve.rs:1576
+msgid "Modus"
+msgstr "Modus"
+
+#: crates/rigg/src/pages/viftekurve.rs:1576 crates/rigg/src/pages/viftekurve.rs:2702
+msgid "Kurven gir"
+msgstr "Kurvenwert"
+
+#: crates/rigg/src/pages/viftekurve.rs:1602
+msgid "Kortets viftekurve"
+msgstr "GPU-Lüfterkurve"
+
+#: crates/rigg/src/pages/viftekurve.rs:1616
+msgid "{navn}: {om} (i utkastet, felles for kortets vifter)"
+msgstr "{navn}: {om} (im Entwurf, für alle GPU-Lüfter)"
+
+#: crates/rigg/src/pages/viftekurve.rs:1620
+msgid "Tilbakestill kurven"
+msgstr "Kurve zurücksetzen"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "Tidsvindu for målingene"
+msgstr "Messzeitraum"
+
+#: crates/rigg/src/pages/viftekurve.rs:1690
+msgid "Bruk kurven"
+msgstr "Kurve verwenden"
+
+#: crates/rigg/src/pages/viftekurve.rs:1700
+msgid "Oppførsel"
+msgstr "Verhalten"
+
+#: crates/rigg/src/pages/viftekurve.rs:1714
+msgid "Av"
+msgstr "Aus"
+
+#: crates/rigg/src/pages/viftekurve.rs:1714 crates/rigg/src/pages/viftekurve.rs:1715
+msgid "Utjevning av temperaturen"
+msgstr "Temperaturglättung"
+
+#: crates/rigg/src/pages/viftekurve.rs:1763 crates/rigg/src/pages/viftekurve.rs:2435
+msgid "Siste 5 minutter med kurven"
+msgstr "Letzte 5 Minuten mit Kurve"
+
+#: crates/rigg/src/pages/viftekurve.rs:1776 crates/rigg/src/pages/viftekurve.rs:2453
+msgid "Med kurven"
+msgstr "Mit Kurve"
+
+#: crates/rigg/src/pages/viftekurve.rs:1776 crates/rigg/src/pages/viftekurve.rs:2456
+msgid "Vifte 2 med kurven"
+msgstr "Lüfter 2 mit Kurve"
+
+#: crates/rigg/src/pages/viftekurve.rs:1776
+msgid "Slik viftene gikk"
+msgstr "Tatsächliche Lüfterdrehzahl"
+
+#: crates/rigg/src/pages/viftekurve.rs:1804
+msgid "Viftestyring"
+msgstr "Lüftersteuerung"
+
+#: crates/rigg/src/pages/viftekurve.rs:1830
+msgid "kortet nå"
+msgstr "aktuell"
+
+#: crates/rigg/src/pages/viftekurve.rs:1855
+msgid "Fast viftefart"
+msgstr "Feste Lüfterdrehzahl"
+
+#: crates/rigg/src/pages/viftekurve.rs:1877
+msgid "Åpne avansert"
+msgstr "Erweiterte Ansicht öffnen"
+
+#: crates/rigg/src/pages/viftekurve.rs:1887
+msgid "Endringer som brukes"
+msgstr "Anzuwendende Änderungen"
+
+#: crates/rigg/src/pages/viftekurve.rs:1898
+msgid "Åpne Klokker og effekt"
+msgstr "Takt und Leistung öffnen"
+
+#: crates/rigg/src/pages/viftekurve.rs:1899
+msgid "Åpne Avansert"
+msgstr "Erweiterte Ansicht öffnen"
+
+#: crates/rigg/src/pages/viftekurve.rs:1906
+msgid "Punktene"
+msgstr "Stützpunkte"
+
+#: crates/rigg/src/pages/viftekurve.rs:1907
+msgid "Legg til"
+msgstr "Hinzufügen"
+
+#: crates/rigg/src/pages/viftekurve.rs:1914
+msgid "Slik følges kurven"
+msgstr "So wirkt die Kurve"
+
+#: crates/rigg/src/pages/viftekurve.rs:2000
+msgid "Forkast utkast"
+msgstr "Entwurf verwerfen"
+
+#: crates/rigg/src/pages/viftekurve.rs:2002
+msgid "Bruk"
+msgstr "Anwenden"
+
+#: crates/rigg/src/pages/viftekurve.rs:2324
+msgid "Utkastet er forkastet"
+msgstr "Entwurf verworfen"
+
+#: crates/rigg/src/pages/viftekurve.rs:2324
+msgid "Angre"
+msgstr "Rückgängig"
+
+#: crates/rigg/src/pages/viftekurve.rs:2494
+msgid "Ingen data"
+msgstr "Keine Daten"
+
+#: crates/rigg/src/pages/viftekurve.rs:2559
+msgid "Funksjonen er utilgjengelig"
+msgstr "Funktion nicht verfügbar"
+
+#: crates/rigg/src/pages/viftekurve.rs:2570
+msgid "Kunne ikke bruke utkastet"
+msgstr "Entwurf konnte nicht angewendet werden"
+
+#: crates/rigg/src/pages/viftekurve.rs:2604 crates/rigg/src/pages/viftekurve.rs:2659 crates/rigg/src/pages/viftekurve.rs:2774
+msgid "Fast fart"
+msgstr "Feste Drehzahl"
+
+#: crates/rigg/src/pages/viftekurve.rs:2663
+msgid "utkast: {modus}"
+msgstr "Entwurf: {modus}"
+
+#: crates/rigg/src/pages/viftekurve.rs:2737
+msgid "Balansert · standard"
+msgstr "Ausgewogen · Standard"
+
+#: crates/rigg/src/pages/viftekurve.rs:2740
+msgid "Egne kurver per vifte"
+msgstr "Eigene Kurven je Lüfter"
+
+#: crates/rigg/src/pages/viftekurve.rs:2741
+msgid "Egendefinert"
+msgstr "Benutzerdefiniert"
+
+#: crates/rigg/src/pages/viftekurve.rs:2808
+msgid "Ingen endringer"
+msgstr "Keine Änderungen"
+
+#: crates/rigg/src/pages/viftekurve.rs:2809
+msgid "{n} endring i utkastet"
+msgid_plural "{n} endringer i utkastet"
+msgstr[0] "{n} Änderung im Entwurf"
+msgstr[1] "{n} Änderungen im Entwurf"
+
+#: crates/rigg/src/pages/viftekurve.rs:2931
+msgid "Fjern punktet"
+msgstr "Punkt entfernen"

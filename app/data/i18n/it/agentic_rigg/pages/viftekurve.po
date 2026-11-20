@@ -1,0 +1,270 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: crates/rigg/src/pages/viftekurve.rs:59
+msgid "Stille"
+msgstr "Silenzioso"
+
+#: crates/rigg/src/pages/viftekurve.rs:66
+msgid "Minste fart til 55 °C, 5 °C hysterese, rolig rampe (5 %/s opp, 2 %/s ned) og 5 s utjevning"
+msgstr "Velocità minima fino a 55 °C, isteresi di 5 °C, rampa lenta (5 %/s in salita, 2 %/s in discesa) e filtro di 5 s"
+
+#: crates/rigg/src/pages/viftekurve.rs:70
+msgid "Balansert"
+msgstr "Bilanciato"
+
+#: crates/rigg/src/pages/viftekurve.rs:77
+msgid "Standardkurven: 3 °C hysterese, 10 %/s opp og 3 %/s ned, ingen utjevning"
+msgstr "Curva predefinita: isteresi di 3 °C, 10 %/s in salita e 3 %/s in discesa, senza filtro"
+
+#: crates/rigg/src/pages/viftekurve.rs:81
+msgid "Ytelse"
+msgstr "Prestazioni"
+
+#: crates/rigg/src/pages/viftekurve.rs:88
+msgid "Kjøligst: høyere kurve, 2 °C hysterese og rask rampe (20 %/s opp, 5 %/s ned)"
+msgstr "Massimo raffreddamento: curva più alta, isteresi di 2 °C e rampa rapida (20 %/s in salita, 5 %/s in discesa)"
+
+#: crates/rigg/src/pages/viftekurve.rs:121
+msgid "{navn} · endret"
+msgstr "{navn} · modificato"
+
+#: crates/rigg/src/pages/viftekurve.rs:1227 crates/rigg/src/pages/viftekurve.rs:2605
+msgid "Auto (driveren)"
+msgstr "Auto (driver)"
+
+#: crates/rigg/src/pages/viftekurve.rs:1227
+msgid "Driveren styrer viftene etter temperaturen, som uten appen. Standard."
+msgstr "Il driver regola le ventole in base alla temperatura, come senza l’app. Modalità predefinita."
+
+#: crates/rigg/src/pages/viftekurve.rs:1228 crates/rigg/src/pages/viftekurve.rs:2607
+msgid "Kurve"
+msgstr "Curva"
+
+#: crates/rigg/src/pages/viftekurve.rs:1228
+msgid "Agentic Rigg setter farten etter viftekurven hvert sekund."
+msgstr "Agentic Rigg aggiorna la velocità ogni secondo in base alla curva."
+
+#: crates/rigg/src/pages/viftekurve.rs:1229 crates/rigg/src/pages/viftekurve.rs:2606
+msgid "Manuell"
+msgstr "Manuale"
+
+#: crates/rigg/src/pages/viftekurve.rs:1229
+msgid "Fast fart, uansett temperatur. Pass på temperaturen under last."
+msgstr "Velocità fissa a qualsiasi temperatura. Controlla la temperatura sotto carico."
+
+#: crates/rigg/src/pages/viftekurve.rs:1306
+msgid "Effektgrense"
+msgstr "Limite di potenza"
+
+#: crates/rigg/src/pages/viftekurve.rs:1309
+msgid "Temperaturmål"
+msgstr "Temperatura obiettivo"
+
+#: crates/rigg/src/pages/viftekurve.rs:1314 crates/rigg/src/pages/viftekurve.rs:1711 crates/rigg/src/pages/viftekurve.rs:1713
+msgid "Hysterese"
+msgstr "Isteresi"
+
+#: crates/rigg/src/pages/viftekurve.rs:1315 crates/rigg/src/pages/viftekurve.rs:1717 crates/rigg/src/pages/viftekurve.rs:1719
+msgid "Rampe opp"
+msgstr "Rampa in salita"
+
+#: crates/rigg/src/pages/viftekurve.rs:1316 crates/rigg/src/pages/viftekurve.rs:1720 crates/rigg/src/pages/viftekurve.rs:1722
+msgid "Rampe ned"
+msgstr "Rampa in discesa"
+
+#: crates/rigg/src/pages/viftekurve.rs:1318 crates/rigg/src/pages/viftekurve.rs:1727
+msgid "Hold minimum til"
+msgstr "Mantieni il minimo fino a"
+
+#: crates/rigg/src/pages/viftekurve.rs:1552
+msgid "Enkel"
+msgstr "Semplice"
+
+#: crates/rigg/src/pages/viftekurve.rs:1552
+msgid "Avansert"
+msgstr "Avanzata"
+
+#: crates/rigg/src/pages/viftekurve.rs:1552
+msgid "Visning av viftestyring"
+msgstr "Vista del controllo ventole"
+
+#: crates/rigg/src/pages/viftekurve.rs:1576 crates/rigg/src/pages/viftekurve.rs:1776 crates/rigg/src/pages/viftekurve.rs:1985
+msgid "Temperatur"
+msgstr "Temperatura"
+
+#: crates/rigg/src/pages/viftekurve.rs:1576
+msgid "Viftefart nå"
+msgstr "Velocità attuale"
+
+#: crates/rigg/src/pages/viftekurve.rs:1576
+msgid "Vifter oppdaget"
+msgstr "Ventole rilevate"
+
+#: crates/rigg/src/pages/viftekurve.rs:1576
+msgid "Mål-fart"
+msgstr "Velocità obiettivo"
+
+#: crates/rigg/src/pages/viftekurve.rs:1576
+msgid "Modus"
+msgstr "Modalità"
+
+#: crates/rigg/src/pages/viftekurve.rs:1576 crates/rigg/src/pages/viftekurve.rs:2702
+msgid "Kurven gir"
+msgstr "Valore della curva"
+
+#: crates/rigg/src/pages/viftekurve.rs:1602
+msgid "Kortets viftekurve"
+msgstr "Curva delle ventole GPU"
+
+#: crates/rigg/src/pages/viftekurve.rs:1616
+msgid "{navn}: {om} (i utkastet, felles for kortets vifter)"
+msgstr "{navn}: {om} (nella bozza, comune alle ventole della GPU)"
+
+#: crates/rigg/src/pages/viftekurve.rs:1620
+msgid "Tilbakestill kurven"
+msgstr "Reimposta curva"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "Tidsvindu for målingene"
+msgstr "Intervallo delle misurazioni"
+
+#: crates/rigg/src/pages/viftekurve.rs:1690
+msgid "Bruk kurven"
+msgstr "Usa curva"
+
+#: crates/rigg/src/pages/viftekurve.rs:1700
+msgid "Oppførsel"
+msgstr "Comportamento"
+
+#: crates/rigg/src/pages/viftekurve.rs:1714
+msgid "Av"
+msgstr "Disattivato"
+
+#: crates/rigg/src/pages/viftekurve.rs:1714 crates/rigg/src/pages/viftekurve.rs:1715
+msgid "Utjevning av temperaturen"
+msgstr "Filtro della temperatura"
+
+#: crates/rigg/src/pages/viftekurve.rs:1763 crates/rigg/src/pages/viftekurve.rs:2435
+msgid "Siste 5 minutter med kurven"
+msgstr "Ultimi 5 minuti con la curva"
+
+#: crates/rigg/src/pages/viftekurve.rs:1776 crates/rigg/src/pages/viftekurve.rs:2453
+msgid "Med kurven"
+msgstr "Con la curva"
+
+#: crates/rigg/src/pages/viftekurve.rs:1776 crates/rigg/src/pages/viftekurve.rs:2456
+msgid "Vifte 2 med kurven"
+msgstr "Ventola 2 con la curva"
+
+#: crates/rigg/src/pages/viftekurve.rs:1776
+msgid "Slik viftene gikk"
+msgstr "Velocità effettiva"
+
+#: crates/rigg/src/pages/viftekurve.rs:1804
+msgid "Viftestyring"
+msgstr "Controllo ventole"
+
+#: crates/rigg/src/pages/viftekurve.rs:1830
+msgid "kortet nå"
+msgstr "attuale"
+
+#: crates/rigg/src/pages/viftekurve.rs:1855
+msgid "Fast viftefart"
+msgstr "Velocità fissa delle ventole"
+
+#: crates/rigg/src/pages/viftekurve.rs:1877
+msgid "Åpne avansert"
+msgstr "Apri vista avanzata"
+
+#: crates/rigg/src/pages/viftekurve.rs:1887
+msgid "Endringer som brukes"
+msgstr "Modifiche da applicare"
+
+#: crates/rigg/src/pages/viftekurve.rs:1898
+msgid "Åpne Klokker og effekt"
+msgstr "Apri Frequenze e potenza"
+
+#: crates/rigg/src/pages/viftekurve.rs:1899
+msgid "Åpne Avansert"
+msgstr "Apri vista avanzata"
+
+#: crates/rigg/src/pages/viftekurve.rs:1906
+msgid "Punktene"
+msgstr "Punti di controllo"
+
+#: crates/rigg/src/pages/viftekurve.rs:1907
+msgid "Legg til"
+msgstr "Aggiungi"
+
+#: crates/rigg/src/pages/viftekurve.rs:1914
+msgid "Slik følges kurven"
+msgstr "Come funziona la curva"
+
+#: crates/rigg/src/pages/viftekurve.rs:2000
+msgid "Forkast utkast"
+msgstr "Scarta bozza"
+
+#: crates/rigg/src/pages/viftekurve.rs:2002
+msgid "Bruk"
+msgstr "Applica"
+
+#: crates/rigg/src/pages/viftekurve.rs:2324
+msgid "Utkastet er forkastet"
+msgstr "Bozza scartata"
+
+#: crates/rigg/src/pages/viftekurve.rs:2324
+msgid "Angre"
+msgstr "Annulla"
+
+#: crates/rigg/src/pages/viftekurve.rs:2494
+msgid "Ingen data"
+msgstr "Nessun dato"
+
+#: crates/rigg/src/pages/viftekurve.rs:2559
+msgid "Funksjonen er utilgjengelig"
+msgstr "Funzione non disponibile"
+
+#: crates/rigg/src/pages/viftekurve.rs:2570
+msgid "Kunne ikke bruke utkastet"
+msgstr "Impossibile applicare la bozza"
+
+#: crates/rigg/src/pages/viftekurve.rs:2604 crates/rigg/src/pages/viftekurve.rs:2659 crates/rigg/src/pages/viftekurve.rs:2774
+msgid "Fast fart"
+msgstr "Velocità fissa"
+
+#: crates/rigg/src/pages/viftekurve.rs:2663
+msgid "utkast: {modus}"
+msgstr "bozza: {modus}"
+
+#: crates/rigg/src/pages/viftekurve.rs:2737
+msgid "Balansert · standard"
+msgstr "Bilanciato · predefinito"
+
+#: crates/rigg/src/pages/viftekurve.rs:2740
+msgid "Egne kurver per vifte"
+msgstr "Curve personalizzate per ventola"
+
+#: crates/rigg/src/pages/viftekurve.rs:2741
+msgid "Egendefinert"
+msgstr "Personalizzato"
+
+#: crates/rigg/src/pages/viftekurve.rs:2808
+msgid "Ingen endringer"
+msgstr "Nessuna modifica"
+
+#: crates/rigg/src/pages/viftekurve.rs:2809
+msgid "{n} endring i utkastet"
+msgid_plural "{n} endringer i utkastet"
+msgstr[0] "{n} modifica nella bozza"
+msgstr[1] "{n} modifiche nella bozza"
+
+#: crates/rigg/src/pages/viftekurve.rs:2931
+msgid "Fjern punktet"
+msgstr "Rimuovi punto"

@@ -28,6 +28,7 @@ use gtk::prelude::*;
 use gtk::{gdk, glib};
 use rigg_core::fmt as F;
 use rigg_core::txn::{self, FanMode, Gate, Values};
+use rigg_core::{tr, trf, trn};
 use serde_json::{Value, json};
 use std::cell::{Cell, RefCell};
 use std::collections::HashMap;
@@ -225,39 +226,46 @@ pub fn reset_all(v: &Values, st: &Values) -> Values {
 /// «245 W · kjerne +0 MHz · minne +0 MHz · mål 83 °C · vifte auto»
 pub fn summary(v: &Values) -> String {
     let fan = match v.fan_mode {
-        FanMode::Auto => "vifte auto".to_string(),
-        FanMode::Curve => "vifte kurve".to_string(),
-        FanMode::Manual => format!("vifte {}", F::pct(Some(v.fan_percent), 0)),
+        FanMode::Auto => tr!("vifte auto").to_string(),
+        FanMode::Curve => tr!("vifte kurve").to_string(),
+        FanMode::Manual => trf!("vifte {fart}", fart = F::pct(Some(v.fan_percent), 0)),
     };
-    format!("{} · kjerne {} · minne {} · mål {} · {fan}", F::watt(Some(v.power_limit_w), 0), signed(v.core_offset_mhz, "MHz"), signed(v.mem_offset_mhz, "MHz"), F::temp(Some(v.temp_target_c), 0))
+    trf!("{effekt} · kjerne {kjerne} · minne {minne} · mål {temp} · {fan}", effekt = F::watt(Some(v.power_limit_w), 0), kjerne = signed(v.core_offset_mhz, "MHz"), minne = signed(v.mem_offset_mhz, "MHz"), temp = F::temp(Some(v.temp_target_c), 0), fan = fan)
+}
+
+fn point_count(count: usize) -> String {
+    if rigg_core::i18n::active() == rigg_core::i18n::Language::Nb {
+        return format!("{count} punkter");
+    }
+    trn!(count, "{antall} punkt", "{antall} punkter", antall = F::num(Some(count as f64), 0))
 }
 
 /// Navn og verdi som tekst for endringslista.
 fn field_text(v: &Values, field: &str) -> (&'static str, String) {
     match field {
-        "powerLimitW" => ("Effektgrense", F::watt(Some(v.power_limit_w), 0)),
-        "clockOffsets.coreMhz" => ("Kjerneklokke-offset", signed(v.core_offset_mhz, "MHz")),
-        "clockOffsets.memMhz" => ("Minneklokke-offset", signed(v.mem_offset_mhz, "MHz")),
-        "tempTargetC" => ("Temperaturmål", F::temp(Some(v.temp_target_c), 0)),
-        "fan.mode" => ("Viftemodus", mode_name(v.fan_mode).into()),
-        "fan.manualPercent" => ("Viftefart (manuell)", F::pct(Some(v.fan_percent), 0)),
+        "powerLimitW" => (tr!("Effektgrense"), F::watt(Some(v.power_limit_w), 0)),
+        "clockOffsets.coreMhz" => (tr!("Kjerneklokke-offset"), signed(v.core_offset_mhz, "MHz")),
+        "clockOffsets.memMhz" => (tr!("Minneklokke-offset"), signed(v.mem_offset_mhz, "MHz")),
+        "tempTargetC" => (tr!("Temperaturmål"), F::temp(Some(v.temp_target_c), 0)),
+        "fan.mode" => (tr!("Viftemodus"), mode_name(v.fan_mode).into()),
+        "fan.manualPercent" => (tr!("Viftefart (manuell)"), F::pct(Some(v.fan_percent), 0)),
         // Viftemotoren (runde 7B).
-        "fan.perFan" => ("Viftekurver", if v.fan_per_fan { "per vifte" } else { "felles" }.into()),
-        "fan.curves" => ("Kurvene per vifte", v.fan_curves.iter().map(|c| format!("{} punkter", c.len())).collect::<Vec<_>>().join(" · ")),
-        "fan.hysteresisC" => ("Hysterese", F::temp_delta(v.fan_hysteresis_c, 0)),
-        "fan.rampUpPctS" => ("Rampe opp", format!("{}{}%/s", v.fan_ramp_up_pct_s, F::NNBSP)),
-        "fan.rampDownPctS" => ("Rampe ned", format!("{}{}%/s", v.fan_ramp_down_pct_s, F::NNBSP)),
-        "fan.smoothingS" => ("Utjevning", if v.fan_smoothing_s > 0.0 { format!("{}{}s", v.fan_smoothing_s, F::NNBSP) } else { "av".into() }),
-        "fan.quietUntilC" => ("Hold minimum til", v.fan_quiet_until_c.map(|t| F::temp(Some(t), 0)).unwrap_or_else(|| "av".into())),
-        _ => ("Viftekurve", format!("{} punkter", v.fan_curve.len())),
+        "fan.perFan" => (tr!("Viftekurver"), if v.fan_per_fan { tr!("per vifte") } else { tr!("felles") }.into()),
+        "fan.curves" => (tr!("Kurvene per vifte"), v.fan_curves.iter().map(|c| point_count(c.len())).collect::<Vec<_>>().join(" · ")),
+        "fan.hysteresisC" => (tr!("Hysterese"), F::temp_delta(v.fan_hysteresis_c, 0)),
+        "fan.rampUpPctS" => (tr!("Rampe opp"), format!("{}{}%/s", v.fan_ramp_up_pct_s, F::NNBSP)),
+        "fan.rampDownPctS" => (tr!("Rampe ned"), format!("{}{}%/s", v.fan_ramp_down_pct_s, F::NNBSP)),
+        "fan.smoothingS" => (tr!("Utjevning"), if v.fan_smoothing_s > 0.0 { format!("{}{}s", v.fan_smoothing_s, F::NNBSP) } else { "av".into() }),
+        "fan.quietUntilC" => (tr!("Hold minimum til"), v.fan_quiet_until_c.map(|t| F::temp(Some(t), 0)).unwrap_or_else(|| "av".into())),
+        _ => (tr!("Viftekurve"), point_count(v.fan_curve.len())),
     }
 }
 
 pub fn mode_name(m: FanMode) -> &'static str {
     match m {
         FanMode::Auto => "Auto",
-        FanMode::Curve => "Kurve",
-        FanMode::Manual => "Manuell",
+        FanMode::Curve => tr!("Kurve"),
+        FanMode::Manual => tr!("Manuell"),
     }
 }
 
@@ -270,17 +278,19 @@ pub fn draft_diff(read: &Values, draft: &Values) -> Vec<String> {
 }
 
 /// Klokkebegrensningene (`nvmlClocksEventReason*`): bit, navn og forklaring.
-pub const THROTTLE: [(u64, &str, &str); 9] = [
-    (0x1, "Tomgang", "Kortet har ingenting å gjøre og holder klokkene nede."),
+fn throttle_reasons() -> [(u64, &'static str, &'static str); 9] {
+    [
+    (0x1, tr!("Tomgang"), "Kortet har ingenting å gjøre og holder klokkene nede."),
     (0x2, "Programklokker", "Klokkene er låst av et program (applications clocks)."),
-    (0x4, "Effektgrense", "Kortet trekker så mye som effektgrensen tillater."),
+    (0x4, tr!("Effektgrense"), "Kortet trekker så mye som effektgrensen tillater."),
     (0x8, "Maskinvare-nedklokking", "Kortet klokker ned av seg selv (strøm eller temperatur)."),
     (0x10, "Synkronisert boost", "Klokkene følger et annet kort."),
-    (0x20, "Temperaturmål", "Kortet har nådd temperaturmålet og senker klokkene."),
+    (0x20, tr!("Temperaturmål"), "Kortet har nådd temperaturmålet og senker klokkene."),
     (0x40, "Termisk nedklokking", "Maskinvaren klokker ned fordi kortet er for varmt."),
     (0x80, "Effektbrems", "Strømforsyningen har bedt kortet bremse."),
     (0x100, "Skjermklokke", "Klokkene er satt for skjermen."),
-];
+    ]
+}
 
 /// Det som begrenser kortet nå, som én flis: navn, linje under, tone og tips.
 #[derive(Clone, Debug, PartialEq)]
@@ -290,6 +300,7 @@ pub struct Limit {
     /// «», «accent» eller «warn».
     pub tone: &'static str,
     pub tip: String,
+    voltage: bool,
 }
 
 /// Last over dette uten noen begrensning fra NVML: kortet står på toppen av
@@ -300,7 +311,7 @@ const VOLTAGE_LOAD: f64 = 60.0;
 /// effektbrems, nedklokking), temperaturmålet, effektgrensen, resten, tomgang.
 /// Uten begrensning under last: spenningsgrensen (utledet).
 pub fn limiter(r: &Read) -> Limit {
-    let l = |name, sub: String, tone, tip: &str| Limit { name, sub, tone, tip: tip.to_string() };
+    let l = |name, sub: String, tone, tip: &str| Limit { name, sub, tone, tip: tip.to_string(), voltage: false };
     if r.lost {
         return l("–", "Kortet svarer ikke".into(), "", "");
     }
@@ -313,22 +324,22 @@ pub fn limiter(r: &Read) -> Limit {
         return l("–", "Kortet melder ikke årsaker".into(), "", "nvmlDeviceGetCurrentClocksEventReasons svarer ikke på dette kortet.");
     };
     let more = |bit: u64| {
-        let n = THROTTLE.iter().filter(|(b, _, _)| mask & b != 0 && *b != bit && *b != 0x1).count();
+        let n = throttle_reasons().iter().filter(|(b, _, _)| mask & b != 0 && *b != bit && *b != 0x1).count();
         if n > 0 { format!(" · +{n}") } else { String::new() }
     };
     let order: [(u64, &str, &str, &str); 8] = [
-        (0x40, "Temperatur", "Maskinvaren klokker ned", "warn"),
-        (0x80, "Effekt", "Strømforsyningen bremser", "warn"),
-        (0x8, "Maskinvare", "Kortet klokker ned selv", "warn"),
-        (0x20, "Temperatur", "Temperaturmålet er nådd", "accent"),
-        (0x4, "Effekt", "Effektgrensen er nådd", "accent"),
+        (0x40, tr!("Temperatur"), "Maskinvaren klokker ned", "warn"),
+        (0x80, tr!("Effekt"), "Strømforsyningen bremser", "warn"),
+        (0x8, tr!("Maskinvare"), "Kortet klokker ned selv", "warn"),
+        (0x20, tr!("Temperatur"), "Temperaturmålet er nådd", "accent"),
+        (0x4, tr!("Effekt"), "Effektgrensen er nådd", "accent"),
         (0x2, "Programklokker", "Låst av et program", ""),
         (0x100, "Skjermklokke", "Satt for skjermen", ""),
         (0x10, "Synkronisert", "Følger et annet kort", ""),
     ];
     for (bit, name, sub, tone) in order {
         if mask & bit != 0 {
-            let why = THROTTLE.iter().find(|t| t.0 == bit).map(|t| t.2).unwrap_or("");
+            let why = throttle_reasons().iter().find(|t| t.0 == bit).map(|t| t.2).unwrap_or("");
             let sub = match bit {
                 0x4 => match r.limit {
                     Some(w) => format!("Grensen {} er nådd", F::watt(Some(w), 0)),
@@ -347,12 +358,12 @@ pub fn limiter(r: &Read) -> Limit {
         return l("Ingenting", "Kortet er i ro".into(), "", "Kortet har ingenting å gjøre og holder klokkene nede (tomgang).");
     }
     if r.util.is_some_and(|u| u >= VOLTAGE_LOAD) {
-        return l(
-            "Spenning",
+        return Limit { voltage: true, ..l(
+            tr!("Spenning"),
             "Toppen av klokkekurven".into(),
             "",
             "NVML melder ingen begrensning, og kortet har last. Da går det så høyt spenningen tillater (det GPU-Z kaller VRel/VOp). Utledet, ikke lest fra kortet.",
-        );
+        ) };
     }
     l("Ingen", "Klokkene kan gå fritt".into(), "", "NVML melder ingen begrensning.")
 }
@@ -472,7 +483,7 @@ impl Kontroller {
 pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     let root = vbox(8, &["page", "styring", "kontroller"]);
     root.append(&crate::widgets::styrer::TargetLine::new(app).root);
-    let strip = LockStrip::new(app, "Viser det kortet har nå. Det du endrer, blir et utkast som lagres i appen og ikke sendes til kortet.");
+    let strip = LockStrip::new(app, tr!("Viser det kortet har nå. Det du endrer, blir et utkast som lagres i appen og ikke sendes til kortet."));
     root.append(&strip.root);
     let confirm = ConfirmBar::new(app);
     let outer = vbox(0, &["control-page-shell"]);
@@ -487,7 +498,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
 
     // ---- Tallene øverst ----
     let strip_stats = StatStrip::new(8);
-    let names = ["GPU-klokke nå", "Minneklokke nå", "Temperatur nå", "Forbruk nå", "GPU-last", "Viftefart nå", "P-tilstand", "Begrenset av"];
+    let names = [tr!("GPU-klokke nå"), tr!("Minneklokke nå"), tr!("Temperatur nå"), tr!("Forbruk nå"), tr!("GPU-last"), tr!("Viftefart nå"), tr!("P-tilstand"), tr!("Begrenset av")];
     let stats: Vec<Rc<Stat>> = names.iter().map(|n| Stat::new(app, n)).collect();
     for s in &stats {
         strip_stats.add(s);
@@ -501,10 +512,10 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
 
     // ---- Klokker og effekt ----
     let main = vbox(8, &[]);
-    let setup = Panel::new("Juster klokker og effekt");
-    let draft_tag = tag("Utkast · ikke sendt til kortet", Some("pencil"), "accent");
+    let setup = Panel::new(tr!("Juster klokker og effekt"));
+    let draft_tag = tag(tr!("Utkast · ikke sendt til kortet"), Some("pencil"), "accent");
     draft_tag.set_visible(false);
-    let reset_all = button(Some("rotate-ccw"), Some("Gjenopprett utgangspunkt"), &["sm"]);
+    let reset_all = button(Some("rotate-ccw"), Some(tr!("Gjenopprett utgangspunkt")), &["sm"]);
     setup.aside.append(&draft_tag);
     setup.aside.append(&reset_all);
     let rows_box = vbox(0, &["oc-rows"]);
@@ -516,26 +527,26 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         OcRow::new(app, title, unit, info, signed)
     };
     let rows: Vec<Rc<OcRow>> = vec![
-        mk("Effektgrense", "W", &DOC_POWER, Field::Power, false),
-        mk("GPU-justering", "MHz", &DOC_CORE, Field::Core, true),
-        mk("Minnejustering", "MHz", &DOC_MEM, Field::Mem, true),
-        mk("Temperaturmål", F::temp_label(), &DOC_TEMP, Field::Temp, false),
-        mk("Vifte", "%", &DOC_FAN, Field::Fan, false),
+        mk(tr!("Effektgrense"), "W", &DOC_POWER, Field::Power, false),
+        mk(tr!("GPU-justering"), "MHz", &DOC_CORE, Field::Core, true),
+        mk(tr!("Minnejustering"), "MHz", &DOC_MEM, Field::Mem, true),
+        mk(tr!("Temperaturmål"), F::temp_label(), &DOC_TEMP, Field::Temp, false),
+        mk(tr!("Vifte"), "%", &DOC_FAN, Field::Fan, false),
     ];
     let extra_rows = vbox(0, &["oc-rows"]);
     for (i, (r, doc)) in rows.iter().zip([&DOC_POWER, &DOC_CORE, &DOC_MEM, &DOC_TEMP, &DOC_FAN]).enumerate() {
         set_text(&r.desc, doc.desc);
         if i < 3 { rows_box.append(&r.root); } else { extra_rows.append(&r.root); }
     }
-    let advanced = gtk::Expander::new(Some("Avansert · temperaturmål og vifter"));
+    let advanced = gtk::Expander::new(Some(tr!("Avansert · temperaturmål og vifter")));
     advanced.set_child(Some(&extra_rows));
     setup.body.append(&advanced);
     let fans_link = hbox(8, &[]);
-    let fans_note = label("Auto, fast viftefart og egen kurve", &["muted", "sm"]);
+    let fans_note = label(tr!("Auto, fast viftefart og egen kurve"), &["muted", "sm"]);
     fans_note.set_wrap(true);
     fans_note.set_hexpand(true);
     fans_link.append(&fans_note);
-    let open_fans = button(Some("arrow-right"), Some("Åpne Vifter"), &["sm", "flat"]);
+    let open_fans = button(Some("arrow-right"), Some(tr!("Åpne Vifter")), &["sm", "flat"]);
     let a = app.clone();
     open_fans.connect_clicked(move |_| a.go("viftekurve"));
     fans_link.append(&open_fans);
@@ -548,9 +559,9 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     crate::widgets::oc::temp_spin(&rows[3].spin);
     rows[4].slider.set_fmt(|v| F::pct(Some(v), 0));
     // Vifte: modus over glideren, og en lenke til kurven.
-    let fan_seg = Seg::new(&[("auto", "Auto"), ("curve", "Kurve"), ("manual", "Manuell")], "auto", "Viftemodus").small();
-    let fan_edit = button(Some("arrow-right"), Some("Rediger kurven"), &["sm", "flat"]);
-    tip(&fan_edit, "Gå til Vifter, der kurven redigeres", None);
+    let fan_seg = Seg::new(&[("auto", "Auto"), ("curve", tr!("Kurve")), ("manual", tr!("Manuell"))], "auto", tr!("Viftemodus")).small();
+    let fan_edit = button(Some("arrow-right"), Some(tr!("Rediger kurven")), &["sm", "flat"]);
+    tip(&fan_edit, tr!("Gå til Vifter, der kurven redigeres"), None);
     rows[4].top.append(&fan_seg.root);
     fan_edit.set_halign(gtk::Align::Start);
     rows[4].mid.append(&fan_edit);
@@ -573,7 +584,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         move || {
             row.clear();
             set.clear();
-            for (id, title) in [("coreClock", "Kjerneklokke"), ("gpuTemp", "Temperatur"), ("power", "Effekt")] {
+            for (id, title) in [("coreClock", tr!("Kjerneklokke")), ("gpuTemp", tr!("Temperatur")), ("power", tr!("Effekt"))] {
                 let p = chart::def_panel(&app, id, DefOpts { window: 300, sync: None, title: Some(title.into()), stats: false, now: false });
                 row.append(&p.root);
                 set.add(&p);
@@ -586,13 +597,13 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
 
     // ---- Sidekolonnen ----
     let side = vbox(8, &[]);
-    let diff_panel = Panel::new("Utkast");
+    let diff_panel = Panel::new(tr!("Utkast"));
     let diff_kv = vbox(0, &["diff-list"]);
     diff_panel.body.append(&diff_kv);
     diff_panel.root.set_visible(false);
     side.append(&diff_panel.root);
 
-    let prof_p = Panel::new("Profiler");
+    let prof_p = Panel::new(tr!("Profiler"));
     let slots_count = label("–", &["tag", "quiet"]);
     slots_count.set_valign(gtk::Align::Center);
     tip(&slots_count, "Hent fyller utkastet med verdiene fra profilen. Ingenting sendes til kortet.", None);
@@ -601,11 +612,11 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     prof_p.body.append(&slots);
     side.append(&prof_p.root);
 
-    let lim_p = Panel::new("Begrensninger");
+    let lim_p = Panel::new(tr!("Begrensninger"));
     let ll = KvList::new();
     lim_p.body.append(&ll.grid);
-    let limit_kv: Vec<gtk::Label> = LIMIT_ROWS.iter().map(|(k, _, _)| ll.add(k, "–")).collect();
-    for (l, (_, _, why)) in limit_kv.iter().zip(LIMIT_ROWS) {
+    let limit_kv: Vec<gtk::Label> = limit_rows().iter().map(|(k, _, _)| ll.add(k, "–")).collect();
+    for (l, (_, _, why)) in limit_kv.iter().zip(limit_rows()) {
         l.set_tooltip_text(Some(why));
     }
     let limit_note = label("", &["muted", "sm", "lim-note"]);
@@ -613,14 +624,14 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     lim_p.body.append(&limit_note);
 
 
-    let nos = Panel::new("Funksjonsstøtte på kortet");
+    let nos = Panel::new(tr!("Funksjonsstøtte på kortet"));
     let nl = KvList::new();
     nos.body.append(&nl.grid);
     for (k, v) in [
-        ("Spenningsoffset", "Spenningsstyring er ikke implementert i appen."),
-        ("Klokkekurven (V/F)", "Redigering av spennings-/klokkekurven er ikke implementert. GPU-justering bruker offset der driveren støtter det."),
-        ("Låst minneklokke", "Fastlåsing av minneklokken er ikke implementert. Minnejustering bruker offset der driveren støtter det."),
-        ("Viftestopp (0 %)", "Egen viftestopp er ikke implementert. Manuell fart følger driverens område; automatisk viftestopp avhenger av kort og driver."),
+        (tr!("Spenningsoffset"), "Spenningsstyring er ikke implementert i appen."),
+        (tr!("Klokkekurven (V/F)"), "Redigering av spennings-/klokkekurven er ikke implementert. GPU-justering bruker offset der driveren støtter det."),
+        (tr!("Låst minneklokke"), "Fastlåsing av minneklokken er ikke implementert. Minnejustering bruker offset der driveren støtter det."),
+        (tr!("Viftestopp (0 %)"), "Egen viftestopp er ikke implementert. Manuell fart følger driverens område; automatisk viftestopp avhenger av kort og driver."),
     ] {
         nl.add(k, v).add_css_class("muted");
     }
@@ -639,9 +650,9 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     let actions = hbox(6, &["styring-actions"]);
     actions.set_valign(gtk::Align::Center);
     let dirty = label("", &["muted", "sm", "dirty-text"]);
-    let discard = button(None, Some("Forkast utkast"), &["sm", "flat"]);
+    let discard = button(None, Some(tr!("Forkast utkast")), &["sm", "flat"]);
     tip(&discard, "Tilbake til det kortet har. Utkastet slettes (Ctrl+Z angrer).", None);
-    let apply = button(None, Some("Bruk"), &["sm", "suggested"]);
+    let apply = button(None, Some(tr!("Bruk")), &["sm", "suggested"]);
     actions.append(&dirty);
     actions.append(&discard);
     actions.append(&apply);
@@ -686,14 +697,16 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
 
 /// Begrensningene i sidekolonnen (som HWiNFOs «Performance Limit»): navn,
 /// bitene og forklaringen. Spenning er utledet (NVML har ingen bit for den).
-const LIMIT_ROWS: [(&str, u64, &str); 6] = [
-    ("Effekt", 0x4 | 0x80, "Effektgrensen er nådd, eller strømforsyningen bremser."),
-    ("Temperatur", 0x20 | 0x40, "Temperaturmålet er nådd, eller maskinvaren klokker ned fordi kortet er for varmt."),
-    ("Spenning", 0, "Utledet: ingen begrensning fra NVML mens kortet har last. Da står det på toppen av klokkekurven."),
-    ("Maskinvare", 0x8, "Kortet klokker ned av seg selv (strøm eller temperatur)."),
-    ("Tomgang", 0x1, "Kortet har ingenting å gjøre."),
-    ("Annet", 0x2 | 0x10 | 0x100, "Programklokker, synkronisert boost eller skjermklokke."),
-];
+fn limit_rows() -> [(&'static str, u64, &'static str); 6] {
+    [
+    (tr!("Effekt"), 0x4 | 0x80, "Effektgrensen er nådd, eller strømforsyningen bremser."),
+    (tr!("Temperatur"), 0x20 | 0x40, "Temperaturmålet er nådd, eller maskinvaren klokker ned fordi kortet er for varmt."),
+    (tr!("Spenning"), 0, "Utledet: ingen begrensning fra NVML mens kortet har last. Da står det på toppen av klokkekurven."),
+    (tr!("Maskinvare"), 0x8, "Kortet klokker ned av seg selv (strøm eller temperatur)."),
+    (tr!("Tomgang"), 0x1, "Kortet har ingenting å gjøre."),
+    (tr!("Annet"), 0x2 | 0x10 | 0x100, "Programklokker, synkronisert boost eller skjermklokke."),
+    ]
+}
 
 /// (i)-innholdet for en kontroll, med tallene fra kortet nå.
 fn info_for(app: &Rc<App>, title: &str, doc: &Doc, f: Field) -> gtk::Box {
@@ -744,7 +757,7 @@ fn info_for(app: &Rc<App>, title: &str, doc: &Doc, f: Field) -> gtk::Box {
     let key = match f { Field::Power => "power", Field::Core => "core_clock", Field::Mem => "mem_clock", Field::Temp => "temp_target", Field::Fan | Field::Curve => "fan_manual" };
     let status = match locked::gate(app) {
         Gate::Real if locked::supports(app, key) => "Klar. Bruk prøver endringen; Behold lar den fortsette.".to_string(),
-        Gate::Real => locked::capability_reason(app, key),
+        Gate::Real => rigg_core::hjelper::display_message(&locked::capability_reason(app, key)).into(),
         Gate::Sim => "Simulert kort. Ekte maskinvare endres ikke.".into(),
         Gate::Locked(why) => why.to_string(),
     };
@@ -851,7 +864,7 @@ impl Kontroller {
             if let Some(p) = w.upgrade() {
                 locked::update(&p.app, "utkast", |s| s.utkast = None);
                 let a = p.app.clone();
-                p.app.toast(crate::toast::Toast::new("Utkastet er forkastet").action("Angre", move || {
+                p.app.toast(crate::toast::Toast::new(tr!("Utkastet er forkastet")).action(tr!("Angre"), move || {
                     locked::undo_draft(&a, false);
                 }));
             }
@@ -926,9 +939,9 @@ impl Kontroller {
                     match r {
                         Ok(_) => {
                             locked::update(&p.app, "utkast", |s| s.utkast = None);
-                            p.app.toast(crate::toast::Toast::new("Kortets utgangspunkt er gjenopprettet"));
+                            p.app.toast(crate::toast::Toast::new(tr!("Kortets utgangspunkt er gjenopprettet")));
                         }
-                        Err(e) => p.app.toast(crate::toast::Toast::new("Kunne ikke bekrefte gjenoppretting").body(&e.message).error()),
+                        Err(e) => p.app.toast(crate::toast::Toast::new(tr!("Kunne ikke bekrefte gjenoppretting")).body(rigg_core::hjelper::display_error(&e).as_ref()).error()),
                     }
                     p.refresh();
                 }
@@ -945,7 +958,7 @@ impl Kontroller {
         }
         locked::set_draft(&self.app, self.base(), next);
         let a = self.app.clone();
-        self.app.toast(crate::toast::Toast::new("Utkastet har standardverdiene").body("Ingenting er sendt til kortet.").action("Angre", move || {
+        self.app.toast(crate::toast::Toast::new("Utkastet har standardverdiene").body(tr!("Ingenting er sendt til kortet.")).action(tr!("Angre"), move || {
             locked::undo_draft(&a, false);
         }));
     }
@@ -956,7 +969,7 @@ impl Kontroller {
         let mask = if r.inferred { 0x1 } else { r.throttle.unwrap_or(0) };
         let mut since = self.since.borrow_mut();
         since.retain(|bit, _| mask & bit != 0);
-        for (bit, _, _) in THROTTLE {
+        for (bit, _, _) in throttle_reasons() {
             if mask & bit != 0 {
                 since.entry(bit).or_insert(r.t);
             }
@@ -982,7 +995,7 @@ impl Kontroller {
             }
         };
         if let Some(why) = locked::patch_error(&self.app, &base, &d) {
-            self.app.toast(crate::toast::Toast::new("Funksjonen er utilgjengelig").body(&why).error());
+            self.app.toast(crate::toast::Toast::new(tr!("Funksjonen er utilgjengelig")).body(&why).error());
             return;
         }
         let patch = locked::changed_patch(&base, &d);
@@ -993,7 +1006,7 @@ impl Kontroller {
             match res {
                 Ok(v) if v["txn"].is_string() => p.confirm.start(&p.app, &v),
                 Ok(_) => p.app.toast(crate::toast::Toast::new("Ingen endringer å bruke")),
-                Err(e) => p.app.toast(crate::toast::Toast::new("Kunne ikke bruke utkastet").body(&e.message).error()),
+                Err(e) => p.app.toast(crate::toast::Toast::new(tr!("Kunne ikke bruke utkastet")).body(rigg_core::hjelper::display_error(&e).as_ref()).error()),
             }
             p.refresh();
         });
@@ -1085,7 +1098,7 @@ impl Kontroller {
             let enabled = limits_known && (!locked::control_ready(&self.app) || locked::supports(&self.app, key));
             row.root.set_sensitive(enabled);
             if !limits_known { row.root.set_tooltip_text(Some("Kortets tillatte område er ikke lest. Ingen modellspesifikke grenser antas.")); }
-            else if !enabled { row.root.set_tooltip_text(Some(&locked::capability_reason(&self.app, key))); }
+            else if !enabled { row.root.set_tooltip_text(Some(rigg_core::hjelper::display_message(&locked::capability_reason(&self.app, key)))); }
             else { row.root.set_tooltip_text(None); }
             if i < ranges.len() { row.slider.set_visible(ranges[i].is_some_and(|(lo, hi)| hi > lo)); }
         }
@@ -1176,13 +1189,13 @@ impl Kontroller {
         let since = self.since.borrow();
         let mask = if r.inferred { 0x1 } else { r.throttle.unwrap_or(0) };
         let known = !r.lost && (r.throttle.is_some() || r.inferred);
-        let volt = limiter(r).name == "Spenning";
-        for (l, (_, bits, why)) in self.limit_kv.iter().zip(LIMIT_ROWS) {
+        let volt = limiter(r).voltage;
+        for (l, (_, bits, why)) in self.limit_kv.iter().zip(limit_rows()) {
             let on = if bits == 0 { volt } else { mask & bits != 0 };
             let text = if !known || (r.inferred && bits != 0x1) {
                 F::DASH.to_string()
             } else if on {
-                let first = THROTTLE.iter().filter(|(b, _, _)| bits & b != 0).filter_map(|(b, _, _)| since.get(b)).min();
+                let first = throttle_reasons().iter().filter(|(b, _, _)| bits & b != 0).filter_map(|(b, _, _)| since.get(b)).min();
                 match first {
                     Some(t) => format!("Ja · siden {}", locked::clock(*t, false)),
                     None => "Ja".into(),
@@ -1194,7 +1207,7 @@ impl Kontroller {
             // Tomgang er den vanlige tilstanden, ikke en begrensning å legge merke til.
             class(l, "lim-on", on && known && bits != 0x1);
             class(l, "na", text == F::DASH);
-            let names: Vec<&str> = THROTTLE.iter().filter(|(b, _, _)| bits & b != 0 && mask & b != 0).map(|(_, n, _)| *n).collect();
+            let names: Vec<&str> = throttle_reasons().iter().filter(|(b, _, _)| bits & b != 0 && mask & b != 0).map(|(_, n, _)| *n).collect();
             let t = if names.is_empty() { why.to_string() } else { format!("{why}\nNå: {}.", names.join(", ")) };
             if l.tooltip_text().as_deref() != Some(t.as_str()) {
                 l.set_tooltip_text(Some(&t));
@@ -1257,9 +1270,8 @@ impl Kontroller {
         self.diff_kv.append(&note);
         let n = diff.len();
         set_text(&self.dirty, &match n {
-            0 => "Ingen endringer".to_string(),
-            1 => "1 endring i utkastet".to_string(),
-            n => format!("{n} endringer i utkastet"),
+            0 => tr!("Ingen endringer").to_string(),
+            n => trn!(n, "{n} endring i utkastet", "{n} endringer i utkastet", n = F::num(Some(n as f64), 0)),
         });
         // Smalt vindu: toppfeltet får ikke plass til teksten (utkast-merket sier det).
         self.dirty.set_visible(!self.narrow.get());
@@ -1293,9 +1305,9 @@ impl Kontroller {
         let here = self.values_on_page();
         let twin = st.profiles.iter().flatten().find(|p| p.values == here).map(|p| p.name.clone());
         let used = st.profiles.iter().flatten().count();
-        set_text(&self.slots_count, &format!("{used} av {}", locked::SLOTS));
+        set_text(&self.slots_count, &trf!("{used} av {plasser}", used = used, plasser = locked::SLOTS));
         if used == 0 {
-            let l = label("Ingen profiler ennå. En profil husker alle verdiene på siden, også viftekurven.", &["muted", "sm"]);
+            let l = label(tr!("Ingen profiler ennå. En profil husker alle verdiene på siden, også viftekurven."), &["muted", "sm"]);
             l.set_wrap(true);
             self.slots.append(&l);
         }
@@ -1312,7 +1324,7 @@ impl Kontroller {
                 e.set_text(&p.name);
                 e.set_max_length(32);
                 e.set_hexpand(true);
-                e.update_property(&[gtk::accessible::Property::Label(&format!("Nytt navn på {}", p.name))]);
+                e.update_property(&[gtk::accessible::Property::Label(&trf!("Nytt navn på {profil}", profil = p.name))]);
                 let w = Rc::downgrade(self);
                 e.connect_activate(move |e| {
                     if let Some(pg) = w.upgrade() {
@@ -1467,7 +1479,7 @@ impl Kontroller {
         locked::update(&self.app, "profiler", |s| s.profiles[i] = None);
         let name = before.as_ref().map(|p| p.name.clone()).unwrap_or_default();
         let a = self.app.clone();
-        self.app.toast(crate::toast::Toast::new(&format!("«{name}» er tømt")).action("Angre", move || {
+        self.app.toast(crate::toast::Toast::new(&format!("«{name}» er tømt")).action(tr!("Angre"), move || {
             let b = before.clone();
             locked::update(&a, "profiler", |s| s.profiles[i] = b);
         }));

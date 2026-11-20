@@ -273,6 +273,22 @@ fn invalid(msg: impl Into<String>) -> ProtoError {
     ProtoError::msg(ErrorCode::InvalidArgument, msg)
 }
 
+pub(crate) fn display_validation_message(message: &str) -> &str {
+    match message {
+        "Viftekurven må være en liste med punkter" => crate::tr!("Viftekurven må være en liste med punkter"),
+        "Temperaturene i viftekurven må stige" => crate::tr!("Temperaturene i viftekurven må stige"),
+        "fan.curves må være en liste med kurver" => crate::tr!("fan.curves må være en liste med kurver"),
+        "settings må være et objekt" => crate::tr!("settings må være et objekt"),
+        "clockOffsets må være et objekt" => crate::tr!("clockOffsets må være et objekt"),
+        "fan må være et objekt" => crate::tr!("fan må være et objekt"),
+        "fan.mode må være auto, curve eller manual" => crate::tr!("fan.mode må være auto, curve eller manual"),
+        "fan.perFan må være true eller false" => crate::tr!("fan.perFan må være true eller false"),
+        "confirmTimeoutS må være et tall" => crate::tr!("confirmTimeoutS må være et tall"),
+        "Oppsettet må være innenfor rapporterte grenser og viftekurven må være stigende." => crate::tr!("Oppsettet må være innenfor rapporterte grenser og viftekurven må være stigende."),
+        _ => message,
+    }
+}
+
 /// Klemmer ett tall og noterer det.
 fn clamp_num(field: &str, v: f64, eff: Range, hw: Range, out: &mut Vec<Clamped>) -> f64 {
     let r = v.round();
