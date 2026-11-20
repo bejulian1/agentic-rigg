@@ -14,7 +14,7 @@ msgstr "ナビゲーション"
 
 #: crates/rigg/src/shortcuts.rs:181
 msgid "Åpne de ti opprinnelige sidene; 0 åpner RGB-lys"
-msgstr "最初の 10 ページを開く。0 で RGB 照明を開く"
+msgstr "最初の 10 ページを開く。0 で RGBライティングを開く"
 
 #: crates/rigg/src/shortcuts.rs:182
 msgid "Åpne Oppgaver"

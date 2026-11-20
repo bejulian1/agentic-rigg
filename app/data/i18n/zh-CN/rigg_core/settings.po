@@ -34,7 +34,7 @@ msgstr "磁盘"
 
 #: crates/rigg-core/src/settings.rs:59
 msgid "System"
-msgstr "跟随系统"
+msgstr "系统"
 
 #: crates/rigg-core/src/settings.rs:60
 msgid "Skjermkort › Klokker og effekt"
@@ -46,7 +46,7 @@ msgstr "显卡 › 风扇"
 
 #: crates/rigg-core/src/settings.rs:62
 msgid "Skjermkort › RGB-lys"
-msgstr "显卡 › RGB 灯光"
+msgstr "显卡 › RGB 灯效"
 
 #: crates/rigg-core/src/settings.rs:63
 msgid "Oppgaver"

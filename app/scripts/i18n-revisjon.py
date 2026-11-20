@@ -60,8 +60,12 @@ ALLOWLIST_FILES: dict[str, str] = {
     "crates/riggd/src/sampler.rs": "OS-trådnavn og intern feilsøkingslogg",
     "crates/riggd/src/server.rs": "Oppstartsfeil på stderr for Unix-socket",
     "crates/riggd/src/store.rs": "Filnavn (tjeneste.json), backup-suffiks og stderr-feil",
-    "crates/riggd/src/tray.rs": "D-Bus-feilmeldinger for ukjent egenskap/metode",
-    "crates/riggd/src/varsler.rs": "Stabile interne varselnøkler (disk:...)",
+}
+
+# Synlige daemonmoduler (varsler og systemkurv) har bare eksakte unntak, slik at ny
+# uoversatt tekst der fortsatt fanges. Lange tekniske literaler matches på prefiks.
+ALLOWLIST_PREFIX: dict[tuple[str, str], str] = {
+    ("crates/riggd/src/tray.rs", "<node>\n  <interface name=\"org.kde.StatusNotifierItem\">"): "D-Bus-introspeksjon (XML)",
 }
 
 # Exact (file, literal) allowlist for UI and shared modules so new untranslated UI text is always caught.
@@ -165,6 +169,11 @@ ALLOWLIST_EXACT: dict[tuple[str, str], str] = {
     ("crates/rigg/src/widgets/chart/math.rs", "Sekunder"): "CSV-kolonneoverskrift jf. docs/produksjon/i18n.md",
     ("crates/rigg/src/widgets/version_log.rs", "Versjonsloggen må være en liste"): "Intern expect-melding ved tolking av innebygd versjonslogg",
     ("crates/rigg/src/window.rs", "appen lever så lenge vinduet gjør"): "Intern expect-melding",
+    ("crates/riggd/src/tray.rs", "Ukjent egenskap"): "D-Bus-feilmelding til skallet, ikke brukertekst",
+    ("crates/riggd/src/tray.rs", "Ukjent metode"): "D-Bus-feilmelding til skallet, ikke brukertekst",
+    ("crates/riggd/src/varsler.rs", "disk:{}:fail"): "Stabil intern varselnøkkel",
+    ("crates/riggd/src/varsler.rs", "disk:{}:bad:{bad}"): "Stabil intern varselnøkkel",
+    ("crates/riggd/src/varsler.rs", "disk:{}"): "Stabil intern varselnøkkel",
 }
 
 TOKEN = re.compile(
@@ -490,6 +499,32 @@ def scan_file(path: Path) -> list[Finding]:
     return findings
 
 
+PO_ENTRY = re.compile(r'^msgid ((?:"(?:[^"\\]|\\.)*"\n)+)msgstr ((?:"(?:[^"\\]|\\.)*"\n)+)', re.M)
+
+
+def po_messages(path: Path) -> dict[str, str]:
+    if not path.is_file():
+        return {}
+    join = lambda block: "".join(rust_string(line) for line in block.splitlines())
+    return {join(m[1]): join(m[2]) for m in PO_ENTRY.finditer(path.read_text(encoding="utf-8") + "\n")}
+
+
+def navigation_mismatches() -> list[str]:
+    """Sidenavnene i Innstillinger (rigg_core::settings::page_name) skal være de samme som i sidefeltet."""
+    source = (APP / "crates/rigg-core/src/settings.rs").read_text(encoding="utf-8")
+    names = re.findall(r'=> tr!\("([^"]+)"\)', source[source.index("pub fn page_name") : source.index("pub const INTERVALS")])
+    out = []
+    for lang in sorted((APP / "data/i18n").iterdir()):
+        nav = po_messages(lang / "agentic_rigg/pages.po")
+        settings = po_messages(lang / "rigg_core/settings.po")
+        for name in names:
+            parts = [nav.get(part, "") for part in name.split(" › ")]
+            have = settings.get(name, "")
+            if have and all(parts) and have != " › ".join(parts):
+                out.append(f"data/i18n/{lang.name}/rigg_core/settings.po [sidenavn] {name!r}: {have!r} != {' › '.join(parts)!r}")
+    return out
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--all", action="store_true", help="vis også oppføringer i unntakslista")
@@ -512,7 +547,11 @@ def main() -> int:
         if is_other_branch(p.relative_to(APP).as_posix()) and not args.include_other:
             continue
         for f in scan_file(p):
-            why = ALLOWLIST_EXACT.get((f.rel, f.text)) or ALLOWLIST_FILES.get(f.rel)
+            why = (
+                ALLOWLIST_EXACT.get((f.rel, f.text))
+                or ALLOWLIST_FILES.get(f.rel)
+                or next((w for (rel, prefix), w in ALLOWLIST_PREFIX.items() if rel == f.rel and f.text.startswith(prefix)), None)
+            )
             if why is not None:
                 allowed.append((f, why))
             elif is_other_branch(f.rel):
@@ -520,8 +559,11 @@ def main() -> int:
             else:
                 unallowed.append(f)
 
+    mismatches = [] if args.files else navigation_mismatches()
     for f in unallowed:
         print(f"{f.rel}:{f.line} [{f.reason}] {f.text!r}")
+    for line in mismatches:
+        print(line)
     for f in other:
         print(f"{f.rel}:{f.line} [{f.reason}] {f.text!r}  # rel/demo-rgb")
     if args.all and allowed:
@@ -529,8 +571,8 @@ def main() -> int:
         for f, why in allowed:
             print(f"{f.rel}:{f.line} [{f.reason}] {f.text!r}  # {why}")
 
-    print(f"\nOppsummering: {len(unallowed)} uavklarte, {len(allowed)} i unntakslista, {len(other)} på rel/demo-rgb.", file=sys.stderr)
-    return int(bool(unallowed))
+    print(f"\nOppsummering: {len(unallowed)} uavklarte, {len(mismatches)} avvikende sidenavn, {len(allowed)} i unntakslista, {len(other)} på rel/demo-rgb.", file=sys.stderr)
+    return int(bool(unallowed or mismatches))
 
 
 if __name__ == "__main__":

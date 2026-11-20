@@ -38,7 +38,7 @@ msgstr "System"
 
 #: crates/rigg-core/src/settings.rs:60
 msgid "Skjermkort › Klokker og effekt"
-msgstr "GPU › Takt und Leistung"
+msgstr "GPU › Taktraten und Leistung"
 
 #: crates/rigg-core/src/settings.rs:61
 msgid "Skjermkort › Vifter"

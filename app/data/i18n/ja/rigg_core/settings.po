@@ -26,7 +26,7 @@ msgstr "グラフィックスカード"
 
 #: crates/rigg-core/src/settings.rs:57
 msgid "Prosessor"
-msgstr "CPU"
+msgstr "プロセッサー"
 
 #: crates/rigg-core/src/settings.rs:58
 msgid "Disker"
@@ -46,7 +46,7 @@ msgstr "GPU › ファン"
 
 #: crates/rigg-core/src/settings.rs:62
 msgid "Skjermkort › RGB-lys"
-msgstr "GPU › RGB ライティング"
+msgstr "GPU › RGBライティング"
 
 #: crates/rigg-core/src/settings.rs:63
 msgid "Oppgaver"
