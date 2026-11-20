@@ -8,102 +8,106 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg/src/settings/mod.rs:45
+#: crates/rigg/src/settings/mod.rs:46
 msgid "Generelt"
 msgstr "常规"
 
-#: crates/rigg/src/settings/mod.rs:45
+#: crates/rigg/src/settings/mod.rs:46
 msgid "Språk, oppstart, oppdatering og bakgrunnstjeneste"
 msgstr "语言、启动、刷新和后台服务"
 
-#: crates/rigg/src/settings/mod.rs:46
+#: crates/rigg/src/settings/mod.rs:47
 msgid "Utseende"
 msgstr "外观"
 
-#: crates/rigg/src/settings/mod.rs:46
+#: crates/rigg/src/settings/mod.rs:47
 msgid "Lyst eller mørkt, farger, appikon, størrelse og bevegelse"
 msgstr "明暗主题、颜色、应用图标、大小和动效"
 
-#: crates/rigg/src/settings/mod.rs:47
+#: crates/rigg/src/settings/mod.rs:48
 msgid "Enheter og format"
 msgstr "单位和格式"
 
-#: crates/rigg/src/settings/mod.rs:47
+#: crates/rigg/src/settings/mod.rs:48
 msgid "Enheter, desimaler og klokkeslett"
 msgstr "单位、小数位和时间格式"
 
-#: crates/rigg/src/settings/mod.rs:48
+#: crates/rigg/src/settings/mod.rs:49
 msgid "Sidefelt"
 msgstr "侧边栏"
 
-#: crates/rigg/src/settings/mod.rs:48
+#: crates/rigg/src/settings/mod.rs:49
 msgid "Statusblokken, bredden og sidene i sidefeltet"
 msgstr "状态面板、侧边栏宽度和可见页面"
 
-#: crates/rigg/src/settings/mod.rs:49
+#: crates/rigg/src/settings/mod.rs:50
 msgid "Grafer og sensorer"
 msgstr "图表和传感器"
 
-#: crates/rigg/src/settings/mod.rs:49
+#: crates/rigg/src/settings/mod.rs:50
 msgid "Tidsvindu, grafer, sensorer og varselfarger"
 msgstr "时间范围、图表、传感器和警告颜色"
 
-#: crates/rigg/src/settings/mod.rs:50
+#: crates/rigg/src/settings/mod.rs:51
 msgid "Logging og varsler"
 msgstr "日志和警报"
 
-#: crates/rigg/src/settings/mod.rs:50
+#: crates/rigg/src/settings/mod.rs:51
 msgid "Logg til fil og skrivebordsvarsler"
 msgstr "文件日志和桌面通知"
 
-#: crates/rigg/src/settings/mod.rs:51
+#: crates/rigg/src/settings/mod.rs:52
 msgid "Skjermkortstyring"
 msgstr "GPU 控制"
 
-#: crates/rigg/src/settings/mod.rs:51
+#: crates/rigg/src/settings/mod.rs:52
 msgid "Tillatelse, funksjonsstøtte og trygg gjenoppretting"
 msgstr "权限、支持的功能和安全恢复"
 
-#: crates/rigg/src/settings/mod.rs:52
+#: crates/rigg/src/settings/mod.rs:53
 msgid "Data og tilbakestilling"
 msgstr "数据和重置"
 
-#: crates/rigg/src/settings/mod.rs:52
+#: crates/rigg/src/settings/mod.rs:53
 msgid "Mappene, eksport, import og tilbakestilling"
 msgstr "文件夹、导出、导入和重置"
 
-#: crates/rigg/src/settings/mod.rs:53
+#: crates/rigg/src/settings/mod.rs:54
 msgid "Om"
 msgstr "关于"
 
-#: crates/rigg/src/settings/mod.rs:53
+#: crates/rigg/src/settings/mod.rs:54
 msgid "Versjon, hjelp og feilsøking"
 msgstr "版本、帮助和故障排查"
 
-#: crates/rigg/src/settings/mod.rs:298
+#: crates/rigg/src/settings/mod.rs:308
 msgid "Innstillinger"
 msgstr "设置"
 
-#: crates/rigg/src/settings/mod.rs:309 crates/rigg/src/settings/mod.rs:311 crates/rigg/src/settings/mod.rs:611
+#: crates/rigg/src/settings/mod.rs:319 crates/rigg/src/settings/mod.rs:321 crates/rigg/src/settings/mod.rs:621
 msgid "Søk i innstillinger"
 msgstr "搜索设置"
 
-#: crates/rigg/src/settings/mod.rs:310
+#: crates/rigg/src/settings/mod.rs:320
 msgid "Søk i alle innstillingene. Ctrl+F eller / søker, Esc avslutter søket."
 msgstr "搜索所有设置。按 Ctrl+F 或 / 搜索，按 Esc 退出。"
 
-#: crates/rigg/src/settings/mod.rs:329
+#: crates/rigg/src/settings/mod.rs:339
 msgid "Deler av innstillingene"
 msgstr "设置分类"
 
-#: crates/rigg/src/settings/mod.rs:354
+#: crates/rigg/src/settings/mod.rs:364
 msgid "Endringer lagres straks."
 msgstr "更改会自动保存。"
 
-#: crates/rigg/src/settings/mod.rs:356
+#: crates/rigg/src/settings/mod.rs:366
 msgid "Versjonslogg"
 msgstr "版本记录"
 
-#: crates/rigg/src/settings/mod.rs:611
+#: crates/rigg/src/settings/mod.rs:591
+msgid "Tilbake til {side}"
+msgstr ""
+
+#: crates/rigg/src/settings/mod.rs:621
 msgid "Søk"
 msgstr "搜索"

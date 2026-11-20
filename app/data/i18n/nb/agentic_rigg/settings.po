@@ -8,102 +8,106 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg/src/settings/mod.rs:45
+#: crates/rigg/src/settings/mod.rs:46
 msgid "Generelt"
 msgstr "Generelt"
 
-#: crates/rigg/src/settings/mod.rs:45
+#: crates/rigg/src/settings/mod.rs:46
 msgid "Språk, oppstart, oppdatering og bakgrunnstjeneste"
 msgstr "Språk, oppstart, oppdatering og bakgrunnstjeneste"
 
-#: crates/rigg/src/settings/mod.rs:46
+#: crates/rigg/src/settings/mod.rs:47
 msgid "Utseende"
 msgstr "Utseende"
 
-#: crates/rigg/src/settings/mod.rs:46
+#: crates/rigg/src/settings/mod.rs:47
 msgid "Lyst eller mørkt, farger, appikon, størrelse og bevegelse"
 msgstr "Lyst eller mørkt, farger, appikon, størrelse og bevegelse"
 
-#: crates/rigg/src/settings/mod.rs:47
+#: crates/rigg/src/settings/mod.rs:48
 msgid "Enheter og format"
 msgstr "Enheter og format"
 
-#: crates/rigg/src/settings/mod.rs:47
+#: crates/rigg/src/settings/mod.rs:48
 msgid "Enheter, desimaler og klokkeslett"
 msgstr "Enheter, desimaler og klokkeslett"
 
-#: crates/rigg/src/settings/mod.rs:48
+#: crates/rigg/src/settings/mod.rs:49
 msgid "Sidefelt"
 msgstr "Sidefelt"
 
-#: crates/rigg/src/settings/mod.rs:48
+#: crates/rigg/src/settings/mod.rs:49
 msgid "Statusblokken, bredden og sidene i sidefeltet"
 msgstr "Statusblokken, bredden og sidene i sidefeltet"
 
-#: crates/rigg/src/settings/mod.rs:49
+#: crates/rigg/src/settings/mod.rs:50
 msgid "Grafer og sensorer"
 msgstr "Grafer og sensorer"
 
-#: crates/rigg/src/settings/mod.rs:49
+#: crates/rigg/src/settings/mod.rs:50
 msgid "Tidsvindu, grafer, sensorer og varselfarger"
 msgstr "Tidsvindu, grafer, sensorer og varselfarger"
 
-#: crates/rigg/src/settings/mod.rs:50
+#: crates/rigg/src/settings/mod.rs:51
 msgid "Logging og varsler"
 msgstr "Logging og varsler"
 
-#: crates/rigg/src/settings/mod.rs:50
+#: crates/rigg/src/settings/mod.rs:51
 msgid "Logg til fil og skrivebordsvarsler"
 msgstr "Logg til fil og skrivebordsvarsler"
 
-#: crates/rigg/src/settings/mod.rs:51
+#: crates/rigg/src/settings/mod.rs:52
 msgid "Skjermkortstyring"
 msgstr "Skjermkortstyring"
 
-#: crates/rigg/src/settings/mod.rs:51
+#: crates/rigg/src/settings/mod.rs:52
 msgid "Tillatelse, funksjonsstøtte og trygg gjenoppretting"
 msgstr "Tillatelse, funksjonsstøtte og trygg gjenoppretting"
 
-#: crates/rigg/src/settings/mod.rs:52
+#: crates/rigg/src/settings/mod.rs:53
 msgid "Data og tilbakestilling"
 msgstr "Data og tilbakestilling"
 
-#: crates/rigg/src/settings/mod.rs:52
+#: crates/rigg/src/settings/mod.rs:53
 msgid "Mappene, eksport, import og tilbakestilling"
 msgstr "Mappene, eksport, import og tilbakestilling"
 
-#: crates/rigg/src/settings/mod.rs:53
+#: crates/rigg/src/settings/mod.rs:54
 msgid "Om"
 msgstr "Om"
 
-#: crates/rigg/src/settings/mod.rs:53
+#: crates/rigg/src/settings/mod.rs:54
 msgid "Versjon, hjelp og feilsøking"
 msgstr "Versjon, hjelp og feilsøking"
 
-#: crates/rigg/src/settings/mod.rs:298
+#: crates/rigg/src/settings/mod.rs:308
 msgid "Innstillinger"
 msgstr "Innstillinger"
 
-#: crates/rigg/src/settings/mod.rs:309 crates/rigg/src/settings/mod.rs:311 crates/rigg/src/settings/mod.rs:611
+#: crates/rigg/src/settings/mod.rs:319 crates/rigg/src/settings/mod.rs:321 crates/rigg/src/settings/mod.rs:621
 msgid "Søk i innstillinger"
 msgstr "Søk i innstillinger"
 
-#: crates/rigg/src/settings/mod.rs:310
+#: crates/rigg/src/settings/mod.rs:320
 msgid "Søk i alle innstillingene. Ctrl+F eller / søker, Esc avslutter søket."
 msgstr "Søk i alle innstillingene. Ctrl+F eller / søker, Esc avslutter søket."
 
-#: crates/rigg/src/settings/mod.rs:329
+#: crates/rigg/src/settings/mod.rs:339
 msgid "Deler av innstillingene"
 msgstr "Deler av innstillingene"
 
-#: crates/rigg/src/settings/mod.rs:354
+#: crates/rigg/src/settings/mod.rs:364
 msgid "Endringer lagres straks."
 msgstr "Endringer lagres straks."
 
-#: crates/rigg/src/settings/mod.rs:356
+#: crates/rigg/src/settings/mod.rs:366
 msgid "Versjonslogg"
 msgstr "Versjonslogg"
 
-#: crates/rigg/src/settings/mod.rs:611
+#: crates/rigg/src/settings/mod.rs:591
+msgid "Tilbake til {side}"
+msgstr "Tilbake til {side}"
+
+#: crates/rigg/src/settings/mod.rs:621
 msgid "Søk"
 msgstr "Søk"

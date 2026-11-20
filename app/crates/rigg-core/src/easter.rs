@@ -8,6 +8,8 @@
 //!
 //! Krokene i vinduet står i `rigg/src/easter.rs`; sidene kaller én funksjon hver.
 
+use crate::{tr, trf, trn};
+
 pub struct Egg {
     pub id: &'static str,
     pub name: &'static str,
@@ -95,6 +97,22 @@ pub fn egg(id: &str) -> Option<&'static Egg> {
     EGGS.iter().find(|e| e.id == id)
 }
 
+pub fn egg_hint(id: &str) -> &'static str {
+    match id {
+        "konami" => tr!("Noen koder husker man fra åttitallet. Opp, opp …"),
+        "stov" => tr!("Appikonet har en vifte. Vifter samler støv."),
+        "utvikler" => tr!("På telefoner blir man utvikler ved å trykke på byggnummeret. Hvor står versjonen her?"),
+        "svaret" => tr!("Ett tall er viktigere enn alle andre. Følg med på GPU-temperaturen."),
+        "bursdag" => tr!("Kortet har bursdag én gang i året. Se etter lanseringen på Grafikkort."),
+        "natt" => tr!("Noen detaljer viser seg bare når resten av huset sover."),
+        "kaffe" => tr!("Filteret på Sensorer leter etter mer enn sensorer. Hva drikker du nå?"),
+        "kallenavn" => tr!("En viftekurve som står rett på taket, fortjener et navn."),
+        "konsoll" => tr!("Du fant denne. Godt jobbet."),
+        "nordlys" => tr!("På Lys finnes det en effekt som ikke står i lista. Den er norsk."),
+        _ => "",
+    }
+}
+
 // ---- 1 · Juksekoden ----
 
 /// Tastene i rekkefølge, som navn fra GDK (`Up`, `b` …).
@@ -128,10 +146,26 @@ impl Konami {
 pub const KONAMI_TITLE: &str = "Juksekode godtatt";
 pub const KONAMI_BODY: &str = "+30 liv. Klokkene, effekten og viften er som før – kortet får aldri vite om dette.";
 
+pub fn konami_title() -> &'static str {
+    tr!("Juksekode godtatt")
+}
+
+pub fn konami_body() -> &'static str {
+    tr!("+30 liv. Klokkene, effekten og viften er som før – kortet får aldri vite om dette.")
+}
+
 // ---- 2 · Støvtørking ----
 
 pub const DUST_TITLE: &str = "Pff!";
 pub const DUST_BODY: &str = "Støvet er blåst av viften. Bare på ikonet – den ekte viften går som før.";
+
+pub fn dust_title() -> &'static str {
+    tr!("Pff!")
+}
+
+pub fn dust_body() -> &'static str {
+    tr!("Støvet er blåst av viften. Bare på ikonet – den ekte viften går som før.")
+}
 
 /// Fem klikk innen 2 s. `clicks` er tidspunktene (ms) for tidligere klikk.
 pub fn dust_click(clicks: &mut Vec<i64>, now: i64) -> bool {
@@ -150,21 +184,22 @@ pub const DEV_CLICKS: u32 = 7;
 
 /// Teksten under versjonen etter klikk nummer `n` (de to første sier ingenting).
 pub fn dev_whisper(n: u32, already: bool) -> Option<String> {
-    const WORDS: [&str; 7] = ["", "ett", "to", "tre", "fire", "fem", "seks"];
     if n < 3 {
         return None;
     }
     if already {
-        return Some("Du er allerede utvikler.".into());
+        return Some(tr!("Du er allerede utvikler.").into());
     }
     let left = DEV_CLICKS.saturating_sub(n);
-    if left == 0 {
-        return Some("Du er nå utvikler. Det var du nok fra før.".into());
-    }
-    let w = WORDS[left as usize];
-    let mut c = w.chars();
-    let cap = c.next().map(|f| f.to_uppercase().collect::<String>() + c.as_str()).unwrap_or_default();
-    Some(format!("{cap} klikk til, så er du utvikler."))
+    Some(match left {
+        0 => tr!("Du er nå utvikler. Det var du nok fra før.").into(),
+        1 => tr!("Ett klikk til, så er du utvikler.").into(),
+        2 => tr!("To klikk til, så er du utvikler.").into(),
+        3 => tr!("Tre klikk til, så er du utvikler.").into(),
+        4 => tr!("Fire klikk til, så er du utvikler.").into(),
+        5 => tr!("Fem klikk til, så er du utvikler.").into(),
+        _ => tr!("Seks klikk til, så er du utvikler.").into(),
+    })
 }
 
 // ---- 4 · Svaret på alt ----
@@ -176,6 +211,10 @@ pub fn is_42(shown_celsius_rounded: Option<i64>, unit_is_c: bool) -> bool {
 
 pub const ANSWER_TIP: &str = "42 °C – svaret på livet, universet og alt. Målingen er ekte; det er bare tallet som er morsomt.";
 
+pub fn answer_tip() -> &'static str {
+    tr!("42 °C – svaret på livet, universet og alt. Målingen er ekte; det er bare tallet som er morsomt.")
+}
+
 // ---- 5 · Bursdag ----
 
 /// «8 år i dag» når kortet er et RTX 2080 og datoen er 20. september.
@@ -186,7 +225,10 @@ pub fn launch_day(card_name: &str, year: i32, month: u32, day: u32) -> Option<(S
         return None;
     }
     let years = year - 2018;
-    (years >= 1).then(|| (format!("{years} år i dag"), "Gratulerer med dagen! GeForce RTX 2080 kom i butikkene 20. september 2018.".into()))
+    (years >= 1).then(|| (
+        trn!(years, "{ar} år i dag", "{ar} år i dag", ar = years),
+        tr!("Gratulerer med dagen! GeForce RTX 2080 kom i butikkene 20. september 2018.").into(),
+    ))
 }
 
 // ---- 6 · Nattevakt ----
@@ -197,12 +239,20 @@ pub fn is_night(hour: u32) -> bool {
 
 pub const NIGHT_TIP: &str = "Sent oppe? Skjermkortet er våkent det også.";
 
+pub fn night_tip() -> &'static str {
+    tr!("Sent oppe? Skjermkortet er våkent det også.")
+}
+
 // ---- 7 · Kaffe ----
 
 pub fn filter_quip(filter: &str) -> Option<&'static str> {
     match filter.trim().to_lowercase().as_str() {
-        "kaffe" | "kaffi" | "kaffen" | "coffee" => Some("Ingen sensor måler kaffe ennå. Det nærmeste er CPU-temperaturen."),
-        "hei" | "hallo" | "heisann" | "hei hei" | "hoi" => Some("Hei! Ingen sensor heter det, men takk for at du spør."),
+        "kaffe" | "kaffi" | "kaffen" | "coffee" | "kaffee" | "café" | "cafe" | "caffè" | "caffe" | "kawa" | "咖啡" | "コーヒー" => {
+            Some(tr!("Ingen sensor måler kaffe ennå. Det nærmeste er CPU-temperaturen."))
+        }
+        "hei" | "hallo" | "heisann" | "hei hei" | "hoi" | "hi" | "hello" | "hey" | "bonjour" | "salut" | "hola" | "olá" | "ola" | "ciao" | "cześć" | "czesc" | "hej" | "你好" | "こんにちは" => {
+            Some(tr!("Hei! Ingen sensor heter det, men takk for at du spør."))
+        }
         _ => None,
     }
 }
@@ -214,10 +264,10 @@ pub fn curve_nickname(points: &[(f64, f64)]) -> Option<(&'static str, &'static s
         return None;
     }
     if points.iter().all(|p| p.1 >= 100.0) {
-        return Some(("Jetmotor", "Alle punktene står på 100 %. Naboene hilser."));
+        return Some((tr!("Jetmotor"), tr!("Alle punktene står på 100 %. Naboene hilser.")));
     }
     if points.iter().all(|p| p.1 <= 35.0) {
-        return Some(("Bibliotek", "Alle punktene står på 35 %, så lavt kortet tillater. Hysj."));
+        return Some((tr!("Bibliotek"), tr!("Alle punktene står på 35 %, så lavt kortet tillater. Hysj.")));
     }
     None
 }
@@ -225,12 +275,12 @@ pub fn curve_nickname(points: &[(f64, f64)]) -> Option<(&'static str, &'static s
 // ---- 9 · Hilsen i terminalen ----
 
 pub fn greeting() -> String {
-    format!(
-        "{} {} · bygg {}\nHei, nysgjerrige utvikler. Alt her leser bare; ingenting sendes til skjermkortet.\nDet finnes {} små overraskelser – agentic-rigg --hint gir et hint.",
-        crate::version::NAME,
-        crate::version::VERSION,
-        crate::version::BUILD_STR,
-        EGGS.len()
+    trf!(
+        "{navn} {versjon} · bygg {bygg}\nHei, nysgjerrige utvikler. Alt her leser bare; ingenting sendes til skjermkortet.\nDet finnes {antall} små overraskelser – agentic-rigg --hint gir et hint.",
+        navn = crate::version::NAME,
+        versjon = crate::version::VERSION,
+        bygg = crate::version::BUILD_STR,
+        antall = EGGS.len(),
     )
 }
 
@@ -238,10 +288,10 @@ pub fn greeting() -> String {
 pub fn hint(found: &[String], pick: usize) -> String {
     let left: Vec<&Egg> = EGGS.iter().filter(|e| !found.iter().any(|f| f == e.id)).collect();
     if left.is_empty() {
-        return format!("Du har funnet alle {}. Fasiten står i docs/paaskeegg.md.", EGGS.len());
+        return trf!("Du har funnet alle {antall}. Fasiten står i docs/paaskeegg.md.", antall = EGGS.len());
     }
     let e = left[pick % left.len()];
-    format!("{} ({} av {} funnet)", e.hint, found.len(), EGGS.len())
+    trf!("{hint} ({funnet} av {totalt} funnet)", hint = egg_hint(e.id), funnet = found.len(), totalt = EGGS.len())
 }
 
 // ---- 10 · Nordlys ----

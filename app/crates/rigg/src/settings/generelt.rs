@@ -5,21 +5,22 @@
 //! Gruppa «Bakgrunn» ([`bakgrunn`]) eies av 3B i runde 3 (start ved
 //! innlogging og stopp nå); resten eies av grunnmuren.
 
-use super::{Group, GroupOpts, group, live, row, save, seg, switch_row};
+use super::{Group, GroupOpts, group, kw, live, row, save, seg, switch_row};
 use crate::state::App;
 use gtk::prelude::*;
 use rigg_core::fmt as F;
-use rigg_core::settings::PAGES;
+use rigg_core::settings::{PAGES, page_name};
+use rigg_core::{tr, trf};
 use serde_json::{Value, json};
 use std::rc::Rc;
 
 pub fn build(app: &Rc<App>) -> Vec<Group> {
     let s = app.settings().clone();
     // Startside
-    let mut names: Vec<&str> = PAGES.iter().map(|p| p.1).collect();
-    names.push("Sist brukte side");
+    let mut names: Vec<&str> = PAGES.iter().map(|p| page_name(p.0)).collect();
+    names.push(tr!("Sist brukte side"));
     let dd = gtk::DropDown::from_strings(&names);
-    dd.update_property(&[gtk::accessible::Property::Label("Startside")]);
+    dd.update_property(&[gtk::accessible::Property::Label(tr!("Startside"))]);
     let ids: Vec<&str> = PAGES.iter().map(|p| p.0).chain(std::iter::once("last")).collect();
     dd.set_selected(ids.iter().position(|i| *i == s.start_page).unwrap_or(0) as u32);
     dd.set_valign(gtk::Align::Center);
@@ -32,31 +33,44 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
             }
         });
     }
-    let interval = seg(app, &[("500", "0,5 s"), ("1000", "1 s"), ("2000", "2 s")], &s.interval_ms.to_string(), "intervalMs", "Oppdateringsintervall", true);
+    let interval = seg(app, &[("500", tr!("0,5 s")), ("1000", tr!("1 s")), ("2000", tr!("2 s"))], &s.interval_ms.to_string(), "intervalMs", tr!("Oppdateringsintervall"), true);
     let found = app.settings().eggs_found.len();
-    let eggs_sub = format!(
-        "Noen få skjulte detaljer rundt om i appen. De endrer aldri tall, innstillinger eller kortet.{}",
-        if found > 0 { format!(" Du har funnet {found} av {}.", rigg_core::easter::EGGS.len()) } else { String::new() }
-    );
+    let eggs_sub = if found > 0 {
+        trf!(
+            "Noen få skjulte detaljer rundt om i appen. De endrer aldri tall, innstillinger eller kortet. Du har funnet {funnet} av {totalt}.",
+            funnet = found,
+            totalt = rigg_core::easter::EGGS.len(),
+        )
+    } else {
+        tr!("Noen få skjulte detaljer rundt om i appen. De endrer aldri tall, innstillinger eller kortet.").into()
+    };
     let a = app.clone();
     vec![
         // Bakgrunn først: det viktigste valget i appen er hva som skjer når vinduet lukkes.
         bakgrunn(app),
         super::sprak::build(app),
-        group("Oppstart", GroupOpts::default(), vec![row("Startside", Some("Siden som åpnes når appen starter."), &dd, "forside start")]),
         group(
-            "Skjermkortdata",
-            GroupOpts { k: "gpu data nvml", ..Default::default() },
+            tr!("Oppstart"),
+            GroupOpts::default(),
+            vec![row(tr!("Startside"), Some(tr!("Siden som åpnes når appen starter.")), &dd, &kw("forside start", tr!("søkeord", "forside start")))],
+        ),
+        group(
+            tr!("Skjermkortdata"),
+            GroupOpts { k: &kw("gpu data nvml", tr!("søkeord", "gpu data nvml")), ..Default::default() },
             vec![row(
-                "Oppdateringsintervall",
-                Some("Hvor ofte tallene og grafene får nye verdier mens vinduet er åpent. 0,5 s koster dobbelt så mye CPU som 1 s, og kortet spørres aldri oftere."),
+                tr!("Oppdateringsintervall"),
+                Some(tr!("Hvor ofte tallene og grafene får nye verdier mens vinduet er åpent. 0,5 s koster dobbelt så mye CPU som 1 s, og kortet spørres aldri oftere.")),
                 &interval.root,
-                "intervall frekvens hastighet takt",
+                &kw("intervall frekvens hastighet takt", tr!("søkeord", "intervall frekvens hastighet takt")),
             )],
         ),
-        group("Annet", GroupOpts::default(), vec![switch_row("Små overraskelser", Some(&eggs_sub), s.surprises, "påskeegg egg", move |on| {
-            save(&a, json!({"surprises": on}));
-        })]),
+        group(
+            tr!("Annet"),
+            GroupOpts::default(),
+            vec![switch_row(tr!("Små overraskelser"), Some(&eggs_sub), s.surprises, &kw("påskeegg egg", tr!("søkeord", "påskeegg egg")), move |on| {
+                save(&a, json!({"surprises": on}));
+            })],
+        ),
     ]
 }
 
@@ -67,62 +81,83 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
 /// raden synes.
 pub fn service_status(app: &App) -> String {
     if !app.client.is_connected() {
-        return "Svarer ikke. Appen prøver igjen av seg selv.".into();
+        return tr!("Svarer ikke. Appen prøver igjen av seg selv.").into();
     }
     let d = app.data.borrow();
-    let Some(p) = d.ping.as_ref() else { return "Kjører".into() };
+    let Some(p) = d.ping.as_ref() else { return tr!("Kjører").into() };
     let mut parts = Vec::new();
     match p["startedAt"].as_i64() {
         Some(start) => {
             let since = F::since(crate::app::local_time(start), crate::app::local_now());
             let up_s = p["t"].as_i64().map(|t| (t - start) as f64 / 1000.0).unwrap_or(0.0);
-            parts.push(if up_s >= 60.0 { format!("Kjører siden {since} ({})", F::uptime(Some(up_s))) } else { format!("Kjører siden {since}") });
+            parts.push(if up_s >= 60.0 {
+                trf!("Kjører siden {tid} ({oppetid})", tid = since, oppetid = F::uptime(Some(up_s)))
+            } else {
+                trf!("Kjører siden {tid}", tid = since)
+            });
         }
-        None => parts.push("Kjører".into()),
+        None => parts.push(tr!("Kjører").into()),
     }
     if let Some(pid) = p["pid"].as_u64() {
         parts.push(format!("PID {pid}"));
     }
     // PSS: eget minne pluss en rettferdig del av de delte bibliotekene.
     if let Some(kb) = p["pssKB"].as_f64().or(p["privateKB"].as_f64()).or(p["rssKB"].as_f64()) {
-        parts.push(format!("{} MB minne", F::num(Some(kb / 1024.0), 0)));
+        parts.push(trf!("{tall} MB minne", tall = F::num(Some(kb / 1024.0), 0)));
     }
-    parts.push((if d.service["background"].as_bool() == Some(true) { "opptak i bakgrunnen på" } else { "opptak i bakgrunnen av" }).into());
+    parts.push((if d.service["background"].as_bool() == Some(true) { tr!("opptak i bakgrunnen på") } else { tr!("opptak i bakgrunnen av") }).into());
     if d.log["active"].as_bool() == Some(true) {
-        parts.push("logger til fil".into());
+        parts.push(tr!("logger til fil").into());
     }
     parts.join(" · ")
 }
 
 /// Hva som koster hva (målt, `maalinger.md` runde 3B og 3C).
-const BAKGRUNN_NOTE: &str = "Tjenesten heter agentic-riggd og kjører som systemd --user. Den leser bare, og skriver aldri til kortet. Alt blir på maskinen: ingenting sendes noe sted.";
+fn bakgrunn_note() -> &'static str {
+    tr!("Tjenesten heter agentic-riggd og kjører som systemd --user. Den leser bare, og skriver aldri til kortet. Alt blir på maskinen: ingenting sendes noe sted.")
+}
 
-const BG_SUB: &str = "Av: ingenting kjører når appen er lukket, og grafene får et hull for den tiden. På: historikken fortsetter til du logger ut, for ca. 21–28\u{202f}MB og 0,85\u{202f}% av én kjerne med 2\u{202f}s\u{2011}takt, og ikonet vises i systemfeltet.";
+fn bg_sub() -> &'static str {
+    tr!("Av: ingenting kjører når appen er lukket, og grafene får et hull for den tiden. På: historikken fortsetter til du logger ut, for ca. 21–28\u{202f}MB og 0,85\u{202f}% av én kjerne med 2\u{202f}s\u{2011}takt, og ikonet vises i systemfeltet.")
+}
 
-const LOGIN_SUB: &str = "Tjenesten starter når du logger inn og tar opp historikk før du åpner appen, med ca. 21–28\u{202f}MB minne. Uten «Fortsett i bakgrunnen» stopper den igjen etter 60\u{202f}s.";
+fn login_sub() -> &'static str {
+    tr!("Tjenesten starter når du logger inn og tar opp historikk før du åpner appen, med ca. 21–28\u{202f}MB minne. Uten «Fortsett i bakgrunnen» stopper den igjen etter 60\u{202f}s.")
+}
 
-const RATE_SUB: &str = "Hvor ofte kortet og maskinen leses uten vindu: 1,5\u{202f}% av én kjerne med 1\u{202f}s, 0,85\u{202f}% med 2\u{202f}s og 0,4\u{202f}% med 5\u{202f}s. Gjelder når bakgrunnsopptaket er på eller en logg går.";
+fn rate_sub() -> &'static str {
+    tr!("Hvor ofte kortet og maskinen leses uten vindu: 1,5\u{202f}% av én kjerne med 1\u{202f}s, 0,85\u{202f}% med 2\u{202f}s og 0,4\u{202f}% med 5\u{202f}s. Gjelder når bakgrunnsopptaket er på eller en logg går.")
+}
+
+fn explain_login(st: &login::State) -> String {
+    match st {
+        login::State::Enabled | login::State::Disabled => login_sub().to_string(),
+        login::State::Missing => tr!("Tjenesten er ikke installert som systemd-enhet, så den kan ikke startes ved innlogging. install.sh legger den inn.").to_string(),
+        login::State::NoSystemd => tr!("systemd --user svarer ikke, så tjenesten kan ikke startes ved innlogging.").to_string(),
+        login::State::Other(s) => trf!("systemd sier at enheten er «{tilstand}», så den kan ikke slås av eller på herfra.", tilstand = s),
+    }
+}
 
 /// «Stopp tjenesten nå»: hva som stoppes, etter om en logg går.
 fn stop_sub(app: &App) -> String {
     let d = app.data.borrow();
     if d.service["idleShutdown"].as_bool() == Some(true) {
-        return "Stopper når vinduet lukkes. Vinduet starter tjenesten igjen neste gang det åpnes.".into();
+        return tr!("Stopper når vinduet lukkes. Vinduet starter tjenesten igjen neste gang det åpnes.").into();
     }
     if d.log["active"].as_bool() == Some(true) {
-        "Stopper loggen til fil og opptaket i bakgrunnen. Tjenesten avslutter når vinduet lukkes, og vinduet starter den igjen neste gang det åpnes.".into()
+        tr!("Stopper loggen til fil og opptaket i bakgrunnen. Tjenesten avslutter når vinduet lukkes, og vinduet starter den igjen neste gang det åpnes.").into()
     } else {
-        "Stopper opptaket i bakgrunnen. Tjenesten avslutter når vinduet lukkes, og vinduet starter den igjen neste gang det åpnes.".into()
+        tr!("Stopper opptaket i bakgrunnen. Tjenesten avslutter når vinduet lukkes, og vinduet starter den igjen neste gang det åpnes.").into()
     }
 }
 
 /// «Stopp tjenesten nå» med angre i 5 s: stopper loggen og ber tjenesten
 /// avslutte når siste vindu kobler fra (`shutdown_when_idle`).
 fn stop_row(app: &Rc<App>) -> super::Row {
-    let btn = gtk::Button::with_label("Stopp nå");
+    let btn = gtk::Button::with_label(tr!("Stopp nå"));
     btn.add_css_class("sm");
     btn.set_valign(gtk::Align::Center);
-    let r = row("Stopp tjenesten nå", Some(&stop_sub(app)), &btn, "stopp avslutt tjeneste daemon logging opptak");
+    let r = row(tr!("Stopp tjenesten nå"), Some(&stop_sub(app)), &btn, &kw("stopp avslutt tjeneste daemon logging opptak", tr!("søkeord", "stopp avslutt tjeneste daemon logging opptak")));
     if let Some(sub) = r.widget.first_child().and_then(|t| t.last_child()).and_then(|l| l.downcast::<gtk::Label>().ok()) {
         let b = btn.downgrade();
         live(&sub, move |a| {
@@ -142,9 +177,9 @@ fn stop_row(app: &Rc<App>) -> super::Row {
         let c2 = cancelled.clone();
         let bw = b.downgrade();
         a.toast(
-            crate::toast::Toast::new(if logging { "Loggen og tjenesten stoppes" } else { "Tjenesten stoppes" })
-                .body("Om 5 s. Tjenesten avslutter når vinduet lukkes.")
-                .action("Angre", move || {
+            crate::toast::Toast::new(if logging { tr!("Loggen og tjenesten stoppes") } else { tr!("Tjenesten stoppes") })
+                .body(tr!("Om 5 s. Tjenesten avslutter når vinduet lukkes."))
+                .action(tr!("Angre"), move || {
                     c2.set(true);
                     if let Some(b) = bw.upgrade() {
                         b.set_sensitive(true);
@@ -172,15 +207,15 @@ pub fn bakgrunn(app: &Rc<App>) -> Group {
     let svc: Value = app.data.borrow().service.clone();
     let connected = app.client.is_connected();
     // Status som i demoen: forklaringen under tittelen, og et merke til høyre.
-    let tag = crate::widgets::rows::tag(if connected { "Kjører" } else { "Svarer ikke" }, None, if connected { "ok" } else { "warn" });
-    let status_row = row("Status", Some(&service_status(app)), &tag, "tjeneste status daemon kjører minne pid oppetid");
+    let tag = crate::widgets::rows::tag(if connected { tr!("Kjører") } else { tr!("Svarer ikke") }, None, if connected { "ok" } else { "warn" });
+    let status_row = row(tr!("Status"), Some(&service_status(app)), &tag, &kw("tjeneste status daemon kjører minne pid oppetid", tr!("søkeord", "tjeneste status daemon kjører minne pid oppetid")));
     if let Some(tl) = tag.last_child().and_then(|l| l.downcast::<gtk::Label>().ok()) {
         let t2 = tag.clone();
         live(&tl, move |a| {
             let on = a.client.is_connected();
             crate::widgets::class(&t2, "ok", on);
             crate::widgets::class(&t2, "warn", !on);
-            (if on { "Kjører" } else { "Svarer ikke" }).to_string()
+            (if on { tr!("Kjører") } else { tr!("Svarer ikke") }).to_string()
         });
     }
     // Oppetid og minne holdes ferske mens raden synes (ett `ping` hvert 5. s).
@@ -207,10 +242,10 @@ pub fn bakgrunn(app: &Rc<App>) -> Group {
     let bg_on = svc["background"].as_bool().unwrap_or(false);
     let a = app.clone();
     let bg = switch_row(
-        "Fortsett i bakgrunnen",
-        Some(BG_SUB),
+        tr!("Fortsett i bakgrunnen"),
+        Some(bg_sub()),
         bg_on,
-        "bakgrunn lukket opptak historikk systemfelt ikon",
+        &kw("bakgrunn lukket opptak historikk systemfelt ikon", tr!("søkeord", "bakgrunn lukket opptak historikk systemfelt ikon")),
         // Bare når valget faktisk er endret (bryteren følger også tjenesten, under).
         move |on| {
             if a.data.borrow().service["background"].as_bool().unwrap_or(false) != on {
@@ -219,16 +254,16 @@ pub fn bakgrunn(app: &Rc<App>) -> Group {
         },
     );
     let iv = svc["backgroundIntervalMs"].as_u64().unwrap_or(2000).to_string();
-    let rate = Rc::new(crate::widgets::Seg::new(&[("1000", "1 s"), ("2000", "2 s"), ("5000", "5 s")], &iv, "Takt i bakgrunnen"));
+    let rate = Rc::new(crate::widgets::Seg::new(&[("1000", tr!("1 s")), ("2000", tr!("2 s")), ("5000", tr!("5 s"))], &iv, tr!("Takt i bakgrunnen")));
     {
         let a = app.clone();
         rate.connect(move |v| a.set_service(json!({"backgroundIntervalMs": v.parse::<u64>().unwrap_or(2000)})));
     }
     let rate_row = row(
-        "Takt i bakgrunnen",
-        Some(RATE_SUB),
+        tr!("Takt i bakgrunnen"),
+        Some(rate_sub()),
         &rate.root,
-        "takt intervall bakgrunn",
+        &kw("takt intervall bakgrunn", tr!("søkeord", "takt intervall bakgrunn")),
     );
     let log_on = app.data.borrow().log["active"].as_bool() == Some(true);
     bg.widget.set_sensitive(connected);
@@ -268,8 +303,8 @@ pub fn bakgrunn(app: &Rc<App>) -> Group {
         });
     }
     group(
-        "Bakgrunn",
-        GroupOpts { k: "tjeneste daemon systemd bakgrunn bakgrunnstjeneste", note: Some(BAKGRUNN_NOTE), ..Default::default() },
+        tr!("Bakgrunn"),
+        GroupOpts { k: &kw("tjeneste daemon systemd bakgrunn bakgrunnstjeneste", tr!("søkeord", "tjeneste daemon systemd bakgrunn bakgrunnstjeneste")), note: Some(bakgrunn_note()), ..Default::default() },
         vec![status_row, bg, rate_row, login_row(app), stop_row(app)],
     )
 }
@@ -283,7 +318,7 @@ fn login_row(app: &Rc<App>) -> super::Row {
     let sw_ref: Rc<std::cell::RefCell<Option<gtk::glib::WeakRef<gtk::Switch>>>> = Rc::default();
     let sub_ref: Rc<std::cell::RefCell<Option<gtk::glib::WeakRef<gtk::Label>>>> = Rc::default();
     let (a, q, s, l) = (app.clone(), quiet.clone(), sw_ref.clone(), sub_ref.clone());
-    let r = switch_row("Start tjenesten ved innlogging", Some(LOGIN_SUB), false, "innlogging logg inn oppstart autostart systemd enable", move |on| {
+    let r = switch_row(tr!("Start tjenesten ved innlogging"), Some(login_sub()), false, &kw("innlogging logg inn oppstart autostart systemd enable", tr!("søkeord", "innlogging logg inn oppstart autostart systemd enable")), move |on| {
         if q.get() {
             return;
         }
@@ -292,7 +327,7 @@ fn login_row(app: &Rc<App>) -> super::Row {
         let (a, q, s, l) = (a.clone(), q.clone(), s.clone(), l.clone());
         login::set(on, move |res| {
             if let Err(msg) = res {
-                a.toast(crate::toast::Toast::new(if on { "Kunne ikke slå på start ved innlogging" } else { "Kunne ikke slå av start ved innlogging" }).body(&msg).error());
+                a.toast(crate::toast::Toast::new(if on { tr!("Kunne ikke slå på start ved innlogging") } else { tr!("Kunne ikke slå av start ved innlogging") }).body(&msg).error());
             }
             login_refresh(&q, &s, &l);
         });
@@ -364,12 +399,7 @@ mod login {
 
     /// Forklaringen under raden for tilstanden.
     pub fn explain(st: &State) -> String {
-        match st {
-            State::Enabled | State::Disabled => super::LOGIN_SUB.to_string(),
-            State::Missing => "Tjenesten er ikke installert som systemd-enhet, så den kan ikke startes ved innlogging. install.sh legger den inn.".to_string(),
-            State::NoSystemd => "systemd --user svarer ikke, så tjenesten kan ikke startes ved innlogging.".to_string(),
-            State::Other(s) => format!("systemd sier at enheten er «{s}», så den kan ikke slås av eller på herfra."),
-        }
+        super::explain_login(st)
     }
 
     /// «GDBus.Error:org.freedesktop.DBus.Error.AccessDenied: Tekst» → «Tekst».

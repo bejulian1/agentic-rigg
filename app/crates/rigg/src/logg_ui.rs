@@ -18,6 +18,7 @@ use crate::widgets::{hbox, label, set_text};
 use gtk::prelude::*;
 use gtk::{gio, glib};
 use rigg_core::fmt as F;
+use rigg_core::{tr, trf, trn};
 use serde_json::{Value, json};
 use std::cell::{Cell, RefCell};
 use std::rc::{Rc, Weak};
@@ -62,7 +63,7 @@ fn file_name(v: &Value) -> String {
 pub fn rows_text(v: &Value) -> String {
     let rows = v["rows"].as_f64().unwrap_or(0.0);
     let bytes = v["bytes"].as_f64();
-    format!("{} · {}", F::plural(rows as i64, "rad", "rader"), F::bytes(bytes, 1))
+    format!("{} · {}", trn!(rows as i64, "{antall} rad", "{antall} rader", antall = F::num(Some(rows), 0)), F::bytes(bytes, 1))
 }
 
 struct Btn {
@@ -108,12 +109,14 @@ impl LogUi {
         let time = elapsed(rigg_core::now_ms() - started);
         let tip = if on {
             let iv = st["intervalMs"].as_u64().map(|i| F::seconds(i as u32)).unwrap_or_default();
-            let fmt = if st["format"] == "norsk" { "norsk regneark" } else { "standard CSV" };
-            format!(
-                "Logger til fil siden {} · {}\n{} · hvert {iv} · {fmt}\nCtrl+L stopper loggen.",
-                F::time(crate::app::local_time(started), false),
-                file_name(&st),
-                rows_text(&st)
+            let fmt = if st["format"] == "norsk" { tr!("norsk regneark") } else { tr!("standard CSV") };
+            trf!(
+                "Logger til fil siden {tid} · {fil}\n{rader} · hvert {intervall} · {format}\nCtrl+L stopper loggen.",
+                tid = F::time(crate::app::local_time(started), false),
+                fil = file_name(&st),
+                rader = rows_text(&st),
+                intervall = iv,
+                format = fmt,
             )
         } else {
             String::new()
@@ -130,11 +133,11 @@ impl LogUi {
             crate::widgets::class(&x.icon, "on", on);
             crate::widgets::class(&b, "logging", on);
             x.icon.queue_draw();
-            let what = if on { "Stopp loggen" } else { "Logg til fil" };
+            let what = if on { tr!("Stopp loggen") } else { tr!("Logg til fil") };
             set_text(&x.text, what);
             x.text.set_visible(!self.compact.get());
             b.update_property(&[gtk::accessible::Property::Label(what)]);
-            let t = if on { tip.clone() } else { "Logg alle eller utvalgte sensorer til en CSV-fil. Loggen fortsetter når vinduet lukkes.  ·  Ctrl+L".to_string() };
+            let t = if on { tip.clone() } else { tr!("Logg alle eller utvalgte sensorer til en CSV-fil. Loggen fortsetter når vinduet lukkes.  ·  Ctrl+L").to_string() };
             if b.tooltip_text().as_deref() != Some(t.as_str()) {
                 b.set_tooltip_text(Some(&t));
             }
@@ -181,9 +184,9 @@ impl LogUi {
         {
             let p = v["file"].as_str().map(std::path::PathBuf::from);
             let a = app.clone();
-            let mut t = Toast::new("Loggen er stoppet").body(err).error().ms(12_000);
+            let mut t = Toast::new(tr!("Loggen er stoppet")).body(err).error().ms(12_000);
             if let Some(p) = p {
-                t = t.action("Vis i Filer", move || crate::rapport_ui::show_in_files(&a, &p));
+                t = t.action(tr!("Vis i Filer"), move || crate::rapport_ui::show_in_files(&a, &p));
             }
             app.toast(t);
         }
@@ -217,14 +220,14 @@ pub fn start(app: &Rc<App>) {
                 let dir = v["dir"].as_str().map(|d| rigg_core::paths::tilde(std::path::Path::new(d))).unwrap_or_default();
                 let p = v["file"].as_str().map(std::path::PathBuf::from);
                 let b = a.clone();
-                let mut t = Toast::new("Logger til fil").body(&format!("{} i {dir}", file_name(&v))).icon("check");
+                let mut t = Toast::new(tr!("Logger til fil")).body(&trf!("{fil} i {mappe}", fil = file_name(&v), mappe = dir)).icon("check");
                 if let Some(p) = p {
-                    t = t.action("Vis i Filer", move || crate::rapport_ui::show_in_files(&b, &p));
+                    t = t.action(tr!("Vis i Filer"), move || crate::rapport_ui::show_in_files(&b, &p));
                 }
                 a.toast(t);
             }
             Err(e) => {
-                a.toast(Toast::new("Loggen startet ikke").body(&e.message).error());
+                a.toast(Toast::new(tr!("Loggen startet ikke")).body(&e.message).error());
                 if let Some(u) = ui() {
                     u.render();
                 }
@@ -250,13 +253,13 @@ pub fn stop(app: &Rc<App>) {
                 a.on_log.emit(&v);
                 let p = v["file"].as_str().map(std::path::PathBuf::from);
                 let b = a.clone();
-                let mut t = Toast::new("Loggen er lagret").body(&format!("{} · {}", file_name(&v), rows_text(&v))).icon("check");
+                let mut t = Toast::new(tr!("Loggen er lagret")).body(&format!("{} · {}", file_name(&v), rows_text(&v))).icon("check");
                 if let Some(p) = p {
-                    t = t.action("Vis i Filer", move || crate::rapport_ui::show_in_files(&b, &p));
+                    t = t.action(tr!("Vis i Filer"), move || crate::rapport_ui::show_in_files(&b, &p));
                 }
                 a.toast(t);
             }
-            Err(e) => a.toast(Toast::new("Loggen stoppet ikke").body(&e.message).error()),
+            Err(e) => a.toast(Toast::new(tr!("Loggen stoppet ikke")).body(&e.message).error()),
         }
     });
 }
@@ -313,7 +316,7 @@ pub fn button(app: &Rc<App>) -> Option<gtk::Widget> {
     b.add_css_class("log-btn");
     let bx = hbox(6, &[]);
     let icon = rec_icon(16);
-    let text = label("Logg til fil", &[]);
+    let text = label(tr!("Logg til fil"), &[]);
     bx.append(&icon);
     bx.append(&text);
     b.set_child(Some(&bx));

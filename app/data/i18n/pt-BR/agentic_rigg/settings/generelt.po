@@ -1,0 +1,246 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: crates/rigg/src/settings/generelt.rs:21
+msgid "Sist brukte side"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:23 crates/rigg/src/settings/generelt.rs:55
+msgid "Startside"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:36
+msgid "0,5 s"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:36 crates/rigg/src/settings/generelt.rs:257
+msgid "1 s"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:36 crates/rigg/src/settings/generelt.rs:257
+msgid "2 s"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:36 crates/rigg/src/settings/generelt.rs:61
+msgid "Oppdateringsintervall"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:39
+msgid "Noen få skjulte detaljer rundt om i appen. De endrer aldri tall, innstillinger eller kortet. Du har funnet {funnet} av {totalt}."
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:45
+msgid "Noen få skjulte detaljer rundt om i appen. De endrer aldri tall, innstillinger eller kortet."
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:53
+msgid "Oppstart"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:55
+msgid "Siden som åpnes når appen starter."
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:55
+msgctxt "søkeord"
+msgid "forside start"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:58
+msgid "Skjermkortdata"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:59
+msgctxt "søkeord"
+msgid "gpu data nvml"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:62
+msgid "Hvor ofte tallene og grafene får nye verdier mens vinduet er åpent. 0,5 s koster dobbelt så mye CPU som 1 s, og kortet spørres aldri oftere."
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:64
+msgctxt "søkeord"
+msgid "intervall frekvens hastighet takt"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:68
+msgid "Annet"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:70
+msgid "Små overraskelser"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:70
+msgctxt "søkeord"
+msgid "påskeegg egg"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:84
+msgid "Svarer ikke. Appen prøver igjen av seg selv."
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:87 crates/rigg/src/settings/generelt.rs:99 crates/rigg/src/settings/generelt.rs:210 crates/rigg/src/settings/generelt.rs:218
+msgid "Kjører"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:94
+msgid "Kjører siden {tid} ({oppetid})"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:96
+msgid "Kjører siden {tid}"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:106
+msgid "{tall} MB minne"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:108
+msgid "opptak i bakgrunnen på"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:108
+msgid "opptak i bakgrunnen av"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:110
+msgid "logger til fil"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:117
+msgid "Tjenesten heter agentic-riggd og kjører som systemd --user. Den leser bare, og skriver aldri til kortet. Alt blir på maskinen: ingenting sendes noe sted."
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:121
+msgid "Av: ingenting kjører når appen er lukket, og grafene får et hull for den tiden. På: historikken fortsetter til du logger ut, for ca. 21–28 MB og 0,85 % av én kjerne med 2 s‑takt, og ikonet vises i systemfeltet."
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:125
+msgid "Tjenesten starter når du logger inn og tar opp historikk før du åpner appen, med ca. 21–28 MB minne. Uten «Fortsett i bakgrunnen» stopper den igjen etter 60 s."
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:129
+msgid "Hvor ofte kortet og maskinen leses uten vindu: 1,5 % av én kjerne med 1 s, 0,85 % med 2 s og 0,4 % med 5 s. Gjelder når bakgrunnsopptaket er på eller en logg går."
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:135
+msgid "Tjenesten er ikke installert som systemd-enhet, så den kan ikke startes ved innlogging. install.sh legger den inn."
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:136
+msgid "systemd --user svarer ikke, så tjenesten kan ikke startes ved innlogging."
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:137
+msgid "systemd sier at enheten er «{tilstand}», så den kan ikke slås av eller på herfra."
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:145
+msgid "Stopper når vinduet lukkes. Vinduet starter tjenesten igjen neste gang det åpnes."
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:148
+msgid "Stopper loggen til fil og opptaket i bakgrunnen. Tjenesten avslutter når vinduet lukkes, og vinduet starter den igjen neste gang det åpnes."
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:150
+msgid "Stopper opptaket i bakgrunnen. Tjenesten avslutter når vinduet lukkes, og vinduet starter den igjen neste gang det åpnes."
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:157
+msgid "Stopp nå"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:160
+msgid "Stopp tjenesten nå"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:160
+msgctxt "søkeord"
+msgid "stopp avslutt tjeneste daemon logging opptak"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:180
+msgid "Loggen og tjenesten stoppes"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:180
+msgid "Tjenesten stoppes"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:181
+msgid "Om 5 s. Tjenesten avslutter når vinduet lukkes."
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:182
+msgid "Angre"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:210 crates/rigg/src/settings/generelt.rs:218
+msgid "Svarer ikke"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:211
+msgid "Status"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:211
+msgctxt "søkeord"
+msgid "tjeneste status daemon kjører minne pid oppetid"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:245
+msgid "Fortsett i bakgrunnen"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:248
+msgctxt "søkeord"
+msgid "bakgrunn lukket opptak historikk systemfelt ikon"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:257
+msgid "5 s"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:257 crates/rigg/src/settings/generelt.rs:263
+msgid "Takt i bakgrunnen"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:266
+msgctxt "søkeord"
+msgid "takt intervall bakgrunn"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:306
+msgid "Bakgrunn"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:307
+msgctxt "søkeord"
+msgid "tjeneste daemon systemd bakgrunn bakgrunnstjeneste"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:321
+msgid "Start tjenesten ved innlogging"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:321
+msgctxt "søkeord"
+msgid "innlogging logg inn oppstart autostart systemd enable"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:330
+msgid "Kunne ikke slå på start ved innlogging"
+msgstr ""
+
+#: crates/rigg/src/settings/generelt.rs:330
+msgid "Kunne ikke slå av start ved innlogging"
+msgstr ""

@@ -1,0 +1,66 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: nb\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: crates/rigg/src/logg_ui.rs:66
+msgid "{antall} rad"
+msgid_plural "{antall} rader"
+msgstr[0] "{antall} rad"
+msgstr[1] "{antall} rader"
+
+#: crates/rigg/src/logg_ui.rs:112
+msgid "norsk regneark"
+msgstr "norsk regneark"
+
+#: crates/rigg/src/logg_ui.rs:112
+msgid "standard CSV"
+msgstr "standard CSV"
+
+#: crates/rigg/src/logg_ui.rs:113
+msgid "Logger til fil siden {tid} · {fil}\n{rader} · hvert {intervall} · {format}\nCtrl+L stopper loggen."
+msgstr "Logger til fil siden {tid} · {fil}\n{rader} · hvert {intervall} · {format}\nCtrl+L stopper loggen."
+
+#: crates/rigg/src/logg_ui.rs:136
+msgid "Stopp loggen"
+msgstr "Stopp loggen"
+
+#: crates/rigg/src/logg_ui.rs:136 crates/rigg/src/logg_ui.rs:319
+msgid "Logg til fil"
+msgstr "Logg til fil"
+
+#: crates/rigg/src/logg_ui.rs:140
+msgid "Logg alle eller utvalgte sensorer til en CSV-fil. Loggen fortsetter når vinduet lukkes.  ·  Ctrl+L"
+msgstr "Logg alle eller utvalgte sensorer til en CSV-fil. Loggen fortsetter når vinduet lukkes.  ·  Ctrl+L"
+
+#: crates/rigg/src/logg_ui.rs:187
+msgid "Loggen er stoppet"
+msgstr "Loggen er stoppet"
+
+#: crates/rigg/src/logg_ui.rs:189 crates/rigg/src/logg_ui.rs:225 crates/rigg/src/logg_ui.rs:258
+msgid "Vis i Filer"
+msgstr "Vis i Filer"
+
+#: crates/rigg/src/logg_ui.rs:223
+msgid "Logger til fil"
+msgstr "Logger til fil"
+
+#: crates/rigg/src/logg_ui.rs:223
+msgid "{fil} i {mappe}"
+msgstr "{fil} i {mappe}"
+
+#: crates/rigg/src/logg_ui.rs:230
+msgid "Loggen startet ikke"
+msgstr "Loggen startet ikke"
+
+#: crates/rigg/src/logg_ui.rs:256
+msgid "Loggen er lagret"
+msgstr "Loggen er lagret"
+
+#: crates/rigg/src/logg_ui.rs:262
+msgid "Loggen stoppet ikke"
+msgstr "Loggen stoppet ikke"

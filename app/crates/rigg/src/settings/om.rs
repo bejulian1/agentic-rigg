@@ -7,12 +7,13 @@
 //! som i Klipp og Agentic Desktop (runde 6B): sentrert under versjonen, med
 //! en tynn linje over.
 
-use super::{Group, GroupOpts, custom_row, group, live, row};
+use super::{Group, GroupOpts, custom_row, group, kw, live, row};
 use crate::state::App;
 use crate::widgets::rows::KvList;
 use crate::widgets::{hbox, label, vbox};
 use gtk::prelude::*;
 use rigg_core::fmt as F;
+use rigg_core::{tr, trf};
 use std::rc::Rc;
 
 /// Navnet på byggeserien appene hører til, likt i Klipp og Agentic Desktop.
@@ -28,34 +29,35 @@ fn signature() -> gtk::Box {
     name.set_xalign(0.5);
     name.set_selectable(false);
     b.append(&name);
-    let note = label(SIGNATURE_NOTE, &["about-signature-note"]);
+    let note_text = tr!("Navnet på byggeserien denne versjonen hører til");
+    let note = label(note_text, &["about-signature-note"]);
     note.set_xalign(0.5);
     note.set_wrap(true);
     note.set_justify(gtk::Justification::Center);
     b.append(&note);
-    b.update_property(&[gtk::accessible::Property::Label(&format!("{SIGNATURE}. {SIGNATURE_NOTE}."))]);
+    b.update_property(&[gtk::accessible::Property::Label(&format!("{SIGNATURE}. {note_text}."))]);
     b
 }
 
 fn service_line(app: &App) -> String {
     if !app.client.is_connected() {
-        return "Svarer ikke".into();
+        return tr!("Svarer ikke").into();
     }
     let d = app.data.borrow();
     let h = d.hello.as_ref();
     let name = h.and_then(|h| h["daemon"]["name"].as_str()).unwrap_or("agentic-riggd");
     let ver = h.and_then(|h| h["daemon"]["version"].as_str()).unwrap_or("");
-    let build = h.and_then(|h| h["daemon"]["build"].as_u64()).map(|b| format!(" · bygg {b}")).unwrap_or_default();
+    let build = h.and_then(|h| h["daemon"]["build"].as_u64()).map(|b| trf!(" · bygg {bygg}", bygg = b)).unwrap_or_default();
     let mut s = format!("{name} {ver}{build}");
     if let Some(p) = d.ping.as_ref() {
         if let Some(pid) = p["pid"].as_u64() {
             s.push_str(&format!(" · PID {pid}"));
         }
         if let Some(t) = p["startedAt"].as_i64() {
-            s.push_str(&format!(" · oppe {}", F::uptime(Some(((rigg_core::now_ms() - t) / 1000) as f64))));
+            s.push_str(&trf!(" · oppe {tid}", tid = F::uptime(Some(((rigg_core::now_ms() - t) / 1000) as f64))));
         }
         if let Some(kb) = p["privateKB"].as_f64() {
-            s.push_str(&format!(" · {} MB privat minne", F::num(Some(kb / 1024.0), 0)));
+            s.push_str(&trf!(" · {tall} MB privat minne", tall = F::num(Some(kb / 1024.0), 0)));
         }
     }
     s
@@ -66,9 +68,9 @@ fn source_line(app: &App) -> String {
     let backend = d.backend.clone();
     let st = d.gpu.as_ref().and_then(|g| d.statics.get(g)).map(|s| s.0.clone());
     match (backend.as_str(), st) {
-        ("nvml", Some(s)) => format!("NVML {} · driver {}", s.nvml_version.unwrap_or_default(), s.driver.unwrap_or_default()),
+        ("nvml", Some(s)) => trf!("NVML {nvml} · driver {driver}", nvml = s.nvml_version.unwrap_or_default(), driver = s.driver.unwrap_or_default()),
         ("nvml", None) => "NVML".into(),
-        ("sim", _) => "Testdata (agentic-riggd --backend sim)".into(),
+        ("sim", _) => tr!("Testdata (agentic-riggd --backend sim)").into(),
         ("", _) => "–".into(),
         (b, _) => b.into(),
     }
@@ -79,11 +81,17 @@ fn renderer(app: &App) -> String {
     let kind = match r.as_str() {
         "GskNglRenderer" | "GskGLRenderer" => "GL",
         "GskVulkanRenderer" => "Vulkan",
-        "GskCairoRenderer" => "programvare (Cairo)",
+        "GskCairoRenderer" => tr!("programvare (Cairo)"),
         "" => "–",
         other => other,
     };
-    format!("GTK {}.{}.{} · tegner {kind}", gtk::major_version(), gtk::minor_version(), gtk::micro_version())
+    trf!(
+        "GTK {major}.{minor}.{micro} · tegner {tegner}",
+        major = gtk::major_version(),
+        minor = gtk::minor_version(),
+        micro = gtk::micro_version(),
+        tegner = kind,
+    )
 }
 
 pub fn build(app: &Rc<App>) -> Vec<Group> {
@@ -100,18 +108,20 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     let ver = gtk::Button::new();
     ver.add_css_class("plain");
     ver.set_halign(gtk::Align::Start);
-    let vtag = crate::widgets::rows::tag(&rigg_core::version::about(), None, "quiet");
+    let about_ver = trf!("Versjon {versjon} · bygg {bygg}", versjon = rigg_core::version::VERSION, bygg = rigg_core::version::BUILD_STR);
+    let long_ver = trf!("{navn} {versjon} · bygg {bygg}", navn = rigg_core::version::NAME, versjon = rigg_core::version::VERSION, bygg = rigg_core::version::BUILD_STR);
+    let vtag = crate::widgets::rows::tag(&about_ver, None, "quiet");
     vtag.add_css_class("clickable");
     ver.set_child(Some(&vtag));
-    ver.set_tooltip_text(Some(&rigg_core::version::long()));
+    ver.set_tooltip_text(Some(&long_ver));
     text.append(&ver);
     let whisper = label("", &["egg-whisper"]);
     whisper.set_visible(false);
     text.append(&whisper);
-    let line = label("Overvåking av skjermkort og maskin for Linux, med GPU-styring der kortet og driveren støtter det. Styring krever egen administratoraktivering.", &["about-line"]);
+    let line = label(tr!("Overvåking av skjermkort og maskin for Linux, med GPU-styring der kortet og driveren støtter det. Styring krever egen administratoraktivering."), &["about-line"]);
     line.set_wrap(true);
     text.append(&line);
-    let history = crate::widgets::button(Some("rotate-ccw"), Some("Vis versjonslogg …"), &[]);
+    let history = crate::widgets::button(Some("rotate-ccw"), Some(tr!("Vis versjonslogg …")), &[]);
     history.set_halign(gtk::Align::Start);
     {
         let a = app.clone();
@@ -119,48 +129,48 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     }
     text.append(&history);
     card.append(&text);
-    let hero = group(rigg_core::version::NAME, GroupOpts { whole: true, k: "versjon bygg om code pro signatur byggeserie", ..Default::default() }, vec![]);
+    let hero = group(rigg_core::version::NAME, GroupOpts { whole: true, k: &kw("versjon bygg om code pro signatur byggeserie", tr!("søkeord", "versjon bygg om code pro signatur byggeserie")), ..Default::default() }, vec![]);
     hero.head.set_visible(false);
     hero.widget.append(&card);
     hero.widget.append(&signature());
 
     // ---- Hjelp ----
-    let keys = crate::widgets::button(Some("circle-help"), Some("Tastatursnarveier …"), &[]);
+    let keys = crate::widgets::button(Some("circle-help"), Some(tr!("Tastatursnarveier …")), &[]);
     {
         let a = app.clone();
         keys.connect_clicked(move |_| crate::shortcuts::show_dialog(&a));
     }
-    let lic = crate::widgets::button(None, Some("Lisenser …"), &[]);
+    let lic = crate::widgets::button(None, Some(tr!("Lisenser …")), &[]);
     {
         let a = app.clone();
         lic.connect_clicked(move |_| show_licenses(&a));
     }
     let mut help_rows = vec![
-        row("Tastatursnarveier", Some("Alle hurtigtastene samlet. Også Ctrl+? og ?-knappen i sidefeltet."), &keys, "taster hurtigtast snarvei"),
-        row("Lisenser", Some("Ikonene (Lucide, ISC) og Rust-bibliotekene (MIT). Også i ~/.local/share/doc/agentic-rigg/LISENSER.md."), &lic, "lisens isc mit lucide opphavsrett"),
+        row(tr!("Tastatursnarveier"), Some(tr!("Alle hurtigtastene samlet. Også Ctrl+? og ?-knappen i sidefeltet.")), &keys, &kw("taster hurtigtast snarvei", tr!("søkeord", "taster hurtigtast snarvei"))),
+        row(tr!("Lisenser"), Some(tr!("Ikonene (Lucide, ISC) og Rust-bibliotekene (MIT). Også i ~/.local/share/doc/agentic-rigg/LISENSER.md.")), &lic, &kw("lisens isc mit lucide opphavsrett", tr!("søkeord", "lisens isc mit lucide opphavsrett"))),
     ];
     if let Some(r) = crate::rapport_ui::about_row(app) {
         help_rows.push(r);
     }
-    let help = group("Hjelp", GroupOpts::default(), help_rows);
+    let help = group(tr!("Hjelp"), GroupOpts::default(), help_rows);
 
     // ---- Bidrag ----
     let credits = KvList::new();
     credits.grid.add_css_class("about-debug");
-    credits.add("Prosjekteier", "Julian · produktidé, prioriteringer og utprøving");
+    credits.add(tr!("Prosjekteier"), tr!("Julian · produktidé, prioriteringer og utprøving"));
     credits.add("Claude Code", "Anthropic Claude Opus 5.5");
     credits.add("Codex", "OpenAI GPT 6.1 Sol");
-    let mut contributions = group("Bidrag", GroupOpts { whole: true, k: "julian claude code anthropic opus 5.5 openai gpt 6.1 sol codex ai bidragsytere", ..Default::default() }, vec![]);
+    let mut contributions = group(tr!("Bidrag"), GroupOpts { whole: true, k: &kw("julian claude code anthropic opus 5.5 openai gpt 6.1 sol codex ai bidragsytere", tr!("søkeord", "julian claude code anthropic opus 5.5 openai gpt 6.1 sol codex ai bidragsytere")), ..Default::default() }, vec![]);
     contributions.widget.append(&credits.grid);
     contributions.rows.push(custom_row(&gtk::Box::new(gtk::Orientation::Horizontal, 0), "Julian Anthropic Claude Opus 5.5 Claude Code OpenAI GPT 6.1 Sol Codex"));
 
     // ---- Feilsøking ----
     let kv = KvList::new();
     kv.grid.add_css_class("about-debug");
-    kv.add("Versjon", &rigg_core::version::about().replacen("Versjon ", "", 1));
-    let svc = kv.add("Tjenesten", &service_line(app));
+    kv.add(tr!("Versjon"), &trf!("{versjon} · bygg {bygg}", versjon = rigg_core::version::VERSION, bygg = rigg_core::version::BUILD_STR));
+    let svc = kv.add(tr!("Tjenesten"), &service_line(app));
     live(&svc, service_line);
-    let src = kv.add("Kilde", &source_line(app));
+    let src = kv.add(tr!("Kilde"), &source_line(app));
     live(&src, source_line);
     let st = app.statics().unwrap_or_default();
     kv.add("CUDA", st.cuda_version.as_deref().unwrap_or("–"));
@@ -169,25 +179,25 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
         std::env::var("XDG_SESSION_TYPE").unwrap_or_else(|_| "–".into()),
         std::env::var("XDG_CURRENT_DESKTOP").unwrap_or_else(|_| "–".into())
     );
-    kv.add("Økt", &session);
-    let gtkline = kv.add("Vinduet", &renderer(app));
+    kv.add(tr!("Økt"), &session);
+    let gtkline = kv.add(tr!("Vinduet"), &renderer(app));
     live(&gtkline, renderer);
     let sock = kv.add("Socket", &rigg_core::paths::tilde(app.client.socket()));
     sock.add_css_class("mono");
-    let dirs = kv.add("Mapper", &format!("{}\n{}", rigg_core::paths::tilde(&rigg_core::paths::config_dir(app.profile)), rigg_core::paths::tilde(&rigg_core::paths::state_dir(app.profile))));
+    let dirs = kv.add(tr!("Mapper"), &format!("{}\n{}", rigg_core::paths::tilde(&rigg_core::paths::config_dir(app.profile)), rigg_core::paths::tilde(&rigg_core::paths::state_dir(app.profile))));
     dirs.add_css_class("mono");
     if app.profile.is_dev() {
-        kv.add("Profil", "Utvikling (RIGG_PROFIL=dev)");
+        kv.add(tr!("Profil"), tr!("Utvikling (RIGG_PROFIL=dev)"));
     }
     let eggs_box = vbox(0, &[]);
     if crate::easter::enabled(app) && app.settings().eggs_found.iter().any(|e| e == "utvikler") {
-        let l = kv.add("Små overraskelser", &crate::easter::found_text(app));
+        let l = kv.add(tr!("Små overraskelser"), &crate::easter::found_text(app));
         live(&l, crate::easter::found_text);
     }
     {
         let (a, kv2) = (app.clone(), kv.clone());
         crate::easter::about_version(app, &ver, &whisper, move || {
-            let l = kv2.add("Små overraskelser", &crate::easter::found_text(&a));
+            let l = kv2.add(tr!("Små overraskelser"), &crate::easter::found_text(&a));
             live(&l, crate::easter::found_text);
         });
     }
@@ -195,8 +205,8 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     debug_box.append(&kv.grid);
     debug_box.append(&eggs_box);
     let mut dbg = group(
-        "Feilsøking",
-        GroupOpts { whole: true, k: "debug versjon tjeneste pid", ..Default::default() },
+        tr!("Feilsøking"),
+        GroupOpts { whole: true, k: &kw("debug versjon tjeneste pid", tr!("søkeord", "debug versjon tjeneste pid")), ..Default::default() },
         vec![],
     );
     dbg.widget.insert_child_after(&debug_box, dbg.widget.first_child().as_ref());
@@ -207,7 +217,7 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
 /// Lisensene (`data/LISENSER.md`, kompilert inn) i et eget vindu: avsnitt
 /// som tekst, kodeblokker og tabeller med fast bredde.
 pub fn show_licenses(app: &Rc<App>) {
-    let Some((w, root)) = crate::shortcuts::dialog(app, "Lisenser", 640, 720) else { return };
+    let Some((w, root)) = crate::shortcuts::dialog(app, tr!("Lisenser"), 640, 720) else { return };
     let text = gtk::gio::resources_lookup_data("/io/github/AgenticRigg/LISENSER.md", gtk::gio::ResourceLookupFlags::NONE).map(|b| String::from_utf8_lossy(&b).into_owned()).unwrap_or_default();
     let body = vbox(0, &["lic-body"]);
     for (i, part) in text.split("```").enumerate() {

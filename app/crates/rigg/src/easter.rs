@@ -22,6 +22,7 @@ use crate::state::App;
 use crate::toast::Toast;
 use gtk::prelude::*;
 use rigg_core::easter as E;
+use rigg_core::trf;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -45,7 +46,7 @@ pub fn on_key(app: &Rc<App>, key: gtk::gdk::Key) {
     let hit = KONAMI.with(|k| k.borrow_mut().key(&name));
     if hit && enabled(app) {
         app.egg_found("konami");
-        say(app, E::KONAMI_TITLE, E::KONAMI_BODY);
+        say(app, E::konami_title(), E::konami_body());
     }
 }
 
@@ -60,7 +61,7 @@ pub fn icon_click(app: &Rc<App>, spin: &crate::widgets::icon::Spin) {
         return;
     }
     app.egg_found("stov");
-    say(app, E::DUST_TITLE, E::DUST_BODY);
+    say(app, E::dust_title(), E::dust_body());
     if crate::motion::level(app) != crate::motion::Level::Full {
         return;
     }
@@ -113,7 +114,7 @@ pub fn about_version(app: &Rc<App>, version: &gtk::Button, whisper: &gtk::Label,
 
 /// «3 av 10 funnet» (raden i Om › Feilsøking etter egg 3).
 pub fn found_text(app: &App) -> String {
-    format!("{} av {} funnet", app.settings().eggs_found.len(), E::EGGS.len())
+    trf!("{funnet} av {totalt} funnet", funnet = app.settings().eggs_found.len(), totalt = E::EGGS.len())
 }
 
 /// 4 · Svaret på alt: temperaturen som vises er nøyaktig 42 °C. Bare
@@ -128,7 +129,7 @@ pub fn mark42(app: &Rc<App>, value: &gtk::Label, temp_c: Option<f64>, host: &imp
     if on {
         value.add_css_class("egg-42");
         value.set_markup("<u>42</u>");
-        host.set_tooltip_text(Some(E::ANSWER_TIP));
+        host.set_tooltip_text(Some(E::answer_tip()));
         app.egg_found("svaret");
     } else {
         value.remove_css_class("egg-42");

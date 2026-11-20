@@ -8,18 +8,61 @@
 //! bytter etter ca. 5 s. Forhåndsvisningene leses fra GResource, så de vises
 //! også før appen er installert.
 
-use super::{Group, GroupOpts, group, row, row_wrap, save, seg, switch_row};
+use super::{Group, GroupOpts, group, kw, row, row_wrap, save, seg, switch_row};
 use crate::state::App;
 use crate::toast::Toast;
 use crate::widgets::{Icon, hbox, label, vbox};
 use gtk::prelude::*;
 use rigg_core::tokens::{Env, color_or};
+use rigg_core::{tr, trf};
 use serde_json::json;
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
-const PALETTES: [(&str, &str, &str); 4] = [("grafitt", "Grafitt", "Nøytral grå"), ("sand", "Sand", "Varm, som papir"), ("fjord", "Fjord", "Kjølig blågrå"), ("midnatt", "Midnatt", "Dypt mørkt, skarpt lyst")];
-const ACCENTS: [(&str, &str); 6] = [("blue", "Blå"), ("teal", "Blågrønn"), ("green", "Grønn"), ("purple", "Lilla"), ("pink", "Rosa"), ("slate", "Skifer")];
+const PALETTE_IDS: [&str; 4] = ["grafitt", "sand", "fjord", "midnatt"];
+const ACCENT_IDS: [&str; 6] = ["blue", "teal", "green", "purple", "pink", "slate"];
+
+fn palette_text(id: &str) -> (&'static str, &'static str) {
+    match id {
+        "grafitt" => (tr!("Grafitt"), tr!("Nøytral grå")),
+        "sand" => (tr!("Sand"), tr!("Varm, som papir")),
+        "fjord" => (tr!("Fjord"), tr!("Kjølig blågrå")),
+        "midnatt" => (tr!("Midnatt"), tr!("Dypt mørkt, skarpt lyst")),
+        _ => ("", ""),
+    }
+}
+
+fn accent_name(id: &str) -> &'static str {
+    match id {
+        "blue" => tr!("Blå"),
+        "teal" => tr!("Blågrønn"),
+        "green" => tr!("Grønn"),
+        "purple" => tr!("Lilla"),
+        "pink" => tr!("Rosa"),
+        "slate" => tr!("Skifer"),
+        _ => "",
+    }
+}
+
+fn variant_text(id: &str, name: &str, desc: &str) -> (String, String) {
+    let pair = match id {
+        "standard" => Some((tr!("Standard"), tr!("Grafitt med blå måler"))),
+        "blue" => Some((tr!("Blå"), tr!("Flis i blå"))),
+        "teal" => Some((tr!("Blågrønn"), tr!("Flis i blågrønn"))),
+        "green" => Some((tr!("Grønn"), tr!("Flis i grønn"))),
+        "purple" => Some((tr!("Lilla"), tr!("Flis i lilla"))),
+        "pink" => Some((tr!("Rosa"), tr!("Flis i rosa"))),
+        "slate" => Some((tr!("Skifer"), tr!("Flis i skifer"))),
+        "dark" => Some((tr!("Mørk"), tr!("Nesten svart flis"))),
+        "light" => Some((tr!("Lys"), tr!("Lys flis, mørk vifte"))),
+        "mono" => Some((tr!("Monokrom"), tr!("Bare gråtoner"))),
+        _ => None,
+    };
+    match pair {
+        Some((n, d)) => (n.to_string(), d.to_string()),
+        None => (name.to_string(), desc.to_string()),
+    }
+}
 
 thread_local! {
     static PREVIEWS: RefCell<Vec<gtk::glib::WeakRef<gtk::DrawingArea>>> = const { RefCell::new(Vec::new()) };
@@ -120,10 +163,11 @@ fn palettes(app: &Rc<App>) -> gtk::Grid {
     grid.set_row_spacing(12);
     grid.set_column_homogeneous(true);
     grid.set_accessible_role(gtk::AccessibleRole::RadioGroup);
-    grid.update_property(&[gtk::accessible::Property::Label("Fargetema")]);
+    grid.update_property(&[gtk::accessible::Property::Label(tr!("Fargetema"))]);
     let cur = app.settings().palette.clone();
     let mut first: Option<gtk::ToggleButton> = None;
-    for (i, (id, name, desc)) in PALETTES.iter().enumerate() {
+    for (i, id) in PALETTE_IDS.iter().enumerate() {
+        let (name, desc) = palette_text(id);
         let b = gtk::ToggleButton::new();
         b.add_css_class("pal-card");
         if let Some(f) = &first {
@@ -165,10 +209,11 @@ fn accents(app: &Rc<App>) -> gtk::Box {
     let bx = hbox(4, &[]);
     bx.set_homogeneous(true);
     bx.set_accessible_role(gtk::AccessibleRole::RadioGroup);
-    bx.update_property(&[gtk::accessible::Property::Label("Aksentfarge")]);
+    bx.update_property(&[gtk::accessible::Property::Label(tr!("Aksentfarge"))]);
     let cur = app.settings().accent.clone();
     let mut first: Option<gtk::ToggleButton> = None;
-    for (id, name) in ACCENTS {
+    for id in ACCENT_IDS {
+        let name = accent_name(id);
         let b = gtk::ToggleButton::new();
         b.add_css_class("swatch");
         if let Some(f) = &first {
@@ -230,10 +275,11 @@ fn icon_grid(app: &Rc<App>) -> gtk::FlowBox {
     fb.set_column_spacing(12);
     fb.set_row_spacing(8);
     fb.set_activate_on_single_click(true);
-    fb.update_property(&[gtk::accessible::Property::Label("Appikon")]);
+    fb.update_property(&[gtk::accessible::Property::Label(tr!("Appikon"))]);
     let cur = app.settings().app_icon.clone();
     let mut sel: Option<gtk::FlowBoxChild> = None;
-    for (id, name, desc, _icon) in variants() {
+    for (id, raw_name, raw_desc, _icon) in variants() {
+        let (name, desc) = variant_text(&id, &raw_name, &raw_desc);
         let col = vbox(0, &[]);
         let frame = gtk::Overlay::new();
         let tile = hbox(0, &["ic-tile"]);
@@ -289,14 +335,15 @@ fn icon_grid(app: &Rc<App>) -> gtk::FlowBox {
 /// Bytter appikonet: ikonfilene finnes (eller skrives fra GResource), så
 /// skrives `Icon=` om i `.desktop`-fila atomisk, og vinduet får det nye navnet.
 pub fn apply_app_icon(app: &Rc<App>, id: &str) {
-    let Some((_, name, _, icon)) = variants().into_iter().find(|v| v.0 == id) else { return };
+    let Some((_, raw_name, raw_desc, icon)) = variants().into_iter().find(|v| v.0 == id) else { return };
+    let (name, _) = variant_text(id, &raw_name, &raw_desc);
     gtk::Window::set_default_icon_name(&icon);
     if let Some(w) = app.window() {
         w.set_icon_name(Some(&icon));
     }
     let desktop = rigg_core::paths::desktop_file(app.profile);
     let Ok(text) = std::fs::read_to_string(&desktop) else {
-        app.toast(Toast::new(&format!("Appikonet er «{name}»")).body("Appen er ikke installert, så bare vinduet har fått det nye ikonet. Valget brukes når appen installeres."));
+        app.toast(Toast::new(&trf!("Appikonet er «{navn}»", navn = name)).body(tr!("Appen er ikke installert, så bare vinduet har fått det nye ikonet. Valget brukes når appen installeres.")));
         return;
     };
     // 1. Ikonfilene for varianten (skrives bare når de mangler).
@@ -331,8 +378,8 @@ pub fn apply_app_icon(app: &Rc<App>, id: &str) {
         out.push('\n');
     }
     match rigg_core::write_atomic(&desktop, out.as_bytes()) {
-        Ok(()) => app.toast(Toast::new(&format!("Appikonet er «{name}»")).body("Ikonet byttes i dokken og Vis programmer om noen sekunder.")),
-        Err(e) => app.toast(Toast::new("Kunne ikke bytte appikonet").body(&e.to_string()).error()),
+        Ok(()) => app.toast(Toast::new(&trf!("Appikonet er «{navn}»", navn = name)).body(tr!("Ikonet byttes i dokken og Vis programmer om noen sekunder."))),
+        Err(e) => app.toast(Toast::new(tr!("Kunne ikke bytte appikonet")).body(&e.to_string()).error()),
     }
 }
 
@@ -346,35 +393,66 @@ fn touch(dir: &std::path::Path) {
 
 pub fn build(app: &Rc<App>) -> Vec<Group> {
     let s = app.settings().clone();
-    let sys = match crate::motion::system() {
-        crate::motion::Level::Full => "full",
-        _ => "redusert",
+    let motion_sub = match crate::motion::system() {
+        crate::motion::Level::Full => tr!("Automatisk følger systemets innstilling (nå: full)."),
+        _ => tr!("Automatisk følger systemets innstilling (nå: redusert)."),
     };
     let a = app.clone();
     vec![
         group(
-            "Farger",
+            tr!("Farger"),
             GroupOpts::default(),
             vec![
-                row("Lyst eller mørkt", Some("System følger GNOME og bytter med en gang."), &seg(app, &[("system", "System"), ("light", "Lys"), ("dark", "Mørk")], &s.theme, "theme", "Lyst eller mørkt", false).root, "tema mørk modus lys dark light"),
-                row_wrap("Fargetema", Some("Tonen i flater, rammer og tekst, i både lyst og mørkt."), &palettes(app), "palett grafitt sand fjord midnatt"),
-                row_wrap("Aksentfarge", Some("Knapper, valgt side, stolper og glidere. Grafene har faste farger per serie."), &accents(app), "blå blågrønn grønn lilla rosa skifer"),
-                row_wrap("Appikon", Some("Ikonet i Vis programmer, dokken og Alt+Tab. Byttet vises etter noen sekunder, uten å logge ut."), &icon_grid(app), "ikon appikon dokk vis programmer farge"),
-                switch_row("Høy kontrast", Some("Sterkere tekst, rammer, fokusringer og grafer i alle fargetemaer."), s.high_contrast, "tilgjengelighet synlighet", move |on| {
-                    save(&a, json!({"highContrast": on}));
-                }),
+                row(
+                    tr!("Lyst eller mørkt"),
+                    Some(tr!("System følger GNOME og bytter med en gang.")),
+                    &seg(app, &[("system", tr!("System")), ("light", tr!("Lys")), ("dark", tr!("Mørk"))], &s.theme, "theme", tr!("Lyst eller mørkt"), false).root,
+                    &kw("tema mørk modus lys dark light", tr!("søkeord", "tema mørk modus lys dark light")),
+                ),
+                row_wrap(
+                    tr!("Fargetema"),
+                    Some(tr!("Tonen i flater, rammer og tekst, i både lyst og mørkt.")),
+                    &palettes(app),
+                    &kw("palett grafitt sand fjord midnatt", tr!("søkeord", "palett grafitt sand fjord midnatt")),
+                ),
+                row_wrap(
+                    tr!("Aksentfarge"),
+                    Some(tr!("Knapper, valgt side, stolper og glidere. Grafene har faste farger per serie.")),
+                    &accents(app),
+                    &kw("blå blågrønn grønn lilla rosa skifer", tr!("søkeord", "blå blågrønn grønn lilla rosa skifer")),
+                ),
+                row_wrap(
+                    tr!("Appikon"),
+                    Some(tr!("Ikonet i Vis programmer, dokken og Alt+Tab. Byttet vises etter noen sekunder, uten å logge ut.")),
+                    &icon_grid(app),
+                    &kw("ikon appikon dokk vis programmer farge", tr!("søkeord", "ikon appikon dokk vis programmer farge")),
+                ),
+                switch_row(
+                    tr!("Høy kontrast"),
+                    Some(tr!("Sterkere tekst, rammer, fokusringer og grafer i alle fargetemaer.")),
+                    s.high_contrast,
+                    &kw("tilgjengelighet synlighet", tr!("søkeord", "tilgjengelighet synlighet")),
+                    move |on| {
+                        save(&a, json!({"highContrast": on}));
+                    },
+                ),
             ],
         ),
         group(
-            "Størrelse",
+            tr!("Størrelse"),
             GroupOpts::default(),
             vec![
-                row("Tetthet", Some("Høyden på rader og luften mellom panelene."), &seg(app, &[("compact", "Kompakt"), ("standard", "Standard"), ("comfortable", "Luftig")], &s.density, "density", "Tetthet", false).root, "kompakt luftig tett"),
                 row(
-                    "Skriftstørrelse",
-                    Some("Teksten i hele appen. Også Ctrl og + eller −, og Ctrl+0."),
-                    &seg(app, &[("92", "Liten"), ("100", "Standard"), ("108", "Stor"), ("116", "Større")], &s.font_scale.to_string(), "fontScale", "Skriftstørrelse", true).root,
-                    "tekst zoom skrift",
+                    tr!("Tetthet"),
+                    Some(tr!("Høyden på rader og luften mellom panelene.")),
+                    &seg(app, &[("compact", tr!("Kompakt")), ("standard", tr!("Standard")), ("comfortable", tr!("Luftig"))], &s.density, "density", tr!("Tetthet"), false).root,
+                    &kw("kompakt luftig tett", tr!("søkeord", "kompakt luftig tett")),
+                ),
+                row(
+                    tr!("Skriftstørrelse"),
+                    Some(tr!("Teksten i hele appen. Også Ctrl og + eller −, og Ctrl+0.")),
+                    &seg(app, &[("92", tr!("Liten")), ("100", tr!("Standard")), ("108", tr!("Stor")), ("116", tr!("Større"))], &s.font_scale.to_string(), "fontScale", tr!("Skriftstørrelse"), true).root,
+                    &kw("tekst zoom skrift", tr!("søkeord", "tekst zoom skrift")),
                 ),
             ],
         ),
@@ -389,13 +467,13 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
             )],
         ),
         group(
-            "Bevegelse",
-            GroupOpts { note: Some("Redusert gir bare korte toninger, og grafene oppdateres i trinn. Av slår av all animasjon."), ..Default::default() },
+            tr!("Bevegelse"),
+            GroupOpts { note: Some(tr!("Redusert gir bare korte toninger, og grafene oppdateres i trinn. Av slår av all animasjon.")), ..Default::default() },
             vec![row(
-                "Animasjoner",
-                Some(&format!("Automatisk følger systemets innstilling (nå: {sys}).")),
-                &seg(app, &[("system", "Automatisk"), ("full", "Full"), ("reduced", "Redusert"), ("off", "Av")], &s.motion, "motion", "Animasjoner", false).root,
-                "bevegelse animasjon redusert",
+                tr!("Animasjoner"),
+                Some(motion_sub),
+                &seg(app, &[("system", tr!("Automatisk")), ("full", tr!("Full")), ("reduced", tr!("Redusert")), ("off", tr!("Av"))], &s.motion, "motion", tr!("Animasjoner"), false).root,
+                &kw("bevegelse animasjon redusert", tr!("søkeord", "bevegelse animasjon redusert")),
             )],
         ),
     ]

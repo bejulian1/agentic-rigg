@@ -4,13 +4,14 @@
 //! Valgene ligger i `tjeneste.json` (tjenesten kjører loggen og varslene,
 //! også når vinduet er lukket) og endres med `set_settings`.
 
-use super::{Group, GroupOpts, custom_row, group, request_render, row, switch_row};
+use super::{Group, GroupOpts, custom_row, group, kw, request_render, row, switch_row};
 use crate::state::App;
 use crate::widgets::{Seg, hbox, label, vbox};
 use gtk::prelude::*;
 use gtk::{gio, glib};
 use rigg_core::fmt as F;
 use rigg_core::settings::ServiceSettings;
+use rigg_core::{tr, trf};
 use serde_json::json;
 use std::rc::Rc;
 
@@ -30,24 +31,24 @@ fn log_dir(app: &App) -> std::path::PathBuf {
 fn status_text(app: &App) -> String {
     let st = crate::logg_ui::status(app);
     if !app.client.is_connected() {
-        return "Tjenesten svarer ikke".into();
+        return tr!("Tjenesten svarer ikke").into();
     }
     if st["active"].as_bool() == Some(true) {
         let t = st["startedAt"].as_i64().map(|t| F::time(crate::app::local_time(t), false)).unwrap_or_default();
-        return format!("Logger siden {t} · {}", crate::logg_ui::rows_text(&st));
+        return trf!("Logger siden {tid} · {rader}", tid = t, rader = crate::logg_ui::rows_text(&st));
     }
     match st["file"].as_str() {
-        Some(f) => format!("Av · siste: {}", std::path::Path::new(f).file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default()),
-        None => "Av".into(),
+        Some(f) => trf!("Av · siste: {fil}", fil = std::path::Path::new(f).file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default()),
+        None => tr!("Av").into(),
     }
 }
 
 /// Velg sensorer: avkrysning for alt i siste prøve, med søk.
 fn pick_sensors(app: &Rc<App>, anchor: &gtk::Button) {
     let body = vbox(6, &["sensor-pick"]);
-    body.append(&label("Sensorer i loggen", &["pop-title"]));
+    body.append(&label(tr!("Sensorer i loggen"), &["pop-title"]));
     let search = gtk::SearchEntry::new();
-    search.set_placeholder_text(Some("Filtrer"));
+    search.set_placeholder_text(Some(tr!("Filtrer")));
     body.append(&search);
     let list = vbox(0, &[]);
     let sc = gtk::ScrolledWindow::new();
@@ -78,7 +79,7 @@ fn pick_sensors(app: &Rc<App>, anchor: &gtk::Button) {
         rows.push((c.header().to_lowercase(), cb));
     }
     if rows.is_empty() {
-        list.append(&label("Sensorene vises når tjenesten har sendt første prøve.", &["muted"]));
+        list.append(&label(tr!("Sensorene vises når tjenesten har sendt første prøve."), &["muted"]));
     }
     let rows = Rc::new(rows);
     search.connect_search_changed(move |e| {
@@ -87,7 +88,7 @@ fn pick_sensors(app: &Rc<App>, anchor: &gtk::Button) {
             cb.set_visible(q.is_empty() || t.contains(q.as_str()));
         }
     });
-    let note = label("Trådene (last og klokke per tråd) er med når du logger alle sensorene.", &["pop-sub", "dim"]);
+    let note = label(tr!("Trådene (last og klokke per tråd) er med når du logger alle sensorene."), &["pop-sub", "dim"]);
     note.set_wrap(true);
     note.set_max_width_chars(40);
     body.append(&note);
@@ -105,13 +106,13 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     let status = label(&status_text(app), &["muted", "num"]);
     status.set_ellipsize(gtk::pango::EllipsizeMode::End);
     status.set_max_width_chars(36);
-    let toggle = gtk::Button::with_label(if crate::logg_ui::is_active(app) { "Stopp loggen" } else { "Start loggen" });
+    let toggle = gtk::Button::with_label(if crate::logg_ui::is_active(app) { tr!("Stopp loggen") } else { tr!("Start loggen") });
     toggle.add_css_class("sm");
     {
         let a = app.clone();
         toggle.connect_clicked(move |_| crate::logg_ui::toggle(&a));
     }
-    let open = crate::widgets::button(Some("folder"), Some("Vis i Filer"), &["sm"]);
+    let open = crate::widgets::button(Some("folder"), Some(tr!("Vis i Filer")), &["sm"]);
     {
         let a = app.clone();
         open.connect_clicked(move |_| {
@@ -140,7 +141,7 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
                         && let (Some(st), Some(tg)) = (st.upgrade(), tg.upgrade())
                     {
                         crate::widgets::set_text(&st, &status_text(&a));
-                        tg.set_label(if crate::logg_ui::is_active(&a) { "Stopp loggen" } else { "Start loggen" });
+                        tg.set_label(if crate::logg_ui::is_active(&a) { tr!("Stopp loggen") } else { tr!("Start loggen") });
                     }
                 });
             });
@@ -148,7 +149,7 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     });
     super::live(&status, status_text);
 
-    let which = Seg::new(&[("alle", "Alle"), ("utvalgte", "Utvalgte")], if s.log.all { "alle" } else { "utvalgte" }, "Sensorer i loggen");
+    let which = Seg::new(&[("alle", tr!("Alle")), ("utvalgte", tr!("Utvalgte"))], if s.log.all { "alle" } else { "utvalgte" }, tr!("Sensorer i loggen"));
     {
         let a = app.clone();
         which.connect(move |v| {
@@ -160,7 +161,7 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     sens.append(&which.root);
     if !s.log.all {
         let n = s.log.keys.len();
-        let pick = gtk::Button::with_label(&if n == 0 { "Velg …".to_string() } else { format!("{} valgt …", n) });
+        let pick = gtk::Button::with_label(&if n == 0 { tr!("Velg …").to_string() } else { trf!("{antall} valgt …", antall = n) });
         pick.add_css_class("sm");
         let a = app.clone();
         pick.connect_clicked(move |b| pick_sensors(&a, b));
@@ -169,7 +170,7 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
 
     let iv: Vec<(String, String)> = rigg_core::settings::LOG_INTERVALS.iter().map(|ms| (ms.to_string(), F::seconds(*ms))).collect();
     let iv_refs: Vec<(&str, &str)> = iv.iter().map(|(a, b)| (a.as_str(), b.as_str())).collect();
-    let interval = Seg::new(&iv_refs, &s.log.interval_ms.to_string(), "Intervall");
+    let interval = Seg::new(&iv_refs, &s.log.interval_ms.to_string(), tr!("Intervall"));
     {
         let a = app.clone();
         interval.connect(move |v| {
@@ -186,14 +187,14 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     code.set_max_width_chars(28);
     code.set_tooltip_text(Some(&dir.display().to_string()));
     dbox.append(&code);
-    let choose = gtk::Button::with_label("Velg …");
+    let choose = gtk::Button::with_label(tr!("Velg …"));
     choose.add_css_class("sm");
     {
         let a = app.clone();
         choose.connect_clicked(move |_| {
             let Some(win) = a.window() else { return };
             let d = gtk::FileDialog::new();
-            d.set_title("Mappe for loggen");
+            d.set_title(tr!("Mappe for loggen"));
             d.set_initial_folder(Some(&gio::File::for_path(log_dir(&a))));
             let b = a.clone();
             d.select_folder(Some(&win), None::<&gio::Cancellable>, move |res| {
@@ -209,8 +210,8 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     dbox.append(&choose);
     if s.log.dir.is_some() {
         let reset = crate::widgets::button(Some("rotate-ccw"), None, &["flat", "sm", "icon-only"]);
-        reset.set_tooltip_text(Some("Tilbake til ~/Dokumenter/Agentic Rigg"));
-        reset.update_property(&[gtk::accessible::Property::Label("Tilbake til standardmappa")]);
+        reset.set_tooltip_text(Some(tr!("Tilbake til ~/Dokumenter/Agentic Rigg")));
+        reset.update_property(&[gtk::accessible::Property::Label(tr!("Tilbake til standardmappa"))]);
         let a = app.clone();
         reset.connect_clicked(move |_| {
             a.set_service(json!({"log": {"dir": null}}));
@@ -219,26 +220,26 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
         dbox.append(&reset);
     }
 
-    let format = Seg::new(&[("standard", "Standard CSV"), ("norsk", "Norsk regneark")], &s.log.format, "Format");
+    let format = Seg::new(&[("standard", tr!("Standard CSV")), ("norsk", tr!("Norsk regneark"))], &s.log.format, tr!("Format"));
     {
         let a = app.clone();
         format.connect(move |v| a.set_service(json!({"log": {"format": v}})));
     }
 
     out.push(group(
-        "Logg til fil",
+        tr!("Logg til fil"),
         GroupOpts {
-            k: "logg csv fil ctrl+l",
-            desc: Some("Tjenesten skriver loggen, så den fortsetter når vinduet lukkes. Start og stopp også med knappen på Sensorer, eller Ctrl+L."),
-            note: Some("Ny fil ved 100 MB. Loggen stopper med en melding hvis disken har under 500 MB ledig. Kolonnene ligger fast mens loggen går; nye sensorer tas med i neste logg."),
+            k: &kw("logg csv fil ctrl+l", tr!("søkeord", "logg csv fil ctrl+l")),
+            desc: Some(tr!("Tjenesten skriver loggen, så den fortsetter når vinduet lukkes. Start og stopp også med knappen på Sensorer, eller Ctrl+L.")),
+            note: Some(tr!("Ny fil ved 100 MB. Loggen stopper med en melding hvis disken har under 500 MB ledig. Kolonnene ligger fast mens loggen går; nye sensorer tas med i neste logg.")),
             ..Default::default()
         },
         vec![
-            row("Status", None, &sbox, "logg status start stopp vis i filer"),
-            row("Sensorer", Some("Alle sensorene, eller bare de du velger (også med høyreklikk på Sensorer › «Ta med i loggen»)."), &sens, "sensorer utvalgte alle"),
-            row("Intervall", Some("Hvor ofte en rad skrives. Raskere enn takten tjenesten leser i, gir ikke flere rader."), &interval.root, "intervall sekunder"),
-            row("Mappe", Some("Filnavn som rigg-2026-11-07_14-32-10.csv."), &dbox, "mappe dokumenter sti"),
-            row("Format", Some("Standard CSV bruker komma og desimalpunktum. Norsk regneark bruker semikolon og desimalkomma, og åpnes rett i LibreOffice og Excel med norsk oppsett."), &format.root, "format komma semikolon desimal regneark excel libreoffice"),
+            row(tr!("Status"), None, &sbox, &kw("logg status start stopp vis i filer", tr!("søkeord", "logg status start stopp vis i filer"))),
+            row(tr!("Sensorer"), Some(tr!("Alle sensorene, eller bare de du velger (også med høyreklikk på Sensorer › «Ta med i loggen»).")), &sens, &kw("sensorer utvalgte alle", tr!("søkeord", "sensorer utvalgte alle"))),
+            row(tr!("Intervall"), Some(tr!("Hvor ofte en rad skrives. Raskere enn takten tjenesten leser i, gir ikke flere rader.")), &interval.root, &kw("intervall sekunder", tr!("søkeord", "intervall sekunder"))),
+            row(tr!("Mappe"), Some(tr!("Filnavn som rigg-2026-11-07_14-32-10.csv.")), &dbox, &kw("mappe dokumenter sti", tr!("søkeord", "mappe dokumenter sti"))),
+            row(tr!("Format"), Some(tr!("Standard CSV bruker komma og desimalpunktum. Norsk regneark bruker semikolon og desimalkomma, og åpnes rett i LibreOffice og Excel med norsk oppsett.")), &format.root, &kw("format komma semikolon desimal regneark excel libreoffice", tr!("søkeord", "format komma semikolon desimal regneark excel libreoffice"))),
         ],
     ));
 
@@ -247,10 +248,10 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     let (gpu_crit, cpu_crit) = (th.gpu_temp_crit, th.cpu_temp_crit);
     let a1 = app.clone();
     let main = switch_row(
-        "Varsle ved rød grense",
-        Some("Et varsel på skrivebordet når en verdi har vært over den røde grensen i 10 s. Høyst ett varsel per verdi per 15 min. Virker også når vinduet er lukket og tjenesten går i bakgrunnen."),
+        tr!("Varsle ved rød grense"),
+        Some(tr!("Et varsel på skrivebordet når en verdi har vært over den røde grensen i 10 s. Høyst ett varsel per verdi per 15 min. Virker også når vinduet er lukket og tjenesten går i bakgrunnen.")),
         s.alarms.desktop,
-        "varsel skrivebord alarm rød grense",
+        &kw("varsel skrivebord alarm rød grense", tr!("søkeord", "varsel skrivebord alarm rød grense")),
         move |on| {
             a1.set_service(json!({"alarms": {"desktop": on}}));
             request_render();
@@ -260,10 +261,10 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     let on = s.alarms.desktop;
     let a2 = app.clone();
     let g = switch_row(
-        "GPU-temperatur",
-        Some(&format!("Rød grense {}. Endres under Grafer og sensorer › Varselfarger.", F::temp(Some(gpu_crit), 0))),
+        tr!("GPU-temperatur"),
+        Some(&trf!("Rød grense {grense}. Endres under Grafer og sensorer › Varselfarger.", grense = F::temp(Some(gpu_crit), 0))),
         s.alarms.gpu_temp,
-        "gpu temperatur varsel",
+        &kw("gpu temperatur varsel", tr!("søkeord", "gpu temperatur varsel")),
         move |v| a2.set_service(json!({"alarms": {"gpuTemp": v}})),
     );
     g.widget.set_sensitive(on);
@@ -271,10 +272,10 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     rows.push(g);
     let a3 = app.clone();
     let c = switch_row(
-        "CPU-temperatur",
-        Some(&format!("Rød grense {} (Tdie).", F::temp(Some(cpu_crit), 0))),
+        tr!("CPU-temperatur"),
+        Some(&trf!("Rød grense {grense} (Tdie).", grense = F::temp(Some(cpu_crit), 0))),
         s.alarms.cpu_temp,
-        "cpu temperatur varsel tdie",
+        &kw("cpu temperatur varsel tdie", tr!("søkeord", "cpu temperatur varsel tdie")),
         move |v| a3.set_service(json!({"alarms": {"cpuTemp": v}})),
     );
     c.widget.set_sensitive(on);
@@ -282,10 +283,10 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     rows.push(c);
     let a4 = app.clone();
     let l = switch_row(
-        "Skjermkortet svarer ikke",
-        Some("Også når driveren er oppdatert og maskinen må startes på nytt, eller driveren ikke kan leses."),
+        tr!("Skjermkortet svarer ikke"),
+        Some(tr!("Også når driveren er oppdatert og maskinen må startes på nytt, eller driveren ikke kan leses.")),
         s.alarms.gpu_lost,
-        "skjermkort borte driver varsel",
+        &kw("skjermkort borte driver varsel", tr!("søkeord", "skjermkort borte driver varsel")),
         move |v| a4.set_service(json!({"alarms": {"gpuLost": v}})),
     );
     l.widget.set_sensitive(on);
@@ -293,18 +294,18 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     rows.push(l);
     let a5 = app.clone();
     let dh = switch_row(
-        "Diskhelse",
-        Some("Når SMART melder at en disk feiler, eller antallet dårlige sektorer øker. Tjenesten ser på SMART hvert 10. minutt når vinduet er lukket."),
+        tr!("Diskhelse"),
+        Some(tr!("Når SMART melder at en disk feiler, eller antallet dårlige sektorer øker. Tjenesten ser på SMART hvert 10. minutt når vinduet er lukket.")),
         s.alarms.disk_health,
-        "disk helse smart sektorer varsel",
+        &kw("disk helse smart sektorer varsel", tr!("søkeord", "disk helse smart sektorer varsel")),
         move |v| a5.set_service(json!({"alarms": {"diskHealth": v}})),
     );
     dh.widget.set_sensitive(on);
     dh.widget.add_css_class("avhengig");
     rows.push(dh);
-    let hint = label("Klikk på et varsel for å åpne appen på riktig side. Varslene sendes av tjenesten, uten lyd.", &["set-note"]);
+    let hint = label(tr!("Klikk på et varsel for å åpne appen på riktig side. Varslene sendes av tjenesten, uten lyd."), &["set-note"]);
     hint.set_wrap(true);
-    rows.push(custom_row(&hint, "klikk varsel lyd"));
-    out.push(group("Skrivebordsvarsler", GroupOpts { k: "varsler notification", ..Default::default() }, rows));
+    rows.push(custom_row(&hint, &kw("klikk varsel lyd", tr!("søkeord", "klikk varsel lyd"))));
+    out.push(group(tr!("Skrivebordsvarsler"), GroupOpts { k: &kw("varsler notification", tr!("søkeord", "varsler notification")), ..Default::default() }, rows));
     out
 }

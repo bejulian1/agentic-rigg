@@ -1,0 +1,37 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: crates/rigg/src/settings/search.rs:109
+msgid "Gå til {del}"
+msgstr ""
+
+#: crates/rigg/src/settings/search.rs:130
+msgid "Søk"
+msgstr ""
+
+#: crates/rigg/src/settings/search.rs:131
+msgid "«{sok}» i alle delene"
+msgstr ""
+
+#: crates/rigg/src/settings/search.rs:132
+msgid "{antall} treff"
+msgid_plural "{antall} treff"
+msgstr[0] ""
+
+#: crates/rigg/src/settings/search.rs:132
+msgid "Ingen treff"
+msgstr ""
+
+#: crates/rigg/src/settings/search.rs:138
+msgid "Ingen innstillinger passer «{sok}»."
+msgstr ""
+
+#: crates/rigg/src/settings/search.rs:139
+msgid "Prøv et ord fra navnet eller forklaringen, for eksempel tema, enhet eller graf."
+msgstr ""

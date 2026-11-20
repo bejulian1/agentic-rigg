@@ -10,6 +10,7 @@
 //! hver for seg ([`lenient`]); ved import avvises hele fila med en norsk
 //! melding ([`merge`]).
 
+use crate::{tr, trf};
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value, json};
 
@@ -45,6 +46,24 @@ pub const PAGES: [(&str, &str); 11] = [
     ("lys", "Skjermkort › RGB-lys"),
     ("oppgaver", "Oppgaver"),
 ];
+
+/// Lokalisert navn for en side-ID (brukes i Innstillinger).
+pub fn page_name(id: &str) -> &'static str {
+    match id {
+        "oversikt" => tr!("Oversikt"),
+        "sensorer" => tr!("Sensorer"),
+        "grafer" => tr!("Grafer"),
+        "grafikkort" => tr!("Grafikkort"),
+        "prosessor" => tr!("Prosessor"),
+        "disker" => tr!("Disker"),
+        "system" => tr!("System"),
+        "kontroller" => tr!("Skjermkort › Klokker og effekt"),
+        "viftekurve" => tr!("Skjermkort › Vifter"),
+        "lys" => tr!("Skjermkort › RGB-lys"),
+        "oppgaver" => tr!("Oppgaver"),
+        _ => "",
+    }
+}
 pub const INTERVALS: [u32; 3] = [500, 1000, 2000];
 pub const THEMES: [&str; 3] = ["system", "light", "dark"];
 pub const PALETTES: [&str; 4] = ["grafitt", "sand", "fjord", "midnatt"];
@@ -93,18 +112,18 @@ impl Thresholds {
     }
 
     fn merge(&self, p: &Value) -> Result<Thresholds, ValidationError> {
-        let Some(o) = p.as_object() else { return err("thresholds må være et objekt") };
+        let Some(o) = p.as_object() else { return err(tr!("thresholds må være et objekt")) };
         let mut t = self.clone();
         for (k, lo, hi) in THRESH {
             let Some(v) = o.get(k) else { continue };
-            let Some(n) = v.as_f64().filter(|n| n.is_finite()) else { return err(format!("{k} må være et tall")) };
+            let Some(n) = v.as_f64().filter(|n| n.is_finite()) else { return err(trf!("{felt} må være et tall", felt = k)) };
             *t.get_mut(k) = n.clamp(lo, hi).round();
         }
         if t.gpu_temp_crit <= t.gpu_temp_warn {
-            return err("Rød grense for GPU-temperatur må være over gul");
+            return err(tr!("Rød grense for GPU-temperatur må være over gul"));
         }
         if t.cpu_temp_crit <= t.cpu_temp_warn {
-            return err("Rød grense for CPU-temperatur må være over gul");
+            return err(tr!("Rød grense for CPU-temperatur må være over gul"));
         }
         Ok(t)
     }
@@ -258,11 +277,11 @@ fn one_of_num(v: &Value, list: &[u32], msg: &str) -> Result<u32, ValidationError
 }
 
 fn boolean(v: &Value, name: &str) -> Result<bool, ValidationError> {
-    v.as_bool().ok_or_else(|| ValidationError(format!("{name} må være true/false")))
+    v.as_bool().ok_or_else(|| ValidationError(trf!("{felt} må være true/false", felt = name)))
 }
 
 fn subset(v: &Value, list: &[&str], name: &str, min: usize, max: usize) -> Result<Vec<String>, ValidationError> {
-    let Some(a) = v.as_array() else { return err(format!("{name} må være en liste")) };
+    let Some(a) = v.as_array() else { return err(trf!("{felt} må være en liste", felt = name)) };
     let mut out: Vec<String> = Vec::new();
     for x in a {
         let s = x.as_str().filter(|s| list.contains(s));
@@ -271,14 +290,14 @@ fn subset(v: &Value, list: &[&str], name: &str, min: usize, max: usize) -> Resul
                 Some(t) => t.chars().take(40).collect(),
                 None => x.to_string().chars().take(40).collect(),
             };
-            return err(format!("Ukjent verdi i {name}: {shown}"));
+            return err(trf!("Ukjent verdi i {felt}: {verdi}", felt = name, verdi = shown));
         };
         if !out.iter().any(|o| o == s) {
             out.push(s.to_string());
         }
     }
     if out.len() < min || out.len() > max {
-        return err(format!("{name} må ha {min}–{max} valg"));
+        return err(trf!("{felt} må ha {min}–{max} valg", felt = name, min = min, max = max));
     }
     Ok(out)
 }
@@ -307,19 +326,19 @@ pub fn pin_ok(s: &str) -> bool {
 }
 
 fn status_list(v: &Value) -> Result<Vec<String>, ValidationError> {
-    let Some(a) = v.as_array() else { return err("statusItems må være en liste") };
+    let Some(a) = v.as_array() else { return err(tr!("statusItems må være en liste")) };
     let mut out: Vec<String> = Vec::new();
     for x in a {
         let Some(s) = x.as_str().filter(|s| STATUS_ITEMS.contains(s) || pin_ok(s)) else {
             let shown: String = x.as_str().map(|t| t.chars().take(40).collect()).unwrap_or_else(|| x.to_string());
-            return err(format!("Ukjent verdi i statusItems: {shown}"));
+            return err(trf!("Ukjent verdi i statusItems: {verdi}", verdi = shown));
         };
         if !out.iter().any(|o| o == s) {
             out.push(s.to_string());
         }
     }
     if out.len() > STATUS_MAX {
-        return err(format!("Statusblokken kan ha høyst {STATUS_MAX} verdier"));
+        return err(trf!("Statusblokken kan ha høyst {maks} verdier", maks = STATUS_MAX));
     }
     Ok(out)
 }
@@ -327,36 +346,36 @@ fn status_list(v: &Value) -> Result<Vec<String>, ValidationError> {
 fn ident(v: &Value, name: &str) -> Result<String, ValidationError> {
     match v.as_str() {
         Some(s) if !s.is_empty() && s.len() <= 32 && s.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-') => Ok(s.into()),
-        _ => err(format!("{name} er ugyldig")),
+        _ => err(trf!("{felt} er ugyldig", felt = name)),
     }
 }
 
 /// Fletter en delvis innstilling inn i `base`. Ukjente felt ignoreres, og et
-/// ugyldig felt avviser hele endringen med en norsk melding.
+/// ugyldig felt avviser hele endringen med en melding.
 pub fn merge(base: &Settings, patch: &Value) -> Result<Settings, ValidationError> {
-    let Some(p) = patch.as_object() else { return err("Forventet et JSON-objekt") };
+    let Some(p) = patch.as_object() else { return err(tr!("Forventet et JSON-objekt")) };
     let mut o = base.clone();
     for (k, v) in p {
         match k.as_str() {
             "language" => {
                 let code = v.as_str().filter(|code| *code == crate::i18n::SYSTEM || crate::i18n::Language::from_code(code).is_some());
-                o.language = code.ok_or_else(|| ValidationError(crate::tr!("Ukjent språkvalg").into()))?.into();
+                o.language = code.ok_or_else(|| ValidationError(tr!("Ukjent språkvalg").into()))?.into();
             }
-            "intervalMs" => o.interval_ms = one_of_num(v, &INTERVALS, "Ugyldig intervall")?,
-            "unit" => o.unit = one_of(v, &["C", "F"], "Enhet må være C eller F")?,
-            "theme" => o.theme = one_of(v, &THEMES, "Tema må være system, light eller dark")?,
+            "intervalMs" => o.interval_ms = one_of_num(v, &INTERVALS, tr!("Ugyldig intervall"))?,
+            "unit" => o.unit = one_of(v, &["C", "F"], tr!("Enhet må være C eller F"))?,
+            "theme" => o.theme = one_of(v, &THEMES, tr!("Tema må være system, light eller dark"))?,
             "accent" => {
-                o.accent = if v.as_str().is_some_and(|s| OLD_ACCENTS.contains(&s)) { "blue".into() } else { one_of(v, &ACCENTS, "Ukjent aksentfarge")? }
+                o.accent = if v.as_str().is_some_and(|s| OLD_ACCENTS.contains(&s)) { "blue".into() } else { one_of(v, &ACCENTS, tr!("Ukjent aksentfarge"))? }
             }
-            "palette" => o.palette = one_of(v, &PALETTES, "Ukjent fargetema")?,
+            "palette" => o.palette = one_of(v, &PALETTES, tr!("Ukjent fargetema"))?,
             "highContrast" => o.high_contrast = boolean(v, "highContrast")?,
-            "density" => o.density = one_of(v, &DENSITIES, "Ukjent tetthet")?,
-            "fontScale" => o.font_scale = one_of_num(v, &FONT_SCALES, "Ugyldig skriftstørrelse")?,
-            "motion" => o.motion = one_of(v, &MOTIONS, "Animasjoner må være system, full, reduced eller off")?,
+            "density" => o.density = one_of(v, &DENSITIES, tr!("Ukjent tetthet"))?,
+            "fontScale" => o.font_scale = one_of_num(v, &FONT_SCALES, tr!("Ugyldig skriftstørrelse"))?,
+            "motion" => o.motion = one_of(v, &MOTIONS, tr!("Animasjoner må være system, full, reduced eller off"))?,
             "startPage" => {
                 let mut l: Vec<&str> = PAGES.iter().map(|p| p.0).collect();
                 l.push("last");
-                o.start_page = one_of(v, &l, "Ukjent startside")?
+                o.start_page = one_of(v, &l, tr!("Ukjent startside"))?
             }
             "showKbd" => o.show_kbd = boolean(v, "showKbd")?,
             "hiddenPages" => {
@@ -368,48 +387,48 @@ pub fn merge(base: &Settings, patch: &Value) -> Result<Settings, ValidationError
             "sideCollapsed" => o.side_collapsed = boolean(v, "sideCollapsed")?,
             "thresholds" => o.thresholds = o.thresholds.merge(v)?,
             "chartWindow" => {
-                let msg = format!("Tidsvindu må være en av {} s", CHART_WINDOWS.map(|w| w.to_string()).join(", "));
+                let msg = trf!("Tidsvindu må være en av {verdier} s", verdier = CHART_WINDOWS.map(|w| w.to_string()).join(", "));
                 o.chart_window = if v.as_u64() == Some(120) { 300 } else { one_of_num(v, &CHART_WINDOWS, &msg)? }
             }
             "windows" => {
-                let Some(w) = v.as_object() else { return err("windows må være et objekt") };
-                let msg = format!("Tidsvindu må være en av {} s", CHART_WINDOWS.map(|w| w.to_string()).join(", "));
+                let Some(w) = v.as_object() else { return err(tr!("windows må være et objekt")) };
+                let msg = trf!("Tidsvindu må være en av {verdier} s", verdier = CHART_WINDOWS.map(|w| w.to_string()).join(", "));
                 for (page, win) in w {
                     let n = one_of_num(win, &CHART_WINDOWS, &msg)?;
                     match page.as_str() {
                         "oversikt" => o.windows.oversikt = n,
                         "kontroller" => o.windows.kontroller = n,
                         "sensorer" => o.windows.sensorer = n,
-                        other => return err(format!("Ukjent side i windows: {}", other.chars().take(20).collect::<String>())),
+                        other => return err(trf!("Ukjent side i windows: {side}", side = other.chars().take(20).collect::<String>())),
                     }
                 }
             }
             "chartSync" => o.chart_sync = boolean(v, "chartSync")?,
-            "chartScale" => o.chart_scale = one_of(v, &["auto", "fixed"], "chartScale må være auto eller fixed")?,
+            "chartScale" => o.chart_scale = one_of(v, &["auto", "fixed"], tr!("chartScale må være auto eller fixed"))?,
             "chartFill" => o.chart_fill = boolean(v, "chartFill")?,
             "charts" => o.charts = subset(v, &CHARTS, "charts", 1, CHARTS.len())?,
             "sensorSparks" => o.sensor_sparks = boolean(v, "sensorSparks")?,
             "sensorKeepMinMax" => o.sensor_keep_min_max = boolean(v, "sensorKeepMinMax")?,
-            "decimals" => o.decimals = one_of(v, &["auto", "0", "1"], "Desimaler må være auto, 0 eller 1")?,
-            "memUnit" => o.mem_unit = one_of(v, &["bin", "dec"], "memUnit må være bin eller dec")?,
-            "netUnit" => o.net_unit = one_of(v, &["byte", "bit"], "netUnit må være byte eller bit")?,
-            "clock" => o.clock = one_of(v, &["system", "24", "12"], "Klokke må være system, 24 eller 12")?,
+            "decimals" => o.decimals = one_of(v, &["auto", "0", "1"], tr!("Desimaler må være auto, 0 eller 1"))?,
+            "memUnit" => o.mem_unit = one_of(v, &["bin", "dec"], tr!("memUnit må være bin eller dec"))?,
+            "netUnit" => o.net_unit = one_of(v, &["byte", "bit"], tr!("netUnit må være byte eller bit"))?,
+            "clock" => o.clock = one_of(v, &["system", "24", "12"], tr!("Klokke må være system, 24 eller 12"))?,
             "dismissed" => o.dismissed = subset(v, &INFOBARS, "dismissed", 0, INFOBARS.len())?,
             "confirmSec" => {
-                o.confirm_sec = one_of_num(v, &CONFIRM_CHOICES, &format!("Fristen må være {} s", CONFIRM_CHOICES.map(|c| c.to_string()).join(", ")))?
+                o.confirm_sec = one_of_num(v, &CONFIRM_CHOICES, &trf!("Fristen må være {verdier} s", verdier = CONFIRM_CHOICES.map(|c| c.to_string()).join(", ")))?
             }
             "surprises" => o.surprises = boolean(v, "surprises")?,
             "appIcon" => o.app_icon = ident(v, "appIcon")?,
-            "lys3d" => o.lys3d = one_of(v, &["auto", "3d", "2d"], "lys3d må være auto, 3d eller 2d")?,
+            "lys3d" => o.lys3d = one_of(v, &["auto", "3d", "2d"], tr!("lys3d må være auto, 3d eller 2d"))?,
             "gpuMakers" => o.gpu_makers = gpu_makers(v)?,
             "eggsFound" => o.eggs_found = subset(v, &crate::easter::IDS, "eggsFound", 0, crate::easter::IDS.len())?,
-            "settingsSection" => o.settings_section = one_of(v, &SECTIONS, "Ukjent del av Innstillinger")?,
+            "settingsSection" => o.settings_section = one_of(v, &SECTIONS, tr!("Ukjent del av Innstillinger"))?,
             "lastPage" => {
                 let l: Vec<&str> = PAGES.iter().map(|p| p.0).collect();
-                o.last_page = one_of(v, &l, "Ukjent side")?
+                o.last_page = one_of(v, &l, tr!("Ukjent side"))?
             }
             "window" => {
-                let Some(w) = v.as_object() else { return err("window må være et objekt") };
+                let Some(w) = v.as_object() else { return err(tr!("window må være et objekt")) };
                 let dim = |key: &str, lo: i64| w.get(key).and_then(Value::as_i64).map(|n| n.clamp(lo, 16384) as i32);
                 if let Some(x) = dim("width", 640) {
                     o.window.width = x;
@@ -429,19 +448,19 @@ pub fn merge(base: &Settings, patch: &Value) -> Result<Settings, ValidationError
 
 /// Produsentene per kort: hele lista byttes. Tom tekst fjerner kortet.
 fn gpu_makers(v: &Value) -> Result<std::collections::BTreeMap<String, String>, ValidationError> {
-    let Some(m) = v.as_object() else { return err("gpuMakers må være et objekt") };
+    let Some(m) = v.as_object() else { return err(tr!("gpuMakers må være et objekt")) };
     if m.len() > 16 {
-        return err("Høyst 16 kort i gpuMakers");
+        return err(tr!("Høyst 16 kort i gpuMakers"));
     }
     let mut out = std::collections::BTreeMap::new();
     for (k, x) in m {
-        let Some(name) = x.as_str() else { return err("Produsenten må være tekst") };
+        let Some(name) = x.as_str() else { return err(tr!("Produsenten må være tekst")) };
         let name = name.trim();
         if k.is_empty() || k.len() > 80 || k.chars().any(char::is_control) {
-            return err("Ugyldig kort i gpuMakers");
+            return err(tr!("Ugyldig kort i gpuMakers"));
         }
         if name.chars().count() > 40 || name.chars().any(char::is_control) {
-            return err("Produsenten kan ha høyst 40 tegn");
+            return err(tr!("Produsenten kan ha høyst 40 tegn"));
         }
         if !name.is_empty() {
             out.insert(k.clone(), name.to_string());
@@ -559,47 +578,47 @@ impl Default for ServiceSettings {
 }
 
 pub fn merge_service(base: &ServiceSettings, patch: &Value) -> Result<ServiceSettings, ValidationError> {
-    let Some(p) = patch.as_object() else { return err("Forventet et JSON-objekt") };
+    let Some(p) = patch.as_object() else { return err(tr!("Forventet et JSON-objekt")) };
     let mut o = base.clone();
     for (k, v) in p {
         match k.as_str() {
             "background" => o.background = boolean(v, "background")?,
-            "backgroundIntervalMs" => o.background_interval_ms = one_of_num(v, &crate::proto::BACKGROUND_INTERVALS, "Takten i bakgrunnen må være 1, 2 eller 5 s")?,
+            "backgroundIntervalMs" => o.background_interval_ms = one_of_num(v, &crate::proto::BACKGROUND_INTERVALS, tr!("Takten i bakgrunnen må være 1, 2 eller 5 s"))?,
             "keepMinMax" | "sensorKeepMinMax" => o.keep_min_max = boolean(v, "keepMinMax")?,
             "thresholds" => o.thresholds = o.thresholds.merge(v)?,
-            "confirmSec" => o.confirm_sec = one_of_num(v, &CONFIRM_CHOICES, "Fristen må være 10, 15, 30 eller 60 s")?,
+            "confirmSec" => o.confirm_sec = one_of_num(v, &CONFIRM_CHOICES, tr!("Fristen må være 10, 15, 30 eller 60 s"))?,
             "log" => {
-                let Some(l) = v.as_object() else { return err("log må være et objekt") };
+                let Some(l) = v.as_object() else { return err(tr!("log må være et objekt")) };
                 for (lk, lv) in l {
                     match lk.as_str() {
                         "all" => o.log.all = boolean(lv, "log.all")?,
                         "keys" => {
-                            let Some(a) = lv.as_array() else { return err("log.keys må være en liste") };
+                            let Some(a) = lv.as_array() else { return err(tr!("log.keys må være en liste")) };
                             let mut keys = Vec::new();
                             for x in a.iter().take(256) {
                                 match x.as_str().filter(|s| crate::sensor_key::valid(s)) {
                                     Some(s) if !keys.iter().any(|k: &String| k == s) => keys.push(s.to_string()),
                                     Some(_) => {}
-                                    None => return err("Ukjent sensor i log.keys"),
+                                    None => return err(tr!("Ukjent sensor i log.keys")),
                                 }
                             }
                             o.log.keys = keys;
                         }
-                        "intervalMs" => o.log.interval_ms = one_of_num(lv, &LOG_INTERVALS, "Loggintervallet må være 0,5, 1, 2, 5 eller 10 s")?,
+                        "intervalMs" => o.log.interval_ms = one_of_num(lv, &LOG_INTERVALS, tr!("Loggintervallet må være 0,5, 1, 2, 5 eller 10 s"))?,
                         "dir" => {
                             o.log.dir = match lv {
                                 Value::Null => None,
                                 Value::String(s) if s.starts_with('/') && s.len() < 1024 && !s.contains('\0') => Some(s.clone()),
-                                _ => return err("Loggmappa må være en full sti"),
+                                _ => return err(tr!("Loggmappa må være en full sti")),
                             }
                         }
-                        "format" => o.log.format = one_of(lv, &["standard", "norsk"], "Formatet må være standard eller norsk")?,
+                        "format" => o.log.format = one_of(lv, &["standard", "norsk"], tr!("Formatet må være standard eller norsk"))?,
                         _ => {}
                     }
                 }
             }
             "alarms" => {
-                let Some(a) = v.as_object() else { return err("alarms må være et objekt") };
+                let Some(a) = v.as_object() else { return err(tr!("alarms må være et objekt")) };
                 for (ak, av) in a {
                     match ak.as_str() {
                         "desktop" => o.alarms.desktop = boolean(av, "alarms.desktop")?,
@@ -664,11 +683,11 @@ pub fn export(ui: &Settings, svc: &ServiceSettings, exported_at: &str) -> Value 
 pub fn import(data: &Value, keep: &Settings, svc_base: &ServiceSettings) -> Result<(Settings, ServiceSettings), ValidationError> {
     let s = match data.get("settings") {
         Some(s) => s,
-        None if data.get("format").is_some() => return err("Fila har ingen innstillinger"),
+        None if data.get("format").is_some() => return err(tr!("Fila har ingen innstillinger")),
         None => data,
     };
     if !s.is_object() {
-        return err("Forventet et JSON-objekt");
+        return err(tr!("Forventet et JSON-objekt"));
     }
     let mut ui = merge(&Settings::default(), s)?;
     ui.window = keep.window.clone();

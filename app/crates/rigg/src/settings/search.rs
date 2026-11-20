@@ -7,6 +7,7 @@
 use super::{SECTIONS, SettingsView};
 use crate::widgets::{Icon, hbox, label, vbox};
 use gtk::prelude::*;
+use rigg_core::{tr, trf, trn};
 use std::rc::Rc;
 
 pub fn norm(s: &str) -> String {
@@ -105,7 +106,7 @@ pub fn render(v: &Rc<SettingsView>, q: &str) {
             // Hvor treffet står: «Utseende ›» foran panelets tittel, som en knapp dit.
             let crumb = gtk::Button::with_label((s.name)());
             crumb.add_css_class("set-crumb");
-            crumb.set_tooltip_text(Some(&format!("Gå til {}", (s.name)())));
+            crumb.set_tooltip_text(Some(&trf!("Gå til {del}", del = (s.name)())));
             let sep = label("›", &["set-crumb-sep"]);
             g.head.prepend(&sep);
             g.head.prepend(&crumb);
@@ -126,16 +127,16 @@ pub fn render(v: &Rc<SettingsView>, q: &str) {
         crate::widgets::class(b, "no-hits", hits == 0);
         total += hits;
     }
-    v.heading.set_text("Søk");
-    v.lead.set_text(&format!("«{q}» i alle delene"));
-    v.count.set_text(&if total > 0 { format!("{total} treff") } else { "Ingen treff".into() });
+    v.heading.set_text(tr!("Søk"));
+    v.lead.set_text(&trf!("«{sok}» i alle delene", sok = q));
+    v.count.set_text(&if total > 0 { trn!(total, "{antall} treff", "{antall} treff", antall = total) } else { tr!("Ingen treff").into() });
     if !any {
         v.masonry.set_visible(false);
         crate::widgets::clear(&v.empty);
         v.empty.append(&Icon::new("search", 20));
         let t = vbox(4, &[]);
-        t.append(&label(&format!("Ingen innstillinger passer «{q}»."), &["b"]));
-        let s = label("Prøv et ord fra navnet eller forklaringen, for eksempel tema, enhet eller graf.", &[]);
+        t.append(&label(&trf!("Ingen innstillinger passer «{sok}».", sok = q), &["b"]));
+        let s = label(tr!("Prøv et ord fra navnet eller forklaringen, for eksempel tema, enhet eller graf."), &[]);
         s.set_wrap(true);
         t.append(&s);
         v.empty.append(&t);

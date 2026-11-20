@@ -1,0 +1,177 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: crates/rigg/src/settings/sidefelt.rs:31
+msgid "Verdier i statusblokken, i rekkefølge"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:36
+msgid "Statusblokken er tom"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:37
+msgid "Legg til verdier her, eller fest sensorer med nålen på Sensorer."
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:54
+msgid "{nr} av {totalt}: {navn}. Alt+pil opp eller ned flytter."
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:59
+msgid "Skjermkort"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:60
+msgid "Prosessor"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:61
+msgid "Minne"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:62
+msgid "Nett (alle kort)"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:63
+msgid "Disker"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:64
+msgid "Andre sensorer"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:66
+msgid "{kilde} · i sidefeltet: {etikett}"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:71
+msgid "Fjern fra statusblokken"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:72
+msgid "Fjern {navn}"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:136
+msgid "Legg til verdi …"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:140
+msgid "Statusblokken er full ({antall} av {maks}). Fjern en verdi først."
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:149
+msgid "{antall} av {maks}"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:151
+msgid "Statusblokken"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:153
+msgid "Verdiene nederst i sidefeltet, i denne rekkefølgen. Velg en rad og bruk Alt+↑/↓ for å flytte. Fest flere fra Sensorer med nålen."
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:156
+msgctxt "søkeord"
+msgid "status nederst rekkefølge fest sensor verdier"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:170
+msgid "Søk etter verdi"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:186
+msgid "Faste verdier"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:203
+msgid "Lagt til"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:219
+msgid "Ingen verdi heter «{sok}»"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:235
+msgid "Full"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:235
+msgid "Ikonlist"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:235
+msgid "Bredde på sidefeltet"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:244
+msgid "Vinduet er smalt, så sidefeltet er en ikonlist nå. Valget gjelder i bredere vinduer."
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:246
+msgid "Ikonlista viser bare ikoner og korte tall. Også Ctrl+B og knappen nederst i sidefeltet."
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:264
+msgid "Minst én side må vises"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:279
+msgid "Visning"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:282
+msgid "Bredde"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:282
+msgctxt "søkeord"
+msgid "ikonlist legg sammen utvid smal"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:283
+msgid "Sparklinjer"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:283
+msgid "Liten graf for siste minutt ved hver verdi i statusblokken."
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:283
+msgctxt "søkeord"
+msgid "statusblokk graf"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:289
+msgid "Sider"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:290
+msgid "Sidene i sidefeltet. Skjulte sider kan fortsatt åpnes med hurtigtasten."
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:290
+msgctxt "søkeord"
+msgid "skjul vis navigasjon"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:293
+msgid "Vis hurtigtaster"
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:293
+msgid "Tallene 1–8 ved sidene. Ellers står de i verktøytipset og under Tastatursnarveier."
+msgstr ""
+
+#: crates/rigg/src/settings/sidefelt.rs:293
+msgctxt "søkeord"
+msgid "taster tall snarvei"
+msgstr ""

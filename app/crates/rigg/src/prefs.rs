@@ -5,6 +5,7 @@
 
 use crate::state::App;
 use rigg_core::settings::{Settings, lenient};
+use rigg_core::trf;
 use std::path::PathBuf;
 use std::rc::Rc;
 use std::time::Duration;
@@ -27,7 +28,13 @@ pub fn load(profile: rigg_core::paths::Profile) -> (Settings, Option<String>) {
             let mut bad = p.as_os_str().to_owned();
             bad.push(format!(".ødelagt-{stamp}"));
             let _ = std::fs::copy(&p, &bad);
-            (Settings::default(), Some(format!("ui.json kunne ikke leses. Kopien heter {}. Standardverdiene brukes.", PathBuf::from(bad).file_name().unwrap_or_default().to_string_lossy())))
+            (
+                Settings::default(),
+                Some(trf!(
+                    "ui.json kunne ikke leses. Kopien heter {fil}. Standardverdiene brukes.",
+                    fil = PathBuf::from(bad).file_name().unwrap_or_default().to_string_lossy(),
+                )),
+            )
         }
     }
 }

@@ -1,13 +1,14 @@
 //! Sidefelt: statusblokken (rekkefølge, fjern, legg til, Alt+↑/↓), bredden,
 //! sparklinjene og hvilke sider som står i sidefeltet.
 
-use super::{Group, GroupOpts, custom_row, group, request_render, row, save, switch_row};
+use super::{Group, GroupOpts, custom_row, group, kw, request_render, row, save, switch_row};
 use crate::sidebar::status_label;
 use crate::state::App;
 use crate::toast::Toast;
 use crate::widgets::{Icon, hbox, label, vbox};
 use gtk::prelude::*;
-use rigg_core::settings::{PAGES, STATUS_ITEMS, STATUS_MAX};
+use rigg_core::settings::{PAGES, STATUS_ITEMS, STATUS_MAX, page_name};
+use rigg_core::{tr, trf};
 use serde_json::json;
 use std::rc::Rc;
 
@@ -27,13 +28,13 @@ fn status_group(app: &Rc<App>) -> Group {
     let items = app.settings().status_items.clone();
     let list = vbox(0, &[]);
     list.set_accessible_role(gtk::AccessibleRole::List);
-    list.update_property(&[gtk::accessible::Property::Label("Verdier i statusblokken, i rekkefølge")]);
+    list.update_property(&[gtk::accessible::Property::Label(tr!("Verdier i statusblokken, i rekkefølge"))]);
     if items.is_empty() {
         let r = hbox(12, &["order-row"]);
         r.append(&Icon::new("pin", 16));
         let t = vbox(0, &[]);
-        t.append(&label("Statusblokken er tom", &["title"]));
-        let s = label("Legg til verdier her, eller fest sensorer med nålen på Sensorer.", &["subtitle"]);
+        t.append(&label(tr!("Statusblokken er tom"), &["title"]));
+        let s = label(tr!("Legg til verdier her, eller fest sensorer med nålen på Sensorer."), &["subtitle"]);
         s.set_wrap(true);
         t.append(&s);
         r.append(&t);
@@ -50,25 +51,25 @@ fn status_group(app: &Rc<App>) -> Group {
         let r = hbox(12, &["order-row"]);
         r.set_focusable(true);
         r.set_accessible_role(gtk::AccessibleRole::ListItem);
-        r.update_property(&[gtk::accessible::Property::Label(&format!("{} av {n}: {}. Alt+pil opp eller ned flytter.", i + 1, def.long))]);
+        r.update_property(&[gtk::accessible::Property::Label(&trf!("{nr} av {totalt}: {navn}. Alt+pil opp eller ned flytter.", nr = i + 1, totalt = n, navn = def.long))]);
         let t = vbox(0, &[]);
         t.set_hexpand(true);
         t.append(&label(&def.long, &["title"]));
         let src = match def.src {
-            "gpu" => "Skjermkort",
-            "cpu" => "Prosessor",
-            "mem" => "Minne",
-            "net" => "Nett (alle kort)",
-            "disk" => "Disker",
-            _ => "Andre sensorer",
+            "gpu" => tr!("Skjermkort"),
+            "cpu" => tr!("Prosessor"),
+            "mem" => tr!("Minne"),
+            "net" => tr!("Nett (alle kort)"),
+            "disk" => tr!("Disker"),
+            _ => tr!("Andre sensorer"),
         };
-        t.append(&label(&format!("{src} · i sidefeltet: {}", def.label), &["subtitle"]));
+        t.append(&label(&trf!("{kilde} · i sidefeltet: {etikett}", kilde = src, etikett = def.label), &["subtitle"]));
         r.append(&t);
         let pos = label(&(i + 1).to_string(), &["pos", "num"]);
         r.append(&pos);
         let del = crate::widgets::button(Some("x"), None, &["flat", "sm", "icon-only"]);
-        del.set_tooltip_text(Some("Fjern fra statusblokken"));
-        del.update_property(&[gtk::accessible::Property::Label(&format!("Fjern {}", def.long))]);
+        del.set_tooltip_text(Some(tr!("Fjern fra statusblokken")));
+        del.update_property(&[gtk::accessible::Property::Label(&trf!("Fjern {navn}", navn = def.long))]);
         del.set_valign(gtk::Align::Center);
         {
             let (a, id) = (app.clone(), id.clone());
@@ -132,11 +133,11 @@ fn status_group(app: &Rc<App>) -> Group {
     }
     // «+ Legg til verdi …» nederst, med søk i en popover.
     let full = items.len() >= STATUS_MAX;
-    let add = crate::widgets::button(Some("plus"), Some("Legg til verdi …"), &["flat"]);
+    let add = crate::widgets::button(Some("plus"), Some(tr!("Legg til verdi …")), &["flat"]);
     add.set_halign(gtk::Align::Start);
     add.set_sensitive(!full);
     if full {
-        add.set_tooltip_text(Some(&format!("Statusblokken er full ({STATUS_MAX} av {STATUS_MAX}). Fjern en verdi først.")));
+        add.set_tooltip_text(Some(&trf!("Statusblokken er full ({antall} av {maks}). Fjern en verdi først.", antall = STATUS_MAX, maks = STATUS_MAX)));
     }
     {
         let a = app.clone();
@@ -145,14 +146,14 @@ fn status_group(app: &Rc<App>) -> Group {
     let foot = hbox(0, &["order-foot"]);
     foot.append(&add);
     list.append(&foot);
-    let count = label(&format!("{} av {STATUS_MAX}", items.len()), &[]);
+    let count = label(&trf!("{antall} av {maks}", antall = items.len(), maks = STATUS_MAX), &[]);
     let mut g = group(
-        "Statusblokken",
+        tr!("Statusblokken"),
         GroupOpts {
-            desc: Some("Verdiene nederst i sidefeltet, i denne rekkefølgen. Velg en rad og bruk Alt+↑/↓ for å flytte. Fest flere fra Sensorer med nålen."),
+            desc: Some(tr!("Verdiene nederst i sidefeltet, i denne rekkefølgen. Velg en rad og bruk Alt+↑/↓ for å flytte. Fest flere fra Sensorer med nålen.")),
             aside: Some(count.upcast()),
             whole: true,
-            k: "status nederst rekkefølge fest sensor verdier",
+            k: &kw("status nederst rekkefølge fest sensor verdier", tr!("søkeord", "status nederst rekkefølge fest sensor verdier")),
             ..Default::default()
         },
         vec![],
@@ -166,7 +167,7 @@ fn status_group(app: &Rc<App>) -> Group {
 fn picker(app: &Rc<App>, anchor: &gtk::Button) {
     let body = vbox(4, &[]);
     let q = gtk::SearchEntry::new();
-    q.set_placeholder_text(Some("Søk etter verdi"));
+    q.set_placeholder_text(Some(tr!("Søk etter verdi")));
     body.append(&q);
     let results = vbox(0, &["pick-list"]);
     let sc = gtk::ScrolledWindow::new();
@@ -182,7 +183,7 @@ fn picker(app: &Rc<App>, anchor: &gtk::Button) {
         move |f: &str| {
             crate::widgets::clear(&results);
             let cur = a.settings().status_items.clone();
-            results.append(&label("Faste verdier", &["menu-label"]));
+            results.append(&label(tr!("Faste verdier"), &["menu-label"]));
             let mut any = false;
             for id in STATUS_ITEMS {
                 let def = status_label(id);
@@ -199,7 +200,7 @@ fn picker(app: &Rc<App>, anchor: &gtk::Button) {
                 let n = label(&def.long, &[]);
                 n.set_hexpand(true);
                 bx.append(&n);
-                bx.append(&label(if on { "Lagt til" } else { "" }, &["ps"]));
+                bx.append(&label(if on { tr!("Lagt til") } else { "" }, &["ps"]));
                 b.set_child(Some(&bx));
                 b.set_sensitive(!on);
                 let (a2, p2) = (a.clone(), pop.clone());
@@ -215,7 +216,7 @@ fn picker(app: &Rc<App>, anchor: &gtk::Button) {
                 results.append(&b);
             }
             if !any {
-                results.append(&label(&format!("Ingen verdi heter «{f}»"), &["pop-sub"]));
+                results.append(&label(&trf!("Ingen verdi heter «{sok}»", sok = f), &["pop-sub"]));
             }
         }
     };
@@ -231,7 +232,7 @@ fn picker(app: &Rc<App>, anchor: &gtk::Button) {
 
 pub fn build(app: &Rc<App>) -> Vec<Group> {
     let s = app.settings().clone();
-    let width = crate::widgets::Seg::new(&[("full", "Full"), ("rail", "Ikonlist")], if s.side_collapsed { "rail" } else { "full" }, "Bredde på sidefeltet");
+    let width = crate::widgets::Seg::new(&[("full", tr!("Full")), ("rail", tr!("Ikonlist"))], if s.side_collapsed { "rail" } else { "full" }, tr!("Bredde på sidefeltet"));
     {
         let a = app.clone();
         width.connect(move |v| {
@@ -240,18 +241,18 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     }
     let narrow = app.shell.get().is_some_and(|sh| sh.window.width() < 860 && sh.window.width() > 0);
     let wsub = if narrow {
-        "Vinduet er smalt, så sidefeltet er en ikonlist nå. Valget gjelder i bredere vinduer."
+        tr!("Vinduet er smalt, så sidefeltet er en ikonlist nå. Valget gjelder i bredere vinduer.")
     } else {
-        "Ikonlista viser bare ikoner og korte tall. Også Ctrl+B og knappen nederst i sidefeltet."
+        tr!("Ikonlista viser bare ikoner og korte tall. Også Ctrl+B og knappen nederst i sidefeltet.")
     };
     let checks = gtk::Grid::new();
     checks.add_css_class("check-list");
     checks.set_column_spacing(16);
     checks.set_column_homogeneous(true);
     let hidden = s.hidden_pages.clone();
-    for (i, (id, name)) in PAGES.iter().enumerate() {
+    for (i, (id, _)) in PAGES.iter().enumerate() {
         let a = app.clone();
-        let cb = crate::widgets::switchrow::check(name, !hidden.iter().any(|h| h == id), move |cb| {
+        let cb = crate::widgets::switchrow::check(page_name(id), !hidden.iter().any(|h| h == id), move |cb| {
             let mut next: Vec<String> = a.settings().hidden_pages.clone();
             if cb.is_active() {
                 next.retain(|x| x != id);
@@ -260,7 +261,7 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
             }
             if next.len() >= PAGES.len() {
                 cb.set_active(true);
-                a.toast(Toast::new("Minst én side må vises").error());
+                a.toast(Toast::new(tr!("Minst én side må vises")).error());
                 return;
             }
             let ordered: Vec<&str> = PAGES.iter().map(|p| p.0).filter(|p| next.iter().any(|n| n == p)).collect();
@@ -270,26 +271,26 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     }
     let pages_row = vbox(0, &["set-row", "wrap"]);
     pages_row.append(&checks);
-    let names: String = PAGES.iter().map(|p| p.1).collect::<Vec<_>>().join(" ");
+    let names: String = PAGES.iter().map(|p| page_name(p.0)).collect::<Vec<_>>().join(" ");
     let (a1, a2) = (app.clone(), app.clone());
     vec![
         status_group(app),
         group(
-            "Visning",
+            tr!("Visning"),
             GroupOpts::default(),
             vec![
-                row("Bredde", Some(wsub), &width.root, "ikonlist legg sammen utvid smal"),
-                switch_row("Sparklinjer", Some("Liten graf for siste minutt ved hver verdi i statusblokken."), s.status_sparks, "statusblokk graf", move |on| {
+                row(tr!("Bredde"), Some(wsub), &width.root, &kw("ikonlist legg sammen utvid smal", tr!("søkeord", "ikonlist legg sammen utvid smal"))),
+                switch_row(tr!("Sparklinjer"), Some(tr!("Liten graf for siste minutt ved hver verdi i statusblokken.")), s.status_sparks, &kw("statusblokk graf", tr!("søkeord", "statusblokk graf")), move |on| {
                     save(&a1, json!({"statusSparks": on}));
                 }),
             ],
         ),
         group(
-            "Sider",
-            GroupOpts { desc: Some("Sidene i sidefeltet. Skjulte sider kan fortsatt åpnes med hurtigtasten."), k: "skjul vis navigasjon", ..Default::default() },
+            tr!("Sider"),
+            GroupOpts { desc: Some(tr!("Sidene i sidefeltet. Skjulte sider kan fortsatt åpnes med hurtigtasten.")), k: &kw("skjul vis navigasjon", tr!("søkeord", "skjul vis navigasjon")), ..Default::default() },
             vec![
                 custom_row(&pages_row, &names),
-                switch_row("Vis hurtigtaster", Some("Tallene 1–8 ved sidene. Ellers står de i verktøytipset og under Tastatursnarveier."), s.show_kbd, "taster tall snarvei", move |on| {
+                switch_row(tr!("Vis hurtigtaster"), Some(tr!("Tallene 1–8 ved sidene. Ellers står de i verktøytipset og under Tastatursnarveier.")), s.show_kbd, &kw("taster tall snarvei", tr!("søkeord", "taster tall snarvei")), move |on| {
                     save(&a2, json!({"showKbd": on}));
                 }),
             ],

@@ -5,12 +5,13 @@
 //!
 //! **Eies av 2A (Data).**
 
-use super::{Group, GroupOpts, custom_row, group, request_render, row, row_wrap, save, seg, switch_row};
+use super::{Group, GroupOpts, custom_row, group, kw, request_render, row, row_wrap, save, seg, switch_row};
 use crate::state::App;
 use crate::widgets::chart::{DEFS, WINDOWS};
 use crate::widgets::{hbox, label, vbox};
 use gtk::prelude::*;
 use rigg_core::fmt as F;
+use rigg_core::tr;
 use serde_json::json;
 use std::rc::Rc;
 
@@ -18,11 +19,11 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     let s = app.settings().clone();
     let win_opts: Vec<(String, &str)> = WINDOWS.iter().map(|w| (w.0.to_string(), w.1)).collect();
     let win_refs: Vec<(&str, &str)> = win_opts.iter().map(|(a, b)| (a.as_str(), *b)).collect();
-    let window = seg(app, &win_refs, &s.chart_window.to_string(), "chartWindow", "Tidsvindu på Grafer", true);
+    let window = seg(app, &win_refs, &s.chart_window.to_string(), "chartWindow", tr!("Tidsvindu på Grafer"), true);
     // Nedtrekksliste når delen er smal (Innstillinger ved 640 px).
     let win_dd = {
         let a = app.clone();
-        crate::widgets::chart::window_dropdown(s.chart_window as i64, "Tidsvindu på Grafer", move |sec| {
+        crate::widgets::chart::window_dropdown(s.chart_window as i64, tr!("Tidsvindu på Grafer"), move |sec| {
             save(&a, json!({"chartWindow": sec}));
         })
     };
@@ -30,7 +31,7 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     let window_ctrl = crate::widgets::chart::Adaptive::new(&window.root, &win_dd).start();
     window_ctrl.set_halign(gtk::Align::Fill);
     window_ctrl.set_hexpand(true);
-    let scale = seg(app, &[("auto", "Tilpass"), ("fixed", "Fast")], &s.chart_scale, "chartScale", "Y-akse", false);
+    let scale = seg(app, &[("auto", tr!("Tilpass")), ("fixed", tr!("Fast"))], &s.chart_scale, "chartScale", tr!("Y-akse"), false);
     let (a1, a2, a3, a4) = (app.clone(), app.clone(), app.clone(), app.clone());
 
     // Grafer som vises: avkrysning, minst én.
@@ -57,7 +58,7 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
             }
             if set.is_empty() {
                 c.set_active(true);
-                a.toast(crate::toast::Toast::new("Minst én graf må vises").error());
+                a.toast(crate::toast::Toast::new(tr!("Minst én graf må vises")).error());
                 return;
             }
             let ordered: Vec<&str> = DEFS.iter().map(|d| d.id).filter(|x| set.iter().any(|s| s == x)).collect();
@@ -71,32 +72,72 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
 
     vec![
         group(
-            "Grafer",
-            GroupOpts { note: Some("Tjenesten tar vare på 48 timer med historikk, også over en omstart. Med «Fortsett i bakgrunnen» av (Generelt) blir det hull i grafene der appen var lukket."), ..Default::default() },
+            tr!("Grafer"),
+            GroupOpts {
+                note: Some(tr!("Tjenesten tar vare på 48 timer med historikk, også over en omstart. Med «Fortsett i bakgrunnen» av (Generelt) blir det hull i grafene der appen var lukket.")),
+                ..Default::default()
+            },
             vec![
-                row_wrap("Tidsvindu på Grafer", Some("Hvor langt tilbake siden Grafer viser. Oversikt og Sensorer har eget valg ved grafene."), &window_ctrl, "historikk minutter timer"),
-                switch_row("Markør på alle grafene", Some("Når du holder over én graf, vises tidspunktet på de andre også. Av: bare på grafen du holder over."), s.chart_sync, "synkron tidspunkt sikte", move |on| {
-                    save(&a1, json!({"chartSync": on}));
-                }),
-                row("Y-akse", Some("Tilpass følger dataene i vinduet. Fast beholder normalområdet, men begge utvider aksen når verdiene går utenfor. Last og minne i prosent har skala 0–100; vifter kan gå over 100 %."), &scale.root, "skala akse adaptiv temperatur klokke"),
-                switch_row("Fylt flate", Some("Svak farge under linja. Lange vinduer viser i stedet et bånd fra minste til største verdi."), s.chart_fill, "fyll", move |on| {
-                    save(&a2, json!({"chartFill": on}));
-                }),
+                row_wrap(
+                    tr!("Tidsvindu på Grafer"),
+                    Some(tr!("Hvor langt tilbake siden Grafer viser. Oversikt og Sensorer har eget valg ved grafene.")),
+                    &window_ctrl,
+                    &kw("historikk minutter timer", tr!("søkeord", "historikk minutter timer")),
+                ),
+                switch_row(
+                    tr!("Markør på alle grafene"),
+                    Some(tr!("Når du holder over én graf, vises tidspunktet på de andre også. Av: bare på grafen du holder over.")),
+                    s.chart_sync,
+                    &kw("synkron tidspunkt sikte", tr!("søkeord", "synkron tidspunkt sikte")),
+                    move |on| {
+                        save(&a1, json!({"chartSync": on}));
+                    },
+                ),
+                row(
+                    tr!("Y-akse"),
+                    Some(tr!("Tilpass følger dataene i vinduet. Fast beholder normalområdet, men begge utvider aksen når verdiene går utenfor. Last og minne i prosent har skala 0–100; vifter kan gå over 100 %.")),
+                    &scale.root,
+                    &kw("skala akse adaptiv temperatur klokke", tr!("søkeord", "skala akse adaptiv temperatur klokke")),
+                ),
+                switch_row(
+                    tr!("Fylt flate"),
+                    Some(tr!("Svak farge under linja. Lange vinduer viser i stedet et bånd fra minste til største verdi.")),
+                    s.chart_fill,
+                    &kw("fyll", tr!("søkeord", "fyll")),
+                    move |on| {
+                        save(&a2, json!({"chartFill": on}));
+                    },
+                ),
             ],
         ),
-        group("Grafer som vises", GroupOpts { desc: Some("På siden Grafer. Kan også velges i toppfeltet der."), k: "velg skjul", whole: true, ..Default::default() }, vec![custom_row(&pick, &titles.join(" "))]),
         group(
-            "Sensorer",
+            tr!("Grafer som vises"),
+            GroupOpts {
+                desc: Some(tr!("På siden Grafer. Kan også velges i toppfeltet der.")),
+                k: &kw("velg skjul", tr!("søkeord", "velg skjul")),
+                whole: true,
+                ..Default::default()
+            },
+            vec![custom_row(&pick, &titles.join(" "))],
+        ),
+        group(
+            tr!("Sensorer"),
             GroupOpts::default(),
             vec![
-                switch_row("Sparklinjer", Some("Liten graf for siste 60 sekunder ved hver sensor."), s.sensor_sparks, "graf", move |on| {
-                    save(&a3, json!({"sensorSparks": on}));
-                }),
                 switch_row(
-                    "Husk min og maks mellom økter",
-                    Some("Tjenesten tar vare på min og maks, også når appen er lukket. Nullstilles bare når du trykker ↺ på Sensorer. Snitt gjelder siden tjenesten startet."),
+                    tr!("Sparklinjer"),
+                    Some(tr!("Liten graf for siste 60 sekunder ved hver sensor.")),
+                    s.sensor_sparks,
+                    &kw("graf", tr!("søkeord", "graf")),
+                    move |on| {
+                        save(&a3, json!({"sensorSparks": on}));
+                    },
+                ),
+                switch_row(
+                    tr!("Husk min og maks mellom økter"),
+                    Some(tr!("Tjenesten tar vare på min og maks, også når appen er lukket. Nullstilles bare når du trykker ↺ på Sensorer. Snitt gjelder siden tjenesten startet.")),
                     s.sensor_keep_min_max,
-                    "minimum maksimum",
+                    &kw("minimum maksimum", tr!("søkeord", "minimum maksimum")),
                     move |on| {
                         save(&a4, json!({"sensorKeepMinMax": on}));
                     },
@@ -135,7 +176,7 @@ fn thresholds(app: &Rc<App>) -> Group {
     };
     let none = || -> gtk::Widget {
         let l = label("–", &["dim", "thr-none"]);
-        l.set_tooltip_text(Some("Last har bare gul grense"));
+        l.set_tooltip_text(Some(tr!("Last har bare gul grense")));
         l.set_xalign(0.5);
         l.upcast()
     };
@@ -143,7 +184,7 @@ fn thresholds(app: &Rc<App>) -> Group {
     let sp = gtk::Box::new(gtk::Orientation::Horizontal, 0);
     sp.set_hexpand(true);
     head.append(&sp);
-    for (cls, name) in [("warn", "Gul"), ("danger", "Rød")] {
+    for (cls, name) in [("warn", tr!("Gul")), ("danger", tr!("Rød"))] {
         let h = hbox(6, &["thr-h"]);
         h.append(&crate::widgets::rows::dot(cls));
         h.append(&label(name, &[]));
@@ -159,13 +200,18 @@ fn thresholds(app: &Rc<App>) -> Group {
         row(title, None, &ctrl, k)
     };
     group(
-        "Varselfarger",
-        GroupOpts { desc: Some("Verdien blir gul eller rød over grensen: i sidefeltet, på Oversikt, i Nå-kolonnen på Sensorer og i stolpene."), whole: true, k: "grense terskel advarsel gul rød", ..Default::default() },
+        tr!("Varselfarger"),
+        GroupOpts {
+            desc: Some(tr!("Verdien blir gul eller rød over grensen: i sidefeltet, på Oversikt, i Nå-kolonnen på Sensorer og i stolpene.")),
+            whole: true,
+            k: &kw("grense terskel advarsel gul rød", tr!("søkeord", "grense terskel advarsel gul rød")),
+            ..Default::default()
+        },
         vec![
             custom_row(&head, ""),
-            thr("GPU-temperatur", field("gpuTempWarn", 40.0, 100.0, true, t.gpu_temp_warn, "GPU-temperatur, gul grense"), field("gpuTempCrit", 40.0, 110.0, true, t.gpu_temp_crit, "GPU-temperatur, rød grense"), "gpu"),
-            thr("CPU-temperatur", field("cpuTempWarn", 40.0, 100.0, true, t.cpu_temp_warn, "CPU-temperatur, gul grense"), field("cpuTempCrit", 40.0, 110.0, true, t.cpu_temp_crit, "CPU-temperatur, rød grense"), "cpu prosessor"),
-            thr("Last (GPU og CPU)", field("loadWarn", 50.0, 100.0, false, t.load_warn, "Last, gul grense"), none(), "last"),
+            thr(tr!("GPU-temperatur"), field("gpuTempWarn", 40.0, 100.0, true, t.gpu_temp_warn, tr!("GPU-temperatur, gul grense")), field("gpuTempCrit", 40.0, 110.0, true, t.gpu_temp_crit, tr!("GPU-temperatur, rød grense")), "gpu"),
+            thr(tr!("CPU-temperatur"), field("cpuTempWarn", 40.0, 100.0, true, t.cpu_temp_warn, tr!("CPU-temperatur, gul grense")), field("cpuTempCrit", 40.0, 110.0, true, t.cpu_temp_crit, tr!("CPU-temperatur, rød grense")), &kw("cpu prosessor", tr!("søkeord", "cpu prosessor"))),
+            thr(tr!("Last (GPU og CPU)"), field("loadWarn", 50.0, 100.0, false, t.load_warn, tr!("Last, gul grense")), none(), &kw("last", tr!("søkeord", "last"))),
         ],
     )
 }

@@ -29,7 +29,8 @@ use crate::state::App;
 use crate::widgets::masonry::Masonry;
 use crate::widgets::{Icon, Seg, hbox, label, vbox};
 use gtk::prelude::*;
-use rigg_core::tr;
+use rigg_core::{tr, trf};
+use std::borrow::Cow;
 use std::cell::{Cell, RefCell};
 use std::rc::{Rc, Weak};
 
@@ -132,6 +133,15 @@ fn make_row(title: &str, subtitle: Option<&str>, ctrl: &gtk::Widget, k: &str, wr
     let mut tx = vec![title.to_string(), subtitle.unwrap_or("").to_string(), k.to_string()];
     texts_in(ctrl, &mut tx);
     Row { widget: r.upcast(), text: tx.join(" "), titles: vec![tl] }
+}
+
+/// Kombinerer oversatte søkeord med de norske, så søk virker på begge språk.
+pub fn kw(nb: &'static str, localized: &'static str) -> Cow<'static, str> {
+    if nb == localized || nb.is_empty() {
+        Cow::Borrowed(localized)
+    } else {
+        Cow::Owned(format!("{localized} {nb}"))
+    }
 }
 
 /// Rad med tekst til venstre og kontrollen til høyre.
@@ -578,7 +588,7 @@ impl SettingsView {
     }
 
     pub fn set_back(&self, page_title: &str) {
-        let t = format!("Tilbake til {page_title}");
+        let t = trf!("Tilbake til {side}", side = page_title);
         crate::widgets::tip(&self.back, &t, Some("Esc"));
         self.back.update_property(&[gtk::accessible::Property::Label(&t)]);
     }

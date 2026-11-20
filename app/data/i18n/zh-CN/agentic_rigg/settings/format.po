@@ -1,0 +1,105 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: crates/rigg/src/settings/format.rs:15
+msgid "Enheter"
+msgstr ""
+
+#: crates/rigg/src/settings/format.rs:19
+msgid "Temperatur"
+msgstr ""
+
+#: crates/rigg/src/settings/format.rs:20
+msgid "Alle sider, grafer, temperaturmålet og viftekurven."
+msgstr ""
+
+#: crates/rigg/src/settings/format.rs:21
+msgid "Temperaturenhet"
+msgstr ""
+
+#: crates/rigg/src/settings/format.rs:22
+msgctxt "søkeord"
+msgid "celsius fahrenheit"
+msgstr ""
+
+#: crates/rigg/src/settings/format.rs:25
+msgid "Minne"
+msgstr ""
+
+#: crates/rigg/src/settings/format.rs:26
+msgid "GiB som Linux-verktøy, eller GB som produsentene."
+msgstr ""
+
+#: crates/rigg/src/settings/format.rs:27
+msgid "Minneenhet"
+msgstr ""
+
+#: crates/rigg/src/settings/format.rs:28
+msgctxt "søkeord"
+msgid "binær desimal gigabyte"
+msgstr ""
+
+#: crates/rigg/src/settings/format.rs:31 crates/rigg/src/settings/format.rs:33
+msgid "Nettrate"
+msgstr ""
+
+#: crates/rigg/src/settings/format.rs:32
+msgid "Byte per sekund eller bit per sekund."
+msgstr ""
+
+#: crates/rigg/src/settings/format.rs:34
+msgctxt "søkeord"
+msgid "nett hastighet"
+msgstr ""
+
+#: crates/rigg/src/settings/format.rs:39
+msgid "Visning"
+msgstr ""
+
+#: crates/rigg/src/settings/format.rs:43 crates/rigg/src/settings/format.rs:45
+msgid "Desimaler"
+msgstr ""
+
+#: crates/rigg/src/settings/format.rs:44
+msgid "Temperatur, effekt og prosent i tabeller og sidefeltet. Automatisk velger etter stedet."
+msgstr ""
+
+#: crates/rigg/src/settings/format.rs:45
+msgid "Automatisk"
+msgstr ""
+
+#: crates/rigg/src/settings/format.rs:46
+msgctxt "søkeord"
+msgid "desimal komma"
+msgstr ""
+
+#: crates/rigg/src/settings/format.rs:49 crates/rigg/src/settings/format.rs:51
+msgid "Klokkeslett"
+msgstr ""
+
+#: crates/rigg/src/settings/format.rs:50
+msgid "Min/maks på Sensorer, profiler og grafer. Nå: {na}."
+msgstr ""
+
+#: crates/rigg/src/settings/format.rs:51
+msgid "System"
+msgstr ""
+
+#: crates/rigg/src/settings/format.rs:51
+msgid "24 t"
+msgstr ""
+
+#: crates/rigg/src/settings/format.rs:51
+msgid "12 t"
+msgstr ""
+
+#: crates/rigg/src/settings/format.rs:52
+msgctxt "søkeord"
+msgid "tid klokke am pm"
+msgstr ""
