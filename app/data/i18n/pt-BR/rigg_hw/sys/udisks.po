@@ -6,35 +6,36 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg-hw/src/sys/udisks.rs:190
 msgid "Disken støtter ikke SMART."
-msgstr ""
+msgstr "Este disco não oferece suporte a SMART."
 
 #: crates/rigg-hw/src/sys/udisks.rs:192
 msgid "SMART er slått av på disken."
-msgstr ""
+msgstr "O SMART está desativado neste disco."
 
 #: crates/rigg-hw/src/sys/udisks.rs:194
 msgid "UDisks2 har ikke lest SMART ennå."
-msgstr ""
+msgstr "O UDisks2 ainda não leu os dados SMART."
 
 #: crates/rigg-hw/src/sys/udisks.rs:228
 msgid "USB-broen sender ikke SMART videre."
-msgstr ""
+msgstr "A ponte USB não repassa dados SMART."
 
 #: crates/rigg-hw/src/sys/udisks.rs:228
 msgid "UDisks2 har ingen SMART for denne disken."
-msgstr ""
+msgstr "O UDisks2 não tem dados SMART para este disco."
 
 #: crates/rigg-hw/src/sys/udisks.rs:252
 msgid "Fikk ikke kontakt med systembussen ({feil})."
-msgstr ""
+msgstr "Não foi possível conectar ao barramento do sistema ({feil})."
 
 #: crates/rigg-hw/src/sys/udisks.rs:271
 msgid "UDisks2 svarer ikke på systembussen."
-msgstr ""
+msgstr "O UDisks2 não responde no barramento do sistema."
 
 #: crates/rigg-hw/src/sys/udisks.rs:273
 msgid "UDisks2 svarte ikke ({feil})."
-msgstr ""
+msgstr "O UDisks2 não respondeu ({feil})."

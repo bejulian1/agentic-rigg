@@ -6,161 +6,162 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg/src/pages/prosessor.rs:190
 msgid "L3-gruppe {nr}"
-msgstr ""
+msgstr "L3 组 {nr}"
 
 #: crates/rigg/src/pages/prosessor.rs:190
 msgid "Alle kjerner"
-msgstr ""
+msgstr "所有核心"
 
 #: crates/rigg/src/pages/prosessor.rs:197
 msgid "Pakke {pakke} · kjerne {kjerne}"
-msgstr ""
+msgstr "封装 {pakke} · 核心 {kjerne}"
 
 #: crates/rigg/src/pages/prosessor.rs:198
 msgid "Kjerne {kjerne}"
-msgstr ""
+msgstr "核心 {kjerne}"
 
 #: crates/rigg/src/pages/prosessor.rs:324
 msgid "Faste data er lest på nytt"
-msgstr ""
+msgstr "已刷新硬件信息"
 
 #: crates/rigg/src/pages/prosessor.rs:329
 msgid "Kunne ikke hente prosessordata"
-msgstr ""
+msgstr "无法获取 CPU 数据"
 
 #: crates/rigg/src/pages/prosessor.rs:415 crates/rigg/src/pages/prosessor.rs:616
 msgid "CPU-temperatur"
-msgstr ""
+msgstr "CPU 温度"
 
 #: crates/rigg/src/pages/prosessor.rs:428
 msgid "travlest T{nr} {last}"
-msgstr ""
+msgstr "负载最高：T{nr} {last}"
 
 #: crates/rigg/src/pages/prosessor.rs:441
 msgid "T{nr} {na} · maks {maks}"
-msgstr ""
+msgstr "T{nr} {na} · 最大 {maks}"
 
 #: crates/rigg/src/pages/prosessor.rs:447
 msgid "Tråden med høyest klokke nå, og den høyeste trådklokken tjenesten har målt siden min og maks ble nullstilt."
-msgstr ""
+msgstr "当前频率最高的线程，以及重置最小值和最大值后测得的最高线程频率。"
 
 #: crates/rigg/src/pages/prosessor.rs:463
 msgid "boost på"
-msgstr ""
+msgstr "加速已开启"
 
 #: crates/rigg/src/pages/prosessor.rs:464
 msgid "boost av"
-msgstr ""
+msgstr "加速已关闭"
 
 #: crates/rigg/src/pages/prosessor.rs:465
 msgid "boost ukjent"
-msgstr ""
+msgstr "加速状态未知"
 
 #: crates/rigg/src/pages/prosessor.rs:467
 msgid "lastsnitt {verdi}"
-msgstr ""
+msgstr "平均负载 {verdi}"
 
 #: crates/rigg/src/pages/prosessor.rs:470
 msgid "Lastsnitt 1 / 5 / 15 min: {snitt}. Over antall tråder betyr kø."
-msgstr ""
+msgstr "平均负载（1 / 5 / 15 min）：{snitt}。超过线程数表示有任务排队。"
 
 #: crates/rigg/src/pages/prosessor.rs:512
 msgid "Ingen treff."
-msgstr ""
+msgstr "无匹配项。"
 
 #: crates/rigg/src/pages/prosessor.rs:514
 msgid "{antall} i alt"
-msgstr ""
+msgstr "共 {antall} 项"
 
 #: crates/rigg/src/pages/prosessor.rs:514 crates/rigg/src/pages/prosessor.rs:524
 msgid "{vist} av {totalt}"
-msgstr ""
+msgstr "{vist} / {totalt}"
 
 #: crates/rigg/src/pages/prosessor.rs:525
 msgid "{utvalgte} utvalgte først, så noen av de andre. Vis alle for å se og søke i alle {totalt}."
-msgstr ""
+msgstr "先显示 {utvalgte} 个精选项，再显示部分其他项。选择显示全部，即可浏览并搜索全部 {totalt} 项。"
 
 #: crates/rigg/src/pages/prosessor.rs:551
 msgid "{antall} kjerne"
 msgid_plural "{antall} kjerner"
-msgstr[0] ""
+msgstr[0] "{antall} 个核心"
 
 #: crates/rigg/src/pages/prosessor.rs:553
 msgid "{antall} trådgruppe"
 msgid_plural "{antall} trådgrupper"
-msgstr[0] ""
+msgstr[0] "{antall} 个线程组"
 
 #: crates/rigg/src/pages/prosessor.rs:580
 msgid "Instruksjonssett"
-msgstr ""
+msgstr "指令集"
 
 #: crates/rigg/src/pages/prosessor.rs:584
 msgid "Søk"
-msgstr ""
+msgstr "搜索"
 
 #: crates/rigg/src/pages/prosessor.rs:586
 msgid "Søk i instruksjonssett"
-msgstr ""
+msgstr "搜索指令集"
 
 #: crates/rigg/src/pages/prosessor.rs:593 crates/rigg/src/pages/prosessor.rs:594 crates/rigg/src/pages/prosessor.rs:668
 msgid "Vis alle og søk"
-msgstr ""
+msgstr "显示全部并搜索"
 
 #: crates/rigg/src/pages/prosessor.rs:600
 msgid "Uthevet: viktige for spill og koding. Navnet i /proc/cpuinfo står i verktøytipset."
-msgstr ""
+msgstr "突出显示对游戏和编码重要的指令。提示中显示 /proc/cpuinfo 中的名称。"
 
 #: crates/rigg/src/pages/prosessor.rs:609
 msgid "Nå"
-msgstr ""
+msgstr "当前"
 
 #: crates/rigg/src/pages/prosessor.rs:616
 msgid "Temperatur fra CPU-sensoren. Sensorens navn står under verdien når det er tilgjengelig; det kan for eksempel være Tdie, Tctl eller Package id 0."
-msgstr ""
+msgstr "来自 CPU 传感器的温度。如果可用，数值下方显示传感器名称，例如 Tdie、Tctl 或 Package id 0。"
 
 #: crates/rigg/src/pages/prosessor.rs:617
 msgid "Last"
-msgstr ""
+msgstr "负载"
 
 #: crates/rigg/src/pages/prosessor.rs:617
 msgid "Total last fra /proc/stat, siste minutt i linja."
-msgstr ""
+msgstr "来自 /proc/stat 的总负载，曲线显示最近一分钟。"
 
 #: crates/rigg/src/pages/prosessor.rs:618
 msgid "Klokke (snitt)"
-msgstr ""
+msgstr "时钟频率（平均）"
 
 #: crates/rigg/src/pages/prosessor.rs:618
 msgid "Snittet over alle trådene (APERF/MPERF fra cpufreq). Med boost går enkelttråder over maks."
-msgstr ""
+msgstr "所有线程的平均频率（cpufreq 提供的 APERF/MPERF）。开启加速后，单个线程可能超过上限。"
 
 #: crates/rigg/src/pages/prosessor.rs:619
 msgid "Governor"
-msgstr ""
+msgstr "调频策略"
 
 #: crates/rigg/src/pages/prosessor.rs:619
 msgid "Strategien kjernen bruker for klokken, og driveren (cpufreq)."
-msgstr ""
+msgstr "内核使用的调频策略及驱动程序（cpufreq）。"
 
 #: crates/rigg/src/pages/prosessor.rs:624
 msgid "Klokke og last per tråd"
-msgstr ""
+msgstr "各线程的频率与负载"
 
 #: crates/rigg/src/pages/prosessor.rs:632
 msgid "stolpe = last"
-msgstr ""
+msgstr "条形表示负载"
 
 #: crates/rigg/src/pages/prosessor.rs:668
 msgid "Vis utvalget"
-msgstr ""
+msgstr "显示精选"
 
 #: crates/rigg/src/pages/prosessor.rs:697
 msgid "{app} – Prosessor ({dato})"
-msgstr ""
+msgstr "{app} – CPU（{dato}）"
 
 #: crates/rigg/src/pages/prosessor.rs:698
 msgid "med klokke og last per tråd"
-msgstr ""
+msgstr "含各线程的频率与负载"

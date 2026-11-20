@@ -304,7 +304,7 @@ msgstr "Cache"
 msgid "Nivå"
 msgstr "Nivå"
 
-#: crates/rigg-core/src/report/system.rs:359 crates/rigg-core/src/report/system.rs:495 crates/rigg-core/src/report/system.rs:547 crates/rigg-core/src/report/system.rs:576
+#: crates/rigg-core/src/report/system.rs:359 crates/rigg-core/src/report/system.rs:495 crates/rigg-core/src/report/system.rs:547 crates/rigg-core/src/report/system.rs:581
 msgid "Type"
 msgstr "Type"
 
@@ -362,7 +362,7 @@ msgstr[1] "{antall} åpne"
 msgid "Hovedkort og BIOS"
 msgstr "Hovedkort og BIOS"
 
-#: crates/rigg-core/src/report/system.rs:409 crates/rigg-core/src/report/system.rs:547 crates/rigg-core/src/report/system.rs:576
+#: crates/rigg-core/src/report/system.rs:409 crates/rigg-core/src/report/system.rs:547 crates/rigg-core/src/report/system.rs:581
 msgid "Modell"
 msgstr "Modell"
 
@@ -558,11 +558,11 @@ msgstr "Last"
 msgid "Disker"
 msgstr "Disker"
 
-#: crates/rigg-core/src/report/system.rs:547 crates/rigg-core/src/report/system.rs:576
+#: crates/rigg-core/src/report/system.rs:547 crates/rigg-core/src/report/system.rs:581
 msgid "Disk"
 msgstr "Disk"
 
-#: crates/rigg-core/src/report/system.rs:547 crates/rigg-core/src/report/system.rs:576
+#: crates/rigg-core/src/report/system.rs:547 crates/rigg-core/src/report/system.rs:581
 msgid "Størrelse"
 msgstr "Størrelse"
 
@@ -574,14 +574,14 @@ msgstr "Helse"
 msgid "Temperatur"
 msgstr "Temperatur"
 
-#: crates/rigg-core/src/report/system.rs:554 crates/rigg-core/src/report/system.rs:583
+#: crates/rigg-core/src/report/system.rs:554 crates/rigg-core/src/report/system.rs:588
 msgid "{navn} · system"
 msgstr "{navn} · system"
 
-#: crates/rigg-core/src/report/system.rs:569
+#: crates/rigg-core/src/report/system.rs:574
 msgid "SMART mangler: UDisks2 svarte ikke."
 msgstr "SMART mangler: UDisks2 svarte ikke."
 
-#: crates/rigg-core/src/report/system.rs:591
+#: crates/rigg-core/src/report/system.rs:596
 msgid "Helse og temperatur står på Disker-siden når tjenesten har lest diskene."
 msgstr "Helse og temperatur står på Disker-siden når tjenesten har lest diskene."

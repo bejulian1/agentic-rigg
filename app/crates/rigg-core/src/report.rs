@@ -293,20 +293,86 @@ pub fn state_text(g: &GpuInfo) -> String {
     }
 }
 
+fn sensor_label(key: &str, tele: Option<&Telemetry>) -> Option<String> {
+    if let Some((id, field)) = crate::sensor_key::split_gpu(key) {
+        let field = match field {
+            "temp" => tr!("Temperatur"),
+            "gpuUtil" => tr!("GPU-last"),
+            "memUtil" => tr!("Minnekontroller-last"),
+            "encUtil" => tr!("Videokoder"),
+            "decUtil" => tr!("Videodekoder"),
+            "coreClock" => tr!("Kjerneklokke"),
+            "smClock" => tr!("SM-klokke"),
+            "memClock" => tr!("Minneklokke"),
+            "videoClock" => tr!("Videoklokke"),
+            "power" => tr!("Effekttrekk"),
+            "powerLimit" => tr!("Effektgrense"),
+            "fan" => tr!("Viftefart"),
+            "vramUsed" => tr!("Videominne brukt"),
+            "pcieGen" => tr!("PCIe-generasjon"),
+            field => {
+                let fan = |prefix| field.strip_prefix(prefix)?.parse::<usize>().ok()?.checked_add(1);
+                let label = if let Some(nr) = fan("fanRpm") {
+                    trf!("Vifte {nr}, turtall", nr = nr)
+                } else {
+                    trf!("Vifte {nr}", nr = fan("fan")?)
+                };
+                return Some(format!("{} · {label}", crate::csv::gpu_prefix(id, tele)));
+            }
+        };
+        return Some(format!("{} · {field}", crate::csv::gpu_prefix(id, tele)));
+    }
+    let parts: Vec<_> = key.split('/').collect();
+    let direction = |field| if field == "rx" { tr!("mottatt") } else { tr!("sendt") };
+    let disk_field = |field| match field {
+        "read" => Some(tr!("lesing")),
+        "write" => Some(tr!("skriving")),
+        "busy" => Some(tr!("aktivitet")),
+        "temp" => Some(tr!("temperatur")),
+        _ => None,
+    };
+    let (device, field) = match parts.as_slice() {
+        ["cpu", "load"] => (tr!("Prosessor"), tr!("Total last")),
+        ["cpu", "temp"] => return Some(tr!("CPU-temperatur").into()),
+        ["cpu", "tctl"] => (tr!("Prosessor"), "Tctl"),
+        ["cpu", "thread", nr, field @ ("load" | "mhz")] => {
+            let thread = trf!("Tråd {nr}", nr = nr);
+            let field = if *field == "load" { tr!("Last") } else { tr!("Klokke") };
+            return Some(format!("{} · {thread} · {field}", tr!("Prosessor")));
+        }
+        ["mem", "usedPct"] => (tr!("Minne"), tr!("Brukt av totalt")),
+        ["mem", "used"] => return Some(tr!("RAM brukt").into()),
+        ["mem", "avail"] => return Some(tr!("RAM ledig").into()),
+        ["mem", "swap"] => return Some(tr!("Swap brukt").into()),
+        ["net", field @ ("rx" | "tx")] => (tr!("Nett"), direction(*field)),
+        ["net", iface, field @ ("rx" | "tx")] => (*iface, direction(*field)),
+        ["disk", field @ ("read" | "write")] => (tr!("Disker"), disk_field(*field)?),
+        ["disk", id, field] => {
+            let disk = tele?.sys.disks.iter().find(|disk| disk.id == *id)?;
+            let base = if disk.model.is_empty() { disk.name.clone() } else { format!("{} ({})", disk.model, disk.name) };
+            return Some(format!("{base} · {}", disk_field(*field)?));
+        }
+        _ => return None,
+    };
+    Some(format!("{device} · {field}"))
+}
+
 fn sensors_section(input: &ReportInput, tele: Option<&Telemetry>) -> Section {
     let mut s = Section::new("sensorer", tr!("Sensorer"));
     let flat = tele.map(crate::sensor_key::flatten).unwrap_or_default();
     let stats = input.stats.get("stats").and_then(Value::as_object);
+    let localized = crate::i18n::active() != crate::i18n::Language::Nb;
     let mut rows = Vec::new();
     for (k, v) in &flat {
-        let c = crate::csv::column(k, tele);
+        let c = crate::csv::sensor_column(k, tele, localized);
+        let name = localized.then(|| sensor_label(k, tele)).flatten().unwrap_or(c.name);
         let f = |x: Option<f64>| {
             let n = crate::fmt::num(x, c.decimals);
             if x.is_none() || c.unit.is_empty() { n } else { crate::fmt::with_unit(n, c.unit) }
         };
         let st = stats.and_then(|m| m.get(k));
         let g = |f: &str| st.and_then(|x| x.get(f)).and_then(Value::as_f64);
-        rows.push(vec![c.name, f(Some(*v)), f(g("min")), f(g("max")), f(g("avg"))]);
+        rows.push(vec![name, f(Some(*v)), f(g("min")), f(g("max")), f(g("avg"))]);
     }
     s.items.push(Item::Table(Table { id: "sensorer", head: [tr!("Sensor"), tr!("Nå"), tr!("Min"), tr!("Maks"), tr!("Snitt")].map(String::from).to_vec(), end: vec![false, true, true, true, true], rows }));
     let when = |key: &str| input.stats.get(key).and_then(Value::as_i64).filter(|t| *t > 0).map(|t| crate::csv::iso_time(t, input.utc_offset_s, false));
@@ -343,7 +409,7 @@ pub fn render(input: &ReportInput, fmt: ReportFormat) -> String {
 
     // ---- Oversikt ----
     let mut head = Section::new("rapport", "");
-    head.kv(Kv::new("app", tr!("App"), Some(format!("{} {}", crate::version::NAME, crate::version::about().replace("Versjon ", "")))));
+    head.kv(Kv::new("app", tr!("App"), Some(trf!("{navn} {versjon} · bygg {bygg}", navn = crate::version::NAME, versjon = crate::version::VERSION, bygg = crate::version::BUILD_STR))));
     head.kv(Kv::new("laget", tr!("Laget"), Some(input.created.clone())));
     let svc = &input.service;
     if svc.is_object() {

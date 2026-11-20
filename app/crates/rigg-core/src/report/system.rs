@@ -248,7 +248,7 @@ pub fn sections(i: &SysInput) -> Vec<Section> {
     let spec = cpu["vendor"].as_str().zip(cpu["name"].as_str()).and_then(|(vendor, name)| crate::cpu_specs::lookup(vendor, name));
     let launch_source = spec.map(|s| trf!("Modelloppslag, ikke målt. Kilde: AMD, {navn}: {url}", navn = s.name, url = s.source_url));
     c.kv(
-        Kv::new("lansert", tr!("Lansert"), spec.map(|s| s.launched.to_string()))
+        Kv::new("lansert", tr!("Lansert"), spec.map(|s| crate::specs::launch_date(s.launched)))
             .na(tr!("Ikke i modelloppslaget"))
             .info(launch_source.clone().unwrap_or_else(|| tr!("Lanseringsdato krever et kjent modellnavn og riktig leverandør. CPUID-familie og kodenavn brukes ikke som erstatning.").into())),
     );
@@ -561,7 +561,12 @@ fn disks_section(system: &Value) -> Section {
                     })
                     .collect(),
             }));
-            let reasons: Vec<String> = l.disks.iter().filter(|x| !x.health.reasons.is_empty()).map(|x| format!("{}: {}", x.name, x.health.reasons.join(", "))).collect();
+            let localized = crate::i18n::active() != crate::i18n::Language::Nb;
+            let reasons: Vec<String> = l.disks.iter().filter(|x| !x.health.reasons.is_empty()).map(|x| {
+                let translated = localized.then(|| crate::disk::health(&x.kind, &x.smart).reasons).filter(|reasons| !reasons.is_empty());
+                let reasons = translated.as_deref().unwrap_or(&x.health.reasons);
+                format!("{}: {}", x.name, reasons.join(", "))
+            }).collect();
             if !reasons.is_empty() {
                 d.items.push(Item::Note(reasons.join(". ")));
             }

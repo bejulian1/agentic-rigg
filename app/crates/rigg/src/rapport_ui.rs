@@ -19,9 +19,6 @@ use std::cell::{Cell, RefCell};
 use std::collections::HashMap;
 use std::rc::Rc;
 
-/// Merket i overskriften på spesifikasjonstabellen.
-pub const REFERENCE: &str = "Referanse, ikke målt";
-
 /// Tidssonen akkurat nå (sekunder fra UTC).
 pub fn utc_offset(ms: i64) -> i64 {
     let t: libc::time_t = (ms / 1000) as libc::time_t;
@@ -97,7 +94,7 @@ impl SectionPanel {
         panel.root.add_css_class("sec");
         panel.root.add_css_class(&format!("sec-{}", s.id));
         if let Some(a) = &s.aside {
-            if s.id == "spesifikasjon" || a == REFERENCE {
+            if s.id == "spesifikasjon" {
                 let t = crate::widgets::rows::tag(a, Some("info"), "quiet");
                 t.set_tooltip_text(Some(tr!("Tallene kommer fra en innebygd tabell slått opp på PCI-ID. De gjelder brikken og referansekortet og er ikke målt på denne maskinen.")));
                 panel.aside.append(&t);

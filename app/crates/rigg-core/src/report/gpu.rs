@@ -125,7 +125,8 @@ pub fn pcie_explain(max_g: Option<f64>, cur_g: Option<f64>) -> Option<String> {
 
 /// Klokkebegrensningene i masken fra NVML (som `throttleList` i demoen).
 pub fn throttle_list(mask: u64) -> Vec<&'static str> {
-    let reasons: [(u64, fn() -> &'static str); 9] = [
+    type Reason = (u64, fn() -> &'static str);
+    let reasons: [Reason; 9] = [
         (0x1, || tr!("Tomgang")),
         (0x2, || tr!("App-klokker")),
         (0x4, || tr!("Effektgrense")),
@@ -233,7 +234,7 @@ pub fn sections(g: &GpuInput) -> Vec<Section> {
     })));
     d.kv(Kv::new("nvml", "NVML", st.nvml_version.clone()));
     d.kv(Kv::new("cuda", tr!("CUDA (driver)"), st.cuda_version.clone()));
-    d.kv(Kv::new("cc", "Compute capability", s(ex(st, "computeCap").as_str())));
+    d.kv(Kv::new("cc", tr!("Compute capability"), s(ex(st, "computeCap").as_str())));
     let gsp = ex(st, "gspFirmware").as_str().map(|v| {
         let on = ex(st, "gspMode")["enabled"].as_bool();
         match on {
@@ -298,6 +299,7 @@ pub fn sections(g: &GpuInput) -> Vec<Section> {
     b.kv(Kv::new("rebar", "Resizable BAR", rebar_text(pci, st.vram_total, bar1["totalMiB"].as_f64())).info(tr!("Lest fra sysfs (resource1 og resource1_resize).")));
     let replay = ex(st, "pcieReplay").as_u64();
     let aer = pci["aerCorrectable"].as_u64();
+    let nb = crate::i18n::active() == crate::i18n::Language::Nb;
     b.kv(Kv::new(
         "pcie-feil",
         tr!("PCIe-feil"),
@@ -305,8 +307,16 @@ pub fn sections(g: &GpuInput) -> Vec<Section> {
             (None, None) => None,
             _ => Some(
                 [
-                    replay.map(|r| trn!(r, "{antall} gjentatt sending", "{antall} gjentatte sendinger", antall = r)),
-                    aer.map(|a| trn!(a, "{antall} korrigert", "{antall} korrigerte", antall = a)),
+                    replay.map(|r| if nb {
+                        format!("{r} gjentatte sendinger")
+                    } else {
+                        trn!(r, "{antall} gjentatt sending", "{antall} gjentatte sendinger", antall = F::num(Some(r as f64), 0))
+                    }),
+                    aer.map(|a| if nb {
+                        format!("{a} korrigerte")
+                    } else {
+                        trn!(a, "{antall} korrigert", "{antall} korrigerte", antall = F::num(Some(a as f64), 0))
+                    }),
                 ]
                 .into_iter()
                 .flatten()
@@ -582,7 +592,7 @@ pub fn sections(g: &GpuInput) -> Vec<Section> {
             r.kv(Kv::new("modell", tr!("Modell"), Some(sp.name.into())));
             r.kv(Kv::new("brikke", tr!("Brikke"), Some(format!("{} · {}", sp.chip, sp.variant))));
             r.kv(Kv::new("arkitektur", tr!("Arkitektur"), Some(sp.architecture.into())));
-            r.kv(Kv::new("prosess", tr!("Prosess"), Some(sp.process.into())));
+            r.kv(Kv::new("prosess", tr!("produksjonsprosess", "Prosess"), Some(sp.process.into())));
             r.kv(Kv::new("storrelse", tr!("Brikkestørrelse"), u(F::num(Some(sp.die_mm2 as f64), 0), "mm²")));
             r.kv(Kv::new("transistorer", tr!("Transistorer"), Some(trf!("{antall} mrd.", antall = F::num(Some(sp.transistors_bn), 1)))));
             r.kv(Kv::new("cuda", tr!("CUDA-kjerner"), Some(F::num(Some(sp.cuda as f64), 0))));
@@ -606,7 +616,7 @@ pub fn sections(g: &GpuInput) -> Vec<Section> {
             r.kv(Kv::new("tdp", tr!("TDP (referansekort)"), Some(F::watt(Some(sp.tdp_w as f64), 0))).info(tr!("Kortprodusenten kan sette en annen grense. Driveren oppgir standardgrensen under Grenser.")));
             r.kv(Kv::new("pcie", "PCIe", pcie_spec(sp.bus)).info(sp.bus));
             r.kv(Kv::new("api", "DirectX / Vulkan / OpenGL", Some(format!("{} / {} / {}", sp.directx, sp.vulkan, sp.opengl))));
-            let launched_date = sp.launched_text();
+            let launched_date = crate::specs::launch_date(sp.launched);
             let launched = match &g.egg {
                 Some((t, _)) => format!("{launched_date} · {t}"),
                 None => launched_date,

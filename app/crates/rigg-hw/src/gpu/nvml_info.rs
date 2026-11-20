@@ -16,7 +16,6 @@
 //! siden kan si «Ikke støttet» med grunnen i stedet for å gjette.
 
 use super::nvml::{Dev, NvmlLib, SUCCESS, code_name};
-use rigg_core::tr;
 use serde_json::{Map, Value, json};
 use std::ffi::{CStr, c_char, c_int, c_uint, c_ulonglong};
 
@@ -65,13 +64,13 @@ pub fn brand_name(b: u32) -> &'static str {
         4 => "GRID",
         5 => "GeForce",
         6 => "Titan",
-        7..=11 => tr!("NVIDIA virtuell GPU"),
+        7..=11 => "NVIDIA virtuell GPU",
         12 => "Quadro RTX",
         13 => "NVIDIA RTX",
         14 => "NVIDIA",
         15 => "GeForce RTX",
         16 => "Titan RTX",
-        _ => tr!("Ukjent"),
+        _ => "Ukjent",
     }
 }
 
@@ -279,13 +278,13 @@ fn running(lib: &NvmlLib, d: Dev, name: &'static str) -> Result<Vec<(u32, Option
 pub fn processes(lib: &NvmlLib, d: Dev) -> Value {
     let mut list: Vec<Value> = Vec::new();
     let mut err = None;
-    for (name, kind) in [("nvmlDeviceGetGraphicsRunningProcesses_v3", tr!("grafikk")), ("nvmlDeviceGetComputeRunningProcesses_v3", tr!("compute"))] {
+    for (name, kind) in [("nvmlDeviceGetGraphicsRunningProcesses_v3", "grafikk"), ("nvmlDeviceGetComputeRunningProcesses_v3", "compute")] {
         match running(lib, d, name) {
             Ok(v) => {
                 for (pid, used) in v {
                     if let Some(x) = list.iter_mut().find(|x| x["pid"] == pid) {
                         // Samme prosess i begge listene: «grafikk og compute».
-                        x["kind"] = json!(tr!("grafikk og compute"));
+                        x["kind"] = json!("grafikk og compute");
                         continue;
                     }
                     let comm = std::fs::read_to_string(format!("/proc/{pid}/comm")).ok().map(|s| s.trim().to_string());
@@ -335,7 +334,7 @@ pub fn styring(extra: &Value) -> Value {
 fn kernel_module() -> Option<String> {
     let t = std::fs::read_to_string("/proc/driver/nvidia/version").ok()?;
     let first = t.lines().next()?;
-    Some(if first.contains("Open Kernel Module") { "Open Kernel Module".into() } else { tr!("Lukket kjernemodul").into() })
+    Some(if first.contains("Open Kernel Module") { "Open Kernel Module".into() } else { "Lukket kjernemodul".into() })
 }
 
 /// Leser steg `step` for kortet `dev` og legger verdiene i `extra`.

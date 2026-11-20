@@ -4,7 +4,7 @@
 //! målt på maskinen, og kortprodusenten kan ha endret klokker eller minne.
 //! Siden og rapporten merker dem alltid som referanse.
 
-use crate::{fmt as F, tr, trf};
+use crate::{fmt as F, i18n, tr, trf};
 use serde::Serialize;
 
 /// Referansedata for en brikke, slått opp på PCI-ID. Ikke målt på maskinen.
@@ -135,6 +135,28 @@ pub fn lookup_key(key: &str) -> Option<GpuSpec> {
     TABLE.iter().find(|s| s.key == k).cloned()
 }
 
+fn formula_number(value: f64, decimals: usize) -> String {
+    if i18n::active() == i18n::Language::Nb {
+        format!("{value:.decimals$}").replace('.', ",")
+    } else {
+        F::num(Some(value), decimals)
+    }
+}
+
+pub(crate) fn launch_date(source: &str) -> String {
+    let parsed = || {
+        let (day, rest) = source.split_once(". ")?;
+        let (month, year) = rest.split_once(' ')?;
+        let month = F::MONTHS.iter().position(|&name| name == month)? as u32 + 1;
+        Some(F::date(year.parse().ok()?, month, day.parse().ok()?, false))
+    };
+    if i18n::active() == i18n::Language::Nb {
+        source.into()
+    } else {
+        parsed().unwrap_or_else(|| source.into())
+    }
+}
+
 impl GpuSpec {
     pub fn mem_vendor_note_text(&self) -> &'static str {
         if self.mem_vendor_note == MEM_NOTE {
@@ -144,21 +166,12 @@ impl GpuSpec {
         }
     }
 
-    pub fn launched_text(&self) -> String {
-        match self.launched {
-            "20. september 2018" => F::date(2018, 9, 20, false),
-            "23. juli 2019" => F::date(2019, 7, 23, false),
-            "9. juli 2019" => F::date(2019, 7, 9, false),
-            other => other.to_string(),
-        }
-    }
-
     pub fn pixel_fill(&self) -> Derived {
         let v = self.rop as f64 * self.boost_mhz as f64 / 1000.0;
         Derived {
             value: (v * 10.0).round() / 10.0,
             unit: "GPixel/s",
-            formula: trf!("{rop} ROP × {mhz} MHz (referanse-boost) = {verdi} GPixel/s", rop = self.rop, mhz = self.boost_mhz, verdi = F::num(Some(v), 1)),
+            formula: trf!("{rop} ROP × {mhz} MHz (referanse-boost) = {verdi} GPixel/s", rop = self.rop, mhz = self.boost_mhz, verdi = formula_number(v, 1)),
         }
     }
 
@@ -167,7 +180,7 @@ impl GpuSpec {
         Derived {
             value: (v * 10.0).round() / 10.0,
             unit: "GTexel/s",
-            formula: trf!("{tmu} TMU × {mhz} MHz (referanse-boost) = {verdi} GTexel/s", tmu = self.tmu, mhz = self.boost_mhz, verdi = F::num(Some(v), 1)),
+            formula: trf!("{tmu} TMU × {mhz} MHz (referanse-boost) = {verdi} GTexel/s", tmu = self.tmu, mhz = self.boost_mhz, verdi = formula_number(v, 1)),
         }
     }
 
@@ -176,17 +189,17 @@ impl GpuSpec {
         Derived {
             value: (v * 100.0).round() / 100.0,
             unit: "TFLOPS",
-            formula: trf!("{cuda} CUDA-kjerner × 2 operasjoner (FMA) × {mhz} MHz = {verdi} TFLOPS", cuda = self.cuda, mhz = self.boost_mhz, verdi = F::num(Some(v), 2)),
+            formula: trf!("{cuda} CUDA-kjerner × 2 operasjoner (FMA) × {mhz} MHz = {verdi} TFLOPS", cuda = self.cuda, mhz = self.boost_mhz, verdi = formula_number(v, 2)),
         }
     }
 
     pub fn bandwidth(&self) -> Derived {
         let v = self.bus_width as f64 / 8.0 * self.mem_gbps;
-        let gbps = F::num(Some(self.mem_gbps), if self.mem_gbps.fract() == 0.0 { 0 } else { 1 });
+        let gbps = formula_number(self.mem_gbps, if self.mem_gbps.fract() == 0.0 { 0 } else { 1 });
         Derived {
             value: v,
             unit: "GB/s",
-            formula: trf!("{bredde} bit ÷ 8 × {gbps} Gbps = {verdi} GB/s", bredde = self.bus_width, gbps = gbps, verdi = F::num(Some(v), 0)),
+            formula: trf!("{bredde} bit ÷ 8 × {gbps} Gbps = {verdi} GB/s", bredde = self.bus_width, gbps = gbps, verdi = formula_number(v, 0)),
         }
     }
 }

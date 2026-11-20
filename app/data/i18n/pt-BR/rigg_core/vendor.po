@@ -6,11 +6,12 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg-core/src/vendor.rs:81
 msgid "NVIDIA-referansekort"
-msgstr ""
+msgstr "Placa de referência da NVIDIA"
 
 #: crates/rigg-core/src/vendor.rs:82
 msgid "PCI-leverandør {id}"
-msgstr ""
+msgstr "Fornecedor PCI {id}"

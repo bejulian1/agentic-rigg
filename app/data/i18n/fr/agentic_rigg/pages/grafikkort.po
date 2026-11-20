@@ -6,147 +6,148 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg/src/pages/grafikkort.rs:89 crates/rigg/src/pages/grafikkort.rs:93 crates/rigg/src/pages/grafikkort.rs:100 crates/rigg/src/pages/grafikkort.rs:106 crates/rigg/src/pages/grafikkort.rs:110
 msgid "Tilstand"
-msgstr ""
+msgstr "État"
 
 #: crates/rigg/src/pages/grafikkort.rs:93 crates/rigg/src/pages/grafikkort.rs:197
 msgid "Driveren er oppdatert"
-msgstr ""
+msgstr "Pilote mis à jour"
 
 #: crates/rigg/src/pages/grafikkort.rs:94
 msgid "Kjører"
-msgstr ""
+msgstr "En cours d’exécution"
 
 #: crates/rigg/src/pages/grafikkort.rs:95
 msgid "Installert"
-msgstr ""
+msgstr "Installé"
 
 #: crates/rigg/src/pages/grafikkort.rs:96
 msgid "Hva du kan gjøre"
-msgstr ""
+msgstr "Marche à suivre"
 
 #: crates/rigg/src/pages/grafikkort.rs:96
 msgid "Start maskinen på nytt. Da lastes den nye driveren, og kortet leses som før."
-msgstr ""
+msgstr "Redémarrez l’ordinateur pour charger le nouveau pilote et reprendre la surveillance du GPU."
 
 #: crates/rigg/src/pages/grafikkort.rs:97
 msgid "Tjenesten sjekker driveren hvert 60. s. Verdiene under er de siste som ble lest."
-msgstr ""
+msgstr "Le service vérifie le pilote toutes les 60 s. Les valeurs ci-dessous sont les dernières lues."
 
 #: crates/rigg/src/pages/grafikkort.rs:100
 msgid "Skjermkortet svarer ikke"
-msgstr ""
+msgstr "Le GPU ne répond pas"
 
 #: crates/rigg/src/pages/grafikkort.rs:101
 msgid "Siden"
-msgstr ""
+msgstr "Depuis"
 
 #: crates/rigg/src/pages/grafikkort.rs:102
 msgid "Hvorfor"
-msgstr ""
+msgstr "Cause"
 
 #: crates/rigg/src/pages/grafikkort.rs:102
 msgid "Det skjer når kortet faller av bussen (Xid 79) eller trekkes ut."
-msgstr ""
+msgstr "Cela arrive lorsque le GPU n’est plus détecté sur le bus (Xid 79) ou qu’il est déconnecté."
 
 #: crates/rigg/src/pages/grafikkort.rs:103
 msgid "Tjenesten prøver å finne kortet igjen hvert 10. s. Tallene før det er tatt vare på, og historikken får et hull. Verdiene som leses nå, står som «–»."
-msgstr ""
+msgstr "Le service recherche le GPU toutes les 10 s. Les mesures précédentes sont conservées, avec une interruption dans l’historique. Les valeurs actuelles s’affichent sous la forme « – »."
 
 #: crates/rigg/src/pages/grafikkort.rs:106
 msgid "Maskinen sover"
-msgstr ""
+msgstr "Ordinateur en veille"
 
 #: crates/rigg/src/pages/grafikkort.rs:107
 msgid "Prøvene står stille og starter igjen 2 s etter at maskinen våkner."
-msgstr ""
+msgstr "L’échantillonnage est suspendu et reprend 2 s après la sortie de veille."
 
 #: crates/rigg/src/pages/grafikkort.rs:110 crates/rigg/src/pages/grafikkort.rs:193
 msgid "Fant ingen NVIDIA-driver"
-msgstr ""
+msgstr "Aucun pilote NVIDIA trouvé"
 
 #: crates/rigg/src/pages/grafikkort.rs:194
 msgid "Prosessor, minne og sensorer vises som vanlig. Når driveren er installert og lastet, leses kortet av seg selv. Tjenesten prøver hvert 60. s."
-msgstr ""
+msgstr "Le CPU, la mémoire et les capteurs restent visibles. La surveillance du GPU démarre automatiquement une fois le pilote installé et chargé. Le service réessaie toutes les 60 s."
 
 #: crates/rigg/src/pages/grafikkort.rs:198
 msgid "En ny NVIDIA-driver er installert, men den gamle kjører fortsatt. Start maskinen på nytt for å lese skjermkortet."
-msgstr ""
+msgstr "Un nouveau pilote NVIDIA est installé, mais l’ancien est encore utilisé. Redémarrez l’ordinateur pour reprendre la surveillance du GPU."
 
 #: crates/rigg/src/pages/grafikkort.rs:200
 msgid "Venter på tjenesten"
-msgstr ""
+msgstr "En attente du service"
 
 #: crates/rigg/src/pages/grafikkort.rs:200
 msgid "Skjermkortet vises når tjenesten svarer."
-msgstr ""
+msgstr "Le GPU s’affichera dès que le service répondra."
 
 #: crates/rigg/src/pages/grafikkort.rs:201
 msgid "Leser skjermkortet …"
-msgstr ""
+msgstr "Lecture des données du GPU…"
 
 #: crates/rigg/src/pages/grafikkort.rs:201
 msgid "De faste dataene leses de første sekundene."
-msgstr ""
+msgstr "Les données statiques sont lues dans les premières secondes."
 
 #: crates/rigg/src/pages/grafikkort.rs:243
 msgid "Faste data er lest på nytt"
-msgstr ""
+msgstr "Informations matérielles actualisées"
 
 #: crates/rigg/src/pages/grafikkort.rs:264
 msgid "Klokker"
-msgstr ""
+msgstr "Fréquences"
 
 #: crates/rigg/src/pages/grafikkort.rs:271
 msgid "Nå"
-msgstr ""
+msgstr "Actuel"
 
 #: crates/rigg/src/pages/grafikkort.rs:271
 msgid "Maks (driver)"
-msgstr ""
+msgstr "Max. (pilote)"
 
 #: crates/rigg/src/pages/grafikkort.rs:279
 msgid "Kjerne"
-msgstr ""
+msgstr "Cœur"
 
 #: crates/rigg/src/pages/grafikkort.rs:279
 msgid "Minne"
-msgstr ""
+msgstr "Mémoire"
 
 #: crates/rigg/src/pages/grafikkort.rs:279
 msgid "Video"
-msgstr ""
+msgstr "Vidéo"
 
 #: crates/rigg/src/pages/grafikkort.rs:321 crates/rigg/src/pages/grafikkort.rs:329
 msgid "Skjul UUID"
-msgstr ""
+msgstr "Masquer l’UUID"
 
 #: crates/rigg/src/pages/grafikkort.rs:321 crates/rigg/src/pages/grafikkort.rs:329
 msgid "Vis UUID"
-msgstr ""
+msgstr "Afficher l’UUID"
 
 #: crates/rigg/src/pages/grafikkort.rs:337 crates/rigg/src/pages/grafikkort.rs:338
 msgid "Kopier UUID"
-msgstr ""
+msgstr "Copier l’UUID"
 
 #: crates/rigg/src/pages/grafikkort.rs:343
 msgid "UUID kopiert"
-msgstr ""
+msgstr "UUID copié"
 
 #: crates/rigg/src/pages/grafikkort.rs:395
 msgid "NVML og sysfs"
-msgstr ""
+msgstr "NVML et sysfs"
 
 #: crates/rigg/src/pages/grafikkort.rs:395
 msgid "testdata"
-msgstr ""
+msgstr "données de test"
 
 #: crates/rigg/src/pages/grafikkort.rs:396
 msgid "{app} – Grafikkort ({kilde}, {dato})"
-msgstr ""
+msgstr "{app} – GPU ({kilde}, {dato})"
 
 #: crates/rigg/src/pages/grafikkort.rs:397
 msgid "UUID maskert"
-msgstr ""
+msgstr "UUID masqué"

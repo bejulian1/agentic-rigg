@@ -6,575 +6,576 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg/src/pages/sensorer.rs:344
 msgid "GPU-temp"
-msgstr ""
+msgstr "GPU 温度"
 
 #: crates/rigg/src/pages/sensorer.rs:345 crates/rigg/src/pages/sensorer.rs:540
 msgid "GPU-last"
-msgstr ""
+msgstr "GPU 负载"
 
 #: crates/rigg/src/pages/sensorer.rs:346
 msgid "Minnekontr."
-msgstr ""
+msgstr "显存控制器"
 
 #: crates/rigg/src/pages/sensorer.rs:347
 msgid "Encoder"
-msgstr ""
+msgstr "编码器"
 
 #: crates/rigg/src/pages/sensorer.rs:348
 msgid "Decoder"
-msgstr ""
+msgstr "解码器"
 
 #: crates/rigg/src/pages/sensorer.rs:349 crates/rigg/src/pages/sensorer.rs:544
 msgid "Kjerneklokke"
-msgstr ""
+msgstr "核心频率"
 
 #: crates/rigg/src/pages/sensorer.rs:350 crates/rigg/src/pages/sensorer.rs:545
 msgid "SM-klokke"
-msgstr ""
+msgstr "SM 频率"
 
 #: crates/rigg/src/pages/sensorer.rs:351 crates/rigg/src/pages/sensorer.rs:546
 msgid "Minneklokke"
-msgstr ""
+msgstr "显存频率"
 
 #: crates/rigg/src/pages/sensorer.rs:352 crates/rigg/src/pages/sensorer.rs:547
 msgid "Videoklokke"
-msgstr ""
+msgstr "视频频率"
 
 #: crates/rigg/src/pages/sensorer.rs:353
 msgid "Effekt"
-msgstr ""
+msgstr "功率"
 
 #: crates/rigg/src/pages/sensorer.rs:354 crates/rigg/src/pages/sensorer.rs:549
 msgid "Effektgrense"
-msgstr ""
+msgstr "功率上限"
 
 #: crates/rigg/src/pages/sensorer.rs:355
 msgid "Vifte"
-msgstr ""
+msgstr "风扇"
 
 #: crates/rigg/src/pages/sensorer.rs:358
 msgid "Vifte {nr} o/min"
-msgstr ""
+msgstr "风扇 {nr} RPM"
 
 #: crates/rigg/src/pages/sensorer.rs:359 crates/rigg/src/pages/sensorer.rs:553
 msgid "Vifte {nr}"
-msgstr ""
+msgstr "风扇 {nr}"
 
 #: crates/rigg/src/pages/sensorer.rs:366
 msgid "CPU-temp"
-msgstr ""
+msgstr "CPU 温度"
 
 #: crates/rigg/src/pages/sensorer.rs:368
 msgid "CPU-last"
-msgstr ""
+msgstr "CPU 负载"
 
 #: crates/rigg/src/pages/sensorer.rs:369
 msgid "CPU-tråd {nr}"
-msgstr ""
+msgstr "CPU 线程 {nr}"
 
 #: crates/rigg/src/pages/sensorer.rs:370 crates/rigg/src/pages/sensorer.rs:613
 msgid "Tråd {nr}"
-msgstr ""
+msgstr "线程 {nr}"
 
 #: crates/rigg/src/pages/sensorer.rs:371
 msgid "RAM brukt"
-msgstr ""
+msgstr "已用 RAM"
 
 #: crates/rigg/src/pages/sensorer.rs:372 crates/rigg/src/pages/sensorer.rs:621
 msgid "Minne"
-msgstr ""
+msgstr "内存"
 
 #: crates/rigg/src/pages/sensorer.rs:373
 msgid "RAM ledig"
-msgstr ""
+msgstr "可用 RAM"
 
 #: crates/rigg/src/pages/sensorer.rs:374
 msgid "Swap"
-msgstr ""
+msgstr "交换空间"
 
 #: crates/rigg/src/pages/sensorer.rs:375
 msgid "Mottatt"
-msgstr ""
+msgstr "接收"
 
 #: crates/rigg/src/pages/sensorer.rs:376
 msgid "Sendt"
-msgstr ""
+msgstr "发送"
 
 #: crates/rigg/src/pages/sensorer.rs:378 crates/rigg/src/pages/sensorer.rs:383
 msgid "Disk les"
-msgstr ""
+msgstr "磁盘读取"
 
 #: crates/rigg/src/pages/sensorer.rs:379 crates/rigg/src/pages/sensorer.rs:384
 msgid "Disk skriv"
-msgstr ""
+msgstr "磁盘写入"
 
 #: crates/rigg/src/pages/sensorer.rs:382
 msgid "Disktemp"
-msgstr ""
+msgstr "磁盘温度"
 
 #: crates/rigg/src/pages/sensorer.rs:385
 msgid "Disk aktiv"
-msgstr ""
+msgstr "磁盘活动"
 
 #: crates/rigg/src/pages/sensorer.rs:402
 msgid "temp"
-msgstr ""
+msgstr "温度"
 
 #: crates/rigg/src/pages/sensorer.rs:402 crates/rigg/src/pages/sensorer.rs:640
 msgid "temperatur"
-msgstr ""
+msgstr "温度"
 
 #: crates/rigg/src/pages/sensorer.rs:403
 msgid "les"
-msgstr ""
+msgstr "读取"
 
 #: crates/rigg/src/pages/sensorer.rs:403 crates/rigg/src/pages/sensorer.rs:646
 msgid "lesing"
-msgstr ""
+msgstr "读取"
 
 #: crates/rigg/src/pages/sensorer.rs:404
 msgid "skriv"
-msgstr ""
+msgstr "写入"
 
 #: crates/rigg/src/pages/sensorer.rs:404 crates/rigg/src/pages/sensorer.rs:647
 msgid "skriving"
-msgstr ""
+msgstr "写入"
 
 #: crates/rigg/src/pages/sensorer.rs:405
 msgid "aktiv"
-msgstr ""
+msgstr "活动"
 
 #: crates/rigg/src/pages/sensorer.rs:405 crates/rigg/src/pages/sensorer.rs:649
 msgid "aktivitet"
-msgstr ""
+msgstr "活动"
 
 #: crates/rigg/src/pages/sensorer.rs:539
 msgid "Temperatur"
-msgstr ""
+msgstr "温度"
 
 #: crates/rigg/src/pages/sensorer.rs:539
 msgid "NVML · den eneste temperatursensoren på kortet"
-msgstr ""
+msgstr "NVML · GPU 唯一的温度传感器"
 
 #: crates/rigg/src/pages/sensorer.rs:541
 msgid "Minnekontroller-last"
-msgstr ""
+msgstr "显存控制器负载"
 
 #: crates/rigg/src/pages/sensorer.rs:542
 msgid "Videokoder (encoder)"
-msgstr ""
+msgstr "视频编码器"
 
 #: crates/rigg/src/pages/sensorer.rs:543
 msgid "Videodekoder (decoder)"
-msgstr ""
+msgstr "视频解码器"
 
 #: crates/rigg/src/pages/sensorer.rs:548
 msgid "Effekttrekk"
-msgstr ""
+msgstr "功耗"
 
 #: crates/rigg/src/pages/sensorer.rs:548
 msgid "Snitt for perioden, regnet fra kortets energiteller."
-msgstr ""
+msgstr "根据 GPU 能量计数器计算的时段平均值。"
 
 #: crates/rigg/src/pages/sensorer.rs:549
 msgid "Grensen kortet håndhever nå."
-msgstr ""
+msgstr "GPU 当前执行的功率上限。"
 
 #: crates/rigg/src/pages/sensorer.rs:556
 msgid "Viftefart"
-msgstr ""
+msgstr "风扇转速"
 
 #: crates/rigg/src/pages/sensorer.rs:560
 msgid "Vifte {nr}, turtall"
-msgstr ""
+msgstr "风扇 {nr} 转速"
 
 #: crates/rigg/src/pages/sensorer.rs:560
 msgid "Viftens turtall"
-msgstr ""
+msgstr "风扇转速（RPM）"
 
 #: crates/rigg/src/pages/sensorer.rs:563
 msgid "Videominne brukt"
-msgstr ""
+msgstr "已用显存"
 
 #: crates/rigg/src/pages/sensorer.rs:564
 msgid "PCIe-generasjon"
-msgstr ""
+msgstr "PCIe 代数"
 
 #: crates/rigg/src/pages/sensorer.rs:565
 msgid "Generasjonen lenken går på nå. Kortet går ned i tomgang for å spare strøm."
-msgstr ""
+msgstr "当前链路代数。GPU 在空闲时会降速以节省电能。"
 
 #: crates/rigg/src/pages/sensorer.rs:577
 msgid "Skjermkort {nr} · {navn}"
-msgstr ""
+msgstr "GPU {nr} · {navn}"
 
 #: crates/rigg/src/pages/sensorer.rs:577
 msgid "Skjermkort"
-msgstr ""
+msgstr "GPU"
 
 #: crates/rigg/src/pages/sensorer.rs:594
 msgid "Temperatur ({sensor})"
-msgstr ""
+msgstr "温度（{sensor}）"
 
 #: crates/rigg/src/pages/sensorer.rs:594
 msgid "CPU-temperatur"
-msgstr ""
+msgstr "CPU 温度"
 
 #: crates/rigg/src/pages/sensorer.rs:595
 msgid "Temperatur fra den valgte CPU-sensoren. Samme verdi brukes i sidefeltet, på Oversikt og i Grafer."
-msgstr ""
+msgstr "选定 CPU 传感器的温度。侧栏、概览和图表使用相同的读数。"
 
 #: crates/rigg/src/pages/sensorer.rs:597
 msgid "Temperatur (Tctl)"
-msgstr ""
+msgstr "温度（Tctl）"
 
 #: crates/rigg/src/pages/sensorer.rs:599
 msgid "Tctl rapporteres av CPU-driveren. Eventuell forskyvning fra brikketemperaturen avhenger av CPU-modellen."
-msgstr ""
+msgstr "Tctl 由 CPU 驱动程序报告。与芯片实际温度的偏差取决于 CPU 型号。"
 
 #: crates/rigg/src/pages/sensorer.rs:611
 msgid "Total last"
-msgstr ""
+msgstr "总负载"
 
 #: crates/rigg/src/pages/sensorer.rs:617
 msgid "Prosessor"
-msgstr ""
+msgstr "处理器"
 
 #: crates/rigg/src/pages/sensorer.rs:617
 msgid "/proc/stat, cpufreq og hwmon"
-msgstr ""
+msgstr "/proc/stat、cpufreq 和 hwmon"
 
 #: crates/rigg/src/pages/sensorer.rs:624
 msgid "Brukt"
-msgstr ""
+msgstr "已用"
 
 #: crates/rigg/src/pages/sensorer.rs:624
 msgid "Det programmene bruker. Buffer og cache er ikke med."
-msgstr ""
+msgstr "应用程序使用的内存，不含缓冲区和缓存。"
 
 #: crates/rigg/src/pages/sensorer.rs:625
 msgid "Brukt av totalt"
-msgstr ""
+msgstr "已用占比"
 
 #: crates/rigg/src/pages/sensorer.rs:626
 msgid "Tilgjengelig"
-msgstr ""
+msgstr "可用"
 
 #: crates/rigg/src/pages/sensorer.rs:626
 msgid "Det som kan tas i bruk uten å bytte ut noe (MemAvailable)."
-msgstr ""
+msgstr "无需换页即可使用的内存（MemAvailable）。"
 
 #: crates/rigg/src/pages/sensorer.rs:627
 msgid "Swap brukt"
-msgstr ""
+msgstr "已用交换空间"
 
 #: crates/rigg/src/pages/sensorer.rs:642
 msgid "Fra SMART. UDisks2 leser den selv omtrent hvert 10. min, uten å vekke disken."
-msgstr ""
+msgstr "来自 SMART。UDisks2 约每 10 min 读取一次，不会唤醒磁盘。"
 
 #: crates/rigg/src/pages/sensorer.rs:651
 msgid "Andel av tiden disken hadde lesing eller skriving i gang."
-msgstr ""
+msgstr "磁盘正在读写的时间占比。"
 
 #: crates/rigg/src/pages/sensorer.rs:656
 msgid "Disker"
-msgstr ""
+msgstr "磁盘"
 
 #: crates/rigg/src/pages/sensorer.rs:656
 msgid "/proc/diskstats og SMART fra UDisks2"
-msgstr ""
+msgstr "/proc/diskstats 和 UDisks2 提供的 SMART"
 
 #: crates/rigg/src/pages/sensorer.rs:687
 msgid "Andre sensorer"
-msgstr ""
+msgstr "其他传感器"
 
 #: crates/rigg/src/pages/sensorer.rs:696
 msgid "mottatt"
-msgstr ""
+msgstr "接收"
 
 #: crates/rigg/src/pages/sensorer.rs:696
 msgid "sendt"
-msgstr ""
+msgstr "发送"
 
 #: crates/rigg/src/pages/sensorer.rs:699
 msgid "ikke tilkoblet"
-msgstr ""
+msgstr "未连接"
 
 #: crates/rigg/src/pages/sensorer.rs:705
 msgid "Nett"
-msgstr ""
+msgstr "网络"
 
 #: crates/rigg/src/pages/sensorer.rs:783 crates/rigg/src/pages/sensorer.rs:784 crates/rigg/src/pages/sensorer.rs:1422
 msgid "Fold sammen alle"
-msgstr ""
+msgstr "全部折叠"
 
 #: crates/rigg/src/pages/sensorer.rs:791
 msgid "Filtrer"
-msgstr ""
+msgstr "筛选"
 
 #: crates/rigg/src/pages/sensorer.rs:795
 msgid "Filtrer sensorer"
-msgstr ""
+msgstr "筛选传感器"
 
 #: crates/rigg/src/pages/sensorer.rs:796
 msgid "Filtrer sensorer. Esc tømmer filteret og avslutter søket."
-msgstr ""
+msgstr "筛选传感器。按 Esc 清除筛选条件并退出搜索。"
 
 #: crates/rigg/src/pages/sensorer.rs:800
 msgid "Min, maks og snitt regnes fra tjenesten startet eller du trykket ↺."
-msgstr ""
+msgstr "最小值、最大值和平均值从服务启动或点击 ↺ 时开始统计。"
 
 #: crates/rigg/src/pages/sensorer.rs:807 crates/rigg/src/pages/sensorer.rs:808
 msgid "Nullstill min, maks og snitt"
-msgstr ""
+msgstr "重置最小值、最大值和平均值"
 
 #: crates/rigg/src/pages/sensorer.rs:822
 msgid "Sensorer"
-msgstr ""
+msgstr "传感器"
 
 #: crates/rigg/src/pages/sensorer.rs:832 crates/rigg/src/pages/sensorer.rs:1498
 msgid "Ingen sensorer passer filteret."
-msgstr ""
+msgstr "没有符合筛选条件的传感器。"
 
 #: crates/rigg/src/pages/sensorer.rs:838
 msgid "Ikke tilgjengelig"
-msgstr ""
+msgstr "不可用"
 
 #: crates/rigg/src/pages/sensorer.rs:839
 msgid "Det som ikke kan leses, og hvorfor"
-msgstr ""
+msgstr "无法读取的数据及原因"
 
 #: crates/rigg/src/pages/sensorer.rs:905
 msgid "Snitt"
-msgstr ""
+msgstr "平均"
 
 #: crates/rigg/src/pages/sensorer.rs:906
 msgid "Snitt siden tjenesten startet eller siden siste nullstilling"
-msgstr ""
+msgstr "服务启动或上次重置以来的平均值"
 
 #: crates/rigg/src/pages/sensorer.rs:907
 msgid "Sensor"
-msgstr ""
+msgstr "传感器"
 
 #: crates/rigg/src/pages/sensorer.rs:907
 msgid "Nå"
-msgstr ""
+msgstr "当前"
 
 #: crates/rigg/src/pages/sensorer.rs:907
 msgid "Min"
-msgstr ""
+msgstr "最小"
 
 #: crates/rigg/src/pages/sensorer.rs:907
 msgid "Maks"
-msgstr ""
+msgstr "最大"
 
 #: crates/rigg/src/pages/sensorer.rs:1217
 msgid "Per tråd ({antall})"
-msgstr ""
+msgstr "按线程（{antall}）"
 
 #: crates/rigg/src/pages/sensorer.rs:1285
 msgid "Kilde: {kilde}"
-msgstr ""
+msgstr "来源：{kilde}"
 
 #: crates/rigg/src/pages/sensorer.rs:1286
 msgid "{navn}. Klikk for graf."
-msgstr ""
+msgstr "{navn}。点击查看图表。"
 
 #: crates/rigg/src/pages/sensorer.rs:1422
 msgid "Fold ut alle"
-msgstr ""
+msgstr "全部展开"
 
 #: crates/rigg/src/pages/sensorer.rs:1554
 msgid "Ikke støttet"
-msgstr ""
+msgstr "不支持"
 
 #: crates/rigg/src/pages/sensorer.rs:1555
 msgid "Kan ikke leses på dette kortet. Driveren svarer at verdien ikke støttes (NOT_SUPPORTED)."
-msgstr ""
+msgstr "无法在此 GPU 上读取。驱动程序返回 NOT_SUPPORTED。"
 
 #: crates/rigg/src/pages/sensorer.rs:1580
 msgid "Snitt gir ikke mening for en generasjon."
-msgstr ""
+msgstr "链路代数不适合求平均值。"
 
 #: crates/rigg/src/pages/sensorer.rs:1621
 msgid "Min/maks siden {tid}"
-msgstr ""
+msgstr "{tid} 以来的最小值和最大值"
 
 #: crates/rigg/src/pages/sensorer.rs:1624
 msgid "Nullstill min, maks og snitt (regnet fra {tid})"
-msgstr ""
+msgstr "重置最小值、最大值和平均值（自 {tid} 起统计）"
 
 #: crates/rigg/src/pages/sensorer.rs:1626
 msgid "Min og maks huskes mellom økter, også når appen er lukket. Snitt gjelder siden {tid}."
-msgstr ""
+msgstr "最小值和最大值会跨会话保留，即使关闭应用也不会丢失。平均值从 {tid} 起计算。"
 
 #: crates/rigg/src/pages/sensorer.rs:1628
 msgid "Min og maks gjelder siden tjenesten startet ({tid}). Snitt gjelder siden {snitt}."
-msgstr ""
+msgstr "最小值和最大值从服务启动（{tid}）起统计。平均值从 {snitt} 起计算。"
 
 #: crates/rigg/src/pages/sensorer.rs:1645
 msgid "Svarer ikke"
-msgstr ""
+msgstr "无响应"
 
 #: crates/rigg/src/pages/sensorer.rs:1647
 msgid "Skjermkortet svarer ikke ({detalj}). Tjenesten prøver å finne det igjen hvert 10. s."
-msgstr ""
+msgstr "GPU 无响应（{detalj}）。服务每 10 s 尝试查找一次。"
 
 #: crates/rigg/src/pages/sensorer.rs:1648
 msgid "Skjermkortet svarer ikke. Tjenesten prøver å finne det igjen hvert 10. s."
-msgstr ""
+msgstr "GPU 无响应。服务每 10 s 尝试查找一次。"
 
 #: crates/rigg/src/pages/sensorer.rs:1663
 msgid "P-tilstand. P0 er full ytelse, P8 er dyp tomgang."
-msgstr ""
+msgstr "性能状态。P0 表示最高性能，P8 表示深度空闲。"
 
 #: crates/rigg/src/pages/sensorer.rs:1667
 msgid "Ingen begrensning"
-msgstr ""
+msgstr "无限制"
 
 #: crates/rigg/src/pages/sensorer.rs:1670
 msgid "Klokkebegrensning akkurat nå."
-msgstr ""
+msgstr "当前频率限制。"
 
 #: crates/rigg/src/pages/sensorer.rs:1671
 msgid "Klokkebegrensning akkurat nå. I P8 leses den ikke (kallet koster 25 ms)."
-msgstr ""
+msgstr "当前频率限制。在 P8 状态下不读取（调用耗时 25 ms）。"
 
 #: crates/rigg/src/pages/sensorer.rs:1672
 msgid "Klokkebegrensning akkurat nå: {arsaker}."
-msgstr ""
+msgstr "当前频率限制：{arsaker}。"
 
 #: crates/rigg/src/pages/sensorer.rs:1673
 msgid "Klokkebegrensning akkurat nå: {arsaker}. I P8 leses den ikke (kallet koster 25 ms)."
-msgstr ""
+msgstr "当前频率限制：{arsaker}。在 P8 状态下不读取（调用耗时 25 ms）。"
 
 #: crates/rigg/src/pages/sensorer.rs:1691
 msgid "Løsne «{navn}» fra statusblokken"
-msgstr ""
+msgstr "从状态面板取消固定“{navn}”"
 
 #: crates/rigg/src/pages/sensorer.rs:1691
 msgid "Fest «{navn}» i statusblokken"
-msgstr ""
+msgstr "将“{navn}”固定到状态面板"
 
 #: crates/rigg/src/pages/sensorer.rs:1710
 msgid "Statusblokken er full ({maks} av {maks})"
-msgstr ""
+msgstr "状态面板已满（{maks}/{maks}）"
 
 #: crates/rigg/src/pages/sensorer.rs:1710
 msgid "Løsne en verdi først, eller bytt ut en under Innstillinger › Sidefelt."
-msgstr ""
+msgstr "请先取消固定一个值，或在设置 › 侧栏中替换一个值。"
 
 #: crates/rigg/src/pages/sensorer.rs:1710
 msgid "Åpne"
-msgstr ""
+msgstr "打开"
 
 #: crates/rigg/src/pages/sensorer.rs:1726
 msgid "Løsne fra statusblokken"
-msgstr ""
+msgstr "取消固定到状态面板"
 
 #: crates/rigg/src/pages/sensorer.rs:1726
 msgid "Fest i statusblokken"
-msgstr ""
+msgstr "固定到状态面板"
 
 #: crates/rigg/src/pages/sensorer.rs:1737
 msgid "Logges · alle sensorer er valgt"
-msgstr ""
+msgstr "记录中 · 已选择全部传感器"
 
 #: crates/rigg/src/pages/sensorer.rs:1740
 msgid "Ta ut av loggen"
-msgstr ""
+msgstr "停止记录此传感器"
 
 #: crates/rigg/src/pages/sensorer.rs:1740
 msgid "Ta med i loggen"
-msgstr ""
+msgstr "记录此传感器"
 
 #: crates/rigg/src/pages/sensorer.rs:1747
 msgid "Nullstill min og maks"
-msgstr ""
+msgstr "重置最小值和最大值"
 
 #: crates/rigg/src/pages/sensorer.rs:1754
 msgid "Rekkefølge i statusblokken …"
-msgstr ""
+msgstr "调整状态面板顺序…"
 
 #: crates/rigg/src/pages/sensorer.rs:1792
 msgid "Min, maks og snitt er nullstilt"
-msgstr ""
+msgstr "已重置最小值、最大值和平均值"
 
 #: crates/rigg/src/pages/sensorer.rs:1793
 msgid "Tallene var regnet fra {tid}."
-msgstr ""
+msgstr "数值原先从 {tid} 起计算。"
 
 #: crates/rigg/src/pages/sensorer.rs:1797
 msgid "Min og maks for «{navn}» er nullstilt"
-msgstr ""
+msgstr "已重置“{navn}”的最小值和最大值"
 
 #: crates/rigg/src/pages/sensorer.rs:1801
 msgid "Angre"
-msgstr ""
+msgstr "撤销"
 
 #: crates/rigg/src/pages/sensorer.rs:1832
 msgid "Kunne ikke nullstille"
-msgstr ""
+msgstr "无法重置"
 
 #: crates/rigg/src/pages/sensorer.rs:1874
 msgid "Tidsvindu for grafen"
-msgstr ""
+msgstr "图表时间范围"
 
 #: crates/rigg/src/pages/sensorer.rs:1884 crates/rigg/src/pages/sensorer.rs:1885
 msgid "Lukk grafen"
-msgstr ""
+msgstr "关闭图表"
 
 #: crates/rigg/src/pages/sensorer.rs:1947
 msgid "Graf: {navn}, kilde {kilde}. Mellomrom setter på pause."
-msgstr ""
+msgstr "图表：{navn}，来源：{kilde}。按 Space 暂停。"
 
 #: crates/rigg/src/pages/sensorer.rs:1948
 msgid "Graf: {navn}. Mellomrom setter på pause."
-msgstr ""
+msgstr "图表：{navn}。按空格键暂停。"
 
 #: crates/rigg/src/pages/sensorer.rs:2123
 msgid "Ikke innsamlet av appen. Tilgjengelighet for dette kortet og denne driveren er ikke verifisert her."
-msgstr ""
+msgstr "应用未采集此数据。尚未验证此 GPU 和驱动程序是否支持读取。"
 
 #: crates/rigg/src/pages/sensorer.rs:2124
 msgid "Skjermkort · Hotspot-temperatur"
-msgstr ""
+msgstr "GPU · 热点温度"
 
 #: crates/rigg/src/pages/sensorer.rs:2125
 msgid "Skjermkort · Minnetemperatur"
-msgstr ""
+msgstr "GPU · 显存温度"
 
 #: crates/rigg/src/pages/sensorer.rs:2126
 msgid "Skjermkort · Kjernespenning"
-msgstr ""
+msgstr "GPU · 核心电压"
 
 #: crates/rigg/src/pages/sensorer.rs:2126
 msgid "Ikke innsamlet: appen samler ikke inn GPU-kjernespenning."
-msgstr ""
+msgstr "未采集：应用不读取 GPU 核心电压。"
 
 #: crates/rigg/src/pages/sensorer.rs:2129
 msgid "Prosessor · Kjernespenning"
-msgstr ""
+msgstr "CPU · 核心电压"
 
 #: crates/rigg/src/pages/sensorer.rs:2129
 msgid "Ikke innsamlet av appen. Målekilde og tilgang avhenger av CPU, hovedkort og driver."
-msgstr ""
+msgstr "应用未采集。测量来源和读取权限取决于 CPU、主板和驱动程序。"
 
 #: crates/rigg/src/pages/sensorer.rs:2131
 msgid "Hovedkort · vifter, spenninger og temperaturer"
-msgstr ""
+msgstr "主板 · 风扇、电压和温度"
 
 #: crates/rigg/src/pages/sensorer.rs:2131
 msgid "Ingen gjenkjent hovedkortsensor er tilgjengelig i hwmon. Sensorbrikke og driverstøtte er ikke verifisert; appen laster ikke kjernemoduler."
-msgstr ""
+msgstr "hwmon 中没有可识别的主板传感器。尚未验证传感器芯片和驱动程序支持；应用不会加载内核模块。"
 
 #: crates/rigg/src/pages/sensorer.rs:2137 crates/rigg/src/pages/sensorer.rs:2147
 msgid "Krever root"
-msgstr ""
+msgstr "需要 root 权限"
 
 #: crates/rigg/src/pages/sensorer.rs:2147
 msgid "Ikke støttet eller ikke tilgjengelig"
-msgstr ""
+msgstr "不支持或不可用"

@@ -1,6 +1,7 @@
 # Bygg og lokale data
 target/
 node_modules/
+__pycache__/
 .data/
 *.swp
 *~

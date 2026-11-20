@@ -7,7 +7,6 @@
 //! Alt leses én gang (`get_system`), uten root. Multiplikator, bussklokke,
 //! spenning og pakkeeffekt krever MSR eller RAPL (root) og leses ikke.
 
-use rigg_core::tr;
 use serde_json::{Value, json};
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
@@ -445,7 +444,7 @@ pub fn read(root: &Path) -> Value {
     }
 
     json!({
-        "name": get("model name").map(|n| n.split_whitespace().collect::<Vec<_>>().join(" ")).unwrap_or_else(|| tr!("Ukjent prosessor").into()),
+        "name": get("model name").map(|n| n.split_whitespace().collect::<Vec<_>>().join(" ")).unwrap_or_else(|| "Ukjent prosessor".into()),
         "vendor": vendor,
         "vendorName": match vendor.as_deref() { Some("AuthenticAMD") => Some("AMD"), Some("GenuineIntel") => Some("Intel"), _ => None }.map(str::to_string).or(vendor.clone()),
         "family": family,

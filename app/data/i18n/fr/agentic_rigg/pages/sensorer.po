@@ -6,575 +6,576 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg/src/pages/sensorer.rs:344
 msgid "GPU-temp"
-msgstr ""
+msgstr "Temp. GPU"
 
 #: crates/rigg/src/pages/sensorer.rs:345 crates/rigg/src/pages/sensorer.rs:540
 msgid "GPU-last"
-msgstr ""
+msgstr "Charge GPU"
 
 #: crates/rigg/src/pages/sensorer.rs:346
 msgid "Minnekontr."
-msgstr ""
+msgstr "Contrôl. mém."
 
 #: crates/rigg/src/pages/sensorer.rs:347
 msgid "Encoder"
-msgstr ""
+msgstr "Encodeur"
 
 #: crates/rigg/src/pages/sensorer.rs:348
 msgid "Decoder"
-msgstr ""
+msgstr "Décodeur"
 
 #: crates/rigg/src/pages/sensorer.rs:349 crates/rigg/src/pages/sensorer.rs:544
 msgid "Kjerneklokke"
-msgstr ""
+msgstr "Fréq. cœur"
 
 #: crates/rigg/src/pages/sensorer.rs:350 crates/rigg/src/pages/sensorer.rs:545
 msgid "SM-klokke"
-msgstr ""
+msgstr "Fréquence SM"
 
 #: crates/rigg/src/pages/sensorer.rs:351 crates/rigg/src/pages/sensorer.rs:546
 msgid "Minneklokke"
-msgstr ""
+msgstr "Fréquence mémoire"
 
 #: crates/rigg/src/pages/sensorer.rs:352 crates/rigg/src/pages/sensorer.rs:547
 msgid "Videoklokke"
-msgstr ""
+msgstr "Fréquence vidéo"
 
 #: crates/rigg/src/pages/sensorer.rs:353
 msgid "Effekt"
-msgstr ""
+msgstr "Puissance"
 
 #: crates/rigg/src/pages/sensorer.rs:354 crates/rigg/src/pages/sensorer.rs:549
 msgid "Effektgrense"
-msgstr ""
+msgstr "Limite de puissance"
 
 #: crates/rigg/src/pages/sensorer.rs:355
 msgid "Vifte"
-msgstr ""
+msgstr "Ventilateur"
 
 #: crates/rigg/src/pages/sensorer.rs:358
 msgid "Vifte {nr} o/min"
-msgstr ""
+msgstr "Ventilateur {nr} tr/min"
 
 #: crates/rigg/src/pages/sensorer.rs:359 crates/rigg/src/pages/sensorer.rs:553
 msgid "Vifte {nr}"
-msgstr ""
+msgstr "Ventilateur {nr}"
 
 #: crates/rigg/src/pages/sensorer.rs:366
 msgid "CPU-temp"
-msgstr ""
+msgstr "Temp. CPU"
 
 #: crates/rigg/src/pages/sensorer.rs:368
 msgid "CPU-last"
-msgstr ""
+msgstr "Charge CPU"
 
 #: crates/rigg/src/pages/sensorer.rs:369
 msgid "CPU-tråd {nr}"
-msgstr ""
+msgstr "Thread CPU {nr}"
 
 #: crates/rigg/src/pages/sensorer.rs:370 crates/rigg/src/pages/sensorer.rs:613
 msgid "Tråd {nr}"
-msgstr ""
+msgstr "Thread {nr}"
 
 #: crates/rigg/src/pages/sensorer.rs:371
 msgid "RAM brukt"
-msgstr ""
+msgstr "RAM utilisée"
 
 #: crates/rigg/src/pages/sensorer.rs:372 crates/rigg/src/pages/sensorer.rs:621
 msgid "Minne"
-msgstr ""
+msgstr "Mémoire"
 
 #: crates/rigg/src/pages/sensorer.rs:373
 msgid "RAM ledig"
-msgstr ""
+msgstr "RAM disponible"
 
 #: crates/rigg/src/pages/sensorer.rs:374
 msgid "Swap"
-msgstr ""
+msgstr "Espace d’échange"
 
 #: crates/rigg/src/pages/sensorer.rs:375
 msgid "Mottatt"
-msgstr ""
+msgstr "Reçu"
 
 #: crates/rigg/src/pages/sensorer.rs:376
 msgid "Sendt"
-msgstr ""
+msgstr "Envoyé"
 
 #: crates/rigg/src/pages/sensorer.rs:378 crates/rigg/src/pages/sensorer.rs:383
 msgid "Disk les"
-msgstr ""
+msgstr "Lecture disque"
 
 #: crates/rigg/src/pages/sensorer.rs:379 crates/rigg/src/pages/sensorer.rs:384
 msgid "Disk skriv"
-msgstr ""
+msgstr "Écriture disque"
 
 #: crates/rigg/src/pages/sensorer.rs:382
 msgid "Disktemp"
-msgstr ""
+msgstr "Temp. disque"
 
 #: crates/rigg/src/pages/sensorer.rs:385
 msgid "Disk aktiv"
-msgstr ""
+msgstr "Activité disque"
 
 #: crates/rigg/src/pages/sensorer.rs:402
 msgid "temp"
-msgstr ""
+msgstr "temp."
 
 #: crates/rigg/src/pages/sensorer.rs:402 crates/rigg/src/pages/sensorer.rs:640
 msgid "temperatur"
-msgstr ""
+msgstr "température"
 
 #: crates/rigg/src/pages/sensorer.rs:403
 msgid "les"
-msgstr ""
+msgstr "lecture"
 
 #: crates/rigg/src/pages/sensorer.rs:403 crates/rigg/src/pages/sensorer.rs:646
 msgid "lesing"
-msgstr ""
+msgstr "lecture"
 
 #: crates/rigg/src/pages/sensorer.rs:404
 msgid "skriv"
-msgstr ""
+msgstr "écriture"
 
 #: crates/rigg/src/pages/sensorer.rs:404 crates/rigg/src/pages/sensorer.rs:647
 msgid "skriving"
-msgstr ""
+msgstr "écriture"
 
 #: crates/rigg/src/pages/sensorer.rs:405
 msgid "aktiv"
-msgstr ""
+msgstr "actif"
 
 #: crates/rigg/src/pages/sensorer.rs:405 crates/rigg/src/pages/sensorer.rs:649
 msgid "aktivitet"
-msgstr ""
+msgstr "activité"
 
 #: crates/rigg/src/pages/sensorer.rs:539
 msgid "Temperatur"
-msgstr ""
+msgstr "Température"
 
 #: crates/rigg/src/pages/sensorer.rs:539
 msgid "NVML · den eneste temperatursensoren på kortet"
-msgstr ""
+msgstr "NVML · seul capteur de température du GPU"
 
 #: crates/rigg/src/pages/sensorer.rs:541
 msgid "Minnekontroller-last"
-msgstr ""
+msgstr "Charge du contrôleur mémoire"
 
 #: crates/rigg/src/pages/sensorer.rs:542
 msgid "Videokoder (encoder)"
-msgstr ""
+msgstr "Encodeur vidéo"
 
 #: crates/rigg/src/pages/sensorer.rs:543
 msgid "Videodekoder (decoder)"
-msgstr ""
+msgstr "Décodeur vidéo"
 
 #: crates/rigg/src/pages/sensorer.rs:548
 msgid "Effekttrekk"
-msgstr ""
+msgstr "Puissance consommée"
 
 #: crates/rigg/src/pages/sensorer.rs:548
 msgid "Snitt for perioden, regnet fra kortets energiteller."
-msgstr ""
+msgstr "Moyenne sur la période, calculée à partir du compteur d’énergie du GPU."
 
 #: crates/rigg/src/pages/sensorer.rs:549
 msgid "Grensen kortet håndhever nå."
-msgstr ""
+msgstr "Limite actuellement appliquée par le GPU."
 
 #: crates/rigg/src/pages/sensorer.rs:556
 msgid "Viftefart"
-msgstr ""
+msgstr "Vitesse du ventilateur"
 
 #: crates/rigg/src/pages/sensorer.rs:560
 msgid "Vifte {nr}, turtall"
-msgstr ""
+msgstr "Vitesse du ventilateur {nr}"
 
 #: crates/rigg/src/pages/sensorer.rs:560
 msgid "Viftens turtall"
-msgstr ""
+msgstr "Vitesse du ventilateur en tr/min"
 
 #: crates/rigg/src/pages/sensorer.rs:563
 msgid "Videominne brukt"
-msgstr ""
+msgstr "Mémoire vidéo utilisée"
 
 #: crates/rigg/src/pages/sensorer.rs:564
 msgid "PCIe-generasjon"
-msgstr ""
+msgstr "Génération PCIe"
 
 #: crates/rigg/src/pages/sensorer.rs:565
 msgid "Generasjonen lenken går på nå. Kortet går ned i tomgang for å spare strøm."
-msgstr ""
+msgstr "Génération actuelle du lien. Au repos, le GPU la réduit pour économiser de l’énergie."
 
 #: crates/rigg/src/pages/sensorer.rs:577
 msgid "Skjermkort {nr} · {navn}"
-msgstr ""
+msgstr "GPU {nr} · {navn}"
 
 #: crates/rigg/src/pages/sensorer.rs:577
 msgid "Skjermkort"
-msgstr ""
+msgstr "GPU"
 
 #: crates/rigg/src/pages/sensorer.rs:594
 msgid "Temperatur ({sensor})"
-msgstr ""
+msgstr "Température ({sensor})"
 
 #: crates/rigg/src/pages/sensorer.rs:594
 msgid "CPU-temperatur"
-msgstr ""
+msgstr "Température du CPU"
 
 #: crates/rigg/src/pages/sensorer.rs:595
 msgid "Temperatur fra den valgte CPU-sensoren. Samme verdi brukes i sidefeltet, på Oversikt og i Grafer."
-msgstr ""
+msgstr "Température du capteur CPU sélectionné. La barre latérale, la vue d’ensemble et les graphiques utilisent la même valeur."
 
 #: crates/rigg/src/pages/sensorer.rs:597
 msgid "Temperatur (Tctl)"
-msgstr ""
+msgstr "Température (Tctl)"
 
 #: crates/rigg/src/pages/sensorer.rs:599
 msgid "Tctl rapporteres av CPU-driveren. Eventuell forskyvning fra brikketemperaturen avhenger av CPU-modellen."
-msgstr ""
+msgstr "Tctl est fourni par le pilote du CPU. L’éventuel écart avec la température de la puce dépend du modèle de CPU."
 
 #: crates/rigg/src/pages/sensorer.rs:611
 msgid "Total last"
-msgstr ""
+msgstr "Charge totale"
 
 #: crates/rigg/src/pages/sensorer.rs:617
 msgid "Prosessor"
-msgstr ""
+msgstr "Processeur"
 
 #: crates/rigg/src/pages/sensorer.rs:617
 msgid "/proc/stat, cpufreq og hwmon"
-msgstr ""
+msgstr "/proc/stat, cpufreq et hwmon"
 
 #: crates/rigg/src/pages/sensorer.rs:624
 msgid "Brukt"
-msgstr ""
+msgstr "Utilisé"
 
 #: crates/rigg/src/pages/sensorer.rs:624
 msgid "Det programmene bruker. Buffer og cache er ikke med."
-msgstr ""
+msgstr "Mémoire utilisée par les applications, hors tampons et cache."
 
 #: crates/rigg/src/pages/sensorer.rs:625
 msgid "Brukt av totalt"
-msgstr ""
+msgstr "Part utilisée"
 
 #: crates/rigg/src/pages/sensorer.rs:626
 msgid "Tilgjengelig"
-msgstr ""
+msgstr "Disponible"
 
 #: crates/rigg/src/pages/sensorer.rs:626
 msgid "Det som kan tas i bruk uten å bytte ut noe (MemAvailable)."
-msgstr ""
+msgstr "Mémoire utilisable sans recours au swap (MemAvailable)."
 
 #: crates/rigg/src/pages/sensorer.rs:627
 msgid "Swap brukt"
-msgstr ""
+msgstr "Swap utilisé"
 
 #: crates/rigg/src/pages/sensorer.rs:642
 msgid "Fra SMART. UDisks2 leser den selv omtrent hvert 10. min, uten å vekke disken."
-msgstr ""
+msgstr "Donnée SMART. UDisks2 la lit environ toutes les 10 min sans réveiller le disque."
 
 #: crates/rigg/src/pages/sensorer.rs:651
 msgid "Andel av tiden disken hadde lesing eller skriving i gang."
-msgstr ""
+msgstr "Part du temps pendant lequel le disque lit ou écrit."
 
 #: crates/rigg/src/pages/sensorer.rs:656
 msgid "Disker"
-msgstr ""
+msgstr "Disques"
 
 #: crates/rigg/src/pages/sensorer.rs:656
 msgid "/proc/diskstats og SMART fra UDisks2"
-msgstr ""
+msgstr "/proc/diskstats et SMART via UDisks2"
 
 #: crates/rigg/src/pages/sensorer.rs:687
 msgid "Andre sensorer"
-msgstr ""
+msgstr "Autres capteurs"
 
 #: crates/rigg/src/pages/sensorer.rs:696
 msgid "mottatt"
-msgstr ""
+msgstr "reçu"
 
 #: crates/rigg/src/pages/sensorer.rs:696
 msgid "sendt"
-msgstr ""
+msgstr "envoyé"
 
 #: crates/rigg/src/pages/sensorer.rs:699
 msgid "ikke tilkoblet"
-msgstr ""
+msgstr "déconnecté"
 
 #: crates/rigg/src/pages/sensorer.rs:705
 msgid "Nett"
-msgstr ""
+msgstr "Réseau"
 
 #: crates/rigg/src/pages/sensorer.rs:783 crates/rigg/src/pages/sensorer.rs:784 crates/rigg/src/pages/sensorer.rs:1422
 msgid "Fold sammen alle"
-msgstr ""
+msgstr "Tout replier"
 
 #: crates/rigg/src/pages/sensorer.rs:791
 msgid "Filtrer"
-msgstr ""
+msgstr "Filtrer"
 
 #: crates/rigg/src/pages/sensorer.rs:795
 msgid "Filtrer sensorer"
-msgstr ""
+msgstr "Filtrer les capteurs"
 
 #: crates/rigg/src/pages/sensorer.rs:796
 msgid "Filtrer sensorer. Esc tømmer filteret og avslutter søket."
-msgstr ""
+msgstr "Filtre les capteurs. Esc efface le filtre et ferme la recherche."
 
 #: crates/rigg/src/pages/sensorer.rs:800
 msgid "Min, maks og snitt regnes fra tjenesten startet eller du trykket ↺."
-msgstr ""
+msgstr "Min., max. et moy. sont calculés depuis le démarrage du service ou le dernier clic sur ↺."
 
 #: crates/rigg/src/pages/sensorer.rs:807 crates/rigg/src/pages/sensorer.rs:808
 msgid "Nullstill min, maks og snitt"
-msgstr ""
+msgstr "Réinitialiser min., max. et moy."
 
 #: crates/rigg/src/pages/sensorer.rs:822
 msgid "Sensorer"
-msgstr ""
+msgstr "Capteurs"
 
 #: crates/rigg/src/pages/sensorer.rs:832 crates/rigg/src/pages/sensorer.rs:1498
 msgid "Ingen sensorer passer filteret."
-msgstr ""
+msgstr "Aucun capteur ne correspond au filtre."
 
 #: crates/rigg/src/pages/sensorer.rs:838
 msgid "Ikke tilgjengelig"
-msgstr ""
+msgstr "Indisponible"
 
 #: crates/rigg/src/pages/sensorer.rs:839
 msgid "Det som ikke kan leses, og hvorfor"
-msgstr ""
+msgstr "Données illisibles et raisons"
 
 #: crates/rigg/src/pages/sensorer.rs:905
 msgid "Snitt"
-msgstr ""
+msgstr "Moy."
 
 #: crates/rigg/src/pages/sensorer.rs:906
 msgid "Snitt siden tjenesten startet eller siden siste nullstilling"
-msgstr ""
+msgstr "Moyenne depuis le démarrage du service ou la dernière réinitialisation"
 
 #: crates/rigg/src/pages/sensorer.rs:907
 msgid "Sensor"
-msgstr ""
+msgstr "Capteur"
 
 #: crates/rigg/src/pages/sensorer.rs:907
 msgid "Nå"
-msgstr ""
+msgstr "Actuel"
 
 #: crates/rigg/src/pages/sensorer.rs:907
 msgid "Min"
-msgstr ""
+msgstr "Min."
 
 #: crates/rigg/src/pages/sensorer.rs:907
 msgid "Maks"
-msgstr ""
+msgstr "Max."
 
 #: crates/rigg/src/pages/sensorer.rs:1217
 msgid "Per tråd ({antall})"
-msgstr ""
+msgstr "Par thread ({antall})"
 
 #: crates/rigg/src/pages/sensorer.rs:1285
 msgid "Kilde: {kilde}"
-msgstr ""
+msgstr "Source : {kilde}"
 
 #: crates/rigg/src/pages/sensorer.rs:1286
 msgid "{navn}. Klikk for graf."
-msgstr ""
+msgstr "{navn}. Cliquez pour afficher le graphique."
 
 #: crates/rigg/src/pages/sensorer.rs:1422
 msgid "Fold ut alle"
-msgstr ""
+msgstr "Tout déplier"
 
 #: crates/rigg/src/pages/sensorer.rs:1554
 msgid "Ikke støttet"
-msgstr ""
+msgstr "Non pris en charge"
 
 #: crates/rigg/src/pages/sensorer.rs:1555
 msgid "Kan ikke leses på dette kortet. Driveren svarer at verdien ikke støttes (NOT_SUPPORTED)."
-msgstr ""
+msgstr "Valeur illisible sur ce GPU. Le pilote renvoie NOT_SUPPORTED."
 
 #: crates/rigg/src/pages/sensorer.rs:1580
 msgid "Snitt gir ikke mening for en generasjon."
-msgstr ""
+msgstr "Calculer une moyenne de générations de lien n’a pas de sens."
 
 #: crates/rigg/src/pages/sensorer.rs:1621
 msgid "Min/maks siden {tid}"
-msgstr ""
+msgstr "Min./max. depuis {tid}"
 
 #: crates/rigg/src/pages/sensorer.rs:1624
 msgid "Nullstill min, maks og snitt (regnet fra {tid})"
-msgstr ""
+msgstr "Réinitialiser min., max. et moy. (calculés depuis {tid})"
 
 #: crates/rigg/src/pages/sensorer.rs:1626
 msgid "Min og maks huskes mellom økter, også når appen er lukket. Snitt gjelder siden {tid}."
-msgstr ""
+msgstr "Les min. et max. sont conservés entre les sessions, même si l’application est fermée. La moyenne est calculée depuis {tid}."
 
 #: crates/rigg/src/pages/sensorer.rs:1628
 msgid "Min og maks gjelder siden tjenesten startet ({tid}). Snitt gjelder siden {snitt}."
-msgstr ""
+msgstr "Les min. et max. sont calculés depuis le démarrage du service ({tid}). La moyenne est calculée depuis {snitt}."
 
 #: crates/rigg/src/pages/sensorer.rs:1645
 msgid "Svarer ikke"
-msgstr ""
+msgstr "Ne répond pas"
 
 #: crates/rigg/src/pages/sensorer.rs:1647
 msgid "Skjermkortet svarer ikke ({detalj}). Tjenesten prøver å finne det igjen hvert 10. s."
-msgstr ""
+msgstr "Le GPU ne répond pas ({detalj}). Le service le recherche toutes les 10 s."
 
 #: crates/rigg/src/pages/sensorer.rs:1648
 msgid "Skjermkortet svarer ikke. Tjenesten prøver å finne det igjen hvert 10. s."
-msgstr ""
+msgstr "Le GPU ne répond pas. Le service le recherche toutes les 10 s."
 
 #: crates/rigg/src/pages/sensorer.rs:1663
 msgid "P-tilstand. P0 er full ytelse, P8 er dyp tomgang."
-msgstr ""
+msgstr "État de performance. P0 correspond aux performances maximales, P8 à l’inactivité profonde."
 
 #: crates/rigg/src/pages/sensorer.rs:1667
 msgid "Ingen begrensning"
-msgstr ""
+msgstr "Aucune limite"
 
 #: crates/rigg/src/pages/sensorer.rs:1670
 msgid "Klokkebegrensning akkurat nå."
-msgstr ""
+msgstr "Limite de fréquence actuelle."
 
 #: crates/rigg/src/pages/sensorer.rs:1671
 msgid "Klokkebegrensning akkurat nå. I P8 leses den ikke (kallet koster 25 ms)."
-msgstr ""
+msgstr "Limite de fréquence actuelle. Non lue en P8 (l’appel prend 25 ms)."
 
 #: crates/rigg/src/pages/sensorer.rs:1672
 msgid "Klokkebegrensning akkurat nå: {arsaker}."
-msgstr ""
+msgstr "Limite de fréquence actuelle : {arsaker}."
 
 #: crates/rigg/src/pages/sensorer.rs:1673
 msgid "Klokkebegrensning akkurat nå: {arsaker}. I P8 leses den ikke (kallet koster 25 ms)."
-msgstr ""
+msgstr "Limite de fréquence actuelle : {arsaker}. Non lue en P8 (l’appel prend 25 ms)."
 
 #: crates/rigg/src/pages/sensorer.rs:1691
 msgid "Løsne «{navn}» fra statusblokken"
-msgstr ""
+msgstr "Détacher « {navn} » du panneau d’état"
 
 #: crates/rigg/src/pages/sensorer.rs:1691
 msgid "Fest «{navn}» i statusblokken"
-msgstr ""
+msgstr "Épingler « {navn} » au panneau d’état"
 
 #: crates/rigg/src/pages/sensorer.rs:1710
 msgid "Statusblokken er full ({maks} av {maks})"
-msgstr ""
+msgstr "Panneau d’état plein ({maks} sur {maks})"
 
 #: crates/rigg/src/pages/sensorer.rs:1710
 msgid "Løsne en verdi først, eller bytt ut en under Innstillinger › Sidefelt."
-msgstr ""
+msgstr "Détachez d’abord une valeur ou remplacez-en une dans Paramètres › Barre latérale."
 
 #: crates/rigg/src/pages/sensorer.rs:1710
 msgid "Åpne"
-msgstr ""
+msgstr "Ouvrir"
 
 #: crates/rigg/src/pages/sensorer.rs:1726
 msgid "Løsne fra statusblokken"
-msgstr ""
+msgstr "Détacher du panneau d’état"
 
 #: crates/rigg/src/pages/sensorer.rs:1726
 msgid "Fest i statusblokken"
-msgstr ""
+msgstr "Épingler au panneau d’état"
 
 #: crates/rigg/src/pages/sensorer.rs:1737
 msgid "Logges · alle sensorer er valgt"
-msgstr ""
+msgstr "Journalisation · tous les capteurs sélectionnés"
 
 #: crates/rigg/src/pages/sensorer.rs:1740
 msgid "Ta ut av loggen"
-msgstr ""
+msgstr "Retirer du journal"
 
 #: crates/rigg/src/pages/sensorer.rs:1740
 msgid "Ta med i loggen"
-msgstr ""
+msgstr "Ajouter au journal"
 
 #: crates/rigg/src/pages/sensorer.rs:1747
 msgid "Nullstill min og maks"
-msgstr ""
+msgstr "Réinitialiser min. et max."
 
 #: crates/rigg/src/pages/sensorer.rs:1754
 msgid "Rekkefølge i statusblokken …"
-msgstr ""
+msgstr "Réorganiser le panneau d’état…"
 
 #: crates/rigg/src/pages/sensorer.rs:1792
 msgid "Min, maks og snitt er nullstilt"
-msgstr ""
+msgstr "Min., max. et moy. réinitialisés"
 
 #: crates/rigg/src/pages/sensorer.rs:1793
 msgid "Tallene var regnet fra {tid}."
-msgstr ""
+msgstr "Les valeurs étaient calculées depuis {tid}."
 
 #: crates/rigg/src/pages/sensorer.rs:1797
 msgid "Min og maks for «{navn}» er nullstilt"
-msgstr ""
+msgstr "Min. et max. de « {navn} » réinitialisés"
 
 #: crates/rigg/src/pages/sensorer.rs:1801
 msgid "Angre"
-msgstr ""
+msgstr "Annuler"
 
 #: crates/rigg/src/pages/sensorer.rs:1832
 msgid "Kunne ikke nullstille"
-msgstr ""
+msgstr "Échec de la réinitialisation"
 
 #: crates/rigg/src/pages/sensorer.rs:1874
 msgid "Tidsvindu for grafen"
-msgstr ""
+msgstr "Période du graphique"
 
 #: crates/rigg/src/pages/sensorer.rs:1884 crates/rigg/src/pages/sensorer.rs:1885
 msgid "Lukk grafen"
-msgstr ""
+msgstr "Fermer le graphique"
 
 #: crates/rigg/src/pages/sensorer.rs:1947
 msgid "Graf: {navn}, kilde {kilde}. Mellomrom setter på pause."
-msgstr ""
+msgstr "Graphique : {navn}, source {kilde}. Space pour mettre en pause."
 
 #: crates/rigg/src/pages/sensorer.rs:1948
 msgid "Graf: {navn}. Mellomrom setter på pause."
-msgstr ""
+msgstr "Graphique : {navn}. Espace pour mettre en pause."
 
 #: crates/rigg/src/pages/sensorer.rs:2123
 msgid "Ikke innsamlet av appen. Tilgjengelighet for dette kortet og denne driveren er ikke verifisert her."
-msgstr ""
+msgstr "Non collecté par l’application. La disponibilité avec ce GPU et ce pilote n’a pas été vérifiée."
 
 #: crates/rigg/src/pages/sensorer.rs:2124
 msgid "Skjermkort · Hotspot-temperatur"
-msgstr ""
+msgstr "GPU · température du point chaud"
 
 #: crates/rigg/src/pages/sensorer.rs:2125
 msgid "Skjermkort · Minnetemperatur"
-msgstr ""
+msgstr "GPU · température mémoire"
 
 #: crates/rigg/src/pages/sensorer.rs:2126
 msgid "Skjermkort · Kjernespenning"
-msgstr ""
+msgstr "GPU · tension du cœur"
 
 #: crates/rigg/src/pages/sensorer.rs:2126
 msgid "Ikke innsamlet: appen samler ikke inn GPU-kjernespenning."
-msgstr ""
+msgstr "Non collecté : l’application ne relève pas la tension du cœur du GPU."
 
 #: crates/rigg/src/pages/sensorer.rs:2129
 msgid "Prosessor · Kjernespenning"
-msgstr ""
+msgstr "CPU · tension du cœur"
 
 #: crates/rigg/src/pages/sensorer.rs:2129
 msgid "Ikke innsamlet av appen. Målekilde og tilgang avhenger av CPU, hovedkort og driver."
-msgstr ""
+msgstr "Non collecté par l’application. La source et l’accès dépendent du CPU, de la carte mère et du pilote."
 
 #: crates/rigg/src/pages/sensorer.rs:2131
 msgid "Hovedkort · vifter, spenninger og temperaturer"
-msgstr ""
+msgstr "Carte mère · ventilateurs, tensions et températures"
 
 #: crates/rigg/src/pages/sensorer.rs:2131
 msgid "Ingen gjenkjent hovedkortsensor er tilgjengelig i hwmon. Sensorbrikke og driverstøtte er ikke verifisert; appen laster ikke kjernemoduler."
-msgstr ""
+msgstr "Aucun capteur de carte mère reconnu n’est disponible dans hwmon. La puce du capteur et la prise en charge par le pilote n’ont pas été vérifiées. L’application ne charge pas de module du noyau."
 
 #: crates/rigg/src/pages/sensorer.rs:2137 crates/rigg/src/pages/sensorer.rs:2147
 msgid "Krever root"
-msgstr ""
+msgstr "Root requis"
 
 #: crates/rigg/src/pages/sensorer.rs:2147
 msgid "Ikke støttet eller ikke tilgjengelig"
-msgstr ""
+msgstr "Non pris en charge ou indisponible"

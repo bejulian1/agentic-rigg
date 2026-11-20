@@ -6,21 +6,23 @@
 use crate::model::{HwmonDevice, HwmonSensor, SysSample};
 use crate::{tr, trf};
 
-const DEVICES: &[(&str, fn() -> &'static str)] = &[
-    ("k10temp", || tr!("Prosessor")),
-    ("coretemp", || tr!("Prosessor")),
-    ("zenpower", || tr!("Prosessor")),
-    ("iwlwifi", || tr!("Wi-Fi-kort")),
-    ("ucsi_source_psy", || tr!("USB-C-kontroller (skjermkort)")),
-    ("hidpp_battery", || tr!("Batteri i trådløs mus/tastatur")),
-    ("nvme", || tr!("NVMe-disk")),
-    ("drivetemp", || tr!("Disk")),
-    ("amdgpu", || tr!("AMD-grafikk")),
-    ("nouveau", || tr!("Skjermkort (nouveau)")),
-    ("acpitz", || tr!("ACPI-termisk sone")),
-    ("spd5118", || tr!("Minnemodul")),
-    ("jc42", || tr!("Minnemodul")),
-    ("cros_ec", || tr!("Innebygd kontroller")),
+type DeviceLabel = (&'static str, &'static str, fn() -> &'static str);
+
+const DEVICES: &[DeviceLabel] = &[
+    ("k10temp", "Prosessor", || tr!("Prosessor")),
+    ("coretemp", "Prosessor", || tr!("Prosessor")),
+    ("zenpower", "Prosessor", || tr!("Prosessor")),
+    ("iwlwifi", "Wi-Fi-kort", || tr!("Wi-Fi-kort")),
+    ("ucsi_source_psy", "USB-C-kontroller (skjermkort)", || tr!("USB-C-kontroller (skjermkort)")),
+    ("hidpp_battery", "Batteri i trådløs mus/tastatur", || tr!("Batteri i trådløs mus/tastatur")),
+    ("nvme", "NVMe-disk", || tr!("NVMe-disk")),
+    ("drivetemp", "Disk", || tr!("Disk")),
+    ("amdgpu", "AMD-grafikk", || tr!("AMD-grafikk")),
+    ("nouveau", "Skjermkort (nouveau)", || tr!("Skjermkort (nouveau)")),
+    ("acpitz", "ACPI-termisk sone", || tr!("ACPI-termisk sone")),
+    ("spd5118", "Minnemodul", || tr!("Minnemodul")),
+    ("jc42", "Minnemodul", || tr!("Minnemodul")),
+    ("cros_ec", "Innebygd kontroller", || tr!("Innebygd kontroller")),
 ];
 
 fn starts_digits(s: &str, prefix: &str) -> bool {
@@ -34,11 +36,15 @@ pub fn is_motherboard(raw: &str) -> bool {
 
 /// «Prosessor» for k10temp, ellers det rå navnet.
 pub fn device_name(raw: &str) -> String {
+    device_label(raw, true)
+}
+
+pub(crate) fn device_label(raw: &str, localized: bool) -> String {
     let exact = ["k10temp", "coretemp", "zenpower", "nvme", "drivetemp", "amdgpu", "nouveau", "acpitz", "spd5118", "jc42"];
-    for (k, v) in DEVICES {
+    for (k, nb, translate) in DEVICES {
         let hit = if exact.contains(k) { raw == *k } else { raw.starts_with(k) };
         if hit {
-            return v().to_string();
+            return if localized { translate() } else { nb }.to_string();
         }
     }
     let ath = raw.strip_prefix("ath").is_some_and(|r| {
@@ -46,39 +52,49 @@ pub fn device_name(raw: &str) -> String {
         rest.len() < r.len() && rest.starts_with('k')
     });
     if ath || starts_digits(raw, "mt7") {
-        return tr!("Wi-Fi-kort").into();
+        return if localized { tr!("Wi-Fi-kort") } else { "Wi-Fi-kort" }.into();
     }
     if is_motherboard(raw) {
-        return tr!("Hovedkort").into();
+        return if localized { tr!("Hovedkort") } else { "Hovedkort" }.into();
     }
     if raw.to_ascii_lowercase().starts_with("battery") || starts_digits(raw, "BAT") {
-        return tr!("Batteri").into();
+        return if localized { tr!("Batteri") } else { "Batteri" }.into();
     }
     if ["r8169", "igb", "e1000"].iter().any(|p| raw.starts_with(p)) {
-        return tr!("Nettverkskort").into();
+        return if localized { tr!("Nettverkskort") } else { "Nettverkskort" }.into();
     }
     raw.to_string()
 }
 
-fn kind_name(kind: &str) -> &str {
-    match kind {
-        "temp" => tr!("temperatur"),
-        "fan" => tr!("vifte"),
-        "in" => tr!("spenning"),
-        "power" => tr!("effekt"),
-        "curr" => tr!("strøm"),
-        other => other,
+fn kind_name(kind: &str, localized: bool) -> &str {
+    match (kind, localized) {
+        ("temp", true) => tr!("temperatur"),
+        ("fan", true) => tr!("vifte"),
+        ("in", true) => tr!("spenning"),
+        ("power", true) => tr!("effekt"),
+        ("curr", true) => tr!("strøm"),
+        ("temp", false) => "temperatur",
+        ("fan", false) => "vifte",
+        ("in", false) => "spenning",
+        ("power", false) => "effekt",
+        ("curr", false) => "strøm",
+        (other, _) => other,
     }
 }
 
 /// Navn på én sensor: «Prosessor · Tdie» eller «USB-C-kontroller (skjermkort) · strøm».
 /// Gir `(navn, rått navn til verktøytipset)`.
 pub fn sensor_name(dev: &HwmonDevice, x: &HwmonSensor) -> (String, String) {
-    let d = device_name(&dev.name);
-    let generic = x.label.is_empty() || x.label == x.key || is_generic_label(&x.label);
-    let label = if generic { kind_name(&x.kind).to_string() } else { x.label.clone() };
+    let name = sensor_label(dev, x, true);
     let raw = format!("{} · {} ({})", dev.name, x.key, x.id.split('/').next().unwrap_or(""));
-    (format!("{d} · {label}"), raw)
+    (name, raw)
+}
+
+pub(crate) fn sensor_label(dev: &HwmonDevice, x: &HwmonSensor, localized: bool) -> String {
+    let d = device_label(&dev.name, localized);
+    let generic = x.label.is_empty() || x.label == x.key || is_generic_label(&x.label);
+    let label = if generic { kind_name(&x.kind, localized) } else { &x.label };
+    format!("{d} · {label}")
 }
 
 fn is_generic_label(l: &str) -> bool {

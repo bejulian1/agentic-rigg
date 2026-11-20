@@ -6,163 +6,164 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg/src/pages/prosessor.rs:190
 msgid "L3-gruppe {nr}"
-msgstr ""
+msgstr "L3 group {nr}"
 
 #: crates/rigg/src/pages/prosessor.rs:190
 msgid "Alle kjerner"
-msgstr ""
+msgstr "All cores"
 
 #: crates/rigg/src/pages/prosessor.rs:197
 msgid "Pakke {pakke} · kjerne {kjerne}"
-msgstr ""
+msgstr "Package {pakke} · core {kjerne}"
 
 #: crates/rigg/src/pages/prosessor.rs:198
 msgid "Kjerne {kjerne}"
-msgstr ""
+msgstr "Core {kjerne}"
 
 #: crates/rigg/src/pages/prosessor.rs:324
 msgid "Faste data er lest på nytt"
-msgstr ""
+msgstr "Hardware details refreshed"
 
 #: crates/rigg/src/pages/prosessor.rs:329
 msgid "Kunne ikke hente prosessordata"
-msgstr ""
+msgstr "Could not retrieve CPU data"
 
 #: crates/rigg/src/pages/prosessor.rs:415 crates/rigg/src/pages/prosessor.rs:616
 msgid "CPU-temperatur"
-msgstr ""
+msgstr "CPU temperature"
 
 #: crates/rigg/src/pages/prosessor.rs:428
 msgid "travlest T{nr} {last}"
-msgstr ""
+msgstr "busiest: T{nr} {last}"
 
 #: crates/rigg/src/pages/prosessor.rs:441
 msgid "T{nr} {na} · maks {maks}"
-msgstr ""
+msgstr "T{nr} {na} · max {maks}"
 
 #: crates/rigg/src/pages/prosessor.rs:447
 msgid "Tråden med høyest klokke nå, og den høyeste trådklokken tjenesten har målt siden min og maks ble nullstilt."
-msgstr ""
+msgstr "The thread with the highest clock now, and the highest thread clock measured since the min/max reset."
 
 #: crates/rigg/src/pages/prosessor.rs:463
 msgid "boost på"
-msgstr ""
+msgstr "boost on"
 
 #: crates/rigg/src/pages/prosessor.rs:464
 msgid "boost av"
-msgstr ""
+msgstr "boost off"
 
 #: crates/rigg/src/pages/prosessor.rs:465
 msgid "boost ukjent"
-msgstr ""
+msgstr "boost unknown"
 
 #: crates/rigg/src/pages/prosessor.rs:467
 msgid "lastsnitt {verdi}"
-msgstr ""
+msgstr "load avg {verdi}"
 
 #: crates/rigg/src/pages/prosessor.rs:470
 msgid "Lastsnitt 1 / 5 / 15 min: {snitt}. Over antall tråder betyr kø."
-msgstr ""
+msgstr "Load averages (1 / 5 / 15 min): {snitt}. Values above the thread count indicate queuing."
 
 #: crates/rigg/src/pages/prosessor.rs:512
 msgid "Ingen treff."
-msgstr ""
+msgstr "No matches."
 
 #: crates/rigg/src/pages/prosessor.rs:514
 msgid "{antall} i alt"
-msgstr ""
+msgstr "{antall} total"
 
 #: crates/rigg/src/pages/prosessor.rs:514 crates/rigg/src/pages/prosessor.rs:524
 msgid "{vist} av {totalt}"
-msgstr ""
+msgstr "{vist} of {totalt}"
 
 #: crates/rigg/src/pages/prosessor.rs:525
 msgid "{utvalgte} utvalgte først, så noen av de andre. Vis alle for å se og søke i alle {totalt}."
-msgstr ""
+msgstr "Showing {utvalgte} highlights first, followed by some of the others. Choose Show all to browse and search all {totalt}."
 
 #: crates/rigg/src/pages/prosessor.rs:551
 msgid "{antall} kjerne"
 msgid_plural "{antall} kjerner"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{antall} core"
+msgstr[1] "{antall} cores"
 
 #: crates/rigg/src/pages/prosessor.rs:553
 msgid "{antall} trådgruppe"
 msgid_plural "{antall} trådgrupper"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{antall} thread group"
+msgstr[1] "{antall} thread groups"
 
 #: crates/rigg/src/pages/prosessor.rs:580
 msgid "Instruksjonssett"
-msgstr ""
+msgstr "Instruction sets"
 
 #: crates/rigg/src/pages/prosessor.rs:584
 msgid "Søk"
-msgstr ""
+msgstr "Search"
 
 #: crates/rigg/src/pages/prosessor.rs:586
 msgid "Søk i instruksjonssett"
-msgstr ""
+msgstr "Search instruction sets"
 
 #: crates/rigg/src/pages/prosessor.rs:593 crates/rigg/src/pages/prosessor.rs:594 crates/rigg/src/pages/prosessor.rs:668
 msgid "Vis alle og søk"
-msgstr ""
+msgstr "Show all and search"
 
 #: crates/rigg/src/pages/prosessor.rs:600
 msgid "Uthevet: viktige for spill og koding. Navnet i /proc/cpuinfo står i verktøytipset."
-msgstr ""
+msgstr "Highlights are relevant to gaming and encoding. The tooltip shows the name from /proc/cpuinfo."
 
 #: crates/rigg/src/pages/prosessor.rs:609
 msgid "Nå"
-msgstr ""
+msgstr "Current"
 
 #: crates/rigg/src/pages/prosessor.rs:616
 msgid "Temperatur fra CPU-sensoren. Sensorens navn står under verdien når det er tilgjengelig; det kan for eksempel være Tdie, Tctl eller Package id 0."
-msgstr ""
+msgstr "Temperature from the CPU sensor. The sensor name appears beneath the reading when available, for example Tdie, Tctl or Package id 0."
 
 #: crates/rigg/src/pages/prosessor.rs:617
 msgid "Last"
-msgstr ""
+msgstr "Load"
 
 #: crates/rigg/src/pages/prosessor.rs:617
 msgid "Total last fra /proc/stat, siste minutt i linja."
-msgstr ""
+msgstr "Total load from /proc/stat. The chart shows the last minute."
 
 #: crates/rigg/src/pages/prosessor.rs:618
 msgid "Klokke (snitt)"
-msgstr ""
+msgstr "Clock (avg)"
 
 #: crates/rigg/src/pages/prosessor.rs:618
 msgid "Snittet over alle trådene (APERF/MPERF fra cpufreq). Med boost går enkelttråder over maks."
-msgstr ""
+msgstr "Average across all threads (APERF/MPERF from cpufreq). With boost enabled, individual threads can exceed the maximum."
 
 #: crates/rigg/src/pages/prosessor.rs:619
 msgid "Governor"
-msgstr ""
+msgstr "Governor"
 
 #: crates/rigg/src/pages/prosessor.rs:619
 msgid "Strategien kjernen bruker for klokken, og driveren (cpufreq)."
-msgstr ""
+msgstr "The kernel's clock scaling policy and driver (cpufreq)."
 
 #: crates/rigg/src/pages/prosessor.rs:624
 msgid "Klokke og last per tråd"
-msgstr ""
+msgstr "Clock and load per thread"
 
 #: crates/rigg/src/pages/prosessor.rs:632
 msgid "stolpe = last"
-msgstr ""
+msgstr "Bar = load"
 
 #: crates/rigg/src/pages/prosessor.rs:668
 msgid "Vis utvalget"
-msgstr ""
+msgstr "Show highlights"
 
 #: crates/rigg/src/pages/prosessor.rs:697
 msgid "{app} – Prosessor ({dato})"
-msgstr ""
+msgstr "{app} – CPU ({dato})"
 
 #: crates/rigg/src/pages/prosessor.rs:698
 msgid "med klokke og last per tråd"
-msgstr ""
+msgstr "with per-thread clocks and loads"
