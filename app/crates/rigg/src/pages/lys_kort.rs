@@ -31,6 +31,8 @@ pub(super) struct CardLight {
     observation: gtk::Label,
     confirmed: gtk::Label,
     recovery: gtk::Label,
+    effect_info: gtk::Label,
+    runtime_error: gtk::Label,
     mode: Seg,
     color: gtk::Entry,
     swatch: super::lys::Dot,
@@ -47,6 +49,7 @@ pub(super) struct CardLight {
     ack: gtk::Button,
     pending: gtk::Box,
     deadline: gtk::Label,
+    pending_hint: gtk::Label,
     keep: gtk::Button,
     revert: gtk::Button,
 }
@@ -73,9 +76,42 @@ impl AdminAction {
 thread_local! {
     static CURRENT: RefCell<std::rc::Weak<CardLight>> = const { RefCell::new(std::rc::Weak::new()) };
     static FLOW_INITIAL: RefCell<Value> = const { RefCell::new(Value::Null) };
+    static FLOW_EFFECT_START: RefCell<Value> = const { RefCell::new(Value::Null) };
 }
 
 const FLOW_MARKER: &str = "agentic-rigg-rgb-fake-v1";
+const EFFECTS: [(&str, &str); 3] = [
+    ("breathing", "Pusting"),
+    ("rainbow", "Regnbue"),
+    ("cycle", "Fargesyklus"),
+];
+
+fn effect_name(id: &str) -> Option<&'static str> {
+    EFFECTS
+        .iter()
+        .find_map(|(key, name)| (*key == id).then_some(*name))
+}
+
+fn supports_effect(status: &Value, effect: &str) -> bool {
+    effect_name(effect).is_some()
+        && status["softwareEffects"]
+            .as_array()
+            .is_some_and(|values| values.iter().any(|value| value.as_str() == Some(effect)))
+}
+
+fn clean_effect_start(status: &Value) -> bool {
+    let state = &status["state"];
+    state["dirty"] == false
+        && state["mayHaveWritten"] == false
+        && state["owner"].is_null()
+        && state["pending"].is_null()
+        && state["error"].is_null()
+        && status["effect"].is_null()
+        && (state["recovery"].is_null()
+            || state["recovery"] == "verified"
+            || (state["recovery"] == "readable_fields_match"
+                && state["recoveryConfirmationSource"] == "userVisual"))
+}
 
 fn flow_requested(app: &App) -> bool {
     app.profile.is_dev() && std::env::var_os("RIGG_RGB_FLOW").is_some()
@@ -248,15 +284,18 @@ impl CardLight {
             &[],
         );
         panel.body.append(&summary);
-        let identity = paragraph(
-            "Én fysisk sone · hele kortlyset · fast farge eller av",
-            &["muted", "sm"],
-        );
+        let identity = paragraph("Én fysisk sone · hele kortlyset", &["muted", "sm"]);
         panel.body.append(&identity);
 
         let controls = flow();
         let mode = Seg::new(
-            &[("static", "Fast farge"), ("off", "Av")],
+            &[
+                ("static", "Fast farge"),
+                ("off", "Av"),
+                ("breathing", "Pusting"),
+                ("rainbow", "Regnbue"),
+                ("cycle", "Fargesyklus"),
+            ],
             "static",
             "Fysisk lysmodus",
         )
@@ -291,6 +330,10 @@ impl CardLight {
         brightness_box.append(&label("%", &["muted"]));
         controls.insert(&brightness_box, -1);
         panel.body.append(&controls);
+        let effect_info = paragraph("", &["sm"]);
+        panel.body.append(&effect_info);
+        let runtime_error = paragraph("", &["sm", "warn"]);
+        panel.body.append(&runtime_error);
 
         let actions = flow();
         let apply = button(Some("check"), Some("Bruk på kortet"), &["sm", "suggested"]);
@@ -310,7 +353,8 @@ impl CardLight {
         let pending = vbox(6, &["rgb-card-pending"]);
         let deadline = paragraph("", &["bold"]);
         pending.append(&deadline);
-        pending.append(&paragraph("Se på det fysiske kortet før du beholder endringen. Uten bekreftelse forsøker hjelperen å rulle tilbake.", &["sm"]));
+        let pending_hint = paragraph("", &["sm"]);
+        pending.append(&pending_hint);
         let confirmation = flow();
         let keep = button(Some("check"), Some("Behold"), &["sm", "suggested"]);
         let revert = button(Some("undo-2"), Some("Rull tilbake"), &["sm"]);
@@ -361,6 +405,8 @@ impl CardLight {
             observation,
             confirmed,
             recovery,
+            effect_info,
+            runtime_error,
             mode,
             color,
             swatch,
@@ -377,6 +423,7 @@ impl CardLight {
             ack,
             pending,
             deadline,
+            pending_hint,
             keep,
             revert,
         });
@@ -552,7 +599,17 @@ impl CardLight {
         if !card_present(&self.app) {
             return;
         }
-        let request = if self.mode.value().as_deref() == Some("off") {
+        let mode = self.mode.value().unwrap_or_else(|| "static".into());
+        let helper = self.helper.borrow();
+        let status = &helper["status"];
+        if !status["effect"].is_null()
+            || (effect_name(&mode).is_some()
+                && (!supports_effect(status, &mode) || !clean_effect_start(status)))
+        {
+            return;
+        }
+        drop(helper);
+        let request = if mode == "off" {
             Request::Off {}
         } else {
             let Some(color) = hex_color(&self.color.text()) else {
@@ -566,10 +623,11 @@ impl CardLight {
             };
             Request::Static { color, brightness }
         };
-        self.operation(
-            "rgb_apply",
-            json!({"request": request, "confirmTimeoutS": 15}),
-        );
+        let mut args = json!({"request": request, "confirmTimeoutS": 15});
+        if effect_name(&mode).is_some() {
+            args["effect"] = json!(mode);
+        }
+        self.operation("rgb_apply", args);
     }
 
     fn operation(self: &Rc<Self>, op: &'static str, mut args: Value) {
@@ -646,6 +704,21 @@ impl CardLight {
         let owned = helper["owned"] == true;
         let other = helper["busy"] == true && !owned;
         let pending = state["pending"].is_object();
+        let worker_effect = status["effect"].as_str();
+        let worker_effect_name = worker_effect.and_then(effect_name);
+        for (id, _) in EFFECTS {
+            if let Some(button) = self.mode.button(id) {
+                button.set_visible(bound && supports_effect(status, id));
+            }
+        }
+        if let Some(selected_mode) = self.mode.value()
+            && effect_name(&selected_mode).is_some()
+            && (!bound || !supports_effect(status, &selected_mode))
+        {
+            self.mode.set("static");
+        }
+        let selected_mode = self.mode.value().unwrap_or_else(|| "static".into());
+        let chosen_effect = effect_name(&selected_mode);
         let visually_confirmed = state["recoveryConfirmationSource"] == "userVisual";
         let blocked = state["error"].is_string()
             || matches!(state["recovery"].as_str(), Some("unknown" | "mismatch"))
@@ -661,6 +734,8 @@ impl CardLight {
             "Ikke klar"
         } else if pending {
             "Prøve pågår"
+        } else if worker_effect.is_some() {
+            "Effekt aktiv"
         } else if blocked {
             "Må avklares"
         } else {
@@ -705,9 +780,48 @@ impl CardLight {
             &self.identity,
             &selected.map_or_else(
                 || "Venter på kortets PCI-adresse og UUID.".into(),
-                |(pci, _)| format!("Valgt kort: {pci} · fast farge eller av"),
+                |(pci, _)| format!("Valgt kort: {pci} · én fysisk lyssone"),
             ),
         );
+        let effect_info = if let Some(name) = worker_effect_name {
+            if pending {
+                format!(
+                    "{name} er valgt. Nå vises bare startfargen; animasjonen starter først etter «Behold»."
+                )
+            } else {
+                format!(
+                    "{name} er aktiv på hele kortlyset. Hjelperen oppdaterer fargen mens appen er åpen. «Stopp» gjenoppretter det lagrede utgangspunktet, som du deretter må bekrefte visuelt."
+                )
+            }
+        } else if let Some(name) = chosen_effect {
+            if !clean_effect_start(status) {
+                format!(
+                    "{name} krever det lagrede utgangspunktet. Gjenopprett og bekreft lyset før du starter en effekt."
+                )
+            } else {
+                let detail = match selected_mode.as_str() {
+                    "breathing" => "Pusting varierer lysstyrken i fargen du velger.",
+                    "rainbow" => {
+                        "Regnbue går gjennom hele fargespekteret fra fargetonen du velger. Gråtoner starter på rødt."
+                    }
+                    _ => {
+                        "Fargesyklus veksler mellom seks tydelige fargetoner fra fargetonen du velger. Gråtoner starter på rødt."
+                    }
+                };
+                format!(
+                    "{detail} Først prøves startfargen; «Behold» starter animasjonen på én lyssone."
+                )
+            }
+        } else {
+            String::new()
+        };
+        set_text(&self.effect_info, &effect_info);
+        self.effect_info
+            .set_visible(bound && !effect_info.is_empty());
+        let runtime_error = status["runtimeError"].as_str().unwrap_or("");
+        set_text(&self.runtime_error, runtime_error);
+        self.runtime_error
+            .set_visible(bound && !runtime_error.is_empty());
         let source = status["observationSource"].as_str().unwrap_or("unknown");
         let observed = &state["observed"];
         let values = color_text(&observed["color"])
@@ -754,6 +868,14 @@ impl CardLight {
         set_text(&self.recovery, &recovery);
         self.recovery.set_visible(bound && !recovery.is_empty());
         self.pending.set_visible(pending && bound);
+        set_text(
+            &self.pending_hint,
+            if worker_effect.is_some() {
+                "Kontroller startfargen på kortet. «Behold» starter animasjonen; «Rull tilbake» eller fristutløp går tilbake til utgangspunktet."
+            } else {
+                "Se på det fysiske kortet før du beholder endringen. Uten bekreftelse forsøker hjelperen å rulle tilbake."
+            },
+        );
         let remaining = state["pending"]["deadlineMs"]
             .as_u64()
             .zip(boottime_ms())
@@ -794,8 +916,15 @@ impl CardLight {
         self.color.set_sensitive(!off && !self.busy.get());
         self.brightness.set_sensitive(!off && !self.busy.get());
         self.mode.root.set_sensitive(!self.busy.get());
-        self.apply
-            .set_sensitive(available && present && !pending && !blocked && (off || valid_color));
+        self.apply.set_sensitive(
+            available
+                && present
+                && !pending
+                && !blocked
+                && (off || valid_color)
+                && status["effect"].is_null()
+                && (chosen_effect.is_none() || clean_effect_start(status)),
+        );
         self.refresh
             .set_sensitive(connected && !self.reading.get() && !self.busy.get());
         self.activate.set_visible(!bound);
@@ -829,10 +958,17 @@ impl CardLight {
             .set_sensitive(available && present && deactivation.is_ok());
         self.deactivate
             .set_tooltip_text(deactivation.err().as_deref());
-        self.reset.set_visible(bound && state["dirty"] == true);
+        self.reset
+            .set_visible(bound && state["dirty"] == true && worker_effect.is_none());
         self.reset.set_sensitive(available && !pending);
         self.release.set_visible(bound && owned);
         self.release.set_sensitive(available);
+        self.release.set_label(if worker_effect.is_some() {
+            "Stopp"
+        } else {
+            "Avslutt lysstyring"
+        });
+        self.release.set_tooltip_text(Some("Gjenopprett det lagrede utgangspunktet og frigi lysstyringen. Se på kortet før du bekrefter gjenopprettingen."));
         self.ack
             .set_visible(bound && state["recoveryNeedsConfirmation"] == true);
         self.ack.set_sensitive(available && !pending);
@@ -1118,6 +1254,75 @@ pub(crate) fn debug_flow(step: &str) {
                     json!({"mode":"static","color":[50,180,135],"brightness":65})
                 );
             }
+            "effect_blocked" => {
+                let button = p.mode.button("breathing").expect("Pusting mangler");
+                assert!(button.is_visible());
+                button.set_active(true);
+                assert!(
+                    !p.apply.is_sensitive(),
+                    "Effekt kan ikke erstatte et beholdt valg uten original-ACK"
+                );
+                p.mode.button("static").unwrap().set_active(true);
+            }
+            "effect_breathing" | "effect_rainbow" | "effect_cycle" => {
+                assert!(clean_effect_start(&helper["status"]));
+                let effect = step.strip_prefix("effect_").unwrap();
+                assert!(supports_effect(&helper["status"], effect));
+                let button = p.mode.button(effect).expect("Effektknapp mangler");
+                assert!(button.is_visible() && button.is_sensitive());
+                button.set_active(true);
+                p.color.set_text("#32B487");
+                p.brightness.set_value(65.0);
+            }
+            "effect_edit_unchanged" => {
+                assert!(clean_effect_start(&helper["status"]));
+                assert!(p.apply.is_sensitive());
+                FLOW_INITIAL.with(|v| assert_eq!(state["confirmed"], v.borrow()["confirmed"]));
+            }
+            "effect_pending" => {
+                assert_eq!(
+                    helper["status"]["effect"].as_str(),
+                    p.mode.value().as_deref()
+                );
+                assert!(state["pending"].is_object());
+                assert_eq!(
+                    state["observed"]["color"],
+                    state["pending"]["requested"]["color"]
+                );
+                assert_eq!(state["observed"]["brightnessRaw"], 65);
+                assert!(state["observed"]["mode"].is_null());
+                assert!(p.keep.is_sensitive());
+                assert!(!p.apply.is_sensitive());
+                assert!(p.effect_info.text().contains("starter først etter"));
+                FLOW_EFFECT_START.with(|v| *v.borrow_mut() = state["observed"].clone());
+            }
+            "effect_not_started" => {
+                assert!(state["pending"].is_object());
+                FLOW_EFFECT_START.with(|v| {
+                    assert_eq!(state["observed"], *v.borrow(), "Effekt animerte før Behold")
+                });
+            }
+            "effect_active" => {
+                assert_eq!(
+                    helper["status"]["effect"].as_str(),
+                    p.mode.value().as_deref()
+                );
+                assert!(state["pending"].is_null());
+                assert_eq!(helper["owned"], true);
+                assert!(state["observed"]["mode"].is_null());
+                assert_eq!(state["observed"]["brightnessRaw"], 65);
+                assert!(p.effect_info.text().contains("er aktiv"));
+                assert_eq!(p.release.label().as_deref(), Some("Stopp"));
+                assert!(!p.apply.is_sensitive() && !p.reset.is_visible());
+                FLOW_EFFECT_START.with(|v| {
+                    assert_ne!(
+                        state["observed"],
+                        *v.borrow(),
+                        "Aktiv effekt ga ingen nye rammer"
+                    );
+                    assert_eq!(state["confirmed"]["color"], v.borrow()["color"]);
+                });
+            }
             "reset" => click(&p.reset),
             "recovery" => {
                 assert_eq!(state["recoveryNeedsConfirmation"], true);
@@ -1189,6 +1394,7 @@ pub(crate) fn debug_flow(step: &str) {
             "off_pending" => assert_eq!(state["pending"]["requested"], json!({"mode":"off"})),
             "release" => click(&p.release),
             "released" => {
+                assert!(helper["status"]["effect"].is_null());
                 assert_eq!(helper["owned"], false);
                 assert!(state["pending"].is_null());
                 assert_eq!(state["recoveryNeedsConfirmation"], true);
@@ -1237,10 +1443,26 @@ pub(crate) fn debug_fixture(kind: &str) {
                     if kind == "confirmed" { value["status"]["state"]["recoveryConfirmationSource"] = json!("userVisual"); }
                 }
                 "error" => value = json!({"state":"error","owned":false,"busy":false,"message":"RecoveryRequired: En tidligere RGB-økt må avklares. Ingen automatisk endring er utført.","status":null}),
+                "effect_error" => {
+                    value["status"]["softwareEffects"] = json!(["breathing","rainbow","cycle"]);
+                    value["status"]["effect"] = Value::Null;
+                    value["status"]["runtimeError"] = json!("Den simulerte effekten stoppet etter en I/O-feil. Kontroller gjenopprettingen.");
+                    value["status"]["state"]["dirty"] = json!(true);
+                    value["status"]["state"]["recovery"] = json!("readable_fields_match");
+                    value["status"]["state"]["recoveryNeedsConfirmation"] = json!(true);
+                }
                 _ => {}
             }
             *p.helper.borrow_mut() = value;
             p.render();
+            if kind == "effect_error" {
+                assert!(p.runtime_error.is_visible() && p.ack.is_visible());
+                assert!(p.helper.borrow()["status"]["state"]["error"].is_null());
+            } else {
+                for (id, _) in EFFECTS {
+                    assert!(!p.mode.button(id).unwrap().is_visible(), "Ustøttet effekt er synlig");
+                }
+            }
         }
     });
 }
@@ -1260,6 +1482,40 @@ mod tests {
             request_text(&json!({"mode": "breathe"})),
             "Ingen kjent innstilling"
         );
+    }
+
+    #[test]
+    fn effekter_krever_eksplisitt_kapasitet_og_ren_original() {
+        let mut status = json!({
+            "softwareEffects":["breathing","rainbow","cycle","unknown"],
+            "effect":null,
+            "state":{"dirty":false,"mayHaveWritten":false,"owner":null,"pending":null,"error":null,"recovery":null}
+        });
+        for (id, _) in EFFECTS {
+            assert!(supports_effect(&status, id));
+            assert!(!supports_effect(&json!({}), id));
+        }
+        assert!(!supports_effect(&status, "unknown"));
+        assert!(clean_effect_start(&status));
+        for (key, value) in [
+            ("dirty", json!(true)),
+            ("mayHaveWritten", json!(true)),
+            ("owner", json!(7)),
+            ("pending", json!({"txn":1})),
+            ("error", json!("I/O")),
+            ("recovery", json!("unknown")),
+        ] {
+            let mut changed = status.clone();
+            changed["state"][key] = value;
+            assert!(!clean_effect_start(&changed));
+        }
+        status["effect"] = json!("rainbow");
+        assert!(!clean_effect_start(&status));
+        status["effect"] = Value::Null;
+        status["state"]["recovery"] = json!("readable_fields_match");
+        assert!(!clean_effect_start(&status));
+        status["state"]["recoveryConfirmationSource"] = json!("userVisual");
+        assert!(clean_effect_start(&status));
     }
 
     #[test]

@@ -12,14 +12,27 @@
 //! RGB-lease gjelder også etter Behold; eksisterende GPU-status er irrelevant.
 
 use rigg_core::proto::{ErrorCode, OpResult, ProtoError};
-use rigg_core::rgb::{Baseline, RecoveryReadback, Request};
+use rigg_core::rgb::{Baseline, Brightness, Mode, RecoveryReadback, Request};
 use rigg_core::rgb_auth::{self, Authorization};
-use rigg_core::rgb_txn::{Backend, Book, Error, Outcome};
+use rigg_core::rgb_effect::Effect;
+use rigg_core::rgb_txn::{Backend, Book, Error, Outcome, Status};
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use serde_json::{Value, json};
 
 pub const PROTOCOL: u32 = 1;
 pub const LEASE_MS: u64 = 15_000;
+const FRAME_INTERVAL_MS: u64 = 250;
+
+struct Animation {
+    effect: Effect,
+    owner: u64,
+    color: [u8; 3],
+    brightness: Brightness,
+    txn: u64,
+    started_ms: Option<u64>,
+    last_frame_ms: u64,
+    last_request: Request,
+}
 
 #[derive(Clone, Copy, Debug, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -55,6 +68,7 @@ struct ApplyArgs {
     uuid: String,
     request: Request,
     confirm_timeout_s: u64,
+    effect: Option<Effect>,
 }
 
 #[derive(Deserialize)]
@@ -104,14 +118,23 @@ impl Action {
                 Self::Status
             }
             "rgb_apply" => {
-                let args: ApplyArgs = parse(args)?;
-                if !(10..=60).contains(&args.confirm_timeout_s) {
+                let parsed: ApplyArgs = parse(args)?;
+                if !(10..=60).contains(&parsed.confirm_timeout_s) {
                     return Err(ProtoError::msg(
                         ErrorCode::InvalidArgument,
                         "RGB-fristen må være et heltall fra 10 til 60 sekunder.",
                     ));
                 }
-                Self::Apply(args)
+                if args.get("effect").is_some()
+                    && (parsed.effect.is_none()
+                        || !matches!(parsed.request, Request::Static { .. }))
+                {
+                    return Err(ProtoError::msg(
+                        ErrorCode::InvalidArgument,
+                        "En programvareeffekt krever statisk startfarge og lysstyrke.",
+                    ));
+                }
+                Self::Apply(parsed)
             }
             "rgb_confirm" | "rgb_revert" => {
                 let args: TransactionArgs = parse(args)?;
@@ -167,6 +190,9 @@ pub struct Runtime<B: Backend> {
     observation_source: ObservationSource,
     clock_error: bool,
     revoked: bool,
+    static_baseline: bool,
+    animation: Option<Animation>,
+    effect_error: Option<String>,
 }
 
 impl<B: Backend> Runtime<B> {
@@ -183,6 +209,7 @@ impl<B: Backend> Runtime<B> {
         if !authorization.allows(authorization.uid(), baseline.binding()) {
             return Err("RGB-tillatelsen er av eller gjelder et annet grunnopptak.".into());
         }
+        let static_baseline = baseline.expected_mode() == Mode::Static;
         let book = Book::new(baseline).map_err(|error| error.to_string())?;
         Ok(Self {
             authorization,
@@ -194,6 +221,9 @@ impl<B: Backend> Runtime<B> {
             observation_source: ObservationSource::StoredBaseline,
             clock_error: false,
             revoked: false,
+            static_baseline,
+            animation: None,
+            effect_error: None,
         })
     }
 
@@ -217,9 +247,13 @@ impl<B: Backend> Runtime<B> {
             "state": self.book.snapshot(),
             "observationSource": self.observation_source,
             "lastOutcome": self.last_outcome,
-            "runtimeError": self.clock_error.then_some(
-                "Den monotone RGB-klokken gikk bakover. Nye endringer er sperret."
-            )
+            "softwareEffects": [Effect::Breathing, Effect::Rainbow, Effect::Cycle],
+            "effect": self.animation.as_ref().map(|animation| animation.effect),
+            "runtimeError": if self.clock_error {
+                Some("Den monotone RGB-klokken gikk bakover. Nye endringer er sperret.")
+            } else {
+                self.effect_error.as_deref()
+            }
         })
     }
 
@@ -280,30 +314,94 @@ impl<B: Backend> Runtime<B> {
         let before_observation = self.book.snapshot().observed;
         let (result, renew) = match action {
             Action::Status => unreachable!("status ble håndtert uten sideeffekter"),
-            Action::Apply(args) => (
-                self.book
-                    .apply(
+            Action::Apply(args) => {
+                if self.animation.is_some() {
+                    return Err(self.transaction_error(Error::Busy));
+                }
+                let result = if let Some(effect) = args.effect {
+                    let state = self.book.snapshot();
+                    if !self.static_baseline {
+                        return Err(self.transaction_error(Error::UnsupportedBaseline));
+                    }
+                    if state.dirty
+                        || state.may_have_written
+                        || state.pending.is_some()
+                        || state.owner.is_some()
+                        || state.recovery_needs_confirmation
+                        || state.error.is_some()
+                    {
+                        return Err(self.transaction_error(Error::RecoveryRequired));
+                    }
+                    let Request::Static { color, brightness } = args.request else {
+                        unreachable!("effektargumentet krever statisk forespørsel")
+                    };
+                    let request = effect.frame(color, brightness, 0);
+                    let result = self.book.apply_for_effect(
+                        &mut self.backend,
+                        conn,
+                        request.clone(),
+                        now_ms,
+                        args.confirm_timeout_s * 1000,
+                    );
+                    if let Ok(outcome) = &result {
+                        self.animation = outcome.txn.map(|txn| Animation {
+                            effect,
+                            owner: conn,
+                            color,
+                            brightness,
+                            txn,
+                            started_ms: None,
+                            last_frame_ms: now_ms,
+                            last_request: request,
+                        });
+                    }
+                    result
+                } else {
+                    self.book.apply(
                         &mut self.backend,
                         conn,
                         args.request,
                         now_ms,
                         args.confirm_timeout_s * 1000,
                     )
-                    .map(Some),
-                true,
-            ),
-            Action::Confirm(args) => (
-                self.book
-                    .keep(&mut self.backend, conn, args.txn, now_ms)
-                    .map(Some),
-                true,
-            ),
-            Action::Revert(args) => (
-                self.book
-                    .revert(&mut self.backend, conn, args.txn, now_ms)
-                    .map(Some),
-                false,
-            ),
+                };
+                if result.is_ok() {
+                    self.effect_error = None;
+                }
+                (result.map(Some), true)
+            }
+            Action::Confirm(args) => {
+                let result = self.book.keep(&mut self.backend, conn, args.txn, now_ms);
+                if result
+                    .as_ref()
+                    .is_ok_and(|outcome| outcome.status == Status::Kept)
+                    && let Some(animation) = &mut self.animation
+                    && animation.owner == conn
+                    && animation.txn == args.txn
+                {
+                    animation.started_ms = Some(now_ms);
+                    animation.last_frame_ms = now_ms;
+                }
+                (result.map(Some), true)
+            }
+            Action::Revert(args) => {
+                if self.animation_active() {
+                    return Err(self.transaction_error(Error::Busy));
+                }
+                if self
+                    .animation
+                    .as_ref()
+                    .is_some_and(|animation| animation.owner == conn && animation.txn == args.txn)
+                {
+                    self.animation = None;
+                }
+                (
+                    self.book
+                        .revert(&mut self.backend, conn, args.txn, now_ms)
+                        .map(Some),
+                    false,
+                )
+            }
             Action::Heartbeat(_) => {
                 self.require_owner(conn, false)?;
                 (Ok(None), true)
@@ -314,10 +412,14 @@ impl<B: Backend> Runtime<B> {
             }
             Action::Reset(_) => {
                 self.require_owner(conn, true)?;
+                self.animation = None;
                 (Ok(self.book.restore_baseline(&mut self.backend)), false)
             }
             Action::AckRecovery(args) => {
                 self.require_owner(conn, true)?;
+                if self.animation.is_some() {
+                    return Err(self.transaction_error(Error::Busy));
+                }
                 if args.expected != self.book.snapshot().confirmed {
                     return Err(ProtoError::msg(ErrorCode::WriteLocked,
                         "RGB-målet er endret siden dialogen ble åpnet. Se den nye tilstanden før du bekrefter.")
@@ -334,6 +436,7 @@ impl<B: Backend> Runtime<B> {
         // En feil kan ha etablert eget recoveryansvar. Gi en ny eier en
         // begrenset lease, men forny aldri en eksisterende lease ved feil.
         self.sync_holding(lease_deadline, renew && result.is_ok());
+        self.reconcile_animation();
         match result {
             Ok(outcome) => {
                 if let Some(outcome) = &outcome {
@@ -385,6 +488,83 @@ impl<B: Backend> Runtime<B> {
         }
     }
 
+    fn reconcile_animation(&mut self) {
+        let state = self.book.snapshot();
+        if self.animation.as_ref().is_some_and(|animation| {
+            state.owner != Some(animation.owner)
+                || state.error.is_some()
+                || state.recovery_needs_confirmation
+                || (animation.started_ms.is_none()
+                    && state
+                        .pending
+                        .as_ref()
+                        .is_none_or(|pending| pending.txn != animation.txn))
+        }) {
+            self.animation = None;
+        }
+    }
+
+    pub fn animation_active(&self) -> bool {
+        self.animation
+            .as_ref()
+            .is_some_and(|animation| animation.started_ms.is_some())
+    }
+
+    /// Service kaller dette først etter auth, stopp, frister, innkomne
+    /// forespørsler og lukkede klienter. Ingen innhenting av tapte rammer.
+    /// Ved `true` må `frame_completed` få ny BOOTTIME etter at I/O er ferdig.
+    pub fn animate(&mut self, now_ms: u64) -> Result<bool, ProtoError> {
+        self.tick(now_ms)?;
+        let Some(animation) = &mut self.animation else {
+            return Ok(false);
+        };
+        let Some(started_ms) = animation.started_ms else {
+            return Ok(false);
+        };
+        if now_ms.saturating_sub(animation.last_frame_ms) < FRAME_INTERVAL_MS {
+            return Ok(false);
+        }
+        animation.last_frame_ms = now_ms;
+        let request =
+            animation
+                .effect
+                .frame(animation.color, animation.brightness, now_ms - started_ms);
+        if request == animation.last_request {
+            return Ok(false);
+        }
+        let owner = animation.owner;
+        match self
+            .book
+            .animation_frame(&mut self.backend, owner, request.clone())
+        {
+            Ok(()) => {
+                if let Some(animation) = &mut self.animation {
+                    animation.last_request = request;
+                }
+                self.observation_source = ObservationSource::OperationReadback;
+            }
+            Err(error) => {
+                // Book skiller avvisning før setter fra mulig delvis frame.
+                // release får bare gjøre én avgrenset, autorisert recovery.
+                self.animation = None;
+                self.effect_error = Some(format!("Lyseffekten er stoppet: {error}"));
+                self.observation_source = ObservationSource::Unknown;
+                self.release();
+            }
+        }
+        Ok(true)
+    }
+
+    /// Minst 250 ms hvile etter fysisk retur, også når én frame tok lengre
+    /// tid enn normalperioden. Denne oppdateringen fornyer aldri eierens lease.
+    pub fn frame_completed(&mut self, now_ms: u64) -> Result<(), ProtoError> {
+        self.tick(now_ms)?;
+        if let Some(animation) = &mut self.animation {
+            animation.last_frame_ms = now_ms;
+        }
+        Ok(())
+    }
+
     /// Kalles periodisk selv uten klienttrafikk. Utløpt lease går foran
     /// pending-fristen: ved samtidige frister gjenopprettes originalen én gang.
     /// Ukjent recovery forblir sperret; timeren skal ikke prøve igjen.
@@ -404,6 +584,14 @@ impl<B: Backend> Runtime<B> {
         if self.holding.is_some_and(|held| now_ms >= held.deadline_ms) {
             return Ok(self.release().into_iter().collect());
         }
+        if self
+            .book
+            .snapshot()
+            .pending
+            .is_some_and(|pending| now_ms >= pending.deadline_ms)
+        {
+            self.animation = None;
+        }
         match self.book.tick(&mut self.backend, now_ms) {
             Ok(outcome) => {
                 if self.book.snapshot().owner.is_none() {
@@ -412,6 +600,7 @@ impl<B: Backend> Runtime<B> {
                 if let Some(outcome) = &outcome {
                     self.record_outcome(outcome);
                 }
+                self.reconcile_animation();
                 Ok(outcome.into_iter().collect())
             }
             Err(error) => Err(self.transaction_error(error)),
@@ -419,6 +608,13 @@ impl<B: Backend> Runtime<B> {
     }
 
     pub fn disconnect(&mut self, conn: u64) -> Option<Outcome> {
+        if self
+            .animation
+            .as_ref()
+            .is_some_and(|animation| animation.owner == conn)
+        {
+            self.animation = None;
+        }
         let outcome = self.book.disconnect(&mut self.backend, conn);
         if self.holding.is_some_and(|held| held.owner == conn) {
             self.holding = None;
@@ -432,6 +628,7 @@ impl<B: Backend> Runtime<B> {
     /// Lifecycle-frigivelse ved nedstenging/utløp. Dette er aldri den
     /// eksplisitte reset-stien og gjør ingen setter etter ren preflight-feil.
     pub fn release(&mut self) -> Option<Outcome> {
+        self.animation = None;
         self.holding = None;
         let outcome = self.book.release(&mut self.backend);
         if let Some(outcome) = &outcome {
@@ -576,6 +773,21 @@ mod tests {
                 });
             }
             Ok(self.current.clone())
+        }
+        fn animation_frame(
+            &mut self,
+            binding: &Binding,
+            request: &Request,
+            before: &Observed,
+            baseline: &Baseline,
+        ) -> Result<Observed, WriteError> {
+            if before != &self.current {
+                return Err(WriteError {
+                    message: "ekstern drift".into(),
+                    write_attempted: false,
+                });
+            }
+            self.apply(binding, request, before, baseline)
         }
         fn clear_dirty(&mut self, _: &Binding) -> Result<(), String> {
             panic!("Palit-fixturen beviser ikke modus og kan aldri rydde dirty")
@@ -1109,5 +1321,291 @@ mod tests {
         assert_eq!(result["outcome"]["reason"], "reset");
         assert_eq!(result["outcome"]["status"], "recovery_needs_confirmation");
         assert_eq!(runtime.backend.writes, [color([1, 2, 3])]);
+    }
+
+    fn effect_args(effect: Effect, request: Request) -> Value {
+        let mut args = apply_args(request, 10);
+        args["effect"] = serde_json::to_value(effect).unwrap();
+        args
+    }
+
+    fn start_effect(runtime: &mut Runtime<Fake>, effect: Effect, start: u64) {
+        let result = runtime
+            .handle(
+                1000,
+                7,
+                "rgb_apply",
+                &effect_args(effect, color([120, 60, 30])),
+                start,
+            )
+            .unwrap();
+        let txn = result["outcome"]["txn"].as_u64().unwrap();
+        runtime
+            .handle(1000, 7, "rgb_confirm", &txn_args(txn), start)
+            .unwrap();
+    }
+
+    #[test]
+    fn effekt_lik_baseline_ma_beholdes_og_fornyer_aldri_lease_per_frame() {
+        let mut runtime = setup();
+        let result = runtime
+            .handle(
+                1000,
+                7,
+                "rgb_apply",
+                &effect_args(Effect::Breathing, color([1, 2, 3])),
+                0,
+            )
+            .unwrap();
+        assert_eq!(result["outcome"]["status"], "pending");
+        assert_eq!(result["status"]["effect"], "breathing");
+        assert_eq!(runtime.backend.writes.len(), 1);
+        assert!(!runtime.animate(5000).unwrap());
+        assert_eq!(runtime.backend.writes.len(), 1);
+        let txn = result["outcome"]["txn"].as_u64().unwrap();
+        runtime
+            .handle(1000, 7, "rgb_confirm", &txn_args(txn), 5000)
+            .unwrap();
+        let lease = runtime.status()["holding"]["deadlineMs"].clone();
+        assert!(!runtime.animate(5249).unwrap());
+        // Små kanalverdier kan runde til samme frame. Ved bunnen endres de.
+        assert!(runtime.animate(7000).unwrap());
+        runtime.frame_completed(7000).unwrap();
+        assert_eq!(runtime.status()["holding"]["deadlineMs"], lease);
+        assert_eq!(runtime.book.snapshot().confirmed, color([1, 2, 3]));
+        assert_ne!(
+            runtime.book.snapshot().observed,
+            observed(&color([1, 2, 3]))
+        );
+        assert_eq!(runtime.status()["state"]["observed"]["mode"], Value::Null);
+        assert!(!runtime.animate(7249).unwrap());
+    }
+
+    #[test]
+    fn effekt_dropper_like_rammer_og_har_hvile_etter_treg_io_uten_catchup() {
+        let mut runtime = setup();
+        start_effect(&mut runtime, Effect::Cycle, 0);
+        assert!(!runtime.animate(1000).unwrap());
+        assert_eq!(runtime.backend.writes.len(), 1);
+        assert!(runtime.animate(2100).unwrap());
+        runtime.frame_completed(4100).unwrap();
+        assert!(!runtime.animate(4100).unwrap());
+        assert!(!runtime.animate(4349).unwrap());
+        assert!(runtime.animate(4350).unwrap());
+        runtime.frame_completed(4350).unwrap();
+        assert_eq!(runtime.backend.writes.len(), 3);
+        // Ett sent tick gir bare ett bilde fra nåtiden, ingen tapte mellombilder.
+        assert!(runtime.animate(10_000).unwrap());
+        assert_eq!(runtime.backend.writes.len(), 4);
+        assert!(!runtime.animate(10_001).unwrap());
+        assert_eq!(runtime.status()["holding"]["deadlineMs"], 15_000);
+    }
+
+    #[test]
+    fn effekt_krever_gyldig_statisk_valg_og_ren_start() {
+        let mut runtime = setup();
+        for effect in [json!("ukjent"), Value::Null, json!(false)] {
+            let mut args = apply_args(color([40, 50, 60]), 10);
+            args["effect"] = effect;
+            assert_eq!(
+                runtime
+                    .handle(1000, 7, "rgb_apply", &args, 0)
+                    .unwrap_err()
+                    .code,
+                ErrorCode::InvalidArgument
+            );
+        }
+        assert_eq!(
+            runtime
+                .handle(
+                    1000,
+                    7,
+                    "rgb_apply",
+                    &effect_args(Effect::Cycle, Request::Off {}),
+                    0
+                )
+                .unwrap_err()
+                .code,
+            ErrorCode::InvalidArgument
+        );
+        assert_eq!(runtime.backend.reads, 0);
+        assert!(runtime.backend.writes.is_empty());
+        let txn = apply(&mut runtime, 0, color([20, 30, 40]), 10);
+        runtime
+            .handle(1000, 7, "rgb_confirm", &txn_args(txn), 0)
+            .unwrap();
+        let before = runtime.backend.writes.len();
+        assert_eq!(
+            runtime
+                .handle(
+                    1000,
+                    7,
+                    "rgb_apply",
+                    &effect_args(Effect::Cycle, color([40, 50, 60])),
+                    1
+                )
+                .unwrap_err()
+                .code,
+            ErrorCode::WriteLocked
+        );
+        assert_eq!(runtime.backend.writes.len(), before);
+        runtime
+            .handle(1000, 7, "rgb_reset", &identity(), 2)
+            .unwrap();
+        runtime
+            .handle(1000, 7, "rgb_ack_recovery", &ack_args(), 3)
+            .unwrap();
+        start_effect(&mut runtime, Effect::Rainbow, 4);
+        assert_eq!(
+            runtime
+                .handle(1000, 7, "rgb_apply", &apply_args(Request::Off {}, 10), 5)
+                .unwrap_err()
+                .code,
+            ErrorCode::Busy
+        );
+        assert!(runtime.animation_active());
+    }
+
+    #[test]
+    fn effekt_med_av_baseline_er_ikke_stottet() {
+        let current = Observed {
+            color: Some([0; 3]),
+            brightness_raw: Some(100),
+            mode: Some(Mode::Off),
+        };
+        let baseline = Baseline::from_observed(binding(), current.clone()).unwrap();
+        let auth = Authorization::new(1000, binding(), rigg_core::version::build()).unwrap();
+        let mut runtime = Runtime::new(
+            auth,
+            baseline,
+            Fake {
+                current,
+                ..Default::default()
+            },
+        )
+        .unwrap();
+        assert_eq!(
+            runtime
+                .handle(
+                    1000,
+                    7,
+                    "rgb_apply",
+                    &effect_args(Effect::Cycle, color([1, 2, 3])),
+                    0
+                )
+                .unwrap_err()
+                .code,
+            ErrorCode::NotSupported
+        );
+        assert!(runtime.backend.writes.is_empty());
+    }
+
+    #[test]
+    fn effekt_stopper_for_reset_release_klienttap_revoke_og_leaseutlop() {
+        for stop in ["rgb_reset", "rgb_release", "disconnect", "revoke", "lease"] {
+            let mut runtime = setup();
+            start_effect(&mut runtime, Effect::Breathing, 0);
+            assert!(runtime.disconnect(8).is_none());
+            assert!(runtime.animation_active());
+            match stop {
+                "disconnect" => {
+                    runtime.disconnect(7);
+                }
+                "revoke" => {
+                    runtime.revoke();
+                }
+                "lease" => {
+                    assert!(!runtime.animate(15_000).unwrap());
+                }
+                op => {
+                    runtime.handle(1000, 7, op, &identity(), 1000).unwrap();
+                }
+            }
+            assert!(runtime.status()["effect"].is_null(), "{stop}");
+            assert_eq!(
+                runtime.backend.writes,
+                [color([120, 60, 30]), color([1, 2, 3])],
+                "{stop}"
+            );
+            assert!(
+                !runtime
+                    .animate(if stop == "lease" { 15_001 } else { 1001 })
+                    .unwrap()
+            );
+            assert_eq!(runtime.backend.writes.len(), 2, "{stop}");
+        }
+    }
+
+    #[test]
+    fn pending_effekt_utloper_uten_en_eneste_animasjonsramme() {
+        let mut runtime = setup();
+        runtime
+            .handle(
+                1000,
+                7,
+                "rgb_apply",
+                &effect_args(Effect::Breathing, color([120, 60, 30])),
+                0,
+            )
+            .unwrap();
+        assert!(!runtime.animate(10_000).unwrap());
+        assert!(runtime.status()["effect"].is_null());
+        assert_eq!(
+            runtime.backend.writes,
+            [color([120, 60, 30]), color([1, 2, 3])]
+        );
+    }
+
+    #[test]
+    fn framefeil_stopper_og_recoverer_egne_delvise_endringer_bare_en_gang() {
+        for fail_recovery in [false, true] {
+            let mut runtime = setup();
+            start_effect(&mut runtime, Effect::Breathing, 0);
+            runtime.backend.partial_apply = true;
+            runtime.backend.fail_recovery = fail_recovery;
+            assert!(runtime.animate(1000).unwrap());
+            assert!(runtime.status()["effect"].is_null());
+            assert!(runtime.status()["runtimeError"].is_string());
+            assert_eq!(runtime.backend.writes.len(), 3);
+            assert_eq!(runtime.backend.writes.last(), Some(&color([1, 2, 3])));
+            assert!(runtime.book.snapshot().dirty);
+            assert!(!runtime.animate(2000).unwrap());
+            assert!(runtime.release().is_none());
+            assert_eq!(runtime.backend.writes.len(), 3);
+        }
+    }
+
+    #[test]
+    fn ekstern_framedrift_stopper_uten_automatisk_overskriving() {
+        let mut runtime = setup();
+        start_effect(&mut runtime, Effect::Breathing, 0);
+        runtime.backend.current = observed(&color([6, 7, 8]));
+        assert!(runtime.animate(1000).unwrap());
+        assert!(runtime.status()["effect"].is_null());
+        assert_eq!(runtime.backend.writes.len(), 1);
+        assert!(runtime.book.snapshot().dirty);
+        assert!(runtime.release().is_none());
+        assert!(!runtime.animate(20_000).unwrap());
+        assert_eq!(runtime.backend.writes.len(), 1);
+        runtime
+            .handle(1000, 7, "rgb_reset", &identity(), 20_001)
+            .unwrap();
+        assert_eq!(runtime.backend.writes.last(), Some(&color([1, 2, 3])));
+    }
+
+    #[test]
+    fn tilbakegaende_animasjonsklokke_stopper_og_frigir_en_gang() {
+        let mut runtime = setup();
+        start_effect(&mut runtime, Effect::Breathing, 1000);
+        assert!(runtime.animate(2000).unwrap());
+        runtime.frame_completed(2000).unwrap();
+        assert_eq!(
+            runtime.animate(1999).unwrap_err().code,
+            ErrorCode::WriteLocked
+        );
+        assert!(runtime.status()["effect"].is_null());
+        assert_eq!(runtime.backend.writes.len(), 3);
+        assert!(runtime.animate(3000).is_err());
+        assert_eq!(runtime.backend.writes.len(), 3);
     }
 }

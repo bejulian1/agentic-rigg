@@ -5,6 +5,7 @@
 use rigg_core::proto::{self, ErrorCode, Incoming, OpResult, ProtoError, Request};
 use rigg_core::rgb::{Binding, Observed, Request as ColorRequest};
 use rigg_core::rgb_auth::{self, Paths};
+use rigg_core::rgb_effect::Effect;
 use serde_json::{Value, json};
 use std::collections::BTreeMap;
 use std::io::{ErrorKind, Read, Write};
@@ -164,6 +165,33 @@ impl View {
                 || serde_json::from_value::<ColorRequest>(pending["requested"].clone()).is_err()
             {
                 return Err(Self::error("RGB-hjelperens ventende endring er ugyldig."));
+            }
+        }
+        let effects: Vec<Effect> = match status.get("softwareEffects") {
+            None => Vec::new(),
+            Some(value) => serde_json::from_value(value.clone())
+                .map_err(|_| Self::error("RGB-hjelperen oppga ukjente programvareeffekter."))?,
+        };
+        if effects.len() > 3
+            || effects
+                .iter()
+                .enumerate()
+                .any(|(i, effect)| effects[..i].contains(effect))
+        {
+            return Err(Self::error("RGB-hjelperens effektliste er ugyldig."));
+        }
+        if !status["effect"].is_null() {
+            let effect: Effect = serde_json::from_value(status["effect"].clone())
+                .map_err(|_| Self::error("RGB-hjelperens valgte effekt er ukjent."))?;
+            if !effects.contains(&effect)
+                || owner.is_none()
+                || state["dirty"] != true
+                || state["mayHaveWritten"] != true
+                || state["confirmed"]["mode"] != "static"
+            {
+                return Err(Self::error(
+                    "RGB-effekten mangler gyldig støtte eller eierskap.",
+                ));
             }
         }
         Ok(Self {
@@ -460,7 +488,7 @@ fn validate_args(op: &str, args: &Value) -> Result<(), ProtoError> {
         .ok_or_else(|| invalid("RGB-argumentene må være et objekt."))?;
     let allowed: &[&str] = match op {
         "get_rgb_helper" => &["refresh"],
-        "rgb_apply" => &["gpu", "uuid", "request", "confirmTimeoutS"],
+        "rgb_apply" => &["gpu", "uuid", "request", "confirmTimeoutS", "effect"],
         "rgb_confirm" | "rgb_revert" => &["gpu", "uuid", "txn"],
         "rgb_ack_recovery" => &["gpu", "uuid", "confirmedStatic", "expected"],
         "rgb_reset" | "rgb_release" => &["gpu", "uuid"],
@@ -497,6 +525,15 @@ fn validate_args(op: &str, args: &Value) -> Result<(), ProtoError> {
     }
     if matches!(op, "rgb_confirm" | "rgb_revert") && args["txn"].as_u64().is_none_or(|n| n == 0) {
         return Err(invalid("RGB-transaksjonen mangler."));
+    }
+    if op == "rgb_apply"
+        && let Some(effect) = args.get("effect")
+        && (serde_json::from_value::<Effect>(effect.clone()).is_err()
+            || args["request"]["mode"] != "static")
+    {
+        return Err(invalid(
+            "En kjent programvareeffekt krever statisk startfarge.",
+        ));
     }
     if op == "rgb_ack_recovery"
         && (args["confirmedStatic"] != true
@@ -973,6 +1010,13 @@ fn execute(
         {
             return Ok(Err(ProtoError::new(ErrorCode::UnknownGpu)));
         }
+        if let Some(effect) = command.args.get("effect")
+            && view.status["softwareEffects"]
+                .as_array()
+                .is_none_or(|effects| !effects.contains(effect))
+        {
+            return Ok(Err(ProtoError::new(ErrorCode::NotSupported)));
+        }
         // Sjekkes rett før utsending, også når statuskallet tok tid.
         if control.owner.load(Ordering::SeqCst) != command.sid
             || !command.alive.load(Ordering::SeqCst)
@@ -1274,6 +1318,34 @@ mod tests {
         assert!(View::checked(status).is_err());
         let mut status = initial_status();
         status["state"]["observed"]["mode"] = json!("static");
+        assert!(View::checked(status).is_err());
+    }
+
+    #[test]
+    fn effekter_valideres_for_koling_og_krever_eksplisitt_hjelperstotte() {
+        let mut args = request(1, "rgb_apply").args;
+        args["request"] = json!({"mode":"static","color":[20,40,60],"brightness":80});
+        for effect in ["breathing", "rainbow", "cycle"] {
+            args["effect"] = json!(effect);
+            assert!(validate_args("rgb_apply", &args).is_ok());
+        }
+        for effect in [Value::Null, json!("native"), json!(true)] {
+            args["effect"] = effect;
+            assert!(validate_args("rgb_apply", &args).is_err());
+        }
+        args["effect"] = json!("breathing");
+        args["request"] = json!({"mode":"off"});
+        assert!(validate_args("rgb_apply", &args).is_err());
+        let mut status = initial_status();
+        status["softwareEffects"] = json!(["breathing", "rainbow", "cycle"]);
+        assert!(View::checked(status.clone()).is_ok());
+        status["effect"] = json!("breathing");
+        assert!(
+            View::checked(status.clone()).is_err(),
+            "Ingen effekt uten eier"
+        );
+        status["effect"] = Value::Null;
+        status["softwareEffects"] = json!(["native"]);
         assert!(View::checked(status).is_err());
     }
 

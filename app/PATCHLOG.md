@@ -2,6 +2,8 @@
 
 ## Pågående · Palit-RGB på feature/palit-rgb
 
+- Pusting, regnbue og fargesyklus i «Lys på kortet» bruker den egne RGB-hjelperen. Bruk viser startfargen, Behold starter animasjonen, og Stopp gjenoppretter lagret utgangspunkt. Fysisk verifikasjon av animasjonene på PALIT 100 gjenstår.
+
 - Eget kildegrunnlag fra ThunderMaster-opptak og installert NVIDIA-driver; eksakte Palit 100/150-signaturer, faktisk fargeprotokoll og begrensninger ved ukjent effektmodus.
 - Typet RGB-identitet, observasjon og baseline skiller registerverdier, brukerbekreftelse og faktisk avlest modus. Forhåndsvisningens tegnede soner blir ikke fysisk maskinvare.
 - Egen, streng RGB-tillatelsesmodell uten klientvalgte enhetsstier. Eksisterende v2-GPU-tillatelse gir ikke RGB; eldre eksplisitte simulerte trinn beholdes.

@@ -17,6 +17,7 @@ pub mod proto;
 pub mod report;
 pub mod rgb;
 pub mod rgb_auth;
+pub mod rgb_effect;
 pub mod rgb_txn;
 pub mod sensor_key;
 pub mod sensormeta;

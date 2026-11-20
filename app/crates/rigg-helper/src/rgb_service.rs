@@ -249,7 +249,13 @@ impl Service {
                 revents: 0,
             }));
             // SAFETY: fds inneholder gyldige descriptorer for denne runden.
-            let result = unsafe { libc::poll(fds.as_mut_ptr(), fds.len() as libc::nfds_t, 1000) };
+            let poll_ms = if runtime.animation_active() {
+                250
+            } else {
+                1000
+            };
+            let result =
+                unsafe { libc::poll(fds.as_mut_ptr(), fds.len() as libc::nfds_t, poll_ms) };
             if result < 0 {
                 if std::io::Error::last_os_error().kind() == std::io::ErrorKind::Interrupted {
                     continue;
@@ -288,8 +294,63 @@ impl Service {
                     }
                 }
             }
+            // Frister og klienttrafikk går alltid foran en programvareramme.
+            // Sjekk hangup igjen: annen RPC/recovery kan ha tatt tid siden poll.
+            if !runtime.animation_active() {
+                continue;
+            }
+            if stop.load(Ordering::SeqCst) {
+                break;
+            }
+            let incoming = self.disconnect_closed(runtime)?;
+            Self::check_auth(runtime, auth, load)?;
+            if stop.load(Ordering::SeqCst) {
+                break;
+            }
+            if incoming {
+                continue;
+            }
+            if runtime
+                .animate(now_ms()?)
+                .map_err(|e| format!("RGB-effekt: {e:?}"))?
+            {
+                runtime
+                    .frame_completed(now_ms()?)
+                    .map_err(|e| format!("RGB-effektfrist: {e:?}"))?;
+            }
         }
         Ok(())
+    }
+
+    fn disconnect_closed<B: Backend>(&mut self, runtime: &mut Runtime<B>) -> Result<bool, String> {
+        let ids: Vec<u64> = self.clients.keys().copied().collect();
+        let mut fds: Vec<libc::pollfd> = ids
+            .iter()
+            .map(|id| libc::pollfd {
+                fd: self.clients[id].stream.as_raw_fd(),
+                events: libc::POLLIN | libc::POLLRDHUP,
+                revents: 0,
+            })
+            .collect();
+        // SAFETY: gyldige descriptorer; null ventetid og ingen lesing/skriving.
+        let result = unsafe { libc::poll(fds.as_mut_ptr(), fds.len() as libc::nfds_t, 0) };
+        if result < 0 {
+            return Err(format!(
+                "Kan ikke kontrollere RGB-klienttap: {}",
+                std::io::Error::last_os_error()
+            ));
+        }
+        let mut incoming = false;
+        for (id, fd) in ids.iter().zip(fds) {
+            if fd.revents & (libc::POLLHUP | libc::POLLERR | libc::POLLNVAL | libc::POLLRDHUP) != 0
+            {
+                self.clients.remove(id);
+                runtime.disconnect(*id);
+            } else if fd.revents & libc::POLLIN != 0 {
+                incoming = true;
+            }
+        }
+        Ok(incoming)
     }
 
     fn reply(stream: &mut UnixStream, id: &Value, result: &OpResult) -> bool {
@@ -532,6 +593,17 @@ mod tests {
             _: &Baseline,
         ) -> Result<Observed, WriteError> {
             self.events.lock().unwrap().push("recover");
+            self.observed = observation(request);
+            Ok(self.observed.clone())
+        }
+        fn animation_frame(
+            &mut self,
+            _: &Binding,
+            request: &Request,
+            _: &Observed,
+            _: &Baseline,
+        ) -> Result<Observed, WriteError> {
+            self.events.lock().unwrap().push("frame");
             self.observed = observation(request);
             Ok(self.observed.clone())
         }
@@ -789,5 +861,88 @@ mod tests {
             .unwrap();
         assert_eq!(*events.lock().unwrap(), vec!["journal", "apply", "recover"]);
         drop(sender);
+    }
+
+    fn active_effect(runtime: &mut Runtime<Fake>) {
+        let now = now_ms().unwrap() - 1000;
+        let result = runtime
+            .handle(
+                1000,
+                1,
+                "rgb_apply",
+                &json!({
+                    "gpu": binding().pci, "uuid": binding().uuid,
+                    "request": {"mode":"static", "color":[120,60,30], "brightness":80},
+                    "confirmTimeoutS":10, "effect":"breathing"
+                }),
+                now,
+            )
+            .unwrap();
+        runtime
+            .handle(
+                1000,
+                1,
+                "rgb_confirm",
+                &json!({
+                    "gpu":binding().pci, "uuid":binding().uuid, "txn":result["outcome"]["txn"]
+                }),
+                now,
+            )
+            .unwrap();
+        assert!(runtime.animation_active());
+    }
+
+    #[test]
+    fn lukket_eier_og_koet_reset_behandles_for_forfalt_frame() {
+        for close in [true, false] {
+            let fixture = Fixture::new();
+            let socket = fixture.0.join("rgb.sock");
+            let listener = UnixListener::bind(&socket).unwrap();
+            let (auth, mut runtime, events) = setup();
+            active_effect(&mut runtime);
+            let mut service = Service::new(listener, socket).unwrap();
+            let (mut sender, receiver) = UnixStream::pair().unwrap();
+            receiver.set_nonblocking(true).unwrap();
+            service.clients.insert(
+                1,
+                Conn {
+                    uid: 1000,
+                    stream: receiver,
+                    buffer: LineBuffer::new(),
+                },
+            );
+            if close {
+                drop(sender);
+                assert!(!service.disconnect_closed(&mut runtime).unwrap());
+            } else {
+                let mut line = serde_json::to_vec(&json!({"id":1,"op":"rgb_reset", "args":{
+                    "gpu":binding().pci,"uuid":binding().uuid
+                }}))
+                .unwrap();
+                line.push(b'\n');
+                sender.write_all(&line).unwrap();
+                assert!(service.disconnect_closed(&mut runtime).unwrap());
+                service
+                    .read(
+                        1,
+                        &mut runtime,
+                        &auth,
+                        &mut || Ok(auth.clone()),
+                        &AtomicBool::new(false),
+                    )
+                    .unwrap();
+            }
+            assert!(!runtime.animate(now_ms().unwrap()).unwrap());
+            assert_eq!(*events.lock().unwrap(), vec!["journal", "apply", "recover"]);
+        }
+    }
+
+    #[test]
+    fn tilbakekalling_stopper_en_forfalt_effekt_for_frame() {
+        let (auth, mut runtime, events) = setup();
+        active_effect(&mut runtime);
+        assert!(Service::check_auth(&mut runtime, &auth, &mut || Err("fjernet".into())).is_err());
+        assert!(!runtime.animate(now_ms().unwrap()).unwrap());
+        assert_eq!(*events.lock().unwrap(), vec!["journal", "apply", "recover"]);
     }
 }

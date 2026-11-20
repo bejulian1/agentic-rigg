@@ -90,6 +90,9 @@ pub(crate) struct NativeBackend {
     own_write_responsibility: bool,
     last_recovery: Option<Observed>,
     last_read: Option<Observed>,
+    // Kun siste vellykkede egne apply/frame, aldri en vilkårlig read. Dette
+    // live-beviset kan ikke rekonstrueres fra en journal etter restart.
+    last_apply: Option<Observed>,
     hardware: Box<dyn Hardware>,
     production: bool,
 }
@@ -152,6 +155,7 @@ impl NativeBackend {
             own_write_responsibility: false,
             last_recovery: None,
             last_read: None,
+            last_apply: None,
             hardware,
             production,
         })
@@ -231,6 +235,7 @@ impl NativeBackend {
             own_write_responsibility,
             last_recovery: None,
             last_read: None,
+            last_apply: None,
             hardware,
             production,
         })
@@ -357,6 +362,15 @@ impl NativeBackend {
         if recovery && let Ok(observed) = &result {
             self.last_recovery = Some(observed.clone());
         }
+        if !recovery
+            && let Ok(observed) = &result
+            && self
+                .record
+                .as_ref()
+                .is_some_and(|record| fields_match(&record.target, observed))
+        {
+            self.last_apply = Some(observed.clone());
+        }
         result
     }
 }
@@ -398,6 +412,7 @@ impl Backend for NativeBackend {
                 .is_some_and(StoredJournal::has_recorded_write_responsibility);
         self.last_recovery = None;
         self.last_read = None;
+        self.last_apply = None;
         self.persist(StoredJournal {
             version: 1,
             journal: journal.clone(),
@@ -431,6 +446,7 @@ impl Backend for NativeBackend {
         }
         self.last_recovery = None;
         self.last_read = None;
+        self.last_apply = None;
         let preflight = self.current_authorization().and_then(|_| {
             self.store
                 .validate_state(&self.baseline, self.record.as_ref())
@@ -442,6 +458,55 @@ impl Backend for NativeBackend {
             Err(e) => Err(no_write(e)),
         };
         self.finish_write(result, false)
+    }
+
+    fn animation_frame(
+        &mut self,
+        binding: &Binding,
+        request: &Request,
+        expected_before: &Observed,
+        baseline: &Baseline,
+    ) -> Result<Observed, WriteError> {
+        self.last_recovery = None;
+        self.last_read = None;
+        let result = (|| {
+            self.binding(binding, baseline).map_err(no_write)?;
+            let record = self
+                .record
+                .as_ref()
+                .ok_or_else(|| no_write("Animasjonen mangler en varig RGB-journal."))?;
+            if record.phase != Phase::Attempted
+                || record.operation != Operation::Apply
+                || !self.own_write_responsibility
+                || !matches!(record.target, Request::Static { .. })
+                || !matches!(request, Request::Static { .. })
+                || self.last_apply.as_ref() != Some(expected_before)
+            {
+                return Err(no_write(
+                    "Animasjonen mangler samme journalførte startvalg og siste egne bilde.",
+                ));
+            }
+            self.current_authorization().map_err(no_write)?;
+            self.store
+                .validate_state(&self.baseline, self.record.as_ref())
+                .map_err(no_write)?;
+            // Samme avgrensede statiske transport kontrollerer fersk binding,
+            // signatur og expected_before på samme fd før første setter.
+            // Book har allerede krevd Behold og samme eier. Journalen for
+            // første setter er varig og beholdes uendret gjennom hele effekten;
+            // et krasj kan aldri gjenoppta effekten eller rydde journalen.
+            self.hardware
+                .apply(binding, request, expected_before, baseline)
+        })();
+        // Ingen persist/finish_write her: allerede varig Attempted og eget
+        // ansvar dekker også en mulig delvis frame. En feil bryter kjeden;
+        // eksplisitt ny transaksjon/recovery kreves før flere bilder.
+        self.last_apply = result
+            .as_ref()
+            .ok()
+            .filter(|observed| fields_match(request, observed))
+            .cloned();
+        result
     }
 
     fn recover(
@@ -463,6 +528,7 @@ impl Backend for NativeBackend {
         next.validate(baseline).map_err(no_write)?;
         self.last_recovery = None;
         self.last_read = None;
+        self.last_apply = None;
         // Tilbakekalt tillatelse må ikke sperre gjenoppretting av egne endringer.
         // Kort/UUID/signatur kontrolleres ferskt av den egne recover-transporten.
         self.persist(next).map_err(no_write)?;
@@ -486,6 +552,7 @@ impl Backend for NativeBackend {
         self.record = None;
         self.own_write_responsibility = false;
         self.last_recovery = None;
+        self.last_apply = None;
         Ok(())
     }
 
@@ -527,6 +594,7 @@ impl Backend for NativeBackend {
             self.own_write_responsibility = false;
             self.last_recovery = None;
             self.last_read = None;
+            self.last_apply = None;
         }
         Ok(())
     }
@@ -547,6 +615,7 @@ mod tests {
         binding: Binding,
         result: Result<Observed, WriteError>,
         read_observed: Observed,
+        expected_before: Vec<Observed>,
         fail_persistence_after_write: Option<Arc<AtomicBool>>,
     }
 
@@ -561,11 +630,18 @@ mod tests {
 
         fn apply(
             &mut self,
-            _: &Binding,
+            binding: &Binding,
             _: &Request,
-            _: &Observed,
+            before: &Observed,
             _: &Baseline,
         ) -> Result<Observed, WriteError> {
+            {
+                let mut state = self.0.lock().unwrap();
+                state.expected_before.push(before.clone());
+                if &state.binding != binding || &state.read_observed != before {
+                    return Err(no_write("Simulert binding-/feltendring før setter."));
+                }
+            }
             self.write("apply")
         }
 
@@ -603,6 +679,7 @@ mod tests {
                 mode: None,
             }),
             read_observed: observed(),
+            expected_before: vec![],
             fail_persistence_after_write: None,
         }));
         (Box::new(Fake(state.clone())), state)
@@ -616,6 +693,290 @@ mod tests {
             NativeBackend::from_parts(authorization(), baseline.clone(), store, hardware, false)
                 .unwrap();
         (f, backend, state)
+    }
+
+    fn static_request(color: [u8; 3]) -> Request {
+        Request::Static {
+            color,
+            brightness: 80u8.try_into().unwrap(),
+        }
+    }
+
+    fn frame_observed(color: [u8; 3]) -> Observed {
+        Observed {
+            color: Some(color),
+            brightness_raw: Some(80),
+            mode: None,
+        }
+    }
+
+    fn start_static(
+        backend: &mut NativeBackend,
+        state: &Arc<Mutex<FakeState>>,
+        baseline: &Baseline,
+    ) -> Observed {
+        let mut initial = journal(baseline);
+        initial.requested = static_request([8, 9, 10]);
+        backend.mark_dirty(&initial).unwrap();
+        state.lock().unwrap().result = Ok(frame_observed([8, 9, 10]));
+        backend
+            .apply(&binding(), &initial.requested, &observed(), baseline)
+            .unwrap()
+    }
+
+    #[test]
+    fn bilder_gjenbruker_varig_journal_uten_fsync_og_sammenligner_siste_egne_felt() {
+        let baseline = baseline();
+        let (f, mut backend, state) = backend(&baseline);
+        let mut before = start_static(&mut backend, &state, &baseline);
+        let persisted = std::fs::read(f.path.join("journal.json")).unwrap();
+        // Dersom en frame forsøker ny journalføring, skal denne kontrollerte
+        // feilen slå ut. Vanlig validate_state leser bare den private fixturen.
+        backend
+            .store
+            .fail_before_rename
+            .store(true, Ordering::Relaxed);
+        backend
+            .store
+            .fail_directory_sync
+            .store(true, Ordering::Relaxed);
+        for color in [[18, 19, 20], [28, 29, 30]] {
+            state.lock().unwrap().result = Ok(frame_observed(color));
+            before = backend
+                .animation_frame(&binding(), &static_request(color), &before, &baseline)
+                .unwrap();
+            assert_eq!(before, frame_observed(color));
+            assert_eq!(before.mode, None);
+            assert_eq!(
+                std::fs::read(f.path.join("journal.json")).unwrap(),
+                persisted
+            );
+        }
+        assert_eq!(state.lock().unwrap().actions, ["apply", "apply", "apply"]);
+        assert_eq!(
+            state.lock().unwrap().expected_before,
+            [
+                observed(),
+                frame_observed([8, 9, 10]),
+                frame_observed([18, 19, 20])
+            ]
+        );
+        let record = backend.store.journal(&baseline).unwrap().unwrap();
+        assert_eq!(record.phase, Phase::Attempted);
+        assert_eq!(record.target, static_request([8, 9, 10]));
+        assert!(backend.own_write_responsibility);
+        assert!(backend.clear_dirty(&binding()).is_err());
+    }
+
+    #[test]
+    fn baselinefarget_effekt_beholder_journal_frem_til_fersk_visuell_avklaring() {
+        let baseline = baseline();
+        let (f, mut backend, state) = backend(&baseline);
+        let mut book = Book::new(baseline.clone()).unwrap();
+        let initial = book.snapshot().confirmed;
+        state.lock().unwrap().result = Ok(observed());
+        let pending = book
+            .apply_for_effect(&mut backend, 7, initial.clone(), 0, 10_000)
+            .unwrap();
+        book.keep(&mut backend, 7, pending.txn.unwrap(), 1).unwrap();
+        assert!(book.snapshot().dirty && book.snapshot().may_have_written);
+        assert!(backend.store.journal(&baseline).unwrap().is_some());
+        assert!(!f.path.join("visual-confirmation.json").exists());
+        state.lock().unwrap().result = Ok(frame_observed([18, 19, 20]));
+        book.animation_frame(&mut backend, 7, static_request([18, 19, 20]))
+            .unwrap();
+        assert_eq!(book.snapshot().confirmed, initial);
+        state.lock().unwrap().result = Ok(observed());
+        book.release(&mut backend).unwrap();
+        assert!(backend.store.journal(&baseline).unwrap().is_some());
+        assert!(!f.path.join("visual-confirmation.json").exists());
+        book.ack_recovery(&mut backend, 8, 2).unwrap();
+        assert!(!book.snapshot().dirty && !book.snapshot().may_have_written);
+        assert!(backend.store.journal(&baseline).unwrap().is_none());
+        assert_eq!(backend.store.baseline().unwrap(), baseline);
+        let receipt: serde_json::Value = serde_json::from_slice(
+            &std::fs::read(f.path.join("visual-confirmation.json")).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(receipt["source"], "userVisual");
+        assert_eq!(receipt["originalBaseline"], true);
+        assert!(receipt["observed"]["mode"].is_null());
+    }
+
+    #[test]
+    fn bilde_krever_live_vellykket_setter_ikke_bare_en_lagret_journal() {
+        let baseline = baseline();
+        let (_f, mut backend, state) = backend(&baseline);
+        let request = static_request([18, 19, 20]);
+        assert!(
+            !backend
+                .animation_frame(&binding(), &request, &observed(), &baseline)
+                .unwrap_err()
+                .write_attempted
+        );
+        let mut initial = journal(&baseline);
+        initial.requested = static_request([8, 9, 10]);
+        backend.mark_dirty(&initial).unwrap();
+        assert!(
+            !backend
+                .animation_frame(&binding(), &request, &observed(), &baseline)
+                .unwrap_err()
+                .write_attempted
+        );
+        assert!(state.lock().unwrap().actions.is_empty());
+
+        let f = Fixture::new();
+        let store = f.store(&baseline);
+        let mut record = fixtures::record(&baseline);
+        record.phase = Phase::Attempted;
+        record.journal.requested = initial.requested.clone();
+        record.target = initial.requested;
+        store.write_journal(&baseline, None, &record).unwrap();
+        let (hardware, state) = hardware();
+        let mut restarted =
+            NativeBackend::from_existing(authorization(), store, hardware, false).unwrap();
+        assert!(
+            !restarted
+                .animation_frame(&binding(), &request, &observed(), &baseline)
+                .unwrap_err()
+                .write_attempted
+        );
+        assert!(state.lock().unwrap().actions.is_empty());
+        assert!(restarted.store.journal(&baseline).unwrap().is_some());
+    }
+
+    #[test]
+    fn bilde_avviser_endret_journal_las_binding_eller_egne_forfelt_for_setter() {
+        for case in [
+            "journal",
+            "lock",
+            "binding",
+            "before",
+            "request",
+            "external",
+            "signature",
+        ] {
+            let baseline = baseline();
+            let (f, mut backend, state) = backend(&baseline);
+            let mut before = start_static(&mut backend, &state, &baseline);
+            let mut selected = binding();
+            let mut request = static_request([18, 19, 20]);
+            match case {
+                "journal" => {
+                    let mut replaced = backend.record.clone().unwrap();
+                    replaced.journal.txn += 1;
+                    std::fs::write(
+                        f.path.join("journal.json"),
+                        serde_json::to_vec(&replaced).unwrap(),
+                    )
+                    .unwrap();
+                }
+                "lock" => {
+                    std::fs::rename(f.path.join("worker.lock"), f.path.join("old.lock")).unwrap();
+                    f.write("worker.lock", b"");
+                }
+                "binding" => selected.signature = Signature::Palit100,
+                "before" => before.color = Some([98, 97, 96]),
+                "request" => request = Request::Off {},
+                "external" => state.lock().unwrap().read_observed.color = Some([98, 97, 96]),
+                "signature" => state.lock().unwrap().binding.signature = Signature::Palit100,
+                _ => unreachable!(),
+            }
+            let persisted = std::fs::read(f.path.join("journal.json")).unwrap();
+            let error = backend
+                .animation_frame(&selected, &request, &before, &baseline)
+                .unwrap_err();
+            assert!(!error.write_attempted, "{case}");
+            assert_eq!(state.lock().unwrap().actions, ["apply"], "{case}");
+            assert_eq!(
+                std::fs::read(f.path.join("journal.json")).unwrap(),
+                persisted
+            );
+            assert!(backend.own_write_responsibility);
+            assert!(backend.last_apply.is_none());
+        }
+    }
+
+    #[test]
+    fn framefeil_beholder_skriveansvar_og_stanser_kjeden_uten_journalendring() {
+        for attempted in [false, true] {
+            let baseline = baseline();
+            let (f, mut backend, state) = backend(&baseline);
+            let before = start_static(&mut backend, &state, &baseline);
+            let persisted = std::fs::read(f.path.join("journal.json")).unwrap();
+            state.lock().unwrap().result = Err(WriteError {
+                message: "simulert framefeil".into(),
+                write_attempted: attempted,
+            });
+            assert_eq!(
+                backend
+                    .animation_frame(
+                        &binding(),
+                        &static_request([18, 19, 20]),
+                        &before,
+                        &baseline
+                    )
+                    .unwrap_err()
+                    .write_attempted,
+                attempted
+            );
+            state.lock().unwrap().result = Ok(frame_observed([18, 19, 20]));
+            assert!(
+                !backend
+                    .animation_frame(
+                        &binding(),
+                        &static_request([18, 19, 20]),
+                        &before,
+                        &baseline
+                    )
+                    .unwrap_err()
+                    .write_attempted
+            );
+            assert_eq!(state.lock().unwrap().actions, ["apply", "apply"]);
+            assert!(backend.own_write_responsibility);
+            assert_eq!(
+                std::fs::read(f.path.join("journal.json")).unwrap(),
+                persisted
+            );
+            // Book bestemmer om recovery er automatisk eller bare eksplisitt.
+            // Backend må fortsatt kunne gjenopprette originalen etter feilen.
+            state.lock().unwrap().result = Ok(observed());
+            backend
+                .recover(&binding(), &journal(&baseline).before, &baseline)
+                .unwrap();
+            assert_eq!(state.lock().unwrap().actions, ["apply", "apply", "recover"]);
+            assert!(backend.store.journal(&baseline).unwrap().is_some());
+        }
+    }
+
+    #[test]
+    fn mismatchet_frame_kan_ikke_brukes_som_nytt_forbilde() {
+        let baseline = baseline();
+        let (_f, mut backend, state) = backend(&baseline);
+        let before = start_static(&mut backend, &state, &baseline);
+        state.lock().unwrap().result = Ok(frame_observed([98, 97, 96]));
+        let mismatch = backend
+            .animation_frame(
+                &binding(),
+                &static_request([18, 19, 20]),
+                &before,
+                &baseline,
+            )
+            .unwrap();
+        assert!(backend.last_apply.is_none());
+        assert!(
+            !backend
+                .animation_frame(
+                    &binding(),
+                    &static_request([28, 29, 30]),
+                    &mismatch,
+                    &baseline
+                )
+                .unwrap_err()
+                .write_attempted
+        );
+        assert_eq!(state.lock().unwrap().actions, ["apply", "apply"]);
+        assert!(backend.own_write_responsibility);
     }
 
     #[test]

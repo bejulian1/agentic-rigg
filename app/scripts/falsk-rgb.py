@@ -8,7 +8,9 @@ bare under denne roten. Dette skriptet er ikke en produksjonsbackend.
 
 import argparse
 import copy
+import colorsys
 import json
+import math
 import os
 from pathlib import Path
 import selectors
@@ -27,6 +29,7 @@ MAX_CLIENTS = 4
 MAX_TRACE = 16 * 1024 * 1024
 LEASE_MS = 15_000
 BASELINE = {"mode": "static", "color": [20, 40, 60], "brightness": 80}
+SOFTWARE_EFFECTS = ("breathing", "rainbow", "cycle")
 BINDING = {
     "pci": "0000:1c:00.0",
     "uuid": "GPU-sim0000-0000",
@@ -94,6 +97,19 @@ def observed(request):
     }
 
 
+def effect_frame(effect, seed, elapsed):
+    """Visningsfixture: én statisk farge per bilde, aldri maskinvaretilgang."""
+    target = copy.deepcopy(seed)
+    if effect == "breathing":
+        level = 0.1 + 0.9 * (1 + math.cos(elapsed * math.tau / 4000)) / 2
+        target["color"] = [int(channel * level + 0.5) for channel in seed["color"]]
+    else:
+        hue, _sat, _value = colorsys.rgb_to_hsv(*(v / 255 for v in seed["color"]))
+        offset = elapsed / 12_000 if effect == "rainbow" else (elapsed // 2000) / 6
+        target["color"] = [int(v * 255 + 0.5) for v in colorsys.hsv_to_rgb((hue + offset) % 1, 1, 1)]
+    return target
+
+
 def unique_object(pairs):
     result = {}
     for key, value in pairs:
@@ -136,6 +152,10 @@ class FakeState:
         self.observation_source = "stored_baseline"
         self.last_outcome = None
         self.sequence = 1
+        self.effect = None
+        self.effect_seed = None
+        self.effect_start = None
+        self.effect_frame = None
 
     def status(self):
         return {
@@ -146,6 +166,8 @@ class FakeState:
             },
             "identity": copy.deepcopy(BINDING),
             "authorized": True,
+            "softwareEffects": list(SOFTWARE_EFFECTS),
+            "effect": self.effect,
             "holding": None if self.owner is None else {
                 "owner": self.owner, "deadlineMs": self.lease, "leaseMs": LEASE_MS,
             },
@@ -175,6 +197,7 @@ class FakeState:
     def recovery_to(self, target, reason, release=False):
         txn = self.pending["txn"] if self.pending else None
         self.pending = None
+        self.effect = self.effect_seed = self.effect_start = self.effect_frame = None
         self.confirmed = copy.deepcopy(target)
         self.observed = observed(target)
         self.observation_source = "operation_readback"
@@ -194,6 +217,14 @@ class FakeState:
             return self.recovery_to(BASELINE, "release", release=True)
         if self.pending and now >= self.pending["deadlineMs"]:
             return self.recovery_to(self.pending["before"], "timeout")
+        if self.effect_start is not None and self.pending is None:
+            # Kun visningsfixture. Aldri IO eller en produksjonsalgoritme.
+            frame = max(0, now - self.effect_start) // 250
+            if frame != self.effect_frame:
+                self.effect_frame = frame
+                target = effect_frame(self.effect, self.effect_seed, frame * 250)
+                self.observed = observed(target)
+                self.observation_source = "operation_readback"
         return None
 
     def disconnect(self, sid):
@@ -219,14 +250,19 @@ class FakeState:
         }
         if op not in shapes:
             raise RpcError("unknown_op", "Ukjent operasjon i RGB-fixturen.")
-        fields(args, shapes[op])
+        fields(args, shapes[op], ("effect",) if op == "rgb_apply" else ())
         if op == "rgb_status":
             return self.status()
         if args["gpu"] != BINDING["pci"] or args["uuid"] != BINDING["uuid"]:
             raise RpcError("unknown_gpu", "Forespørselen gjelder ikke det simulerte kortet.")
         request = None
+        effect = None
         if op == "rgb_apply":
             request = color_request(args["request"])
+            if "effect" in args:
+                effect = args["effect"]
+                if effect not in SOFTWARE_EFFECTS or request["mode"] != "static":
+                    raise RpcError("invalid_argument", "Effekt trenger et støttet navn og statisk startfarge.")
             if not integer(args["confirmTimeoutS"], 10, 60):
                 raise RpcError("invalid_argument", "Bekreftelsesfristen må være 10–60 s.")
         if op in ("rgb_confirm", "rgb_revert") and not integer(args["txn"], 1, 2**64 - 1):
@@ -239,17 +275,25 @@ class FakeState:
         result = None
         if op == "rgb_apply":
             self.require_owner(sid, allow_unowned=True)
-            if self.pending:
+            if self.pending or self.effect is not None:
                 raise RpcError("busy", "En lysprøve venter allerede.")
             if self.error or (self.recovery and self.confirmation_source is None):
                 raise RpcError("write_locked", "Gjenopprettingen må bekreftes først.")
+            if effect is not None and (self.dirty or self.may_have_written or self.owner is not None
+                                       or self.confirmed != BASELINE):
+                raise RpcError("write_locked", "Effektstart krever et rent, opprinnelig utgangspunkt.")
             self.observed = observed(self.confirmed)
             self.observation_source = "operation_readback"
-            if request == self.confirmed:
+            if request == self.confirmed and effect is None:
                 if self.owner is not None:
                     self.lease = now + LEASE_MS
                 result = self.outcome("unchanged", "apply")
             else:
+                self.effect = effect
+                self.effect_seed = copy.deepcopy(request) if effect is not None else None
+                self.effect_start = self.effect_frame = None
+                if effect is not None:
+                    request = effect_frame(effect, request, 0)
                 self.pending = {
                     "txn": self.sequence, "owner": sid,
                     "deadlineMs": now + args["confirmTimeoutS"] * 1000,
@@ -272,6 +316,9 @@ class FakeState:
             else:
                 self.confirmed = copy.deepcopy(self.pending["requested"])
                 self.pending = None
+                if self.effect is not None:
+                    self.effect_start = now
+                    self.effect_frame = 0
                 self.lease = now + LEASE_MS
                 result = self.outcome("kept", "keep", args["txn"])
         elif op == "rgb_heartbeat":

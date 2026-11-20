@@ -75,6 +75,23 @@ pub trait Backend {
         expected_before: &Observed,
         baseline: &Baseline,
     ) -> Result<Observed, WriteError>;
+    /// Ett statisk bilde under en allerede beholdt transaksjon. Den første
+    /// setterens varige journal og eget skriveansvar må fortsatt være gyldige.
+    /// Sammenlign siste egne avlesning med ferske felt på samme bundne enhet
+    /// før første setter. Ingen ny journal eller fsync kreves per bilde;
+    /// journalen bevarer den lagrede originalen for senere avklaring.
+    fn animation_frame(
+        &mut self,
+        _binding: &Binding,
+        _request: &Request,
+        _expected_before: &Observed,
+        _baseline: &Baseline,
+    ) -> Result<Observed, WriteError> {
+        Err(WriteError {
+            message: "Denne RGB-adapteren støtter ikke programvareanimasjon.".into(),
+            write_attempted: false,
+        })
+    }
     /// Egen recovery-sti: behold binding-/signaturkontroll, men ikke krev
     /// at en mulig delvis endring fortsatt er lik forrige bekreftede valg.
     fn recover(
@@ -238,6 +255,10 @@ pub struct Book {
     owner: Option<u64>,
     dirty: bool,
     may_have_written: bool,
+    // En frame avvist før setter kan skyldes en ekstern endring. Tidligere
+    // egne skrivinger gir fortsatt ansvar, men ingen automatisk overskriving
+    // på disconnect/release. Bare eksplisitt reset får forsøke originalen.
+    automatic_recovery_blocked: bool,
     recovery: Option<RecoveryReadback>,
     recovery_confirmation_source: Option<RecoveryConfirmationSource>,
     error: Option<String>,
@@ -302,6 +323,7 @@ impl Book {
             owner: None,
             dirty: false,
             may_have_written: false,
+            automatic_recovery_blocked: false,
             recovery: None,
             recovery_confirmation_source: None,
             error: None,
@@ -374,6 +396,38 @@ impl Book {
         now_ms: u64,
         timeout_ms: u64,
     ) -> Result<Outcome, Error> {
+        self.apply_inner(backend, owner, request, now_ms, timeout_ms, false)
+    }
+
+    /// En effekt trenger en vanlig journalført prøve og Behold også når
+    /// startfargen er lik originalen. Dermed finnes skriveansvar og en varig
+    /// original før senere animasjonsbilder avviker fra startfargen.
+    pub fn apply_for_effect<B: Backend>(
+        &mut self,
+        backend: &mut B,
+        owner: u64,
+        request: Request,
+        now_ms: u64,
+        timeout_ms: u64,
+    ) -> Result<Outcome, Error> {
+        if !matches!(request, Request::Static { .. }) {
+            return Err(Error::Backend {
+                operation: "animasjon",
+                message: "En programvareanimasjon trenger en statisk startfarge.".into(),
+            });
+        }
+        self.apply_inner(backend, owner, request, now_ms, timeout_ms, true)
+    }
+
+    fn apply_inner<B: Backend>(
+        &mut self,
+        backend: &mut B,
+        owner: u64,
+        request: Request,
+        now_ms: u64,
+        timeout_ms: u64,
+        force_transaction: bool,
+    ) -> Result<Outcome, Error> {
         self.tick(backend, now_ms)?;
         if owner == 0 {
             return Err(Error::InvalidOwner);
@@ -394,7 +448,7 @@ impl Book {
         if !matched(before_match) {
             return Err(Error::Readback(before_match));
         }
-        if request == self.confirmed {
+        if request == self.confirmed && !force_transaction {
             return Ok(Outcome {
                 txn: None,
                 status: Status::Unchanged,
@@ -484,6 +538,74 @@ impl Book {
             Some(pending.txn),
             Reason::ApplyFailed,
         );
+        Err(failure)
+    }
+
+    /// Kalleren må først behandle monoton tid, lease og autorisasjon. Bare
+    /// samme eier av en BEHOLDT statisk transaksjon kan sende bilder. Et bilde
+    /// endrer avlesningen, aldri det bekreftede startvalget eller journalen.
+    /// Ved feil stanser kalleren animasjonen og kan kalle release én gang:
+    /// mulig delvis skriving får original-recovery, ren avvisning får ingen
+    /// automatisk overskriving. Journal og ansvar beholdes for eksplisitt reset.
+    pub fn animation_frame<B: Backend>(
+        &mut self,
+        backend: &mut B,
+        owner: u64,
+        request: Request,
+    ) -> Result<(), Error> {
+        if owner == 0 {
+            return Err(Error::InvalidOwner);
+        }
+        if self.owner != Some(owner) {
+            return Err(Error::NotOwner);
+        }
+        if !self.dirty
+            || !self.may_have_written
+            || self.pending.is_some()
+            || self.recovery.is_some()
+            || self.blocked()
+            || self.automatic_recovery_blocked
+        {
+            return Err(Error::RecoveryRequired);
+        }
+        if !matches!(self.confirmed, Request::Static { .. })
+            || !matches!(request, Request::Static { .. })
+        {
+            return Err(Error::Backend {
+                operation: "animasjon",
+                message: "Animasjonsbilder krever et beholdt statisk startvalg og statiske farger."
+                    .into(),
+            });
+        }
+        // Ikke erstatt expected_before med en ny selvstendig read: det ville
+        // godtatt ekstern drift mellom bildene. Transporten sammenligner mot
+        // siste egne bilde rett før første setter på samme åpne enhet.
+        let failure = match backend.animation_frame(
+            self.baseline.binding(),
+            &request,
+            &self.observed,
+            &self.baseline,
+        ) {
+            Ok(observed) => {
+                self.observed = observed;
+                let readback = request_readback(&request, &self.observed);
+                if matched(readback) {
+                    return Ok(());
+                }
+                Error::Readback(readback)
+            }
+            Err(failure) => {
+                self.automatic_recovery_blocked = !failure.write_attempted;
+                self.observed = Observed::default();
+                Error::Backend {
+                    operation: "animasjon",
+                    message: failure.message,
+                }
+            }
+        };
+        self.recovery = Some(RecoveryReadback::Unknown);
+        self.recovery_confirmation_source = None;
+        self.error = Some(failure.to_string());
         Err(failure)
     }
 
@@ -583,7 +705,7 @@ impl Book {
         if self.owner != Some(owner) || owner == 0 || !self.dirty {
             return None;
         }
-        if !self.may_have_written {
+        if !self.may_have_written || self.automatic_recovery_blocked {
             self.owner = None;
             return None;
         }
@@ -698,6 +820,7 @@ impl Book {
         txn: Option<u64>,
         reason: Reason,
     ) -> Outcome {
+        self.automatic_recovery_blocked = false;
         self.pending = None;
         self.recovery = Some(RecoveryReadback::Unknown);
         self.recovery_confirmation_source = None;
@@ -889,6 +1012,16 @@ mod tests {
             }
             self.write(expected, request, baseline)
         }
+        fn animation_frame(
+            &mut self,
+            expected: &Binding,
+            request: &Request,
+            before: &Observed,
+            baseline: &Baseline,
+        ) -> Result<Observed, WriteError> {
+            self.calls.push("frame");
+            self.apply(expected, request, before, baseline)
+        }
         fn recover(
             &mut self,
             expected: &Binding,
@@ -941,6 +1074,186 @@ mod tests {
                 ..Default::default()
             },
         )
+    }
+
+    #[test]
+    fn effekt_lik_originalen_krever_prove_og_behold_for_bilder() {
+        let (mut book, mut hw) = setup(false);
+        let initial = book.snapshot().confirmed;
+        assert_eq!(
+            book.apply(&mut hw, 7, initial.clone(), 0, 10_000)
+                .unwrap()
+                .status,
+            Status::Unchanged
+        );
+        assert!(hw.journal.is_none() && hw.writes.is_empty());
+        let pending = book
+            .apply_for_effect(&mut hw, 7, initial.clone(), 1, 10_000)
+            .unwrap();
+        assert_eq!(pending.status, Status::Pending);
+        assert!(book.animation_frame(&mut hw, 7, color([8, 9, 10])).is_err());
+        assert_eq!(hw.writes.len(), 1);
+        book.keep(&mut hw, 7, pending.txn.unwrap(), 2).unwrap();
+        assert!(book.snapshot().dirty && book.snapshot().may_have_written);
+        let journal = hw.journal.clone();
+        let reads = hw.calls.iter().filter(|call| **call == "read").count();
+        for frame in [color([8, 9, 10]), color([18, 19, 20])] {
+            book.animation_frame(&mut hw, 7, frame.clone()).unwrap();
+            assert_eq!(book.snapshot().observed, observation(&frame, false));
+            assert_eq!(book.snapshot().confirmed, initial);
+            assert!(book.snapshot().pending.is_none());
+            assert_eq!(hw.journal, journal);
+        }
+        assert_eq!(hw.calls.iter().filter(|call| **call == "dirty").count(), 1);
+        assert_eq!(
+            hw.calls.iter().filter(|call| **call == "read").count(),
+            reads
+        );
+        let restored = book.release(&mut hw).unwrap();
+        assert_eq!(restored.status, Status::RecoveryNeedsConfirmation);
+        assert_eq!(hw.writes.last(), Some(&initial));
+        assert!(book.snapshot().dirty && hw.journal.is_some());
+        book.ack_recovery(&mut hw, 8, 3).unwrap();
+        assert!(!book.snapshot().dirty && !book.snapshot().may_have_written);
+        assert!(hw.journal.is_none());
+        assert_eq!(book.snapshot().observed.mode, None);
+    }
+
+    #[test]
+    fn animasjonsbilder_krever_egen_beholdt_statisk_transaksjon() {
+        let (mut book, mut hw) = setup(false);
+        assert_eq!(
+            book.animation_frame(&mut hw, 0, color([8, 9, 10])),
+            Err(Error::InvalidOwner)
+        );
+        assert_eq!(
+            book.animation_frame(&mut hw, 7, color([8, 9, 10])),
+            Err(Error::NotOwner)
+        );
+        assert!(
+            book.apply_for_effect(&mut hw, 7, Request::Off {}, 0, 10_000)
+                .is_err()
+        );
+        assert!(hw.calls.is_empty());
+        let pending = book
+            .apply_for_effect(&mut hw, 7, color([8, 9, 10]), 0, 10_000)
+            .unwrap();
+        assert_eq!(
+            book.animation_frame(&mut hw, 8, color([18, 19, 20])),
+            Err(Error::NotOwner)
+        );
+        assert_eq!(
+            book.animation_frame(&mut hw, 7, color([18, 19, 20])),
+            Err(Error::RecoveryRequired)
+        );
+        book.keep(&mut hw, 7, pending.txn.unwrap(), 1).unwrap();
+        assert!(book.animation_frame(&mut hw, 7, Request::Off {}).is_err());
+        assert!(!hw.calls.contains(&"frame"));
+        book.restore_baseline(&mut hw).unwrap();
+        assert_eq!(
+            book.animation_frame(&mut hw, 7, color([18, 19, 20])),
+            Err(Error::RecoveryRequired)
+        );
+
+        let (mut book, mut hw) = setup(false);
+        let pending = book.apply(&mut hw, 7, Request::Off {}, 0, 10_000).unwrap();
+        book.keep(&mut hw, 7, pending.txn.unwrap(), 1).unwrap();
+        assert!(
+            book.animation_frame(&mut hw, 7, color([18, 19, 20]))
+                .is_err()
+        );
+        assert!(!hw.calls.contains(&"frame"));
+    }
+
+    #[test]
+    fn ekstern_drift_mellom_bilder_stanser_ogsa_automatisk_recovery() {
+        let (mut book, mut hw) = setup(false);
+        let pending = book
+            .apply_for_effect(&mut hw, 7, color([8, 9, 10]), 0, 10_000)
+            .unwrap();
+        book.keep(&mut hw, 7, pending.txn.unwrap(), 1).unwrap();
+        let journal = hw.journal.clone();
+        hw.observed.color = Some([40, 41, 42]);
+        assert!(
+            book.animation_frame(&mut hw, 7, color([18, 19, 20]))
+                .is_err()
+        );
+        assert_eq!(hw.writes.len(), 1);
+        assert!(book.snapshot().dirty && book.snapshot().may_have_written);
+        assert!(book.snapshot().error.is_some());
+        assert_eq!(hw.journal, journal);
+        assert!(
+            book.animation_frame(&mut hw, 7, color([28, 29, 30]))
+                .is_err()
+        );
+        assert!(book.tick(&mut hw, 20_000).unwrap().is_none());
+        assert!(book.release(&mut hw).is_none());
+        assert!(book.disconnect(&mut hw, 7).is_none());
+        assert!(book.release(&mut hw).is_none());
+        assert_eq!(hw.writes.len(), 1);
+        assert_eq!(hw.observed.color, Some([40, 41, 42]));
+        assert!(book.snapshot().dirty && book.snapshot().may_have_written);
+        assert_eq!(
+            book.restore_baseline(&mut hw).unwrap().status,
+            Status::RecoveryNeedsConfirmation
+        );
+        assert_eq!(hw.writes.len(), 2);
+        book.ack_recovery(&mut hw, 8, 20_001).unwrap();
+        assert!(!book.snapshot().dirty && hw.journal.is_none());
+    }
+
+    #[test]
+    fn delvis_eller_feillest_bilde_gir_ett_originalforsok_ved_release() {
+        for partial in [false, true] {
+            let (mut book, mut hw) = setup(false);
+            let pending = book
+                .apply_for_effect(&mut hw, 7, color([8, 9, 10]), 0, 10_000)
+                .unwrap();
+            book.keep(&mut hw, 7, pending.txn.unwrap(), 1).unwrap();
+            if partial {
+                hw.fail_write_numbers = vec![2];
+            } else {
+                hw.mismatch_write_numbers = vec![2];
+            }
+            assert!(
+                book.animation_frame(&mut hw, 7, color([18, 19, 20]))
+                    .is_err()
+            );
+            assert_eq!(hw.writes.len(), 2, "frame gjør ingen egen recovery");
+            assert_eq!(book.snapshot().confirmed, color([8, 9, 10]));
+            assert!(
+                book.animation_frame(&mut hw, 7, color([28, 29, 30]))
+                    .is_err()
+            );
+            assert_eq!(
+                book.release(&mut hw).unwrap().status,
+                Status::RecoveryNeedsConfirmation
+            );
+            assert_eq!(hw.writes.last(), Some(&color([1, 2, 3])));
+            assert_eq!(hw.writes.len(), 3);
+            assert!(book.release(&mut hw).is_none());
+            assert!(book.disconnect(&mut hw, 7).is_none());
+            assert!(book.tick(&mut hw, 20_000).unwrap().is_none());
+            assert_eq!(hw.writes.len(), 3);
+            assert!(book.snapshot().dirty && book.snapshot().may_have_written);
+            assert_eq!(book.snapshot().observed.mode, None);
+        }
+    }
+
+    #[test]
+    fn ubeholdt_effekt_lik_originalen_utloper_som_vanlig_prove() {
+        let (mut book, mut hw) = setup(false);
+        let initial = book.snapshot().confirmed;
+        book.apply_for_effect(&mut hw, 7, initial.clone(), 0, 10_000)
+            .unwrap();
+        assert_eq!(
+            book.tick(&mut hw, 10_000).unwrap().unwrap().status,
+            Status::RecoveryNeedsConfirmation
+        );
+        assert_eq!(hw.writes, [initial.clone(), initial]);
+        assert!(book.snapshot().pending.is_none());
+        assert!(book.snapshot().dirty && book.snapshot().recovery_needs_confirmation);
+        assert!(book.animation_frame(&mut hw, 7, color([8, 9, 10])).is_err());
     }
 
     #[test]

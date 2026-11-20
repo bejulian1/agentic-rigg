@@ -37,7 +37,7 @@ Socketklienten må ha tillatelsens faktiske `SO_PEERCRED`-UID. Tillatelsen laste
 
 ## App og daemon
 
-«Lys på kortet» har én fysisk sone med fast farge eller av. Redigering av farge og lysstyrke sender ingen endring; bare «Bruk på kortet» gjør det. Behold/Rull tilbake bruker RGBs egen bekreftelse, uten NVML-lås eller GPU-bekreftelseslinje. Den lokale lysmodellen, de illustrerte sonene og «Lagre i appen» er atskilt fra fysisk styring. Profilvalg, oppstart og forhåndsvisning skriver ikke RGB.
+«Lys på kortet» styrer én fysisk sone. Hjelperens statusfelt `softwareEffects` angir hvilke programvaredrevne effekter panelet kan tilby. Redigering av farge og lysstyrke sender ingen endring; bare «Bruk på kortet» gjør det. Behold/Rull tilbake bruker RGBs egen bekreftelse, uten NVML-lås eller GPU-bekreftelseslinje. Den lokale lysmodellen, de illustrerte sonene og «Lagre i appen» er atskilt fra fysisk styring. Profilvalg, oppstart og forhåndsvisning skriver ikke RGB.
 
 Daemonens `get_rgb_helper` gir `state`, `message`, `status`, `owned` og `busy`. `owned` gjelder denne UI-forbindelsen, ikke arbeiderens interne forbindelsesnummer. Uten `refresh` brukes cache; oppdatering og mutasjoner går på en egen IPC-tråd. Køen er begrenset, totalfristen er fire sekunder fra innlegging, og hver IPC-runde har høyst tre sekunder innenfor totalfristen. `CLOCK_BOOTTIME` kontrollerer også alder etter suspend: for gamle jobber sendes ikke, og foreldede svar tas ikke som nytt suksessbevis. Et tidsavbrudd beviser ikke at et allerede sendt maskinvarekall var uten virkning.
 
@@ -50,7 +50,7 @@ Meldinger følger NDJSON med `id`, `op` og `args`. Ukjente felter avvises. `gpu`
 | Operasjon | Argumenter | Oppførsel |
 |---|---|---|
 | `rgb_status` | tomt objekt | Ren cache, ingen I2C og ingen leasefornyelse |
-| `rgb_apply` | gpu, uuid, request, confirmTimeoutS | Fast farge/av; 10–60 sekunders bekreftelsesfrist, 15 sekunder fra UI |
+| `rgb_apply` | gpu, uuid, request, confirmTimeoutS og eventuelt effect | Fast farge/av; 10–60 sekunders bekreftelsesfrist, 15 sekunder fra UI |
 | `rgb_confirm` | gpu, uuid, txn | Behold med fersk tilbakelesing |
 | `rgb_revert` | gpu, uuid, txn | Gjenopprett forrige bekreftede appvalg |
 | `rgb_reset` | gpu, uuid | Eksplisitt gjenoppretting til lagret original, ikke fabrikkreset |
@@ -64,6 +64,10 @@ Meldinger følger NDJSON med `id`, `op` og `args`. Ukjente felter avvises. `gpu`
     {"mode":"off"}
 
 Ingen buss, enhetssti, registeradresse eller EEPROM-valg mottas fra klienten. `expected` er bare en sammenligningsbetingelse, aldri et nytt skrivemål. Statusens `observationSource` er `stored_baseline`, `operation_readback` eller `unknown`. Lagret farge er ikke en fersk måling. `observed.mode` forblir `null`, også etter vellykket apply, Behold og menneskelig bekreftelse.
+
+Ved en animasjon er `request` den statiske startfargen og `effect` er `breathing`, `rainbow` eller `cycle`. Start krever et rent, bekreftet statisk utgangspunkt. «Bruk» starter én journalført prøve med startfargen. Først når brukeren velger «Behold», beregner RGB-hjelperen neste farge fra den monotone klokken. Statusfeltet `effect` angir valgt programvareeffekt. Feltet `observed` viser sist leste farge og lysstyrke.
+
+Hjelperen kan sende inntil fire fargeoppdateringer per sekund, hopper over identiske farger og spiller aldri av en kø med tapte bilder. Den opprinnelige transaksjonsjournalen dekker hele animasjonen. Bildefrekvensen øker derfor ikke antall synkroniseringer av journalen. «Stopp» frigir økten og gjenoppretter utgangspunktet. Hvis en annen aktør har endret fargefeltene før en ny ramme, stopper hjelperen og bevarer journalen frem til eksplisitt avklaring. Hvis en ramme kan være delvis skrevet, forsøker hjelperen én tilbakeføring til originalen. [Effektforløp og fysisk prøvestatus](palit-rgb-2026-11-17.md#programvaredrevne-lyseffekter).
 
 ## Journal, frister og avbrudd
 

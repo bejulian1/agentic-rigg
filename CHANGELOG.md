@@ -4,6 +4,8 @@ Gjeldende versjon: **1.4.1 · bygg 24**. Nedlastinger og utgivelsesnotater ligge
 
 ## Under arbeid · feature/palit-rgb
 
+- Pusting, regnbue og fargesyklus i «Lys på kortet» bruker den egne RGB-hjelperen. Bruk viser startfargen, Behold starter animasjonen, og Stopp gjenoppretter lagret utgangspunkt. Fysisk verifikasjon av animasjonene på PALIT 100 gjenstår.
+
 - Kortbundet Palit-identifikasjon og statisk farge/av for RTX 2080 Super JetStream, med separat RGB-hjelper, tillatelse, privat journal og lease. Gammel GPU-godkjenning gir ikke RGB-tilgang.
 - Egen administratoraktivering og smal systemd-tjeneste, asynkron daemonkobling og panelet «Lys på kortet» med Bruk/Behold, tilbakeføring og tydelig skille fra lokal forhåndsvisning. Ukjent effektmodus forblir ukjent; menneskelig bekreftelse registreres separat fra tilbakelesing.
 - Isolerte tester og faktisk GTK-betjening mot en merket falsk arbeider er verifisert. På brukerens Palit RTX 2080 Super JetStream er fast blått og automatisk tilbakeføring til grønt fysisk bekreftet ved 100 % lysstyrke. Featurebranchen er ikke utgitt eller installert.

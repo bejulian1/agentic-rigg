@@ -77,17 +77,34 @@ fn plan() -> Vec<Step> {
 fn plan_rgb_flow() -> Vec<Step> {
     use Step::*;
     use crate::pages::lys_kort::debug_flow as flow;
-    vec![
+    let mut steps = vec![
         Size(1440, 1000), Set(base()), Set(json!({"lys3d":"2d"})), Go("lys"), Wait(1800),
         Eval(|_| flow("ready")), Eval(|_| flow("edit")), Wait(700), Eval(|_| flow("unchanged")),
         Eval(|_| flow("apply")), Wait(1000), Eval(|_| flow("pending")), Shot("rgb-flow-pending-sim"),
         Eval(|_| flow("keep")), Wait(1000), Eval(|_| flow("kept")), Shot("rgb-flow-beholdt-sim"),
+        Eval(|_| flow("effect_blocked")),
         Eval(|_| flow("reset")), Wait(1000), Eval(|_| flow("recovery")),
         Eval(|_| flow("stale_ack")), Wait(1000), Eval(|_| flow("stale_rejected")), Shot("rgb-flow-gammel-bekreftelse-avvist-sim"),
         Eval(|_| flow("ack")), Wait(1000), Eval(|_| flow("acknowledged")), Shot("rgb-flow-brukerbekreftet-sim"),
         Eval(|_| flow("off")), Eval(|_| flow("apply")), Wait(1000), Eval(|_| flow("off_pending")),
         Eval(|_| flow("release")), Wait(1000), Eval(|_| flow("released")), Shot("rgb-flow-frigitt-sim"),
-    ]
+        Eval(|_| flow("ack")), Wait(1000), Eval(|_| flow("acknowledged")),
+    ];
+    for (select, shot_name) in [
+        ((|_: &Rc<App>| flow("effect_breathing")) as fn(&Rc<App>), "rgb-flow-pusting-aktiv-sim"),
+        ((|_: &Rc<App>| flow("effect_rainbow")) as fn(&Rc<App>), "rgb-flow-regnbue-aktiv-sim"),
+        ((|_: &Rc<App>| flow("effect_cycle")) as fn(&Rc<App>), "rgb-flow-fargesyklus-aktiv-sim"),
+    ] {
+        steps.extend([
+            Eval(select), Wait(500), Eval(|_| flow("effect_edit_unchanged")),
+            Eval(|_| flow("apply")), Wait(1000), Eval(|_| flow("effect_pending")),
+            Wait(700), Eval(|_| flow("effect_not_started")),
+            Eval(|_| flow("keep")), Wait(2400), Eval(|_| flow("effect_active")), Shot(shot_name),
+            Eval(|_| flow("release")), Wait(1000), Eval(|_| flow("released")),
+            Eval(|_| flow("ack")), Wait(1000), Eval(|_| flow("acknowledged")),
+        ]);
+    }
+    steps
 }
 
 /// Privat visningskontroll. All fysisk RGB-status er tydelig merket fixture;
@@ -103,6 +120,7 @@ fn plan_rgb() -> Vec<Step> {
         Set(json!({"theme":"dark"})), Eval(|_| crate::pages::lys_kort::debug_fixture("recovery")), Wait(500), Shot("rgb-640-recovery-sim"),
         Set(json!({"fontScale":116,"highContrast":true})), Eval(|_| crate::pages::lys_kort::debug_fixture("confirmed")), Wait(500), Shot("rgb-640-brukerbekreftet-sim"),
         Set(base()), Size(1920,1080), Eval(|_| crate::pages::lys_kort::debug_fixture("error")), Wait(500), Shot("rgb-1920-uavklart-sim"),
+        Eval(|_| crate::pages::lys_kort::debug_fixture("effect_error")), Wait(500), Shot("rgb-1920-effektfeil-sim"),
     ]
 }
 
