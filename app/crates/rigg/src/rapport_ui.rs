@@ -12,6 +12,7 @@ use crate::toast::Toast;
 use crate::widgets::{Icon, Panel, hbox, label, set_text, vbox};
 use gtk::prelude::*;
 use gtk::{gio, glib};
+use rigg_core::{tr, trf, trn};
 use rigg_core::report::{self, Item, ReportFormat, ReportInput, Section};
 use serde_json::{Value, json};
 use std::cell::{Cell, RefCell};
@@ -34,7 +35,7 @@ pub fn utc_offset(ms: i64) -> i64 {
 /// «7. nov. 2026 14:32».
 pub fn stamp_long(ms: i64) -> String {
     let t = crate::app::local_time(ms);
-    format!("{}. {} {} {}", t.day, rigg_core::fmt::MON_SHORT[(t.month - 1) as usize], t.year, rigg_core::fmt::time(t, false))
+    format!("{} {}", rigg_core::fmt::date(t.year, t.month, t.day, true), rigg_core::fmt::time(t, false))
 }
 
 // ---------------------------------------------------------------- Seksjoner som paneler
@@ -352,28 +353,32 @@ pub fn confirm_done(b: &gtk::Button, icon: &str, tip: &str) {
 /// `make` gir teksten og en merknad til bekreftelsen («UUID maskert»).
 pub fn copy_button(app: &Rc<App>, make: impl Fn(ReportFormat) -> Option<(String, String)> + 'static) -> gtk::Button {
     let b = crate::widgets::button(Some("copy"), None, &["flat"]);
-    crate::widgets::tip(&b, "Kopier", None);
-    b.update_property(&[gtk::accessible::Property::Label("Kopier"), gtk::accessible::Property::HasPopup(true)]);
+    crate::widgets::tip(&b, tr!("Kopier"), None);
+    b.update_property(&[gtk::accessible::Property::Label(tr!("Kopier")), gtk::accessible::Property::HasPopup(true)]);
     let make = Rc::new(make);
     let a = app.clone();
     b.connect_clicked(move |btn| {
         let m = crate::widgets::popover::Menu::new(btn);
         m.popover.set_halign(gtk::Align::End);
-        for (fmt, text) in [(ReportFormat::Text, "Kopier som tekst"), (ReportFormat::Markdown, "Kopier som Markdown")] {
+        for (fmt, text) in [(ReportFormat::Text, tr!("Kopier som tekst")), (ReportFormat::Markdown, tr!("Kopier som Markdown"))] {
             let (a, make, btn) = (a.clone(), make.clone(), btn.clone());
             m.item(Some("copy"), text, None, move || {
                 let Some((s, note)) = make(fmt) else {
-                    a.toast(Toast::new("Ingenting å kopiere ennå").body("Dataene er ikke lest ferdig."));
+                    a.toast(Toast::new(tr!("Ingenting å kopiere ennå")).body(tr!("Dataene er ikke lest ferdig.")));
                     return;
                 };
                 let Some(d) = gtk::gdk::Display::default() else {
-                    a.toast(Toast::new("Kunne ikke kopiere").body("Utklippstavlen er ikke tilgjengelig.").error());
+                    a.toast(Toast::new(tr!("Kunne ikke kopiere")).body(tr!("Utklippstavlen er ikke tilgjengelig.")).error());
                     return;
                 };
                 d.clipboard().set_text(&s);
                 let lines = s.lines().count();
-                let what = if fmt == ReportFormat::Markdown { "Markdown" } else { "tekst" };
-                let tip = if note.is_empty() { format!("Kopiert som {what} ({lines} linjer)") } else { format!("Kopiert som {what} ({lines} linjer, {note})") };
+                let what = if fmt == ReportFormat::Markdown { "Markdown" } else { tr!("tekst") };
+                let tip = if note.is_empty() {
+                    trn!(lines, "Kopiert som {format} ({linjer} linje)", "Kopiert som {format} ({linjer} linjer)", format = what, linjer = lines)
+                } else {
+                    trn!(lines, "Kopiert som {format} ({linjer} linje, {merknad})", "Kopiert som {format} ({linjer} linjer, {merknad})", format = what, linjer = lines, merknad = note)
+                };
                 confirm_done(&btn, "copy", &tip);
             });
         }
@@ -484,7 +489,7 @@ pub fn show_in_files(app: &App, path: &std::path::Path) {
     if !ok {
         let dir = if path.is_dir() { path.to_path_buf() } else { path.parent().map(|p| p.to_path_buf()).unwrap_or_default() };
         if let Err(e) = gio::AppInfo::launch_default_for_uri(&gio::File::for_path(&dir).uri(), None::<&gio::AppLaunchContext>) {
-            app.toast(Toast::new("Kunne ikke åpne mappa").body(&e.to_string()).error());
+            app.toast(Toast::new(tr!("Kunne ikke åpne mappa")).body(&e.to_string()).error());
         }
     }
 }
@@ -492,11 +497,11 @@ pub fn show_in_files(app: &App, path: &std::path::Path) {
 fn save_file(app: &Rc<App>, fmt: ReportFormat, serials: bool) {
     let Some(win) = app.window() else { return };
     let d = gtk::FileDialog::new();
-    d.set_title("Lagre rapport");
+    d.set_title(tr!("Lagre rapport"));
     let t = crate::app::local_now();
     d.set_initial_name(Some(&format!("agentic-rigg-rapport-{:04}-{:02}-{:02}_{:02}-{:02}.{}", t.year, t.month, t.day, t.hour, t.minute, fmt.ext())));
     let f = gtk::FileFilter::new();
-    f.set_name(Some(if fmt == ReportFormat::Markdown { "Markdown" } else { "Tekst" }));
+    f.set_name(Some(if fmt == ReportFormat::Markdown { "Markdown" } else { tr!("Tekst") }));
     f.add_pattern(&format!("*.{}", fmt.ext()));
     let list = gio::ListStore::new::<gtk::FileFilter>();
     list.append(&f);
@@ -513,13 +518,13 @@ fn save_file(app: &Rc<App>, fmt: ReportFormat, serials: bool) {
                     let name = path.file_name().unwrap_or_default().to_string_lossy().to_string();
                     let (c, p) = (b.clone(), path.clone());
                     b.toast(
-                        Toast::new("Rapporten er lagret")
-                            .body(&format!("{name}{}", if serials { "" } else { " · uten serienumre og UUID" }))
+                        Toast::new(tr!("Rapporten er lagret"))
+                            .body(&if serials { name.to_string() } else { trf!("{fil} · uten serienumre og UUID", fil = name) })
                             .icon("save")
-                            .action("Vis i Filer", move || show_in_files(&c, &p)),
+                            .action(tr!("Vis i Filer"), move || show_in_files(&c, &p)),
                     );
                 }
-                Err(e) => b.toast(Toast::new("Kunne ikke lagre rapporten").body(&e.to_string()).error()),
+                Err(e) => b.toast(Toast::new(tr!("Kunne ikke lagre rapporten")).body(&e.to_string()).error()),
             }
         });
     });
@@ -528,27 +533,27 @@ fn save_file(app: &Rc<App>, fmt: ReportFormat, serials: bool) {
 /// Valgene før lagring: format og «Ta med serienumre og UUID» (av).
 pub fn save_popover(app: &Rc<App>, anchor: &impl IsA<gtk::Widget>) {
     let body = vbox(10, &["report-pop"]);
-    body.append(&label("Lagre rapport", &["pop-title"]));
-    let sub = label("Program og versjon, operativsystem, driver, skjermkort, prosessor, hovedkort, minne, disker og alle sensorer med nå, min, maks og snitt.", &["pop-sub"]);
+    body.append(&label(tr!("Lagre rapport"), &["pop-title"]));
+    let sub = label(tr!("Program og versjon, operativsystem, driver, skjermkort, prosessor, hovedkort, minne, disker og alle sensorer med nå, min, maks og snitt."), &["pop-sub"]);
     sub.set_wrap(true);
     sub.set_max_width_chars(44);
     body.append(&sub);
-    let fmt = crate::widgets::Seg::new(&[("txt", "Tekst"), ("md", "Markdown")], "txt", "Format");
+    let fmt = crate::widgets::Seg::new(&[("txt", tr!("Tekst")), ("md", "Markdown")], "txt", tr!("Format"));
     let row = hbox(10, &[]);
-    let fl = label("Format", &["muted"]);
+    let fl = label(tr!("Format"), &["muted"]);
     fl.set_hexpand(true);
     row.append(&fl);
     row.append(&fmt.root);
     body.append(&row);
     let serials = Rc::new(Cell::new(false));
     let s2 = serials.clone();
-    let chk = crate::widgets::switchrow::check("Ta med serienumre og UUID", false, move |c| s2.set(c.is_active()));
+    let chk = crate::widgets::switchrow::check(tr!("Ta med serienumre og UUID"), false, move |c| s2.set(c.is_active()));
     body.append(&chk);
-    let note = label("Rapporten lagres bare på denne maskinen. Appen sender ingenting ut.", &["pop-sub", "dim"]);
+    let note = label(tr!("Rapporten lagres bare på denne maskinen. Appen sender ingenting ut."), &["pop-sub", "dim"]);
     note.set_wrap(true);
     note.set_max_width_chars(44);
     body.append(&note);
-    let go = crate::widgets::button(Some("save"), Some("Velg fil …"), &["suggested"]);
+    let go = crate::widgets::button(Some("save"), Some(tr!("Velg fil …")), &["suggested"]);
     go.set_halign(gtk::Align::End);
     body.append(&go);
     let p = crate::widgets::popover::popover(anchor, &body);
@@ -565,8 +570,8 @@ pub fn save_popover(app: &Rc<App>, anchor: &impl IsA<gtk::Widget>) {
 /// Knappen «Lagre rapport …» i toppfeltet på Grafikkort og System.
 pub fn save_button(app: &Rc<App>) -> gtk::Button {
     let b = crate::widgets::button(Some("save"), None, &["flat"]);
-    crate::widgets::tip(&b, "Lagre rapport …", None);
-    b.update_property(&[gtk::accessible::Property::Label("Lagre rapport …"), gtk::accessible::Property::HasPopup(true)]);
+    crate::widgets::tip(&b, tr!("Lagre rapport …"), None);
+    b.update_property(&[gtk::accessible::Property::Label(tr!("Lagre rapport …")), gtk::accessible::Property::HasPopup(true)]);
     let a = app.clone();
     b.connect_clicked(move |b| save_popover(&a, b));
     b
@@ -574,12 +579,12 @@ pub fn save_button(app: &Rc<App>) -> gtk::Button {
 
 /// Raden «Lagre rapport …» i Om › Hjelp.
 pub fn about_row(app: &Rc<App>) -> Option<Row> {
-    let b = crate::widgets::button(Some("save"), Some("Lagre rapport …"), &[]);
+    let b = crate::widgets::button(Some("save"), Some(tr!("Lagre rapport …")), &[]);
     let a = app.clone();
     b.connect_clicked(move |b| save_popover(&a, b));
     Some(crate::settings::row(
-        "Rapport",
-        Some("Alt appen vet om maskinen i én fil, som tekst eller Markdown. Serienumre og UUID er ikke med, med mindre du velger det."),
+        tr!("Rapport"),
+        Some(tr!("Alt appen vet om maskinen i én fil, som tekst eller Markdown. Serienumre og UUID er ikke med, med mindre du velger det.")),
         &b,
         "rapport lagre feilsøking tekst markdown serienummer",
     ))

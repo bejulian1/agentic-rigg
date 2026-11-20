@@ -19,9 +19,11 @@ use crate::widgets::{Icon, Spark, class, hbox, label, set_text, vbox};
 use gtk::glib;
 use gtk::pango;
 use gtk::prelude::*;
+use rigg_core::{tr, trf};
 use rigg_core::disk::{self as D, Disk, DiskList, Level};
 use rigg_core::fmt as F;
 use serde_json::json;
+use std::borrow::Cow;
 use std::cell::{Cell, RefCell};
 use std::collections::HashSet;
 use std::rc::Rc;
@@ -48,11 +50,11 @@ pub fn mbps(v: Option<f64>) -> String {
 pub fn ago(then: i64, now: i64) -> String {
     let s = (now - then).max(0) / 1000;
     if s < 90 {
-        "nå nettopp".into()
+        tr!("nå nettopp").into()
     } else if s < 3600 {
-        format!("for {} min siden", s / 60)
+        trf!("for {min} min siden", min = s / 60)
     } else if s < 48 * 3600 {
-        format!("for {} t siden", s / 3600)
+        trf!("for {timer} t siden", timer = s / 3600)
     } else {
         let off = crate::rapport_ui::utc_offset(then);
         F::since(F::local(then, off), F::local(now, off))
@@ -91,10 +93,10 @@ fn chips(d: &Disk) -> Vec<(String, &'static str, Option<String>)> {
     let mut v = Vec::new();
     if !d.kind.is_empty() {
         let tip = match (d.kind.as_str(), d.rpm) {
-            ("HDD", Some(r)) if r > 0 => Some(format!("Harddisk med {} o/min", F::num(Some(r as f64), 0))),
-            ("HDD", _) => Some("Harddisk (plater)".to_string()),
-            ("NVMe", _) => Some("SSD på PCIe (NVMe)".to_string()),
-            _ => Some("SSD (ingen bevegelige deler)".to_string()),
+            ("HDD", Some(r)) if r > 0 => Some(trf!("Harddisk med {rpm} o/min", rpm = F::num(Some(r as f64), 0))),
+            ("HDD", _) => Some(tr!("Harddisk (plater)").to_string()),
+            ("NVMe", _) => Some(tr!("SSD på PCIe (NVMe)").to_string()),
+            _ => Some(tr!("SSD (ingen bevegelige deler)").to_string()),
         };
         v.push((d.kind.clone(), "", tip));
     }
@@ -107,16 +109,16 @@ fn chips(d: &Disk) -> Vec<(String, &'static str, Option<String>)> {
     if let Some(b) = bus {
         // «bus»: skjules i smale vinduer, så modellnavnet får plass (står
         // også under Tilkobling i Disk-panelet).
-        v.push((b, "bus", Some("Tilkoblingen og hastigheten lenken går på nå".into())));
+        v.push((b, "bus", Some(tr!("Tilkoblingen og hastigheten lenken går på nå").into())));
     }
     if let Some(s) = d.size {
-        v.push((D::disk_size_label(s), "", Some(format!("{} byte", F::num(Some(s), 0)))));
+        v.push((D::disk_size_label(s), "", Some(trf!("{antall} byte", antall = F::num(Some(s), 0)))));
     }
     if d.system {
-        v.push(("System".into(), "accent", Some("Operativsystemet (/) ligger på denne disken".into())));
+        v.push((tr!("System").into(), "accent", Some(tr!("Operativsystemet (/) ligger på denne disken").into())));
     }
     if d.removable || d.bus == "USB" {
-        v.push(("Kan tas ut".into(), "", None));
+        v.push((tr!("Kan tas ut").into(), "", None));
     }
     v
 }
@@ -189,7 +191,7 @@ impl Row {
         // Barna strekkes inni merket, men merket selv strekkes ikke i raden.
         health.set_hexpand(false);
         let health_icon = Icon::new("circle-help", 12);
-        let health_text = gtk::Label::new(Some("Ukjent"));
+        let health_text = gtk::Label::new(Some(tr!("Ukjent")));
         // Ikon og tekst midt i merket (det er like bredt for «OK» og «Advarsel»).
         health_icon.set_hexpand(true);
         health_icon.set_halign(gtk::Align::End);
@@ -212,20 +214,20 @@ impl Row {
         meta.set_xalign(0.0);
         meta.set_hexpand(true);
         l2.append(&meta);
-        let (rb, read) = stat("Les", "Lesehastighet nå (/proc/diskstats)");
+        let (rb, read) = stat(tr!("Les"), tr!("Lesehastighet nå (/proc/diskstats)"));
         let spark_r = Spark::new("load", 44);
         spark_r.set_valign(gtk::Align::Center);
         rb.append(&spark_r);
         l2.append(&rb);
-        let (wb, write) = stat("Skriv", "Skrivehastighet nå (/proc/diskstats)");
+        let (wb, write) = stat(tr!("Skriv"), tr!("Skrivehastighet nå (/proc/diskstats)"));
         let spark_w = Spark::new("memctl", 44);
         spark_w.set_valign(gtk::Align::Center);
         wb.append(&spark_w);
         l2.append(&wb);
-        let (bb, busy) = stat("Aktiv", "Andel av tiden disken hadde lesing eller skriving i gang");
+        let (bb, busy) = stat(tr!("andel av tiden", "Aktiv"), tr!("Andel av tiden disken hadde lesing eller skriving i gang"));
         busy.set_width_chars(4);
         l2.append(&bb);
-        let (tb, temp) = stat("Temp", "Fra SMART. UDisks2 leser den omtrent hvert 10. min.");
+        let (tb, temp) = stat(tr!("Temp"), tr!("Fra SMART. UDisks2 leser den omtrent hvert 10. min."));
         temp.set_width_chars(5);
         l2.append(&tb);
         hb.append(&l2);
@@ -281,7 +283,7 @@ impl Row {
             meta.push(format!("S/N {s}"));
         }
         if let Some(f) = &d.firmware {
-            meta.push(format!("fastvare {f}"));
+            meta.push(trf!("fastvare {versjon}", versjon = f));
         }
         set_text(&self.meta, &meta.join(" · "));
         self.meta.set_tooltip_text(Some(&meta.join(" · ")));
@@ -292,18 +294,19 @@ impl Row {
         }
         self.health_icon.set_icon(level_icon(lv));
         set_text(&self.health_text, lv.text());
-        let tip = if d.health.reasons.is_empty() {
+        let reasons = health_reasons(d);
+        let tip = if reasons.is_empty() {
             match lv {
-                Level::Ok => "SMART viser ingen feil.".to_string(),
-                _ => d.smart.note.clone().unwrap_or_else(|| "Ingen SMART å vurdere.".into()),
+                Level::Ok => tr!("SMART viser ingen feil.").to_string(),
+                _ => d.smart.note.as_deref().map(disk_note).unwrap_or_else(|| tr!("Ingen SMART å vurdere.").into()).into_owned(),
             }
         } else {
-            d.health.reasons.join("\n")
+            reasons.join("\n")
         };
         self.health.set_tooltip_text(Some(&tip));
-        self.health.update_property(&[gtk::accessible::Property::Label(&format!("Helse: {}. {tip}", lv.text()))]);
+        self.health.update_property(&[gtk::accessible::Property::Label(&trf!("Helse: {status}. {tips}", status = lv.text(), tips = tip))]);
         *self.kind.borrow_mut() = d.kind.clone();
-        self.head.update_property(&[gtk::accessible::Property::Label(&format!("{} {}, helse {}", d.model, d.name, lv.text().to_lowercase()))]);
+        self.head.update_property(&[gtk::accessible::Property::Label(&trf!("{modell} {navn}, helse {status}", modell = d.model, navn = d.name, status = lv.text().to_lowercase()))]);
     }
 
     /// De levende tallene fra prøven.
@@ -376,56 +379,85 @@ fn panel(title: &str) -> crate::widgets::Panel {
 }
 
 fn disk_panel(d: &Disk) -> gtk::Widget {
-    let p = panel("Disk");
+    let p = panel(tr!("Disk"));
     let kv = KvList::new();
-    kv.add("Modell", &d.model);
+    kv.add(tr!("Modell"), &d.model);
     if let Some(v) = &d.vendor {
-        kv.add("Produsent", v);
+        kv.add(tr!("Produsent"), v);
     }
-    kv_na(&kv, "Serienummer", d.serial.clone(), "Ikke oppgitt");
-    kv_na(&kv, "Fastvare", d.firmware.clone(), "Ikke oppgitt");
+    kv_na(&kv, tr!("Serienummer"), d.serial.clone(), tr!("Ikke oppgitt"));
+    kv_na(&kv, tr!("Fastvare"), d.firmware.clone(), tr!("Ikke oppgitt"));
     if let Some(w) = &d.wwn {
         kv.add("WWN", w);
     }
     kv_na(
         &kv,
-        "Kapasitet",
+        tr!("Kapasitet"),
         d.size.map(|s| format!("{} · {}", D::disk_bytes(s), F::with_unit(F::num(Some(s / 1024f64.powi(3)), 1), "GiB"))),
-        "Ikke oppgitt",
+        tr!("Ikke oppgitt"),
     );
     let ty = match (d.kind.as_str(), d.rpm) {
-        ("HDD", Some(r)) if r > 0 => format!("Harddisk · {} o/min", F::num(Some(r as f64), 0)),
-        ("HDD", _) => "Harddisk".into(),
+        ("HDD", Some(r)) if r > 0 => trf!("Harddisk · {rpm} o/min", rpm = F::num(Some(r as f64), 0)),
+        ("HDD", _) => tr!("Harddisk").into(),
         ("NVMe", _) => "SSD (NVMe)".into(),
         ("SSD", _) => "SSD".into(),
         _ => F::DASH.into(),
     };
-    kv.add("Type", &ty);
+    kv.add(tr!("Type"), &ty);
     let link = match (&d.link, d.bus.as_str()) {
         (Some(l), "NVMe") => format!("NVMe · {l}"),
         (Some(l), b) => format!("{b} · {l}"),
         (None, "") => F::DASH.into(),
         (None, b) => b.to_string(),
     };
-    let l = kv.add("Tilkobling", &link);
+    let l = kv.add(tr!("Tilkobling"), &link);
     if d.bus == "SATA" {
-        l.set_tooltip_text(Some("Hastigheten SATA-lenken går på nå (sysfs, ata_link)."));
+        l.set_tooltip_text(Some(tr!("Hastigheten SATA-lenken går på nå (sysfs, ata_link).")));
     }
     if let (Some(lb), Some(pb)) = (d.logical_block, d.physical_block) {
-        kv.add("Sektorer", &format!("{} B logisk · {} B fysisk", F::num(Some(lb as f64), 0), F::num(Some(pb as f64), 0)));
+        kv.add(tr!("Sektorer"), &trf!("{logisk} B logisk · {fysisk} B fysisk", logisk = F::num(Some(lb as f64), 0), fysisk = F::num(Some(pb as f64), 0)));
     }
-    kv_na(&kv, "I/O-planlegger", d.scheduler.clone(), "Ikke oppgitt");
-    kv.add("Enhet", &d.dev);
+    kv_na(&kv, tr!("I/O-planlegger"), d.scheduler.clone(), tr!("Ikke oppgitt"));
+    kv.add(tr!("Enhet"), &d.dev);
     p.body.append(&kv.grid);
     p.root.upcast()
+}
+
+/// Tjenesten sender ferdige tekster på bokmål i den eksisterende protokollen.
+fn disk_note(note: &str) -> Cow<'_, str> {
+    if let Some(error) = note.strip_prefix("UDisks2 svarte ikke (").and_then(|error| error.strip_suffix(").")) {
+        return trf!("UDisks2 svarte ikke ({feil}).", feil = error).into();
+    }
+    match note {
+        "UDisks2 har ingen SMART for denne disken. USB-broen sender som regel ikke SMART videre." => tr!("UDisks2 har ingen SMART for denne disken. USB-broen sender som regel ikke SMART videre."),
+        "UDisks2 kjenner ikke disken." => tr!("UDisks2 kjenner ikke disken."),
+        "SMART kommer fra UDisks2, som ikke svarer på systembussen." => tr!("SMART kommer fra UDisks2, som ikke svarer på systembussen."),
+        "Disken støtter ikke SMART." => tr!("Disken støtter ikke SMART."),
+        "SMART er slått av på disken." => tr!("SMART er slått av på disken."),
+        "UDisks2 har ikke lest SMART ennå." => tr!("UDisks2 har ikke lest SMART ennå."),
+        "USB-broen sender ikke SMART videre." => tr!("USB-broen sender ikke SMART videre."),
+        "UDisks2 har ingen SMART for denne disken." => tr!("UDisks2 har ingen SMART for denne disken."),
+        "UDisks2 svarer ikke på systembussen." => tr!("UDisks2 svarer ikke på systembussen."),
+        other => other,
+    }.into()
+}
+
+fn health_reasons(d: &Disk) -> Cow<'_, [String]> {
+    if rigg_core::i18n::active() != rigg_core::i18n::Language::Nb && !d.health.reasons.is_empty() {
+        let localized = D::health(&d.kind, &d.smart).reasons;
+        if !localized.is_empty() {
+            return Cow::Owned(localized);
+        }
+    }
+    Cow::Borrowed(&d.health.reasons)
 }
 
 fn smart_panel(d: &Disk, now: i64) -> gtk::Widget {
     let s = &d.smart;
     let p = panel("SMART");
     if !s.source.is_empty() && s.supported {
-        let src = label(if s.source == "sim" { "simulert" } else { "UDisks2" }, &[]);
-        src.set_tooltip_text(Some("UDisks2 leser SMART selv omtrent hvert 10. minutt og vekker ikke disker i hvile. Agentic Rigg leser bare det UDisks2 alt har, og sender aldri kommandoer til disken."));
+        let src = label(if s.source == "sim" { tr!("simulert") } else { "UDisks2" }, &[]);
+        src.set_tooltip_text(Some(tr!("UDisks2 leser SMART selv omtrent hvert 10. minutt og vekker ikke disker i hvile. Agentic Rigg leser bare det UDisks2 alt har, og sender aldri kommandoer til disken.")));
         p.aside.append(&src);
     }
     let kv = KvList::new();
@@ -433,54 +465,55 @@ fn smart_panel(d: &Disk, now: i64) -> gtk::Widget {
     let hb = hbox(6, &[]);
     let t = crate::widgets::rows::tag(d.health.level.text(), Some(level_icon(d.health.level)), level_class(d.health.level));
     hb.append(&t);
-    let why = if d.health.reasons.is_empty() {
+    let reasons = health_reasons(d);
+    let why = if reasons.is_empty() {
         match d.health.level {
-            Level::Ok => "Ingen feil".to_string(),
-            _ => s.note.clone().unwrap_or_default(),
+            Level::Ok => tr!("Ingen feil").to_string(),
+            _ => s.note.as_deref().map(disk_note).unwrap_or_default().into_owned(),
         }
     } else {
-        d.health.reasons.join(" · ")
+        reasons.join(" · ")
     };
     let wl = label(&why, &["v"]);
     wl.set_wrap(true);
     wl.set_xalign(0.0);
     wl.set_hexpand(true);
     hb.append(&wl);
-    kv.add_widget("Helse", &hb);
+    kv.add_widget(tr!("Helse"), &hb);
     if s.source.is_empty() || !s.supported {
         // Grunnen står alt i Helse-raden.
         if s.note.is_none() {
-            set_text(&wl, "SMART er ikke tilgjengelig for denne disken.");
+            set_text(&wl, tr!("SMART er ikke tilgjengelig for denne disken."));
         }
         p.body.append(&kv.grid);
         return p.root.upcast();
     }
-    let tl = kv_na(&kv, "Temperatur", s.temp.map(|t| F::temp(Some(t), 0)), "Ikke oppgitt");
+    let tl = kv_na(&kv, tr!("Temperatur"), s.temp.map(|t| F::temp(Some(t), 0)), tr!("Ikke oppgitt"));
     let (w, f) = D::temp_limits(&d.kind);
     let lim = match s.nvme.as_ref().and_then(|n| n.warning_temp.zip(n.critical_temp)) {
-        Some((a, b)) => format!("Kontrolleren varsler ved {} og er kritisk ved {}.", F::temp(Some(a), 0), F::temp(Some(b), 0)),
-        None => format!("Gul fra {}, rød fra {} for {}.", F::temp(Some(w), 0), F::temp(Some(f), 0), if d.kind == "HDD" { "harddisker" } else { "SSD-er" }),
+        Some((a, b)) => trf!("Kontrolleren varsler ved {varsel} og er kritisk ved {kritisk}.", varsel = F::temp(Some(a), 0), kritisk = F::temp(Some(b), 0)),
+        None => trf!("Gul fra {varsel}, rød fra {kritisk} for {type_disk}.", varsel = F::temp(Some(w), 0), kritisk = F::temp(Some(f), 0), type_disk = if d.kind == "HDD" { tr!("harddisker") } else { tr!("SSD-er") }),
     };
     tl.set_tooltip_text(Some(&lim));
     kv_na(
         &kv,
-        "Driftstid",
-        s.power_on_hours.map(|h| format!("{} · {}", F::with_unit(F::num(Some(h), 0), "t"), F::with_unit(F::num(Some(h / 24.0), 0), "døgn"))),
-        "Ikke oppgitt",
+        tr!("Driftstid"),
+        s.power_on_hours.map(|h| format!("{} · {}", trf!("{antall} t", antall = F::num(Some(h), 0)), trf!("{antall} døgn", antall = F::num(Some(h / 24.0), 0)))),
+        tr!("Ikke oppgitt"),
     );
     if let Some(c) = s.power_cycles {
-        kv.add("Strømsykluser", &F::num(Some(c), 0));
+        kv.add(tr!("Strømsykluser"), &F::num(Some(c), 0));
     }
     if s.nvme.is_none() {
-        let bad = kv_na(&kv, "Dårlige sektorer", s.bad_sectors.map(|b| F::num(Some(b as f64), 0)), "Ikke oppgitt");
-        bad.set_tooltip_text(Some("Omallokerte, ventende og ukorrigerbare sektorer (05, C5 og C6) til sammen."));
+        let bad = kv_na(&kv, tr!("Dårlige sektorer"), s.bad_sectors.map(|b| F::num(Some(b as f64), 0)), tr!("Ikke oppgitt"));
+        bad.set_tooltip_text(Some(tr!("Omallokerte, ventende og ukorrigerbare sektorer (05, C5 og C6) til sammen.")));
         if s.bad_sectors.unwrap_or(0) > 0 {
             bad.add_css_class("warn-text");
         }
         let fl = kv.add(
-            "Attributter som feiler",
+            tr!("Attributter som feiler"),
             &match (s.attrs_failing, s.attrs_failed_past) {
-                (Some(a), Some(b)) if b > 0 => format!("{a} nå · {b} tidligere"),
+                (Some(a), Some(b)) if b > 0 => trf!("{na} nå · {tidligere} tidligere", na = a, tidligere = b),
                 (Some(a), _) => F::num(Some(a as f64), 0),
                 _ => F::DASH.into(),
             },
@@ -490,45 +523,45 @@ fn smart_panel(d: &Disk, now: i64) -> gtk::Widget {
         }
     }
     if d.kind != "HDD" {
-        let ll = kv_na(&kv, "Gjenværende levetid", s.life_left.map(|l| F::pct(Some(l), 0)), "Ikke oppgitt");
-        ll.set_tooltip_text(Some(if s.nvme.is_some() { "100 % minus «Percentage Used» fra NVMe-helseloggen." } else { "Den normaliserte verdien produsenten bruker for slitasje (231, 233, 232 eller 177)." }));
+        let ll = kv_na(&kv, tr!("Gjenværende levetid"), s.life_left.map(|l| F::pct(Some(l), 0)), tr!("Ikke oppgitt"));
+        ll.set_tooltip_text(Some(if s.nvme.is_some() { tr!("100 % minus «Percentage Used» fra NVMe-helseloggen.") } else { tr!("Den normaliserte verdien produsenten bruker for slitasje (231, 233, 232 eller 177).") }));
     }
     if let Some(n) = &s.nvme {
         if let (Some(a), Some(t)) = (n.avail_spare, n.spare_thresh) {
-            kv.add("Reservekapasitet", &format!("{} · grense {}", F::pct(Some(a), 0), F::pct(Some(t), 0)));
+            kv.add(tr!("Reservekapasitet"), &trf!("{reserve} · grense {grense}", reserve = F::pct(Some(a), 0), grense = F::pct(Some(t), 0)));
         }
         if let Some(m) = n.media_errors {
-            kv.add("Mediefeil", &F::num(Some(m), 0));
+            kv.add(tr!("Mediefeil"), &F::num(Some(m), 0));
         }
         if let Some(u) = n.unsafe_shutdowns {
-            kv.add("Usikre avslutninger", &F::num(Some(u), 0)).set_tooltip_text(Some("Strømmen ble borte før disken fikk beskjed om å slå seg av."));
+            kv.add(tr!("Usikre avslutninger"), &F::num(Some(u), 0)).set_tooltip_text(Some(tr!("Strømmen ble borte før disken fikk beskjed om å slå seg av.")));
         }
         if let Some(e) = n.error_log_entries {
-            kv.add("Oppføringer i feilloggen", &F::num(Some(e), 0));
+            kv.add(tr!("Oppføringer i feilloggen"), &F::num(Some(e), 0));
         }
     }
     if let Some(wr) = s.written {
-        kv.add("Skrevet totalt", &D::disk_bytes(wr)).set_tooltip_text(d.size.map(|sz| format!("{} ganger diskens størrelse.", F::num(Some(wr / sz), 1))).as_deref());
+        kv.add(tr!("Skrevet totalt"), &D::disk_bytes(wr)).set_tooltip_text(d.size.map(|sz| trf!("{ganger} ganger diskens størrelse.", ganger = F::num(Some(wr / sz), 1))).as_deref());
     }
     if let Some(r) = s.read {
-        kv.add("Lest totalt", &D::disk_bytes(r));
+        kv.add(tr!("Lest totalt"), &D::disk_bytes(r));
     }
     let st = match (s.selftest.as_deref(), s.selftest_remaining) {
-        (Some("inprogress"), Some(r)) => format!("Pågår · {} igjen", F::pct(Some(r as f64), 0)),
+        (Some("inprogress"), Some(r)) => trf!("Pågår · {andel} igjen", andel = F::pct(Some(r as f64), 0)),
         (Some(x), _) => D::selftest_text(x),
         (None, _) => F::DASH.into(),
     };
-    kv.add("Siste selvtest", &st);
-    kv_na(&kv, "Lest av UDisks2", s.updated.map(|u| ago(u, now)), "Ikke lest ennå")
+    kv.add(tr!("Siste selvtest"), &st);
+    kv_na(&kv, tr!("Lest av UDisks2"), s.updated.map(|u| ago(u, now)), tr!("Ikke lest ennå"))
         .set_tooltip_text(s.updated.map(crate::rapport_ui::stamp_long).as_deref());
     p.body.append(&kv.grid);
     p.root.upcast()
 }
 
 fn parts_panel(app: &Rc<App>, d: &Disk) -> gtk::Widget {
-    let p = panel("Partisjoner");
+    let p = panel(tr!("Partisjoner"));
     if d.partitions.is_empty() {
-        let n = label("Ingen partisjoner.", &["group-note"]);
+        let n = label(tr!("Ingen partisjoner."), &["group-note"]);
         p.body.append(&n);
         return p.root.upcast();
     }
@@ -536,7 +569,7 @@ fn parts_panel(app: &Rc<App>, d: &Disk) -> gtk::Widget {
     g.add_css_class("dk-table");
     g.add_css_class("dk-parts");
     g.set_column_spacing(12);
-    let head = ["Partisjon", "Montert på", "Filsystem", "Størrelse", "Ledig", "Brukt"];
+    let head = [tr!("Partisjon"), tr!("Montert på"), tr!("Filsystem"), tr!("Størrelse"), tr!("Ledig"), tr!("Brukt")];
     for (c, h) in head.iter().enumerate() {
         let l = label(h, &["th"]);
         if c >= 3 {
@@ -560,8 +593,8 @@ fn parts_panel(app: &Rc<App>, d: &Disk) -> gtk::Widget {
             l
         };
         let n = cell(&x.name, 0, false);
-        n.set_tooltip_text(x.label.as_deref().map(|l| format!("Etikett: {l}")).as_deref());
-        let m = cell(x.mount.as_deref().unwrap_or("ikke montert"), 1, false);
+        n.set_tooltip_text(x.label.as_deref().map(|l| trf!("Etikett: {etikett}", etikett = l)).as_deref());
+        let m = cell(x.mount.as_deref().unwrap_or(tr!("ikke montert")), 1, false);
         m.set_hexpand(true);
         m.set_tooltip_text(x.mount.as_deref());
         if x.mount.is_none() {
@@ -589,7 +622,7 @@ fn parts_panel(app: &Rc<App>, d: &Disk) -> gtk::Widget {
         pl.set_xalign(1.0);
         bx.append(&pl);
         if let (Some(u), Some(t)) = (x.used, x.total) {
-            bx.set_tooltip_text(Some(&format!("{} brukt av {}", D::disk_bytes(u), D::disk_bytes(t))));
+            bx.set_tooltip_text(Some(&trf!("{brukt} brukt av {totalt}", brukt = D::disk_bytes(u), totalt = D::disk_bytes(t))));
         }
         g.attach(&bx, 5, r, 1, 1);
     }
@@ -601,24 +634,24 @@ fn parts_panel(app: &Rc<App>, d: &Disk) -> gtk::Widget {
 /// rader som har vært under terskelen eller teller dårlige sektorer, er gule.
 fn attrs_panel(d: &Disk, open: bool, on_toggle: Rc<dyn Fn(bool)>) -> gtk::Widget {
     let s = &d.smart;
-    let p = panel("SMART-attributter");
+    let p = panel(tr!("SMART-attributter"));
     p.root.add_css_class("dk-attrs");
     let count = label(&format!("{}", s.attributes.len()), &["num"]);
     p.aside.append(&count);
     let toggle = crate::widgets::button(Some(if open { "chevrons-down-up" } else { "chevron-down" }), None, &["flat", "sm", "icon-only"]);
-    let t = if open { "Fold sammen tabellen" } else { "Vis hele SMART-tabellen" };
+    let t = if open { tr!("Fold sammen tabellen") } else { tr!("Vis hele SMART-tabellen") };
     toggle.set_tooltip_text(Some(t));
     toggle.update_property(&[gtk::accessible::Property::Label(t)]);
     toggle.update_state(&[gtk::accessible::State::Expanded(Some(open))]);
     p.aside.append(&toggle);
     let body = vbox(0, &[]);
     body.set_visible(open);
-    let note = label("Verdi, Verste og Terskel er produsentens normaliserte tall (høyere er bedre). «Tolket» er den rå verdien i riktig enhet.", &["group-note", "dk-attrs-note"]);
+    let note = label(tr!("Verdi, Verste og Terskel er produsentens normaliserte tall (høyere er bedre). «Tolket» er den rå verdien i riktig enhet."), &["group-note", "dk-attrs-note"]);
     note.set_wrap(true);
     let g = gtk::Grid::new();
     g.add_css_class("dk-table");
     g.set_column_spacing(14);
-    for (c, h) in ["ID", "Attributt", "Verdi", "Verste", "Terskel", "Tolket", ""].iter().enumerate() {
+    for (c, h) in ["ID", tr!("Attributt"), tr!("Verdi"), tr!("Verste"), tr!("Terskel"), tr!("Tolket"), ""].iter().enumerate() {
         let l = label(h, &["th"]);
         if (2..=5).contains(&c) {
             l.set_xalign(1.0);
@@ -650,11 +683,11 @@ fn attrs_panel(d: &Disk, open: bool, on_toggle: Rc<dyn Fn(bool)>) -> gtk::Widget
             g.attach(&l, c, r, 1, 1);
             l
         };
-        cell(&format!("{:02X}", a.id), 0, false).set_tooltip_text(Some(&format!("{} desimalt", a.id)));
+        cell(&format!("{:02X}", a.id), 0, false).set_tooltip_text(Some(&trf!("{verdi} desimalt", verdi = a.id)));
         let n = cell(&D::attr_label(a.id, &a.name), 1, false);
         n.set_hexpand(true);
         n.set_ellipsize(pango::EllipsizeMode::End);
-        n.set_tooltip_text(Some(&format!("{}{}", a.name, if a.prefail() { " · pre-fail: under terskelen betyr at disken er i ferd med å feile" } else { "" })));
+        n.set_tooltip_text(Some(&format!("{}{}", a.name, if a.prefail() { tr!(" · pre-fail: under terskelen betyr at disken er i ferd med å feile") } else { "" })));
         let num = |v: i32| if v < 0 { F::DASH.to_string() } else { v.to_string() };
         cell(&num(a.value), 2, true);
         cell(&num(a.worst), 3, true);
@@ -670,9 +703,9 @@ fn attrs_panel(d: &Disk, open: bool, on_toggle: Rc<dyn Fn(bool)>) -> gtk::Widget
             dot.add_css_class("last");
         }
         dot.set_tooltip_text(Some(match lvl {
-            "danger" => "Under terskelen nå",
-            "warn" if bad => "Dårlige sektorer",
-            "warn" => "Har vært under terskelen",
+            "danger" => tr!("Under terskelen nå"),
+            "warn" if bad => tr!("Dårlige sektorer"),
+            "warn" => tr!("Har vært under terskelen"),
             _ => "OK",
         }));
         g.attach(&dot, 6, r, 1, 1);
@@ -685,7 +718,7 @@ fn attrs_panel(d: &Disk, open: bool, on_toggle: Rc<dyn Fn(bool)>) -> gtk::Widget
         let open = !b2.is_visible();
         b2.set_visible(open);
         b.set_child(Some(&Icon::new(if open { "chevrons-down-up" } else { "chevron-down" }, 14)));
-        let t = if open { "Fold sammen tabellen" } else { "Vis hele SMART-tabellen" };
+        let t = if open { tr!("Fold sammen tabellen") } else { tr!("Vis hele SMART-tabellen") };
         b.set_tooltip_text(Some(t));
         b.update_property(&[gtk::accessible::Property::Label(t)]);
         b.update_state(&[gtk::accessible::State::Expanded(Some(open))]);
@@ -706,8 +739,8 @@ fn speed_chart(app: &Rc<App>, d: &Disk) -> Rc<ChartPanel> {
     let p = ChartPanel::new(
         app,
         PanelOpts {
-            title: format!("Hastighet · {}", d.name),
-            series: vec![SeriesDef::new(&format!("disk/{}/read", d.id), "Lesing", "--c-load").fill().map(to_mb), SeriesDef::new(&format!("disk/{}/write", d.id), "Skriving", "--c-memctl").map(to_mb)],
+            title: trf!("Hastighet · {navn}", navn = d.name),
+            series: vec![SeriesDef::new(&format!("disk/{}/read", d.id), tr!("Lesing"), "--c-load").fill().map(to_mb), SeriesDef::new(&format!("disk/{}/write", d.id), tr!("Skriving"), "--c-memctl").map(to_mb)],
             window: 300,
             chart: opts,
             sync: None,
@@ -835,9 +868,9 @@ impl Inner {
         let conn = self.app.conn.get();
         let (show_empty, title, text, icon) = match (&*data, conn) {
             (Some(l), _) if !l.disks.is_empty() => (false, "", String::new(), "hard-drive"),
-            (Some(_), _) => (true, "Fant ingen disker", "Det er ingen fysiske disker i /sys/block (loop-, ram- og dm-enheter regnes ikke med).".to_string(), "hard-drive"),
-            (None, Conn::Connected) => (true, "Leser diskene …", "Tjenesten henter modell, SMART og partisjoner. Det tar et sekund.".to_string(), "hard-drive"),
-            (None, _) => (true, "Venter på tjenesten", "Diskene leses av tjenesten (agentic-riggd). Siden fylles når den svarer.".to_string(), "unplug"),
+            (Some(_), _) => (true, tr!("Fant ingen disker"), tr!("Det er ingen fysiske disker i /sys/block (loop-, ram- og dm-enheter regnes ikke med).").to_string(), "hard-drive"),
+            (None, Conn::Connected) => (true, tr!("Leser diskene …"), tr!("Tjenesten henter modell, SMART og partisjoner. Det tar et sekund.").to_string(), "hard-drive"),
+            (None, _) => (true, tr!("Venter på tjenesten"), tr!("Diskene leses av tjenesten (agentic-riggd). Siden fylles når den svarer.").to_string(), "unplug"),
         };
         self.empty.set_visible(show_empty);
         self.list_box.set_visible(!show_empty);
@@ -847,9 +880,9 @@ impl Inner {
         set_text(&self.empty_title, title);
         set_text(&self.empty_text, &text);
         let note = data.as_ref().filter(|l| l.source == "sysfs").map(|l| {
-            format!(
-                "SMART er ikke tilgjengelig: {} Helse, temperatur og SMART-tabellen mangler derfor. Modell, hastighet og ledig plass vises likevel.",
-                l.note.clone().unwrap_or_else(|| "UDisks2 svarer ikke.".into())
+            trf!(
+                "SMART er ikke tilgjengelig: {grunn} Helse, temperatur og SMART-tabellen mangler derfor. Modell, hastighet og ledig plass vises likevel.",
+                grunn = l.note.as_deref().map(disk_note).unwrap_or_else(|| tr!("UDisks2 svarer ikke.").into())
             )
         });
         self.notice.set_visible(note.is_some() && !show_empty);
@@ -1042,13 +1075,13 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     empty_text.set_max_width_chars(60);
     empty.append(&empty_text);
     root.append(&empty);
-    let foot = label("SMART kommer fra UDisks2, som leser den selv omtrent hvert 10. minutt uten å vekke disker i hvile. Hastighetene er fra /proc/diskstats, ledig plass fra statvfs.", &["muted", "sm", "dk-foot"]);
+    let foot = label(tr!("SMART kommer fra UDisks2, som leser den selv omtrent hvert 10. minutt uten å vekke disker i hvile. Hastighetene er fra /proc/diskstats, ledig plass fra statvfs."), &["muted", "sm", "dk-foot"]);
     foot.set_wrap(true);
     root.append(&foot);
     let actions = hbox(2, &[]);
     let refresh = crate::widgets::button(Some("refresh-cw"), None, &["flat", "icon-only"]);
-    crate::widgets::tip(&refresh, "Hent disklista på nytt", Some("F5"));
-    refresh.update_property(&[gtk::accessible::Property::Label("Hent disklista på nytt")]);
+    crate::widgets::tip(&refresh, tr!("Hent disklista på nytt"), Some("F5"));
+    refresh.update_property(&[gtk::accessible::Property::Label(tr!("Hent disklista på nytt"))]);
     actions.append(&refresh);
     let inner = Rc::new(Inner {
         app: app.clone(),

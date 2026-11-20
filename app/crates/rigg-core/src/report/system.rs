@@ -10,6 +10,7 @@
 //! siste `SysSample`.
 
 use super::{Item, Kv, Section, Table};
+use crate::{tr, trf};
 use crate::fmt as F;
 use crate::model::SysSample;
 use serde_json::Value;
@@ -100,21 +101,21 @@ pub fn dmi_date(s: &str) -> Option<String> {
         return None;
     }
     let (m, d, y): (usize, u32, i32) = (p[0].parse().ok()?, p[1].parse().ok()?, p[2].parse().ok()?);
-    (1..=12).contains(&m).then(|| format!("{d}. {} {y}", F::MONTHS[m - 1]))
+    (1..=12).contains(&m).then(|| F::date(y, m as u32, d, false))
 }
 
 /// «#31-Ubuntu SMP PREEMPT_DYNAMIC Sat Aug  1 04:26:38 UTC 2026» → «Bygg #31 · 1. aug. 2026 · PREEMPT_DYNAMIC».
 pub fn kernel_build(s: &str) -> String {
     let mut parts = Vec::new();
     if let Some(n) = s.strip_prefix('#').and_then(|r| r.split(|c: char| !c.is_ascii_digit()).next()).filter(|n| !n.is_empty()) {
-        parts.push(format!("Bygg #{n}"));
+        parts.push(trf!("Bygg #{nummer}", nummer = n));
     }
     let w: Vec<&str> = s.split_whitespace().collect();
     for i in 0..w.len() {
         if let Some(m) = MON.iter().position(|x| *x == w[i])
             && let (Some(d), Some(y)) = (w.get(i + 1).and_then(|x| x.parse::<u32>().ok()), w.last().and_then(|x| x.parse::<i32>().ok()))
         {
-            parts.push(format!("{d}. {} {y}", F::MON_SHORT[m]));
+            parts.push(F::date(y, m as u32 + 1, d, true));
             break;
         }
     }
@@ -131,10 +132,10 @@ pub fn desktop_text(raw: &str) -> Option<String> {
     if parts.len() > 1 {
         let v = parts[0].to_lowercase();
         let nice = match v.as_str() {
-            "ubuntu" => "Ubuntu-økt".to_string(),
-            "pop" => "Pop-økt".to_string(),
-            "zorin" => "Zorin-økt".to_string(),
-            _ => format!("{}-økt", parts[0]),
+            "ubuntu" => tr!("Ubuntu-økt").to_string(),
+            "pop" => tr!("Pop-økt").to_string(),
+            "zorin" => tr!("Zorin-økt").to_string(),
+            _ => trf!("{navn}-økt", navn = parts[0]),
         };
         return Some(format!("{main} ({nice})"));
     }
@@ -307,34 +308,34 @@ pub fn sections(i: &SysInput) -> Vec<Section> {
     }
 
     // ---- Hovedkort og BIOS ----
-    let mut b = Section::new("hovedkort", "Hovedkort og BIOS");
+    let mut b = Section::new("hovedkort", tr!("Hovedkort og BIOS"));
     let dm = |k: &str| st(&board[k]);
-    b.kv(Kv::new("produsent", "Produsent", dm("board_vendor")).na("Ikke oppgitt"));
-    b.kv(Kv::new("modell", "Modell", dm("board_name")).na("Ikke oppgitt"));
-    b.kv(Kv::new("versjon", "Versjon", dm("board_version")).na("Ikke oppgitt"));
+    b.kv(Kv::new("produsent", tr!("Produsent"), dm("board_vendor")).na(tr!("Ikke oppgitt")));
+    b.kv(Kv::new("modell", tr!("Modell"), dm("board_name")).na(tr!("Ikke oppgitt")));
+    b.kv(Kv::new("versjon", tr!("Versjon"), dm("board_version")).na(tr!("Ikke oppgitt")));
     b.kv(
-        Kv::new("brikkesett", "Brikkesett", st(&pci["chipset"]))
-            .na("Ikke oppgitt")
-            .info_opt(pci["chipsetIds"].as_array().filter(|a| !a.is_empty()).map(|a| format!("Slått opp i pci.ids fra {}.", a.iter().filter_map(Value::as_str).collect::<Vec<_>>().join(", ")))),
+        Kv::new("brikkesett", tr!("Brikkesett"), st(&pci["chipset"]))
+            .na(tr!("Ikke oppgitt"))
+            .info_opt(pci["chipsetIds"].as_array().filter(|a| !a.is_empty()).map(|a| trf!("Slått opp i pci.ids fra {id}.", id = a.iter().filter_map(Value::as_str).collect::<Vec<_>>().join(", ")))),
     );
-    b.kv(Kv::new("system", "System", Some([dm("sys_vendor"), dm("product_name")].into_iter().flatten().collect::<Vec<_>>().join(" · ")).filter(|s| !s.is_empty())).na("Ikke oppgitt"));
-    b.kv(Kv::new("bios", "BIOS", Some([dm("bios_vendor"), dm("bios_version")].into_iter().flatten().collect::<Vec<_>>().join(" · ")).filter(|s| !s.is_empty())).na("Ikke oppgitt").info_opt(dm("bios_release").map(|r| format!("Utgave {r}"))));
-    b.kv(Kv::new("bios-dato", "BIOS-dato", dm("bios_date").map(|d| dmi_date(&d).unwrap_or(d))).na("Ikke oppgitt").info_opt(dm("bios_date").map(|d| format!("Rå verdi: {d}"))));
-    b.kv(Kv::new("kabinett", "Kabinett", st(&board["chassis"])).na("Ikke oppgitt"));
-    b.kv(Kv::new("serienumre", "Serienumre", None).na("Leses ikke (krever root)").info("Serienummerfilene i /sys/class/dmi/id er bare lesbare for root. Appen åpner dem ikke."));
+    b.kv(Kv::new("system", tr!("System"), Some([dm("sys_vendor"), dm("product_name")].into_iter().flatten().collect::<Vec<_>>().join(" · ")).filter(|s| !s.is_empty())).na(tr!("Ikke oppgitt")));
+    b.kv(Kv::new("bios", "BIOS", Some([dm("bios_vendor"), dm("bios_version")].into_iter().flatten().collect::<Vec<_>>().join(" · ")).filter(|s| !s.is_empty())).na(tr!("Ikke oppgitt")).info_opt(dm("bios_release").map(|r| trf!("Utgave {versjon}", versjon = r))));
+    b.kv(Kv::new("bios-dato", tr!("BIOS-dato"), dm("bios_date").map(|d| dmi_date(&d).unwrap_or(d))).na(tr!("Ikke oppgitt")).info_opt(dm("bios_date").map(|d| trf!("Rå verdi: {dato}", dato = d))));
+    b.kv(Kv::new("kabinett", tr!("Kabinett"), st(&board["chassis"])).na(tr!("Ikke oppgitt")));
+    b.kv(Kv::new("serienumre", tr!("Serienumre"), None).na(tr!("Leses ikke (krever root)")).info(tr!("Serienummerfilene i /sys/class/dmi/id er bare lesbare for root. Appen åpner dem ikke.")));
     out.push(b);
 
     // ---- Minne ----
-    let mut m = Section::new("minne", "Minne");
+    let mut m = Section::new("minne", tr!("Minne"));
     let mem = &sys.mem;
     let total = mem.total_kb.or_else(|| i.system["memTotalKB"].as_f64());
-    m.kv(Kv::new("totalt", "Totalt", total.map(|t| F::kb(Some(t), 1))).info("Det kjernen kan bruke. Resten av modulene er reservert av fastvaren og kjernen."));
+    m.kv(Kv::new("totalt", tr!("Totalt"), total.map(|t| F::kb(Some(t), 1))).info(tr!("Det kjernen kan bruke. Resten av modulene er reservert av fastvaren og kjernen.")));
     m.kv(Kv::new(
         "brukt",
-        "Brukt",
+        tr!("Brukt"),
         mem.used_kb.zip(total).map(|(u, t)| format!("{} · {}", F::kb(Some(u), 1), F::pct(Some(u / t * 100.0), 0))),
     ));
-    m.kv(Kv::new("tilgjengelig", "Tilgjengelig", mem.available_kb.map(|a| F::kb(Some(a), 1))));
+    m.kv(Kv::new("tilgjengelig", tr!("Tilgjengelig"), mem.available_kb.map(|a| F::kb(Some(a), 1))));
     // Delt minne (Shmem) står i Cached, men regnes også i «brukt» (totalt
     // minus tilgjengelig). Trekkes det fra her, går tallene opp i totalen.
     let cache = match (mem.buffers_kb, mem.cached_kb) {
@@ -342,70 +343,74 @@ pub fn sections(i: &SysInput) -> Vec<Section> {
         _ => None,
     };
     m.kv(
-        Kv::new("cache", "Buffer og cache", cache.map(|c| F::kb(Some(c), 1))).info_opt(mem.shmem_kb.map(|s| format!("Buffer, cache og frigjørbar slab, uten delt minne (Shmem, tmpfs: {}). Delt minne kan ikke frigjøres og er regnet med i Brukt.", F::kb(Some(s), 1)))));
+        Kv::new("cache", tr!("Buffer og cache"), cache.map(|c| F::kb(Some(c), 1))).info_opt(mem.shmem_kb.map(|s| trf!("Buffer, cache og frigjørbar slab, uten delt minne (Shmem, tmpfs: {minne}). Delt minne kan ikke frigjøres og er regnet med i Brukt.", minne = F::kb(Some(s), 1)))));
     m.kv(Kv::new(
         "swap",
-        "Swap",
+        tr!("Swap"),
         match (mem.swap_used_kb, mem.swap_total_kb) {
-            (_, Some(t)) if t <= 0.0 => Some("Ingen swap".into()),
-            (Some(u), Some(t)) => Some(format!("{} av {}", F::kb(Some(u), 1), F::kb(Some(t), 1))),
+            (_, Some(t)) if t <= 0.0 => Some(tr!("Ingen swap").into()),
+            (Some(u), Some(t)) => Some(trf!("{brukt} av {totalt}", brukt = F::kb(Some(u), 1), totalt = F::kb(Some(t), 1))),
             _ => None,
         },
     ));
     let spd = &board["spd"];
     let chips = spd["chips"].as_u64().unwrap_or(0);
     let spd_tip = if chips > 0 {
-        format!(
-            "{} SPD-brikker er funnet ({}). Produsent, delenummer og timingene modulene støtter, kan leses derfra uten root, men lesingen er I2C-trafikk på hovedkortets SMBus, og den er ikke slått på. Hastigheten minnet faktisk går på, og timingene BIOS har satt, krever root.",
-            chips,
-            spd["driver"].as_str().unwrap_or("ee1004")
+        trf!(
+            "{antall} SPD-brikker er funnet ({driver}). Produsent, delenummer og timingene modulene støtter, kan leses derfra uten root, men lesingen er I2C-trafikk på hovedkortets SMBus, og den er ikke slått på. Hastigheten minnet faktisk går på, og timingene BIOS har satt, krever root.",
+            antall = chips,
+            driver = spd["driver"].as_str().unwrap_or("ee1004")
         )
     } else {
-        "Moduler, hastighet og timinger ligger i SMBIOS-tabellen og i registrene i minnekontrolleren, som bare root kan lese.".to_string()
+        tr!("Moduler, hastighet og timinger ligger i SMBIOS-tabellen og i registrene i minnekontrolleren, som bare root kan lese.").to_string()
     };
-    m.kv(Kv::new("moduler", "Moduler og timinger", None).na(if chips > 0 { "Krever godkjenning" } else { "Krever root" }).info(spd_tip));
+    m.kv(Kv::new("moduler", tr!("Moduler og timinger"), None).na(if chips > 0 { tr!("Krever godkjenning") } else { tr!("Krever root") }).info(spd_tip));
     out.push(m);
 
     // ---- Operativsystem ----
-    let mut o = Section::new("os", "Operativsystem");
-    o.kv(Kv::new("distro", "Distribusjon", st(&os["distro"])));
-    o.kv(Kv::new("kjerne", "Kjerne", st(&os["kernel"])));
-    o.kv(Kv::new("kjernebygg", "Kjernebygg", st(&os["kernelBuild"]).map(|k| kernel_build(&k))).info_opt(st(&os["kernelBuild"]).map(|k| if k.contains("PREEMPT_DYNAMIC") { format!("{k}\nPREEMPT_DYNAMIC: hvor ofte kjernen kan avbryte seg selv, velges ved oppstart.") } else { k })));
-    o.kv(Kv::new("arkitektur", "Arkitektur", st(&os["arch"])));
+    let mut o = Section::new("os", tr!("Operativsystem"));
+    o.kv(Kv::new("distro", tr!("Distribusjon"), st(&os["distro"])));
+    o.kv(Kv::new("kjerne", tr!("Kjerne"), st(&os["kernel"])));
+    o.kv(Kv::new("kjernebygg", tr!("Kjernebygg"), st(&os["kernelBuild"]).map(|k| kernel_build(&k))).info_opt(st(&os["kernelBuild"]).map(|k| if k.contains("PREEMPT_DYNAMIC") { trf!("{bygg}\nPREEMPT_DYNAMIC: hvor ofte kjernen kan avbryte seg selv, velges ved oppstart.", bygg = k) } else { k })));
+    o.kv(Kv::new("arkitektur", tr!("Arkitektur"), st(&os["arch"])));
     let desk = i.desktop.clone().or_else(|| st(&os["desktop"]));
     let sess = i.session.clone().or_else(|| st(&os["session"]));
     o.kv(Kv::new(
         "skrivebord",
-        "Skrivebord",
+        tr!("Skrivebord"),
         Some([desk.as_deref().and_then(desktop_text), sess].into_iter().flatten().collect::<Vec<_>>().join(" · ")).filter(|s| !s.is_empty()),
     ).info_opt(desk.map(|d| format!("XDG_CURRENT_DESKTOP={d}"))));
     if i.show_hostname {
-        o.kv(Kv::new("vert", "Vertsnavn", st(&os["hostname"])));
+        o.kv(Kv::new("vert", tr!("Vertsnavn"), st(&os["hostname"])));
     } else if i.report {
-        o.kv(Kv::new("vert", "Vertsnavn", None).na("Ikke tatt med"));
+        o.kv(Kv::new("vert", tr!("Vertsnavn"), None).na(tr!("Ikke tatt med")));
     }
-    o.kv(Kv::new("oppetid", "Oppetid", sys.uptime.map(|u| F::uptime(Some(u)))));
+    o.kv(Kv::new("oppetid", tr!("Oppetid"), sys.uptime.map(|u| F::uptime(Some(u)))));
     o.kv(
-        Kv::new("last", "Last (1 / 5 / 15 min)", (!sys.loadavg.is_empty()).then(|| sys.loadavg.iter().map(|v| F::num(Some(*v), 2)).collect::<Vec<_>>().join(" / ")))
-            .info("Gjennomsnittlig antall prosesser som kjører eller venter. Over antall tråder betyr kø."),
+        Kv::new("last", tr!("Last (1 / 5 / 15 min)"), (!sys.loadavg.is_empty()).then(|| sys.loadavg.iter().map(|v| F::num(Some(*v), 2)).collect::<Vec<_>>().join(" / ")))
+            .info(tr!("Gjennomsnittlig antall prosesser som kjører eller venter. Over antall tråder betyr kø.")),
     );
     out.push(o);
 
     // ---- Kontrollere (PCI, fra pci.ids) ----
     if let Some(list) = pci["controllers"].as_array().filter(|l| !l.is_empty()) {
-        let mut k = Section::new("kontrollere", "Kontrollere");
+        let mut k = Section::new("kontrollere", tr!("Kontrollere"));
         k.items.push(Item::Table(Table {
             id: "kontrollere",
-            head: ["Type", "Enhet", "Driver"].map(String::from).to_vec(),
+            head: [tr!("Type"), tr!("Enhet"), tr!("Driver")].map(String::from).to_vec(),
             end: vec![false, false, false],
             rows: list
                 .iter()
                 .map(|x| {
                     let name = [st(&x["vendor"]), st(&x["name"])].into_iter().flatten().collect::<Vec<_>>().join(" ");
                     vec![
-                        st(&x["kind"]).unwrap_or_default(),
+                        match x["kind"].as_str().unwrap_or_default() {
+                            "Trådløst nett" => tr!("Trådløst nett"),
+                            "Lyd" => tr!("Lyd"),
+                            kind => kind,
+                        }.into(),
                         if name.is_empty() { st(&x["ids"]).unwrap_or_else(|| F::DASH.into()) } else { name },
-                        st(&x["driver"]).unwrap_or_else(|| "ingen".into()),
+                        st(&x["driver"]).unwrap_or_else(|| tr!("ingen").into()),
                     ]
                 })
                 .collect(),

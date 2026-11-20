@@ -1,0 +1,23 @@
+msgid ""
+msgstr ""
+"Language: zh_CN\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/pages/system.rs:80
+msgid "Faste data er lest på nytt"
+msgstr "已刷新硬件信息"
+
+#: crates/rigg/src/pages/system.rs:85
+msgid "Kunne ikke hente systeminfo"
+msgstr "无法获取系统信息"
+
+#: crates/rigg/src/pages/system.rs:181
+msgid "{app} – System ({dato})"
+msgstr "{app} – 系统（{dato}）"
+
+#: crates/rigg/src/pages/system.rs:182
+msgid "uten vertsnavn"
+msgstr "不含主机名"

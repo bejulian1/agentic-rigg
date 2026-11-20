@@ -13,6 +13,7 @@ use crate::state::App;
 use crate::widgets::bar::Bar;
 use crate::widgets::{hbox, vbox};
 use gtk::prelude::*;
+use rigg_core::{tr, trf};
 use rigg_core::report::{self, ReportFormat, Section};
 use serde_json::{Value, json};
 use std::cell::{Cell, RefCell};
@@ -76,12 +77,12 @@ impl State {
                     *s.system.borrow_mut() = v;
                     s.refresh();
                     if !first {
-                        s.app.toast(crate::toast::Toast::new("Faste data er lest på nytt").ms(2500));
+                        s.app.toast(crate::toast::Toast::new(tr!("Faste data er lest på nytt")).ms(2500));
                     }
                 }
                 Err(e) => {
                     if !first {
-                        s.app.toast(crate::toast::Toast::new("Kunne ikke hente systeminfo").body(&e.message).error());
+                        s.app.toast(crate::toast::Toast::new(tr!("Kunne ikke hente systeminfo")).body(&e.message).error());
                     }
                 }
             }
@@ -177,8 +178,8 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         for sec in &mut secs {
             sec.items.retain(|i| !matches!(i, report::Item::Kv(k) if k.id == "vert"));
         }
-        let title = format!("{} – System ({})", rigg_core::version::NAME, crate::rapport_ui::stamp_long(rigg_core::now_ms()));
-        Some((report::render_page(&title, &secs, fmt), "uten vertsnavn".to_string()))
+        let title = trf!("{app} – System ({dato})", app = rigg_core::version::NAME, dato = crate::rapport_ui::stamp_long(rigg_core::now_ms()));
+        Some((report::render_page(&title, &secs, fmt), tr!("uten vertsnavn").to_string()))
     }));
 
     let r = {

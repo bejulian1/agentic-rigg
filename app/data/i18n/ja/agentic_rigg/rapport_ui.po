@@ -1,0 +1,111 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/rapport_ui.rs:356 crates/rigg/src/rapport_ui.rs:357
+msgid "Kopier"
+msgstr "コピー"
+
+#: crates/rigg/src/rapport_ui.rs:363
+msgid "Kopier som tekst"
+msgstr "テキストとしてコピー"
+
+#: crates/rigg/src/rapport_ui.rs:363
+msgid "Kopier som Markdown"
+msgstr "Markdown としてコピー"
+
+#: crates/rigg/src/rapport_ui.rs:367
+msgid "Ingenting å kopiere ennå"
+msgstr "コピーできる内容がまだありません"
+
+#: crates/rigg/src/rapport_ui.rs:367
+msgid "Dataene er ikke lest ferdig."
+msgstr "データを読み込み中です。"
+
+#: crates/rigg/src/rapport_ui.rs:371
+msgid "Kunne ikke kopiere"
+msgstr "コピーできませんでした"
+
+#: crates/rigg/src/rapport_ui.rs:371
+msgid "Utklippstavlen er ikke tilgjengelig."
+msgstr "クリップボードを使用できません。"
+
+#: crates/rigg/src/rapport_ui.rs:376
+msgid "tekst"
+msgstr "テキスト"
+
+#: crates/rigg/src/rapport_ui.rs:378
+msgid "Kopiert som {format} ({linjer} linje)"
+msgid_plural "Kopiert som {format} ({linjer} linjer)"
+msgstr[0] "{format} としてコピーしました（{linjer} 行）"
+
+#: crates/rigg/src/rapport_ui.rs:380
+msgid "Kopiert som {format} ({linjer} linje, {merknad})"
+msgid_plural "Kopiert som {format} ({linjer} linjer, {merknad})"
+msgstr[0] "{format} としてコピーしました（{linjer} 行、{merknad}）"
+
+#: crates/rigg/src/rapport_ui.rs:492
+msgid "Kunne ikke åpne mappa"
+msgstr "フォルダーを開けませんでした"
+
+#: crates/rigg/src/rapport_ui.rs:500 crates/rigg/src/rapport_ui.rs:536
+msgid "Lagre rapport"
+msgstr "レポートを保存"
+
+#: crates/rigg/src/rapport_ui.rs:504 crates/rigg/src/rapport_ui.rs:541
+msgid "Tekst"
+msgstr "テキスト"
+
+#: crates/rigg/src/rapport_ui.rs:521
+msgid "Rapporten er lagret"
+msgstr "レポートを保存しました"
+
+#: crates/rigg/src/rapport_ui.rs:522
+msgid "{fil} · uten serienumre og UUID"
+msgstr "{fil} · シリアル番号と UUID を除く"
+
+#: crates/rigg/src/rapport_ui.rs:524
+msgid "Vis i Filer"
+msgstr "「ファイル」で表示"
+
+#: crates/rigg/src/rapport_ui.rs:527
+msgid "Kunne ikke lagre rapporten"
+msgstr "レポートを保存できませんでした"
+
+#: crates/rigg/src/rapport_ui.rs:537
+msgid "Program og versjon, operativsystem, driver, skjermkort, prosessor, hovedkort, minne, disker og alle sensorer med nå, min, maks og snitt."
+msgstr "アプリとバージョン、OS、ドライバー、GPU、CPU、マザーボード、メモリ、ドライブ、および全センサーの現在値、最小値、最大値、平均値を含みます。"
+
+#: crates/rigg/src/rapport_ui.rs:541 crates/rigg/src/rapport_ui.rs:543
+msgid "Format"
+msgstr "形式"
+
+#: crates/rigg/src/rapport_ui.rs:550
+msgid "Ta med serienumre og UUID"
+msgstr "シリアル番号と UUID を含める"
+
+#: crates/rigg/src/rapport_ui.rs:552
+msgid "Rapporten lagres bare på denne maskinen. Appen sender ingenting ut."
+msgstr "レポートはこのマシンに保存されます。アプリから送信されることはありません。"
+
+#: crates/rigg/src/rapport_ui.rs:556
+msgid "Velg fil …"
+msgstr "ファイルを選択…"
+
+#: crates/rigg/src/rapport_ui.rs:573 crates/rigg/src/rapport_ui.rs:574 crates/rigg/src/rapport_ui.rs:582
+msgid "Lagre rapport …"
+msgstr "レポートを保存…"
+
+#: crates/rigg/src/rapport_ui.rs:586
+msgid "Rapport"
+msgstr "レポート"
+
+#: crates/rigg/src/rapport_ui.rs:587
+msgid "Alt appen vet om maskinen i én fil, som tekst eller Markdown. Serienumre og UUID er ikke med, med mindre du velger det."
+msgstr "システム情報を 1 つのテキストまたは Markdown ファイルに保存します。シリアル番号と UUID は必要に応じて含められます。"

@@ -1,0 +1,23 @@
+msgid ""
+msgstr ""
+"Language: pl\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n == 1 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : 2);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/pages/system.rs:80
+msgid "Faste data er lest på nytt"
+msgstr "Odświeżono informacje o sprzęcie"
+
+#: crates/rigg/src/pages/system.rs:85
+msgid "Kunne ikke hente systeminfo"
+msgstr "Nie udało się pobrać informacji o systemie"
+
+#: crates/rigg/src/pages/system.rs:181
+msgid "{app} – System ({dato})"
+msgstr "{app} – System ({dato})"
+
+#: crates/rigg/src/pages/system.rs:182
+msgid "uten vertsnavn"
+msgstr "bez nazwy hosta"

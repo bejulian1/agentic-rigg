@@ -1,0 +1,500 @@
+msgid ""
+msgstr ""
+"Language: fr\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/pages/disker.rs:53
+msgid "nå nettopp"
+msgstr "à l’instant"
+
+#: crates/rigg/src/pages/disker.rs:55
+msgid "for {min} min siden"
+msgstr "il y a {min} min"
+
+#: crates/rigg/src/pages/disker.rs:57
+msgid "for {timer} t siden"
+msgstr "il y a {timer} h"
+
+#: crates/rigg/src/pages/disker.rs:96
+msgid "Harddisk med {rpm} o/min"
+msgstr "Disque dur à {rpm} tr/min"
+
+#: crates/rigg/src/pages/disker.rs:97
+msgid "Harddisk (plater)"
+msgstr "Disque dur à plateaux"
+
+#: crates/rigg/src/pages/disker.rs:98
+msgid "SSD på PCIe (NVMe)"
+msgstr "SSD PCIe (NVMe)"
+
+#: crates/rigg/src/pages/disker.rs:99
+msgid "SSD (ingen bevegelige deler)"
+msgstr "SSD (sans pièces mobiles)"
+
+#: crates/rigg/src/pages/disker.rs:112
+msgid "Tilkoblingen og hastigheten lenken går på nå"
+msgstr "Interface et débit actuel de la liaison"
+
+#: crates/rigg/src/pages/disker.rs:115
+msgid "{antall} byte"
+msgstr "{antall} octets"
+
+#: crates/rigg/src/pages/disker.rs:118
+msgid "System"
+msgstr "Système"
+
+#: crates/rigg/src/pages/disker.rs:118
+msgid "Operativsystemet (/) ligger på denne disken"
+msgstr "Ce disque contient le système d’exploitation (/)"
+
+#: crates/rigg/src/pages/disker.rs:121
+msgid "Kan tas ut"
+msgstr "Amovible"
+
+#: crates/rigg/src/pages/disker.rs:194
+msgid "Ukjent"
+msgstr "Inconnu"
+
+#: crates/rigg/src/pages/disker.rs:217
+msgid "Les"
+msgstr "Lecture"
+
+#: crates/rigg/src/pages/disker.rs:217
+msgid "Lesehastighet nå (/proc/diskstats)"
+msgstr "Débit de lecture actuel (/proc/diskstats)"
+
+#: crates/rigg/src/pages/disker.rs:222
+msgid "Skriv"
+msgstr "Écriture"
+
+#: crates/rigg/src/pages/disker.rs:222
+msgid "Skrivehastighet nå (/proc/diskstats)"
+msgstr "Débit d’écriture actuel (/proc/diskstats)"
+
+#: crates/rigg/src/pages/disker.rs:227
+msgctxt "andel av tiden"
+msgid "Aktiv"
+msgstr "Activité"
+
+#: crates/rigg/src/pages/disker.rs:227
+msgid "Andel av tiden disken hadde lesing eller skriving i gang"
+msgstr "Part du temps consacrée à la lecture ou à l’écriture"
+
+#: crates/rigg/src/pages/disker.rs:230
+msgid "Temp"
+msgstr "Temp."
+
+#: crates/rigg/src/pages/disker.rs:230
+msgid "Fra SMART. UDisks2 leser den omtrent hvert 10. min."
+msgstr "Valeur SMART relevée par UDisks2 environ toutes les 10 min."
+
+#: crates/rigg/src/pages/disker.rs:286
+msgid "fastvare {versjon}"
+msgstr "micrologiciel {versjon}"
+
+#: crates/rigg/src/pages/disker.rs:300
+msgid "SMART viser ingen feil."
+msgstr "SMART ne signale aucune erreur."
+
+#: crates/rigg/src/pages/disker.rs:301
+msgid "Ingen SMART å vurdere."
+msgstr "Aucune donnée SMART à analyser."
+
+#: crates/rigg/src/pages/disker.rs:307
+msgid "Helse: {status}. {tips}"
+msgstr "État de santé : {status}. {tips}"
+
+#: crates/rigg/src/pages/disker.rs:309
+msgid "{modell} {navn}, helse {status}"
+msgstr "{modell} {navn}, état de santé : {status}"
+
+#: crates/rigg/src/pages/disker.rs:382
+msgid "Disk"
+msgstr "Disque"
+
+#: crates/rigg/src/pages/disker.rs:384
+msgid "Modell"
+msgstr "Modèle"
+
+#: crates/rigg/src/pages/disker.rs:386
+msgid "Produsent"
+msgstr "Fabricant"
+
+#: crates/rigg/src/pages/disker.rs:388
+msgid "Serienummer"
+msgstr "Numéro de série"
+
+#: crates/rigg/src/pages/disker.rs:388 crates/rigg/src/pages/disker.rs:389 crates/rigg/src/pages/disker.rs:397 crates/rigg/src/pages/disker.rs:420 crates/rigg/src/pages/disker.rs:491 crates/rigg/src/pages/disker.rs:502 crates/rigg/src/pages/disker.rs:508 crates/rigg/src/pages/disker.rs:526
+msgid "Ikke oppgitt"
+msgstr "Non renseigné"
+
+#: crates/rigg/src/pages/disker.rs:389
+msgid "Fastvare"
+msgstr "Micrologiciel"
+
+#: crates/rigg/src/pages/disker.rs:395
+msgid "Kapasitet"
+msgstr "Capacité"
+
+#: crates/rigg/src/pages/disker.rs:400
+msgid "Harddisk · {rpm} o/min"
+msgstr "Disque dur · {rpm} tr/min"
+
+#: crates/rigg/src/pages/disker.rs:401
+msgid "Harddisk"
+msgstr "Disque dur"
+
+#: crates/rigg/src/pages/disker.rs:406
+msgid "Type"
+msgstr "Type"
+
+#: crates/rigg/src/pages/disker.rs:413
+msgid "Tilkobling"
+msgstr "Interface"
+
+#: crates/rigg/src/pages/disker.rs:415
+msgid "Hastigheten SATA-lenken går på nå (sysfs, ata_link)."
+msgstr "Débit actuel de la liaison SATA (sysfs, ata_link)."
+
+#: crates/rigg/src/pages/disker.rs:418
+msgid "Sektorer"
+msgstr "Secteurs"
+
+#: crates/rigg/src/pages/disker.rs:418
+msgid "{logisk} B logisk · {fysisk} B fysisk"
+msgstr "{logisk} B logiques · {fysisk} B physiques"
+
+#: crates/rigg/src/pages/disker.rs:420
+msgid "I/O-planlegger"
+msgstr "Ordonnanceur d’E/S"
+
+#: crates/rigg/src/pages/disker.rs:421
+msgid "Enhet"
+msgstr "Périphérique"
+
+#: crates/rigg/src/pages/disker.rs:429
+msgid "UDisks2 svarte ikke ({feil})."
+msgstr "UDisks2 n’a pas répondu ({feil})."
+
+#: crates/rigg/src/pages/disker.rs:432
+msgid "UDisks2 har ingen SMART for denne disken. USB-broen sender som regel ikke SMART videre."
+msgstr "UDisks2 n’a aucune donnée SMART pour ce disque. Les ponts USB ne relaient généralement pas les données SMART."
+
+#: crates/rigg/src/pages/disker.rs:433
+msgid "UDisks2 kjenner ikke disken."
+msgstr "UDisks2 ne reconnaît pas ce disque."
+
+#: crates/rigg/src/pages/disker.rs:434
+msgid "SMART kommer fra UDisks2, som ikke svarer på systembussen."
+msgstr "Les données SMART proviennent d’UDisks2, qui ne répond pas sur le bus système."
+
+#: crates/rigg/src/pages/disker.rs:435
+msgid "Disken støtter ikke SMART."
+msgstr "Ce disque ne prend pas en charge SMART."
+
+#: crates/rigg/src/pages/disker.rs:436
+msgid "SMART er slått av på disken."
+msgstr "SMART est désactivé sur ce disque."
+
+#: crates/rigg/src/pages/disker.rs:437
+msgid "UDisks2 har ikke lest SMART ennå."
+msgstr "UDisks2 n’a pas encore lu les données SMART."
+
+#: crates/rigg/src/pages/disker.rs:438
+msgid "USB-broen sender ikke SMART videre."
+msgstr "Le pont USB ne relaie pas les données SMART."
+
+#: crates/rigg/src/pages/disker.rs:439
+msgid "UDisks2 har ingen SMART for denne disken."
+msgstr "UDisks2 n’a aucune donnée SMART pour ce disque."
+
+#: crates/rigg/src/pages/disker.rs:440
+msgid "UDisks2 svarer ikke på systembussen."
+msgstr "UDisks2 ne répond pas sur le bus système."
+
+#: crates/rigg/src/pages/disker.rs:459
+msgid "simulert"
+msgstr "simulé"
+
+#: crates/rigg/src/pages/disker.rs:460
+msgid "UDisks2 leser SMART selv omtrent hvert 10. minutt og vekker ikke disker i hvile. Agentic Rigg leser bare det UDisks2 alt har, og sender aldri kommandoer til disken."
+msgstr "UDisks2 lit les données SMART environ toutes les 10 minutes sans réveiller les disques en veille. Agentic Rigg utilise les données déjà disponibles dans UDisks2 et n’envoie aucune commande au disque."
+
+#: crates/rigg/src/pages/disker.rs:471
+msgid "Ingen feil"
+msgstr "Aucune erreur"
+
+#: crates/rigg/src/pages/disker.rs:482
+msgid "Helse"
+msgstr "État de santé"
+
+#: crates/rigg/src/pages/disker.rs:486
+msgid "SMART er ikke tilgjengelig for denne disken."
+msgstr "SMART est indisponible pour ce disque."
+
+#: crates/rigg/src/pages/disker.rs:491
+msgid "Temperatur"
+msgstr "Température"
+
+#: crates/rigg/src/pages/disker.rs:494
+msgid "Kontrolleren varsler ved {varsel} og er kritisk ved {kritisk}."
+msgstr "Seuils du contrôleur : alerte à {varsel}, critique à {kritisk}."
+
+#: crates/rigg/src/pages/disker.rs:495
+msgid "Gul fra {varsel}, rød fra {kritisk} for {type_disk}."
+msgstr "Pour les {type_disk} : jaune à {varsel}, rouge à {kritisk}."
+
+#: crates/rigg/src/pages/disker.rs:495
+msgid "harddisker"
+msgstr "disques durs"
+
+#: crates/rigg/src/pages/disker.rs:495
+msgid "SSD-er"
+msgstr "SSD"
+
+#: crates/rigg/src/pages/disker.rs:500
+msgid "Driftstid"
+msgstr "Durée de fonctionnement"
+
+#: crates/rigg/src/pages/disker.rs:501
+msgid "{antall} t"
+msgstr "{antall} h"
+
+#: crates/rigg/src/pages/disker.rs:501
+msgid "{antall} døgn"
+msgstr "{antall} j"
+
+#: crates/rigg/src/pages/disker.rs:505
+msgid "Strømsykluser"
+msgstr "Cycles d’alimentation"
+
+#: crates/rigg/src/pages/disker.rs:508 crates/rigg/src/pages/disker.rs:707
+msgid "Dårlige sektorer"
+msgstr "Secteurs défectueux"
+
+#: crates/rigg/src/pages/disker.rs:509
+msgid "Omallokerte, ventende og ukorrigerbare sektorer (05, C5 og C6) til sammen."
+msgstr "Total des secteurs réalloués, en attente et incorrigibles (05, C5 et C6)."
+
+#: crates/rigg/src/pages/disker.rs:514
+msgid "Attributter som feiler"
+msgstr "Attributs en échec"
+
+#: crates/rigg/src/pages/disker.rs:516
+msgid "{na} nå · {tidligere} tidligere"
+msgstr "{na} actuellement · {tidligere} auparavant"
+
+#: crates/rigg/src/pages/disker.rs:526
+msgid "Gjenværende levetid"
+msgstr "Durée de vie restante"
+
+#: crates/rigg/src/pages/disker.rs:527
+msgid "100 % minus «Percentage Used» fra NVMe-helseloggen."
+msgstr "100 % moins « Percentage Used » dans le journal de santé NVMe."
+
+#: crates/rigg/src/pages/disker.rs:527
+msgid "Den normaliserte verdien produsenten bruker for slitasje (231, 233, 232 eller 177)."
+msgstr "Valeur d’usure normalisée définie par le fabricant (231, 233, 232 ou 177)."
+
+#: crates/rigg/src/pages/disker.rs:531
+msgid "Reservekapasitet"
+msgstr "Réserve disponible"
+
+#: crates/rigg/src/pages/disker.rs:531
+msgid "{reserve} · grense {grense}"
+msgstr "{reserve} · seuil {grense}"
+
+#: crates/rigg/src/pages/disker.rs:534
+msgid "Mediefeil"
+msgstr "Erreurs de support"
+
+#: crates/rigg/src/pages/disker.rs:537
+msgid "Usikre avslutninger"
+msgstr "Arrêts non sécurisés"
+
+#: crates/rigg/src/pages/disker.rs:537
+msgid "Strømmen ble borte før disken fikk beskjed om å slå seg av."
+msgstr "L’alimentation a été coupée avant que le disque reçoive l’ordre de s’arrêter."
+
+#: crates/rigg/src/pages/disker.rs:540
+msgid "Oppføringer i feilloggen"
+msgstr "Entrées du journal d’erreurs"
+
+#: crates/rigg/src/pages/disker.rs:544
+msgid "Skrevet totalt"
+msgstr "Total écrit"
+
+#: crates/rigg/src/pages/disker.rs:544
+msgid "{ganger} ganger diskens størrelse."
+msgstr "{ganger} fois la capacité du disque."
+
+#: crates/rigg/src/pages/disker.rs:547
+msgid "Lest totalt"
+msgstr "Total lu"
+
+#: crates/rigg/src/pages/disker.rs:550
+msgid "Pågår · {andel} igjen"
+msgstr "En cours · {andel} restant"
+
+#: crates/rigg/src/pages/disker.rs:554
+msgid "Siste selvtest"
+msgstr "Dernier autotest"
+
+#: crates/rigg/src/pages/disker.rs:555
+msgid "Lest av UDisks2"
+msgstr "Relevé par UDisks2"
+
+#: crates/rigg/src/pages/disker.rs:555
+msgid "Ikke lest ennå"
+msgstr "Pas encore lu"
+
+#: crates/rigg/src/pages/disker.rs:562
+msgid "Partisjoner"
+msgstr "Partitions"
+
+#: crates/rigg/src/pages/disker.rs:564
+msgid "Ingen partisjoner."
+msgstr "Aucune partition."
+
+#: crates/rigg/src/pages/disker.rs:572
+msgid "Partisjon"
+msgstr "Partition"
+
+#: crates/rigg/src/pages/disker.rs:572
+msgid "Montert på"
+msgstr "Monté sur"
+
+#: crates/rigg/src/pages/disker.rs:572
+msgid "Filsystem"
+msgstr "Système de fichiers"
+
+#: crates/rigg/src/pages/disker.rs:572
+msgid "Størrelse"
+msgstr "Taille"
+
+#: crates/rigg/src/pages/disker.rs:572
+msgid "Ledig"
+msgstr "Libre"
+
+#: crates/rigg/src/pages/disker.rs:572
+msgid "Brukt"
+msgstr "Utilisé"
+
+#: crates/rigg/src/pages/disker.rs:596
+msgid "Etikett: {etikett}"
+msgstr "Étiquette : {etikett}"
+
+#: crates/rigg/src/pages/disker.rs:597
+msgid "ikke montert"
+msgstr "non monté"
+
+#: crates/rigg/src/pages/disker.rs:625
+msgid "{brukt} brukt av {totalt}"
+msgstr "{brukt} utilisés sur {totalt}"
+
+#: crates/rigg/src/pages/disker.rs:637
+msgid "SMART-attributter"
+msgstr "Attributs SMART"
+
+#: crates/rigg/src/pages/disker.rs:642 crates/rigg/src/pages/disker.rs:721
+msgid "Fold sammen tabellen"
+msgstr "Réduire le tableau"
+
+#: crates/rigg/src/pages/disker.rs:642 crates/rigg/src/pages/disker.rs:721
+msgid "Vis hele SMART-tabellen"
+msgstr "Afficher le tableau SMART complet"
+
+#: crates/rigg/src/pages/disker.rs:649
+msgid "Verdi, Verste og Terskel er produsentens normaliserte tall (høyere er bedre). «Tolket» er den rå verdien i riktig enhet."
+msgstr "Valeur, Pire et Seuil sont normalisés par le fabricant (plus la valeur est élevée, mieux c’est). « Décodé » affiche la valeur brute dans l’unité appropriée."
+
+#: crates/rigg/src/pages/disker.rs:654
+msgid "Attributt"
+msgstr "Attribut"
+
+#: crates/rigg/src/pages/disker.rs:654
+msgid "Verdi"
+msgstr "Valeur"
+
+#: crates/rigg/src/pages/disker.rs:654
+msgid "Verste"
+msgstr "Pire"
+
+#: crates/rigg/src/pages/disker.rs:654
+msgid "Terskel"
+msgstr "Seuil"
+
+#: crates/rigg/src/pages/disker.rs:654
+msgid "Tolket"
+msgstr "Décodé"
+
+#: crates/rigg/src/pages/disker.rs:686
+msgid "{verdi} desimalt"
+msgstr "{verdi} en décimal"
+
+#: crates/rigg/src/pages/disker.rs:690
+msgid " · pre-fail: under terskelen betyr at disken er i ferd med å feile"
+msgstr " · pré-défaillance : une valeur sous le seuil indique une panne imminente"
+
+#: crates/rigg/src/pages/disker.rs:706
+msgid "Under terskelen nå"
+msgstr "Actuellement sous le seuil"
+
+#: crates/rigg/src/pages/disker.rs:708
+msgid "Har vært under terskelen"
+msgstr "Déjà passé sous le seuil"
+
+#: crates/rigg/src/pages/disker.rs:742
+msgid "Hastighet · {navn}"
+msgstr "Débit · {navn}"
+
+#: crates/rigg/src/pages/disker.rs:743
+msgid "Lesing"
+msgstr "Lecture"
+
+#: crates/rigg/src/pages/disker.rs:743
+msgid "Skriving"
+msgstr "Écriture"
+
+#: crates/rigg/src/pages/disker.rs:871
+msgid "Fant ingen disker"
+msgstr "Aucun disque détecté"
+
+#: crates/rigg/src/pages/disker.rs:871
+msgid "Det er ingen fysiske disker i /sys/block (loop-, ram- og dm-enheter regnes ikke med)."
+msgstr "Aucun disque physique dans /sys/block. Les périphériques loop, RAM et dm sont exclus."
+
+#: crates/rigg/src/pages/disker.rs:872
+msgid "Leser diskene …"
+msgstr "Lecture des disques…"
+
+#: crates/rigg/src/pages/disker.rs:872
+msgid "Tjenesten henter modell, SMART og partisjoner. Det tar et sekund."
+msgstr "Le service récupère les modèles, les données SMART et les partitions. Cela prend un instant."
+
+#: crates/rigg/src/pages/disker.rs:873
+msgid "Venter på tjenesten"
+msgstr "En attente du service"
+
+#: crates/rigg/src/pages/disker.rs:873
+msgid "Diskene leses av tjenesten (agentic-riggd). Siden fylles når den svarer."
+msgstr "Le service agentic-riggd lit les disques. Les données s’afficheront dès qu’il répondra."
+
+#: crates/rigg/src/pages/disker.rs:883
+msgid "SMART er ikke tilgjengelig: {grunn} Helse, temperatur og SMART-tabellen mangler derfor. Modell, hastighet og ledig plass vises likevel."
+msgstr "SMART indisponible : {grunn} L’état de santé, la température et les attributs SMART sont indisponibles. Le modèle, le débit et l’espace libre restent affichés."
+
+#: crates/rigg/src/pages/disker.rs:885
+msgid "UDisks2 svarer ikke."
+msgstr "UDisks2 ne répond pas."
+
+#: crates/rigg/src/pages/disker.rs:1078
+msgid "SMART kommer fra UDisks2, som leser den selv omtrent hvert 10. minutt uten å vekke disker i hvile. Hastighetene er fra /proc/diskstats, ledig plass fra statvfs."
+msgstr "UDisks2 lit les données SMART environ toutes les 10 minutes sans réveiller les disques en veille. Les débits proviennent de /proc/diskstats et l’espace libre de statvfs."
+
+#: crates/rigg/src/pages/disker.rs:1083 crates/rigg/src/pages/disker.rs:1084
+msgid "Hent disklista på nytt"
+msgstr "Actualiser la liste des disques"

@@ -8,6 +8,7 @@
 //! om en ny SMART-lesing eller selvtest), `/proc/diskstats` for hastighetene
 //! og sysfs, udev-databasen og `statvfs` for resten.
 
+use crate::{tr, trf, trn};
 use serde::{Deserialize, Serialize};
 
 /// Én disk i en prøve (hver runde). Rater i byte/s, aktivitet i %.
@@ -186,10 +187,10 @@ pub enum Level {
 impl Level {
     pub fn text(self) -> &'static str {
         match self {
-            Level::Unknown => "Ukjent",
-            Level::Ok => "OK",
-            Level::Warn => "Advarsel",
-            Level::Fail => "Feil",
+            Level::Unknown => tr!("Ukjent"),
+            Level::Ok => tr!("OK"),
+            Level::Warn => tr!("Advarsel"),
+            Level::Fail => tr!("Feil"),
         }
     }
 }
@@ -207,57 +208,57 @@ pub struct Health {
 /// Norske navn på de vanlige ATA-attributtene (som CrystalDiskInfo).
 pub fn attr_label(id: u8, name: &str) -> String {
     let s = match id {
-        1 => "Lesefeilrate",
-        2 => "Gjennomstrømning",
-        3 => "Oppspinningstid",
-        4 => "Start/stopp",
-        5 => "Omallokerte sektorer",
-        7 => "Søkefeilrate",
-        8 => "Søketid",
-        9 => "Driftstimer",
-        10 => "Nye oppspinningsforsøk",
-        11 => "Nye kalibreringsforsøk",
-        12 => "Strømsykluser",
-        13 => "Myke lesefeil",
-        170 => "Reserveblokker",
-        171 => "Programmeringsfeil",
-        172 => "Slettefeil",
-        173 => "Slitasjeutjevning",
-        174 => "Uventede strømbrudd",
-        175 => "Programmeringsfeil (brikke)",
-        176 => "Slettefeil (brikke)",
-        177 => "Slitasjeutjevning",
-        178 => "Brukte reserveblokker (brikke)",
-        179 => "Brukte reserveblokker",
-        180 => "Ubrukte reserveblokker",
-        181 => "Programmeringsfeil totalt",
-        182 => "Slettefeil totalt",
-        183 => "Dårlige blokker under drift",
-        184 => "Ende-til-ende-feil",
-        187 => "Rapporterte ukorrigerbare feil",
-        188 => "Tidsavbrudd for kommandoer",
-        189 => "Høye skrivehoder",
-        190 => "Luftstrømtemperatur",
-        191 => "G-sensor-feil",
-        192 => "Nødparkeringer",
-        193 => "Lastesykluser",
-        194 => "Temperatur",
-        195 => "Maskinvarekorrigerte feil",
-        196 => "Omallokeringshendelser",
-        197 => "Sektorer som venter",
-        198 => "Ukorrigerbare sektorer",
-        199 => "UDMA CRC-feil",
-        200 => "Skrivefeilrate",
-        202 => "Brukt levetid",
-        231 => "Gjenværende levetid",
-        232 => "Gjenværende utholdenhet",
-        233 => "Slitasjeindikator",
-        235 => "Andel gode blokker",
-        240 => "Flytimer for hodene",
-        241 => "Skrevet totalt",
-        242 => "Lest totalt",
-        243 => "Skrevet totalt (øvre)",
-        246 => "Skrevet totalt",
+        1 => tr!("Lesefeilrate"),
+        2 => tr!("Gjennomstrømning"),
+        3 => tr!("Oppspinningstid"),
+        4 => tr!("Start/stopp"),
+        5 => tr!("Omallokerte sektorer"),
+        7 => tr!("Søkefeilrate"),
+        8 => tr!("Søketid"),
+        9 => tr!("Driftstimer"),
+        10 => tr!("Nye oppspinningsforsøk"),
+        11 => tr!("Nye kalibreringsforsøk"),
+        12 => tr!("Strømsykluser"),
+        13 => tr!("Myke lesefeil"),
+        170 => tr!("Reserveblokker"),
+        171 => tr!("Programmeringsfeil"),
+        172 => tr!("Slettefeil"),
+        173 => tr!("Slitasjeutjevning"),
+        174 => tr!("Uventede strømbrudd"),
+        175 => tr!("Programmeringsfeil (brikke)"),
+        176 => tr!("Slettefeil (brikke)"),
+        177 => tr!("Slitasjeutjevning"),
+        178 => tr!("Brukte reserveblokker (brikke)"),
+        179 => tr!("Brukte reserveblokker"),
+        180 => tr!("Ubrukte reserveblokker"),
+        181 => tr!("Programmeringsfeil totalt"),
+        182 => tr!("Slettefeil totalt"),
+        183 => tr!("Dårlige blokker under drift"),
+        184 => tr!("Ende-til-ende-feil"),
+        187 => tr!("Rapporterte ukorrigerbare feil"),
+        188 => tr!("Tidsavbrudd for kommandoer"),
+        189 => tr!("Høye skrivehoder"),
+        190 => tr!("Luftstrømtemperatur"),
+        191 => tr!("G-sensor-feil"),
+        192 => tr!("Nødparkeringer"),
+        193 => tr!("Lastesykluser"),
+        194 => tr!("Temperatur"),
+        195 => tr!("Maskinvarekorrigerte feil"),
+        196 => tr!("Omallokeringshendelser"),
+        197 => tr!("Sektorer som venter"),
+        198 => tr!("Ukorrigerbare sektorer"),
+        199 => tr!("UDMA CRC-feil"),
+        200 => tr!("Skrivefeilrate"),
+        202 => tr!("Brukt levetid"),
+        231 => tr!("Gjenværende levetid"),
+        232 => tr!("Gjenværende utholdenhet"),
+        233 => tr!("Slitasjeindikator"),
+        235 => tr!("Andel gode blokker"),
+        240 => tr!("Flytimer for hodene"),
+        241 => tr!("Skrevet totalt"),
+        242 => tr!("Lest totalt"),
+        243 => tr!("Skrevet totalt (øvre)"),
+        246 => tr!("Skrevet totalt"),
         _ => "",
     };
     if !s.is_empty() {
@@ -265,7 +266,7 @@ pub fn attr_label(id: u8, name: &str) -> String {
     }
     // «attribute-245» → «Attributt 245»; ellers libatasmart-navnet med mellomrom.
     if name.starts_with("attribute-") || name.is_empty() {
-        return format!("Attributt {id}");
+        return trf!("Attributt {id}", id = id);
     }
     let mut t = name.replace('-', " ");
     if let Some(c) = t.get_mut(0..1) {
@@ -371,9 +372,9 @@ pub fn attr_text(a: &SmartAttr, model: &str, size: Option<f64>) -> String {
                 None => F::num(Some(a.pretty as f64), 0),
             }
         }
-        (_, 2) => F::with_unit(F::num(Some(a.pretty as f64 / 3.6e6), 0), "t"),
+        (_, 2) => trf!("{antall} t", antall = F::num(Some(a.pretty as f64 / 3.6e6), 0)),
         (_, 4) => F::temp(Some(a.pretty as f64 / 1000.0 - 273.15), 0),
-        (_, 3) => F::plural(a.pretty, "sektor", "sektorer"),
+        (_, 3) => trn!(a.pretty, "{antall} sektor", "{antall} sektorer", antall = F::num(Some((a.pretty) as f64), 0)),
         (_, 5 | 6) => F::pct(Some(a.pretty as f64), 0),
         (_, 7) => disk_bytes(a.pretty as f64 * 1e6),
         _ => F::num(Some(a.pretty as f64), 0),
@@ -436,15 +437,15 @@ pub fn health(kind: &str, s: &Smart) -> Health {
     let mut fail: Vec<String> = Vec::new();
     let mut warn: Vec<String> = Vec::new();
     if s.failing {
-        fail.push("Disken melder at den feiler (SMART-status)".into());
+        fail.push(tr!("Disken melder at den feiler (SMART-status)").into());
     }
     let failing_now: Vec<&SmartAttr> = s.attributes.iter().filter(|a| a.failing()).collect();
     for a in &failing_now {
-        let t = format!("{} er under terskelen ({} ≤ {})", attr_label(a.id, &a.name), a.value, a.threshold);
+        let t = trf!("{attributt} er under terskelen ({verdi} ≤ {terskel})", attributt = attr_label(a.id, &a.name), verdi = a.value, terskel = a.threshold);
         if a.prefail() { fail.push(t) } else { warn.push(t) }
     }
     if failing_now.is_empty() && s.attrs_failing.unwrap_or(0) > 0 {
-        fail.push(F::plural(s.attrs_failing.unwrap_or(0), "attributt under terskelen", "attributter under terskelen"));
+        fail.push(trn!(s.attrs_failing.unwrap_or(0), "{antall} attributt under terskelen", "{antall} attributter under terskelen", antall = F::num(Some((s.attrs_failing.unwrap_or(0)) as f64), 0)));
     }
     // Dårlige sektorer: summen UDisks2 regner ut (05 + C5 + C6), ellers attributtene.
     let bad = s.bad_sectors.filter(|b| *b > 0).or_else(|| {
@@ -452,49 +453,49 @@ pub fn health(kind: &str, s: &Smart) -> Health {
         (n > 0).then_some(n)
     });
     if let Some(b) = bad {
-        warn.push(F::plural(b, "dårlig sektor", "dårlige sektorer"));
+        warn.push(trn!(b, "{antall} dårlig sektor", "{antall} dårlige sektorer", antall = F::num(Some((b) as f64), 0)));
     }
     let past: Vec<&SmartAttr> = s.attributes.iter().filter(|a| !a.failing() && a.failed_past()).collect();
     if !past.is_empty() {
-        warn.push(format!("Har vært under terskelen: {}", past.iter().map(|a| attr_label(a.id, &a.name)).collect::<Vec<_>>().join(", ")));
+        warn.push(trf!("Har vært under terskelen: {attributter}", attributter = past.iter().map(|a| attr_label(a.id, &a.name)).collect::<Vec<_>>().join(", ")));
     } else if s.attrs_failed_past.unwrap_or(0) > 0 {
-        warn.push(F::plural(s.attrs_failed_past.unwrap_or(0), "attributt har vært under terskelen", "attributter har vært under terskelen"));
+        warn.push(trn!(s.attrs_failed_past.unwrap_or(0), "{antall} attributt har vært under terskelen", "{antall} attributter har vært under terskelen", antall = F::num(Some((s.attrs_failed_past.unwrap_or(0)) as f64), 0)));
     }
     if let Some(st) = s.selftest.as_deref()
         && (st == "fatal" || st.starts_with("error"))
     {
-        warn.push(format!("Siste selvtest feilet ({})", selftest_text(st).to_lowercase()));
+        warn.push(trf!("Siste selvtest feilet ({status})", status = selftest_text(st).to_lowercase()));
     }
     if let Some(l) = s.life_left {
         if l <= 3.0 {
-            fail.push(format!("{} levetid igjen", F::pct(Some(l), 0)));
+            fail.push(trf!("{andel} levetid igjen", andel = F::pct(Some(l), 0)));
         } else if l <= 10.0 {
-            warn.push(format!("{} levetid igjen", F::pct(Some(l), 0)));
+            warn.push(trf!("{andel} levetid igjen", andel = F::pct(Some(l), 0)));
         }
     }
     if let Some(t) = s.temp {
         let (w, f) = temp_limits(kind);
         if t >= f {
-            fail.push(format!("{} er for varmt", F::temp(Some(t), 0)));
+            fail.push(trf!("{temperatur} er for varmt", temperatur = F::temp(Some(t), 0)));
         } else if t >= w {
-            warn.push(format!("{} er varmt", F::temp(Some(t), 0)));
+            warn.push(trf!("{temperatur} er varmt", temperatur = F::temp(Some(t), 0)));
         }
     }
     if let Some(n) = &s.nvme {
         for w in &n.critical_warning {
             let (t, hard) = match w.as_str() {
-                "spare" => ("Lite reservekapasitet igjen", true),
-                "temperature" => ("Over temperaturgrensen", false),
-                "degraded" => ("Påliteligheten er redusert", true),
-                "readonly" => ("Disken er satt skrivebeskyttet", true),
-                "volatile_mem" => ("Reservestrømmen for hurtigminnet har feilet", false),
-                "pmr_readonly" => ("PMR er skrivebeskyttet", false),
-                _ => ("Kritisk advarsel fra kontrolleren", false),
+                "spare" => (tr!("Lite reservekapasitet igjen"), true),
+                "temperature" => (tr!("Over temperaturgrensen"), false),
+                "degraded" => (tr!("Påliteligheten er redusert"), true),
+                "readonly" => (tr!("Disken er satt skrivebeskyttet"), true),
+                "volatile_mem" => (tr!("Reservestrømmen for hurtigminnet har feilet"), false),
+                "pmr_readonly" => (tr!("PMR er skrivebeskyttet"), false),
+                _ => (tr!("Kritisk advarsel fra kontrolleren"), false),
             };
             if hard { fail.push(t.into()) } else { warn.push(t.into()) }
         }
         if let Some(m) = n.media_errors.filter(|m| *m > 0.0) {
-            warn.push(F::plural(m as i64, "mediefeil", "mediefeil"));
+            warn.push(trn!(m as i64, "{antall} mediefeil", "{antall} mediefeil", antall = F::num(Some((m as i64) as f64), 0)));
         }
     }
     let level = if !fail.is_empty() {
@@ -511,17 +512,17 @@ pub fn health(kind: &str, s: &Smart) -> Health {
 /// UDisks2-statusen for siste selvtest på norsk.
 pub fn selftest_text(s: &str) -> String {
     match s {
-        "success" => "Fullført uten feil",
-        "inprogress" => "Pågår",
-        "aborted" => "Avbrutt",
-        "interrupted" => "Avbrutt (tilbakestilt)",
-        "fatal" => "Feilet",
-        "error_unknown" => "Feilet (ukjent del)",
-        "error_electrical" => "Feilet (elektrisk)",
-        "error_servo" => "Feilet (servo)",
-        "error_read" => "Feilet (lesing)",
-        "error_handling" => "Feilet (håndtering)",
-        "" => "Aldri kjørt",
+        "success" => tr!("Fullført uten feil"),
+        "inprogress" => tr!("Pågår"),
+        "aborted" => tr!("Avbrutt"),
+        "interrupted" => tr!("Avbrutt (tilbakestilt)"),
+        "fatal" => tr!("Feilet"),
+        "error_unknown" => tr!("Feilet (ukjent del)"),
+        "error_electrical" => tr!("Feilet (elektrisk)"),
+        "error_servo" => tr!("Feilet (servo)"),
+        "error_read" => tr!("Feilet (lesing)"),
+        "error_handling" => tr!("Feilet (håndtering)"),
+        "" => tr!("Aldri kjørt"),
         other => other,
     }
     .to_string()

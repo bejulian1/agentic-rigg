@@ -1,0 +1,500 @@
+msgid ""
+msgstr ""
+"Language: ja\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/pages/disker.rs:53
+msgid "nå nettopp"
+msgstr "たった今"
+
+#: crates/rigg/src/pages/disker.rs:55
+msgid "for {min} min siden"
+msgstr "{min} 分前"
+
+#: crates/rigg/src/pages/disker.rs:57
+msgid "for {timer} t siden"
+msgstr "{timer} 時間前"
+
+#: crates/rigg/src/pages/disker.rs:96
+msgid "Harddisk med {rpm} o/min"
+msgstr "ハードディスク、{rpm} rpm"
+
+#: crates/rigg/src/pages/disker.rs:97
+msgid "Harddisk (plater)"
+msgstr "ハードディスク（磁気ディスク）"
+
+#: crates/rigg/src/pages/disker.rs:98
+msgid "SSD på PCIe (NVMe)"
+msgstr "PCIe SSD（NVMe）"
+
+#: crates/rigg/src/pages/disker.rs:99
+msgid "SSD (ingen bevegelige deler)"
+msgstr "SSD（可動部品なし）"
+
+#: crates/rigg/src/pages/disker.rs:112
+msgid "Tilkoblingen og hastigheten lenken går på nå"
+msgstr "インターフェースと現在のリンク速度"
+
+#: crates/rigg/src/pages/disker.rs:115
+msgid "{antall} byte"
+msgstr "{antall} バイト"
+
+#: crates/rigg/src/pages/disker.rs:118
+msgid "System"
+msgstr "システム"
+
+#: crates/rigg/src/pages/disker.rs:118
+msgid "Operativsystemet (/) ligger på denne disken"
+msgstr "このドライブにオペレーティングシステム（/）があります"
+
+#: crates/rigg/src/pages/disker.rs:121
+msgid "Kan tas ut"
+msgstr "取り外し可能"
+
+#: crates/rigg/src/pages/disker.rs:194
+msgid "Ukjent"
+msgstr "不明"
+
+#: crates/rigg/src/pages/disker.rs:217
+msgid "Les"
+msgstr "読み取り"
+
+#: crates/rigg/src/pages/disker.rs:217
+msgid "Lesehastighet nå (/proc/diskstats)"
+msgstr "現在の読み取り速度（/proc/diskstats）"
+
+#: crates/rigg/src/pages/disker.rs:222
+msgid "Skriv"
+msgstr "書き込み"
+
+#: crates/rigg/src/pages/disker.rs:222
+msgid "Skrivehastighet nå (/proc/diskstats)"
+msgstr "現在の書き込み速度（/proc/diskstats）"
+
+#: crates/rigg/src/pages/disker.rs:227
+msgctxt "andel av tiden"
+msgid "Aktiv"
+msgstr "アクティブ時間"
+
+#: crates/rigg/src/pages/disker.rs:227
+msgid "Andel av tiden disken hadde lesing eller skriving i gang"
+msgstr "ドライブが読み取りまたは書き込みを行っていた時間の割合"
+
+#: crates/rigg/src/pages/disker.rs:230
+msgid "Temp"
+msgstr "温度"
+
+#: crates/rigg/src/pages/disker.rs:230
+msgid "Fra SMART. UDisks2 leser den omtrent hvert 10. min."
+msgstr "SMART の値です。UDisks2 が約 10 分ごとに読み取ります。"
+
+#: crates/rigg/src/pages/disker.rs:286
+msgid "fastvare {versjon}"
+msgstr "ファームウェア {versjon}"
+
+#: crates/rigg/src/pages/disker.rs:300
+msgid "SMART viser ingen feil."
+msgstr "SMART によるエラー報告はありません。"
+
+#: crates/rigg/src/pages/disker.rs:301
+msgid "Ingen SMART å vurdere."
+msgstr "評価できる SMART データがありません。"
+
+#: crates/rigg/src/pages/disker.rs:307
+msgid "Helse: {status}. {tips}"
+msgstr "健康状態：{status}。{tips}"
+
+#: crates/rigg/src/pages/disker.rs:309
+msgid "{modell} {navn}, helse {status}"
+msgstr "{modell} {navn}、健康状態：{status}"
+
+#: crates/rigg/src/pages/disker.rs:382
+msgid "Disk"
+msgstr "ドライブ"
+
+#: crates/rigg/src/pages/disker.rs:384
+msgid "Modell"
+msgstr "モデル"
+
+#: crates/rigg/src/pages/disker.rs:386
+msgid "Produsent"
+msgstr "メーカー"
+
+#: crates/rigg/src/pages/disker.rs:388
+msgid "Serienummer"
+msgstr "シリアル番号"
+
+#: crates/rigg/src/pages/disker.rs:388 crates/rigg/src/pages/disker.rs:389 crates/rigg/src/pages/disker.rs:397 crates/rigg/src/pages/disker.rs:420 crates/rigg/src/pages/disker.rs:491 crates/rigg/src/pages/disker.rs:502 crates/rigg/src/pages/disker.rs:508 crates/rigg/src/pages/disker.rs:526
+msgid "Ikke oppgitt"
+msgstr "情報なし"
+
+#: crates/rigg/src/pages/disker.rs:389
+msgid "Fastvare"
+msgstr "ファームウェア"
+
+#: crates/rigg/src/pages/disker.rs:395
+msgid "Kapasitet"
+msgstr "容量"
+
+#: crates/rigg/src/pages/disker.rs:400
+msgid "Harddisk · {rpm} o/min"
+msgstr "ハードディスク · {rpm} rpm"
+
+#: crates/rigg/src/pages/disker.rs:401
+msgid "Harddisk"
+msgstr "ハードディスク"
+
+#: crates/rigg/src/pages/disker.rs:406
+msgid "Type"
+msgstr "種類"
+
+#: crates/rigg/src/pages/disker.rs:413
+msgid "Tilkobling"
+msgstr "インターフェース"
+
+#: crates/rigg/src/pages/disker.rs:415
+msgid "Hastigheten SATA-lenken går på nå (sysfs, ata_link)."
+msgstr "現在の SATA リンク速度（sysfs、ata_link）。"
+
+#: crates/rigg/src/pages/disker.rs:418
+msgid "Sektorer"
+msgstr "セクター"
+
+#: crates/rigg/src/pages/disker.rs:418
+msgid "{logisk} B logisk · {fysisk} B fysisk"
+msgstr "論理 {logisk} B · 物理 {fysisk} B"
+
+#: crates/rigg/src/pages/disker.rs:420
+msgid "I/O-planlegger"
+msgstr "I/O スケジューラー"
+
+#: crates/rigg/src/pages/disker.rs:421
+msgid "Enhet"
+msgstr "デバイス"
+
+#: crates/rigg/src/pages/disker.rs:429
+msgid "UDisks2 svarte ikke ({feil})."
+msgstr "UDisks2 から応答がありませんでした（{feil}）。"
+
+#: crates/rigg/src/pages/disker.rs:432
+msgid "UDisks2 har ingen SMART for denne disken. USB-broen sender som regel ikke SMART videre."
+msgstr "UDisks2 にこのドライブの SMART データがありません。通常、USB ブリッジは SMART データを転送しません。"
+
+#: crates/rigg/src/pages/disker.rs:433
+msgid "UDisks2 kjenner ikke disken."
+msgstr "UDisks2 がこのドライブを認識していません。"
+
+#: crates/rigg/src/pages/disker.rs:434
+msgid "SMART kommer fra UDisks2, som ikke svarer på systembussen."
+msgstr "SMART データの取得元である UDisks2 がシステムバスで応答していません。"
+
+#: crates/rigg/src/pages/disker.rs:435
+msgid "Disken støtter ikke SMART."
+msgstr "このドライブは SMART に対応していません。"
+
+#: crates/rigg/src/pages/disker.rs:436
+msgid "SMART er slått av på disken."
+msgstr "このドライブでは SMART が無効です。"
+
+#: crates/rigg/src/pages/disker.rs:437
+msgid "UDisks2 har ikke lest SMART ennå."
+msgstr "UDisks2 はまだ SMART データを読み取っていません。"
+
+#: crates/rigg/src/pages/disker.rs:438
+msgid "USB-broen sender ikke SMART videre."
+msgstr "USB ブリッジが SMART データを転送しません。"
+
+#: crates/rigg/src/pages/disker.rs:439
+msgid "UDisks2 har ingen SMART for denne disken."
+msgstr "UDisks2 にこのドライブの SMART データがありません。"
+
+#: crates/rigg/src/pages/disker.rs:440
+msgid "UDisks2 svarer ikke på systembussen."
+msgstr "UDisks2 がシステムバスで応答していません。"
+
+#: crates/rigg/src/pages/disker.rs:459
+msgid "simulert"
+msgstr "シミュレーション"
+
+#: crates/rigg/src/pages/disker.rs:460
+msgid "UDisks2 leser SMART selv omtrent hvert 10. minutt og vekker ikke disker i hvile. Agentic Rigg leser bare det UDisks2 alt har, og sender aldri kommandoer til disken."
+msgstr "UDisks2 はスリープ中のドライブを起動せず、約 10 分ごとに SMART を読み取ります。Agentic Rigg は UDisks2 にあるデータのみを使い、ドライブにコマンドは送信しません。"
+
+#: crates/rigg/src/pages/disker.rs:471
+msgid "Ingen feil"
+msgstr "エラーなし"
+
+#: crates/rigg/src/pages/disker.rs:482
+msgid "Helse"
+msgstr "健康状態"
+
+#: crates/rigg/src/pages/disker.rs:486
+msgid "SMART er ikke tilgjengelig for denne disken."
+msgstr "このドライブの SMART データを取得できません。"
+
+#: crates/rigg/src/pages/disker.rs:491
+msgid "Temperatur"
+msgstr "温度"
+
+#: crates/rigg/src/pages/disker.rs:494
+msgid "Kontrolleren varsler ved {varsel} og er kritisk ved {kritisk}."
+msgstr "コントローラーのしきい値：警告 {varsel}、危険 {kritisk}。"
+
+#: crates/rigg/src/pages/disker.rs:495
+msgid "Gul fra {varsel}, rød fra {kritisk} for {type_disk}."
+msgstr "{type_disk}：{varsel} から黄色、{kritisk} から赤色。"
+
+#: crates/rigg/src/pages/disker.rs:495
+msgid "harddisker"
+msgstr "ハードディスク"
+
+#: crates/rigg/src/pages/disker.rs:495
+msgid "SSD-er"
+msgstr "SSD"
+
+#: crates/rigg/src/pages/disker.rs:500
+msgid "Driftstid"
+msgstr "通電時間"
+
+#: crates/rigg/src/pages/disker.rs:501
+msgid "{antall} t"
+msgstr "{antall} 時間"
+
+#: crates/rigg/src/pages/disker.rs:501
+msgid "{antall} døgn"
+msgstr "{antall} 日"
+
+#: crates/rigg/src/pages/disker.rs:505
+msgid "Strømsykluser"
+msgstr "電源投入回数"
+
+#: crates/rigg/src/pages/disker.rs:508 crates/rigg/src/pages/disker.rs:707
+msgid "Dårlige sektorer"
+msgstr "不良セクター"
+
+#: crates/rigg/src/pages/disker.rs:509
+msgid "Omallokerte, ventende og ukorrigerbare sektorer (05, C5 og C6) til sammen."
+msgstr "代替処理済み、処理保留中、訂正不能の各セクターの合計（05、C5、C6）。"
+
+#: crates/rigg/src/pages/disker.rs:514
+msgid "Attributter som feiler"
+msgstr "異常のある属性"
+
+#: crates/rigg/src/pages/disker.rs:516
+msgid "{na} nå · {tidligere} tidligere"
+msgstr "現在 {na} · 過去 {tidligere}"
+
+#: crates/rigg/src/pages/disker.rs:526
+msgid "Gjenværende levetid"
+msgstr "残り寿命"
+
+#: crates/rigg/src/pages/disker.rs:527
+msgid "100 % minus «Percentage Used» fra NVMe-helseloggen."
+msgstr "100% から NVMe ヘルスログの「Percentage Used」を引いた値。"
+
+#: crates/rigg/src/pages/disker.rs:527
+msgid "Den normaliserte verdien produsenten bruker for slitasje (231, 233, 232 eller 177)."
+msgstr "メーカーが定義した正規化済みの消耗度（231、233、232、177 のいずれか）。"
+
+#: crates/rigg/src/pages/disker.rs:531
+msgid "Reservekapasitet"
+msgstr "利用可能な予備領域"
+
+#: crates/rigg/src/pages/disker.rs:531
+msgid "{reserve} · grense {grense}"
+msgstr "{reserve} · しきい値 {grense}"
+
+#: crates/rigg/src/pages/disker.rs:534
+msgid "Mediefeil"
+msgstr "メディアエラー"
+
+#: crates/rigg/src/pages/disker.rs:537
+msgid "Usikre avslutninger"
+msgstr "安全でないシャットダウン"
+
+#: crates/rigg/src/pages/disker.rs:537
+msgid "Strømmen ble borte før disken fikk beskjed om å slå seg av."
+msgstr "ドライブがシャットダウン命令を受け取る前に電源が切れました。"
+
+#: crates/rigg/src/pages/disker.rs:540
+msgid "Oppføringer i feilloggen"
+msgstr "エラーログの項目数"
+
+#: crates/rigg/src/pages/disker.rs:544
+msgid "Skrevet totalt"
+msgstr "総書き込み量"
+
+#: crates/rigg/src/pages/disker.rs:544
+msgid "{ganger} ganger diskens størrelse."
+msgstr "ドライブ容量の {ganger} 倍。"
+
+#: crates/rigg/src/pages/disker.rs:547
+msgid "Lest totalt"
+msgstr "総読み取り量"
+
+#: crates/rigg/src/pages/disker.rs:550
+msgid "Pågår · {andel} igjen"
+msgstr "実行中 · 残り {andel}"
+
+#: crates/rigg/src/pages/disker.rs:554
+msgid "Siste selvtest"
+msgstr "前回のセルフテスト"
+
+#: crates/rigg/src/pages/disker.rs:555
+msgid "Lest av UDisks2"
+msgstr "UDisks2 の読み取り"
+
+#: crates/rigg/src/pages/disker.rs:555
+msgid "Ikke lest ennå"
+msgstr "未読み取り"
+
+#: crates/rigg/src/pages/disker.rs:562
+msgid "Partisjoner"
+msgstr "パーティション"
+
+#: crates/rigg/src/pages/disker.rs:564
+msgid "Ingen partisjoner."
+msgstr "パーティションがありません。"
+
+#: crates/rigg/src/pages/disker.rs:572
+msgid "Partisjon"
+msgstr "パーティション"
+
+#: crates/rigg/src/pages/disker.rs:572
+msgid "Montert på"
+msgstr "マウント先"
+
+#: crates/rigg/src/pages/disker.rs:572
+msgid "Filsystem"
+msgstr "ファイルシステム"
+
+#: crates/rigg/src/pages/disker.rs:572
+msgid "Størrelse"
+msgstr "サイズ"
+
+#: crates/rigg/src/pages/disker.rs:572
+msgid "Ledig"
+msgstr "空き"
+
+#: crates/rigg/src/pages/disker.rs:572
+msgid "Brukt"
+msgstr "使用済み"
+
+#: crates/rigg/src/pages/disker.rs:596
+msgid "Etikett: {etikett}"
+msgstr "ラベル：{etikett}"
+
+#: crates/rigg/src/pages/disker.rs:597
+msgid "ikke montert"
+msgstr "未マウント"
+
+#: crates/rigg/src/pages/disker.rs:625
+msgid "{brukt} brukt av {totalt}"
+msgstr "{totalt} 中 {brukt} を使用"
+
+#: crates/rigg/src/pages/disker.rs:637
+msgid "SMART-attributter"
+msgstr "SMART 属性"
+
+#: crates/rigg/src/pages/disker.rs:642 crates/rigg/src/pages/disker.rs:721
+msgid "Fold sammen tabellen"
+msgstr "表を折りたたむ"
+
+#: crates/rigg/src/pages/disker.rs:642 crates/rigg/src/pages/disker.rs:721
+msgid "Vis hele SMART-tabellen"
+msgstr "SMART テーブルをすべて表示"
+
+#: crates/rigg/src/pages/disker.rs:649
+msgid "Verdi, Verste og Terskel er produsentens normaliserte tall (høyere er bedre). «Tolket» er den rå verdien i riktig enhet."
+msgstr "現在値、最悪値、しきい値はメーカーが正規化した数値です（高いほど良好）。「換算値」は生の値を適切な単位に換算したものです。"
+
+#: crates/rigg/src/pages/disker.rs:654
+msgid "Attributt"
+msgstr "属性"
+
+#: crates/rigg/src/pages/disker.rs:654
+msgid "Verdi"
+msgstr "現在値"
+
+#: crates/rigg/src/pages/disker.rs:654
+msgid "Verste"
+msgstr "最悪値"
+
+#: crates/rigg/src/pages/disker.rs:654
+msgid "Terskel"
+msgstr "しきい値"
+
+#: crates/rigg/src/pages/disker.rs:654
+msgid "Tolket"
+msgstr "換算値"
+
+#: crates/rigg/src/pages/disker.rs:686
+msgid "{verdi} desimalt"
+msgstr "10 進数で {verdi}"
+
+#: crates/rigg/src/pages/disker.rs:690
+msgid " · pre-fail: under terskelen betyr at disken er i ferd med å feile"
+msgstr " · 故障予兆：しきい値を下回るとドライブの故障が迫っています"
+
+#: crates/rigg/src/pages/disker.rs:706
+msgid "Under terskelen nå"
+msgstr "現在しきい値を下回っています"
+
+#: crates/rigg/src/pages/disker.rs:708
+msgid "Har vært under terskelen"
+msgstr "過去にしきい値を下回りました"
+
+#: crates/rigg/src/pages/disker.rs:742
+msgid "Hastighet · {navn}"
+msgstr "転送速度 · {navn}"
+
+#: crates/rigg/src/pages/disker.rs:743
+msgid "Lesing"
+msgstr "読み取り"
+
+#: crates/rigg/src/pages/disker.rs:743
+msgid "Skriving"
+msgstr "書き込み"
+
+#: crates/rigg/src/pages/disker.rs:871
+msgid "Fant ingen disker"
+msgstr "ドライブが見つかりません"
+
+#: crates/rigg/src/pages/disker.rs:871
+msgid "Det er ingen fysiske disker i /sys/block (loop-, ram- og dm-enheter regnes ikke med)."
+msgstr "/sys/block に物理ドライブがありません。loop、RAM、dm デバイスは対象外です。"
+
+#: crates/rigg/src/pages/disker.rs:872
+msgid "Leser diskene …"
+msgstr "ドライブを読み取り中…"
+
+#: crates/rigg/src/pages/disker.rs:872
+msgid "Tjenesten henter modell, SMART og partisjoner. Det tar et sekund."
+msgstr "サービスがモデル、SMART データ、パーティションを読み取っています。少しお待ちください。"
+
+#: crates/rigg/src/pages/disker.rs:873
+msgid "Venter på tjenesten"
+msgstr "サービスの応答待ち"
+
+#: crates/rigg/src/pages/disker.rs:873
+msgid "Diskene leses av tjenesten (agentic-riggd). Siden fylles når den svarer."
+msgstr "agentic-riggd サービスがドライブを読み取ります。応答があり次第、データを表示します。"
+
+#: crates/rigg/src/pages/disker.rs:883
+msgid "SMART er ikke tilgjengelig: {grunn} Helse, temperatur og SMART-tabellen mangler derfor. Modell, hastighet og ledig plass vises likevel."
+msgstr "SMART を取得できません：{grunn} 健康状態、温度、SMART 属性は表示されません。モデル、速度、空き容量は引き続き確認できます。"
+
+#: crates/rigg/src/pages/disker.rs:885
+msgid "UDisks2 svarer ikke."
+msgstr "UDisks2 から応答がありません。"
+
+#: crates/rigg/src/pages/disker.rs:1078
+msgid "SMART kommer fra UDisks2, som leser den selv omtrent hvert 10. minutt uten å vekke disker i hvile. Hastighetene er fra /proc/diskstats, ledig plass fra statvfs."
+msgstr "UDisks2 はスリープ中のドライブを起動せず、約 10 分ごとに SMART を読み取ります。速度は /proc/diskstats、空き容量は statvfs から取得します。"
+
+#: crates/rigg/src/pages/disker.rs:1083 crates/rigg/src/pages/disker.rs:1084
+msgid "Hent disklista på nytt"
+msgstr "ドライブ一覧を更新"

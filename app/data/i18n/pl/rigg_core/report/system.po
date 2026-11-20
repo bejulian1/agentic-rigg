@@ -1,0 +1,225 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n == 1 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : 2);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg-core/src/report/system.rs:111
+msgid "Bygg #{nummer}"
+msgstr "Kompilacja nr {nummer}"
+
+#: crates/rigg-core/src/report/system.rs:135
+msgid "Ubuntu-økt"
+msgstr "Sesja Ubuntu"
+
+#: crates/rigg-core/src/report/system.rs:136
+msgid "Pop-økt"
+msgstr "Sesja Pop"
+
+#: crates/rigg-core/src/report/system.rs:137
+msgid "Zorin-økt"
+msgstr "Sesja Zorin"
+
+#: crates/rigg-core/src/report/system.rs:138
+msgid "{navn}-økt"
+msgstr "Sesja {navn}"
+
+#: crates/rigg-core/src/report/system.rs:311
+msgid "Hovedkort og BIOS"
+msgstr "Płyta główna i BIOS"
+
+#: crates/rigg-core/src/report/system.rs:313
+msgid "Produsent"
+msgstr "Producent"
+
+#: crates/rigg-core/src/report/system.rs:313 crates/rigg-core/src/report/system.rs:314 crates/rigg-core/src/report/system.rs:315 crates/rigg-core/src/report/system.rs:318 crates/rigg-core/src/report/system.rs:321 crates/rigg-core/src/report/system.rs:322 crates/rigg-core/src/report/system.rs:323 crates/rigg-core/src/report/system.rs:324
+msgid "Ikke oppgitt"
+msgstr "Brak danych"
+
+#: crates/rigg-core/src/report/system.rs:314
+msgid "Modell"
+msgstr "Model"
+
+#: crates/rigg-core/src/report/system.rs:315
+msgid "Versjon"
+msgstr "Wersja"
+
+#: crates/rigg-core/src/report/system.rs:317
+msgid "Brikkesett"
+msgstr "Chipset"
+
+#: crates/rigg-core/src/report/system.rs:319
+msgid "Slått opp i pci.ids fra {id}."
+msgstr "Rozpoznano w pci.ids na podstawie {id}."
+
+#: crates/rigg-core/src/report/system.rs:321
+msgid "System"
+msgstr "System"
+
+#: crates/rigg-core/src/report/system.rs:322
+msgid "Utgave {versjon}"
+msgstr "Wydanie {versjon}"
+
+#: crates/rigg-core/src/report/system.rs:323
+msgid "BIOS-dato"
+msgstr "Data BIOS-u"
+
+#: crates/rigg-core/src/report/system.rs:323
+msgid "Rå verdi: {dato}"
+msgstr "Wartość surowa: {dato}"
+
+#: crates/rigg-core/src/report/system.rs:324
+msgid "Kabinett"
+msgstr "Obudowa"
+
+#: crates/rigg-core/src/report/system.rs:325
+msgid "Serienumre"
+msgstr "Numery seryjne"
+
+#: crates/rigg-core/src/report/system.rs:325
+msgid "Leses ikke (krever root)"
+msgstr "Nie odczytano (wymaga roota)"
+
+#: crates/rigg-core/src/report/system.rs:325
+msgid "Serienummerfilene i /sys/class/dmi/id er bare lesbare for root. Appen åpner dem ikke."
+msgstr "Tylko root może odczytać pliki numerów seryjnych w /sys/class/dmi/id. Aplikacja ich nie otwiera."
+
+#: crates/rigg-core/src/report/system.rs:329
+msgid "Minne"
+msgstr "Pamięć"
+
+#: crates/rigg-core/src/report/system.rs:332
+msgid "Totalt"
+msgstr "Łącznie"
+
+#: crates/rigg-core/src/report/system.rs:332
+msgid "Det kjernen kan bruke. Resten av modulene er reservert av fastvaren og kjernen."
+msgstr "Pamięć, z której może korzystać jądro. Pozostałą pamięć zajmują rezerwacje oprogramowania układowego i jądra."
+
+#: crates/rigg-core/src/report/system.rs:335
+msgid "Brukt"
+msgstr "Użyte"
+
+#: crates/rigg-core/src/report/system.rs:338
+msgid "Tilgjengelig"
+msgstr "Dostępna"
+
+#: crates/rigg-core/src/report/system.rs:346
+msgid "Buffer og cache"
+msgstr "Bufory i pamięć podręczna"
+
+#: crates/rigg-core/src/report/system.rs:346
+msgid "Buffer, cache og frigjørbar slab, uten delt minne (Shmem, tmpfs: {minne}). Delt minne kan ikke frigjøres og er regnet med i Brukt."
+msgstr "Bufory, pamięć podręczna i odzyskiwalny slab bez pamięci współdzielonej (Shmem, tmpfs: {minne}). Pamięci współdzielonej nie można odzyskać i jest zaliczana do zajętej."
+
+#: crates/rigg-core/src/report/system.rs:349
+msgid "Swap"
+msgstr "Przestrzeń wymiany"
+
+#: crates/rigg-core/src/report/system.rs:351
+msgid "Ingen swap"
+msgstr "Brak przestrzeni wymiany"
+
+#: crates/rigg-core/src/report/system.rs:352
+msgid "{brukt} av {totalt}"
+msgstr "{brukt} z {totalt}"
+
+#: crates/rigg-core/src/report/system.rs:359
+msgid "{antall} SPD-brikker er funnet ({driver}). Produsent, delenummer og timingene modulene støtter, kan leses derfra uten root, men lesingen er I2C-trafikk på hovedkortets SMBus, og den er ikke slått på. Hastigheten minnet faktisk går på, og timingene BIOS har satt, krever root."
+msgstr "Wykryte układy SPD: {antall} ({driver}). Producenta, numer części i obsługiwane timingi można odczytać bez roota, ale wymagany dostęp I2C do magistrali SMBus płyty głównej jest wyłączony. Bieżąca szybkość pamięci i timingi ustawione w BIOS-ie wymagają roota."
+
+#: crates/rigg-core/src/report/system.rs:365
+msgid "Moduler, hastighet og timinger ligger i SMBIOS-tabellen og i registrene i minnekontrolleren, som bare root kan lese."
+msgstr "Dane modułów, szybkość i timingi znajdują się w tabeli SMBIOS i rejestrach kontrolera pamięci. Odczyt wymaga roota."
+
+#: crates/rigg-core/src/report/system.rs:367
+msgid "Moduler og timinger"
+msgstr "Moduły i timingi"
+
+#: crates/rigg-core/src/report/system.rs:367
+msgid "Krever godkjenning"
+msgstr "Wymaga zgody"
+
+#: crates/rigg-core/src/report/system.rs:367
+msgid "Krever root"
+msgstr "Wymaga roota"
+
+#: crates/rigg-core/src/report/system.rs:371
+msgid "Operativsystem"
+msgstr "System operacyjny"
+
+#: crates/rigg-core/src/report/system.rs:372
+msgid "Distribusjon"
+msgstr "Dystrybucja"
+
+#: crates/rigg-core/src/report/system.rs:373
+msgid "Kjerne"
+msgstr "Jądro"
+
+#: crates/rigg-core/src/report/system.rs:374
+msgid "Kjernebygg"
+msgstr "Kompilacja jądra"
+
+#: crates/rigg-core/src/report/system.rs:374
+msgid "{bygg}\nPREEMPT_DYNAMIC: hvor ofte kjernen kan avbryte seg selv, velges ved oppstart."
+msgstr "{bygg}\nPREEMPT_DYNAMIC: tryb wywłaszczania jądra jest wybierany przy rozruchu."
+
+#: crates/rigg-core/src/report/system.rs:375
+msgid "Arkitektur"
+msgstr "Architektura"
+
+#: crates/rigg-core/src/report/system.rs:380
+msgid "Skrivebord"
+msgstr "Pulpit"
+
+#: crates/rigg-core/src/report/system.rs:384 crates/rigg-core/src/report/system.rs:386
+msgid "Vertsnavn"
+msgstr "Nazwa hosta"
+
+#: crates/rigg-core/src/report/system.rs:386
+msgid "Ikke tatt med"
+msgstr "Pominięto"
+
+#: crates/rigg-core/src/report/system.rs:388
+msgid "Oppetid"
+msgstr "Czas działania"
+
+#: crates/rigg-core/src/report/system.rs:390
+msgid "Last (1 / 5 / 15 min)"
+msgstr "Średnie obciążenie (1 / 5 / 15 min)"
+
+#: crates/rigg-core/src/report/system.rs:391
+msgid "Gjennomsnittlig antall prosesser som kjører eller venter. Over antall tråder betyr kø."
+msgstr "Średnia liczba procesów działających lub oczekujących. Wartość powyżej liczby wątków wskazuje na kolejkę."
+
+#: crates/rigg-core/src/report/system.rs:397
+msgid "Kontrollere"
+msgstr "Kontrolery"
+
+#: crates/rigg-core/src/report/system.rs:400
+msgid "Type"
+msgstr "Typ"
+
+#: crates/rigg-core/src/report/system.rs:400
+msgid "Enhet"
+msgstr "Urządzenie"
+
+#: crates/rigg-core/src/report/system.rs:400
+msgid "Driver"
+msgstr "Sterownik"
+
+#: crates/rigg-core/src/report/system.rs:408
+msgid "Trådløst nett"
+msgstr "Sieć bezprzewodowa"
+
+#: crates/rigg-core/src/report/system.rs:409
+msgid "Lyd"
+msgstr "Dźwięk"
+
+#: crates/rigg-core/src/report/system.rs:413
+msgid "ingen"
+msgstr "brak"

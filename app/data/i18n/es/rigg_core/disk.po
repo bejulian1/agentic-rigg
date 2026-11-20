@@ -1,0 +1,359 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg-core/src/disk.rs:190
+msgid "Ukjent"
+msgstr "Desconocido"
+
+#: crates/rigg-core/src/disk.rs:191
+msgid "OK"
+msgstr "Correcto"
+
+#: crates/rigg-core/src/disk.rs:192
+msgid "Advarsel"
+msgstr "Aviso"
+
+#: crates/rigg-core/src/disk.rs:193
+msgid "Feil"
+msgstr "Fallo"
+
+#: crates/rigg-core/src/disk.rs:211
+msgid "Lesefeilrate"
+msgstr "Tasa de errores de lectura"
+
+#: crates/rigg-core/src/disk.rs:212
+msgid "Gjennomstrømning"
+msgstr "Rendimiento de transferencia"
+
+#: crates/rigg-core/src/disk.rs:213
+msgid "Oppspinningstid"
+msgstr "Tiempo de arranque del motor"
+
+#: crates/rigg-core/src/disk.rs:214
+msgid "Start/stopp"
+msgstr "Ciclos de arranque/parada"
+
+#: crates/rigg-core/src/disk.rs:215
+msgid "Omallokerte sektorer"
+msgstr "Sectores reasignados"
+
+#: crates/rigg-core/src/disk.rs:216
+msgid "Søkefeilrate"
+msgstr "Tasa de errores de búsqueda"
+
+#: crates/rigg-core/src/disk.rs:217
+msgid "Søketid"
+msgstr "Tiempo de búsqueda"
+
+#: crates/rigg-core/src/disk.rs:218
+msgid "Driftstimer"
+msgstr "Horas de funcionamiento"
+
+#: crates/rigg-core/src/disk.rs:219
+msgid "Nye oppspinningsforsøk"
+msgstr "Reintentos de arranque del motor"
+
+#: crates/rigg-core/src/disk.rs:220
+msgid "Nye kalibreringsforsøk"
+msgstr "Reintentos de calibración"
+
+#: crates/rigg-core/src/disk.rs:221
+msgid "Strømsykluser"
+msgstr "Ciclos de encendido"
+
+#: crates/rigg-core/src/disk.rs:222
+msgid "Myke lesefeil"
+msgstr "Errores de lectura recuperables"
+
+#: crates/rigg-core/src/disk.rs:223
+msgid "Reserveblokker"
+msgstr "Bloques de reserva"
+
+#: crates/rigg-core/src/disk.rs:224
+msgid "Programmeringsfeil"
+msgstr "Fallos de programación"
+
+#: crates/rigg-core/src/disk.rs:225
+msgid "Slettefeil"
+msgstr "Fallos de borrado"
+
+#: crates/rigg-core/src/disk.rs:226 crates/rigg-core/src/disk.rs:230
+msgid "Slitasjeutjevning"
+msgstr "Nivelación de desgaste"
+
+#: crates/rigg-core/src/disk.rs:227
+msgid "Uventede strømbrudd"
+msgstr "Cortes de alimentación inesperados"
+
+#: crates/rigg-core/src/disk.rs:228
+msgid "Programmeringsfeil (brikke)"
+msgstr "Fallos de programación (chip)"
+
+#: crates/rigg-core/src/disk.rs:229
+msgid "Slettefeil (brikke)"
+msgstr "Fallos de borrado (chip)"
+
+#: crates/rigg-core/src/disk.rs:231
+msgid "Brukte reserveblokker (brikke)"
+msgstr "Bloques de reserva usados (chip)"
+
+#: crates/rigg-core/src/disk.rs:232
+msgid "Brukte reserveblokker"
+msgstr "Bloques de reserva usados"
+
+#: crates/rigg-core/src/disk.rs:233
+msgid "Ubrukte reserveblokker"
+msgstr "Bloques de reserva sin usar"
+
+#: crates/rigg-core/src/disk.rs:234
+msgid "Programmeringsfeil totalt"
+msgstr "Total de fallos de programación"
+
+#: crates/rigg-core/src/disk.rs:235
+msgid "Slettefeil totalt"
+msgstr "Total de fallos de borrado"
+
+#: crates/rigg-core/src/disk.rs:236
+msgid "Dårlige blokker under drift"
+msgstr "Bloques defectuosos en funcionamiento"
+
+#: crates/rigg-core/src/disk.rs:237
+msgid "Ende-til-ende-feil"
+msgstr "Errores de extremo a extremo"
+
+#: crates/rigg-core/src/disk.rs:238
+msgid "Rapporterte ukorrigerbare feil"
+msgstr "Errores incorregibles notificados"
+
+#: crates/rigg-core/src/disk.rs:239
+msgid "Tidsavbrudd for kommandoer"
+msgstr "Tiempos de espera de comandos agotados"
+
+#: crates/rigg-core/src/disk.rs:240
+msgid "Høye skrivehoder"
+msgstr "Escrituras con el cabezal demasiado alto"
+
+#: crates/rigg-core/src/disk.rs:241
+msgid "Luftstrømtemperatur"
+msgstr "Temperatura del flujo de aire"
+
+#: crates/rigg-core/src/disk.rs:242
+msgid "G-sensor-feil"
+msgstr "Errores del sensor de impacto"
+
+#: crates/rigg-core/src/disk.rs:243
+msgid "Nødparkeringer"
+msgstr "Retracciones de emergencia del cabezal"
+
+#: crates/rigg-core/src/disk.rs:244
+msgid "Lastesykluser"
+msgstr "Ciclos de carga/descarga del cabezal"
+
+#: crates/rigg-core/src/disk.rs:245
+msgid "Temperatur"
+msgstr "Temperatura"
+
+#: crates/rigg-core/src/disk.rs:246
+msgid "Maskinvarekorrigerte feil"
+msgstr "Errores corregidos por hardware"
+
+#: crates/rigg-core/src/disk.rs:247
+msgid "Omallokeringshendelser"
+msgstr "Eventos de reasignación"
+
+#: crates/rigg-core/src/disk.rs:248
+msgid "Sektorer som venter"
+msgstr "Sectores pendientes"
+
+#: crates/rigg-core/src/disk.rs:249
+msgid "Ukorrigerbare sektorer"
+msgstr "Sectores incorregibles"
+
+#: crates/rigg-core/src/disk.rs:250
+msgid "UDMA CRC-feil"
+msgstr "Errores CRC UDMA"
+
+#: crates/rigg-core/src/disk.rs:251
+msgid "Skrivefeilrate"
+msgstr "Tasa de errores de escritura"
+
+#: crates/rigg-core/src/disk.rs:252
+msgid "Brukt levetid"
+msgstr "Vida útil consumida"
+
+#: crates/rigg-core/src/disk.rs:253
+msgid "Gjenværende levetid"
+msgstr "Vida útil restante"
+
+#: crates/rigg-core/src/disk.rs:254
+msgid "Gjenværende utholdenhet"
+msgstr "Resistencia restante"
+
+#: crates/rigg-core/src/disk.rs:255
+msgid "Slitasjeindikator"
+msgstr "Indicador de desgaste"
+
+#: crates/rigg-core/src/disk.rs:256
+msgid "Andel gode blokker"
+msgstr "Proporción de bloques válidos"
+
+#: crates/rigg-core/src/disk.rs:257
+msgid "Flytimer for hodene"
+msgstr "Horas de vuelo del cabezal"
+
+#: crates/rigg-core/src/disk.rs:258 crates/rigg-core/src/disk.rs:261
+msgid "Skrevet totalt"
+msgstr "Total escrito"
+
+#: crates/rigg-core/src/disk.rs:259
+msgid "Lest totalt"
+msgstr "Total leído"
+
+#: crates/rigg-core/src/disk.rs:260
+msgid "Skrevet totalt (øvre)"
+msgstr "Total escrito (parte alta)"
+
+#: crates/rigg-core/src/disk.rs:269
+msgid "Attributt {id}"
+msgstr "Atributo {id}"
+
+#: crates/rigg-core/src/disk.rs:375
+msgid "{antall} t"
+msgstr "{antall} h"
+
+#: crates/rigg-core/src/disk.rs:377
+msgid "{antall} sektor"
+msgid_plural "{antall} sektorer"
+msgstr[0] "{antall} sector"
+msgstr[1] "{antall} sectores"
+
+#: crates/rigg-core/src/disk.rs:440
+msgid "Disken melder at den feiler (SMART-status)"
+msgstr "El disco indica un fallo (estado SMART)"
+
+#: crates/rigg-core/src/disk.rs:444
+msgid "{attributt} er under terskelen ({verdi} ≤ {terskel})"
+msgstr "{attributt} está por debajo del umbral ({verdi} ≤ {terskel})"
+
+#: crates/rigg-core/src/disk.rs:448
+msgid "{antall} attributt under terskelen"
+msgid_plural "{antall} attributter under terskelen"
+msgstr[0] "{antall} atributo por debajo del umbral"
+msgstr[1] "{antall} atributos por debajo del umbral"
+
+#: crates/rigg-core/src/disk.rs:456
+msgid "{antall} dårlig sektor"
+msgid_plural "{antall} dårlige sektorer"
+msgstr[0] "{antall} sector defectuoso"
+msgstr[1] "{antall} sectores defectuosos"
+
+#: crates/rigg-core/src/disk.rs:460
+msgid "Har vært under terskelen: {attributter}"
+msgstr "Antes por debajo del umbral: {attributter}"
+
+#: crates/rigg-core/src/disk.rs:462
+msgid "{antall} attributt har vært under terskelen"
+msgid_plural "{antall} attributter har vært under terskelen"
+msgstr[0] "{antall} atributo estuvo por debajo del umbral"
+msgstr[1] "{antall} atributos estuvieron por debajo del umbral"
+
+#: crates/rigg-core/src/disk.rs:467
+msgid "Siste selvtest feilet ({status})"
+msgstr "Falló la última autoprueba ({status})"
+
+#: crates/rigg-core/src/disk.rs:471 crates/rigg-core/src/disk.rs:473
+msgid "{andel} levetid igjen"
+msgstr "Queda el {andel} de vida útil"
+
+#: crates/rigg-core/src/disk.rs:479
+msgid "{temperatur} er for varmt"
+msgstr "Temperatura demasiado alta: {temperatur}"
+
+#: crates/rigg-core/src/disk.rs:481
+msgid "{temperatur} er varmt"
+msgstr "Temperatura elevada: {temperatur}"
+
+#: crates/rigg-core/src/disk.rs:487
+msgid "Lite reservekapasitet igjen"
+msgstr "Poca reserva disponible"
+
+#: crates/rigg-core/src/disk.rs:488
+msgid "Over temperaturgrensen"
+msgstr "Umbral de temperatura superado"
+
+#: crates/rigg-core/src/disk.rs:489
+msgid "Påliteligheten er redusert"
+msgstr "Fiabilidad reducida"
+
+#: crates/rigg-core/src/disk.rs:490
+msgid "Disken er satt skrivebeskyttet"
+msgstr "El disco pasó a solo lectura"
+
+#: crates/rigg-core/src/disk.rs:491
+msgid "Reservestrømmen for hurtigminnet har feilet"
+msgstr "Falló la alimentación de respaldo de la memoria volátil"
+
+#: crates/rigg-core/src/disk.rs:492
+msgid "PMR er skrivebeskyttet"
+msgstr "La PMR es de solo lectura"
+
+#: crates/rigg-core/src/disk.rs:493
+msgid "Kritisk advarsel fra kontrolleren"
+msgstr "Aviso crítico de la controladora"
+
+#: crates/rigg-core/src/disk.rs:498
+msgid "{antall} mediefeil"
+msgid_plural "{antall} mediefeil"
+msgstr[0] "{antall} error del medio"
+msgstr[1] "{antall} errores del medio"
+
+#: crates/rigg-core/src/disk.rs:515
+msgid "Fullført uten feil"
+msgstr "Finalizada sin errores"
+
+#: crates/rigg-core/src/disk.rs:516
+msgid "Pågår"
+msgstr "En curso"
+
+#: crates/rigg-core/src/disk.rs:517
+msgid "Avbrutt"
+msgstr "Interrumpida"
+
+#: crates/rigg-core/src/disk.rs:518
+msgid "Avbrutt (tilbakestilt)"
+msgstr "Interrumpida (reinicio)"
+
+#: crates/rigg-core/src/disk.rs:519
+msgid "Feilet"
+msgstr "Fallida"
+
+#: crates/rigg-core/src/disk.rs:520
+msgid "Feilet (ukjent del)"
+msgstr "Fallo (elemento desconocido)"
+
+#: crates/rigg-core/src/disk.rs:521
+msgid "Feilet (elektrisk)"
+msgstr "Fallo eléctrico"
+
+#: crates/rigg-core/src/disk.rs:522
+msgid "Feilet (servo)"
+msgstr "Fallo del servo"
+
+#: crates/rigg-core/src/disk.rs:523
+msgid "Feilet (lesing)"
+msgstr "Fallo de lectura"
+
+#: crates/rigg-core/src/disk.rs:524
+msgid "Feilet (håndtering)"
+msgstr "Fallo de manipulación"
+
+#: crates/rigg-core/src/disk.rs:525
+msgid "Aldri kjørt"
+msgstr "Nunca ejecutada"

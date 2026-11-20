@@ -7,7 +7,11 @@ Participation in this project is governed by the [Code of Conduct](CODE_OF_CONDU
 ## Language Conventions
 
 - **Issues, discussions, and pull requests:** English or Norwegian Bokmål are both welcome.
-- **Application UI strings:** All user-facing text inside the GTK application is written in **Norwegian Bokmål** (`nb`). Keep UI copy concise, consistent, and free of placeholder text.
+- **Application UI strings:** Write source strings in **Norwegian Bokmål** (`nb`). Keep UI copy concise, consistent, and free of placeholder text.
+
+## Translations
+
+Wrap new UI text in `tr!`, `trf!` or `trn!`. Run `app/scripts/i18n-trekk-ut.py <rust-file>` to update the UTF-8 gettext catalogs for that module under `app/data/i18n`. Keep placeholder names, technical units and product names intact. Run `app/scripts/i18n-trekk-ut.py --check` to validate catalogs and list missing translations. See the [translation guide](docs/produksjon/i18n.md) for the module layout and conversion workflow.
 
 ## Development Setup
 
@@ -18,9 +22,10 @@ Agentic Rigg is a Rust + GTK 4 workspace located in [`app/`](app/).
 On Ubuntu 26.04 (or compatible Debian-based systems with GTK ≥ 4.22), install the build dependencies checked by [`install.sh`](install.sh):
 
 ```bash
-sudo apt install cargo rustc pkgconf libglib2.0-dev-bin libgtk-4-dev
+sudo apt install cargo rustc pkgconf libglib2.0-dev-bin libgtk-4-dev python3
 ```
 
+- **Python:** ≥ 3.11 for extracting and embedding the gettext catalogs.
 - **Rust:** ≥ 1.92 (Rust edition 2024). If your distro's `rustc` is older, use `rustup`.
 - **GTK 4:** `gtk4 >= 4.22` (`libgtk-4-dev`).
 - **NVIDIA driver:** `libnvidia-ml.so.1` is loaded dynamically at runtime and is **not** required to compile or run unit tests.
@@ -74,7 +79,7 @@ Before opening a pull request, please verify:
 - [ ] `CARGO_TARGET_DIR=$HOME/.cache/rigg-build cargo clippy --workspace --all-targets -- -D warnings` passes cleanly.
 - [ ] `CARGO_TARGET_DIR=$HOME/.cache/rigg-build cargo test --workspace` passes with all tests isolated from host `/run/agentic-rigg`, `/etc/agentic-rigg`, and `/var/lib/agentic-rigg`.
 - [ ] No real GPU or `/dev/i2c-*` writes are triggered by automated tests or default code paths.
-- [ ] Any new or modified UI text is in Norwegian Bokmål.
+- [ ] New or modified UI source strings are in Norwegian Bokmål and affected translation catalogs pass validation.
 - [ ] Security-sensitive changes to `rigg-helper`, polkit policies, or helper protocol compatibility (`rigg_core::hjelper::MIN_COMPATIBLE_BUILD`) are clearly documented.
 - [ ] No personal logs, local backups, raw measurements, or private data are included in the diff.
 - [ ] AI assistance (if used) is disclosed.
