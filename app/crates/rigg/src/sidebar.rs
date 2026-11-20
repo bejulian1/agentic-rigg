@@ -156,7 +156,7 @@ fn machine_row(icon: &str, chev: &str) -> MachineRow {
 }
 
 /// Prosessoren fra `get_system`: (hele navnet, kort navn, linja under).
-#[derive(Clone, Default)]
+#[derive(Clone, Default, PartialEq, Eq)]
 struct CpuInfo {
     full: String,
     short: String,
@@ -1029,7 +1029,8 @@ impl Sidebar {
         if !self.app.client.is_connected() {
             self.cpu_asked.set(false);
             self.cpu_loading.set(false);
-            *self.cpu_topology.borrow_mut() = rigg_core::report::system::CpuTopologySync::default();
+            *self.cpu_system.borrow_mut() = serde_json::Value::Null;
+            *self.cpu_topology.borrow_mut() = Default::default();
             return;
         }
         if self.cpu_asked.replace(true) {
@@ -1051,8 +1052,10 @@ impl Sidebar {
                     let info = cpu_info(&v);
                     *s.cpu_system.borrow_mut() = v;
                     if let Some(c) = info {
-                        *s.cpu_info.borrow_mut() = Some(c);
-                        s.render_cpu();
+                        if s.cpu_info.borrow().as_ref() != Some(&c) {
+                            *s.cpu_info.borrow_mut() = Some(c);
+                            s.render_cpu();
+                        }
                     } else if s.cpu_info.borrow().is_none() {
                         s.cpu_asked.set(false);
                     }
@@ -1669,7 +1672,10 @@ mod tests {
         assert!(!sync.should_request(&initial, &same_tel, false));
         assert!(sync.should_request(&initial, &changed_tel, false));
         assert!(!sync.should_request(&initial, &changed_tel, true));
+        assert!(sync.should_request(&initial, &changed_tel, false));
+        assert!(!sync.should_request(&initial, &changed_tel, false));
         assert!(!sync.should_request(&after, &changed_tel, false));
+        assert!(sync.should_request(&after, &same_tel, false));
         let info = super::cpu_info(&after).unwrap();
         assert_eq!(info.sub, "6 kjerner · 12 tråder");
     }

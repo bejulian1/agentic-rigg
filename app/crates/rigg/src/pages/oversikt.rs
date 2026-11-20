@@ -902,18 +902,15 @@ fn render_gpu(app: &Rc<App>, g: &GpuUi, peak: &RefCell<VecDeque<(i64, f64)>>) {
 
     // ---- Skjermkort ----
     let (th, full) = math::throttle_short(s.throttle, 1);
-    let th_text = match th.as_str() {
-        _ if math::throttle_list(s.throttle).is_some_and(|reasons| reasons.is_empty()) => Some(tr!("ingen begrensning").to_string()),
-        "–" => None,
-        x => Some(x.to_lowercase()),
-    };
+    let has_reason = s.throttle.is_some_and(math::throttle_has_reason);
+    let th_text = s.throttle.map(|_| if has_reason { th } else { tr!("ingen begrensning").to_string() });
     let ps = [s.pstate.clone(), th_text.clone()].into_iter().flatten().collect::<Vec<_>>().join(" · ");
     set_text(&g.pstate, if ps.is_empty() { F::DASH } else { &ps });
     class(&g.pstate, "warn-text", math::throttle_serious(s.throttle));
     let mut ptip = String::from(tr!("P0 er full ytelse, P8 er dyp tomgang. Kortet bytter selv."));
     if !full.is_empty() {
         ptip.push_str(&trf!("\nBegrensninger nå: {full}.", full = full));
-    } else if let Some(x) = th_text.filter(|_| math::throttle_list(s.throttle).is_some_and(|reasons| !reasons.is_empty())) {
+    } else if let Some(x) = th_text.filter(|_| has_reason) {
         ptip.push_str(&trf!("\nKlokken begrenses nå av: {x}.", x = x));
     }
     if s.throttle_inferred {

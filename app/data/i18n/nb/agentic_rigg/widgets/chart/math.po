@@ -91,6 +91,10 @@ msgstr "Effektgrense"
 msgid "HW-nedklokking"
 msgstr "HW-nedklokking"
 
+#: crates/rigg/src/widgets/chart/math.rs:837
+msgid "Sync boost"
+msgstr "Sync boost"
+
 #: crates/rigg/src/widgets/chart/math.rs:838
 msgid "Termisk (SW)"
 msgstr "Termisk (SW)"
@@ -107,14 +111,14 @@ msgstr "Strømbrems (HW)"
 msgid "Skjermklokke"
 msgstr "Skjermklokke"
 
-#: crates/rigg/src/widgets/chart/math.rs:855
+#: crates/rigg/src/widgets/chart/math.rs:859
 msgid "Ingen"
 msgstr "Ingen"
 
-#: crates/rigg/src/widgets/chart/math.rs:882
+#: crates/rigg/src/widgets/chart/math.rs:886
 msgid "Over rød varselgrense (Innstillinger › Grafer og sensorer)."
 msgstr "Over rød varselgrense (Innstillinger › Grafer og sensorer)."
 
-#: crates/rigg/src/widgets/chart/math.rs:883
+#: crates/rigg/src/widgets/chart/math.rs:887
 msgid "Over gul varselgrense (Innstillinger › Grafer og sensorer)."
 msgstr "Over gul varselgrense (Innstillinger › Grafer og sensorer)."

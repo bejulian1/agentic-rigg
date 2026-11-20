@@ -277,9 +277,17 @@ struct Group {
     btn: gtk::Button,
     chev: Icon,
     state: gtk::Box,
-    state_sig: RefCell<String>,
+    state_sig: RefCell<GpuState>,
     rows: Vec<Rc<Row>>,
     threads: Option<(gtk::Button, Icon, gtk::Box)>,
+}
+
+#[derive(Default)]
+enum GpuState {
+    #[default]
+    Initial,
+    Unavailable,
+    Available { pstate: Option<String>, throttle: Option<u64>, inferred: bool },
 }
 
 struct Detail {
@@ -1240,7 +1248,7 @@ impl Inner {
             }
             root.append(&rows_box);
             self.groups_box.append(&root);
-            let g = Rc::new(Group { id: id.clone(), root, btn: btn.clone(), chev, state, state_sig: RefCell::new(String::new()), rows, threads });
+            let g = Rc::new(Group { id: id.clone(), root, btn: btn.clone(), chev, state, state_sig: RefCell::default(), rows, threads });
             let w = Rc::downgrade(self);
             let gid = id.clone();
             btn.connect_clicked(move |_| {
@@ -1638,8 +1646,8 @@ impl Inner {
         let Some(tel) = self.app.telemetry() else { return };
         let Some(s) = tel.gpus.get(id) else {
             // Kortet står i lista, men svarer ikke.
-            if *g.state_sig.borrow() != "borte" {
-                *g.state_sig.borrow_mut() = "borte".into();
+            if !matches!(*g.state_sig.borrow(), GpuState::Unavailable) {
+                *g.state_sig.borrow_mut() = GpuState::Unavailable;
                 crate::widgets::clear(&g.state);
                 let info = self.app.data.borrow().gpus.iter().find(|x| x.id == id).cloned();
                 let t = crate::widgets::rows::tag(tr!("Svarer ikke"), Some("circle-alert"), "warn");
@@ -1651,20 +1659,20 @@ impl Inner {
             }
             return;
         };
-        let (th, full) = math::throttle_short(s.throttle, 1);
-        let sig = format!("{:?}{th}{}", s.pstate, s.throttle_inferred);
-        if *g.state_sig.borrow() == sig {
+        if matches!(&*g.state_sig.borrow(), GpuState::Available { pstate, throttle, inferred }
+            if *pstate == s.pstate && *throttle == s.throttle && *inferred == s.throttle_inferred)
+        {
             return;
         }
-        *g.state_sig.borrow_mut() = sig;
+        *g.state_sig.borrow_mut() = GpuState::Available { pstate: s.pstate.clone(), throttle: s.throttle, inferred: s.throttle_inferred };
         crate::widgets::clear(&g.state);
         if let Some(p) = &s.pstate {
             let t = crate::widgets::rows::tag(p, None, "");
             t.set_tooltip_text(Some(tr!("P-tilstand. P0 er full ytelse, P8 er dyp tomgang.")));
             g.state.append(&t);
         }
-        if s.throttle.is_some() {
-            let text = if s.throttle == Some(0) || math::throttle_list(s.throttle).is_none_or(|reasons| reasons.is_empty()) { tr!("Ingen begrensning").to_string() } else { th };
+        if let Some(mask) = s.throttle {
+            let (text, full) = if math::throttle_has_reason(mask) { math::throttle_short(Some(mask), 1) } else { (tr!("Ingen begrensning").into(), String::new()) };
             let t = crate::widgets::rows::tag(&text, None, if math::throttle_serious(s.throttle) { "warn" } else { "" });
             let tip_text = match (full.is_empty(), s.throttle_inferred) {
                 (true, false) => tr!("Klokkebegrensning akkurat nå.").to_string(),

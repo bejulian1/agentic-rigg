@@ -92,6 +92,10 @@ msgstr "Limite de puissance"
 msgid "HW-nedklokking"
 msgstr "Réduction de fréquence (matériel)"
 
+#: crates/rigg/src/widgets/chart/math.rs:837
+msgid "Sync boost"
+msgstr "Sync Boost"
+
 #: crates/rigg/src/widgets/chart/math.rs:838
 msgid "Termisk (SW)"
 msgstr "Thermique (logiciel)"
@@ -108,14 +112,14 @@ msgstr "Frein de puissance (matériel)"
 msgid "Skjermklokke"
 msgstr "Fréquence d’affichage"
 
-#: crates/rigg/src/widgets/chart/math.rs:855
+#: crates/rigg/src/widgets/chart/math.rs:859
 msgid "Ingen"
 msgstr "Aucune"
 
-#: crates/rigg/src/widgets/chart/math.rs:882
+#: crates/rigg/src/widgets/chart/math.rs:886
 msgid "Over rød varselgrense (Innstillinger › Grafer og sensorer)."
 msgstr "Au-dessus du seuil critique (Paramètres › Graphiques et capteurs)."
 
-#: crates/rigg/src/widgets/chart/math.rs:883
+#: crates/rigg/src/widgets/chart/math.rs:887
 msgid "Over gul varselgrense (Innstillinger › Grafer og sensorer)."
 msgstr "Au-dessus du seuil d’avertissement (Paramètres › Graphiques et capteurs)."

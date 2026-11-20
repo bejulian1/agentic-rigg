@@ -92,6 +92,10 @@ msgstr "電力制限"
 msgid "HW-nedklokking"
 msgstr "ハードウェアによるクロック低下"
 
+#: crates/rigg/src/widgets/chart/math.rs:837
+msgid "Sync boost"
+msgstr "Sync Boost"
+
 #: crates/rigg/src/widgets/chart/math.rs:838
 msgid "Termisk (SW)"
 msgstr "温度制限 (SW)"
@@ -108,14 +112,14 @@ msgstr "電力ブレーキ (HW)"
 msgid "Skjermklokke"
 msgstr "ディスプレイクロック"
 
-#: crates/rigg/src/widgets/chart/math.rs:855
+#: crates/rigg/src/widgets/chart/math.rs:859
 msgid "Ingen"
 msgstr "なし"
 
-#: crates/rigg/src/widgets/chart/math.rs:882
+#: crates/rigg/src/widgets/chart/math.rs:886
 msgid "Over rød varselgrense (Innstillinger › Grafer og sensorer)."
 msgstr "危険しきい値を超えています (設定 › グラフとセンサー)。"
 
-#: crates/rigg/src/widgets/chart/math.rs:883
+#: crates/rigg/src/widgets/chart/math.rs:887
 msgid "Over gul varselgrense (Innstillinger › Grafer og sensorer)."
 msgstr "警告しきい値を超えています (設定 › グラフとセンサー)。"

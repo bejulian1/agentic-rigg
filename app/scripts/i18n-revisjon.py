@@ -2,8 +2,8 @@
 """Finn sannsynlig synlige norske eller uoversatte tekststrenger utenfor tr!/trf!/trn!.
 
 Bruk:
-  python3 app/scripts/i18n-revisjon.py                  # vis uavklarte funn i eide filer
-  python3 app/scripts/i18n-revisjon.py --check          # feil utgangskode ved uavklarte funn
+  python3 app/scripts/i18n-revisjon.py                  # vis uavklarte funn og returner feil ved funn
+  python3 app/scripts/i18n-revisjon.py --check          # samme kontroll, eksplisitt i CI
   python3 app/scripts/i18n-revisjon.py --all            # vis også dokumenterte unntak
   python3 app/scripts/i18n-revisjon.py --include-other  # ta også med filer eid av andre grener
   python3 app/scripts/i18n-revisjon.py <fil...>         # skann bestemte kildefiler
@@ -23,12 +23,9 @@ EXCLUDED_FILES = {
     "crates/rigg/src/logg_ui/bilder.rs",
     "crates/rigg/src/pages/oversikt/bilder.rs",
     "crates/rigg/src/pages/styring_bilder.rs",
-    "crates/rigg/src/skjermbilder.rs",
-    "crates/rigg/src/skjermbilder_oppgaver.rs",
-    "crates/rigg/src/skjermbilder_ui140.rs",
 }
 
-# Filer eid av annen gren under 1.5.0-revisjonen (rapporteres separat med --include-other).
+# Håndteres på rel/demo-rgb (rapporteres separat med --include-other).
 OTHER_BRANCH_FILES = (
     "crates/rigg/src/pages/lys.rs",
     "crates/rigg/src/pages/lys_kort.rs",
@@ -41,6 +38,7 @@ OTHER_BRANCH_FILES = (
     "crates/rigg/src/widgets/locked.rs",
     "crates/rigg-core/src/easter.rs",
     "crates/rigg/src/easter.rs",
+    "scripts/pakk-utgivelse.py",
 )
 
 # File-level allowlist ONLY for non-UI / protocol / CSV / daemon-internal modules.
@@ -72,6 +70,7 @@ ALLOWLIST_EXACT: dict[tuple[str, str], str] = {
     ("crates/rigg-core/src/lib.rs", "{NAME} {VERSION} · bygg {BUILD_STR}"): "CLI --version-utdata (UI bruker trf!)",
     ("crates/rigg-core/src/lib.rs", "Versjon {VERSION} · bygg {BUILD_STR}"): "Referansemetode for CLI/tester (UI bruker trf!)",
     ("crates/rigg-core/src/report/gpu.rs", "Ukjent"): "Rå bokmålsverdi fra leverandørstreng matchet og oversatt med tr!",
+    ("crates/rigg-core/src/report/gpu.rs", "grafikk og compute"): "Rå prosesskategori matchet og oversatt med tr!",
     ("crates/rigg-core/src/report/gpu.rs", "InfoROM"): "Teknisk faguttrykk / NVIDIA-begrep",
     ("crates/rigg-core/src/report/gpu.rs", "Resizable BAR"): "Teknisk faguttrykk / PCIe-begrep",
     ("crates/rigg-core/src/report/gpu.rs", "Tensor / RT"): "Teknisk faguttrykk (NVIDIA-kjerner)",
@@ -83,6 +82,7 @@ ALLOWLIST_EXACT: dict[tuple[str, str], str] = {
     ("crates/rigg-core/src/report/system.rs", "Tårn"): "Rå DMI-verdi matchet og oversatt med tr!",
     ("crates/rigg-core/src/report/system.rs", "Bærbar"): "Rå DMI-verdi matchet og oversatt med tr!",
     ("crates/rigg-core/src/report/system.rs", "Håndholdt"): "Rå DMI-verdi matchet og oversatt med tr!",
+    ("crates/rigg-core/src/report/system.rs", "Alt-i-ett"): "Rå DMI-verdi matchet og oversatt med tr!",
     ("crates/rigg-core/src/report/system.rs", "Ukjent prosessor"): "Rå reservenavn fra rigg-hw matchet og oversatt med tr!",
     ("crates/rigg-core/src/report/system.rs", "Boost"): "Teknisk faguttrykk (CPU Boost)",
     ("crates/rigg-core/src/report/system.rs", "Trådløst nett"): "Rå PCI-klassestreng matchet og oversatt med tr!",
@@ -105,6 +105,7 @@ ALLOWLIST_EXACT: dict[tuple[str, str], str] = {
     ("crates/rigg/src/app.rs", "--innstillinger"): "CLI-flagg",
     ("crates/rigg/src/app.rs", "ingen skjerm"): "Intern expect-melding ved manglende skjerm",
     ("crates/rigg/src/app.rs", "RIGG_RAMMER {} bilder på 10 s, {:.1} ms i alt, snitt {:.2} ms, verste {:.2} ms"): "Feilsøkingsutdata på stderr bak RIGG_RAMMER",
+    ("crates/rigg/src/infobar.rs", "<b>{}</b> {}"): "Markup rundt allerede lokaliserte tekster",
     ("crates/rigg/src/main.rs", "--innstillinger"): "CLI-flagg",
     ("crates/rigg/src/pages/disker.rs", "disk/{}/read"): "Stabil sensornøkkel",
     ("crates/rigg/src/pages/disker.rs", "disk/{}/write"): "Stabil sensornøkkel",
@@ -123,6 +124,7 @@ ALLOWLIST_EXACT: dict[tuple[str, str], str] = {
     ("crates/rigg/src/pages/grafer.rs", "grafer.markor"): "Intern nøkkel for engangstips",
     ("crates/rigg/src/pages/grafikkort.rs", "uuid"): "Intern rad-ID",
     ("crates/rigg/src/pages/oppgaver.rs", "CPU ↓"): "Teknisk kolonneoverskrift (forkortelse + pil)",
+    ("crates/rigg/src/pages/oppgaver.rs", "{} · PID {}"): "Prosessnavn og numerisk prosess-ID",
     ("crates/rigg/src/pages/oversikt.rs", "sensorer?vis=net/rx"): "Intern navigasjonsrute",
     ("crates/rigg/src/pages/oversikt.rs", "disk/{}/temp"): "Stabil sensornøkkel",
     ("crates/rigg/src/pages/oversikt.rs", "oversikt.markor"): "Intern nøkkel for engangstips",
@@ -136,22 +138,30 @@ ALLOWLIST_EXACT: dict[tuple[str, str], str] = {
     ("crates/rigg/src/pages/sensorer.rs", "sensorer.markor"): "Intern nøkkel for engangstips",
     ("crates/rigg/src/pages/sensorer.rs", "sensorer.filter"): "Intern nøkkel for engangstips",
     ("crates/rigg/src/pages/sensorer.rs", "sensorer.rull"): "Intern nøkkel for engangstips",
+    ("crates/rigg/src/pages/sensorer.rs", "lock"): "Ikon-ID i betingelsen for et lokalisert verktøytips",
+    ("crates/rigg/src/pages/sensorer.rs", "{what}: {why}"): "Setter sammen to lokaliserte tekster med skilletegn",
     ("crates/rigg/src/pages/viftekurve.rs", ", {n} målinger"): "Eksakt bokmålsform i active()==Nb-gren; øvrige språk bruker trn!",
     ("crates/rigg/src/prefs.rs", ".ødelagt-{stamp}"): "Filnavnsuffiks for ødelagt sikkerhetskopi",
     ("crates/rigg/src/rapport_ui.rs", "agentic-rigg-rapport-{:04}-{:02}-{:02}_{:02}-{:02}.{}"): "Standard eksportfilnavn",
+    ("crates/rigg/src/settings/om.rs", "{SIGNATURE}. {note_text}."): "Egennavn og allerede lokalisert tekst",
     ("crates/rigg/src/shortcuts.rs", " (uten ring)"): "Feilsøkingsutdata i fokuslogg",
     ("crates/rigg/src/sidebar.rs", "Ukjent prosessor"): "Rå reservenavn fra rigg-hw matchet og oversatt med tr!",
     ("crates/rigg/src/sidebar.rs", "sensorer?vis={id}"): "Intern navigasjonsrute",
     ("crates/rigg/src/sidebar.rs", "disk/"): "Stabil sensornøkkelprefiks",
+    ("crates/rigg/src/sidebar.rs", "{}\n{desc}"): "To allerede lokaliserte linjer i samme verktøytips",
     ("crates/rigg/src/state.rs", "skallet er ikke bygd"): "Intern expect-melding",
     ("crates/rigg/src/widgets/chart.rs", "bilde med oppsett"): "Intern expect-melding",
+    ("crates/rigg/src/widgets/chart.rs", "grafen har en visning"): "Intern expect-melding",
     ("crates/rigg/src/widgets/chart.rs", "GPU-temperatur"): "Referansetabell DEFS; ChartDef::title() bruker tr!",
+    ("crates/rigg/src/widgets/chart.rs", "GPU-last"): "Referansetabell DEFS; ChartDef::title() bruker tr!",
     ("crates/rigg/src/widgets/chart.rs", "GPU-effekt"): "Referansetabell DEFS; ChartDef::title() bruker tr!",
     ("crates/rigg/src/widgets/chart.rs", "GPU-vifte"): "Referansetabell DEFS; ChartDef::title() bruker tr!",
     ("crates/rigg/src/widgets/chart.rs", "CPU-temperatur"): "Referansetabell DEFS; ChartDef::title() bruker tr!",
+    ("crates/rigg/src/widgets/chart.rs", "CPU-last"): "Referansetabell DEFS; ChartDef::title() bruker tr!",
     ("crates/rigg/src/widgets/chart.rs", "Minne brukt"): "Referansetabell DEFS; ChartDef::title() bruker tr!",
     ("crates/rigg/src/widgets/chart.rs", "Disk-I/O"): "Referansetabell DEFS; ChartDef::title() bruker tr!",
     ("crates/rigg/src/widgets/chart.rs", "disk/{}/temp"): "Stabil sensornøkkel",
+    ("crates/rigg/src/widgets/chart.rs", "{}{u}"): "En formatert verdi med enhet",
     ("crates/rigg/src/widgets/chart/math.rs", "Sekunder"): "CSV-kolonneoverskrift jf. docs/produksjon/i18n.md",
     ("crates/rigg/src/widgets/version_log.rs", "Versjonsloggen må være en liste"): "Intern expect-melding ved tolking av innebygd versjonslogg",
     ("crates/rigg/src/window.rs", "appen lever så lenge vinduet gjør"): "Intern expect-melding",
@@ -178,7 +188,11 @@ NORWEGIAN_WORDS = re.compile(
     r'minutt|minutter|timer|dager|mappe|eksport|kopier|navn|verdi|verdier|grense|'
     r'standard|automatisk|manuell|festet|flytt|tilkoblet|svarer|maskinvare|'
     r'straks|nullstill|tilgang|tillatelse|fil|filer|rapport|advarsel|kritisk|'
-    r'spenning|hastighet|bruk|brukt|ledig|tilgjengelig|aktiv|inaktiv|kjør|kjører'
+    r'spenning|hastighet|bruk|brukt|ledig|tilgjengelig|aktiv|inaktiv|kjør|kjører|'
+    r'belastning|last|avslutt|endre|sider|seksjon|lys|lysstyrke|bakgrunn|sist|siden|'
+    r'forrige|neste|mer|mindre|detaljer|hjem|nettverk|farge|farger|gjenopprett|'
+    r'og|er|av|blir|har|nye|nytt|helt|sammen|opp|ned|inn|ut|under|over|ett|'
+    r'gjeldende|enhet|kjent|henter|egen|egne|knapp|lag|visning|skriv|tilstand|opptak'
     r')\b',
     re.IGNORECASE,
 )
@@ -189,6 +203,7 @@ UI_CALL_ARGS: dict[str, set[int]] = {
     "set_title": {0},
     "set_label": {0},
     "set_tooltip_text": {0},
+    "set_tooltip_markup": {0},
     "set_placeholder_text": {0},
     "set_markup": {0},
     "tip": {1},
@@ -213,6 +228,11 @@ UI_CALL_ARGS: dict[str, set[int]] = {
 
 UI_METHOD_OR_CTOR = {
     ("Toast", "new"),
+    ("Notification", "new"),
+    ("Label", "new"),
+    ("Button", "with_label"),
+    ("CheckButton", "with_label"),
+    ("ToggleButton", "with_label"),
     ("Property", "Label"),
     ("Property", "Description"),
     ("Kv", "new"),
@@ -237,11 +257,20 @@ class Finding:
     line: int
     text: str
     reason: str
-    context: str
 
 
 def is_other_branch(rel: str) -> bool:
-    return any(rel == p or rel.startswith(p) for p in OTHER_BRANCH_FILES)
+    return any(rel.startswith(p) if p.endswith("/") else rel == p for p in OTHER_BRANCH_FILES)
+
+
+def is_excluded(path: Path) -> bool:
+    rel = path.relative_to(APP)
+    return (
+        rel.as_posix() in EXCLUDED_FILES
+        or path.name.startswith("skjermbilder")
+        or path.stem == "tests"
+        or "tests" in rel.parts
+    )
 
 
 def rust_string(token: str) -> str:
@@ -319,7 +348,7 @@ def skip_item_after_cfg_test(parts, i: int) -> int:
     return i
 
 
-def enclosing_call(parts, idx: int) -> tuple[str, int]:
+def enclosing_call(parts, idx: int) -> tuple[str, int, int]:
     depth = 0
     arg_index = 0
     for j in range(idx - 1, -1, -1):
@@ -329,19 +358,32 @@ def enclosing_call(parts, idx: int) -> tuple[str, int]:
         elif tok in ("(", "[", "{"):
             if depth == 0:
                 if tok != "(":
-                    return ("", 0)
+                    return ("", 0, j)
                 if j >= 1:
-                    name = parts[j - 1][0]
-                    if j >= 3 and parts[j - 2][0] == ":" and parts[j - 3][0] == ":":
-                        return (f"{parts[j - 4][0]}::{name}" if j >= 4 else name, arg_index)
+                    macro = parts[j - 1][0] == "!"
+                    name = parts[j - 2][0] + "!" if macro and j >= 2 else parts[j - 1][0]
+                    if j >= 4 and parts[j - 2][0] == ":" and parts[j - 3][0] == ":":
+                        return (f"{parts[j - 4][0]}::{name}", arg_index, j)
                     if j >= 2 and parts[j - 2][0] == ".":
-                        return (f".{name}", arg_index)
-                    return (name, arg_index)
-                return ("", 0)
+                        return (f".{name}", arg_index, j)
+                    return (name, arg_index, j)
+                return ("", 0, j)
             depth -= 1
         elif tok == "," and depth == 0:
             arg_index += 1
-    return ("", 0)
+    return ("", 0, -1)
+
+
+def ui_call(parts, idx: int) -> str:
+    call, arg, start = enclosing_call(parts, idx)
+    while call in {"Some", "format!", "concat!"} or (not call and start >= 0 and parts[start][0] == "("):
+        call, arg, start = enclosing_call(parts, start)
+    bare = call.split("::")[-1].lstrip(".")
+    if arg in UI_CALL_ARGS.get(bare, ()):
+        return call
+    if tuple(call.split("::")) in UI_METHOD_OR_CTOR and (call not in {"Kv::new", "Section::new"} or arg == 1):
+        return call
+    return ""
 
 
 def is_inside_log_or_assert(parts, idx: int) -> bool:
@@ -371,7 +413,6 @@ def is_inside_log_or_assert(parts, idx: int) -> bool:
 def scan_file(path: Path) -> list[Finding]:
     rel = path.relative_to(APP).as_posix()
     text = path.read_text(encoding="utf-8")
-    lines_src = text.splitlines()
     parts = list(tokenize(text))
     findings: list[Finding] = []
     i = 0
@@ -418,34 +459,22 @@ def scan_file(path: Path) -> list[Finding]:
             if not val.strip():
                 i += 1
                 continue
-            call, arg_idx = enclosing_call(parts, i)
+            call, arg_idx, _ = enclosing_call(parts, i)
             bare_call = call.lstrip(".")
             # `kw(nb_keywords, tr!(...))` intentionally keeps Norwegian keywords alongside translated ones.
             if (bare_call == "kw" or call.endswith("::kw")) and arg_idx == 0:
                 i += 1
                 continue
             line = text.count("\n", 0, pos) + 1
-            src_line = lines_src[line - 1].strip() if 0 <= line - 1 < len(lines_src) else ""
             reasons = []
             if NORWEGIAN_CHARS.search(val):
                 reasons.append("æøå")
             elif NORWEGIAN_WORDS.search(val):
                 reasons.append("nb-ord")
 
-            is_ui_call = False
-            if bare_call in UI_CALL_ARGS:
-                if arg_idx in UI_CALL_ARGS[bare_call]:
-                    is_ui_call = True
-            elif "::" in call:
-                parts_c = call.split("::")
-                if (parts_c[0], parts_c[1]) in UI_METHOD_OR_CTOR:
-                    if (parts_c[0], parts_c[1]) in (("Kv", "new"), ("Section", "new")) and arg_idx != 1:
-                        is_ui_call = False
-                    else:
-                        is_ui_call = True
-
-            if is_ui_call and not TECHNICAL_RE.match(val.strip()):
-                reasons.append(f"ui:{call}")
+            ui = ui_call(parts, i)
+            if ui and not TECHNICAL_RE.match(val.strip()):
+                reasons.append(f"ui:{ui}")
 
             if reasons == ["nb-ord"]:
                 if TECHNICAL_RE.match(val.strip()):
@@ -456,7 +485,7 @@ def scan_file(path: Path) -> list[Finding]:
                     reasons = []
 
             if reasons:
-                findings.append(Finding(rel, line, val, ",".join(reasons), src_line))
+                findings.append(Finding(rel, line, val, ",".join(reasons)))
         i += 1
     return findings
 
@@ -465,44 +494,43 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--all", action="store_true", help="vis også oppføringer i unntakslista")
     parser.add_argument("--include-other", action="store_true", help="ta også med filer eid av andre grener")
-    parser.add_argument("--check", action="store_true", help="returner feilkode hvis uavklarte funn gjenstår")
+    parser.add_argument("--check", action="store_true", help="eksplisitt kontroll (samme som standard)")
     parser.add_argument("files", nargs="*", type=Path, help="begrens til bestemte kildefiler")
     args = parser.parse_args()
 
     if args.files:
         paths = [p.resolve() for p in args.files]
     else:
-        paths = []
-        for crate in CRATES:
-            for p in sorted((APP / "crates" / crate / "src").rglob("*.rs")):
-                rel = p.relative_to(APP).as_posix()
-                if rel in EXCLUDED_FILES:
-                    continue
-                if not args.include_other and is_other_branch(rel):
-                    continue
-                paths.append(p)
+        paths = [path for crate in CRATES for path in sorted((APP / "crates" / crate / "src").rglob("*.rs"))]
 
     unallowed = []
     allowed = []
+    other = []
     for p in paths:
+        if p.suffix != ".rs" or is_excluded(p):
+            continue
+        if is_other_branch(p.relative_to(APP).as_posix()) and not args.include_other:
+            continue
         for f in scan_file(p):
             why = ALLOWLIST_EXACT.get((f.rel, f.text)) or ALLOWLIST_FILES.get(f.rel)
             if why is not None:
                 allowed.append((f, why))
+            elif is_other_branch(f.rel):
+                other.append(f)
             else:
                 unallowed.append(f)
 
     for f in unallowed:
         print(f"{f.rel}:{f.line} [{f.reason}] {f.text!r}")
+    for f in other:
+        print(f"{f.rel}:{f.line} [{f.reason}] {f.text!r}  # rel/demo-rgb")
     if args.all and allowed:
         print(f"\n--- Unntaksliste ({len(allowed)}) ---")
         for f, why in allowed:
             print(f"{f.rel}:{f.line} [{f.reason}] {f.text!r}  # {why}")
 
-    print(f"\nOppsummering: {len(unallowed)} uavklarte, {len(allowed)} i unntakslista.", file=sys.stderr)
-    if args.check and unallowed:
-        return 1
-    return 0
+    print(f"\nOppsummering: {len(unallowed)} uavklarte, {len(allowed)} i unntakslista, {len(other)} på rel/demo-rgb.", file=sys.stderr)
+    return int(bool(unallowed))
 
 
 if __name__ == "__main__":

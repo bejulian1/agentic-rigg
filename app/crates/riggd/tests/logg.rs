@@ -44,6 +44,7 @@ impl Daemon {
             .args(["--grace-ms", &grace_ms.to_string()])
             .env("RIGG_CONFIG_DIR", dir.join("config"))
             .env("RIGG_STATE_DIR", dir.join("state"))
+            .env("LANGUAGE", "nb")
             // Varslene går aldri til brukerens skrivebord fra testene.
             .env("DBUS_SESSION_BUS_ADDRESS", "unix:path=/finnes-ikke")
             .env_remove("NOTIFY_SOCKET")

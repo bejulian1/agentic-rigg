@@ -92,6 +92,10 @@ msgstr "Power limit"
 msgid "HW-nedklokking"
 msgstr "HW throttling"
 
+#: crates/rigg/src/widgets/chart/math.rs:837
+msgid "Sync boost"
+msgstr "Sync boost"
+
 #: crates/rigg/src/widgets/chart/math.rs:838
 msgid "Termisk (SW)"
 msgstr "Thermal (SW)"
@@ -108,14 +112,14 @@ msgstr "Power brake (HW)"
 msgid "Skjermklokke"
 msgstr "Display clock"
 
-#: crates/rigg/src/widgets/chart/math.rs:855
+#: crates/rigg/src/widgets/chart/math.rs:859
 msgid "Ingen"
 msgstr "None"
 
-#: crates/rigg/src/widgets/chart/math.rs:882
+#: crates/rigg/src/widgets/chart/math.rs:886
 msgid "Over rød varselgrense (Innstillinger › Grafer og sensorer)."
 msgstr "Above the critical threshold (Settings › Charts and sensors)."
 
-#: crates/rigg/src/widgets/chart/math.rs:883
+#: crates/rigg/src/widgets/chart/math.rs:887
 msgid "Over gul varselgrense (Innstillinger › Grafer og sensorer)."
 msgstr "Above the warning threshold (Settings › Charts and sensors)."
