@@ -625,6 +625,10 @@ msgstr "硬件阈值"
 msgid "nedklokking ved {nedklokking}, avstenging ved {avstenging}"
 msgstr "{nedklokking} 时降频，{avstenging} 时关机"
 
+#: crates/rigg/src/pages/kontroller.rs:757
+msgid "nvmlDeviceGetTemperatureThreshold, ACOUSTIC_CURR (avlesning)."
+msgstr "通过 nvmlDeviceGetTemperatureThreshold、ACOUSTIC_CURR 读回。"
+
 #: crates/rigg/src/pages/kontroller.rs:760
 msgid "Auto (driveren styrer)"
 msgstr "自动（由驱动程序控制）"
@@ -644,6 +648,10 @@ msgstr "驱动程序未报告"
 #: crates/rigg/src/pages/kontroller.rs:763
 msgid "Modus nå"
 msgstr "当前模式"
+
+#: crates/rigg/src/pages/kontroller.rs:764
+msgid "nvmlDeviceGetFanControlPolicy_v2 (avlesning)."
+msgstr "通过 nvmlDeviceGetFanControlPolicy_v2 读回。"
 
 #: crates/rigg/src/pages/kontroller.rs:769
 msgid "Klar. Bruk prøver endringen; Behold lar den fortsette."
@@ -900,7 +908,7 @@ msgstr "双击重命名"
 
 #: crates/rigg/src/pages/kontroller.rs:1380
 msgid "på siden"
-msgstr "与当前页面一致"
+msgstr "当前"
 
 #: crates/rigg/src/pages/kontroller.rs:1381
 msgid "Verdiene på siden er de samme som i profilen"

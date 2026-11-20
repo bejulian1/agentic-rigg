@@ -36,6 +36,10 @@ msgstr "Kühlste Einstellung: höhere Lüfterkurve, 2 °C Hysterese und schnelle
 msgid "{navn} · endret"
 msgstr "{navn} · geändert"
 
+#: crates/rigg/src/pages/viftekurve.rs:528
+msgid "GPU-temperatur"
+msgstr "GPU-Temperatur"
+
 #: crates/rigg/src/pages/viftekurve.rs:529
 msgid "Minst {fart} (driver)"
 msgstr "Mind. {fart} (Treiber)"
@@ -108,7 +112,7 @@ msgstr "Kurve"
 
 #: crates/rigg/src/pages/viftekurve.rs:1228
 msgid "Agentic Rigg setter farten etter viftekurven hvert sekund."
-msgstr "Agentic Rigg passt die Lüfterdrehzahl jede Sekunde anhand der Kurve an."
+msgstr "Agentic Rigg aktualisiert die Lüfterdrehzahl jede Sekunde anhand der Kurve."
 
 #: crates/rigg/src/pages/viftekurve.rs:1229 crates/rigg/src/pages/viftekurve.rs:2606
 msgid "Manuell"
@@ -173,6 +177,10 @@ msgstr "keine"
 #: crates/rigg/src/pages/viftekurve.rs:1306
 msgid "Effektgrense"
 msgstr "Leistungslimit"
+
+#: crates/rigg/src/pages/viftekurve.rs:1307
+msgid "GPU-justering"
+msgstr "GPU-Takt-Offset"
 
 #: crates/rigg/src/pages/viftekurve.rs:1308
 msgid "Minnejustering"
@@ -321,6 +329,22 @@ msgstr "Treiber (Median)"
 #: crates/rigg/src/pages/viftekurve.rs:1646
 msgid "Nå"
 msgstr "Jetzt"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "1 t"
+msgstr "1 h"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "6 t"
+msgstr "6 h"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "24 t"
+msgstr "24 h"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "48 t"
+msgstr "48 h"
 
 #: crates/rigg/src/pages/viftekurve.rs:1672
 msgid "Tidsvindu for målingene"
@@ -604,6 +628,10 @@ msgstr "Daten für {malt} von {varighet}"
 msgid "Ingen data"
 msgstr "Keine Daten"
 
+#: crates/rigg/src/pages/viftekurve.rs:2512
+msgid "{andel} av tiden"
+msgstr "{andel} der Zeit"
+
 #: crates/rigg/src/pages/viftekurve.rs:2517
 msgid "hele døgnet ({varighet})"
 msgstr "ganzer Tag ({varighet})"
@@ -833,6 +861,10 @@ msgid "Kurven er ikke i bruk"
 msgstr "Die Kurve ist inaktiv"
 
 #: crates/rigg/src/pages/viftekurve.rs:2694
+msgid "I kurveutkastet"
+msgstr "Im Kurvenentwurf"
+
+#: crates/rigg/src/pages/viftekurve.rs:2694
 msgid "I den aktive kurven"
 msgstr "Auf der aktiven Kurve"
 
@@ -968,8 +1000,8 @@ msgstr "Punkt entfernen"
 
 #: crates/rigg/src/pages/viftekurve.rs:2995
 msgid "{timer}t"
-msgstr "{timer} h"
+msgstr "{timer}h"
 
 #: crates/rigg/src/pages/viftekurve.rs:2996
 msgid "{timer}t {minutter}min"
-msgstr "{timer} h {minutter} min"
+msgstr "{timer}h {minutter}min"

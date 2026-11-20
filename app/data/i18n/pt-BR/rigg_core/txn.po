@@ -10,7 +10,7 @@ msgstr ""
 
 #: crates/rigg-core/src/txn.rs:278
 msgid "Aktiver skjermkortstyring i Innstillinger, og vent til hjelperen er klar"
-msgstr "Use Permitir ajustes da GPU nas Configurações e aguarde o auxiliar ficar pronto"
+msgstr "Ative o Controle da GPU em Configurações e aguarde o auxiliar ficar pronto"
 
 #: crates/rigg-core/src/txn.rs:279
 msgid "Viftekurven må være en liste med punkter"

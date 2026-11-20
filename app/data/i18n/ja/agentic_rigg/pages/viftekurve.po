@@ -36,6 +36,10 @@ msgstr "冷却優先：高めのファンカーブ、ヒステリシス2 °C、�
 msgid "{navn} · endret"
 msgstr "{navn} · 変更済み"
 
+#: crates/rigg/src/pages/viftekurve.rs:528
+msgid "GPU-temperatur"
+msgstr "GPU温度"
+
 #: crates/rigg/src/pages/viftekurve.rs:529
 msgid "Minst {fart} (driver)"
 msgstr "最低 {fart}（ドライバー）"
@@ -172,6 +176,10 @@ msgstr "なし"
 #: crates/rigg/src/pages/viftekurve.rs:1306
 msgid "Effektgrense"
 msgstr "電力制限"
+
+#: crates/rigg/src/pages/viftekurve.rs:1307
+msgid "GPU-justering"
+msgstr "GPUクロックオフセット"
 
 #: crates/rigg/src/pages/viftekurve.rs:1308
 msgid "Minnejustering"
@@ -320,6 +328,22 @@ msgstr "ドライバー（中央値）"
 #: crates/rigg/src/pages/viftekurve.rs:1646
 msgid "Nå"
 msgstr "現在"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "1 t"
+msgstr "1時間"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "6 t"
+msgstr "6時間"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "24 t"
+msgstr "24時間"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "48 t"
+msgstr "48時間"
 
 #: crates/rigg/src/pages/viftekurve.rs:1672
 msgid "Tidsvindu for målingene"
@@ -602,6 +626,10 @@ msgstr "データ取得：{malt} / {varighet}"
 msgid "Ingen data"
 msgstr "データなし"
 
+#: crates/rigg/src/pages/viftekurve.rs:2512
+msgid "{andel} av tiden"
+msgstr "全体の{andel}"
+
 #: crates/rigg/src/pages/viftekurve.rs:2517
 msgid "hele døgnet ({varighet})"
 msgstr "24時間全体（{varighet}）"
@@ -829,6 +857,10 @@ msgstr "GPUに設定された固定速度"
 #: crates/rigg/src/pages/viftekurve.rs:2694
 msgid "Kurven er ikke i bruk"
 msgstr "カーブは無効です"
+
+#: crates/rigg/src/pages/viftekurve.rs:2694
+msgid "I kurveutkastet"
+msgstr "カーブの下書き内"
 
 #: crates/rigg/src/pages/viftekurve.rs:2694
 msgid "I den aktive kurven"

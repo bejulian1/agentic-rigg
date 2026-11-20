@@ -26,11 +26,11 @@ msgstr "RGB-Beleuchtung"
 
 #: crates/rigg-core/src/hjelper.rs:407
 msgid "Trinnet «{one}» er ikke godkjent. Godkjenn det i Innstillinger › Styring først."
-msgstr "„{one}“ ist nicht freigegeben. Aktiviere die Funktion zuerst unter Einstellungen › Steuerung."
+msgstr "„{one}“ ist nicht freigegeben. Aktiviere die Funktion zuerst unter Einstellungen › GPU-Steuerung."
 
 #: crates/rigg-core/src/hjelper.rs:408
 msgid "Trinnene {steps} er ikke godkjent. Godkjenn dem i Innstillinger › Styring først."
-msgstr "{steps} sind nicht freigegeben. Aktiviere sie zuerst unter Einstellungen › Steuerung."
+msgstr "{steps} sind nicht freigegeben. Aktiviere sie zuerst unter Einstellungen › GPU-Steuerung."
 
 #: crates/rigg-core/src/hjelper.rs:422
 msgid "{felt}: Kortet tillater {min}–{max}. Ingenting er endret."

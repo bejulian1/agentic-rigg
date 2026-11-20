@@ -36,6 +36,10 @@ msgstr "Najmocniejsze chłodzenie: wyższa krzywa, histereza 2 °C i szybka zmia
 msgid "{navn} · endret"
 msgstr "{navn} · zmodyfikowany"
 
+#: crates/rigg/src/pages/viftekurve.rs:528
+msgid "GPU-temperatur"
+msgstr "Temperatura GPU"
+
 #: crates/rigg/src/pages/viftekurve.rs:529
 msgid "Minst {fart} (driver)"
 msgstr "Min. {fart} (wg sterownika)"
@@ -109,7 +113,7 @@ msgstr "Krzywa"
 
 #: crates/rigg/src/pages/viftekurve.rs:1228
 msgid "Agentic Rigg setter farten etter viftekurven hvert sekund."
-msgstr "Agentic Rigg ustawia obroty co sekundę według krzywej."
+msgstr "Agentic Rigg co sekundę ustawia obroty według krzywej."
 
 #: crates/rigg/src/pages/viftekurve.rs:1229 crates/rigg/src/pages/viftekurve.rs:2606
 msgid "Manuell"
@@ -174,6 +178,10 @@ msgstr "brak"
 #: crates/rigg/src/pages/viftekurve.rs:1306
 msgid "Effektgrense"
 msgstr "Limit mocy"
+
+#: crates/rigg/src/pages/viftekurve.rs:1307
+msgid "GPU-justering"
+msgstr "Przesunięcie taktowania GPU"
 
 #: crates/rigg/src/pages/viftekurve.rs:1308
 msgid "Minnejustering"
@@ -322,6 +330,22 @@ msgstr "Sterownik (mediana)"
 #: crates/rigg/src/pages/viftekurve.rs:1646
 msgid "Nå"
 msgstr "Teraz"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "1 t"
+msgstr "1 godz."
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "6 t"
+msgstr "6 godz."
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "24 t"
+msgstr "24 godz."
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "48 t"
+msgstr "48 godz."
 
 #: crates/rigg/src/pages/viftekurve.rs:1672
 msgid "Tidsvindu for målingene"
@@ -606,6 +630,10 @@ msgstr "Dane za {malt} z {varighet}"
 msgid "Ingen data"
 msgstr "Brak danych"
 
+#: crates/rigg/src/pages/viftekurve.rs:2512
+msgid "{andel} av tiden"
+msgstr "{andel} czasu"
+
 #: crates/rigg/src/pages/viftekurve.rs:2517
 msgid "hele døgnet ({varighet})"
 msgstr "pełna doba ({varighet})"
@@ -835,6 +863,10 @@ msgid "Kurven er ikke i bruk"
 msgstr "Krzywa jest nieaktywna"
 
 #: crates/rigg/src/pages/viftekurve.rs:2694
+msgid "I kurveutkastet"
+msgstr "W szkicu krzywej"
+
+#: crates/rigg/src/pages/viftekurve.rs:2694
 msgid "I den aktive kurven"
 msgstr "Na aktywnej krzywej"
 
@@ -971,8 +1003,8 @@ msgstr "Usuń punkt"
 
 #: crates/rigg/src/pages/viftekurve.rs:2995
 msgid "{timer}t"
-msgstr "{timer} godz."
+msgstr "{timer}godz."
 
 #: crates/rigg/src/pages/viftekurve.rs:2996
 msgid "{timer}t {minutter}min"
-msgstr "{timer} godz. {minutter} min"
+msgstr "{timer}godz. {minutter}min"

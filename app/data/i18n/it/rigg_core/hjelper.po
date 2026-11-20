@@ -106,15 +106,15 @@ msgstr "Il raffreddamento di emergenza è attivo. Attendi che la GPU scenda sott
 
 #: crates/rigg-core/src/hjelper.rs:481
 msgid "Endringer er låst: endring av skjermkortet er ikke slått på. Slå på «Tillat endring av skjermkortet» i Innstillinger › Styring."
-msgstr "Le modifiche sono bloccate perché la regolazione della GPU è disattivata. Attiva Consenti modifiche alla GPU in Impostazioni › Regolazione della GPU."
+msgstr "Le modifiche sono bloccate perché la regolazione della GPU è disattivata. Attiva Consenti modifiche alla GPU in Impostazioni › Controllo GPU."
 
 #: crates/rigg-core/src/hjelper.rs:482
 msgid "Hjelperen for endring svarer ikke. Se Innstillinger › Styring."
-msgstr "Il servizio di supporto della GPU non risponde. Vedi Impostazioni › Regolazione della GPU."
+msgstr "Il servizio di supporto della GPU non risponde. Vedi Impostazioni › Controllo GPU."
 
 #: crates/rigg-core/src/hjelper.rs:483
 msgid "Hjelperen er fra en annen versjon av appen. Slå bryteren i Innstillinger › Styring av og på igjen."
-msgstr "Il servizio di supporto appartiene a un’altra versione dell’app. Disattiva e riattiva l’opzione in Impostazioni › Regolazione della GPU."
+msgstr "Il servizio di supporto appartiene a un’altra versione dell’app. Disattiva e riattiva l’opzione in Impostazioni › Controllo GPU."
 
 #: crates/rigg-core/src/hjelper.rs:484
 msgid "Hjelperen og tjenesten bruker ulike kort (simulert og ekte). Ingenting er sendt."

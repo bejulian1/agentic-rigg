@@ -73,7 +73,7 @@ msgstr "Krzywe wentylatorów"
 
 #: crates/rigg/src/pages/kontroller.rs:253
 msgid "per vifte"
-msgstr "dla każdego wentylatora"
+msgstr "osobne"
 
 #: crates/rigg/src/pages/kontroller.rs:253
 msgid "felles"
@@ -133,7 +133,7 @@ msgstr "GPU jest bezczynny i utrzymuje niskie taktowanie."
 
 #: crates/rigg/src/pages/kontroller.rs:284 crates/rigg/src/pages/kontroller.rs:336
 msgid "Programklokker"
-msgstr "Taktowanie narzucone przez aplikację"
+msgstr "Zegary aplikacji"
 
 #: crates/rigg/src/pages/kontroller.rs:284
 msgid "Klokkene er låst av et program (applications clocks)."
@@ -181,7 +181,7 @@ msgstr "Zasilacz wysłał sygnał obniżenia taktowania GPU."
 
 #: crates/rigg/src/pages/kontroller.rs:291 crates/rigg/src/pages/kontroller.rs:337
 msgid "Skjermklokke"
-msgstr "Taktowanie wymagane przez wyświetlacz"
+msgstr "Zegar ekranu"
 
 #: crates/rigg/src/pages/kontroller.rs:291
 msgid "Klokkene er satt for skjermen."
@@ -627,6 +627,10 @@ msgstr "Progi sprzętowe"
 msgid "nedklokking ved {nedklokking}, avstenging ved {avstenging}"
 msgstr "obniżenie taktowania przy {nedklokking}, wyłączenie przy {avstenging}"
 
+#: crates/rigg/src/pages/kontroller.rs:757
+msgid "nvmlDeviceGetTemperatureThreshold, ACOUSTIC_CURR (avlesning)."
+msgstr "nvmlDeviceGetTemperatureThreshold, ACOUSTIC_CURR (odczyt)."
+
 #: crates/rigg/src/pages/kontroller.rs:760
 msgid "Auto (driveren styrer)"
 msgstr "Auto (steruje sterownik)"
@@ -646,6 +650,10 @@ msgstr "Sterownik nie zgłosił wartości"
 #: crates/rigg/src/pages/kontroller.rs:763
 msgid "Modus nå"
 msgstr "Bieżący tryb"
+
+#: crates/rigg/src/pages/kontroller.rs:764
+msgid "nvmlDeviceGetFanControlPolicy_v2 (avlesning)."
+msgstr "nvmlDeviceGetFanControlPolicy_v2 (odczyt)."
 
 #: crates/rigg/src/pages/kontroller.rs:769
 msgid "Klar. Bruk prøver endringen; Behold lar den fortsette."
@@ -904,7 +912,7 @@ msgstr "Kliknij dwukrotnie, aby zmienić nazwę"
 
 #: crates/rigg/src/pages/kontroller.rs:1380
 msgid "på siden"
-msgstr "zgodny z bieżącym widokiem"
+msgstr "bieżący"
 
 #: crates/rigg/src/pages/kontroller.rs:1381
 msgid "Verdiene på siden er de samme som i profilen"

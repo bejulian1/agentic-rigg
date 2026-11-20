@@ -26,11 +26,11 @@ msgstr "Éclairage RGB"
 
 #: crates/rigg-core/src/hjelper.rs:407
 msgid "Trinnet «{one}» er ikke godkjent. Godkjenn det i Innstillinger › Styring først."
-msgstr "« {one} » n’est pas autorisé. Activez d’abord cette fonction dans Paramètres › Réglages du GPU."
+msgstr "« {one} » n’est pas autorisé. Activez d’abord cette fonction dans Paramètres › Contrôle du GPU."
 
 #: crates/rigg-core/src/hjelper.rs:408
 msgid "Trinnene {steps} er ikke godkjent. Godkjenn dem i Innstillinger › Styring først."
-msgstr "Ces fonctions ne sont pas autorisées : {steps}. Activez-les d’abord dans Paramètres › Réglages du GPU."
+msgstr "Ces fonctions ne sont pas autorisées : {steps}. Activez-les d’abord dans Paramètres › Contrôle du GPU."
 
 #: crates/rigg-core/src/hjelper.rs:422
 msgid "{felt}: Kortet tillater {min}–{max}. Ingenting er endret."
@@ -106,15 +106,15 @@ msgstr "Le refroidissement d’urgence est actif. Attendez que le GPU descende s
 
 #: crates/rigg-core/src/hjelper.rs:481
 msgid "Endringer er låst: endring av skjermkortet er ikke slått på. Slå på «Tillat endring av skjermkortet» i Innstillinger › Styring."
-msgstr "Les modifications sont verrouillées, car les réglages du GPU sont désactivés. Activez Autoriser les réglages du GPU dans Paramètres › Réglages du GPU."
+msgstr "Les modifications sont verrouillées, car les réglages du GPU sont désactivés. Activez Autoriser les réglages du GPU dans Paramètres › Contrôle du GPU."
 
 #: crates/rigg-core/src/hjelper.rs:482
 msgid "Hjelperen for endring svarer ikke. Se Innstillinger › Styring."
-msgstr "L’assistant du GPU ne répond pas. Consultez Paramètres › Réglages du GPU."
+msgstr "L’assistant du GPU ne répond pas. Consultez Paramètres › Contrôle du GPU."
 
 #: crates/rigg-core/src/hjelper.rs:483
 msgid "Hjelperen er fra en annen versjon av appen. Slå bryteren i Innstillinger › Styring av og på igjen."
-msgstr "L’assistant provient d’une autre version de l’application. Désactivez puis réactivez l’option dans Paramètres › Réglages du GPU."
+msgstr "L’assistant provient d’une autre version de l’application. Désactivez puis réactivez l’option dans Paramètres › Contrôle du GPU."
 
 #: crates/rigg-core/src/hjelper.rs:484
 msgid "Hjelperen og tjenesten bruker ulike kort (simulert og ekte). Ingenting er sendt."
@@ -174,7 +174,7 @@ msgstr "Le GPU sélectionné a changé pendant la requête. La réponse ne sera 
 
 #: crates/rigg-core/src/hjelper.rs:498
 msgid "Endringer på skjermkortet er slått av. Aktiver én gang med administratorpassord i Innstillinger › Skjermkortstyring."
-msgstr "Les réglages du GPU sont désactivés. Activez-les une fois à l’aide de votre mot de passe administrateur dans Paramètres › Réglages du GPU."
+msgstr "Les réglages du GPU sont désactivés. Activez-les une fois à l’aide de votre mot de passe administrateur dans Paramètres › Contrôle du GPU."
 
 #: crates/rigg-core/src/hjelper.rs:499
 msgid "Hjelperen er ikke skriveklar for kortet som vises."

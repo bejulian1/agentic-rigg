@@ -22,15 +22,15 @@ msgstr "频率"
 
 #: crates/rigg-core/src/hjelper.rs:402
 msgid "RGB-lys"
-msgstr "RGB 灯光"
+msgstr "RGB 灯效"
 
 #: crates/rigg-core/src/hjelper.rs:407
 msgid "Trinnet «{one}» er ikke godkjent. Godkjenn det i Innstillinger › Styring først."
-msgstr "“{one}”尚未授权。请先在“设置 › 显卡调校”中启用。"
+msgstr "“{one}”尚未授权。请先在“设置 › GPU 控制”中启用。"
 
 #: crates/rigg-core/src/hjelper.rs:408
 msgid "Trinnene {steps} er ikke godkjent. Godkjenn dem i Innstillinger › Styring først."
-msgstr "{steps} 尚未授权。请先在“设置 › 显卡调校”中启用。"
+msgstr "{steps} 尚未授权。请先在“设置 › GPU 控制”中启用。"
 
 #: crates/rigg-core/src/hjelper.rs:422
 msgid "{felt}: Kortet tillater {min}–{max}. Ingenting er endret."
@@ -106,15 +106,15 @@ msgstr "紧急散热已启动。请等待显卡温度降至 80 °C 以下。"
 
 #: crates/rigg-core/src/hjelper.rs:481
 msgid "Endringer er låst: endring av skjermkortet er ikke slått på. Slå på «Tillat endring av skjermkortet» i Innstillinger › Styring."
-msgstr "显卡调校已关闭，无法更改设置。请在“设置 › 显卡调校”中打开“允许调校显卡”。"
+msgstr "显卡调校已关闭，无法更改设置。请在“设置 › GPU 控制”中打开“允许调校显卡”。"
 
 #: crates/rigg-core/src/hjelper.rs:482
 msgid "Hjelperen for endring svarer ikke. Se Innstillinger › Styring."
-msgstr "显卡辅助程序无响应。请查看“设置 › 显卡调校”。"
+msgstr "显卡辅助程序无响应。请查看“设置 › GPU 控制”。"
 
 #: crates/rigg-core/src/hjelper.rs:483
 msgid "Hjelperen er fra en annen versjon av appen. Slå bryteren i Innstillinger › Styring av og på igjen."
-msgstr "辅助程序与应用版本不匹配。请在“设置 › 显卡调校”中关闭后重新打开开关。"
+msgstr "辅助程序与应用版本不匹配。请在“设置 › GPU 控制”中关闭后重新打开开关。"
 
 #: crates/rigg-core/src/hjelper.rs:484
 msgid "Hjelperen og tjenesten bruker ulike kort (simulert og ekte). Ingenting er sendt."
@@ -174,7 +174,7 @@ msgstr "等待响应期间，所选 GPU 已更改。此响应不会用于新选�
 
 #: crates/rigg-core/src/hjelper.rs:498
 msgid "Endringer på skjermkortet er slått av. Aktiver én gang med administratorpassord i Innstillinger › Skjermkortstyring."
-msgstr "显卡调校已关闭。请在“设置 › 显卡调校”中使用管理员密码授权启用一次。"
+msgstr "显卡调校已关闭。请在“设置 › GPU 控制”中使用管理员密码授权启用一次。"
 
 #: crates/rigg-core/src/hjelper.rs:499
 msgid "Hjelperen er ikke skriveklar for kortet som vises."

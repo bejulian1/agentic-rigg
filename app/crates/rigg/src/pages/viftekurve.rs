@@ -525,7 +525,7 @@ mod edit_imp {
                 };
                 text_at(&F::temp(Some(t), 0), x(t), pt + ph + 6.0, ax, 0.0, &faint_text, false);
             }
-            text_at("GPU-temperatur", pl + pw / 2.0, hh - 2.0, 0.5, 1.0, &text, false);
+            text_at(tr!("GPU-temperatur"), pl + pw / 2.0, hh - 2.0, 0.5, 1.0, &text, false);
             let min_label = if self.floor_known.get() { trf!("Minst {fart} (driver)", fart = F::pct(Some(floor), 0)) } else { tr!("Minste fart er ikke avlest").into() };
             text_at(&min_label, pl + pw - 6.0, fy - 3.0, 1.0, 1.0, &text, true);
             if self.floor_known.get() && floor > scale.fan.0 {
@@ -1304,7 +1304,7 @@ fn simple_hidden_draft(before: &Values, after: &Values) -> HiddenDraft {
     fn text(v: &Values, field: &str) -> (&'static str, String) {
         match field {
             "powerLimitW" => (tr!("Effektgrense"), F::watt(Some(v.power_limit_w), 0)),
-            "clockOffsets.coreMhz" => ("GPU-justering", locked::signed(v.core_offset_mhz, "MHz")),
+            "clockOffsets.coreMhz" => (tr!("GPU-justering"), locked::signed(v.core_offset_mhz, "MHz")),
             "clockOffsets.memMhz" => (tr!("Minnejustering"), locked::signed(v.mem_offset_mhz, "MHz")),
             "tempTargetC" => (tr!("Temperaturmål"), F::temp(Some(v.temp_target_c), 0)),
             "fan.manualPercent" => (tr!("Lagret fast fart"), F::pct(Some(v.fan_percent), 0)),
@@ -1669,7 +1669,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     // 48 t» får alltid plass, også ved 640 px.
     let count = label("", &["muted", "sm", "num", "curve-count"]);
     count.set_xalign(1.0);
-    let win_seg = Seg::new(&[("3600", "1 t"), ("21600", "6 t"), ("86400", "24 t"), ("172800", "48 t")], "172800", tr!("Tidsvindu for målingene")).small();
+    let win_seg = Seg::new(&[("3600", tr!("1 t")), ("21600", tr!("6 t")), ("86400", tr!("24 t")), ("172800", tr!("48 t"))], "172800", tr!("Tidsvindu for målingene")).small();
     let win_box = vbox(2, &["curve-window"]);
     win_box.set_valign(gtk::Align::Start);
     win_box.set_hexpand(true);
@@ -2509,7 +2509,7 @@ impl Viftekurve {
         let min = read(&self.app).fan_min;
         let fans: Vec<f64> = pts.iter().map(|p| p.1).collect();
         let share = min.and_then(|min| share_at_min(&fans, min));
-        set_text(&self.day_kv[0], &share.map(|s| F::pct(Some(s * 100.0), 0) + " av tiden").unwrap_or_else(|| F::DASH.into()));
+        set_text(&self.day_kv[0], &share.map(|s| trf!("{andel} av tiden", andel = F::pct(Some(s * 100.0), 0))).unwrap_or_else(|| F::DASH.into()));
         set_text(&self.day_kv[1], &F::pct(fans.iter().cloned().fold(None, |m: Option<f64>, v| Some(m.map_or(v, |m| m.max(v)))), 0));
         set_text(&self.day_kv[2], &F::temp(pts.iter().map(|p| p.0).fold(None, |m: Option<f64>, v| Some(m.map_or(v, |m| m.max(v)))), 0));
         let full_day = span.is_some_and(|(a, b)| b - a >= 86_400_000 - 120_000);
@@ -2691,7 +2691,7 @@ impl Viftekurve {
         readings.max_root.set_visible(advanced);
         let maximum = curve_count_known.then(|| (0..o.vifter).flat_map(|i| o.kurve(i).iter().map(|p| p.1)).reduce(f64::max)).flatten();
         set_text(&readings.max, &F::pct(maximum, 0));
-        set_text(&readings.max_note, if shown.fan_mode != FanMode::Curve { tr!("Kurven er ikke i bruk") } else if fan_draft { "I kurveutkastet" } else { tr!("I den aktive kurven") });
+        set_text(&readings.max_note, if shown.fan_mode != FanMode::Curve { tr!("Kurven er ikke i bruk") } else if fan_draft { tr!("I kurveutkastet") } else { tr!("I den aktive kurven") });
         if !has_fans {
             let why = fan_control_unavailable(actual_count, shown.fan_mode).unwrap_or_default();
             set_text(&readings.target, F::DASH);

@@ -625,6 +625,10 @@ msgstr "ハードウェアのしきい値"
 msgid "nedklokking ved {nedklokking}, avstenging ved {avstenging}"
 msgstr "クロック低下 {nedklokking}、シャットダウン {avstenging}"
 
+#: crates/rigg/src/pages/kontroller.rs:757
+msgid "nvmlDeviceGetTemperatureThreshold, ACOUSTIC_CURR (avlesning)."
+msgstr "nvmlDeviceGetTemperatureThreshold、ACOUSTIC_CURR（読み戻し）。"
+
 #: crates/rigg/src/pages/kontroller.rs:760
 msgid "Auto (driveren styrer)"
 msgstr "自動（ドライバー）"
@@ -644,6 +648,10 @@ msgstr "ドライバーからの報告なし"
 #: crates/rigg/src/pages/kontroller.rs:763
 msgid "Modus nå"
 msgstr "現在のモード"
+
+#: crates/rigg/src/pages/kontroller.rs:764
+msgid "nvmlDeviceGetFanControlPolicy_v2 (avlesning)."
+msgstr "nvmlDeviceGetFanControlPolicy_v2（読み戻し）。"
 
 #: crates/rigg/src/pages/kontroller.rs:769
 msgid "Klar. Bruk prøver endringen; Behold lar den fortsette."
@@ -900,7 +908,7 @@ msgstr "ダブルクリックで名前を変更"
 
 #: crates/rigg/src/pages/kontroller.rs:1380
 msgid "på siden"
-msgstr "表示中の値と一致"
+msgstr "表示中"
 
 #: crates/rigg/src/pages/kontroller.rs:1381
 msgid "Verdiene på siden er de samme som i profilen"

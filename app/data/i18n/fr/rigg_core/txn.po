@@ -70,11 +70,11 @@ msgstr "Température cible"
 
 #: crates/rigg-core/src/txn.rs:313
 msgid "Kjerneklokke-offset"
-msgstr "Décalage de la fréquence du cœur"
+msgstr "Décalage de fréquence du cœur"
 
 #: crates/rigg-core/src/txn.rs:314
 msgid "Minneklokke-offset"
-msgstr "Décalage de la fréquence mémoire"
+msgstr "Décalage de fréquence mémoire"
 
 #: crates/rigg-core/src/txn.rs:315
 msgid "Viftefarten"

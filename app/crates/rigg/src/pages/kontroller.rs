@@ -754,14 +754,14 @@ fn info_for(app: &Rc<App>, title: &str, doc: &Doc, f: Field) -> gtk::Box {
             fx(tr!("Område"), r.temp_rng.map(|(a, b)| trf!("{min} til {maks} (fra kortet)", min = F::temp(Some(a), 0), maks = F::temp(Some(b), 0))).unwrap_or_else(|| tr!("leses ikke").into())),
             fx(tr!("Faste grenser"), trf!("nedklokking ved {nedklokking}, avstenging ved {avstenging}", nedklokking = F::temp(r.slowdown, 0), avstenging = F::temp(r.shutdown, 0))),
             fx(tr!("Nå"), F::temp(r.temp, 0)),
-            fx("NVML", "nvmlDeviceGetTemperatureThreshold, ACOUSTIC_CURR (avlesning).".into()),
+            fx("NVML", tr!("nvmlDeviceGetTemperatureThreshold, ACOUSTIC_CURR (avlesning).").into()),
         ],
         Field::Fan | Field::Curve => vec![
             fx(tr!("Lagret utgangspunkt"), tr!("Auto (driveren styrer)").into()),
             fx(tr!("Manuelt minimum"), r.fan_min.map(|v| trf!("{fart} (rapportert av driveren)", fart = F::pct(Some(v), 0))).unwrap_or_else(|| tr!("Ikke rapportert av driveren").into())),
             fx(tr!("Nå"), r.fans_line().replace('\u{2060}', "")),
             fx(tr!("Modus nå"), r.fan_mode_text()),
-            fx("NVML", "nvmlDeviceGetFanControlPolicy_v2 (avlesning).".into()),
+            fx("NVML", tr!("nvmlDeviceGetFanControlPolicy_v2 (avlesning).").into()),
         ],
     };
     let key = match f { Field::Power => "power", Field::Core => "core_clock", Field::Mem => "mem_clock", Field::Temp => "temp_target", Field::Fan | Field::Curve => "fan_manual" };

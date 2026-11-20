@@ -132,7 +132,7 @@ msgstr "La GPU è inattiva e mantiene basse le frequenze."
 
 #: crates/rigg/src/pages/kontroller.rs:284 crates/rigg/src/pages/kontroller.rs:336
 msgid "Programklokker"
-msgstr "Frequenze impostate dall’applicazione"
+msgstr "Frequenze app"
 
 #: crates/rigg/src/pages/kontroller.rs:284
 msgid "Klokkene er låst av et program (applications clocks)."
@@ -180,7 +180,7 @@ msgstr "L’alimentatore ha richiesto alla GPU di ridurre le frequenze."
 
 #: crates/rigg/src/pages/kontroller.rs:291 crates/rigg/src/pages/kontroller.rs:337
 msgid "Skjermklokke"
-msgstr "Frequenze per il display"
+msgstr "Frequenza display"
 
 #: crates/rigg/src/pages/kontroller.rs:291
 msgid "Klokkene er satt for skjermen."
@@ -626,6 +626,10 @@ msgstr "Soglie hardware"
 msgid "nedklokking ved {nedklokking}, avstenging ved {avstenging}"
 msgstr "riduzione delle frequenze a {nedklokking}, spegnimento a {avstenging}"
 
+#: crates/rigg/src/pages/kontroller.rs:757
+msgid "nvmlDeviceGetTemperatureThreshold, ACOUSTIC_CURR (avlesning)."
+msgstr "nvmlDeviceGetTemperatureThreshold, ACOUSTIC_CURR (lettura del valore effettivo)."
+
 #: crates/rigg/src/pages/kontroller.rs:760
 msgid "Auto (driveren styrer)"
 msgstr "Auto (gestita dal driver)"
@@ -645,6 +649,10 @@ msgstr "Non segnalato dal driver"
 #: crates/rigg/src/pages/kontroller.rs:763
 msgid "Modus nå"
 msgstr "Modalità attuale"
+
+#: crates/rigg/src/pages/kontroller.rs:764
+msgid "nvmlDeviceGetFanControlPolicy_v2 (avlesning)."
+msgstr "nvmlDeviceGetFanControlPolicy_v2 (lettura del valore effettivo)."
 
 #: crates/rigg/src/pages/kontroller.rs:769
 msgid "Klar. Bruk prøver endringen; Behold lar den fortsette."
@@ -902,7 +910,7 @@ msgstr "Fai doppio clic per rinominare"
 
 #: crates/rigg/src/pages/kontroller.rs:1380
 msgid "på siden"
-msgstr "corrisponde alla vista attuale"
+msgstr "attuale"
 
 #: crates/rigg/src/pages/kontroller.rs:1381
 msgid "Verdiene på siden er de samme som i profilen"

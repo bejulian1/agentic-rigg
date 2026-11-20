@@ -626,6 +626,10 @@ msgstr "Seuils matériels"
 msgid "nedklokking ved {nedklokking}, avstenging ved {avstenging}"
 msgstr "ralentissement à {nedklokking}, arrêt à {avstenging}"
 
+#: crates/rigg/src/pages/kontroller.rs:757
+msgid "nvmlDeviceGetTemperatureThreshold, ACOUSTIC_CURR (avlesning)."
+msgstr "nvmlDeviceGetTemperatureThreshold, ACOUSTIC_CURR (lecture)."
+
 #: crates/rigg/src/pages/kontroller.rs:760
 msgid "Auto (driveren styrer)"
 msgstr "Auto (géré par le pilote)"
@@ -645,6 +649,10 @@ msgstr "Non indiqué par le pilote"
 #: crates/rigg/src/pages/kontroller.rs:763
 msgid "Modus nå"
 msgstr "Mode actuel"
+
+#: crates/rigg/src/pages/kontroller.rs:764
+msgid "nvmlDeviceGetFanControlPolicy_v2 (avlesning)."
+msgstr "nvmlDeviceGetFanControlPolicy_v2 (lecture)."
 
 #: crates/rigg/src/pages/kontroller.rs:769
 msgid "Klar. Bruk prøver endringen; Behold lar den fortsette."
@@ -902,7 +910,7 @@ msgstr "Double-cliquez pour renommer"
 
 #: crates/rigg/src/pages/kontroller.rs:1380
 msgid "på siden"
-msgstr "correspond à la vue actuelle"
+msgstr "en cours"
 
 #: crates/rigg/src/pages/kontroller.rs:1381
 msgid "Verdiene på siden er de samme som i profilen"

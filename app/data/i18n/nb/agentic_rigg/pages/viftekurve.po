@@ -35,6 +35,10 @@ msgstr "Kjøligst: høyere kurve, 2 °C hysterese og rask rampe (20 %/s opp, 5 %
 msgid "{navn} · endret"
 msgstr "{navn} · endret"
 
+#: crates/rigg/src/pages/viftekurve.rs:528
+msgid "GPU-temperatur"
+msgstr "GPU-temperatur"
+
 #: crates/rigg/src/pages/viftekurve.rs:529
 msgid "Minst {fart} (driver)"
 msgstr "Minst {fart} (driver)"
@@ -172,6 +176,10 @@ msgstr "ingen"
 #: crates/rigg/src/pages/viftekurve.rs:1306
 msgid "Effektgrense"
 msgstr "Effektgrense"
+
+#: crates/rigg/src/pages/viftekurve.rs:1307
+msgid "GPU-justering"
+msgstr "GPU-justering"
 
 #: crates/rigg/src/pages/viftekurve.rs:1308
 msgid "Minnejustering"
@@ -320,6 +328,22 @@ msgstr "Driveren (median)"
 #: crates/rigg/src/pages/viftekurve.rs:1646
 msgid "Nå"
 msgstr "Nå"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "1 t"
+msgstr "1 t"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "6 t"
+msgstr "6 t"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "24 t"
+msgstr "24 t"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "48 t"
+msgstr "48 t"
 
 #: crates/rigg/src/pages/viftekurve.rs:1672
 msgid "Tidsvindu for målingene"
@@ -603,6 +627,10 @@ msgstr "Data for {malt} av {varighet}"
 msgid "Ingen data"
 msgstr "Ingen data"
 
+#: crates/rigg/src/pages/viftekurve.rs:2512
+msgid "{andel} av tiden"
+msgstr "{andel} av tiden"
+
 #: crates/rigg/src/pages/viftekurve.rs:2517
 msgid "hele døgnet ({varighet})"
 msgstr "hele døgnet ({varighet})"
@@ -830,6 +858,10 @@ msgstr "Fast fart på kortet"
 #: crates/rigg/src/pages/viftekurve.rs:2694
 msgid "Kurven er ikke i bruk"
 msgstr "Kurven er ikke i bruk"
+
+#: crates/rigg/src/pages/viftekurve.rs:2694
+msgid "I kurveutkastet"
+msgstr "I kurveutkastet"
 
 #: crates/rigg/src/pages/viftekurve.rs:2694
 msgid "I den aktive kurven"

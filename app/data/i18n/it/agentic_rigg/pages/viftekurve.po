@@ -36,6 +36,10 @@ msgstr "Massimo raffreddamento: curva più alta, isteresi di 2 °C e rampa rapid
 msgid "{navn} · endret"
 msgstr "{navn} · modificato"
 
+#: crates/rigg/src/pages/viftekurve.rs:528
+msgid "GPU-temperatur"
+msgstr "Temperatura GPU"
+
 #: crates/rigg/src/pages/viftekurve.rs:529
 msgid "Minst {fart} (driver)"
 msgstr "Min. {fart} (driver)"
@@ -108,7 +112,7 @@ msgstr "Curva"
 
 #: crates/rigg/src/pages/viftekurve.rs:1228
 msgid "Agentic Rigg setter farten etter viftekurven hvert sekund."
-msgstr "Agentic Rigg aggiorna la velocità ogni secondo in base alla curva."
+msgstr "Agentic Rigg aggiorna ogni secondo la velocità delle ventole in base alla curva."
 
 #: crates/rigg/src/pages/viftekurve.rs:1229 crates/rigg/src/pages/viftekurve.rs:2606
 msgid "Manuell"
@@ -174,6 +178,10 @@ msgstr "nessuno"
 msgid "Effektgrense"
 msgstr "Limite di potenza"
 
+#: crates/rigg/src/pages/viftekurve.rs:1307
+msgid "GPU-justering"
+msgstr "Offset frequenza GPU"
+
 #: crates/rigg/src/pages/viftekurve.rs:1308
 msgid "Minnejustering"
 msgstr "Offset frequenza memoria"
@@ -228,11 +236,11 @@ msgstr "Rampa in discesa"
 
 #: crates/rigg/src/pages/viftekurve.rs:1317
 msgid "Utjevning"
-msgstr "Media mobile"
+msgstr "Filtro"
 
 #: crates/rigg/src/pages/viftekurve.rs:1317 crates/rigg/src/pages/viftekurve.rs:1318
 msgid "av"
-msgstr "disattivata"
+msgstr "disattivato"
 
 #: crates/rigg/src/pages/viftekurve.rs:1318 crates/rigg/src/pages/viftekurve.rs:1727
 msgid "Hold minimum til"
@@ -321,6 +329,22 @@ msgstr "Driver (mediana)"
 #: crates/rigg/src/pages/viftekurve.rs:1646
 msgid "Nå"
 msgstr "Ora"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "1 t"
+msgstr "1 h"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "6 t"
+msgstr "6 h"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "24 t"
+msgstr "24 h"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "48 t"
+msgstr "48 h"
 
 #: crates/rigg/src/pages/viftekurve.rs:1672
 msgid "Tidsvindu for målingene"
@@ -604,6 +628,10 @@ msgstr "Dati per {malt} su {varighet}"
 msgid "Ingen data"
 msgstr "Nessun dato"
 
+#: crates/rigg/src/pages/viftekurve.rs:2512
+msgid "{andel} av tiden"
+msgstr "{andel} del tempo"
+
 #: crates/rigg/src/pages/viftekurve.rs:2517
 msgid "hele døgnet ({varighet})"
 msgstr "giornata intera ({varighet})"
@@ -833,6 +861,10 @@ msgid "Kurven er ikke i bruk"
 msgstr "La curva è inattiva"
 
 #: crates/rigg/src/pages/viftekurve.rs:2694
+msgid "I kurveutkastet"
+msgstr "Nella bozza di curva"
+
+#: crates/rigg/src/pages/viftekurve.rs:2694
 msgid "I den aktive kurven"
 msgstr "Sulla curva attiva"
 
@@ -968,8 +1000,8 @@ msgstr "Rimuovi punto"
 
 #: crates/rigg/src/pages/viftekurve.rs:2995
 msgid "{timer}t"
-msgstr "{timer} h"
+msgstr "{timer}h"
 
 #: crates/rigg/src/pages/viftekurve.rs:2996
 msgid "{timer}t {minutter}min"
-msgstr "{timer} h {minutter} min"
+msgstr "{timer}h {minutter}min"

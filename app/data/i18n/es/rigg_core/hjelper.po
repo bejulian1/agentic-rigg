@@ -26,11 +26,11 @@ msgstr "Iluminación RGB"
 
 #: crates/rigg-core/src/hjelper.rs:407
 msgid "Trinnet «{one}» er ikke godkjent. Godkjenn det i Innstillinger › Styring først."
-msgstr "«{one}» no está autorizado. Activa primero el permiso en Configuración › Control."
+msgstr "«{one}» no está autorizado. Activa primero el permiso en Configuración › Control de GPU."
 
 #: crates/rigg-core/src/hjelper.rs:408
 msgid "Trinnene {steps} er ikke godkjent. Godkjenn dem i Innstillinger › Styring først."
-msgstr "No hay autorización para {steps}. Activa primero los permisos en Configuración › Control."
+msgstr "No hay autorización para {steps}. Activa primero los permisos en Configuración › Control de GPU."
 
 #: crates/rigg-core/src/hjelper.rs:422
 msgid "{felt}: Kortet tillater {min}–{max}. Ingenting er endret."
@@ -106,15 +106,15 @@ msgstr "La refrigeración de emergencia está activa. Espera a que la GPU baje d
 
 #: crates/rigg-core/src/hjelper.rs:481
 msgid "Endringer er låst: endring av skjermkortet er ikke slått på. Slå på «Tillat endring av skjermkortet» i Innstillinger › Styring."
-msgstr "Los cambios están bloqueados porque los ajustes de GPU están desactivados. Activa Permitir ajustes de GPU en Configuración › Ajustes de GPU."
+msgstr "Los cambios están bloqueados porque los ajustes de GPU están desactivados. Activa Permitir ajustes de GPU en Configuración › Control de GPU."
 
 #: crates/rigg-core/src/hjelper.rs:482
 msgid "Hjelperen for endring svarer ikke. Se Innstillinger › Styring."
-msgstr "El asistente de GPU no responde. Consulta Configuración › Ajustes de GPU."
+msgstr "El asistente de GPU no responde. Consulta Configuración › Control de GPU."
 
 #: crates/rigg-core/src/hjelper.rs:483
 msgid "Hjelperen er fra en annen versjon av appen. Slå bryteren i Innstillinger › Styring av og på igjen."
-msgstr "El asistente pertenece a otra versión de la aplicación. Desactiva y reactiva la opción en Configuración › Ajustes de GPU."
+msgstr "El asistente pertenece a otra versión de la aplicación. Desactiva y reactiva la opción en Configuración › Control de GPU."
 
 #: crates/rigg-core/src/hjelper.rs:484
 msgid "Hjelperen og tjenesten bruker ulike kort (simulert og ekte). Ingenting er sendt."

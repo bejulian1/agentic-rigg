@@ -36,6 +36,10 @@ msgstr "Coolest: higher fan curve, 2 °C hysteresis and fast ramp (20 %/s up, 5 
 msgid "{navn} · endret"
 msgstr "{navn} · modified"
 
+#: crates/rigg/src/pages/viftekurve.rs:528
+msgid "GPU-temperatur"
+msgstr "GPU temperature"
+
 #: crates/rigg/src/pages/viftekurve.rs:529
 msgid "Minst {fart} (driver)"
 msgstr "Min. {fart} (driver)"
@@ -108,7 +112,7 @@ msgstr "Curve"
 
 #: crates/rigg/src/pages/viftekurve.rs:1228
 msgid "Agentic Rigg setter farten etter viftekurven hvert sekund."
-msgstr "Agentic Rigg updates fan speed every second based on the curve."
+msgstr "Agentic Rigg updates the fan speed from the curve every second."
 
 #: crates/rigg/src/pages/viftekurve.rs:1229 crates/rigg/src/pages/viftekurve.rs:2606
 msgid "Manuell"
@@ -173,6 +177,10 @@ msgstr "none"
 #: crates/rigg/src/pages/viftekurve.rs:1306
 msgid "Effektgrense"
 msgstr "Power limit"
+
+#: crates/rigg/src/pages/viftekurve.rs:1307
+msgid "GPU-justering"
+msgstr "GPU clock offset"
 
 #: crates/rigg/src/pages/viftekurve.rs:1308
 msgid "Minnejustering"
@@ -321,6 +329,22 @@ msgstr "Driver (median)"
 #: crates/rigg/src/pages/viftekurve.rs:1646
 msgid "Nå"
 msgstr "Now"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "1 t"
+msgstr "1 h"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "6 t"
+msgstr "6 h"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "24 t"
+msgstr "24 h"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "48 t"
+msgstr "48 h"
 
 #: crates/rigg/src/pages/viftekurve.rs:1672
 msgid "Tidsvindu for målingene"
@@ -604,6 +628,10 @@ msgstr "Data for {malt} of {varighet}"
 msgid "Ingen data"
 msgstr "No data"
 
+#: crates/rigg/src/pages/viftekurve.rs:2512
+msgid "{andel} av tiden"
+msgstr "{andel} of the time"
+
 #: crates/rigg/src/pages/viftekurve.rs:2517
 msgid "hele døgnet ({varighet})"
 msgstr "full day ({varighet})"
@@ -831,6 +859,10 @@ msgstr "Fixed speed on GPU"
 #: crates/rigg/src/pages/viftekurve.rs:2694
 msgid "Kurven er ikke i bruk"
 msgstr "The curve is inactive"
+
+#: crates/rigg/src/pages/viftekurve.rs:2694
+msgid "I kurveutkastet"
+msgstr "In curve draft"
 
 #: crates/rigg/src/pages/viftekurve.rs:2694
 msgid "I den aktive kurven"

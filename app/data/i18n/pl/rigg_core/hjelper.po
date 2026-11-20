@@ -106,15 +106,15 @@ msgstr "Chłodzenie awaryjne jest aktywne. Poczekaj, aż temperatura karty spadn
 
 #: crates/rigg-core/src/hjelper.rs:481
 msgid "Endringer er låst: endring av skjermkortet er ikke slått på. Slå på «Tillat endring av skjermkortet» i Innstillinger › Styring."
-msgstr "Zmiany są zablokowane, ponieważ regulacja karty jest wyłączona. Włącz opcję „Zezwól na zmianę ustawień karty” w Ustawienia › Regulacja karty."
+msgstr "Zmiany są zablokowane, ponieważ regulacja karty jest wyłączona. Włącz opcję „Zezwól na zmianę ustawień karty” w Ustawieniach › Sterowanie GPU."
 
 #: crates/rigg-core/src/hjelper.rs:482
 msgid "Hjelperen for endring svarer ikke. Se Innstillinger › Styring."
-msgstr "Program pomocniczy karty nie odpowiada. Zobacz Ustawienia › Regulacja karty."
+msgstr "Program pomocniczy karty nie odpowiada. Zobacz Ustawienia › Sterowanie GPU."
 
 #: crates/rigg-core/src/hjelper.rs:483
 msgid "Hjelperen er fra en annen versjon av appen. Slå bryteren i Innstillinger › Styring av og på igjen."
-msgstr "Program pomocniczy pochodzi z innej wersji aplikacji. Wyłącz i włącz przełącznik w Ustawienia › Regulacja karty."
+msgstr "Program pomocniczy pochodzi z innej wersji aplikacji. Wyłącz i włącz przełącznik w Ustawieniach › Sterowanie GPU."
 
 #: crates/rigg-core/src/hjelper.rs:484
 msgid "Hjelperen og tjenesten bruker ulike kort (simulert og ekte). Ingenting er sendt."

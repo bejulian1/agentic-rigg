@@ -36,6 +36,10 @@ msgstr "Resfriamento máximo: curva mais alta, histerese de 2 °C e rampa rápid
 msgid "{navn} · endret"
 msgstr "{navn} · modificado"
 
+#: crates/rigg/src/pages/viftekurve.rs:528
+msgid "GPU-temperatur"
+msgstr "Temperatura da GPU"
+
 #: crates/rigg/src/pages/viftekurve.rs:529
 msgid "Minst {fart} (driver)"
 msgstr "Mín. {fart} (driver)"
@@ -174,6 +178,10 @@ msgstr "nenhum"
 msgid "Effektgrense"
 msgstr "Limite de potência"
 
+#: crates/rigg/src/pages/viftekurve.rs:1307
+msgid "GPU-justering"
+msgstr "Offset de clock da GPU"
+
 #: crates/rigg/src/pages/viftekurve.rs:1308
 msgid "Minnejustering"
 msgstr "Offset de clock da memória"
@@ -232,7 +240,7 @@ msgstr "Suavização"
 
 #: crates/rigg/src/pages/viftekurve.rs:1317 crates/rigg/src/pages/viftekurve.rs:1318
 msgid "av"
-msgstr "não"
+msgstr "desativado"
 
 #: crates/rigg/src/pages/viftekurve.rs:1318 crates/rigg/src/pages/viftekurve.rs:1727
 msgid "Hold minimum til"
@@ -321,6 +329,22 @@ msgstr "Driver (mediana)"
 #: crates/rigg/src/pages/viftekurve.rs:1646
 msgid "Nå"
 msgstr "Agora"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "1 t"
+msgstr "1 h"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "6 t"
+msgstr "6 h"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "24 t"
+msgstr "24 h"
+
+#: crates/rigg/src/pages/viftekurve.rs:1672
+msgid "48 t"
+msgstr "48 h"
 
 #: crates/rigg/src/pages/viftekurve.rs:1672
 msgid "Tidsvindu for målingene"
@@ -604,6 +628,10 @@ msgstr "Dados de {malt} de um total de {varighet}"
 msgid "Ingen data"
 msgstr "Sem dados"
 
+#: crates/rigg/src/pages/viftekurve.rs:2512
+msgid "{andel} av tiden"
+msgstr "{andel} do tempo"
+
 #: crates/rigg/src/pages/viftekurve.rs:2517
 msgid "hele døgnet ({varighet})"
 msgstr "dia inteiro ({varighet})"
@@ -833,6 +861,10 @@ msgid "Kurven er ikke i bruk"
 msgstr "A curva está inativa"
 
 #: crates/rigg/src/pages/viftekurve.rs:2694
+msgid "I kurveutkastet"
+msgstr "No rascunho da curva"
+
+#: crates/rigg/src/pages/viftekurve.rs:2694
 msgid "I den aktive kurven"
 msgstr "Na curva ativa"
 
@@ -968,8 +1000,8 @@ msgstr "Remover ponto"
 
 #: crates/rigg/src/pages/viftekurve.rs:2995
 msgid "{timer}t"
-msgstr "{timer} h"
+msgstr "{timer}h"
 
 #: crates/rigg/src/pages/viftekurve.rs:2996
 msgid "{timer}t {minutter}min"
-msgstr "{timer} h {minutter} min"
+msgstr "{timer}h {minutter}min"

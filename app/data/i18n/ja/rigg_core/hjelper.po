@@ -106,15 +106,15 @@ msgstr "緊急冷却が作動中です。GPUが80 °C未満になるまでお待
 
 #: crates/rigg-core/src/hjelper.rs:481
 msgid "Endringer er låst: endring av skjermkortet er ikke slått på. Slå på «Tillat endring av skjermkortet» i Innstillinger › Styring."
-msgstr "GPUの設定変更が無効になっているため変更できません。「設定 › GPU設定」で「GPUの設定変更を許可」をオンにしてください。"
+msgstr "GPUの設定変更が無効になっているため変更できません。「設定 › GPU 制御」で「GPUの設定変更を許可」をオンにしてください。"
 
 #: crates/rigg-core/src/hjelper.rs:482
 msgid "Hjelperen for endring svarer ikke. Se Innstillinger › Styring."
-msgstr "GPUの補助プログラムが応答していません。「設定 › GPU設定」を確認してください。"
+msgstr "GPUの補助プログラムが応答していません。「設定 › GPU 制御」を確認してください。"
 
 #: crates/rigg-core/src/hjelper.rs:483
 msgid "Hjelperen er fra en annen versjon av appen. Slå bryteren i Innstillinger › Styring av og på igjen."
-msgstr "補助プログラムのバージョンがアプリと異なります。「設定 › GPU設定」でスイッチをオフにしてからオンにしてください。"
+msgstr "補助プログラムのバージョンがアプリと異なります。「設定 › GPU 制御」でスイッチをオフにしてからオンにしてください。"
 
 #: crates/rigg-core/src/hjelper.rs:484
 msgid "Hjelperen og tjenesten bruker ulike kort (simulert og ekte). Ingenting er sendt."

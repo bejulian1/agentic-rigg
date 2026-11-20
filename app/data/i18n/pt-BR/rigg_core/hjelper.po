@@ -106,15 +106,15 @@ msgstr "O resfriamento de emergência está ativo. Aguarde a GPU ficar abaixo de
 
 #: crates/rigg-core/src/hjelper.rs:481
 msgid "Endringer er låst: endring av skjermkortet er ikke slått på. Slå på «Tillat endring av skjermkortet» i Innstillinger › Styring."
-msgstr "As alterações estão bloqueadas porque os ajustes da GPU estão desativados. Ative Permitir ajustes da GPU em Configurações › Ajustes da GPU."
+msgstr "As alterações estão bloqueadas porque os ajustes da GPU estão desativados. Ative Permitir ajustes da GPU em Configurações › Controle da GPU."
 
 #: crates/rigg-core/src/hjelper.rs:482
 msgid "Hjelperen for endring svarer ikke. Se Innstillinger › Styring."
-msgstr "O auxiliar da GPU não responde. Veja Configurações › Ajustes da GPU."
+msgstr "O auxiliar da GPU não responde. Veja Configurações › Controle da GPU."
 
 #: crates/rigg-core/src/hjelper.rs:483
 msgid "Hjelperen er fra en annen versjon av appen. Slå bryteren i Innstillinger › Styring av og på igjen."
-msgstr "O auxiliar pertence a outra versão do app. Desative e reative a opção em Configurações › Ajustes da GPU."
+msgstr "O auxiliar pertence a outra versão do app. Desative e reative a opção em Configurações › Controle da GPU."
 
 #: crates/rigg-core/src/hjelper.rs:484
 msgid "Hjelperen og tjenesten bruker ulike kort (simulert og ekte). Ingenting er sendt."

@@ -26,11 +26,11 @@ msgstr "RGB lighting"
 
 #: crates/rigg-core/src/hjelper.rs:407
 msgid "Trinnet «{one}» er ikke godkjent. Godkjenn det i Innstillinger › Styring først."
-msgstr "“{one}” is not authorized. Enable it in Settings › Control first."
+msgstr "“{one}” is not authorized. Enable it in Settings › GPU control first."
 
 #: crates/rigg-core/src/hjelper.rs:408
 msgid "Trinnene {steps} er ikke godkjent. Godkjenn dem i Innstillinger › Styring først."
-msgstr "{steps} are not authorized. Enable them in Settings › Control first."
+msgstr "{steps} are not authorized. Enable them in Settings › GPU control first."
 
 #: crates/rigg-core/src/hjelper.rs:422
 msgid "{felt}: Kortet tillater {min}–{max}. Ingenting er endret."
@@ -106,15 +106,15 @@ msgstr "Emergency cooling is active. Wait until the GPU is below 80 °C."
 
 #: crates/rigg-core/src/hjelper.rs:481
 msgid "Endringer er låst: endring av skjermkortet er ikke slått på. Slå på «Tillat endring av skjermkortet» i Innstillinger › Styring."
-msgstr "Changes are locked because GPU tuning is off. Turn on Allow GPU tuning in Settings › GPU tuning."
+msgstr "Changes are locked because GPU tuning is off. Turn on Allow GPU tuning in Settings › GPU control."
 
 #: crates/rigg-core/src/hjelper.rs:482
 msgid "Hjelperen for endring svarer ikke. Se Innstillinger › Styring."
-msgstr "The GPU helper is not responding. See Settings › GPU tuning."
+msgstr "The GPU helper is not responding. See Settings › GPU control."
 
 #: crates/rigg-core/src/hjelper.rs:483
 msgid "Hjelperen er fra en annen versjon av appen. Slå bryteren i Innstillinger › Styring av og på igjen."
-msgstr "The helper is from a different app version. Turn the switch in Settings › GPU tuning off and back on."
+msgstr "The helper is from a different app version. Turn the switch in Settings › GPU control off and back on."
 
 #: crates/rigg-core/src/hjelper.rs:484
 msgid "Hjelperen og tjenesten bruker ulike kort (simulert og ekte). Ingenting er sendt."
@@ -174,7 +174,7 @@ msgstr "The selected GPU changed while the request was pending. The reply will n
 
 #: crates/rigg-core/src/hjelper.rs:498
 msgid "Endringer på skjermkortet er slått av. Aktiver én gang med administratorpassord i Innstillinger › Skjermkortstyring."
-msgstr "GPU control is off. Enable it once with your administrator password in Settings › GPU Control."
+msgstr "GPU control is off. Enable it once with your administrator password in Settings › GPU control."
 
 #: crates/rigg-core/src/hjelper.rs:499
 msgid "Hjelperen er ikke skriveklar for kortet som vises."
