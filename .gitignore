@@ -26,3 +26,12 @@ test/
 
 # Skjermbilder fra prototypene
 prototyper/**/skjermbilder/
+
+# Localhost-demoen og prototypene ligger lokalt og er ikke del av den
+# offentlige kildekoden (tatt ut av sporing 20. november 2026).
+/web/
+/server/
+/daemon-mock/
+/prototyper/
+/scripts/
+/package.json

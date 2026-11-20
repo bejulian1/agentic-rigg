@@ -1,0 +1,65 @@
+name: Bug Report
+description: Report a bug or unexpected behavior in Agentic Rigg
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug! You can write in English or Norwegian.
+        **Privacy reminder:** Please remove any private data (hardware serial numbers, UUIDs, personal usernames/paths, or credentials) before pasting logs or reports.
+  - type: input
+    id: version
+    attributes:
+      label: App version and build
+      description: Found in `Innstillinger › Om` (or run `agentic-rigg --version`).
+      placeholder: e.g. 1.4.1 · bygg 24
+    validations:
+      required: true
+  - type: input
+    id: distro
+    attributes:
+      label: Linux distribution and version
+      placeholder: e.g. Ubuntu 26.04 (GNOME / Wayland)
+    validations:
+      required: true
+  - type: input
+    id: gtk
+    attributes:
+      label: GTK version
+      description: e.g. output of `pkg-config --modversion gtk4` or `dpkg -s libgtk-4-1 | grep Version`
+      placeholder: e.g. 4.22.4
+    validations:
+      required: false
+  - type: input
+    id: gpu
+    attributes:
+      label: GPU and driver version
+      description: GPU model and NVIDIA driver version (e.g. from `nvidia-smi`), or note if no NVIDIA GPU is installed.
+      placeholder: e.g. NVIDIA RTX 2080, driver 610.43.02
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the bug clearly, including what you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open ...
+        2. Click ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs or output
+      description: Paste any relevant terminal output or journal logs (`journalctl --user -u agentic-riggd`). **Do not paste private data, serial numbers, UUIDs, or credentials.**
+      render: shell
+    validations:
+      required: false

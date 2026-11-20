@@ -174,6 +174,7 @@ impl Cpu {
                 .and_then(|f| f.read_f64())
                 .map(|khz| (khz / 1000.0).round());
         }
+        let thread_ids: Vec<u32> = cur.cpus.keys().copied().collect();
         self.prev = cur;
         if every5 || governor_changed {
             self.gov_cache = self
@@ -189,6 +190,7 @@ impl Cpu {
             load: total,
             core_load: cores,
             core_mhz,
+            thread_ids,
             temp: None,
             tctl: None,
             governor: self.gov_cache.clone(),
@@ -273,6 +275,7 @@ mod tests {
         let mut cpu = Cpu::new(&f.0);
         let first = cpu.sample(true);
         assert_eq!(cpu.threads(), 8);
+        assert_eq!(first.thread_ids, ids);
         assert_eq!(first.core_mhz.len(), 12);
         assert_eq!(first.core_mhz[8], Some(2800.0));
         assert!(first.core_load.iter().all(Option::is_none));
@@ -304,9 +307,12 @@ mod tests {
             "performance\n",
         );
         let mut cpu = Cpu::new(&f.0);
-        assert_eq!(cpu.sample(true).governor.as_deref(), Some("powersave"));
+        let first = cpu.sample(true);
+        assert_eq!(first.governor.as_deref(), Some("powersave"));
+        assert_eq!(first.thread_ids, vec![0, 8]);
         f.stat(&[(9, 500, 500), (0, 20, 100)]); // Ny ID og annen rekkefølge, samme antall.
         let second = cpu.sample(false);
+        assert_eq!(second.thread_ids, vec![0, 9]);
         assert_eq!(second.core_load[0], Some(50.0));
         assert_eq!(
             second.core_load[9], None,
@@ -316,6 +322,7 @@ mod tests {
         assert_eq!(second.core_mhz[8], None);
         f.stat(&[(9, 510, 530)]);
         let third = cpu.sample(false);
+        assert_eq!(third.thread_ids, vec![9]);
         assert_eq!(third.core_load[9], Some(25.0));
         assert_eq!(third.core_mhz[0], None);
         assert_eq!(

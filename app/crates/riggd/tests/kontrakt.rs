@@ -73,6 +73,40 @@ impl Daemon {
         Daemon::start_in(&tmpdir("k"), backend, 60_000)
     }
 
+    fn start_with_root(dir: &Path, backend: &str, root: &Path) -> Daemon {
+        let socket = dir.join("run/riggd.sock");
+        let helper_root = dir.join("tom-hjelper-rot");
+        std::fs::create_dir_all(&helper_root).unwrap();
+        let child = Command::new(env!("CARGO_BIN_EXE_agentic-riggd"))
+            .args(["--backend", backend, "--socket"])
+            .arg(&socket)
+            .arg("--root")
+            .arg(root)
+            .arg("--hjelper-rot")
+            .arg(&helper_root)
+            .args(["--grace-ms", "60000"])
+            .env("RIGG_CONFIG_DIR", dir.join("config"))
+            .env("RIGG_STATE_DIR", dir.join("state"))
+            .env("RIGG_DISKER", "ingen")
+            .env_remove("NOTIFY_SOCKET")
+            .env_remove("RIGG_PROFIL")
+            .env_remove("RIGG_HJELPER_ROT")
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn()
+            .expect("start agentic-riggd");
+        let t0 = Instant::now();
+        while !socket.exists() {
+            assert!(t0.elapsed() < Duration::from_secs(5), "socketen kom ikke");
+            std::thread::sleep(Duration::from_millis(10));
+        }
+        Daemon {
+            child,
+            dir: dir.to_path_buf(),
+            socket,
+        }
+    }
+
     fn connect(&self) -> Conn {
         Conn::new(&self.socket)
     }
@@ -1111,4 +1145,92 @@ fn diskene_med_helse_og_hastighet() {
             .len(),
         5
     );
+}
+
+/// Regresjonstest for #3: CPU-hotplug `[0, 1] → [0, 8]` med uendret antall
+/// tråder i én og samme daemon-økt skal oppdatere både telemetri og `get_system`.
+#[test]
+fn cpu_hotplug_oppdaterer_get_system_og_telemetri_i_samme_okt() {
+    let dir = tmpdir("hotplug");
+    let root = dir.join("fake-root");
+    let put = |rel: &str, text: &str| {
+        let p = root.join(rel);
+        std::fs::create_dir_all(p.parent().unwrap()).unwrap();
+        std::fs::write(p, text).unwrap();
+    };
+    let write_stat = |rows: &[(u32, u64, u64)]| {
+        let (u, i) = rows.iter().fold((0, 0), |(u, i), r| (u + r.1, i + r.2));
+        let mut s = format!("cpu {u} 0 0 {i} 0 0 0 0\n");
+        for (id, user, idle) in rows {
+            s.push_str(&format!("cpu{id} {user} 0 0 {idle} 0 0 0 0\n"));
+        }
+        put("proc/stat", &s);
+    };
+    let write_cpu = |id: u32, core: u32, khz: u32| {
+        put(&format!("sys/devices/system/cpu/cpu{id}/topology/core_id"), &format!("{core}\n"));
+        put(&format!("sys/devices/system/cpu/cpu{id}/topology/physical_package_id"), "0\n");
+        put(&format!("sys/devices/system/cpu/cpu{id}/cpufreq/scaling_cur_freq"), &format!("{khz}\n"));
+    };
+    let cpuinfo = |ids: &[u32]| -> String {
+        ids.iter()
+            .map(|id| format!("processor\t: {id}\nmodel name\t: Syntetisk CPU\nphysical id\t: 0\ncore id\t\t: {id}\n\n"))
+            .collect()
+    };
+
+    put("proc/meminfo", "MemTotal: 16384000 kB\nMemAvailable: 8192000 kB\n");
+    put("sys/devices/system/cpu/online", "0-1\n");
+    put("proc/cpuinfo", &cpuinfo(&[0, 1]));
+    write_cpu(0, 0, 2_000_000);
+    write_cpu(1, 1, 2_100_000);
+    write_stat(&[(0, 10, 90), (1, 10, 90)]);
+
+    let d = Daemon::start_with_root(&dir, "ingen", &root);
+    let mut c = d.connect();
+    c.hello();
+    c.ok("subscribe", json!({"topics": ["telemetry"], "intervalMs": 500}));
+
+    let sys1 = c.ok("get_system", json!({}));
+    assert_eq!(sys1["cpu"]["threadIds"], json!([0, 1]));
+    assert_eq!(sys1["cpu"]["threads"], 2);
+    assert_eq!(sys1["cpu"]["coreOf"], json!([0, 1]));
+
+    let t1 = c.wait_event("telemetry", Duration::from_secs(5)).expect("første telemetri");
+    assert_eq!(t1["data"]["sys"]["cpu"]["threadIds"], json!([0, 1]));
+
+    // Hotplug [0, 1] -> [0, 8] (samme antall tråder = 2).
+    put("sys/devices/system/cpu/online", "0,8\n");
+    put("proc/cpuinfo", &cpuinfo(&[0, 8]));
+    write_cpu(8, 4, 3_600_000);
+    write_stat(&[(0, 20, 180), (8, 50, 50)]);
+
+    // Vent til telemetrien viser [0, 8], og mat ny teller så CPU8 også får last.
+    let deadline = Instant::now() + Duration::from_secs(6);
+    loop {
+        let ev = c.wait_event("telemetry", Duration::from_secs(3)).expect("telemetri etter hotplug");
+        if ev["data"]["sys"]["cpu"]["threadIds"] == json!([0, 8]) {
+            break;
+        }
+        assert!(Instant::now() < deadline, "telemetrien byttet ikke til [0, 8]: {ev}");
+    }
+    write_stat(&[(0, 30, 270), (8, 125, 75)]);
+    let loaded = loop {
+        let ev = c.wait_event("telemetry", Duration::from_secs(3)).expect("telemetri med last på CPU8");
+        let cpu = &ev["data"]["sys"]["cpu"];
+        if cpu["threadIds"] == json!([0, 8]) && cpu["coreLoad"][8].as_f64().is_some() {
+            break ev;
+        }
+        assert!(Instant::now() < deadline, "CPU8 fikk ikke last i telemetrien: {ev}");
+    };
+    assert!(loaded["data"]["sys"]["cpu"]["coreLoad"][1].is_null());
+    assert!(loaded["data"]["sys"]["cpu"]["coreMhz"][1].is_null());
+    assert_eq!(loaded["data"]["sys"]["cpu"]["coreMhz"][8], json!(3600.0));
+
+    // Samme daemon-økt skal nå svare med ny topologi i get_system.
+    let sys2 = c.ok("get_system", json!({}));
+    assert_eq!(sys2["cpu"]["threadIds"], json!([0, 8]));
+    assert_eq!(sys2["cpu"]["threads"], 2);
+    assert_eq!(sys2["threads"], 2);
+    assert_eq!(sys2["cpu"]["coreOf"].as_array().unwrap().len(), 9);
+    assert!(sys2["cpu"]["coreOf"][1].is_null());
+    assert_eq!(sys2["cpu"]["coreOf"][8], 4);
 }

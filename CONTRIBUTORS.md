@@ -1,13 +1,13 @@
-# Bidragsytere
+# Contributors
 
-| Bidragsyter | Rolle |
+| Contributor | Role |
 |---|---|
-| [Julian / bejulian1](https://github.com/bejulian1) | Prosjekteier, produktidé, prioriteringer, maskinvaregrunnlag og utprøving. |
-| [Claude Code · Anthropic Claude Opus 5.5](https://github.com/apps/claude) | AI-assistanse til den opprinnelige applikasjonen, Rust/GTK-grunnlaget, funksjoner og dokumentasjon frem til 1.3.0. |
-| [Codex · OpenAI GPT 6.1 Sol](https://github.com/codex) | AI-assistanse til sidefelt, navigasjon og søk, adaptive grafer, CPU-lanseringsdato, kode-/UI-gjennomgang, NVML-styring i 1.4.0, maskinvaretilpasning og brukerflate i 1.4.1, GitHub-utgivelser og Oppgaver-modulen på featurebranchen. |
+| [Julian / bejulian1](https://github.com/bejulian1) | Project owner, product vision, priorities, hardware foundation, and testing. |
+| [Claude Code · Anthropic Claude Opus 5.5](https://github.com/apps/claude) | AI assistance on the original application, Rust/GTK foundation, features, and documentation up to 1.3.0. |
+| [Codex · OpenAI GPT 6.1 Sol](https://github.com/codex) | AI assistance on the sidebar, navigation and search, adaptive graphs, CPU launch dates, code/UI review, NVML control in 1.4.0, hardware adaptation and UI in 1.4.1, and GitHub releases. |
 
-Claude Code og Codex er AI-verktøy, ikke menneskelige prosjektmedlemmer. Prosjekteieren bestemmer funksjoner og godkjenner publisering.
+Claude Code and Codex are AI tools, not human project members. The project owner decides on features and approves releases.
 
-GitHubs automatiske Contributors-visning bygger på commit-historikk og kontoidentiteter. Denne oversikten dokumenterer bidragene uavhengig av hvilke medforfattere GitHub viser i sidepanelet. Eksisterende Claude-kreditering i historikken beholdes; historikken skrives ikke om for å endre statistikk.
+GitHub's automatic Contributors view is based on commit history and account identities. This overview documents contributions regardless of which co-authors GitHub displays in the sidebar. Existing Claude attribution in the commit history is preserved; history is not rewritten to alter statistics.
 
-Ikoner: [Lucide](https://lucide.dev) og opprinnelige [Feather](https://feathericons.com)-bidragsytere. Se [lisensmerknadene](app/data/LISENSER.md).
+Icons: [Lucide](https://lucide.dev) and original [Feather](https://feathericons.com) contributors. See [license notices](app/data/LISENSER.md).

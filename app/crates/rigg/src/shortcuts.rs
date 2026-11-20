@@ -192,7 +192,7 @@ pub const KEYS: &[(&str, &[(&str, &str)])] = &[
             ("Mellomrom", "Pause og fortsett (Grafer)"),
             ("Ctrl+L", "Logg til fil av og på"),
             ("Ctrl+R", "Nullstill min og maks (Sensorer)"),
-            ("F5", "Les faste data på nytt (Grafikkort og System)"),
+            ("F5", "Oppdater nå (Oppgaver) eller les faste data på nytt (Grafikkort, Prosessor og System)"),
         ],
     ),
     (
