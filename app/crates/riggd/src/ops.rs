@@ -65,6 +65,8 @@ impl Daemon {
             "get_stats" => Ok(self.stats.to_json(keys_arg(a, 4096)?.as_deref())),
             "reset_stats" => self.op_reset_stats(a),
             "get_processes" => self.op_get_processes(a),
+            "get_tasks" => self.op_get_tasks(sid, a),
+            "terminate_task" => self.op_terminate_task(a),
             "get_disks" => Ok(self.op_get_disks()),
             "log_start" => self.op_log_start(a),
             "log_stop" => self.op_log_stop(),
@@ -189,16 +191,18 @@ impl Daemon {
     }
 
     fn op_get_system(&mut self) -> Value {
+        let root = self.opts.root.clone();
         if self.system.is_none() {
-            let root = self.opts.root.clone();
             self.system = Some(json!({
-                "cpu": rigg_hw::sys::cpuinfo::read(&root),
                 "board": rigg_hw::sys::dmi::read(&root),
                 "os": rigg_hw::sys::os::read(&root),
                 "pci": rigg_hw::sys::pci::read_board(&root),
             }));
         }
         let mut v = self.system.clone().unwrap_or(Value::Null);
+        // CPU-topologien leses fersk så CPU-hotplug alltid gir gjeldende
+        // aktive tråd-ID-er, kjerner, L3-grupper og cpufreq-data.
+        v["cpu"] = rigg_hw::sys::cpuinfo::read(&root);
         // Diskene med SMART-helse til rapporten (runde 6A), når lista finnes.
         if let Some(d) = &self.disks {
             v["disks"] = serde_json::to_value(d).unwrap_or(Value::Null);

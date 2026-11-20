@@ -1,0 +1,22 @@
+/* Oppgaver: fast verktøylinje og fot, kun tabellen ruller. */
+.task-page { padding: var(--pad); }
+.task-summary { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 10px 12px; }
+.task-total { font-size: 21px; font-weight: 600; min-width: 60px; }
+.task-summary spark { min-height: 26px; }
+.task-table { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); }
+.task-header { background: var(--panel-head); border-bottom: 1px solid var(--border); }
+window.rigg button.task-sort { min-height: 30px; min-width: 0; border-radius: 0; border: none; padding: 0; background: transparent; font-size: var(--fs-sm); color: var(--muted); }
+window.rigg button.task-sort:hover { background: var(--hover); }
+window.rigg button.task-sort.sorted { color: var(--accent); }
+.task-cell { padding: 0 9px; }
+.task-rows { background: transparent; }
+.task-row { min-height: 31px; padding: 0; border-bottom: 1px solid var(--border-soft); background: transparent; color: var(--text); }
+.task-row:hover { background: var(--hover); }
+.task-row:selected { background: var(--selected); color: var(--text); }
+.task-row:selected:focus { outline-offset: -2px; }
+.task-empty { padding: 20px; }
+.task-footer { border-top: 1px solid var(--border); padding-top: 8px; }
+.task-status { min-height: 16px; }
+window.rigg button.task-stop { color: var(--danger); }
+.tett-kompakt .task-row { min-height: 27px; }
+.tett-luftig .task-row { min-height: 35px; }

@@ -32,6 +32,10 @@ fn tmpdir(tag: &str) -> PathBuf {
 
 impl Daemon {
     fn start_in(dir: &Path, backend: &str, grace_ms: u32) -> Daemon {
+        Daemon::start_with_root(dir, backend, grace_ms, Path::new("/"))
+    }
+
+    fn start_with_root(dir: &Path, backend: &str, grace_ms: u32, root: &Path) -> Daemon {
         let socket = dir.join("run/riggd.sock");
         // En aktivert hjelper på verten må aldri bli del av kontrakttesten.
         let helper_root = dir.join("tom-hjelper-rot");
@@ -39,6 +43,8 @@ impl Daemon {
         let child = Command::new(env!("CARGO_BIN_EXE_agentic-riggd"))
             .args(["--backend", backend, "--socket"])
             .arg(&socket)
+            .arg("--root")
+            .arg(root)
             .arg("--hjelper-rot")
             .arg(&helper_root)
             .args(["--grace-ms", &grace_ms.to_string()])
@@ -65,6 +71,40 @@ impl Daemon {
 
     fn start(backend: &str) -> Daemon {
         Daemon::start_in(&tmpdir("k"), backend, 60_000)
+    }
+
+    fn start_with_root_uten_disker(dir: &Path, backend: &str, root: &Path) -> Daemon {
+        let socket = dir.join("run/riggd.sock");
+        let helper_root = dir.join("tom-hjelper-rot");
+        std::fs::create_dir_all(&helper_root).unwrap();
+        let child = Command::new(env!("CARGO_BIN_EXE_agentic-riggd"))
+            .args(["--backend", backend, "--socket"])
+            .arg(&socket)
+            .arg("--root")
+            .arg(root)
+            .arg("--hjelper-rot")
+            .arg(&helper_root)
+            .args(["--grace-ms", "60000"])
+            .env("RIGG_CONFIG_DIR", dir.join("config"))
+            .env("RIGG_STATE_DIR", dir.join("state"))
+            .env("RIGG_DISKER", "ingen")
+            .env_remove("NOTIFY_SOCKET")
+            .env_remove("RIGG_PROFIL")
+            .env_remove("RIGG_HJELPER_ROT")
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn()
+            .expect("start agentic-riggd");
+        let t0 = Instant::now();
+        while !socket.exists() {
+            assert!(t0.elapsed() < Duration::from_secs(5), "socketen kom ikke");
+            std::thread::sleep(Duration::from_millis(10));
+        }
+        Daemon {
+            child,
+            dir: dir.to_path_buf(),
+            socket,
+        }
     }
 
     fn connect(&self) -> Conn {
@@ -824,6 +864,153 @@ fn prosesslista_leses_mens_den_er_bedt_om() {
     );
 }
 
+/// Oppgaver har egen etterspørsel, avgrensede sider og frisk CPU-baseline
+/// når vinduet kommer tilbake. Testen bruker aldri vertens GPU-hjelper.
+#[test]
+fn oppgaver_har_egne_sider_og_nullstilles_etter_skjult_vindu() {
+    let d = Daemon::start("ingen");
+    let mut c = d.connect();
+    let h = c.hello();
+    let ops = h["capabilities"]["ops"].as_array().unwrap();
+    assert!(ops.iter().any(|op| op == "get_tasks"));
+    assert!(ops.iter().any(|op| op == "terminate_task"));
+    assert_eq!(c.err("get_tasks", json!({"limit": 101})), "invalid_argument");
+    assert_eq!(c.err("get_tasks", json!({"sort": "ukjent"})), "invalid_argument");
+    let query = json!({"filter": std::process::id().to_string(), "sort": "pid", "limit": 100, "snapshotId": null});
+    assert_eq!(c.ok("get_tasks", query.clone())["loading"], true);
+    let wait = |c: &mut Conn| {
+        let start = Instant::now();
+        loop {
+            let page = c.ok("get_tasks", query.clone());
+            assert!(serde_json::to_vec(&page).unwrap().len() < rigg_core::proto::MAX_LINE - 256);
+            if page["loading"] == false { break page; }
+            assert!(start.elapsed() < Duration::from_secs(8), "oppgavelista kom ikke");
+            std::thread::sleep(Duration::from_millis(100));
+        }
+    };
+    let first = wait(&mut c);
+    let row = first["rows"].as_array().unwrap().iter().find(|row| row["pid"] == std::process::id()).expect("testprosessen finnes");
+    assert!(row["cpuPercent"].is_null(), "første rate trenger to prøver");
+    assert!(row["gpuVramBytes"].is_null());
+    assert_eq!(row["canTerminate"], false, "tilkoblet klient er beskyttet");
+    assert_eq!(first["gpuSource"], "unavailable");
+    assert_eq!(first["stale"], false);
+    let frozen = c.ok("get_tasks", json!({"snapshotId": first["snapshotId"], "limit": 1}));
+    assert_eq!(frozen["snapshotId"], first["snapshotId"]);
+    assert_eq!(frozen["sampledAtMs"], first["sampledAtMs"]);
+    std::thread::sleep(Duration::from_millis(5_300));
+    let paused = c.ok("get_tasks", json!({
+        "snapshotId": first["snapshotId"], "filter": std::process::id().to_string(), "sort": "name"
+    }));
+    assert_eq!(paused["snapshotId"], first["snapshotId"]);
+    assert_eq!(paused["sampledAtMs"], first["sampledAtMs"]);
+    assert_eq!(paused["loading"], false);
+    assert_eq!(paused["stale"], true);
+    drop(c);
+    let mut c2 = d.connect();
+    c2.hello();
+    let dropped = c2.ok("get_tasks", json!({"snapshotId": first["snapshotId"]}));
+    assert_eq!(dropped["snapshotChanged"], true);
+    assert_eq!(dropped["loading"], true);
+    let resumed = wait(&mut c2);
+    assert!(resumed["snapshotId"].as_u64() > first["snapshotId"].as_u64());
+    let row = resumed["rows"].as_array().unwrap().iter().find(|row| row["pid"] == std::process::id()).unwrap();
+    assert!(row["cpuPercent"].is_null(), "skjult tid skal ikke bli en CPU-rate");
+    assert_eq!(c2.ok("get_tasks", json!({"newerThan": resumed["snapshotId"]}))["loading"], true);
+}
+
+#[test]
+fn oppgaver_sidebytte_beholder_cpu_rekkefolgen_fra_vist_bilde() {
+    let dir = tmpdir("oppgaver");
+    let root = dir.join("fixture");
+    let write_stat = |pid, ticks: u64| {
+        let proc = root.join(format!("proc/{pid}"));
+        std::fs::create_dir_all(&proc).unwrap();
+        let mut fields = ["0"; 22];
+        let ticks = ticks.to_string();
+        fields[0] = "S";
+        fields[1] = "1";
+        fields[11] = &ticks;
+        fields[19] = "42";
+        // Bytt fil atomisk slik at prøvetråden aldri leser en halv stat-linje.
+        std::fs::write(proc.join("new-stat"), format!("{pid} (fixture) {}", fields.join(" "))).unwrap();
+        std::fs::rename(proc.join("new-stat"), proc.join("stat")).unwrap();
+    };
+    for pid in [101, 202, 303] {
+        write_stat(pid, 0);
+    }
+    let d = Daemon::start_with_root(&dir, "ingen", 60_000, &root);
+    let mut c = d.connect();
+    c.hello();
+    let wait = |c: &mut Conn, args: Value| {
+        let start = Instant::now();
+        loop {
+            let page = c.ok("get_tasks", args.clone());
+            if page["loading"] == false {
+                break page;
+            }
+            assert!(start.elapsed() < Duration::from_secs(8), "oppgavelista kom ikke");
+            std::thread::sleep(Duration::from_millis(100));
+        }
+    };
+    let first = wait(&mut c, json!({"limit": 1}));
+    assert_eq!(first["rows"][0]["pid"], 101);
+
+    write_stat(303, 300);
+    // En annen klient holder innsamlingen i gang og observerer ny rangering.
+    let mut live = d.connect();
+    live.hello();
+    let latest = wait(&mut live, json!({"limit": 1, "newerThan": first["snapshotId"]}));
+    assert_eq!(latest["rows"][0]["pid"], 303);
+
+    let next = c.ok("get_tasks", json!({
+        "limit": 1, "offset": first["nextOffset"], "snapshotId": first["snapshotId"]
+    }));
+    assert_eq!(next["snapshotId"], first["snapshotId"]);
+    assert_eq!(next["rows"][0]["pid"], 202);
+    let previous = c.ok("get_tasks", json!({"limit": 1, "snapshotId": next["snapshotId"]}));
+    assert_eq!(previous["rows"][0]["pid"], 101);
+
+    let missing = c.ok("get_tasks", json!({
+        "snapshotId": u64::MAX, "sort": "pid", "descending": false, "offset": 2, "limit": 1
+    }));
+    assert_eq!(missing["snapshotChanged"], true);
+    assert_eq!(missing["offset"], 0);
+    assert_eq!(missing["rows"][0]["pid"], 101);
+}
+
+/// Bare vår egen sovende barneprosess er signalmål. PID-gjenbruk og
+/// manglende bekreftelse må feile før SIGTERM sendes.
+#[test]
+fn avslutt_oppgave_krever_bekreftet_identitet() {
+    struct ChildGuard(Child);
+    impl Drop for ChildGuard {
+        fn drop(&mut self) { let _ = self.0.kill(); let _ = self.0.wait(); }
+    }
+    let mut child = ChildGuard(Command::new("sleep").arg("30").spawn().unwrap());
+    let identity = rigg_hw::sys::process::read_identity(Path::new("/"), child.0.id()).unwrap();
+    let d = Daemon::start("ingen");
+    let mut c = d.connect();
+    c.hello();
+    let args = json!({"pid": identity.pid, "expectedStartTicks": identity.start_ticks});
+    assert_eq!(c.err("terminate_task", args.clone()), "invalid_argument");
+    let mut wrong = args.clone();
+    wrong["confirmed"] = json!(true);
+    wrong["expectedStartTicks"] = json!(identity.start_ticks + 1);
+    assert_eq!(c.err("terminate_task", wrong), "permission_denied");
+    assert!(child.0.try_wait().unwrap().is_none(), "feil identitet får aldri signal");
+    let mut confirmed = args;
+    confirmed["confirmed"] = json!(true);
+    assert_eq!(c.ok("terminate_task", confirmed)["signal"], "SIGTERM");
+    let start = Instant::now();
+    while child.0.try_wait().unwrap().is_none() {
+        assert!(start.elapsed() < Duration::from_secs(5), "barnet avsluttet ikke");
+        std::thread::sleep(Duration::from_millis(10));
+    }
+    let own = rigg_hw::sys::process::read_identity(Path::new("/"), std::process::id()).unwrap();
+    assert_eq!(c.err("terminate_task", json!({"pid": own.pid, "expectedStartTicks": own.start_ticks, "confirmed": true})), "permission_denied");
+}
+
 /// Mens loggen går, er takten minst så rask som loggintervallet, også uten
 /// vindu (ønske fra 2B). Etter stopp gjelder bakgrunnstakten igjen.
 #[test]
@@ -958,4 +1145,92 @@ fn diskene_med_helse_og_hastighet() {
             .len(),
         5
     );
+}
+
+/// Regresjonstest for #3: CPU-hotplug `[0, 1] → [0, 8]` med uendret antall
+/// tråder i én og samme daemon-økt skal oppdatere både telemetri og `get_system`.
+#[test]
+fn cpu_hotplug_oppdaterer_get_system_og_telemetri_i_samme_okt() {
+    let dir = tmpdir("hotplug");
+    let root = dir.join("fake-root");
+    let put = |rel: &str, text: &str| {
+        let p = root.join(rel);
+        std::fs::create_dir_all(p.parent().unwrap()).unwrap();
+        std::fs::write(p, text).unwrap();
+    };
+    let write_stat = |rows: &[(u32, u64, u64)]| {
+        let (u, i) = rows.iter().fold((0, 0), |(u, i), r| (u + r.1, i + r.2));
+        let mut s = format!("cpu {u} 0 0 {i} 0 0 0 0\n");
+        for (id, user, idle) in rows {
+            s.push_str(&format!("cpu{id} {user} 0 0 {idle} 0 0 0 0\n"));
+        }
+        put("proc/stat", &s);
+    };
+    let write_cpu = |id: u32, core: u32, khz: u32| {
+        put(&format!("sys/devices/system/cpu/cpu{id}/topology/core_id"), &format!("{core}\n"));
+        put(&format!("sys/devices/system/cpu/cpu{id}/topology/physical_package_id"), "0\n");
+        put(&format!("sys/devices/system/cpu/cpu{id}/cpufreq/scaling_cur_freq"), &format!("{khz}\n"));
+    };
+    let cpuinfo = |ids: &[u32]| -> String {
+        ids.iter()
+            .map(|id| format!("processor\t: {id}\nmodel name\t: Syntetisk CPU\nphysical id\t: 0\ncore id\t\t: {id}\n\n"))
+            .collect()
+    };
+
+    put("proc/meminfo", "MemTotal: 16384000 kB\nMemAvailable: 8192000 kB\n");
+    put("sys/devices/system/cpu/online", "0-1\n");
+    put("proc/cpuinfo", &cpuinfo(&[0, 1]));
+    write_cpu(0, 0, 2_000_000);
+    write_cpu(1, 1, 2_100_000);
+    write_stat(&[(0, 10, 90), (1, 10, 90)]);
+
+    let d = Daemon::start_with_root_uten_disker(&dir, "ingen", &root);
+    let mut c = d.connect();
+    c.hello();
+    c.ok("subscribe", json!({"topics": ["telemetry"], "intervalMs": 500}));
+
+    let sys1 = c.ok("get_system", json!({}));
+    assert_eq!(sys1["cpu"]["threadIds"], json!([0, 1]));
+    assert_eq!(sys1["cpu"]["threads"], 2);
+    assert_eq!(sys1["cpu"]["coreOf"], json!([0, 1]));
+
+    let t1 = c.wait_event("telemetry", Duration::from_secs(5)).expect("første telemetri");
+    assert_eq!(t1["data"]["sys"]["cpu"]["threadIds"], json!([0, 1]));
+
+    // Hotplug [0, 1] -> [0, 8] (samme antall tråder = 2).
+    put("sys/devices/system/cpu/online", "0,8\n");
+    put("proc/cpuinfo", &cpuinfo(&[0, 8]));
+    write_cpu(8, 4, 3_600_000);
+    write_stat(&[(0, 20, 180), (8, 50, 50)]);
+
+    // Vent til telemetrien viser [0, 8], og mat ny teller så CPU8 også får last.
+    let deadline = Instant::now() + Duration::from_secs(6);
+    loop {
+        let ev = c.wait_event("telemetry", Duration::from_secs(3)).expect("telemetri etter hotplug");
+        if ev["data"]["sys"]["cpu"]["threadIds"] == json!([0, 8]) {
+            break;
+        }
+        assert!(Instant::now() < deadline, "telemetrien byttet ikke til [0, 8]: {ev}");
+    }
+    write_stat(&[(0, 30, 270), (8, 125, 75)]);
+    let loaded = loop {
+        let ev = c.wait_event("telemetry", Duration::from_secs(3)).expect("telemetri med last på CPU8");
+        let cpu = &ev["data"]["sys"]["cpu"];
+        if cpu["threadIds"] == json!([0, 8]) && cpu["coreLoad"][8].as_f64().is_some() {
+            break ev;
+        }
+        assert!(Instant::now() < deadline, "CPU8 fikk ikke last i telemetrien: {ev}");
+    };
+    assert!(loaded["data"]["sys"]["cpu"]["coreLoad"][1].is_null());
+    assert!(loaded["data"]["sys"]["cpu"]["coreMhz"][1].is_null());
+    assert_eq!(loaded["data"]["sys"]["cpu"]["coreMhz"][8], json!(3600.0));
+
+    // Samme daemon-økt skal nå svare med ny topologi i get_system.
+    let sys2 = c.ok("get_system", json!({}));
+    assert_eq!(sys2["cpu"]["threadIds"], json!([0, 8]));
+    assert_eq!(sys2["cpu"]["threads"], 2);
+    assert_eq!(sys2["threads"], 2);
+    assert_eq!(sys2["cpu"]["coreOf"].as_array().unwrap().len(), 9);
+    assert!(sys2["cpu"]["coreOf"][1].is_null());
+    assert_eq!(sys2["cpu"]["coreOf"][8], 4);
 }

@@ -19,6 +19,7 @@ pub mod mem;
 pub mod net;
 pub mod os;
 pub mod pci;
+pub mod process;
 pub mod udisks;
 
 use crate::PreadFile;

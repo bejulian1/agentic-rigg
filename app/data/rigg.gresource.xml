@@ -19,6 +19,7 @@
     <file>theme/kontroller.css</file>
     <file>theme/viftekurve.css</file>
     <file>theme/lys.css</file>
+    <file>theme/oppgaver.css</file>
     <file alias="icons/scalable/apps/io.github.AgenticRigg.svg">icons/hicolor/scalable/apps/io.github.AgenticRigg.svg</file>
     <file alias="icons/48x48/apps/io.github.AgenticRigg.svg">icons/hicolor/48x48/apps/io.github.AgenticRigg.svg</file>
     <file alias="icons/32x32/apps/io.github.AgenticRigg.svg">icons/hicolor/32x32/apps/io.github.AgenticRigg.svg</file>

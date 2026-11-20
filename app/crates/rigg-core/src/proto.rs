@@ -34,6 +34,7 @@ pub const READ_OPS: &[&str] = &[
     "get_stats",
     "reset_stats",
     "get_processes",
+    "get_tasks",
     "get_disks",
     "log_start",
     "log_stop",
@@ -44,6 +45,10 @@ pub const READ_OPS: &[&str] = &[
     "shutdown_when_idle",
     "get_helper",
 ];
+
+/// Lokal prosessadministrasjon. Uavhengig av GPU-skriving og root-hjelperen;
+/// daemonen krever egen bekreftelse og kontrollerer prosessidentiteten.
+pub const TASK_OPS: &[&str] = &["terminate_task"];
 
 /// Skriveoperasjonene. De står bare i `ops` med `--backend sim`; med NVML
 /// svarer tjenesten `write_locked` (arkitektur.md kap. 5).
@@ -431,6 +436,7 @@ pub fn write_capabilities(backend: &str) -> Value {
 /// `ops` i `hello` for en backend: skriveoperasjonene bare med sim.
 pub fn ops_for(backend: &str) -> Vec<&'static str> {
     let mut ops: Vec<&'static str> = READ_OPS.to_vec();
+    ops.extend_from_slice(TASK_OPS);
     if backend == "sim" {
         ops.extend_from_slice(WRITE_OPS);
     }
@@ -519,6 +525,9 @@ mod tests {
     fn skriveoperasjoner_bare_med_sim() {
         let nvml = ops_for("nvml");
         assert!(!nvml.iter().any(|o| WRITE_OPS.contains(o)));
+        assert!(nvml.contains(&"get_tasks"));
+        assert!(nvml.contains(&"terminate_task"));
+        assert!(!WRITE_OPS.contains(&"terminate_task"));
         assert!(ops_for("sim").contains(&"apply"));
         assert_eq!(write_capabilities("nvml")["state"], "locked");
         assert_eq!(

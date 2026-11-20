@@ -1,5 +1,7 @@
 # Status · Agentic Rigg
 
+**Featurebranch `feature/task-manager`:** Oppgaver-modulen er foreslått i en Draft PR, med behovsstyrt Linux-prosessoversikt og bekreftet SIGTERM. [Måledefinisjoner, sikkerhet og faktisk verifikasjon](../docs/produksjon/oppgavebehandling.md). Gjeldende stabile versjon under er beholdt; forslaget er ikke installert eller utgitt.
+
 **1.4.1 · bygg 24.** Vifter har Enkel/Avansert visning, og Behold/Rull tilbake ligger synlig på Vifter og Klokker og effekt under rulling. Målt klokke nå, rapportert maksimum og justerbart offset skilles. Effektgrensen viser W og prosent; temperaturmål, vifter og detaljerte grenser ligger under Avansert. Et felles utkast oppsummeres før Bruk, også når noen felt er skjult.
 
 - **CPU på den faktiske maskinen:** Linux-CPU-ID-er beholdes ved hull i nummerrekken og hotplug. Prosessor, Sensorer og rapport bruker de aktive ID-ene; flere sokler og ulike cachegrupper behandles separat. Cachevarianter og antall bygger på sysfs-identitet og deling, og ukjent antall vises som ukjent. Temperatur bruker sensorens navn; L3-grupper kalles ikke automatisk CCX.
