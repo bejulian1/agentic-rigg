@@ -393,6 +393,21 @@ pub fn display_error(error: &ProtoError) -> Cow<'_, str> {
     }
     let details = error.details.as_ref();
     let reason = details.and_then(|value| value["reason"].as_str());
+    if error.code == ErrorCode::StepNotEnabled
+        && let Some(steps) = details.and_then(|value| value["steps"].as_array())
+        && let Some(names) = steps.iter().map(|step| Step::parse(step.as_str()?).map(|step| match step {
+            Step::Effekt => crate::tr!("Effekt"),
+            Step::Vifter => crate::tr!("Vifter"),
+            Step::Klokker => crate::tr!("Klokker"),
+            Step::Lys => crate::tr!("RGB-lys"),
+        })).collect::<Option<Vec<_>>>()
+        && !names.is_empty()
+    {
+        return Cow::Owned(match names.as_slice() {
+            [one] => crate::trf!("Trinnet «{one}» er ikke godkjent. Godkjenn det i Innstillinger › Styring først.", one = one),
+            _ => crate::trf!("Trinnene {steps} er ikke godkjent. Godkjenn dem i Innstillinger › Styring først.", steps = names.join(", ")),
+        });
+    }
     if error.code == ErrorCode::WriteLocked && let Some(reason) = reason {
         let original = locked_message(reason);
         let fallback = locked_message("");
@@ -402,17 +417,17 @@ pub fn display_error(error: &ProtoError) -> Cow<'_, str> {
     }
     if reason == Some("out_of_range") && let Some(details) = details
         && let (Some(min), Some(max)) = (details["min"].as_f64(), details["max"].as_f64())
-        && let Some((field, min, max)) = display_range(details["field"].as_str().unwrap_or(""), min, max)
+        && let Some((field, min, max)) = display_range(details["field"].as_str().unwrap_or(""), &error.message, min, max)
     {
         return Cow::Owned(crate::trf!("{felt}: Kortet tillater {min}–{max}. Ingenting er endret.", felt = field, min = min, max = max));
     }
     if error.code == ErrorCode::NotSupported && reason == Some("not_supported") && details.is_some_and(|d| d["field"].is_string()) {
         return Cow::Borrowed(crate::tr!("Kortet eller driveren støtter ikke denne funksjonen."));
     }
-    Cow::Borrowed(display_message(&error.message))
+    display_diagnostic(&error.message)
 }
 
-fn display_range(field: &str, min: f64, max: f64) -> Option<(&'static str, String, String)> {
+fn display_range(field: &str, message: &str, min: f64, max: f64) -> Option<(&'static str, String, String)> {
     use crate::fmt as F;
     let (name, format): (&str, fn(f64) -> String) = match field {
         "powerLimitW" => (crate::tr!("Effektgrense"), |value| F::watt(Some(value), 0)),
@@ -420,9 +435,37 @@ fn display_range(field: &str, min: f64, max: f64) -> Option<(&'static str, Strin
         "clockOffsets.coreMhz" => (crate::tr!("GPU-justering"), |value| F::mhz(Some(value))),
         "clockOffsets.memMhz" => (crate::tr!("Minnejustering"), |value| F::mhz(Some(value))),
         "fan.manualPercent" => (crate::tr!("Viftefart"), |value| F::pct(Some(value), 0)),
+        "fan.curve" if message.starts_with("Temperaturen i kurven må være ") => (crate::tr!("Temperaturen i kurven"), |value| F::temp(Some(value), 0)),
+        "fan.curve" if message.starts_with("Viftefarten i kurven må være ") => (crate::tr!("Viftefarten i kurven"), |value| F::pct(Some(value), 0)),
         _ => return None,
     };
     Some((name, format(min), format(max)))
+}
+
+/// Lokaliser også kjente meldingsmaler fra eldre hjelpere, uten å endre råteksten.
+pub fn display_diagnostic(message: &str) -> Cow<'_, str> {
+    if crate::i18n::active() == crate::i18n::Language::Nb {
+        return Cow::Borrowed(message);
+    }
+    if let Some(translated) = crate::txn::display_validation_details(message) {
+        return Cow::Owned(translated);
+    }
+    if let Some(cause) = message.strip_prefix("Kan ikke lagre gjenopprettingsmerkør før endring: ") {
+        return Cow::Owned(crate::trf!("Kan ikke lagre gjenopprettingsmerkør før endring: {feil}", feil = cause));
+    }
+    if let Some(cause) = message.strip_prefix("Kortet ble gjenopprettet, men merkøren kunne ikke ryddes: ") {
+        return Cow::Owned(crate::trf!("Kortet ble gjenopprettet, men merkøren kunne ikke ryddes: {feil}", feil = cause));
+    }
+    if let Some(cause) = message.strip_prefix("Fikk ikke kontakt med hjelperen (").and_then(|s| s.strip_suffix(')')) {
+        return Cow::Owned(crate::trf!("Fikk ikke kontakt med hjelperen ({feil})", feil = cause));
+    }
+    if let Some(cause) = message.strip_prefix("Hjelperen svarte ikke (").and_then(|s| s.strip_suffix(')')) {
+        return Cow::Owned(crate::trf!("Hjelperen svarte ikke ({feil})", feil = cause));
+    }
+    if let Some(cause) = message.strip_prefix("Hjelperen tok ikke imot (").and_then(|s| s.strip_suffix(')')) {
+        return Cow::Owned(crate::trf!("Hjelperen tok ikke imot ({feil})", feil = cause));
+    }
+    Cow::Borrowed(display_message(message))
 }
 
 /// Meldinger fra hjelperstatus eller en feil uten eget felt for feilkode.
@@ -449,6 +492,30 @@ pub fn display_message(message: &str) -> &str {
         "Hjelperen er aktivert for en annen bruker." => crate::tr!("Hjelperen er aktivert for en annen bruker."),
         "Hjelperen kjører, men helper.json mangler." => crate::tr!("Hjelperen kjører, men helper.json mangler."),
         "Gjenopprettingsmerkøren har feil identitet eller utrygg eier/modus." => crate::tr!("Gjenopprettingsmerkøren har feil identitet eller utrygg eier/modus."),
+        "Skjermkortet eller tjenesten svarer ikke. Endringer er låst." => crate::tr!("Skjermkortet eller tjenesten svarer ikke. Endringer er låst."),
+        "Hjelperen er aktivert for et annet kort. Aktiver styring for kortet som vises." => crate::tr!("Hjelperen er aktivert for et annet kort. Aktiver styring for kortet som vises."),
+        "Valgt kort ble endret mens forespørselen ventet. Svaret brukes ikke på det nye kortet." => crate::tr!("Valgt kort ble endret mens forespørselen ventet. Svaret brukes ikke på det nye kortet."),
+        "Endringer på skjermkortet er slått av. Aktiver én gang med administratorpassord i Innstillinger › Skjermkortstyring." => crate::tr!("Endringer på skjermkortet er slått av. Aktiver én gang med administratorpassord i Innstillinger › Skjermkortstyring."),
+        "Hjelperen er ikke skriveklar for kortet som vises." => crate::tr!("Hjelperen er ikke skriveklar for kortet som vises."),
+        "Dette eldre utkastet mangler opprinnelig grunnlag. Behold det som referanse, eller forkast det og lag et nytt utkast fra kortets verdier." => crate::tr!("Dette eldre utkastet mangler opprinnelig grunnlag. Behold det som referanse, eller forkast det og lag et nytt utkast fra kortets verdier."),
+        "Utkastet tilhører en annen kortidentitet. Velg det opprinnelige kortet, eller forkast utkastet før du lager et nytt." => crate::tr!("Utkastet tilhører en annen kortidentitet. Velg det opprinnelige kortet, eller forkast utkastet før du lager et nytt."),
+        "Det finnes ikke noe utkast å bruke." => crate::tr!("Det finnes ikke noe utkast å bruke."),
+        "Ugyldig argument." => crate::tr!("Ugyldig argument."),
+        "Ukjent skjermkort." => crate::tr!("Ukjent skjermkort."),
+        "Kortet eller driveren støtter ikke dette." => crate::tr!("Kortet eller driveren støtter ikke dette."),
+        "Ikke tillatt." => crate::tr!("Ikke tillatt."),
+        "En annen klient har en endring som venter." => crate::tr!("En annen klient har en endring som venter."),
+        "Ingen endring venter." => crate::tr!("Ingen endring venter."),
+        "Endringen finnes ikke lenger." => crate::tr!("Endringen finnes ikke lenger."),
+        "Bare klienten som gjorde endringen, kan bekrefte den." => crate::tr!("Bare klienten som gjorde endringen, kan bekrefte den."),
+        "Tjenesten stopper." => crate::tr!("Tjenesten stopper."),
+        "Feil i tjenesten." => crate::tr!("Feil i tjenesten."),
+        "Ikke tilgjengelig nå." => crate::tr!("Ikke tilgjengelig nå."),
+        "Trinnet er ikke godkjent." => crate::tr!("Trinnet er ikke godkjent."),
+        "Kortets standardtilstand kunne ikke bekreftes ved tilbakelesing." => crate::tr!("Kortets standardtilstand kunne ikke bekreftes ved tilbakelesing."),
+        "Hjelperen lukket forbindelsen" => crate::tr!("Hjelperen lukket forbindelsen"),
+        "For stort svar fra hjelperen" => crate::tr!("For stort svar fra hjelperen"),
+        "Tjenesten svarte ikke på 5 s." => crate::tr!("Tjenesten svarte ikke på 5 s."),
         _ => crate::txn::display_validation_message(display_hardware_message(message)),
     }
 }
@@ -461,6 +528,7 @@ fn display_hardware_message(message: &str) -> &str {
         Some("gpu_lost") => crate::tr!("Kortet svarer ikke."),
         Some("readback_mismatch") => crate::tr!("Kortets innstillinger kunne ikke bekreftes ved tilbakelesing."),
         Some("baseline_required") => crate::tr!("De opprinnelige innstillingene for kortet mangler."),
+        Some("hardware_fault") => crate::tr!("Kortet må gjenopprettes før nye endringer."),
         Some("invalid_argument") => crate::tr!("NVML avviste en ugyldig verdi."),
         Some("nvml_error") => crate::tr!("En NVML-operasjon mislyktes."),
         _ => message,
@@ -477,6 +545,15 @@ mod tests {
         assert_eq!(display_error(&original), original.message);
         assert_eq!(display_hardware_message("driver: ukjent"), "driver: ukjent");
         assert_eq!(display_hardware_message(&original.message), "Driveren ga ikke tilgang til å endre kortet.");
+    }
+
+    #[test]
+    fn samme_kurvefelt_kan_bety_temperatur_eller_viftefart() {
+        let temperature = display_range("fan.curve", "Temperaturen i kurven må være 0–110 °C", 0.0, 110.0).unwrap();
+        let speed = display_range("fan.curve", "Viftefarten i kurven må være 35–100 %", 35.0, 100.0).unwrap();
+        assert_eq!(temperature.0, "Temperaturen i kurven");
+        assert_eq!(speed.0, "Viftefarten i kurven");
+        assert!(display_range("fan.curve", "Ukjent feilmelding", 0.0, 110.0).is_none());
     }
 
     #[test]

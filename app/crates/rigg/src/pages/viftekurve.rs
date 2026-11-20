@@ -526,14 +526,14 @@ mod edit_imp {
                 text_at(&F::temp(Some(t), 0), x(t), pt + ph + 6.0, ax, 0.0, &faint_text, false);
             }
             text_at("GPU-temperatur", pl + pw / 2.0, hh - 2.0, 0.5, 1.0, &text, false);
-            let min_label = if self.floor_known.get() { format!("Minst {} (driver)", F::pct(Some(floor), 0)) } else { "Minste fart er ikke avlest".into() };
+            let min_label = if self.floor_known.get() { trf!("Minst {fart} (driver)", fart = F::pct(Some(floor), 0)) } else { tr!("Minste fart er ikke avlest").into() };
             text_at(&min_label, pl + pw - 6.0, fy - 3.0, 1.0, 1.0, &text, true);
             if self.floor_known.get() && floor > scale.fan.0 {
-                text_at(&format!("Under {} er ikke mulig", F::pct(Some(floor), 0)), pl + 8.0, fy + (pt + ph - fy) / 2.0, 0.0, 0.5, &text, true);
+                text_at(&trf!("Under {fart} er ikke mulig", fart = F::pct(Some(floor), 0)), pl + 8.0, fy + (pt + ph - fy) / 2.0, 0.0, 0.5, &text, true);
             }
             // Nederst i feltet, over «Minst 35 %», ikke øverst der kurven går
             // mot 100 % eller midt i der den krysser i smale vinduer (7C).
-            text_at(&format!("Nødregel {} over {}", F::pct(Some(100.0), 0), F::temp(Some(txn::EMERGENCY_FAN_C), 0)), pl + pw - 6.0, y(47.0), 1.0, 0.5, &text, true);
+            text_at(&trf!("Nødregel {fart} over {temperatur}", fart = F::pct(Some(100.0), 0), temperatur = F::temp(Some(txn::EMERGENCY_FAN_C), 0)), pl + pw - 6.0, y(47.0), 1.0, 0.5, &text, true);
             // Driverens faktiske kurve: punktene og medianen per grad.
             let pts = self.pts.borrow();
             if !pts.is_empty() {
@@ -592,7 +592,7 @@ mod edit_imp {
                     let qx = x(q).round();
                     let p = crate::widgets::Painter::new(s, &clip);
                     p.stroke([(qx, fy), (qx, y(effective_at(&c, None, floor, q)))], 1.0, false, Some(&[2.0f32, 2.0][..]), &text);
-                    text_at(&format!("Minst {} til {}", F::pct(Some(floor), 0), F::temp(Some(q), 0)), qx - 6.0, fy - 3.0, 1.0, 1.0, &text, true);
+                    text_at(&trf!("Minst {fart} til {temperatur}", fart = F::pct(Some(floor), 0), temperatur = F::temp(Some(q), 0)), qx - 6.0, fy - 3.0, 1.0, 1.0, &text, true);
                 }
                 let line: Vec<(f32, f32)> = effective_line(&c, quiet, floor, lo, hi).into_iter().map(|(t, f)| (x(t), y(f))).collect();
                 let p = crate::widgets::Painter::new(s, &graphene::Rect::new(0.0, 0.0, ww, hh));
@@ -601,7 +601,7 @@ mod edit_imp {
                     // Merket ved båndet, der det er bredest i midten av kurven.
                     let tm = c.iter().map(|p| p.0).sum::<f64>() / c.len() as f64;
                     let fm = effective_at(&c, quiet, floor, tm + hyst);
-                    text_at(&format!("Ned · {} hysterese", F::temp_delta(hyst, 0)), x(tm) - 8.0, y(fm) - 4.0, 1.0, 1.0, &col, true);
+                    text_at(&trf!("Ned · {grader} hysterese", grader = F::temp_delta(hyst, 0)), x(tm) - 8.0, y(fm) - 4.0, 1.0, 1.0, &col, true);
                 }
             }
             // Live-punktet: ring, hjelpelinjer til aksene og «Nå».
@@ -628,7 +628,7 @@ mod edit_imp {
                     s.append_color(&col, &r);
                     s.pop();
                 }
-                let label = format!("Nå {} · {}", F::temp(Some(t), 0), F::pct(Some(f), 0));
+                let label = trf!("Nå {temperatur} · {fart}", temperatur = F::temp(Some(t), 0), fart = F::pct(Some(f), 0));
                 if !text_at(&label, nx + 10.0, ny - 8.0, 0.0, 1.0, &now_c, true) {
                     text_at(&label, nx - 10.0, ny + 8.0, 1.0, 0.0, &now_c, true);
                 }
@@ -683,14 +683,14 @@ mod edit_imp {
                 s.append_color(&grid, &graphene::Rect::new(x(t).round(), pt, 1.0, ph));
                 let n = pts.iter().filter(|p| p.0.round() == t).count();
                 let cf = effective_at(&c, quiet, floor, t);
-                let mut txt = format!("Ved {}: kurven {}", F::temp(Some(t), 0), F::pct(Some(cf.round()), 0));
+                let mut txt = trf!("Ved {temperatur}: kurven {fart}", temperatur = F::temp(Some(t), 0), fart = F::pct(Some(cf.round()), 0));
                 let down = effective_at(&c, quiet, floor, t + hyst);
                 if hyst > 0.0 && down.round() != cf.round() {
-                    txt.push_str(&format!(" (ned {})", F::pct(Some(down.round()), 0)));
+                    txt.push_str(&trf!(" (ned {fart})", fart = F::pct(Some(down.round()), 0)));
                 }
                 match m.iter().find(|p| p.0 == t) {
-                    Some((_, f)) => txt.push_str(&format!(", driveren {} (median av {n})", F::pct(Some(*f), 0))),
-                    None if n > 0 => txt.push_str(&format!(", {n} målinger")),
+                    Some((_, f)) => txt.push_str(&trf!(", driveren {fart} (median av {n})", fart = F::pct(Some(*f), 0), n = n)),
+                    None if n > 0 => txt.push_str(&if rigg_core::i18n::active() == rigg_core::i18n::Language::Nb { format!(", {n} målinger") } else { trn!(n, ", {n} måling", ", {n} målinger", n = n) }),
                     None => {}
                 }
                 text_at(&txt, pl + 8.0, pt + 6.0, 0.0, 0.0, &text, true);
@@ -753,7 +753,7 @@ impl CurveEdit {
         s.set_vexpand(true);
         s.set_focusable(true);
         s.set_focus_on_click(true);
-        s.update_property(&[gtk::accessible::Property::Label("Viftekurven: viftefart mot GPU-temperatur")]);
+        s.update_property(&[gtk::accessible::Property::Label(tr!("Viftekurven: viftefart mot GPU-temperatur"))]);
         let set = {
             let w = s.downgrade();
             let a = app.clone();
@@ -1153,7 +1153,7 @@ mod preview_imp {
             let span = (t1 - t0).max(1) as f32;
             let x = |t: i64| pl + ((t - t0) as f32 / span) * pw;
             lay("−5 min", pl, pt + ph + 4.0, 0.0, 0.0, &text);
-            lay("nå", pl + pw, pt + ph + 4.0, 1.0, 0.0, &text);
+            lay(tr!("nå"), pl + pw, pt + ph + 4.0, 1.0, 0.0, &text);
             let clip = graphene::Rect::new(pl, pt - 2.0, pw, ph + 4.0);
             let p = crate::widgets::Painter::new(s, &clip);
             // Linjer med hull der verdien mangler.
@@ -1190,7 +1190,7 @@ impl Preview {
         let s: Preview = glib::Object::new();
         s.set_hexpand(true);
         s.imp().floor.set(35.0);
-        s.update_property(&[gtk::accessible::Property::Label("Viftene de siste fem minuttene, slik de gikk og med kurven")]);
+        s.update_property(&[gtk::accessible::Property::Label(tr!("Viftene de siste fem minuttene, slik de gikk og med kurven"))]);
         let set = {
             let w = s.downgrade();
             let a = app.clone();
@@ -1233,14 +1233,14 @@ fn mode_options() -> [(FanMode, &'static str, &'static str); 3] {
 fn simple_curve_message(card: FanMode, shown: FanMode, editing: bool) -> Option<&'static str> {
     if card == FanMode::Curve {
         Some(if editing && shown != FanMode::Curve {
-            "Egen kurve er aktiv på kortet. Modusbyttet ligger bare i utkastet til du trykker Bruk og Behold."
+            tr!("Egen kurve er aktiv på kortet. Modusbyttet ligger bare i utkastet til du trykker Bruk og Behold.")
         } else if editing {
-            "Egen kurve er aktiv på kortet. Du har et kurveutkast; åpne Avansert for å se og redigere det."
+            tr!("Egen kurve er aktiv på kortet. Du har et kurveutkast; åpne Avansert for å se og redigere det.")
         } else {
-            "Egen kurve er aktiv. Viftene fortsetter å følge den i Enkel visning. Åpne Avansert for å se og redigere kurven."
+            tr!("Egen kurve er aktiv. Viftene fortsetter å følge den i Enkel visning. Åpne Avansert for å se og redigere kurven.")
         })
     } else if shown == FanMode::Curve {
-        Some("Egen kurve er valgt i utkastet. Åpne Avansert for å se kurven. Kortet endres først med Bruk og Behold.")
+        Some(tr!("Egen kurve er valgt i utkastet. Åpne Avansert for å se kurven. Kortet endres først med Bruk og Behold."))
     } else {
         None
     }
@@ -1252,9 +1252,9 @@ fn actual_fan_count(app: &App) -> Option<usize> {
 }
 
 fn fan_target_choices(count: Option<usize>) -> Vec<(String, String)> {
-    let mut choices = vec![("0".into(), "Felles kurve".into())];
+    let mut choices = vec![("0".into(), tr!("Felles kurve").into())];
     for i in 1..=count.unwrap_or(0).min(vifte::MAKS_VIFTER) {
-        choices.push((i.to_string(), format!("Vifte {i}")));
+        choices.push((i.to_string(), trf!("Vifte {i}", i = i)));
     }
     choices
 }
@@ -1262,12 +1262,12 @@ fn fan_target_choices(count: Option<usize>) -> Vec<(String, String)> {
 fn make_target_selector(count: Option<usize>) -> Seg {
     let choices = fan_target_choices(count);
     let refs: Vec<_> = choices.iter().map(|(id, title)| (id.as_str(), title.as_str())).collect();
-    let seg = Seg::new(&refs, "0", "Kurven som redigeres").small();
+    let seg = Seg::new(&refs, "0", tr!("Kurven som redigeres")).small();
     seg.root.set_valign(gtk::Align::Start);
     seg.root.add_css_class("target-seg");
-    if let Some(b) = seg.button("0") { tip(&b, "Én felles kurve for kortets vifter", None); }
+    if let Some(b) = seg.button("0") { tip(&b, tr!("Én felles kurve for kortets vifter"), None); }
     for (id, _) in choices.iter().skip(1) {
-        if let Some(b) = seg.button(id) { tip(&b, &format!("Egen kurve for vifte {id}. En annen vifte kan vises svakt bak."), None); }
+        if let Some(b) = seg.button(id) { tip(&b, &trf!("Egen kurve for vifte {id}. En annen vifte kan vises svakt bak.", id = id), None); }
     }
     seg
 }
@@ -1280,9 +1280,9 @@ fn measured_fan_range(fans: &[Option<f64>], count: Option<usize>) -> Option<(f64
 
 fn fan_control_unavailable(count: Option<usize>, mode: FanMode) -> Option<String> {
     match count {
-        None => Some("Antall GPU-vifter er ikke lest. Viftestyring venter på kortets informasjon.".into()),
-        Some(0) => Some("Kortet rapporterer ingen GPU-vifter. Viftestyring er utilgjengelig.".into()),
-        Some(n) if mode == FanMode::Curve && n > vifte::MAKS_VIFTER => Some(format!("Kortet rapporterer {n} vifter. Kurvemotoren støtter høyst {} vifter på ett kort.", vifte::MAKS_VIFTER)),
+        None => Some(tr!("Antall GPU-vifter er ikke lest. Viftestyring venter på kortets informasjon.").into()),
+        Some(0) => Some(tr!("Kortet rapporterer ingen GPU-vifter. Viftestyring er utilgjengelig.").into()),
+        Some(n) if mode == FanMode::Curve && n > vifte::MAKS_VIFTER => Some(trf!("Kortet rapporterer {n} vifter. Kurvemotoren støtter høyst {maks} vifter på ett kort.", n = n, maks = vifte::MAKS_VIFTER)),
         _ => None,
     }
 }
@@ -1298,25 +1298,25 @@ struct HiddenDraft {
 /// følge med en annen endring, selv om draft_diff utelater dem fra Bruk-porten.
 fn simple_hidden_draft(before: &Values, after: &Values) -> HiddenDraft {
     fn curve(points: &[(f64, f64)]) -> String {
-        if points.is_empty() { return "ingen".into(); }
+        if points.is_empty() { return tr!("ingen").into(); }
         points.iter().map(|(t, p)| format!("{} / {}", F::temp(Some(*t), 0), F::pct(Some(*p), 0))).collect::<Vec<_>>().join(" · ")
     }
     fn text(v: &Values, field: &str) -> (&'static str, String) {
         match field {
             "powerLimitW" => (tr!("Effektgrense"), F::watt(Some(v.power_limit_w), 0)),
             "clockOffsets.coreMhz" => ("GPU-justering", locked::signed(v.core_offset_mhz, "MHz")),
-            "clockOffsets.memMhz" => ("Minnejustering", locked::signed(v.mem_offset_mhz, "MHz")),
+            "clockOffsets.memMhz" => (tr!("Minnejustering"), locked::signed(v.mem_offset_mhz, "MHz")),
             "tempTargetC" => (tr!("Temperaturmål"), F::temp(Some(v.temp_target_c), 0)),
-            "fan.manualPercent" => ("Lagret fast fart", F::pct(Some(v.fan_percent), 0)),
-            "fan.curve" => ("Felles viftekurve", curve(&v.fan_curve)),
-            "fan.perFan" => ("Viftekurver", if v.fan_per_fan { "per vifte" } else { "felles" }.into()),
-            "fan.curves" => ("Kurver per vifte", if v.fan_curves.is_empty() { "ingen egne kurver".into() } else { v.fan_curves.iter().enumerate().map(|(i, c)| format!("Vifte {}: {}", i + 1, curve(c))).collect::<Vec<_>>().join("; ") }),
+            "fan.manualPercent" => (tr!("Lagret fast fart"), F::pct(Some(v.fan_percent), 0)),
+            "fan.curve" => (tr!("Felles viftekurve"), curve(&v.fan_curve)),
+            "fan.perFan" => (tr!("Viftekurver"), if v.fan_per_fan { tr!("per vifte") } else { tr!("felles") }.into()),
+            "fan.curves" => (tr!("Kurver per vifte"), if v.fan_curves.is_empty() { tr!("ingen egne kurver").into() } else { v.fan_curves.iter().enumerate().map(|(i, c)| trf!("Vifte {nummer}: {antall}", nummer = i + 1, antall = curve(c))).collect::<Vec<_>>().join("; ") }),
             "fan.hysteresisC" => (tr!("Hysterese"), F::temp_delta(v.fan_hysteresis_c, 0)),
             "fan.rampUpPctS" => (tr!("Rampe opp"), rate_text(v.fan_ramp_up_pct_s)),
             "fan.rampDownPctS" => (tr!("Rampe ned"), rate_text(v.fan_ramp_down_pct_s)),
-            "fan.smoothingS" => ("Utjevning", if v.fan_smoothing_s > 0.0 { format!("{}{}s", v.fan_smoothing_s, F::NNBSP) } else { "av".into() }),
-            "fan.quietUntilC" => (tr!("Hold minimum til"), v.fan_quiet_until_c.map(|t| F::temp(Some(t), 0)).unwrap_or_else(|| "av".into())),
-            _ => ("Annen innstilling", field.into()),
+            "fan.smoothingS" => (tr!("Utjevning"), if v.fan_smoothing_s > 0.0 { format!("{}{}s", v.fan_smoothing_s, F::NNBSP) } else { tr!("av").into() }),
+            "fan.quietUntilC" => (tr!("Hold minimum til"), v.fan_quiet_until_c.map(|t| F::temp(Some(t), 0)).unwrap_or_else(|| tr!("av").into())),
+            _ => (tr!("Annen innstilling"), field.into()),
         }
     }
     let mut result = HiddenDraft::default();
@@ -1556,7 +1556,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         if let Some(b) = view_seg.button(id) { b.set_hexpand(true); }
     }
     root.append(&view_seg.root);
-    let strip = LockStrip::new(app, "Viser hvordan driveren faktisk har styrt viftene. Det du endrer, blir et utkast som lagres i appen og ikke sendes til kortet.");
+    let strip = LockStrip::new(app, tr!("Viser hvordan driveren faktisk har styrt viftene. Det du endrer, blir et utkast som lagres i appen og ikke sendes til kortet."));
     root.append(&strip.root);
     let confirm = ConfirmBar::new(app);
     // Behold må være synlig også når Bruk trykkes etter rulling til bunnen.
@@ -1618,7 +1618,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         preset_btns.push((p.id, b));
     }
     let reset_curve = button(Some("rotate-ccw"), Some(tr!("Tilbakestill kurven")), &["sm"]);
-    tip(&reset_curve, "Kurven, hysteresen, rampen og resten av oppførselen tilbake til standard (Balansert)", None);
+    tip(&reset_curve, tr!("Kurven, hysteresen, rampen og resten av oppførselen tilbake til standard (Balansert)"), None);
     main.aside.append(&presets);
     main.aside.append(&reset_curve);
     let legend_row = hbox(10, &["legend-row"]);
@@ -1643,7 +1643,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     legend.set_halign(gtk::Align::Start);
     legend.set_focusable(false);
     let mut lg_items: Vec<gtk::Widget> = Vec::new();
-    for (cls, txt) in [("lg-curve", "Kurven"), ("lg-down", "Ned (hysterese)"), ("lg-ghost", "Annen vifte"), ("lg-dots", "Målinger"), ("lg-med", "Driveren (median)"), ("lg-now", "Nå")] {
+    for (cls, txt) in [("lg-curve", tr!("Kurven")), ("lg-down", tr!("Ned (hysterese)")), ("lg-ghost", tr!("Annen vifte")), ("lg-dots", tr!("Målinger")), ("lg-med", tr!("Driveren (median)")), ("lg-now", tr!("Nå"))] {
         let b = hbox(5, &[]);
         let sw = gtk::Box::new(gtk::Orientation::Horizontal, 0);
         sw.add_css_class("lg");
@@ -1688,11 +1688,11 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     head_note.set_wrap(true);
     head_note.set_hexpand(true);
     let use_curve = button(None, Some(tr!("Bruk kurven")), &["sm"]);
-    tip(&use_curve, "Setter viftemodus til Kurve i utkastet", None);
+    tip(&use_curve, tr!("Setter viftemodus til Kurve i utkastet"), None);
     foot.append(&head_note);
     foot.append(&use_curve);
     main.body.append(&foot);
-    let help = label("Dra punktene; de festes til hele grader og prosent (Shift: steg på 5). Dobbeltklikk legger til eller fjerner et punkt (2–10 punkter). Tastaturet: [ og ] velger punkt, piltastene flytter, + legger til, Delete fjerner, Ctrl+Z angrer.", &["muted", "sm", "curve-help"]);
+    let help = label(tr!("Dra punktene; de festes til hele grader og prosent (Shift: steg på 5). Dobbeltklikk legger til eller fjerner et punkt (2–10 punkter). Tastaturet: [ og ] velger punkt, piltastene flytter, + legger til, Delete fjerner, Ctrl+Z angrer."), &["muted", "sm", "curve-help"]);
     help.set_wrap(true);
     main.body.append(&help);
 
@@ -1723,7 +1723,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     let quiet_row = hbox(8, &["quiet-row"]);
     let quiet_sw = gtk::Switch::new();
     quiet_sw.set_valign(gtk::Align::Center);
-    quiet_sw.update_property(&[gtk::accessible::Property::Label("Hold minste fart til en temperatur")]);
+    quiet_sw.update_property(&[gtk::accessible::Property::Label(tr!("Hold minste fart til en temperatur"))]);
     let ql = label(tr!("Hold minimum til"), &["sm"]);
     let quiet_spin = gtk::SpinButton::with_range(vifte::STILLE.min, vifte::STILLE.max, 1.0);
     quiet_spin.set_digits(0);
@@ -1731,7 +1731,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     quiet_spin.set_value(50.0);
     quiet_spin.add_css_class("ctl-spin");
     quiet_spin.set_valign(gtk::Align::Center);
-    quiet_spin.update_property(&[gtk::accessible::Property::Label("Hold minste fart til denne temperaturen")]);
+    quiet_spin.update_property(&[gtk::accessible::Property::Label(tr!("Hold minste fart til denne temperaturen"))]);
     oc::temp_spin(&quiet_spin);
     let qu = label(F::temp_label(), &["muted", "sm", "quiet-unit"]);
     quiet_row.append(&quiet_sw);
@@ -1739,7 +1739,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     quiet_row.append(&quiet_spin);
     quiet_row.append(&qu);
     crate::widgets::switchrow::make_row_toggle(&ql, &quiet_sw);
-    let (quiet_cell, quiet_val, quiet_note) = tune_cell("Stille flate", &quiet_row);
+    let (quiet_cell, quiet_val, quiet_note) = tune_cell(tr!("Stille flate"), &quiet_row);
     quiet_val.set_visible(false);
     // Viftestopp: kort og ærlig, ved siden av den stille flaten.
     let stop = vbox(4, &["tune", "stop-note"]);
@@ -1747,7 +1747,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     let si = Icon::new("circle-slash", 14);
     si.set_valign(gtk::Align::Center);
     st_top.append(&si);
-    st_top.append(&label("Viftestopp", &["sm", "bold"]));
+    st_top.append(&label(tr!("Viftestopp"), &["sm", "bold"]));
     stop.append(&st_top);
     let stop_note = label("", &["sm", "muted"]);
     stop_note.set_wrap(true);
@@ -1843,10 +1843,10 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     mode_p.body.append(&modes);
     let readings = Cols::new(&[1.0, 1.0, 1.0], 12, 540);
     readings.add_css_class("fan-readings");
-    let (now_root, _, now, now_note) = fan_readout("Avlest nå");
-    set_text(&now_note, "Rapportert av NVIDIA-driveren");
-    let (target_root, target_title, target, target_note) = fan_readout("Valgt mål");
-    let (max_root, _, max, max_note) = fan_readout("Høyest i kurven");
+    let (now_root, _, now, now_note) = fan_readout(tr!("Avlest nå"));
+    set_text(&now_note, tr!("Rapportert av NVIDIA-driveren"));
+    let (target_root, target_title, target, target_note) = fan_readout(tr!("Valgt mål"));
+    let (max_root, _, max, max_note) = fan_readout(tr!("Høyest i kurven"));
     for cell in [&now_root, &target_root, &max_root] { readings.append(cell); }
     let fan_readouts = FanReadouts { now, target_title, target, target_note, max_root, max, max_note };
     mode_p.body.append(&readings);
@@ -1859,7 +1859,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     manual_spin.set_digits(0);
     manual_spin.set_width_chars(4);
     manual_spin.add_css_class("ctl-spin");
-    manual_spin.update_property(&[gtk::accessible::Property::Label("Fast viftefart i prosent")]);
+    manual_spin.update_property(&[gtk::accessible::Property::Label(tr!("Fast viftefart i prosent"))]);
     manual_box.append(&manual);
     let mr = hbox(4, &[]);
     mr.set_valign(gtk::Align::Start);
@@ -1905,7 +1905,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
 
     let pts_p = Panel::new(tr!("Punktene"));
     let add_pt = button(Some("plus"), Some(tr!("Legg til")), &["sm", "flat"]);
-    tip(&add_pt, "Nytt punkt etter det valgte (+)", None);
+    tip(&add_pt, tr!("Nytt punkt etter det valgte (+)"), None);
     pts_p.aside.append(&add_pt);
     let pts_box = vbox(0, &["pts"]);
     pts_p.body.append(&pts_box);
@@ -1916,9 +1916,9 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     let rb = vbox(8, &["rules"]);
     let rules = label("", &["sm"]);
     for (icon, head, text) in [
-        ("triangle-alert", "Nødregelen", format!("Fra {} går viftene straks til {}, uten rampe, og tilbake til kurven under {}. Den kan ikke slås av.", F::temp(Some(txn::EMERGENCY_FAN_C), 0), F::pct(Some(100.0), 0), F::temp(Some(txn::EMERGENCY_RELEASE_C), 0))),
-        ("activity", "Rekkefølgen", "Utjevning, hysterese, kurven med stille flate og minste fart, og til slutt rampen. Kan temperaturen ikke leses på 5 s, går viftene til 100 %.".replace(" %", "\u{202F}%")),
-        ("chart-line", "Mellom punktene", "Rett linje mellom punktene, flat før det første og etter det siste. Kurven faller aldri.".to_string()),
+        ("triangle-alert", tr!("Nødregelen"), trf!("Fra {terskel} går viftene straks til {fart}, uten rampe, og tilbake til kurven under {slipp}. Den kan ikke slås av.", terskel = F::temp(Some(txn::EMERGENCY_FAN_C), 0), fart = F::pct(Some(100.0), 0), slipp = F::temp(Some(txn::EMERGENCY_RELEASE_C), 0))),
+        ("activity", tr!("Rekkefølgen"), tr!("Utjevning, hysterese, kurven med stille flate og minste fart, og til slutt rampen. Kan temperaturen ikke leses på 5 s, går viftene til 100 %.").replace(" %", "\u{202F}%")),
+        ("chart-line", tr!("Mellom punktene"), tr!("Rett linje mellom punktene, flat før det første og etter det siste. Kurven faller aldri.").to_string()),
     ] {
         let r = hbox(8, &[]);
         let i = Icon::new(icon, 14);
@@ -1942,7 +1942,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     r.append(&i);
     let c = vbox(1, &[]);
     c.set_hexpand(true);
-    c.append(&label("Når endring er slått på", &["sm", "bold"]));
+    c.append(&label(tr!("Når endring er slått på"), &["sm", "bold"]));
     rules.add_css_class("muted");
     rules.set_wrap(true);
     c.append(&rules);
@@ -1951,10 +1951,10 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     rules_p.body.append(&rb);
     side.append(&rules_p.root);
 
-    let day_p = Panel::new("Siste døgn");
+    let day_p = Panel::new(tr!("Siste døgn"));
     let dk = KvList::new();
     day_p.body.append(&dk.grid);
-    let day_kv: Vec<gtk::Label> = ["På minste fart", "Høyeste fart", "Varmeste", "Data for"].iter().map(|k| dk.add(k, "–")).collect();
+    let day_kv: Vec<gtk::Label> = [tr!("På minste fart"), tr!("Høyeste fart"), tr!("Varmeste"), tr!("Data for")].iter().map(|k| dk.add(k, "–")).collect();
     let day_line = label("", &["muted", "sm"]);
     day_line.set_wrap(true);
     day_line.add_css_class("group-foot");
@@ -1998,7 +1998,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     actions.set_valign(gtk::Align::Center);
     let dirty = label("", &["muted", "sm", "dirty-text"]);
     let discard = button(None, Some(tr!("Forkast utkast")), &["sm", "flat"]);
-    tip(&discard, "Tilbake til det kortet har. Utkastet slettes (Ctrl+Z angrer).", None);
+    tip(&discard, tr!("Tilbake til det kortet har. Utkastet slettes (Ctrl+Z angrer)."), None);
     let apply = button(None, Some(tr!("Bruk")), &["sm", "suggested"]);
     actions.append(&dirty);
     actions.append(&discard);
@@ -2089,17 +2089,17 @@ fn fans_panel(app: &Rc<App>) -> Rc<ChartPanel> {
     let gk = |f: &str| app.gpu_key(f).unwrap_or_else(|| format!("gpu:-/{f}"));
     let n = actual_fan_count(app);
     let series = if n.is_some_and(|n| n >= 2) {
-        vec![SeriesDef::new(&gk("fan0"), "Vifte 1", "--c-clock"), SeriesDef::new(&gk("fan1"), "Vifte 2", "--c-memctl")]
+        vec![SeriesDef::new(&gk("fan0"), tr!("Vifte 1"), "--c-clock"), SeriesDef::new(&gk("fan1"), tr!("Vifte 2"), "--c-memctl")]
     } else {
-        vec![SeriesDef::new(&gk("fan"), "Avlest viftefart", "--c-clock").fill()]
+        vec![SeriesDef::new(&gk("fan"), tr!("Avlest viftefart"), "--c-clock").fill()]
     };
     let mut opts = ChartOpts::new(app, || (0.0, 100.0));
     opts.unit = Rc::new(|| "%".into());
     opts.auto = Rc::new(|| false);
     let wa = Rc::downgrade(app);
     opts.stopped = Rc::new(move || wa.upgrade().and_then(|a| chart::gpu_stopped(&a)));
-    let panel = ChartPanel::new(app, PanelOpts { title: "Avleste viftekanaler".into(), series, window: 300, chart: opts, sync: None, stats: false, now: false, extra: None, flat: false });
-    panel.root.set_tooltip_text(Some("Historikken viser tilgjengelige målekanaler. Backendens fan0/fan1 dekker ikke nødvendigvis alle fysiske vifter på kortet."));
+    let panel = ChartPanel::new(app, PanelOpts { title: tr!("Avleste viftekanaler").into(), series, window: 300, chart: opts, sync: None, stats: false, now: false, extra: None, flat: false });
+    panel.root.set_tooltip_text(Some(tr!("Historikken viser tilgjengelige målekanaler. Backendens fan0/fan1 dekker ikke nødvendigvis alle fysiske vifter på kortet.")));
     panel
 }
 
@@ -2432,42 +2432,42 @@ impl Viftekurve {
         }
         *self.preview_key.borrow_mut() = Some(key);
         let editing = locked::stored(&self.app).utkast.is_some();
-        set_text(&self.preview_title, if editing { "Siste 5 minutter med utkastet" } else { tr!("Siste 5 minutter med kurven") });
+        set_text(&self.preview_title, if editing { tr!("Siste 5 minutter med utkastet") } else { tr!("Siste 5 minutter med kurven") });
         if n == 0 || n > vifte::MAKS_VIFTER {
             self.preview_lg.1.set_visible(false);
-            self.preview.set_data(PreviewData::default(), floor, "Forhåndsvisning venter på støttet vifteantall.");
+            self.preview.set_data(PreviewData::default(), floor, tr!("Forhåndsvisning venter på støttet vifteantall."));
             set_text(&self.preview_note, &fan_control_unavailable(actual_fan_count(&self.app), FanMode::Curve).unwrap_or_default());
             return;
         }
         let hist = self.preview_hist.borrow();
         let Some((t, temp, actual)) = hist.as_ref().filter(|h| h.1.iter().any(Option::is_some)) else {
-            let empty = if self.app.conn.get() != crate::state::Conn::Connected { "Tjenesten svarer ikke." } else { "Ingen målinger de siste 5 minuttene ennå." };
+            let empty = if self.app.conn.get() != crate::state::Conn::Connected { tr!("Tjenesten svarer ikke.") } else { tr!("Ingen målinger de siste 5 minuttene ennå.") };
             self.preview.set_data(PreviewData::default(), floor, empty);
-            set_text(&self.preview_note, "Når tjenesten har målt en stund, vises hvordan viftene ville gått med kurven, ved siden av hvordan de faktisk gikk.");
+            set_text(&self.preview_note, tr!("Når tjenesten har målt en stund, vises hvordan viftene ville gått med kurven, ved siden av hvordan de faktisk gikk."));
             return;
         };
         let start = actual.iter().flatten().next().copied();
         let sim = simulate(&v, n, floor, t, temp, start);
         // Egne kurver: den første viften heltrukket, den andre stiplet.
         let per_fan = sim.len() > 1;
-        set_text(&self.preview_lg.0, if per_fan { "Vifte 1 med kurven" } else { tr!("Med kurven") });
+        set_text(&self.preview_lg.0, if per_fan { tr!("Vifte 1 med kurven") } else { tr!("Med kurven") });
         self.preview_lg.1.set_visible(per_fan);
         if let Some(label) = self.preview_lg.1.child().and_then(|w| w.last_child()).and_downcast::<gtk::Label>() {
-            set_text(&label, if n > 2 { "Øvrige vifter med kurven" } else { tr!("Vifte 2 med kurven") });
+            set_text(&label, if n > 2 { tr!("Øvrige vifter med kurven") } else { tr!("Vifte 2 med kurven") });
         }
         let mine = sim.iter().map(|r| fan_summary(r)).collect::<Vec<_>>();
         let real: Vec<f64> = actual.iter().flatten().copied().collect();
         let theirs = fan_summary(&real);
-        let fmt = |x: Option<(f64, f64, usize)>| x.map(|(a, m, c)| format!("snitt {}, høyest {}, {} {}", F::pct(Some(a.round()), 0), F::pct(Some(m.round()), 0), c, if c == 1 { "endring" } else { "endringer" }));
+        let fmt = |x: Option<(f64, f64, usize)>| x.map(|(a, m, c)| trf!("snitt {snitt}, høyest {maks}, {endring}", snitt = F::pct(Some(a.round()), 0), maks = F::pct(Some(m.round()), 0), endring = trn!(c, "{antall} endring", "{antall} endringer", antall = c)));
         let mine_txt = if mine.len() > 1 {
-            mine.iter().enumerate().filter_map(|(i, m)| fmt(*m).map(|t| format!("vifte {} {t}", i + 1))).collect::<Vec<_>>().join("; ")
+            mine.iter().enumerate().filter_map(|(i, m)| fmt(*m).map(|t| trf!("vifte {nummer} {t}", nummer = i + 1, t = t))).collect::<Vec<_>>().join("; ")
         } else {
             mine.first().copied().flatten().map(|m| fmt(Some(m)).unwrap_or_default()).unwrap_or_default()
         };
-        let mode = if v.fan_mode == FanMode::Curve { "" } else { " Kurven brukes bare i modus Kurve." };
+        let mode = if v.fan_mode == FanMode::Curve { "" } else { tr!(" Kurven brukes bare i modus Kurve.") };
         let note = match fmt(theirs) {
-            Some(th) => format!("Med kurven: {mine_txt}. Slik viftene gikk: {th}.{mode}"),
-            None => format!("Med kurven: {mine_txt}.{mode}"),
+            Some(th) => trf!("Med kurven: {mine_txt}. Slik viftene gikk: {th}.{mode}", mine_txt = mine_txt, th = th, mode = mode),
+            None => trf!("Med kurven: {mine_txt}.{mode}", mine_txt = mine_txt, mode = mode),
         };
         set_text(&self.preview_note, &note);
         self.preview.set_data(PreviewData { t: t.clone(), temp: temp.clone(), actual: actual.clone(), sim }, floor, "");
@@ -2486,11 +2486,11 @@ impl Viftekurve {
                 Ok(v) => (pairs(&v, &kt2, &kf2), span_of(&v, &kt2, &kf2)),
                 Err(_) => (vec![], None),
             };
-            let empty = if p.app.conn.get() != crate::state::Conn::Connected { "Tjenesten svarer ikke." } else { "Ingen målinger i tidsvinduet ennå." };
+            let empty = if p.app.conn.get() != crate::state::Conn::Connected { tr!("Tjenesten svarer ikke.") } else { tr!("Ingen målinger i tidsvinduet ennå.") };
             // Dekningen som tid, ikke antall punkter (de er nedsamplet).
             let count = match span {
-                Some((a, b)) if (b - a) as f64 >= win as f64 * 1000.0 * 0.98 => format!("Data for hele {}", span_text(win * 1000)),
-                Some((a, b)) => format!("Data for {} av {}", span_text(b - a), span_text(win * 1000)),
+                Some((a, b)) if (b - a) as f64 >= win as f64 * 1000.0 * 0.98 => trf!("Data for hele {varighet}", varighet = span_text(win * 1000)),
+                Some((a, b)) => trf!("Data for {malt} av {varighet}", malt = span_text(b - a), varighet = span_text(win * 1000)),
                 None => tr!("Ingen data").into(),
             };
             set_text(&p.count, &count);
@@ -2514,21 +2514,21 @@ impl Viftekurve {
         set_text(&self.day_kv[2], &F::temp(pts.iter().map(|p| p.0).fold(None, |m: Option<f64>, v| Some(m.map_or(v, |m| m.max(v)))), 0));
         let full_day = span.is_some_and(|(a, b)| b - a >= 86_400_000 - 120_000);
         set_text(&self.day_kv[3], &match span {
-            Some(_) if full_day => format!("hele døgnet ({})", span_text(86_400_000)),
-            Some((a, b)) => format!("{} av {}", span_text(b - a), span_text(86_400_000)),
+            Some(_) if full_day => trf!("hele døgnet ({varighet})", varighet = span_text(86_400_000)),
+            Some((a, b)) => trf!("{malt} av {varighet}", malt = span_text(b - a), varighet = span_text(86_400_000)),
             None => F::DASH.into(),
         });
         // Under ett døgn med data: «siden 18:11 (3 min)», ikke «siste døgn».
         let when = match span {
-            Some((a, b)) if !full_day => format!("siden {} ({})", F::since(crate::app::local_time(a), crate::app::local_now()), span_text(b - a)),
-            _ => "siste døgn".into(),
+            Some((a, b)) if !full_day => trf!("siden {tid} ({varighet})", tid = F::since(crate::app::local_time(a), crate::app::local_now()), varighet = span_text(b - a)),
+            _ => tr!("siste døgn").into(),
         };
         set_text(
             &self.day_line,
             &match share {
-                Some(s) => format!("Viftene har gått på {} i {} av tiden {when}.", F::pct(min, 0), F::pct(Some((s * 100.0).round()), 0)),
-                None if min.is_none() => "Minste viftefart er ikke avlest; andelen på minimum kan ikke beregnes.".into(),
-                None => "Ingen målinger siste døgn ennå. Tjenesten tar vare på 48 timer.".into(),
+                Some(s) => trf!("Viftene har gått på {fart} i {andel} av tiden {when}.", fart = F::pct(min, 0), andel = F::pct(Some((s * 100.0).round()), 0), when = when),
+                None if min.is_none() => tr!("Minste viftefart er ikke avlest; andelen på minimum kan ikke beregnes.").into(),
+                None => tr!("Ingen målinger siste døgn ennå. Tjenesten tar vare på 48 timer.").into(),
             },
         );
     }
@@ -2540,23 +2540,23 @@ impl Viftekurve {
         }
         if locked::control_ready(&self.app) && locked::control_values(&self.app).is_none() {
             locked::refresh_control(&self.app, true);
-            self.app.toast(crate::toast::Toast::new("Leser kortets innstillinger …").body("Prøv Bruk igjen når innstillingene er lest."));
+            self.app.toast(crate::toast::Toast::new(tr!("Leser kortets innstillinger …")).body(tr!("Prøv Bruk igjen når innstillingene er lest.")));
             return;
         }
         let base = self.base();
         let d = match locked::draft_for_apply(&self.app, &base) {
             Ok(v) => v,
             Err(why) => {
-                self.app.toast(crate::toast::Toast::new("Utkastet må oppdateres").body(&why).error());
+                self.app.toast(crate::toast::Toast::new(tr!("Utkastet må oppdateres")).body(rigg_core::hjelper::display_diagnostic(&why).as_ref()).error());
                 return;
             }
         };
         if let Some(why) = fan_control_unavailable(actual_fan_count(&self.app), d.fan_mode) {
-            self.app.toast(crate::toast::Toast::new("Viftestyring er utilgjengelig").body(&why).error());
+            self.app.toast(crate::toast::Toast::new(tr!("Viftestyring er utilgjengelig")).body(rigg_core::hjelper::display_diagnostic(&why).as_ref()).error());
             return;
         }
         if let Some(why) = locked::patch_error(&self.app, &base, &d) {
-            self.app.toast(crate::toast::Toast::new(tr!("Funksjonen er utilgjengelig")).body(&why).error());
+            self.app.toast(crate::toast::Toast::new(tr!("Funksjonen er utilgjengelig")).body(rigg_core::hjelper::display_diagnostic(&why).as_ref()).error());
             return;
         }
         let patch = locked::changed_patch(&base, &d);
@@ -2566,7 +2566,7 @@ impl Viftekurve {
             let Some(p) = w.upgrade() else { return };
             match res {
                 Ok(v) if v["txn"].is_string() => p.confirm.start(&p.app, &v),
-                Ok(_) => p.app.toast(crate::toast::Toast::new("Ingen endringer å bruke")),
+                Ok(_) => p.app.toast(crate::toast::Toast::new(tr!("Ingen endringer å bruke"))),
                 Err(e) => p.app.toast(crate::toast::Toast::new(tr!("Kunne ikke bruke utkastet")).body(rigg_core::hjelper::display_error(&e).as_ref()).error()),
             }
             p.refresh();
@@ -2588,9 +2588,9 @@ impl Viftekurve {
         self.simple_changes.set_visible(!advanced && !hidden.lines.is_empty());
         set_text(&self.simple_changes_text, &hidden.lines.join("\n"));
         set_text(&self.simple_changes_note, if hidden.advanced_fans {
-            "Fra utgangspunkt til utkast. Bruk gjelder hele utkastet. Kurveinnstillinger påvirker bare modus Kurve; lagret fast fart brukes bare i Fast fart."
+            tr!("Fra utgangspunkt til utkast. Bruk gjelder hele utkastet. Kurveinnstillinger påvirker bare modus Kurve; lagret fast fart brukes bare i Fast fart.")
         } else {
-            "Fra utgangspunkt til utkast. Bruk gjelder hele utkastet, også innstillinger fra Klokker og effekt."
+            tr!("Fra utgangspunkt til utkast. Bruk gjelder hele utkastet, også innstillinger fra Klokker og effekt.")
         });
         self.open_controls.set_visible(hidden.controls);
         self.changes_advanced.set_visible(hidden.advanced_fans);
@@ -2600,7 +2600,7 @@ impl Viftekurve {
         class(&self.root, "fan-simple", !advanced);
         for (mode, title) in &self.mode_titles {
             let text = match mode {
-                FanMode::Auto if !advanced => "Auto",
+                FanMode::Auto if !advanced => tr!("Auto"),
                 FanMode::Manual if !advanced => tr!("Fast fart"),
                 FanMode::Auto => tr!("Auto (driveren)"),
                 FanMode::Manual => tr!("Manuell"),
@@ -2611,7 +2611,7 @@ impl Viftekurve {
         let curve_notice = simple_curve_message(base.fan_mode, shown.fan_mode, editing);
         self.simple_curve.set_visible(!advanced && curve_notice.is_some());
         set_text(&self.simple_curve_text, curve_notice.unwrap_or(""));
-        set_text(&self.apply_note, &fan_control_unavailable(actual_count, shown.fan_mode).unwrap_or_else(|| format!("Bruk prøver endringen i {}{}s. Trykk Behold i linjen øverst for å fortsette. Uten Behold går viftene tilbake til forrige innstilling.", self.app.settings().confirm_sec, F::NNBSP)));
+        set_text(&self.apply_note, &fan_control_unavailable(actual_count, shown.fan_mode).unwrap_or_else(|| trf!("Bruk prøver endringen i {tid}. Trykk Behold i linjen øverst for å fortsette. Uten Behold går viftene tilbake til forrige innstilling.", tid = format!("{}{}s", self.app.settings().confirm_sec, F::NNBSP))));
         self.strip.sync(&self.app, r.lost, editing);
         locked::sync_topbar(&self.app, "viftekurve");
         class(&self.root, "drafting", editing);
@@ -2619,33 +2619,33 @@ impl Viftekurve {
         // ---- Tallene ----
         self.stat_strip.balance(6);
         let s = &self.stats;
-        s[0].set(&F::temp_num(r.temp, 0), F::temp_label(), &r.temp_target.map(|g| format!("mål {}", F::temp(Some(g), 0))).unwrap_or_default());
+        s[0].set(&F::temp_num(r.temp, 0), F::temp_label(), &r.temp_target.map(|g| trf!("mål {maal}", maal = F::temp(Some(g), 0))).unwrap_or_default());
         let scale = self.editor.update_scale(r.temp.into_iter().map(|t| (t, 0.0)));
         s[0].meter.set(r.temp.map(|t| scale.position(t, 0.0).0), Some(scale.position(txn::EMERGENCY_FAN_C, 0.0).0), if r.temp.is_some_and(|t| t >= txn::EMERGENCY_FAN_C) { 2 } else { 0 });
-        s[0].set_tip(&format!("GPU-temperaturen. Måleren går fra {} til {}. Merket er nødregelen ({}).", F::temp(Some(scale.temp.0), 0), F::temp(Some(scale.temp.1), 0), F::temp(Some(txn::EMERGENCY_FAN_C), 0)));
+        s[0].set_tip(&trf!("GPU-temperaturen. Måleren går fra {min} til {maks}. Merket er nødregelen ({nodregel}).", min = F::temp(Some(scale.temp.0), 0), maks = F::temp(Some(scale.temp.1), 0), nodregel = F::temp(Some(txn::EMERGENCY_FAN_C), 0)));
         let range = measured_fan_range(&r.fans, actual_count);
         let speed = range.map(|(lo, hi, _)| if (hi - lo).abs() < 0.5 { F::num(Some(hi), 0) } else { format!("{}–{}", F::num(Some(lo), 0), F::num(Some(hi), 0)) });
         let measured_note = match (range, actual_count) {
-            (Some((_, _, measured)), Some(n)) => format!("{measured} av {n} vifter målt"),
-            (Some((_, _, measured)), None) => format!("{measured} avleste kanaler · antall ukjent"),
-            (None, Some(0)) => "ingen vifter rapportert".into(),
-            _ => "farten er ikke avlest".into(),
+            (Some((_, _, measured)), Some(n)) => trf!("{measured} av {n} vifter målt", measured = measured, n = n),
+            (Some((_, _, measured)), None) => trf!("{measured} avleste kanaler · antall ukjent", measured = measured),
+            (None, Some(0)) => tr!("ingen vifter rapportert").into(),
+            _ => tr!("farten er ikke avlest").into(),
         };
         s[1].set(speed.as_deref().unwrap_or(F::DASH), "%", &measured_note);
         s[1].meter.set(range.map(|(_, hi, _)| hi / 100.0), r.fan_min.map(|min| min / 100.0), 0);
-        s[1].set_tip("Laveste og høyeste faktisk avleste vifteprosent. Alle tilgjengelige enkeltmålinger står under Faktisk nå.");
-        s[2].set(&F::num(actual_count.map(|n| n as f64), 0), "", if actual_count.is_none() { "antallet er ikke avlest" } else { "rapportert av driveren" });
-        s[2].set_tip("Fysisk vifteantall rapportert av kortet. Ukjent er ikke det samme som null.");
+        s[1].set_tip(tr!("Laveste og høyeste faktisk avleste vifteprosent. Alle tilgjengelige enkeltmålinger står under Faktisk nå."));
+        s[2].set(&F::num(actual_count.map(|n| n as f64), 0), "", if actual_count.is_none() { tr!("antallet er ikke avlest") } else { tr!("rapportert av driveren") });
+        s[2].set_tip(tr!("Fysisk vifteantall rapportert av kortet. Ukjent er ikke det samme som null."));
         let tmax = has_fans.then(|| r.fan_target.iter().cloned().reduce(f64::max)).flatten();
         let tsub = match r.fan_target.len() {
-            0 => if r.lost { String::new() } else { "leses ikke ennå".into() },
-            1 => "det driveren vil ha".into(),
+            0 => if r.lost { String::new() } else { tr!("leses ikke ennå").into() },
+            1 => tr!("det driveren vil ha").into(),
             // Like mål: ikke gjenta tallet («35 % · 35 %» under «35 %»).
-            n if r.fan_target.iter().all(|t| (t - r.fan_target[0]).abs() < 0.5) => format!("{n} avleste målkanaler"),
-            _ => r.fan_target.iter().enumerate().map(|(i, t)| format!("vifte {} {}", i + 1, F::pct(Some(*t), 0))).collect::<Vec<_>>().join(" · "),
+            n if r.fan_target.iter().all(|t| (t - r.fan_target[0]).abs() < 0.5) => trf!("{n} avleste målkanaler", n = n),
+            _ => r.fan_target.iter().enumerate().map(|(i, t)| trf!("vifte {nummer} {fart}", nummer = i + 1, fart = F::pct(Some(*t), 0))).collect::<Vec<_>>().join(" · "),
         };
-        s[3].set(&F::num(tmax, 0), "%", if has_fans { &tsub } else { "ikke avlest" });
-        s[3].set_tip("Farten driveren vil ha for hver vifte (nvmlDeviceGetTargetFanSpeed).");
+        s[3].set(&F::num(tmax, 0), "%", if has_fans { &tsub } else { tr!("ikke avlest") });
+        s[3].set_tip(tr!("Farten driveren vil ha for hver vifte (nvmlDeviceGetTargetFanSpeed)."));
         let card_mode = base.fan_mode;
         let mode_read = match &r.fan_policy {
             _ if !has_fans => None,
@@ -2660,8 +2660,8 @@ impl Viftekurve {
             Some(mode) => mode_name(mode),
             None => F::DASH,
         };
-        s[4].set(mode_now, "", &if !has_fans { "vifteantall mangler eller er null".into() } else if editing && shown.fan_mode != card_mode { trf!("utkast: {modus}", modus = mode_name(shown.fan_mode)) } else if mode_read == Some(FanMode::Auto) { "driveren styrer".into() } else if mode_read == Some(FanMode::Curve) { "tjenesten styrer".into() } else if card_mode == FanMode::Manual && (locked::control_values(&self.app).is_some() || locked::gate(&self.app) == Gate::Sim) { "fast fart fra Agentic Rigg".into() } else if r.fan_policy.is_some() { "satt utenfor appen".into() } else { String::new() });
-        s[4].set_tip("Fra nvmlDeviceGetFanControlPolicy_v2. Policy 0 betyr at driveren styrer viftene.");
+        s[4].set(mode_now, "", &if !has_fans { tr!("vifteantall mangler eller er null").into() } else if editing && shown.fan_mode != card_mode { trf!("utkast: {modus}", modus = mode_name(shown.fan_mode)) } else if mode_read == Some(FanMode::Auto) { tr!("driveren styrer").into() } else if mode_read == Some(FanMode::Curve) { tr!("tjenesten styrer").into() } else if card_mode == FanMode::Manual && (locked::control_values(&self.app).is_some() || locked::gate(&self.app) == Gate::Sim) { tr!("fast fart fra Agentic Rigg").into() } else if r.fan_policy.is_some() { tr!("satt utenfor appen").into() } else { String::new() });
+        s[4].set_tip(tr!("Fra nvmlDeviceGetFanControlPolicy_v2. Policy 0 betyr at driveren styrer viftene."));
         // Det kurven ville gitt nå: stille flate, minste fart og per vifte (uten rampe og hysterese).
         let o = vifte::Oppsett::fra_values(&shown, n_fans, floor);
         let curve_count_known = has_fans && n_fans <= vifte::MAKS_VIFTER;
@@ -2671,27 +2671,27 @@ impl Viftekurve {
             let pct = r.fans.get(i).copied().flatten();
             let rpm = r.rpm.get(i).copied().flatten();
             if actual_count.is_none() && pct.is_none() && rpm.is_none() { return None; }
-            Some(format!("Vifte {}: {}{}", i + 1, F::pct(pct, 0), rpm.map(|v| format!(" · {}", F::rpm(Some(v)))).unwrap_or_default()))
+            Some(trf!("Vifte {nummer}: {fart}{rpm}", nummer = i + 1, fart = F::pct(pct, 0), rpm = rpm.map(|v| format!(" · {}", F::rpm(Some(v)))).unwrap_or_default()))
         }).collect();
-        let measured_text = if measured.is_empty() { if actual_count == Some(0) { "Ingen vifter rapportert".into() } else { "Ingen avleste viftekanaler".into() } } else { measured.join(" · ") };
+        let measured_text = if measured.is_empty() { if actual_count == Some(0) { tr!("Ingen vifter rapportert").into() } else { tr!("Ingen avleste viftekanaler").into() } } else { measured.join(" · ") };
         set_text(&readings.now, &measured_text);
         let fan_draft = editing && (shown.fan_mode != base.fan_mode || shown.fan_percent != base.fan_percent || !fan_shape_is(&shown, &base));
         let curve_preview = advanced && shown.fan_mode == FanMode::Auto;
         if shown.fan_mode == FanMode::Curve || curve_preview {
-            set_text(&readings.target_title, &r.temp.map_or("Kurven ved nåværende temperatur".into(), |t| format!("Kurven ved {}", F::temp(Some(t), 0))));
-            let goals = r.temp.filter(|_| curve_count_known).map(|t| (0..o.vifter).map(|i| if shown.fan_per_fan { format!("Vifte {}: {}", i + 1, F::pct(Some(o.maal(i, t)), 0)) } else { F::pct(Some(o.maal(i, t)), 0) }).take(if shown.fan_per_fan { o.vifter } else { 1 }).collect::<Vec<_>>().join(" · "));
+            set_text(&readings.target_title, &r.temp.map_or(tr!("Kurven ved nåværende temperatur").into(), |t| trf!("Kurven ved {temperatur}", temperatur = F::temp(Some(t), 0))));
+            let goals = r.temp.filter(|_| curve_count_known).map(|t| (0..o.vifter).map(|i| if shown.fan_per_fan { trf!("Vifte {nummer}: {fart}", nummer = i + 1, fart = F::pct(Some(o.maal(i, t)), 0)) } else { F::pct(Some(o.maal(i, t)), 0) }).take(if shown.fan_per_fan { o.vifter } else { 1 }).collect::<Vec<_>>().join(" · "));
             set_text(&readings.target, goals.as_deref().unwrap_or(F::DASH));
-            set_text(&readings.target_note, if curve_preview { if fan_draft { "Kurveutkast · ikke i bruk" } else { "Forhåndsvisning · kurven er ikke i bruk" } } else if fan_draft { "Kurveutkast · ikke brukt" } else { "Kurvemål før hysterese og rampe" });
+            set_text(&readings.target_note, if curve_preview { if fan_draft { tr!("Kurveutkast · ikke i bruk") } else { tr!("Forhåndsvisning · kurven er ikke i bruk") } } else if fan_draft { tr!("Kurveutkast · ikke brukt") } else { tr!("Kurvemål før hysterese og rampe") });
         } else {
-            set_text(&readings.target_title, if fan_draft { "Valgt mål · utkast" } else { "Valgt mål" });
-            let target = if shown.fan_mode == FanMode::Manual { F::pct(Some(shown.fan_percent), 0) } else { "Auto".into() };
+            set_text(&readings.target_title, if fan_draft { tr!("Valgt mål · utkast") } else { tr!("Valgt mål") });
+            let target = if shown.fan_mode == FanMode::Manual { F::pct(Some(shown.fan_percent), 0) } else { tr!("Auto").into() };
             set_text(&readings.target, &target);
-            set_text(&readings.target_note, if fan_draft { "Ikke brukt · trykk Bruk og Behold" } else if shown.fan_mode == FanMode::Auto { "Driveren bestemmer farten" } else { "Fast fart på kortet" });
+            set_text(&readings.target_note, if fan_draft { tr!("Ikke brukt · trykk Bruk og Behold") } else if shown.fan_mode == FanMode::Auto { tr!("Driveren bestemmer farten") } else { tr!("Fast fart på kortet") });
         }
         readings.max_root.set_visible(advanced);
         let maximum = curve_count_known.then(|| (0..o.vifter).flat_map(|i| o.kurve(i).iter().map(|p| p.1)).reduce(f64::max)).flatten();
         set_text(&readings.max, &F::pct(maximum, 0));
-        set_text(&readings.max_note, if shown.fan_mode != FanMode::Curve { "Kurven er ikke i bruk" } else if fan_draft { "I kurveutkastet" } else { "I den aktive kurven" });
+        set_text(&readings.max_note, if shown.fan_mode != FanMode::Curve { tr!("Kurven er ikke i bruk") } else if fan_draft { "I kurveutkastet" } else { tr!("I den aktive kurven") });
         if !has_fans {
             let why = fan_control_unavailable(actual_count, shown.fan_mode).unwrap_or_default();
             set_text(&readings.target, F::DASH);
@@ -2699,20 +2699,20 @@ impl Viftekurve {
             set_text(&readings.max_note, &why);
         }
         if let Some(cap) = s[5].root.first_child().and_downcast::<gtk::Label>() {
-            set_text(&cap, if advanced { tr!("Kurven gir") } else { "Manuelt minimum" });
+            set_text(&cap, if advanced { tr!("Kurven gir") } else { tr!("Manuelt minimum") });
         }
         if advanced {
             s[5].set(&F::num(at, 0), "%", &match (r.temp, shown.fan_mode == FanMode::Curve) {
-                (Some(t), true) => format!("ved {}", F::temp(Some(t), 0)),
-                (Some(t), false) => format!("ved {} · ikke i bruk", F::temp(Some(t), 0)),
+                (Some(t), true) => trf!("ved {temperatur}", temperatur = F::temp(Some(t), 0)),
+                (Some(t), false) => trf!("ved {temperatur} · ikke i bruk", temperatur = F::temp(Some(t), 0)),
                 _ => String::new(),
             });
             s[5].meter.set(at.map(|a| a / 100.0), Some(floor / 100.0), 0);
-            s[5].set_tip("Farten kurven ville gitt ved temperaturen nå (uten rampe og hysterese). Den brukes bare i modus Kurve.");
+            s[5].set_tip(tr!("Farten kurven ville gitt ved temperaturen nå (uten rampe og hysterese). Den brukes bare i modus Kurve."));
         } else {
-            s[5].set(&F::num(r.fan_min.filter(|_| has_fans), 0), "%", if r.fan_min.is_some() && has_fans { "rapportert av driveren" } else { "ikke avlest" });
+            s[5].set(&F::num(r.fan_min.filter(|_| has_fans), 0), "%", if r.fan_min.is_some() && has_fans { tr!("rapportert av driveren") } else { tr!("ikke avlest") });
             s[5].meter.set(r.fan_min.filter(|_| has_fans).map(|min| min / 100.0), None, 0);
-            s[5].set_tip("Minste viftefart kortet tillater. Auto kan styre annerledes etter kortets BIOS.");
+            s[5].set_tip(tr!("Minste viftefart kortet tillater. Auto kan styre annerledes etter kortets BIOS."));
         }
 
         // ---- Kurven ----
@@ -2749,16 +2749,16 @@ impl Viftekurve {
         self.reset_curve.set_sensitive(!fan_shape_is(&shown, &st));
         let in_use = shown.fan_mode == FanMode::Curve;
         set_text(&self.head_note, &match (in_use, editing) {
-            (true, false) => "Viftene følger denne kurven nå.".to_string(),
-            (true, _) => "Kurven er valgt i utkastet. Viftene følger den når utkastet brukes.".to_string(),
-            (false, true) => format!("Kurven brukes bare i modus Kurve. Utkastet har {}.", mode_name(shown.fan_mode)),
-            (false, false) => "Stiplet: standardkurven. Den brukes bare i modus Kurve; nå styrer driveren. Dra et punkt for å lage et utkast.".to_string(),
+            (true, false) => tr!("Viftene følger denne kurven nå.").to_string(),
+            (true, _) => tr!("Kurven er valgt i utkastet. Viftene følger den når utkastet brukes.").to_string(),
+            (false, true) => trf!("Kurven brukes bare i modus Kurve. Utkastet har {modus}.", modus = mode_name(shown.fan_mode)),
+            (false, false) => tr!("Stiplet: standardkurven. Den brukes bare i modus Kurve; nå styrer driveren. Dra et punkt for å lage et utkast.").to_string(),
         });
         self.use_curve.set_visible(!in_use);
         self.use_curve.set_sensitive(curve_count_known && (!locked::control_ready(&self.app) || locked::supports(&self.app, "fan_curve")));
         self.render_points(&curve, floor);
         self.sync_tuning(&shown, floor);
-        set_text(&self.rule_emerg, &format!("Fra {} går viftene straks til {}, uten rampe, og tilbake til kurven under {}. Den kan ikke slås av.", F::temp(Some(txn::EMERGENCY_FAN_C), 0), F::pct(Some(100.0), 0), F::temp(Some(txn::EMERGENCY_RELEASE_C), 0)));
+        set_text(&self.rule_emerg, &trf!("Fra {terskel} går viftene straks til {fart}, uten rampe, og tilbake til kurven under {slipp}. Den kan ikke slås av.", terskel = F::temp(Some(txn::EMERGENCY_FAN_C), 0), fart = F::pct(Some(100.0), 0), slipp = F::temp(Some(txn::EMERGENCY_RELEASE_C), 0)));
         self.refresh_preview();
 
         // ---- Modus ----
@@ -2791,7 +2791,7 @@ impl Viftekurve {
             self.manual_spin.set_value(shown.fan_percent);
         }
         self.quiet.set(false);
-        set_text(&self.rules, &format!("Hver endring må beholdes innen {}{}s, ellers rulles den tilbake. Lukkes Agentic Rigg helt, går viftene tilbake til Auto.", self.app.settings().confirm_sec, F::NNBSP));
+        set_text(&self.rules, &trf!("Hver endring må beholdes innen {tid}, ellers rulles den tilbake. Lukkes Agentic Rigg helt, går viftene tilbake til Auto.", tid = format!("{}{}s", self.app.settings().confirm_sec, F::NNBSP)));
 
         // ---- Utkastet i toppfeltet ----
         let Some(d) = draft else {
@@ -2821,11 +2821,12 @@ impl Viftekurve {
                     && locked::patch_error(&self.app, &self.base(), &d).is_none();
                 self.apply.set_sensitive(ok);
                 let reason = fan_control_unavailable(actual_count, d.fan_mode).or_else(|| locked::validated_draft(&self.app, &base).err()).or_else(|| locked::patch_error(&self.app, &base, &d));
-                tip(&self.apply, reason.as_deref().unwrap_or(if self.confirm.active() { "Endringen venter på Behold" } else if ok { "Bruk utkastet" } else { "Ingen endringer å bruke" }), Some("Ctrl+Enter"));
+                let reason = reason.as_deref().map(rigg_core::hjelper::display_diagnostic);
+                tip(&self.apply, reason.as_deref().unwrap_or(if self.confirm.active() { tr!("Endringen venter på Behold") } else if ok { tr!("Bruk utkastet") } else { tr!("Ingen endringer å bruke") }), Some("Ctrl+Enter"));
             }
             Gate::Locked(t) => {
                 self.apply.set_sensitive(false);
-                self.apply.set_tooltip_text(Some(t));
+                self.apply.set_tooltip_text(Some(rigg_core::hjelper::display_message(t)));
             }
         }
     }
@@ -2838,23 +2839,23 @@ impl Viftekurve {
         t.hyst.set_value(Some(h));
         set_text(&t.hyst_val, &F::temp_delta(h, 0));
         set_text(&t.hyst_note, &if h > 0.0 {
-            format!("Viftene går ikke ned før temperaturen har falt {} under der de gikk opp. Opp går de straks.", F::temp_delta(h, 0))
+            trf!("Viftene går ikke ned før temperaturen har falt {grader} under der de gikk opp. Opp går de straks.", grader = F::temp_delta(h, 0))
         } else {
-            "Av: viftene følger kurven begge veier, også når temperaturen svinger litt.".into()
+            tr!("Av: viftene følger kurven begge veier, også når temperaturen svinger litt.").into()
         });
         let span = 100.0 - floor;
         t.up.set_value(Some(v.fan_ramp_up_pct_s));
         set_text(&t.up_val, &rate_text(v.fan_ramp_up_pct_s));
-        set_text(&t.up_note, &format!("Fra {} til {} på {}. Høyere svarer raskere på last.", F::pct(Some(floor), 0), F::pct(Some(100.0), 0), secs_text(span / v.fan_ramp_up_pct_s.max(1.0))));
+        set_text(&t.up_note, &trf!("Fra {fra} til {til} på {tid}. Høyere svarer raskere på last.", fra = F::pct(Some(floor), 0), til = F::pct(Some(100.0), 0), tid = secs_text(span / v.fan_ramp_up_pct_s.max(1.0))));
         t.down.set_value(Some(v.fan_ramp_down_pct_s));
         set_text(&t.down_val, &rate_text(v.fan_ramp_down_pct_s));
-        set_text(&t.down_note, &format!("Fra {} til {} på {}. Lavere gir mykere lyd når lasten slipper.", F::pct(Some(100.0), 0), F::pct(Some(floor), 0), secs_text(span / v.fan_ramp_down_pct_s.max(1.0))));
+        set_text(&t.down_note, &trf!("Fra {fra} til {til} på {tid}. Lavere gir mykere lyd når lasten slipper.", fra = F::pct(Some(100.0), 0), til = F::pct(Some(floor), 0), tid = secs_text(span / v.fan_ramp_down_pct_s.max(1.0))));
         let sm = v.fan_smoothing_s.round() as i64;
         t.smooth.set(&sm.to_string());
         set_text(&t.smooth_note, &if sm > 0 {
-            format!("Kurven leses ved snittet av de siste {sm}{}s, så korte topper ikke gir viftesus. Nødregelen ser alltid på temperaturen nå.", F::NNBSP)
+            trf!("Kurven leses ved snittet av de siste {tid}, så korte topper ikke gir viftesus. Nødregelen ser alltid på temperaturen nå.", tid = format!("{sm}{}s", F::NNBSP))
         } else {
-            "Av: hver måling brukes som den er.".into()
+            tr!("Av: hver måling brukes som den er.").into()
         });
         let q = v.fan_quiet_until_c;
         if t.quiet_sw.is_active() != q.is_some() {
@@ -2872,10 +2873,10 @@ impl Viftekurve {
             oc::temp_spin_refresh(&t.quiet_spin);
         }
         set_text(&t.quiet_note, &match q {
-            Some(q) => format!("Viftene står på {} til {}, deretter følger de kurven.", F::pct(Some(floor), 0), F::temp(Some(q), 0)),
-            None => "Av: kurven gjelder fra første punkt.".into(),
+            Some(q) => trf!("Viftene står på {fart} til {temperatur}, deretter følger de kurven.", fart = F::pct(Some(floor), 0), temperatur = F::temp(Some(q), 0)),
+            None => tr!("Av: kurven gjelder fra første punkt.").into(),
         });
-        set_text(&t.stop_note, &format!("Viftestopp (0{nb}%) er ikke mulig på dette kortet: fastvaren holder minst {}. Det gjelder også Afterburner.", F::pct(Some(floor), 0), nb = F::NNBSP));
+        set_text(&t.stop_note, &trf!("Viftestopp (0{nb}%) er ikke mulig på dette kortet: fastvaren holder minst {fart}. Det gjelder også Afterburner.", nb = F::NNBSP, fart = F::pct(Some(floor), 0)));
         self.quiet.set(false);
     }
 
@@ -2890,7 +2891,7 @@ impl Viftekurve {
             g.add_css_class("pts-grid");
             g.set_column_spacing(6);
             g.set_row_spacing(2);
-            for (col, t) in [(1, format!("Temperatur ({})", F::temp_label())), (2, "Viftefart (%)".to_string())] {
+            for (col, t) in [(1, trf!("Temperatur ({enhet})", enhet = F::temp_label())), (2, tr!("Viftefart (%)").to_string())] {
                 g.attach(&label(&t, &["muted", "sm"]), col, 0, 1, 1);
             }
             for i in 0..c.len() {
@@ -2899,7 +2900,7 @@ impl Viftekurve {
                 g.attach(&n, 0, i as i32 + 1, 1, 1);
                 let t = gtk::SpinButton::with_range(AXIS_T.0, AXIS_T.1, 1.0);
                 let f = gtk::SpinButton::with_range(floor, 100.0, 1.0);
-                for (sp, txt) in [(&t, format!("Punkt {} temperatur", i + 1)), (&f, format!("Punkt {} viftefart", i + 1))] {
+                for (sp, txt) in [(&t, trf!("Punkt {nummer} temperatur", nummer = i + 1)), (&f, trf!("Punkt {nummer} viftefart", nummer = i + 1))] {
                     sp.set_digits(0);
                     sp.set_width_chars(4);
                     sp.add_css_class("ctl-spin");
@@ -2927,7 +2928,7 @@ impl Viftekurve {
                     });
                 }
                 let rm = button(Some("x"), None, &["sm", "flat"]);
-                rm.update_property(&[gtk::accessible::Property::Label(&format!("Fjern punkt {}", i + 1))]);
+                rm.update_property(&[gtk::accessible::Property::Label(&trf!("Fjern punkt {nummer}", nummer = i + 1))]);
                 tip(&rm, tr!("Fjern punktet"), None);
                 rm.set_sensitive(c.len() > txn::CURVE_MIN_POINTS);
                 let w = Rc::downgrade(self);
@@ -2991,8 +2992,8 @@ fn span_text(ms: i64) -> String {
     let min = (ms as f64 / 60_000.0).round().max(1.0) as i64;
     match (min / 60, min % 60) {
         (0, m) => format!("{m}{}min", F::NNBSP),
-        (h, m) if h >= 10 || m == 0 => format!("{h}{}t", F::NNBSP),
-        (h, m) => format!("{h}{}t {m}{}min", F::NNBSP, F::NNBSP),
+        (h, m) if h >= 10 || m == 0 => trf!("{timer}t", timer = format!("{h}{}", F::NNBSP)),
+        (h, m) => trf!("{timer}t {minutter}min", timer = format!("{h}{}", F::NNBSP), minutter = format!("{m}{}", F::NNBSP)),
     }
 }
 

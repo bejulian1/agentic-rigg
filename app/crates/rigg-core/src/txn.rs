@@ -275,6 +275,7 @@ fn invalid(msg: impl Into<String>) -> ProtoError {
 
 pub(crate) fn display_validation_message(message: &str) -> &str {
     match message {
+        LOCKED_TIP => crate::tr!("Aktiver skjermkortstyring i Innstillinger, og vent til hjelperen er klar"),
         "Viftekurven må være en liste med punkter" => crate::tr!("Viftekurven må være en liste med punkter"),
         "Temperaturene i viftekurven må stige" => crate::tr!("Temperaturene i viftekurven må stige"),
         "fan.curves må være en liste med kurver" => crate::tr!("fan.curves må være en liste med kurver"),
@@ -287,6 +288,73 @@ pub(crate) fn display_validation_message(message: &str) -> &str {
         "Oppsettet må være innenfor rapporterte grenser og viftekurven må være stigende." => crate::tr!("Oppsettet må være innenfor rapporterte grenser og viftekurven må være stigende."),
         _ => message,
     }
+}
+
+pub(crate) fn display_validation_details(message: &str) -> Option<String> {
+    fn number(text: &str) -> Option<String> {
+        let value = text.parse::<u32>().ok()?;
+        Some(crate::fmt::num(Some(f64::from(value)), 0))
+    }
+
+    if let Some((fan, cause)) = message.strip_prefix("Vifte ").and_then(|s| s.split_once(": "))
+        && let Some(fan) = number(fan)
+    {
+        let fixed = display_validation_message(cause);
+        let cause = display_curve_details(cause).or_else(|| (fixed != cause).then(|| fixed.to_owned()))?;
+        return Some(crate::trf!("Vifte {nummer}: {feil}", nummer = fan, feil = cause));
+    }
+    if let Some(field) = message.strip_prefix("Ukjent felt: ") {
+        return Some(crate::trf!("Ukjent felt: {felt}", felt = field));
+    }
+    if let Some(field) = message.strip_suffix(" må være et tall") {
+        let name = match field {
+            "Effektgrensen" => crate::tr!("Effektgrensen"),
+            "Temperaturmålet" => crate::tr!("Temperaturmålet"),
+            "Kjerneklokke-offset" => crate::tr!("Kjerneklokke-offset"),
+            "Minneklokke-offset" => crate::tr!("Minneklokke-offset"),
+            "Viftefarten" => crate::tr!("Viftefarten"),
+            "Viftefarten i kurven" => crate::tr!("Viftefarten i kurven"),
+            "Temperaturen i kurven" => crate::tr!("Temperaturen i kurven"),
+            "Hysteresen" => crate::tr!("Hysteresen"),
+            "Rampefarten opp" => crate::tr!("Rampefarten opp"),
+            "Rampefarten ned" => crate::tr!("Rampefarten ned"),
+            "Utjevningen" => crate::tr!("Utjevningen"),
+            "«Hold minimum til»" => crate::tr!("«Hold minimum til»"),
+            _ => return None,
+        };
+        return Some(crate::trf!("{felt} må være et tall", felt = name));
+    }
+    display_curve_details(message)
+}
+
+fn display_curve_details(message: &str) -> Option<String> {
+    fn count(text: &str) -> Option<u32> {
+        text.parse().ok()
+    }
+
+    if let Some((min, max)) = message.strip_prefix("Viftekurven må ha ")
+        .and_then(|s| s.strip_suffix(" punkter"))
+        .and_then(|s| s.split_once('–'))
+        && let (Some(min), Some(max)) = (count(min), count(max))
+    {
+        return Some(crate::trf!("Viftekurven må ha {min}–{maks} punkter", min = min, maks = max));
+    }
+    if let Some(point) = message.strip_prefix("Ugyldig punkt ")
+        .and_then(|s| s.strip_suffix(" i viftekurven")).and_then(count)
+    {
+        return Some(crate::trf!("Ugyldig punkt {nummer} i viftekurven", nummer = point));
+    }
+    if let Some(point) = message.strip_prefix("Punkt ")
+        .and_then(|s| s.strip_suffix(": temperaturen må være 0–110 °C")).and_then(count)
+    {
+        return Some(crate::trf!("Punkt {nummer}: temperaturen må være {min}–{maks}", nummer = point, min = crate::fmt::temp_num(Some(0.0), 0), maks = crate::fmt::temp(Some(110.0), 0)));
+    }
+    if let Some(max) = message.strip_prefix("fan.curves kan ha høyst ")
+        .and_then(|s| s.strip_suffix(" kurver")).and_then(count)
+    {
+        return Some(crate::trf!("fan.curves kan ha høyst {maks} kurver", maks = max));
+    }
+    None
 }
 
 /// Klemmer ett tall og noterer det.
@@ -1032,24 +1100,24 @@ pub fn write_gate(hello: Option<&Value>, dev: bool) -> Gate {
 /// produktspesifikasjonen 6.2 gir. Mangler lista, vises alle seks som ikke
 /// godkjent (det er sant så lenge tjenesten ikke sier noe annet).
 pub fn steps(hello: Option<&Value>) -> Vec<(&'static str, &'static str, String)> {
-    const NAMES: [(&str, &str, &str); 6] = [
-        ("power", "Effektgrense", ""),
-        ("clocks", "Klokke-offset (kjerne og minne)", ""),
-        ("fan_manual", "Vifte, manuell fart", ""),
-        ("fan_curve", "Viftekurve", ""),
+    let names = [
+        ("power", crate::tr!("Effektgrense"), ""),
+        ("clocks", crate::tr!("Klokke-offset (kjerne og minne)"), ""),
+        ("fan_manual", crate::tr!("Vifte, manuell fart"), ""),
+        ("fan_curve", crate::tr!("Viftekurve"), ""),
         (
             "temp_target",
-            "Temperaturmål",
-            " (ikke verifisert på GeForce)",
+            crate::tr!("Temperaturmål"),
+            crate::tr!(" (ikke verifisert på GeForce)"),
         ),
         (
             "rgb",
-            "RGB-lys (Palit-kontrolleren på I2C)",
-            " (kontrolleren er ikke bekreftet)",
+            crate::tr!("RGB-lys (Palit-kontrolleren på I2C)"),
+            crate::tr!(" (kontrolleren er ikke bekreftet)"),
         ),
     ];
     let list = hello.and_then(|h| h["capabilities"]["write"]["steps"].as_array());
-    NAMES
+    names
         .iter()
         .map(|(id, name, note)| {
             let st = list
@@ -1057,10 +1125,10 @@ pub fn steps(hello: Option<&Value>) -> Vec<(&'static str, &'static str, String)>
                 .and_then(|s| s["status"].as_str())
                 .unwrap_or("not_approved");
             let text = match st {
-                "supported" => "Tilgjengelig".to_string(),
-                "unavailable" => format!("Ikke tilgjengelig{note}"),
-                "approved" => "Godkjent (eldre protokoll)".to_string(),
-                _ => format!("Ikke godkjent{note}"),
+                "supported" => crate::tr!("Tilgjengelig").to_string(),
+                "unavailable" => crate::trf!("Ikke tilgjengelig{note}", note = note),
+                "approved" => crate::tr!("Godkjent (eldre protokoll)").to_string(),
+                _ => crate::trf!("Ikke godkjent{note}", note = note),
             };
             (*id, *name, text)
         })
@@ -1070,6 +1138,15 @@ pub fn steps(hello: Option<&Value>) -> Vec<(&'static str, &'static str, String)>
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn visningen_gjenkjenner_eldre_dynamiske_kurvefeil() {
+        let error = check_curves(&json!([[[40, 20], [50, "feil"]]])).unwrap_err();
+        assert_eq!(error.message, "Vifte 1: Ugyldig punkt 2 i viftekurven");
+        assert_eq!(display_validation_details(&error.message).as_deref(), Some(error.message.as_str()));
+        assert!(display_validation_details("Vifte 1: ukjent feilmelding").is_none());
+        assert!(display_validation_details("Ugyldig punkt x i viftekurven").is_none());
+    }
 
     #[test]
     fn ekte_gate_krever_global_tillatelse_og_faktisk_klar_hjelper() {

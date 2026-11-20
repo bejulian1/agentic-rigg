@@ -8,126 +8,278 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Rigg-Status: complete\n"
 
+#: crates/rigg-core/src/hjelper.rs:399
+msgid "Effekt"
+msgstr "功率"
+
+#: crates/rigg-core/src/hjelper.rs:400
+msgid "Vifter"
+msgstr "风扇"
+
+#: crates/rigg-core/src/hjelper.rs:401
+msgid "Klokker"
+msgstr "频率"
+
+#: crates/rigg-core/src/hjelper.rs:402
+msgid "RGB-lys"
+msgstr "RGB 灯光"
+
 #: crates/rigg-core/src/hjelper.rs:407
+msgid "Trinnet «{one}» er ikke godkjent. Godkjenn det i Innstillinger › Styring først."
+msgstr "“{one}”尚未授权。请先在“设置 › 显卡调校”中启用。"
+
+#: crates/rigg-core/src/hjelper.rs:408
+msgid "Trinnene {steps} er ikke godkjent. Godkjenn dem i Innstillinger › Styring først."
+msgstr "{steps} 尚未授权。请先在“设置 › 显卡调校”中启用。"
+
+#: crates/rigg-core/src/hjelper.rs:422
 msgid "{felt}: Kortet tillater {min}–{max}. Ingenting er endret."
 msgstr "{felt}：显卡允许的范围是 {min}–{max}。未进行任何更改。"
 
-#: crates/rigg-core/src/hjelper.rs:410 crates/rigg-core/src/hjelper.rs:458
+#: crates/rigg-core/src/hjelper.rs:425 crates/rigg-core/src/hjelper.rs:525
 msgid "Kortet eller driveren støtter ikke denne funksjonen."
 msgstr "显卡或驱动程序不支持此功能。"
 
-#: crates/rigg-core/src/hjelper.rs:418
+#: crates/rigg-core/src/hjelper.rs:433
 msgid "Effektgrense"
 msgstr "功率限制"
 
-#: crates/rigg-core/src/hjelper.rs:419
+#: crates/rigg-core/src/hjelper.rs:434
 msgid "Temperaturmål"
 msgstr "目标温度"
 
-#: crates/rigg-core/src/hjelper.rs:420
+#: crates/rigg-core/src/hjelper.rs:435
 msgid "GPU-justering"
 msgstr "GPU 频率偏移"
 
-#: crates/rigg-core/src/hjelper.rs:421
+#: crates/rigg-core/src/hjelper.rs:436
 msgid "Minnejustering"
 msgstr "显存频率偏移"
 
-#: crates/rigg-core/src/hjelper.rs:422
+#: crates/rigg-core/src/hjelper.rs:437
 msgid "Viftefart"
 msgstr "风扇转速"
 
-#: crates/rigg-core/src/hjelper.rs:434
+#: crates/rigg-core/src/hjelper.rs:438
+msgid "Temperaturen i kurven"
+msgstr "曲线中的温度"
+
+#: crates/rigg-core/src/hjelper.rs:439
+msgid "Viftefarten i kurven"
+msgstr "曲线中的风扇转速"
+
+#: crates/rigg-core/src/hjelper.rs:454
+msgid "Kan ikke lagre gjenopprettingsmerkør før endring: {feil}"
+msgstr "无法在应用更改前保存恢复标记：{feil}"
+
+#: crates/rigg-core/src/hjelper.rs:457
+msgid "Kortet ble gjenopprettet, men merkøren kunne ikke ryddes: {feil}"
+msgstr "GPU 已恢复，但无法移除恢复标记：{feil}"
+
+#: crates/rigg-core/src/hjelper.rs:460
+msgid "Fikk ikke kontakt med hjelperen ({feil})"
+msgstr "无法连接到辅助服务（{feil}）"
+
+#: crates/rigg-core/src/hjelper.rs:463
+msgid "Hjelperen svarte ikke ({feil})"
+msgstr "辅助服务未响应（{feil}）"
+
+#: crates/rigg-core/src/hjelper.rs:466
+msgid "Hjelperen tok ikke imot ({feil})"
+msgstr "辅助服务未接收请求（{feil}）"
+
+#: crates/rigg-core/src/hjelper.rs:477
 msgid "celsius må være 0–120"
 msgstr "celsius 必须在 0–120 之间"
 
-#: crates/rigg-core/src/hjelper.rs:435
+#: crates/rigg-core/src/hjelper.rs:478
 msgid "RGB-backenden er ikke identifisert eller tilgjengelig."
 msgstr "未识别到 RGB 后端，或该后端不可用。"
 
-#: crates/rigg-core/src/hjelper.rs:436
+#: crates/rigg-core/src/hjelper.rs:479
 msgid "Viftestyring krever en lesbar temperatur for overtemperaturvernet."
 msgstr "风扇控制需要读取温度才能提供过热保护。"
 
-#: crates/rigg-core/src/hjelper.rs:437
+#: crates/rigg-core/src/hjelper.rs:480
 msgid "Nødregelen gjelder. Vent til kortet er under 80 °C."
 msgstr "紧急散热已启动。请等待显卡温度降至 80 °C 以下。"
 
-#: crates/rigg-core/src/hjelper.rs:438
+#: crates/rigg-core/src/hjelper.rs:481
 msgid "Endringer er låst: endring av skjermkortet er ikke slått på. Slå på «Tillat endring av skjermkortet» i Innstillinger › Styring."
 msgstr "显卡调校已关闭，无法更改设置。请在“设置 › 显卡调校”中打开“允许调校显卡”。"
 
-#: crates/rigg-core/src/hjelper.rs:439
+#: crates/rigg-core/src/hjelper.rs:482
 msgid "Hjelperen for endring svarer ikke. Se Innstillinger › Styring."
 msgstr "显卡辅助程序无响应。请查看“设置 › 显卡调校”。"
 
-#: crates/rigg-core/src/hjelper.rs:440
+#: crates/rigg-core/src/hjelper.rs:483
 msgid "Hjelperen er fra en annen versjon av appen. Slå bryteren i Innstillinger › Styring av og på igjen."
 msgstr "辅助程序与应用版本不匹配。请在“设置 › 显卡调校”中关闭后重新打开开关。"
 
-#: crates/rigg-core/src/hjelper.rs:441
+#: crates/rigg-core/src/hjelper.rs:484
 msgid "Hjelperen og tjenesten bruker ulike kort (simulert og ekte). Ingenting er sendt."
 msgstr "辅助程序与服务使用不同的显卡（模拟和实际）。未发送任何更改。"
 
-#: crates/rigg-core/src/hjelper.rs:442
+#: crates/rigg-core/src/hjelper.rs:485
 msgid "NVML-hjelperen er ikke klar til å endre dette kortet."
 msgstr "NVML 辅助程序尚无法调校此显卡。"
 
-#: crates/rigg-core/src/hjelper.rs:443
+#: crates/rigg-core/src/hjelper.rs:486
 msgid "Skjermkortstyring må aktiveres med bryteren i Innstillinger."
 msgstr "请在设置中使用开关启用显卡调校。"
 
-#: crates/rigg-core/src/hjelper.rs:444 crates/rigg-core/src/hjelper.rs:460
+#: crates/rigg-core/src/hjelper.rs:487 crates/rigg-core/src/hjelper.rs:527
 msgid "Det valgte kortet er ikke kortet hjelperen er aktivert for."
 msgstr "辅助程序是为另一块显卡启用的。"
 
-#: crates/rigg-core/src/hjelper.rs:445
+#: crates/rigg-core/src/hjelper.rs:488
 msgid "Gjenoppretting kunne ikke bekreftes. Nye endringer er sperret."
 msgstr "无法确认恢复成功。已阻止进一步更改。"
 
-#: crates/rigg-core/src/hjelper.rs:446
+#: crates/rigg-core/src/hjelper.rs:489
 msgid "Lys er ikke laget ennå."
 msgstr "尚未实现灯效控制。"
 
-#: crates/rigg-core/src/hjelper.rs:447
+#: crates/rigg-core/src/hjelper.rs:490
 msgid "Endringer er låst. Skriving til skjermkortet er ikke slått på."
 msgstr "无法更改设置。显卡写入已禁用。"
 
-#: crates/rigg-core/src/hjelper.rs:448
+#: crates/rigg-core/src/hjelper.rs:491
 msgid "Funksjonen er ikke tilgjengelig på dette kortet."
 msgstr "此显卡无法使用该功能。"
 
-#: crates/rigg-core/src/hjelper.rs:449
+#: crates/rigg-core/src/hjelper.rs:492
 msgid "Hjelperen er aktivert for en annen bruker."
 msgstr "辅助程序是为其他用户启用的。"
 
-#: crates/rigg-core/src/hjelper.rs:450
+#: crates/rigg-core/src/hjelper.rs:493
 msgid "Hjelperen kjører, men helper.json mangler."
 msgstr "辅助程序正在运行，但缺少 helper.json。"
 
-#: crates/rigg-core/src/hjelper.rs:451
+#: crates/rigg-core/src/hjelper.rs:494
 msgid "Gjenopprettingsmerkøren har feil identitet eller utrygg eier/modus."
 msgstr "恢复标记的标识不匹配，或所有者或权限不安全。"
 
-#: crates/rigg-core/src/hjelper.rs:459
+#: crates/rigg-core/src/hjelper.rs:495
+msgid "Skjermkortet eller tjenesten svarer ikke. Endringer er låst."
+msgstr "GPU 或服务无响应，暂时无法更改设置。"
+
+#: crates/rigg-core/src/hjelper.rs:496
+msgid "Hjelperen er aktivert for et annet kort. Aktiver styring for kortet som vises."
+msgstr "辅助程序已为另一块 GPU 启用。请为此处显示的 GPU 启用调校。"
+
+#: crates/rigg-core/src/hjelper.rs:497
+msgid "Valgt kort ble endret mens forespørselen ventet. Svaret brukes ikke på det nye kortet."
+msgstr "等待响应期间，所选 GPU 已更改。此响应不会用于新选中的 GPU。"
+
+#: crates/rigg-core/src/hjelper.rs:498
+msgid "Endringer på skjermkortet er slått av. Aktiver én gang med administratorpassord i Innstillinger › Skjermkortstyring."
+msgstr "显卡调校已关闭。请在“设置 › 显卡调校”中使用管理员密码授权启用一次。"
+
+#: crates/rigg-core/src/hjelper.rs:499
+msgid "Hjelperen er ikke skriveklar for kortet som vises."
+msgstr "辅助程序尚未就绪，无法调校此 GPU。"
+
+#: crates/rigg-core/src/hjelper.rs:500
+msgid "Dette eldre utkastet mangler opprinnelig grunnlag. Behold det som referanse, eller forkast det og lag et nytt utkast fra kortets verdier."
+msgstr "这份旧草稿没有保存原始设置。可保留以供参考，也可放弃并基于 GPU 的当前设置新建草稿。"
+
+#: crates/rigg-core/src/hjelper.rs:501
+msgid "Utkastet tilhører en annen kortidentitet. Velg det opprinnelige kortet, eller forkast utkastet før du lager et nytt."
+msgstr "此草稿属于另一块 GPU。请选择原来的 GPU，或放弃此草稿后新建草稿。"
+
+#: crates/rigg-core/src/hjelper.rs:502
+msgid "Det finnes ikke noe utkast å bruke."
+msgstr "没有可应用的草稿。"
+
+#: crates/rigg-core/src/hjelper.rs:503
+msgid "Ugyldig argument."
+msgstr "参数无效。"
+
+#: crates/rigg-core/src/hjelper.rs:504
+msgid "Ukjent skjermkort."
+msgstr "未知 GPU。"
+
+#: crates/rigg-core/src/hjelper.rs:505
+msgid "Kortet eller driveren støtter ikke dette."
+msgstr "GPU 或驱动程序不支持此操作。"
+
+#: crates/rigg-core/src/hjelper.rs:506
+msgid "Ikke tillatt."
+msgstr "不允许执行此操作。"
+
+#: crates/rigg-core/src/hjelper.rs:507
+msgid "En annen klient har en endring som venter."
+msgstr "另一客户端有待确认的更改。"
+
+#: crates/rigg-core/src/hjelper.rs:508
+msgid "Ingen endring venter."
+msgstr "没有待确认的更改。"
+
+#: crates/rigg-core/src/hjelper.rs:509
+msgid "Endringen finnes ikke lenger."
+msgstr "该更改已不存在。"
+
+#: crates/rigg-core/src/hjelper.rs:510
+msgid "Bare klienten som gjorde endringen, kan bekrefte den."
+msgstr "只有发起更改的客户端才能确认该更改。"
+
+#: crates/rigg-core/src/hjelper.rs:511
+msgid "Tjenesten stopper."
+msgstr "服务正在关闭。"
+
+#: crates/rigg-core/src/hjelper.rs:512
+msgid "Feil i tjenesten."
+msgstr "服务错误。"
+
+#: crates/rigg-core/src/hjelper.rs:513
+msgid "Ikke tilgjengelig nå."
+msgstr "暂不可用。"
+
+#: crates/rigg-core/src/hjelper.rs:514
+msgid "Trinnet er ikke godkjent."
+msgstr "此步骤尚未授权。"
+
+#: crates/rigg-core/src/hjelper.rs:515
+msgid "Kortets standardtilstand kunne ikke bekreftes ved tilbakelesing."
+msgstr "无法通过读回确认 GPU 处于原始状态。"
+
+#: crates/rigg-core/src/hjelper.rs:516
+msgid "Hjelperen lukket forbindelsen"
+msgstr "辅助服务已关闭连接"
+
+#: crates/rigg-core/src/hjelper.rs:517
+msgid "For stort svar fra hjelperen"
+msgstr "辅助服务的响应过大"
+
+#: crates/rigg-core/src/hjelper.rs:518
+msgid "Tjenesten svarte ikke på 5 s."
+msgstr "服务在 5 s 内未响应。"
+
+#: crates/rigg-core/src/hjelper.rs:526
 msgid "Driveren ga ikke tilgang til å endre kortet."
 msgstr "驱动程序拒绝更改显卡设置。"
 
-#: crates/rigg-core/src/hjelper.rs:461
+#: crates/rigg-core/src/hjelper.rs:528
 msgid "Kortet svarer ikke."
 msgstr "显卡无响应。"
 
-#: crates/rigg-core/src/hjelper.rs:462
+#: crates/rigg-core/src/hjelper.rs:529
 msgid "Kortets innstillinger kunne ikke bekreftes ved tilbakelesing."
 msgstr "无法通过回读确认显卡设置。"
 
-#: crates/rigg-core/src/hjelper.rs:463
+#: crates/rigg-core/src/hjelper.rs:530
 msgid "De opprinnelige innstillingene for kortet mangler."
 msgstr "缺少显卡的原始设置。"
 
-#: crates/rigg-core/src/hjelper.rs:464
+#: crates/rigg-core/src/hjelper.rs:531
+msgid "Kortet må gjenopprettes før nye endringer."
+msgstr "必须先恢复显卡设置，才能继续修改。"
+
+#: crates/rigg-core/src/hjelper.rs:532
 msgid "NVML avviste en ugyldig verdi."
 msgstr "NVML 拒绝了无效的值。"
 
-#: crates/rigg-core/src/hjelper.rs:465
+#: crates/rigg-core/src/hjelper.rs:533
 msgid "En NVML-operasjon mislyktes."
 msgstr "NVML 操作失败。"

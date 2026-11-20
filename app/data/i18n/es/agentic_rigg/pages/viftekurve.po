@@ -6,6 +6,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg/src/pages/viftekurve.rs:59
 msgid "Stille"
@@ -35,6 +36,64 @@ msgstr "Máxima refrigeración: curva más alta, histéresis de 2 °C y rampa r�
 msgid "{navn} · endret"
 msgstr "{navn} · modificado"
 
+#: crates/rigg/src/pages/viftekurve.rs:529
+msgid "Minst {fart} (driver)"
+msgstr "Mín. {fart} (controlador)"
+
+#: crates/rigg/src/pages/viftekurve.rs:529
+msgid "Minste fart er ikke avlest"
+msgstr "No se indica la velocidad mínima"
+
+#: crates/rigg/src/pages/viftekurve.rs:532
+msgid "Under {fart} er ikke mulig"
+msgstr "No se puede bajar de {fart}"
+
+#: crates/rigg/src/pages/viftekurve.rs:536
+msgid "Nødregel {fart} over {temperatur}"
+msgstr "Emergencia: {fart} por encima de {temperatur}"
+
+#: crates/rigg/src/pages/viftekurve.rs:595
+msgid "Minst {fart} til {temperatur}"
+msgstr "Al menos {fart} hasta {temperatur}"
+
+#: crates/rigg/src/pages/viftekurve.rs:604
+msgid "Ned · {grader} hysterese"
+msgstr "Bajada · histéresis de {grader}"
+
+#: crates/rigg/src/pages/viftekurve.rs:631
+msgid "Nå {temperatur} · {fart}"
+msgstr "Ahora: {temperatur} · {fart}"
+
+#: crates/rigg/src/pages/viftekurve.rs:686
+msgid "Ved {temperatur}: kurven {fart}"
+msgstr "A {temperatur}: curva {fart}"
+
+#: crates/rigg/src/pages/viftekurve.rs:689
+msgid " (ned {fart})"
+msgstr " (bajada: {fart})"
+
+#: crates/rigg/src/pages/viftekurve.rs:692
+msgid ", driveren {fart} (median av {n})"
+msgstr ", controlador: {fart} (mediana de {n})"
+
+#: crates/rigg/src/pages/viftekurve.rs:693
+msgid ", {n} måling"
+msgid_plural ", {n} målinger"
+msgstr[0] ", {n} muestra"
+msgstr[1] ", {n} muestras"
+
+#: crates/rigg/src/pages/viftekurve.rs:756
+msgid "Viftekurven: viftefart mot GPU-temperatur"
+msgstr "Curva de ventiladores: velocidad según la temperatura de la GPU"
+
+#: crates/rigg/src/pages/viftekurve.rs:1156
+msgid "nå"
+msgstr "ahora"
+
+#: crates/rigg/src/pages/viftekurve.rs:1193
+msgid "Viftene de siste fem minuttene, slik de gikk og med kurven"
+msgstr "Ventiladores en los últimos cinco minutos: velocidad real y vista previa de la curva"
+
 #: crates/rigg/src/pages/viftekurve.rs:1227 crates/rigg/src/pages/viftekurve.rs:2605
 msgid "Auto (driveren)"
 msgstr "Auto (controlador)"
@@ -59,13 +118,101 @@ msgstr "Manual"
 msgid "Fast fart, uansett temperatur. Pass på temperaturen under last."
 msgstr "Velocidad fija independientemente de la temperatura. Vigila la temperatura bajo carga."
 
+#: crates/rigg/src/pages/viftekurve.rs:1236
+msgid "Egen kurve er aktiv på kortet. Modusbyttet ligger bare i utkastet til du trykker Bruk og Behold."
+msgstr "Hay una curva personalizada activa. El cambio de modo queda en el borrador hasta que pulses Aplicar y Conservar."
+
+#: crates/rigg/src/pages/viftekurve.rs:1238
+msgid "Egen kurve er aktiv på kortet. Du har et kurveutkast; åpne Avansert for å se og redigere det."
+msgstr "Hay una curva personalizada activa y un borrador guardado. Abre la vista avanzada para ver o editar el borrador."
+
+#: crates/rigg/src/pages/viftekurve.rs:1240
+msgid "Egen kurve er aktiv. Viftene fortsetter å følge den i Enkel visning. Åpne Avansert for å se og redigere kurven."
+msgstr "Hay una curva personalizada activa. Los ventiladores la siguen también en la vista básica. Abre la vista avanzada para verla o editarla."
+
+#: crates/rigg/src/pages/viftekurve.rs:1243
+msgid "Egen kurve er valgt i utkastet. Åpne Avansert for å se kurven. Kortet endres først med Bruk og Behold."
+msgstr "El borrador usa una curva personalizada. Abre la vista avanzada para verla. La GPU solo cambia cuando pulsas Aplicar y Conservar."
+
+#: crates/rigg/src/pages/viftekurve.rs:1255
+msgid "Felles kurve"
+msgstr "Curva compartida"
+
+#: crates/rigg/src/pages/viftekurve.rs:1257
+msgid "Vifte {i}"
+msgstr "Ventilador {i}"
+
+#: crates/rigg/src/pages/viftekurve.rs:1265
+msgid "Kurven som redigeres"
+msgstr "Curva en edición"
+
+#: crates/rigg/src/pages/viftekurve.rs:1268
+msgid "Én felles kurve for kortets vifter"
+msgstr "Una curva compartida para todos los ventiladores de la GPU"
+
+#: crates/rigg/src/pages/viftekurve.rs:1270
+msgid "Egen kurve for vifte {id}. En annen vifte kan vises svakt bak."
+msgstr "Curva personalizada del ventilador {id}. La curva de otro ventilador puede verse atenuada detrás."
+
+#: crates/rigg/src/pages/viftekurve.rs:1283
+msgid "Antall GPU-vifter er ikke lest. Viftestyring venter på kortets informasjon."
+msgstr "El control de ventiladores está a la espera de que la GPU indique cuántos tiene."
+
+#: crates/rigg/src/pages/viftekurve.rs:1284
+msgid "Kortet rapporterer ingen GPU-vifter. Viftestyring er utilgjengelig."
+msgstr "La GPU indica que no tiene ventiladores. El control de ventiladores no está disponible."
+
+#: crates/rigg/src/pages/viftekurve.rs:1285
+msgid "Kortet rapporterer {n} vifter. Kurvemotoren støtter høyst {maks} vifter på ett kort."
+msgstr "La GPU indica que tiene {n} ventiladores. El control por curva admite hasta {maks} ventiladores por GPU."
+
+#: crates/rigg/src/pages/viftekurve.rs:1301
+msgid "ingen"
+msgstr "ninguno"
+
 #: crates/rigg/src/pages/viftekurve.rs:1306
 msgid "Effektgrense"
 msgstr "Límite de potencia"
 
+#: crates/rigg/src/pages/viftekurve.rs:1308
+msgid "Minnejustering"
+msgstr "Desplazamiento de frecuencia de memoria"
+
 #: crates/rigg/src/pages/viftekurve.rs:1309
 msgid "Temperaturmål"
 msgstr "Temperatura objetivo"
+
+#: crates/rigg/src/pages/viftekurve.rs:1310
+msgid "Lagret fast fart"
+msgstr "Velocidad fija guardada"
+
+#: crates/rigg/src/pages/viftekurve.rs:1311
+msgid "Felles viftekurve"
+msgstr "Curva de ventiladores compartida"
+
+#: crates/rigg/src/pages/viftekurve.rs:1312
+msgid "Viftekurver"
+msgstr "Curvas de ventiladores"
+
+#: crates/rigg/src/pages/viftekurve.rs:1312
+msgid "per vifte"
+msgstr "por ventilador"
+
+#: crates/rigg/src/pages/viftekurve.rs:1312
+msgid "felles"
+msgstr "compartida"
+
+#: crates/rigg/src/pages/viftekurve.rs:1313
+msgid "Kurver per vifte"
+msgstr "Curvas por ventilador"
+
+#: crates/rigg/src/pages/viftekurve.rs:1313
+msgid "ingen egne kurver"
+msgstr "sin curvas personalizadas"
+
+#: crates/rigg/src/pages/viftekurve.rs:1313
+msgid "Vifte {nummer}: {antall}"
+msgstr "Ventilador {nummer}: {antall}"
 
 #: crates/rigg/src/pages/viftekurve.rs:1314 crates/rigg/src/pages/viftekurve.rs:1711 crates/rigg/src/pages/viftekurve.rs:1713
 msgid "Hysterese"
@@ -79,9 +226,21 @@ msgstr "Rampa de subida"
 msgid "Rampe ned"
 msgstr "Rampa de bajada"
 
+#: crates/rigg/src/pages/viftekurve.rs:1317
+msgid "Utjevning"
+msgstr "Suavizado"
+
+#: crates/rigg/src/pages/viftekurve.rs:1317 crates/rigg/src/pages/viftekurve.rs:1318
+msgid "av"
+msgstr "desactivado"
+
 #: crates/rigg/src/pages/viftekurve.rs:1318 crates/rigg/src/pages/viftekurve.rs:1727
 msgid "Hold minimum til"
 msgstr "Mantener el mínimo hasta"
+
+#: crates/rigg/src/pages/viftekurve.rs:1319
+msgid "Annen innstilling"
+msgstr "Otro ajuste"
 
 #: crates/rigg/src/pages/viftekurve.rs:1552
 msgid "Enkel"
@@ -94,6 +253,10 @@ msgstr "Avanzada"
 #: crates/rigg/src/pages/viftekurve.rs:1552
 msgid "Visning av viftestyring"
 msgstr "Vista de control de ventiladores"
+
+#: crates/rigg/src/pages/viftekurve.rs:1559
+msgid "Viser hvordan driveren faktisk har styrt viftene. Det du endrer, blir et utkast som lagres i appen og ikke sendes til kortet."
+msgstr "Muestra cómo ha controlado los ventiladores el controlador. Los cambios se guardan como borrador en la aplicación, sin enviarlos a la GPU."
 
 #: crates/rigg/src/pages/viftekurve.rs:1576 crates/rigg/src/pages/viftekurve.rs:1776 crates/rigg/src/pages/viftekurve.rs:1985
 msgid "Temperatur"
@@ -131,6 +294,34 @@ msgstr "{navn}: {om} (en el borrador, común a los ventiladores de la GPU)"
 msgid "Tilbakestill kurven"
 msgstr "Restablecer curva"
 
+#: crates/rigg/src/pages/viftekurve.rs:1621
+msgid "Kurven, hysteresen, rampen og resten av oppførselen tilbake til standard (Balansert)"
+msgstr "Restaura la curva, la histéresis, las rampas y los demás ajustes predeterminados (Equilibrado)."
+
+#: crates/rigg/src/pages/viftekurve.rs:1646
+msgid "Kurven"
+msgstr "Curva"
+
+#: crates/rigg/src/pages/viftekurve.rs:1646
+msgid "Ned (hysterese)"
+msgstr "Bajada (histéresis)"
+
+#: crates/rigg/src/pages/viftekurve.rs:1646
+msgid "Annen vifte"
+msgstr "Otro ventilador"
+
+#: crates/rigg/src/pages/viftekurve.rs:1646
+msgid "Målinger"
+msgstr "Muestras"
+
+#: crates/rigg/src/pages/viftekurve.rs:1646
+msgid "Driveren (median)"
+msgstr "Controlador (mediana)"
+
+#: crates/rigg/src/pages/viftekurve.rs:1646
+msgid "Nå"
+msgstr "Ahora"
+
 #: crates/rigg/src/pages/viftekurve.rs:1672
 msgid "Tidsvindu for målingene"
 msgstr "Periodo de medición"
@@ -138,6 +329,14 @@ msgstr "Periodo de medición"
 #: crates/rigg/src/pages/viftekurve.rs:1690
 msgid "Bruk kurven"
 msgstr "Usar curva"
+
+#: crates/rigg/src/pages/viftekurve.rs:1691
+msgid "Setter viftemodus til Kurve i utkastet"
+msgstr "Selecciona el modo Curva para los ventiladores en el borrador."
+
+#: crates/rigg/src/pages/viftekurve.rs:1695
+msgid "Dra punktene; de festes til hele grader og prosent (Shift: steg på 5). Dobbeltklikk legger til eller fjerner et punkt (2–10 punkter). Tastaturet: [ og ] velger punkt, piltastene flytter, + legger til, Delete fjerner, Ctrl+Z angrer."
+msgstr "Arrastra los puntos para ajustarlos a grados y porcentajes enteros (Shift: pasos de 5). Haz doble clic para añadir o eliminar un punto (2–10 puntos). Teclado: [ y ] seleccionan, las flechas desplazan, + añade, Delete elimina y Ctrl+Z deshace."
 
 #: crates/rigg/src/pages/viftekurve.rs:1700
 msgid "Oppførsel"
@@ -150,6 +349,22 @@ msgstr "Desactivado"
 #: crates/rigg/src/pages/viftekurve.rs:1714 crates/rigg/src/pages/viftekurve.rs:1715
 msgid "Utjevning av temperaturen"
 msgstr "Suavizado de temperatura"
+
+#: crates/rigg/src/pages/viftekurve.rs:1726
+msgid "Hold minste fart til en temperatur"
+msgstr "Mantener la velocidad mínima hasta una temperatura"
+
+#: crates/rigg/src/pages/viftekurve.rs:1734
+msgid "Hold minste fart til denne temperaturen"
+msgstr "Mantener la velocidad mínima hasta esta temperatura"
+
+#: crates/rigg/src/pages/viftekurve.rs:1742
+msgid "Stille flate"
+msgstr "Tramo silencioso"
+
+#: crates/rigg/src/pages/viftekurve.rs:1750
+msgid "Viftestopp"
+msgstr "Parada de ventiladores"
 
 #: crates/rigg/src/pages/viftekurve.rs:1763 crates/rigg/src/pages/viftekurve.rs:2435
 msgid "Siste 5 minutter med kurven"
@@ -175,9 +390,29 @@ msgstr "Control de ventiladores"
 msgid "kortet nå"
 msgstr "actual"
 
+#: crates/rigg/src/pages/viftekurve.rs:1846
+msgid "Avlest nå"
+msgstr "Lectura actual"
+
+#: crates/rigg/src/pages/viftekurve.rs:1847
+msgid "Rapportert av NVIDIA-driveren"
+msgstr "Según el controlador de NVIDIA"
+
+#: crates/rigg/src/pages/viftekurve.rs:1848 crates/rigg/src/pages/viftekurve.rs:2686
+msgid "Valgt mål"
+msgstr "Objetivo seleccionado"
+
+#: crates/rigg/src/pages/viftekurve.rs:1849
+msgid "Høyest i kurven"
+msgstr "Máximo de la curva"
+
 #: crates/rigg/src/pages/viftekurve.rs:1855
 msgid "Fast viftefart"
 msgstr "Velocidad fija de ventiladores"
+
+#: crates/rigg/src/pages/viftekurve.rs:1862
+msgid "Fast viftefart i prosent"
+msgstr "Velocidad fija de ventiladores (%)"
 
 #: crates/rigg/src/pages/viftekurve.rs:1877
 msgid "Åpne avansert"
@@ -203,17 +438,93 @@ msgstr "Puntos de control"
 msgid "Legg til"
 msgstr "Añadir"
 
+#: crates/rigg/src/pages/viftekurve.rs:1908
+msgid "Nytt punkt etter det valgte (+)"
+msgstr "Añadir punto después del seleccionado (+)"
+
 #: crates/rigg/src/pages/viftekurve.rs:1914
 msgid "Slik følges kurven"
 msgstr "Cómo funciona la curva"
+
+#: crates/rigg/src/pages/viftekurve.rs:1919
+msgid "Nødregelen"
+msgstr "Regla de emergencia"
+
+#: crates/rigg/src/pages/viftekurve.rs:1919 crates/rigg/src/pages/viftekurve.rs:2761
+msgid "Fra {terskel} går viftene straks til {fart}, uten rampe, og tilbake til kurven under {slipp}. Den kan ikke slås av."
+msgstr "A {terskel}, los ventiladores pasan de inmediato a {fart}, sin rampa. Por debajo de {slipp}, vuelven a seguir la curva. Esta regla no se puede desactivar."
+
+#: crates/rigg/src/pages/viftekurve.rs:1920
+msgid "Rekkefølgen"
+msgstr "Orden de aplicación"
+
+#: crates/rigg/src/pages/viftekurve.rs:1920
+msgid "Utjevning, hysterese, kurven med stille flate og minste fart, og til slutt rampen. Kan temperaturen ikke leses på 5 s, går viftene til 100 %."
+msgstr "Primero se aplica el suavizado, luego la histéresis, después la curva con su tramo silencioso y la velocidad mínima, y por último los límites de rampa. Si pasan 5 s sin una lectura de temperatura, los ventiladores pasan al 100 %."
+
+#: crates/rigg/src/pages/viftekurve.rs:1921
+msgid "Mellom punktene"
+msgstr "Entre puntos"
+
+#: crates/rigg/src/pages/viftekurve.rs:1921
+msgid "Rett linje mellom punktene, flat før det første og etter det siste. Kurven faller aldri."
+msgstr "Lineal entre puntos y plana antes del primero y después del último. La curva nunca desciende."
+
+#: crates/rigg/src/pages/viftekurve.rs:1945
+msgid "Når endring er slått på"
+msgstr "Cuando se permiten los cambios"
+
+#: crates/rigg/src/pages/viftekurve.rs:1954
+msgid "Siste døgn"
+msgstr "Últimas 24 horas"
+
+#: crates/rigg/src/pages/viftekurve.rs:1957
+msgid "På minste fart"
+msgstr "A velocidad mínima"
+
+#: crates/rigg/src/pages/viftekurve.rs:1957
+msgid "Høyeste fart"
+msgstr "Velocidad máxima"
+
+#: crates/rigg/src/pages/viftekurve.rs:1957
+msgid "Varmeste"
+msgstr "Temperatura máxima"
+
+#: crates/rigg/src/pages/viftekurve.rs:1957
+msgid "Data for"
+msgstr "Cobertura de datos"
 
 #: crates/rigg/src/pages/viftekurve.rs:2000
 msgid "Forkast utkast"
 msgstr "Descartar borrador"
 
+#: crates/rigg/src/pages/viftekurve.rs:2001
+msgid "Tilbake til det kortet har. Utkastet slettes (Ctrl+Z angrer)."
+msgstr "Recupera los valores actuales de la GPU y descarta el borrador. Pulsa Ctrl+Z para deshacerlo."
+
 #: crates/rigg/src/pages/viftekurve.rs:2002
 msgid "Bruk"
 msgstr "Aplicar"
+
+#: crates/rigg/src/pages/viftekurve.rs:2092
+msgid "Vifte 1"
+msgstr "Ventilador 1"
+
+#: crates/rigg/src/pages/viftekurve.rs:2092
+msgid "Vifte 2"
+msgstr "Ventilador 2"
+
+#: crates/rigg/src/pages/viftekurve.rs:2094
+msgid "Avlest viftefart"
+msgstr "Velocidad medida de los ventiladores"
+
+#: crates/rigg/src/pages/viftekurve.rs:2101
+msgid "Avleste viftekanaler"
+msgstr "Canales de ventilador medidos"
+
+#: crates/rigg/src/pages/viftekurve.rs:2102
+msgid "Historikken viser tilgjengelige målekanaler. Backendens fan0/fan1 dekker ikke nødvendigvis alle fysiske vifter på kortet."
+msgstr "El historial muestra los canales de sensores disponibles. Los canales fan0 y fan1 del servicio pueden no cubrir todos los ventiladores físicos de la GPU."
 
 #: crates/rigg/src/pages/viftekurve.rs:2324
 msgid "Utkastet er forkastet"
@@ -223,25 +534,327 @@ msgstr "Borrador descartado"
 msgid "Angre"
 msgstr "Deshacer"
 
+#: crates/rigg/src/pages/viftekurve.rs:2435
+msgid "Siste 5 minutter med utkastet"
+msgstr "Últimos 5 minutos con el borrador"
+
+#: crates/rigg/src/pages/viftekurve.rs:2438
+msgid "Forhåndsvisning venter på støttet vifteantall."
+msgstr "La vista previa requiere un número de ventiladores compatible."
+
+#: crates/rigg/src/pages/viftekurve.rs:2444 crates/rigg/src/pages/viftekurve.rs:2489
+msgid "Tjenesten svarer ikke."
+msgstr "El servicio no responde."
+
+#: crates/rigg/src/pages/viftekurve.rs:2444
+msgid "Ingen målinger de siste 5 minuttene ennå."
+msgstr "Aún no hay muestras de los últimos 5 minutos."
+
+#: crates/rigg/src/pages/viftekurve.rs:2446
+msgid "Når tjenesten har målt en stund, vises hvordan viftene ville gått med kurven, ved siden av hvordan de faktisk gikk."
+msgstr "Cuando el servicio reúna suficientes muestras, la vista previa de la curva aparecerá junto a las velocidades reales."
+
+#: crates/rigg/src/pages/viftekurve.rs:2453
+msgid "Vifte 1 med kurven"
+msgstr "Ventilador 1 con la curva"
+
+#: crates/rigg/src/pages/viftekurve.rs:2456
+msgid "Øvrige vifter med kurven"
+msgstr "Otros ventiladores con la curva"
+
+#: crates/rigg/src/pages/viftekurve.rs:2461
+msgid "snitt {snitt}, høyest {maks}, {endring}"
+msgstr "media: {snitt}, máximo: {maks}, {endring}"
+
+#: crates/rigg/src/pages/viftekurve.rs:2461
+msgid "{antall} endring"
+msgid_plural "{antall} endringer"
+msgstr[0] "{antall} cambio"
+msgstr[1] "{antall} cambios"
+
+#: crates/rigg/src/pages/viftekurve.rs:2463
+msgid "vifte {nummer} {t}"
+msgstr "ventilador {nummer} {t}"
+
+#: crates/rigg/src/pages/viftekurve.rs:2467
+msgid " Kurven brukes bare i modus Kurve."
+msgstr " La curva solo se activa en el modo Curva."
+
+#: crates/rigg/src/pages/viftekurve.rs:2469
+msgid "Med kurven: {mine_txt}. Slik viftene gikk: {th}.{mode}"
+msgstr "Con la curva: {mine_txt}. Velocidad real: {th}.{mode}"
+
+#: crates/rigg/src/pages/viftekurve.rs:2470
+msgid "Med kurven: {mine_txt}.{mode}"
+msgstr "Con la curva: {mine_txt}.{mode}"
+
+#: crates/rigg/src/pages/viftekurve.rs:2489
+msgid "Ingen målinger i tidsvinduet ennå."
+msgstr "Aún no hay muestras en este intervalo."
+
+#: crates/rigg/src/pages/viftekurve.rs:2492
+msgid "Data for hele {varighet}"
+msgstr "Datos para todo el intervalo ({varighet})"
+
+#: crates/rigg/src/pages/viftekurve.rs:2493
+msgid "Data for {malt} av {varighet}"
+msgstr "Datos de {malt} de un total de {varighet}"
+
 #: crates/rigg/src/pages/viftekurve.rs:2494
 msgid "Ingen data"
 msgstr "Sin datos"
+
+#: crates/rigg/src/pages/viftekurve.rs:2517
+msgid "hele døgnet ({varighet})"
+msgstr "día completo ({varighet})"
+
+#: crates/rigg/src/pages/viftekurve.rs:2518
+msgid "{malt} av {varighet}"
+msgstr "{malt} de {varighet}"
+
+#: crates/rigg/src/pages/viftekurve.rs:2523
+msgid "siden {tid} ({varighet})"
+msgstr "desde {tid} ({varighet})"
+
+#: crates/rigg/src/pages/viftekurve.rs:2524
+msgid "siste døgn"
+msgstr "en las últimas 24 horas"
+
+#: crates/rigg/src/pages/viftekurve.rs:2529
+msgid "Viftene har gått på {fart} i {andel} av tiden {when}."
+msgstr "Los ventiladores han girado a {fart} durante el {andel} del tiempo {when}."
+
+#: crates/rigg/src/pages/viftekurve.rs:2530
+msgid "Minste viftefart er ikke avlest; andelen på minimum kan ikke beregnes."
+msgstr "Se desconoce la velocidad mínima de los ventiladores. No se puede calcular cuánto tiempo han girado al mínimo."
+
+#: crates/rigg/src/pages/viftekurve.rs:2531
+msgid "Ingen målinger siste døgn ennå. Tjenesten tar vare på 48 timer."
+msgstr "Aún no hay muestras de las últimas 24 horas. El servicio conserva 48 horas de datos."
+
+#: crates/rigg/src/pages/viftekurve.rs:2543
+msgid "Leser kortets innstillinger …"
+msgstr "Leyendo los ajustes de la GPU…"
+
+#: crates/rigg/src/pages/viftekurve.rs:2543
+msgid "Prøv Bruk igjen når innstillingene er lest."
+msgstr "Vuelve a pulsar Aplicar cuando se carguen los ajustes."
+
+#: crates/rigg/src/pages/viftekurve.rs:2550
+msgid "Utkastet må oppdateres"
+msgstr "Hay que actualizar el borrador"
+
+#: crates/rigg/src/pages/viftekurve.rs:2555
+msgid "Viftestyring er utilgjengelig"
+msgstr "Control de ventiladores no disponible"
 
 #: crates/rigg/src/pages/viftekurve.rs:2559
 msgid "Funksjonen er utilgjengelig"
 msgstr "Función no disponible"
 
+#: crates/rigg/src/pages/viftekurve.rs:2569 crates/rigg/src/pages/viftekurve.rs:2825
+msgid "Ingen endringer å bruke"
+msgstr "No hay cambios que aplicar"
+
 #: crates/rigg/src/pages/viftekurve.rs:2570
 msgid "Kunne ikke bruke utkastet"
 msgstr "No se pudo aplicar el borrador"
+
+#: crates/rigg/src/pages/viftekurve.rs:2591
+msgid "Fra utgangspunkt til utkast. Bruk gjelder hele utkastet. Kurveinnstillinger påvirker bare modus Kurve; lagret fast fart brukes bare i Fast fart."
+msgstr "Comparación entre los valores de referencia y el borrador. Aplicar envía todo el borrador. Los ajustes de la curva solo se usan en el modo Curva; la velocidad fija guardada solo se usa en el modo Velocidad fija."
+
+#: crates/rigg/src/pages/viftekurve.rs:2593
+msgid "Fra utgangspunkt til utkast. Bruk gjelder hele utkastet, også innstillinger fra Klokker og effekt."
+msgstr "Comparación entre los valores de referencia y el borrador. Aplicar envía todo el borrador, incluidos los ajustes de Frecuencias y potencia."
+
+#: crates/rigg/src/pages/viftekurve.rs:2603 crates/rigg/src/pages/viftekurve.rs:2687
+msgid "Auto"
+msgstr "Auto"
 
 #: crates/rigg/src/pages/viftekurve.rs:2604 crates/rigg/src/pages/viftekurve.rs:2659 crates/rigg/src/pages/viftekurve.rs:2774
 msgid "Fast fart"
 msgstr "Velocidad fija"
 
+#: crates/rigg/src/pages/viftekurve.rs:2614
+msgid "Bruk prøver endringen i {tid}. Trykk Behold i linjen øverst for å fortsette. Uten Behold går viftene tilbake til forrige innstilling."
+msgstr "Aplicar prueba el cambio durante {tid}. Pulsa Conservar en la barra superior para confirmarlo. Si no lo haces, los ventiladores recuperarán sus ajustes anteriores."
+
+#: crates/rigg/src/pages/viftekurve.rs:2622
+msgid "mål {maal}"
+msgstr "objetivo {maal}"
+
+#: crates/rigg/src/pages/viftekurve.rs:2625
+msgid "GPU-temperaturen. Måleren går fra {min} til {maks}. Merket er nødregelen ({nodregel})."
+msgstr "Temperatura de la GPU. El indicador va de {min} a {maks}. La marca señala el umbral de emergencia ({nodregel})."
+
+#: crates/rigg/src/pages/viftekurve.rs:2629
+msgid "{measured} av {n} vifter målt"
+msgstr "{measured} de {n} ventiladores medidos"
+
+#: crates/rigg/src/pages/viftekurve.rs:2630
+msgid "{measured} avleste kanaler · antall ukjent"
+msgstr "{measured} canales medidos · número de ventiladores desconocido"
+
+#: crates/rigg/src/pages/viftekurve.rs:2631
+msgid "ingen vifter rapportert"
+msgstr "no se indican ventiladores"
+
+#: crates/rigg/src/pages/viftekurve.rs:2632
+msgid "farten er ikke avlest"
+msgstr "sin lectura de velocidad"
+
+#: crates/rigg/src/pages/viftekurve.rs:2636
+msgid "Laveste og høyeste faktisk avleste vifteprosent. Alle tilgjengelige enkeltmålinger står under Faktisk nå."
+msgstr "Porcentajes mínimo y máximo medidos. Todas las lecturas individuales aparecen en Velocidad real."
+
+#: crates/rigg/src/pages/viftekurve.rs:2637
+msgid "antallet er ikke avlest"
+msgstr "no se indica el número de ventiladores"
+
+#: crates/rigg/src/pages/viftekurve.rs:2637 crates/rigg/src/pages/viftekurve.rs:2713
+msgid "rapportert av driveren"
+msgstr "según el controlador"
+
+#: crates/rigg/src/pages/viftekurve.rs:2638
+msgid "Fysisk vifteantall rapportert av kortet. Ukjent er ikke det samme som null."
+msgstr "Número de ventiladores físicos que indica la GPU. Un número desconocido no equivale a cero."
+
+#: crates/rigg/src/pages/viftekurve.rs:2641
+msgid "leses ikke ennå"
+msgstr "aún sin datos"
+
+#: crates/rigg/src/pages/viftekurve.rs:2642
+msgid "det driveren vil ha"
+msgstr "objetivo del controlador"
+
+#: crates/rigg/src/pages/viftekurve.rs:2644
+msgid "{n} avleste målkanaler"
+msgstr "{n} canales con lectura de objetivo"
+
+#: crates/rigg/src/pages/viftekurve.rs:2645
+msgid "vifte {nummer} {fart}"
+msgstr "ventilador {nummer} {fart}"
+
+#: crates/rigg/src/pages/viftekurve.rs:2647 crates/rigg/src/pages/viftekurve.rs:2713
+msgid "ikke avlest"
+msgstr "sin datos"
+
+#: crates/rigg/src/pages/viftekurve.rs:2648
+msgid "Farten driveren vil ha for hver vifte (nvmlDeviceGetTargetFanSpeed)."
+msgstr "Velocidad objetivo que solicita el controlador para cada ventilador (nvmlDeviceGetTargetFanSpeed)."
+
+#: crates/rigg/src/pages/viftekurve.rs:2663
+msgid "vifteantall mangler eller er null"
+msgstr "número de ventiladores desconocido o igual a cero"
+
 #: crates/rigg/src/pages/viftekurve.rs:2663
 msgid "utkast: {modus}"
 msgstr "borrador: {modus}"
+
+#: crates/rigg/src/pages/viftekurve.rs:2663
+msgid "driveren styrer"
+msgstr "control del controlador"
+
+#: crates/rigg/src/pages/viftekurve.rs:2663
+msgid "tjenesten styrer"
+msgstr "control del servicio"
+
+#: crates/rigg/src/pages/viftekurve.rs:2663
+msgid "fast fart fra Agentic Rigg"
+msgstr "velocidad fija de Agentic Rigg"
+
+#: crates/rigg/src/pages/viftekurve.rs:2663
+msgid "satt utenfor appen"
+msgstr "configurado fuera de la aplicación"
+
+#: crates/rigg/src/pages/viftekurve.rs:2664
+msgid "Fra nvmlDeviceGetFanControlPolicy_v2. Policy 0 betyr at driveren styrer viftene."
+msgstr "Dato de nvmlDeviceGetFanControlPolicy_v2. La política 0 indica que el controlador ajusta los ventiladores."
+
+#: crates/rigg/src/pages/viftekurve.rs:2674
+msgid "Vifte {nummer}: {fart}{rpm}"
+msgstr "Ventilador {nummer}: {fart}{rpm}"
+
+#: crates/rigg/src/pages/viftekurve.rs:2676
+msgid "Ingen vifter rapportert"
+msgstr "No se indican ventiladores"
+
+#: crates/rigg/src/pages/viftekurve.rs:2676
+msgid "Ingen avleste viftekanaler"
+msgstr "No hay lecturas de los ventiladores"
+
+#: crates/rigg/src/pages/viftekurve.rs:2681
+msgid "Kurven ved nåværende temperatur"
+msgstr "Curva a la temperatura actual"
+
+#: crates/rigg/src/pages/viftekurve.rs:2681
+msgid "Kurven ved {temperatur}"
+msgstr "Curva a {temperatur}"
+
+#: crates/rigg/src/pages/viftekurve.rs:2682
+msgid "Vifte {nummer}: {fart}"
+msgstr "Ventilador {nummer}: {fart}"
+
+#: crates/rigg/src/pages/viftekurve.rs:2684
+msgid "Kurveutkast · ikke i bruk"
+msgstr "Curva del borrador · inactiva"
+
+#: crates/rigg/src/pages/viftekurve.rs:2684
+msgid "Forhåndsvisning · kurven er ikke i bruk"
+msgstr "Vista previa · curva inactiva"
+
+#: crates/rigg/src/pages/viftekurve.rs:2684
+msgid "Kurveutkast · ikke brukt"
+msgstr "Curva del borrador · inactiva"
+
+#: crates/rigg/src/pages/viftekurve.rs:2684
+msgid "Kurvemål før hysterese og rampe"
+msgstr "Objetivo de la curva antes de aplicar la histéresis y los límites de rampa"
+
+#: crates/rigg/src/pages/viftekurve.rs:2686
+msgid "Valgt mål · utkast"
+msgstr "Objetivo seleccionado · borrador"
+
+#: crates/rigg/src/pages/viftekurve.rs:2689
+msgid "Ikke brukt · trykk Bruk og Behold"
+msgstr "Inactiva · pulsa Aplicar y Conservar"
+
+#: crates/rigg/src/pages/viftekurve.rs:2689
+msgid "Driveren bestemmer farten"
+msgstr "El controlador ajusta la velocidad"
+
+#: crates/rigg/src/pages/viftekurve.rs:2689
+msgid "Fast fart på kortet"
+msgstr "Velocidad fija en la GPU"
+
+#: crates/rigg/src/pages/viftekurve.rs:2694
+msgid "Kurven er ikke i bruk"
+msgstr "La curva está inactiva"
+
+#: crates/rigg/src/pages/viftekurve.rs:2694
+msgid "I den aktive kurven"
+msgstr "En la curva activa"
+
+#: crates/rigg/src/pages/viftekurve.rs:2702
+msgid "Manuelt minimum"
+msgstr "Mínimo manual"
+
+#: crates/rigg/src/pages/viftekurve.rs:2706
+msgid "ved {temperatur}"
+msgstr "a {temperatur}"
+
+#: crates/rigg/src/pages/viftekurve.rs:2707
+msgid "ved {temperatur} · ikke i bruk"
+msgstr "a {temperatur} · inactiva"
+
+#: crates/rigg/src/pages/viftekurve.rs:2711
+msgid "Farten kurven ville gitt ved temperaturen nå (uten rampe og hysterese). Den brukes bare i modus Kurve."
+msgstr "Velocidad que pide la curva a la temperatura actual, antes de aplicar los límites de rampa y la histéresis. Solo se usa en el modo Curva."
+
+#: crates/rigg/src/pages/viftekurve.rs:2715
+msgid "Minste viftefart kortet tillater. Auto kan styre annerledes etter kortets BIOS."
+msgstr "Velocidad mínima que permite la GPU. En modo Auto, la BIOS de la tarjeta puede comportarse de otra forma."
 
 #: crates/rigg/src/pages/viftekurve.rs:2737
 msgid "Balansert · standard"
@@ -255,6 +868,26 @@ msgstr "Curvas personalizadas por ventilador"
 msgid "Egendefinert"
 msgstr "Personalizado"
 
+#: crates/rigg/src/pages/viftekurve.rs:2752
+msgid "Viftene følger denne kurven nå."
+msgstr "Los ventiladores siguen esta curva."
+
+#: crates/rigg/src/pages/viftekurve.rs:2753
+msgid "Kurven er valgt i utkastet. Viftene følger den når utkastet brukes."
+msgstr "El borrador tiene seleccionada esta curva. Los ventiladores la seguirán cuando apliques el borrador."
+
+#: crates/rigg/src/pages/viftekurve.rs:2754
+msgid "Kurven brukes bare i modus Kurve. Utkastet har {modus}."
+msgstr "La curva solo se activa en el modo Curva. El borrador usa el modo {modus}."
+
+#: crates/rigg/src/pages/viftekurve.rs:2755
+msgid "Stiplet: standardkurven. Den brukes bare i modus Kurve; nå styrer driveren. Dra et punkt for å lage et utkast."
+msgstr "Línea de puntos: curva predeterminada. La curva solo se aplica en el modo Curva; ahora la velocidad la ajusta el controlador. Arrastra un punto para crear un borrador."
+
+#: crates/rigg/src/pages/viftekurve.rs:2794
+msgid "Hver endring må beholdes innen {tid}, ellers rulles den tilbake. Lukkes Agentic Rigg helt, går viftene tilbake til Auto."
+msgstr "Pulsa Conservar en un plazo de {tid} o se revertirán los cambios. Al salir por completo de Agentic Rigg, los ventiladores vuelven al modo Auto."
+
 #: crates/rigg/src/pages/viftekurve.rs:2808
 msgid "Ingen endringer"
 msgstr "Sin cambios"
@@ -265,6 +898,78 @@ msgid_plural "{n} endringer i utkastet"
 msgstr[0] "{n} cambio en el borrador"
 msgstr[1] "{n} cambios en el borrador"
 
+#: crates/rigg/src/pages/viftekurve.rs:2825
+msgid "Endringen venter på Behold"
+msgstr "En espera de confirmación con Conservar"
+
+#: crates/rigg/src/pages/viftekurve.rs:2825
+msgid "Bruk utkastet"
+msgstr "Aplicar borrador"
+
+#: crates/rigg/src/pages/viftekurve.rs:2842
+msgid "Viftene går ikke ned før temperaturen har falt {grader} under der de gikk opp. Opp går de straks."
+msgstr "Los ventiladores aceleran de inmediato. Solo reducen su velocidad cuando la temperatura cae {grader} por debajo del punto en el que aceleraron por última vez."
+
+#: crates/rigg/src/pages/viftekurve.rs:2844
+msgid "Av: viftene følger kurven begge veier, også når temperaturen svinger litt."
+msgstr "Desactivado: los ventiladores siguen la curva tanto al subir como al bajar la temperatura, incluso si apenas varía."
+
+#: crates/rigg/src/pages/viftekurve.rs:2849
+msgid "Fra {fra} til {til} på {tid}. Høyere svarer raskere på last."
+msgstr "De {fra} a {til} en {tid}. Una rampa más rápida responde antes a la carga."
+
+#: crates/rigg/src/pages/viftekurve.rs:2852
+msgid "Fra {fra} til {til} på {tid}. Lavere gir mykere lyd når lasten slipper."
+msgstr "De {fra} a {til} en {tid}. Una rampa más lenta reduce el ruido al bajar la carga."
+
+#: crates/rigg/src/pages/viftekurve.rs:2856
+msgid "Kurven leses ved snittet av de siste {tid}, så korte topper ikke gir viftesus. Nødregelen ser alltid på temperaturen nå."
+msgstr "La curva usa la media de los últimos {tid} para que los picos breves no aceleren los ventiladores. La regla de emergencia usa siempre la temperatura actual."
+
+#: crates/rigg/src/pages/viftekurve.rs:2858
+msgid "Av: hver måling brukes som den er."
+msgstr "Desactivado: se usa cada lectura tal como se mide."
+
+#: crates/rigg/src/pages/viftekurve.rs:2876
+msgid "Viftene står på {fart} til {temperatur}, deretter følger de kurven."
+msgstr "Los ventiladores mantienen {fart} hasta {temperatur}; después siguen la curva."
+
+#: crates/rigg/src/pages/viftekurve.rs:2877
+msgid "Av: kurven gjelder fra første punkt."
+msgstr "Desactivado: la curva se aplica desde el primer punto."
+
+#: crates/rigg/src/pages/viftekurve.rs:2879
+msgid "Viftestopp (0{nb}%) er ikke mulig på dette kortet: fastvaren holder minst {fart}. Det gjelder også Afterburner."
+msgstr "La parada de ventiladores (0{nb}%) no está disponible en esta GPU: el firmware impone un mínimo de {fart}. Esto también se aplica a Afterburner."
+
+#: crates/rigg/src/pages/viftekurve.rs:2894
+msgid "Temperatur ({enhet})"
+msgstr "Temperatura ({enhet})"
+
+#: crates/rigg/src/pages/viftekurve.rs:2894
+msgid "Viftefart (%)"
+msgstr "Velocidad de ventiladores (%)"
+
+#: crates/rigg/src/pages/viftekurve.rs:2903
+msgid "Punkt {nummer} temperatur"
+msgstr "Temperatura del punto {nummer}"
+
+#: crates/rigg/src/pages/viftekurve.rs:2903
+msgid "Punkt {nummer} viftefart"
+msgstr "Velocidad de ventiladores del punto {nummer}"
+
 #: crates/rigg/src/pages/viftekurve.rs:2931
+msgid "Fjern punkt {nummer}"
+msgstr "Eliminar punto {nummer}"
+
+#: crates/rigg/src/pages/viftekurve.rs:2932
 msgid "Fjern punktet"
 msgstr "Quitar punto"
+
+#: crates/rigg/src/pages/viftekurve.rs:2995
+msgid "{timer}t"
+msgstr "{timer} h"
+
+#: crates/rigg/src/pages/viftekurve.rs:2996
+msgid "{timer}t {minutter}min"
+msgstr "{timer} h {minutter} min"

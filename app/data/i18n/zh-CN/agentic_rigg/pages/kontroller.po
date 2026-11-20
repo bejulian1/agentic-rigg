@@ -6,6 +6,19 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/pages/kontroller.rs:166
+msgid "Auto · driveren styrer"
+msgstr "自动 · 由驱动程序控制"
+
+#: crates/rigg/src/pages/kontroller.rs:167
+msgid "Manuell · satt utenfor appen"
+msgstr "手动 · 在应用外设置"
+
+#: crates/rigg/src/pages/kontroller.rs:186
+msgid "vifte {nummer} {fart}"
+msgstr "风扇 {nummer}：{fart}"
 
 #: crates/rigg/src/pages/kontroller.rs:229
 msgid "vifte auto"
@@ -28,7 +41,7 @@ msgid "{antall} punkt"
 msgid_plural "{antall} punkter"
 msgstr[0] "{antall} 个点"
 
-#: crates/rigg/src/pages/kontroller.rs:246 crates/rigg/src/pages/kontroller.rs:285 crates/rigg/src/pages/kontroller.rs:530
+#: crates/rigg/src/pages/kontroller.rs:246 crates/rigg/src/pages/kontroller.rs:285 crates/rigg/src/pages/kontroller.rs:540
 msgid "Effektgrense"
 msgstr "功率限制"
 
@@ -40,11 +53,11 @@ msgstr "核心频率偏移"
 msgid "Minneklokke-offset"
 msgstr "显存频率偏移"
 
-#: crates/rigg/src/pages/kontroller.rs:249 crates/rigg/src/pages/kontroller.rs:288 crates/rigg/src/pages/kontroller.rs:533
+#: crates/rigg/src/pages/kontroller.rs:249 crates/rigg/src/pages/kontroller.rs:288 crates/rigg/src/pages/kontroller.rs:543
 msgid "Temperaturmål"
 msgstr "目标温度"
 
-#: crates/rigg/src/pages/kontroller.rs:250 crates/rigg/src/pages/kontroller.rs:562
+#: crates/rigg/src/pages/kontroller.rs:250 crates/rigg/src/pages/kontroller.rs:572
 msgid "Viftemodus"
 msgstr "风扇模式"
 
@@ -84,6 +97,10 @@ msgstr "降速速率"
 msgid "Utjevning"
 msgstr "平滑"
 
+#: crates/rigg/src/pages/kontroller.rs:258 crates/rigg/src/pages/kontroller.rs:259
+msgid "av"
+msgstr "关闭"
+
 #: crates/rigg/src/pages/kontroller.rs:259
 msgid "Hold minimum til"
 msgstr "保持最低转速直至"
@@ -92,207 +109,879 @@ msgstr "保持最低转速直至"
 msgid "Viftekurve"
 msgstr "风扇曲线"
 
-#: crates/rigg/src/pages/kontroller.rs:267 crates/rigg/src/pages/kontroller.rs:562
+#: crates/rigg/src/pages/kontroller.rs:266 crates/rigg/src/pages/kontroller.rs:572
+msgid "Auto"
+msgstr "自动"
+
+#: crates/rigg/src/pages/kontroller.rs:267 crates/rigg/src/pages/kontroller.rs:572
 msgid "Kurve"
 msgstr "曲线"
 
-#: crates/rigg/src/pages/kontroller.rs:268 crates/rigg/src/pages/kontroller.rs:562
+#: crates/rigg/src/pages/kontroller.rs:268 crates/rigg/src/pages/kontroller.rs:572
 msgid "Manuell"
 msgstr "手动"
 
-#: crates/rigg/src/pages/kontroller.rs:283 crates/rigg/src/pages/kontroller.rs:706
+#: crates/rigg/src/pages/kontroller.rs:283 crates/rigg/src/pages/kontroller.rs:716
 msgid "Tomgang"
 msgstr "空闲"
 
-#: crates/rigg/src/pages/kontroller.rs:331 crates/rigg/src/pages/kontroller.rs:334 crates/rigg/src/pages/kontroller.rs:587 crates/rigg/src/pages/kontroller.rs:703
+#: crates/rigg/src/pages/kontroller.rs:283
+msgid "Kortet har ingenting å gjøre og holder klokkene nede."
+msgstr "GPU 处于空闲状态，保持低频运行。"
+
+#: crates/rigg/src/pages/kontroller.rs:284 crates/rigg/src/pages/kontroller.rs:336
+msgid "Programklokker"
+msgstr "应用程序时钟"
+
+#: crates/rigg/src/pages/kontroller.rs:284
+msgid "Klokkene er låst av et program (applications clocks)."
+msgstr "应用程序已锁定频率（应用程序时钟）。"
+
+#: crates/rigg/src/pages/kontroller.rs:285
+msgid "Kortet trekker så mye som effektgrensen tillater."
+msgstr "GPU 的当前功耗已达到功率限制。"
+
+#: crates/rigg/src/pages/kontroller.rs:286
+msgid "Maskinvare-nedklokking"
+msgstr "硬件降频"
+
+#: crates/rigg/src/pages/kontroller.rs:286 crates/rigg/src/pages/kontroller.rs:715
+msgid "Kortet klokker ned av seg selv (strøm eller temperatur)."
+msgstr "GPU 因功耗或温度自动降频。"
+
+#: crates/rigg/src/pages/kontroller.rs:287
+msgid "Synkronisert boost"
+msgstr "Sync Boost"
+
+#: crates/rigg/src/pages/kontroller.rs:287
+msgid "Klokkene følger et annet kort."
+msgstr "频率跟随另一块 GPU。"
+
+#: crates/rigg/src/pages/kontroller.rs:288
+msgid "Kortet har nådd temperaturmålet og senker klokkene."
+msgstr "GPU 已达到目标温度，正在降频。"
+
+#: crates/rigg/src/pages/kontroller.rs:289
+msgid "Termisk nedklokking"
+msgstr "温度降频"
+
+#: crates/rigg/src/pages/kontroller.rs:289
+msgid "Maskinvaren klokker ned fordi kortet er for varmt."
+msgstr "GPU 温度过高，触发了硬件降频。"
+
+#: crates/rigg/src/pages/kontroller.rs:290
+msgid "Effektbrems"
+msgstr "电源限速"
+
+#: crates/rigg/src/pages/kontroller.rs:290
+msgid "Strømforsyningen har bedt kortet bremse."
+msgstr "电源已发出信号，要求 GPU 降频。"
+
+#: crates/rigg/src/pages/kontroller.rs:291 crates/rigg/src/pages/kontroller.rs:337
+msgid "Skjermklokke"
+msgstr "显示频率"
+
+#: crates/rigg/src/pages/kontroller.rs:291
+msgid "Klokkene er satt for skjermen."
+msgstr "频率按显示输出的要求设置。"
+
+#: crates/rigg/src/pages/kontroller.rs:316
+msgid "Kortet svarer ikke"
+msgstr "GPU 无响应"
+
+#: crates/rigg/src/pages/kontroller.rs:321 crates/rigg/src/pages/kontroller.rs:358
+msgid "Ingenting"
+msgstr "无"
+
+#: crates/rigg/src/pages/kontroller.rs:321 crates/rigg/src/pages/kontroller.rs:358
+msgid "Kortet er i ro"
+msgstr "GPU 空闲"
+
+#: crates/rigg/src/pages/kontroller.rs:321
+msgid "Kortet er i dyp tomgang (P8). Da spør tjenesten ikke om årsakene: kallet koster ca. 25 ms og vekker kortet."
+msgstr "GPU 处于深度空闲状态（P8）。查询约需 25 ms，且会唤醒 GPU，因此服务会跳过此查询。"
+
+#: crates/rigg/src/pages/kontroller.rs:324
+msgid "Kortet melder ikke årsaker"
+msgstr "未报告任何原因"
+
+#: crates/rigg/src/pages/kontroller.rs:324
+msgid "nvmlDeviceGetCurrentClocksEventReasons svarer ikke på dette kortet."
+msgstr "在此 GPU 上调用 nvmlDeviceGetCurrentClocksEventReasons 时无响应。"
+
+#: crates/rigg/src/pages/kontroller.rs:331 crates/rigg/src/pages/kontroller.rs:334 crates/rigg/src/pages/kontroller.rs:597 crates/rigg/src/pages/kontroller.rs:713
 msgid "Temperatur"
 msgstr "温度"
 
-#: crates/rigg/src/pages/kontroller.rs:332 crates/rigg/src/pages/kontroller.rs:335 crates/rigg/src/pages/kontroller.rs:587 crates/rigg/src/pages/kontroller.rs:702
+#: crates/rigg/src/pages/kontroller.rs:331
+msgid "Maskinvaren klokker ned"
+msgstr "硬件降频"
+
+#: crates/rigg/src/pages/kontroller.rs:332 crates/rigg/src/pages/kontroller.rs:335 crates/rigg/src/pages/kontroller.rs:597 crates/rigg/src/pages/kontroller.rs:712
 msgid "Effekt"
 msgstr "功率"
 
-#: crates/rigg/src/pages/kontroller.rs:333 crates/rigg/src/pages/kontroller.rs:705
+#: crates/rigg/src/pages/kontroller.rs:332
+msgid "Strømforsyningen bremser"
+msgstr "电源限速"
+
+#: crates/rigg/src/pages/kontroller.rs:333 crates/rigg/src/pages/kontroller.rs:715
 msgid "Maskinvare"
 msgstr "硬件"
 
-#: crates/rigg/src/pages/kontroller.rs:362 crates/rigg/src/pages/kontroller.rs:704
+#: crates/rigg/src/pages/kontroller.rs:333
+msgid "Kortet klokker ned selv"
+msgstr "GPU 自动降频"
+
+#: crates/rigg/src/pages/kontroller.rs:334
+msgid "Temperaturmålet er nådd"
+msgstr "已达到目标温度"
+
+#: crates/rigg/src/pages/kontroller.rs:335
+msgid "Effektgrensen er nådd"
+msgstr "已达到功率限制"
+
+#: crates/rigg/src/pages/kontroller.rs:336
+msgid "Låst av et program"
+msgstr "由应用程序锁定"
+
+#: crates/rigg/src/pages/kontroller.rs:337
+msgid "Satt for skjermen"
+msgstr "按显示输出要求设置"
+
+#: crates/rigg/src/pages/kontroller.rs:338
+msgid "Synkronisert"
+msgstr "已同步"
+
+#: crates/rigg/src/pages/kontroller.rs:338
+msgid "Følger et annet kort"
+msgstr "跟随另一块 GPU"
+
+#: crates/rigg/src/pages/kontroller.rs:345
+msgid "Grensen {grense} er nådd"
+msgstr "已达到上限 {grense}"
+
+#: crates/rigg/src/pages/kontroller.rs:349
+msgid "Målet {maal} er nådd"
+msgstr "已达到目标 {maal}"
+
+#: crates/rigg/src/pages/kontroller.rs:358
+msgid "Kortet har ingenting å gjøre og holder klokkene nede (tomgang)."
+msgstr "GPU 处于空闲状态，保持低频运行。"
+
+#: crates/rigg/src/pages/kontroller.rs:362 crates/rigg/src/pages/kontroller.rs:714
 msgid "Spenning"
 msgstr "电压"
 
-#: crates/rigg/src/pages/kontroller.rs:486
+#: crates/rigg/src/pages/kontroller.rs:363
+msgid "Toppen av klokkekurven"
+msgstr "频率曲线顶端"
+
+#: crates/rigg/src/pages/kontroller.rs:365
+msgid "NVML melder ingen begrensning, og kortet har last. Da går det så høyt spenningen tillater (det GPU-Z kaller VRel/VOp). Utledet, ikke lest fra kortet."
+msgstr "GPU 处于负载状态时，NVML 未报告限制，因此推断 GPU 已自动提频至当前电压允许的最高频率（对应 GPU-Z 中的 VRel/VOp）。此状态并非从 GPU 直接读取。"
+
+#: crates/rigg/src/pages/kontroller.rs:368
+msgid "Ingen"
+msgstr "无"
+
+#: crates/rigg/src/pages/kontroller.rs:368
+msgid "Klokkene kan gå fritt"
+msgstr "频率不受限制"
+
+#: crates/rigg/src/pages/kontroller.rs:368
+msgid "NVML melder ingen begrensning."
+msgstr "NVML 未报告限制。"
+
+#: crates/rigg/src/pages/kontroller.rs:374
+msgid "full ytelse"
+msgstr "最高性能"
+
+#: crates/rigg/src/pages/kontroller.rs:375
+msgid "høy ytelse"
+msgstr "高性能"
+
+#: crates/rigg/src/pages/kontroller.rs:376
+msgid "middels"
+msgstr "中等"
+
+#: crates/rigg/src/pages/kontroller.rs:377
+msgid "tomgang"
+msgstr "空闲"
+
+#: crates/rigg/src/pages/kontroller.rs:378
+msgid "laveste"
+msgstr "最低"
+
+#: crates/rigg/src/pages/kontroller.rs:393
+msgid "Hvor mye strøm kortet får bruke. 100 % er kortets oppgitte standardgrense."
+msgstr "GPU 可消耗的最大功率。100% 表示显卡报告的默认功率限制。"
+
+#: crates/rigg/src/pages/kontroller.rs:395
+msgid "Kortet holder seg under grensen ved å senke klokken. Under tung last kan effektgrensen begrense GPU-boost; en høyere grense kan da gi høyere klokke."
+msgstr "GPU 会降频以避免超出限制。高负载时，功率限制可能抑制 GPU 自动提频；提高上限可能让 GPU 达到更高频率。"
+
+#: crates/rigg/src/pages/kontroller.rs:396
+msgid "Prisen er mer varme, mer viftestøy og høyere strømforbruk. En lavere grense gir et kjøligere og stillere kort med litt lavere ytelse."
+msgstr "提高上限会增加发热、风扇噪声和功耗。降低上限可以让 GPU 更凉、更安静，但会损失一些性能。"
+
+#: crates/rigg/src/pages/kontroller.rs:402
+msgid "Justering av GPU-klokken. 0 MHz betyr ingen justering; faktisk hastighet vises over."
+msgstr "GPU 频率偏移。0 MHz 表示不偏移；实测频率见上方。"
+
+#: crates/rigg/src/pages/kontroller.rs:404
+msgid "Offset legges på hvert punkt på klokkekurven (spenning mot klokke). Kortet booster fortsatt selv, men lander høyere. Spenningen endres ikke."
+msgstr "应用会将偏移量应用到电压/频率曲线上的每个点。GPU 仍会自动提频，但可达到更高频率。电压不变。"
+
+#: crates/rigg/src/pages/kontroller.rs:405
+msgid "For høy offset gir krasj, feil i bildet eller at driveren starter på nytt. Prøv i steg på 15–25 MHz og test under last."
+msgstr "偏移过大可能导致崩溃、花屏或驱动程序重置。建议每次调整 15–25 MHz，并在负载下测试。"
+
+#: crates/rigg/src/pages/kontroller.rs:411
+msgid "Justering av minneklokken. 0 MHz betyr ingen justering, ikke at minnet står stille."
+msgstr "显存频率偏移。0 MHz 表示不偏移，并非显存停止运行。"
+
+#: crates/rigg/src/pages/kontroller.rs:413
+msgid "Dette er en justering i MHz, ikke en fast sluttklokke eller minnebåndbredde i Gb/s. Kortets målte hastighet vises separat. Appen regner om til driverens skala når verdien sendes."
+msgstr "此值是以 MHz 为单位的偏移量，不是最终的固定频率，也不是以 Gb/s 为单位的显存带宽。实测频率另行显示。应用发送此值时会换算为驱动程序使用的数值。"
+
+#: crates/rigg/src/pages/kontroller.rs:414
+msgid "En høyere justering er bare nyttig hvis programmer faktisk kjører raskere. For høy justering kan gi bildefeil, lavere ytelse eller ustabilitet."
+msgstr "只有应用程序实际运行得更快，提高偏移量才有意义。偏移过大可能导致花屏、性能下降或不稳定。"
+
+#: crates/rigg/src/pages/kontroller.rs:420
+msgid "Temperaturen kortet holder seg under. Lavere gir et kjøligere kort og lavere klokke."
+msgstr "GPU 尝试维持在此温度以下。降低目标温度可让 GPU 更凉，但会降低频率。"
+
+#: crates/rigg/src/pages/kontroller.rs:422
+msgid "Når temperaturen når målet, senker kortet klokken (begrensningen «Temperaturmål»). Viftene styres fortsatt av viftemodusen."
+msgstr "达到目标温度时，GPU 会降频（受目标温度限制）。风扇仍由所选模式控制。"
+
+#: crates/rigg/src/pages/kontroller.rs:423
+msgid "Nedklokking og avstenging er egne maskinvaregrenser. Temperaturmålet kan endres når kortet og driveren støtter det; grensen og støtten leses fra kortet."
+msgstr "降频和关机各有独立的硬件温度阈值。若 GPU 和驱动程序支持，可调整目标温度；支持状态和范围由 GPU 报告。"
+
+#: crates/rigg/src/pages/kontroller.rs:429
+msgid "Hvem som styrer viftene: driveren, viftekurven eller en fast fart."
+msgstr "选择风扇转速的控制方式：由驱动程序控制、按曲线调节或使用固定转速。"
+
+#: crates/rigg/src/pages/kontroller.rs:431
+msgid "Auto: driveren styrer etter temperaturen, som uten appen. Kurve: tjenesten setter farten fra viftekurven hvert sekund. Manuell: fast fart, uansett temperatur."
+msgstr "自动：驱动程序按温度调节转速，与不使用本应用时相同。曲线：服务每秒按风扇曲线更新转速。手动：使用固定转速，不随温度变化。"
+
+#: crates/rigg/src/pages/kontroller.rs:432
+msgid "Manuell fart følger grensene NVIDIA-driveren rapporterer. Automatisk viftestopp kan avhenge av kortmodell og driver; støtte for det er ikke bekreftet på dette kortet."
+msgstr "手动转速受 NVIDIA 驱动程序报告的范围限制。能否自动停转取决于 GPU 型号和驱动程序；此 GPU 尚未验证。"
+
+#: crates/rigg/src/pages/kontroller.rs:496
 msgid "Viser det kortet har nå. Det du endrer, blir et utkast som lagres i appen og ikke sendes til kortet."
 msgstr "显示显卡的当前设置。更改只会作为草稿保存在应用中，不会发送到显卡。"
 
-#: crates/rigg/src/pages/kontroller.rs:501
+#: crates/rigg/src/pages/kontroller.rs:511
 msgid "GPU-klokke nå"
 msgstr "当前 GPU 频率"
 
-#: crates/rigg/src/pages/kontroller.rs:501
+#: crates/rigg/src/pages/kontroller.rs:511
 msgid "Minneklokke nå"
 msgstr "当前显存频率"
 
-#: crates/rigg/src/pages/kontroller.rs:501
+#: crates/rigg/src/pages/kontroller.rs:511
 msgid "Temperatur nå"
 msgstr "当前温度"
 
-#: crates/rigg/src/pages/kontroller.rs:501
+#: crates/rigg/src/pages/kontroller.rs:511
 msgid "Forbruk nå"
 msgstr "当前功耗"
 
-#: crates/rigg/src/pages/kontroller.rs:501
+#: crates/rigg/src/pages/kontroller.rs:511
 msgid "GPU-last"
 msgstr "GPU 负载"
 
-#: crates/rigg/src/pages/kontroller.rs:501
+#: crates/rigg/src/pages/kontroller.rs:511
 msgid "Viftefart nå"
 msgstr "当前风扇转速"
 
-#: crates/rigg/src/pages/kontroller.rs:501
+#: crates/rigg/src/pages/kontroller.rs:511
 msgid "P-tilstand"
 msgstr "P 状态"
 
-#: crates/rigg/src/pages/kontroller.rs:501
+#: crates/rigg/src/pages/kontroller.rs:511
 msgid "Begrenset av"
 msgstr "限制因素"
 
-#: crates/rigg/src/pages/kontroller.rs:515
+#: crates/rigg/src/pages/kontroller.rs:525
 msgid "Juster klokker og effekt"
 msgstr "调整频率和功率"
 
-#: crates/rigg/src/pages/kontroller.rs:516
+#: crates/rigg/src/pages/kontroller.rs:526
 msgid "Utkast · ikke sendt til kortet"
 msgstr "草稿 · 未发送到显卡"
 
-#: crates/rigg/src/pages/kontroller.rs:518
+#: crates/rigg/src/pages/kontroller.rs:528
 msgid "Gjenopprett utgangspunkt"
 msgstr "恢复原始设置"
 
-#: crates/rigg/src/pages/kontroller.rs:531
+#: crates/rigg/src/pages/kontroller.rs:541
 msgid "GPU-justering"
 msgstr "GPU 频率偏移"
 
-#: crates/rigg/src/pages/kontroller.rs:532
+#: crates/rigg/src/pages/kontroller.rs:542
 msgid "Minnejustering"
 msgstr "显存频率偏移"
 
-#: crates/rigg/src/pages/kontroller.rs:534
+#: crates/rigg/src/pages/kontroller.rs:544
 msgid "Vifte"
 msgstr "风扇"
 
-#: crates/rigg/src/pages/kontroller.rs:541
+#: crates/rigg/src/pages/kontroller.rs:551
 msgid "Avansert · temperaturmål og vifter"
 msgstr "高级 · 目标温度和风扇"
 
-#: crates/rigg/src/pages/kontroller.rs:545
+#: crates/rigg/src/pages/kontroller.rs:555
 msgid "Auto, fast viftefart og egen kurve"
 msgstr "自动、固定转速和自定义曲线"
 
-#: crates/rigg/src/pages/kontroller.rs:549
+#: crates/rigg/src/pages/kontroller.rs:559
 msgid "Åpne Vifter"
 msgstr "打开风扇页面"
 
-#: crates/rigg/src/pages/kontroller.rs:563
+#: crates/rigg/src/pages/kontroller.rs:573
 msgid "Rediger kurven"
 msgstr "编辑曲线"
 
-#: crates/rigg/src/pages/kontroller.rs:564
+#: crates/rigg/src/pages/kontroller.rs:574
 msgid "Gå til Vifter, der kurven redigeres"
 msgstr "转到风扇页面编辑曲线"
 
-#: crates/rigg/src/pages/kontroller.rs:587
+#: crates/rigg/src/pages/kontroller.rs:597
 msgid "Kjerneklokke"
 msgstr "核心频率"
 
-#: crates/rigg/src/pages/kontroller.rs:600
+#: crates/rigg/src/pages/kontroller.rs:610
 msgid "Utkast"
 msgstr "草稿"
 
-#: crates/rigg/src/pages/kontroller.rs:606
+#: crates/rigg/src/pages/kontroller.rs:616
 msgid "Profiler"
 msgstr "配置文件"
 
-#: crates/rigg/src/pages/kontroller.rs:615
+#: crates/rigg/src/pages/kontroller.rs:619
+msgid "Hent fyller utkastet med verdiene fra profilen. Ingenting sendes til kortet."
+msgstr "“加载”只会将配置文件中的设置复制到草稿，不会发送到 GPU。"
+
+#: crates/rigg/src/pages/kontroller.rs:625
 msgid "Begrensninger"
 msgstr "性能限制"
 
-#: crates/rigg/src/pages/kontroller.rs:627
+#: crates/rigg/src/pages/kontroller.rs:637
 msgid "Funksjonsstøtte på kortet"
 msgstr "显卡功能支持"
 
-#: crates/rigg/src/pages/kontroller.rs:631
+#: crates/rigg/src/pages/kontroller.rs:641
 msgid "Spenningsoffset"
 msgstr "电压偏移"
 
-#: crates/rigg/src/pages/kontroller.rs:632
+#: crates/rigg/src/pages/kontroller.rs:641
+msgid "Spenningsstyring er ikke implementert i appen."
+msgstr "尚未实现电压调节。"
+
+#: crates/rigg/src/pages/kontroller.rs:642
 msgid "Klokkekurven (V/F)"
 msgstr "电压/频率曲线（V/F）"
 
-#: crates/rigg/src/pages/kontroller.rs:633
+#: crates/rigg/src/pages/kontroller.rs:642
+msgid "Redigering av spennings-/klokkekurven er ikke implementert. GPU-justering bruker offset der driveren støtter det."
+msgstr "尚未实现电压/频率曲线编辑。若驱动程序支持，可设置 GPU 频率偏移。"
+
+#: crates/rigg/src/pages/kontroller.rs:643
 msgid "Låst minneklokke"
 msgstr "锁定显存频率"
 
-#: crates/rigg/src/pages/kontroller.rs:634
+#: crates/rigg/src/pages/kontroller.rs:643
+msgid "Fastlåsing av minneklokken er ikke implementert. Minnejustering bruker offset der driveren støtter det."
+msgstr "尚未实现显存频率锁定。若驱动程序支持，可设置显存频率偏移。"
+
+#: crates/rigg/src/pages/kontroller.rs:644
 msgid "Viftestopp (0 %)"
 msgstr "风扇停转（0%）"
 
-#: crates/rigg/src/pages/kontroller.rs:653
+#: crates/rigg/src/pages/kontroller.rs:644
+msgid "Egen viftestopp er ikke implementert. Manuell fart følger driverens område; automatisk viftestopp avhenger av kort og driver."
+msgstr "尚未实现自定义停转。手动转速受驱动程序报告的范围限制；自动停转取决于 GPU 和驱动程序。"
+
+#: crates/rigg/src/pages/kontroller.rs:651
+msgid "Avansert · kortets grenser og funksjoner"
+msgstr "高级 · GPU 限制和功能"
+
+#: crates/rigg/src/pages/kontroller.rs:663
 msgid "Forkast utkast"
 msgstr "放弃草稿"
 
-#: crates/rigg/src/pages/kontroller.rs:655
+#: crates/rigg/src/pages/kontroller.rs:664
+msgid "Tilbake til det kortet har. Utkastet slettes (Ctrl+Z angrer)."
+msgstr "放弃草稿并恢复显示 GPU 的当前设置。按 Ctrl+Z 可撤销。"
+
+#: crates/rigg/src/pages/kontroller.rs:665
 msgid "Bruk"
 msgstr "应用"
 
-#: crates/rigg/src/pages/kontroller.rs:707
+#: crates/rigg/src/pages/kontroller.rs:712
+msgid "Effektgrensen er nådd, eller strømforsyningen bremser."
+msgstr "已达到功率限制，或电源正在限制 GPU 频率。"
+
+#: crates/rigg/src/pages/kontroller.rs:713
+msgid "Temperaturmålet er nådd, eller maskinvaren klokker ned fordi kortet er for varmt."
+msgstr "已达到目标温度，或 GPU 温度过高而触发了硬件降频。"
+
+#: crates/rigg/src/pages/kontroller.rs:714
+msgid "Utledet: ingen begrensning fra NVML mens kortet har last. Da står det på toppen av klokkekurven."
+msgstr "推断：GPU 处于负载状态时，NVML 未报告限制，GPU 已达到频率曲线顶端。"
+
+#: crates/rigg/src/pages/kontroller.rs:716
+msgid "Kortet har ingenting å gjøre."
+msgstr "GPU 处于空闲状态。"
+
+#: crates/rigg/src/pages/kontroller.rs:717
 msgid "Annet"
 msgstr "其他"
 
-#: crates/rigg/src/pages/kontroller.rs:867
+#: crates/rigg/src/pages/kontroller.rs:717
+msgid "Programklokker, synkronisert boost eller skjermklokke."
+msgstr "应用程序时钟、Sync Boost 或显示频率。"
+
+#: crates/rigg/src/pages/kontroller.rs:727 crates/rigg/src/pages/kontroller.rs:738 crates/rigg/src/pages/kontroller.rs:746
+msgid "{min} til {maks}"
+msgstr "{min} 至 {maks}"
+
+#: crates/rigg/src/pages/kontroller.rs:730 crates/rigg/src/pages/kontroller.rs:737 crates/rigg/src/pages/kontroller.rs:745 crates/rigg/src/pages/kontroller.rs:753 crates/rigg/src/pages/kontroller.rs:760
+msgid "Lagret utgangspunkt"
+msgstr "已保存的原始设置"
+
+#: crates/rigg/src/pages/kontroller.rs:731 crates/rigg/src/pages/kontroller.rs:754
+msgid "Område"
+msgstr "范围"
+
+#: crates/rigg/src/pages/kontroller.rs:731 crates/rigg/src/pages/kontroller.rs:754
+msgid "{min} til {maks} (fra kortet)"
+msgstr "{min} 至 {maks}（GPU 报告）"
+
+#: crates/rigg/src/pages/kontroller.rs:732 crates/rigg/src/pages/kontroller.rs:740 crates/rigg/src/pages/kontroller.rs:748 crates/rigg/src/pages/kontroller.rs:756 crates/rigg/src/pages/kontroller.rs:762
+msgid "Nå"
+msgstr "当前"
+
+#: crates/rigg/src/pages/kontroller.rs:732
+msgid "grense {grense}, trekker {forbruk}"
+msgstr "上限 {grense}，当前功耗 {forbruk}"
+
+#: crates/rigg/src/pages/kontroller.rs:733 crates/rigg/src/pages/kontroller.rs:741 crates/rigg/src/pages/kontroller.rs:749
+msgid "Påvirker"
+msgstr "影响"
+
+#: crates/rigg/src/pages/kontroller.rs:733
+msgid "Kjerneklokken under last, temperatur, viftestøy og strømforbruk"
+msgstr "负载下的核心频率、温度、风扇噪声和功耗"
+
+#: crates/rigg/src/pages/kontroller.rs:734
+msgid "nvmlDeviceGetEnforcedPowerLimit (avlesning)."
+msgstr "通过 nvmlDeviceGetEnforcedPowerLimit 读回。"
+
+#: crates/rigg/src/pages/kontroller.rs:738 crates/rigg/src/pages/kontroller.rs:746
+msgid "Kortet tillater"
+msgstr "GPU 范围"
+
+#: crates/rigg/src/pages/kontroller.rs:738 crates/rigg/src/pages/kontroller.rs:746 crates/rigg/src/pages/kontroller.rs:754
+msgid "leses ikke"
+msgstr "未报告"
+
+#: crates/rigg/src/pages/kontroller.rs:739 crates/rigg/src/pages/kontroller.rs:747
+msgid "Tjenesten tillater"
+msgstr "服务允许的范围"
+
+#: crates/rigg/src/pages/kontroller.rs:740
+msgid "kjerneklokke {klokke}, rapportert maks {maks}"
+msgstr "核心频率 {klokke}，报告上限 {maks}"
+
+#: crates/rigg/src/pages/kontroller.rs:741
+msgid "Kjerneklokken på hele kurven og stabiliteten. Ikke spenningen."
+msgstr "影响整条曲线上的核心频率及稳定性。不改变电压。"
+
+#: crates/rigg/src/pages/kontroller.rs:742 crates/rigg/src/pages/kontroller.rs:750
+msgid "nvmlDeviceGetClockOffsets (avlesning)."
+msgstr "通过 nvmlDeviceGetClockOffsets 读回。"
+
+#: crates/rigg/src/pages/kontroller.rs:748
+msgid "minneklokke {klokke}, rapportert maks {maks}"
+msgstr "显存频率 {klokke}，报告上限 {maks}"
+
+#: crates/rigg/src/pages/kontroller.rs:749
+msgid "Minnebåndbredden. Ikke kjerneklokken."
+msgstr "影响显存带宽，不改变核心频率。"
+
+#: crates/rigg/src/pages/kontroller.rs:755
+msgid "Faste grenser"
+msgstr "硬件阈值"
+
+#: crates/rigg/src/pages/kontroller.rs:755
+msgid "nedklokking ved {nedklokking}, avstenging ved {avstenging}"
+msgstr "{nedklokking} 时降频，{avstenging} 时关机"
+
+#: crates/rigg/src/pages/kontroller.rs:760
+msgid "Auto (driveren styrer)"
+msgstr "自动（由驱动程序控制）"
+
+#: crates/rigg/src/pages/kontroller.rs:761
+msgid "Manuelt minimum"
+msgstr "最低手动转速"
+
+#: crates/rigg/src/pages/kontroller.rs:761
+msgid "{fart} (rapportert av driveren)"
+msgstr "{fart}（驱动程序报告）"
+
+#: crates/rigg/src/pages/kontroller.rs:761
+msgid "Ikke rapportert av driveren"
+msgstr "驱动程序未报告"
+
+#: crates/rigg/src/pages/kontroller.rs:763
+msgid "Modus nå"
+msgstr "当前模式"
+
+#: crates/rigg/src/pages/kontroller.rs:769
+msgid "Klar. Bruk prøver endringen; Behold lar den fortsette."
+msgstr "已就绪。点击“应用”试用更改，点击“保留”确认。"
+
+#: crates/rigg/src/pages/kontroller.rs:771
+msgid "Simulert kort. Ekte maskinvare endres ikke."
+msgstr "模拟 GPU，不会改变真实硬件的设置。"
+
+#: crates/rigg/src/pages/kontroller.rs:774
+msgid "Styring"
+msgstr "显卡调校"
+
+#: crates/rigg/src/pages/kontroller.rs:877
 msgid "Utkastet er forkastet"
 msgstr "已放弃草稿"
 
-#: crates/rigg/src/pages/kontroller.rs:867 crates/rigg/src/pages/kontroller.rs:961 crates/rigg/src/pages/kontroller.rs:1482
+#: crates/rigg/src/pages/kontroller.rs:877 crates/rigg/src/pages/kontroller.rs:971 crates/rigg/src/pages/kontroller.rs:1485
 msgid "Angre"
 msgstr "撤销"
 
-#: crates/rigg/src/pages/kontroller.rs:942
+#: crates/rigg/src/pages/kontroller.rs:952
 msgid "Kortets utgangspunkt er gjenopprettet"
 msgstr "已恢复显卡原始设置"
 
-#: crates/rigg/src/pages/kontroller.rs:944
+#: crates/rigg/src/pages/kontroller.rs:954
 msgid "Kunne ikke bekrefte gjenoppretting"
 msgstr "无法确认恢复成功"
 
-#: crates/rigg/src/pages/kontroller.rs:961
+#: crates/rigg/src/pages/kontroller.rs:966
+msgid "Kortet står allerede på standard"
+msgstr "GPU 已使用原始设置"
+
+#: crates/rigg/src/pages/kontroller.rs:971
+msgid "Utkastet har standardverdiene"
+msgstr "已将原始设置复制到草稿"
+
+#: crates/rigg/src/pages/kontroller.rs:971
 msgid "Ingenting er sendt til kortet."
 msgstr "未向显卡发送任何更改。"
 
-#: crates/rigg/src/pages/kontroller.rs:998
+#: crates/rigg/src/pages/kontroller.rs:996
+msgid "Leser kortets innstillinger …"
+msgstr "正在读取 GPU 设置…"
+
+#: crates/rigg/src/pages/kontroller.rs:996
+msgid "Prøv Bruk igjen når innstillingene er lest."
+msgstr "设置加载完成后，请再次点击“应用”。"
+
+#: crates/rigg/src/pages/kontroller.rs:1003
+msgid "Utkastet må oppdateres"
+msgstr "草稿需要更新"
+
+#: crates/rigg/src/pages/kontroller.rs:1008
 msgid "Funksjonen er utilgjengelig"
 msgstr "功能不可用"
 
-#: crates/rigg/src/pages/kontroller.rs:1009
+#: crates/rigg/src/pages/kontroller.rs:1018 crates/rigg/src/pages/kontroller.rs:1295
+msgid "Ingen endringer å bruke"
+msgstr "没有可应用的更改"
+
+#: crates/rigg/src/pages/kontroller.rs:1019
 msgid "Kunne ikke bruke utkastet"
 msgstr "无法应用草稿"
 
-#: crates/rigg/src/pages/kontroller.rs:1273
+#: crates/rigg/src/pages/kontroller.rs:1045
+msgid "Bruk prøver endringen i {tid}. Trykk Behold i det faste feltet øverst for å fortsette; uten svar går kortet tilbake til forrige oppsett."
+msgstr "点击“应用”试用更改，时限为 {tid}。点击顶部栏中的“保留”确认；若未确认，GPU 将恢复先前的设置。"
+
+#: crates/rigg/src/pages/kontroller.rs:1056 crates/rigg/src/pages/kontroller.rs:1059
+msgid "maks {maks}"
+msgstr "最高 {maks}"
+
+#: crates/rigg/src/pages/kontroller.rs:1058
+msgid "Målt GPU-klokke nå. Maks er rapportert av NVIDIA-driveren, ikke en beregnet sluttklokke etter justering. GPU-boost, temperatur og effekt påvirker den faktiske hastigheten."
+msgstr "实测 GPU 频率。最高值由 NVIDIA 驱动程序报告，并非应用偏移后的预测频率。自动提频、温度和功耗都会影响实际频率。"
+
+#: crates/rigg/src/pages/kontroller.rs:1061
+msgid "Målt minneklokke nå. Maks er rapportert av NVIDIA-driveren. MHz-justeringen under er et tillegg, ikke en fast minnefrekvens eller båndbredde i Gb/s."
+msgstr "实测显存频率。最高值由 NVIDIA 驱动程序报告。下方以 MHz 为单位的是偏移量，不是固定显存频率，也不是以 Gb/s 为单位的带宽。"
+
+#: crates/rigg/src/pages/kontroller.rs:1069
+msgid "mål {maal}"
+msgstr "目标 {maal}"
+
+#: crates/rigg/src/pages/kontroller.rs:1072
+msgid "GPU-temperaturen. Merket på måleren er temperaturmålet; måleren går til nedklokkingen ved {temperatur}."
+msgstr "GPU 温度。标记表示目标温度；仪表上限为降频阈值 {temperatur}。"
+
+#: crates/rigg/src/pages/kontroller.rs:1076
+msgid "{andel} av {grense}"
+msgstr "占上限 {grense} 的 {andel}"
+
+#: crates/rigg/src/pages/kontroller.rs:1082
+msgid "Strømtrekket nå, og hvor mye av effektgrensen det er."
+msgstr "当前功耗及其占功率限制的比例。"
+
+#: crates/rigg/src/pages/kontroller.rs:1083
+msgid "minnekontroller {last}"
+msgstr "显存控制器 {last}"
+
+#: crates/rigg/src/pages/kontroller.rs:1085
+msgid "GPU-last nå."
+msgstr "当前 GPU 负载。"
+
+#: crates/rigg/src/pages/kontroller.rs:1089
+msgid "Den raskeste viften nå. Merket er driverens rapporterte manuelle minimum ({minimum})."
+msgstr "转速最高的风扇。标记表示驱动程序报告的最低手动转速（{minimum}）。"
+
+#: crates/rigg/src/pages/kontroller.rs:1089
+msgid "Den raskeste viften nå. Driverens manuelle minimum er ikke rapportert."
+msgstr "转速最高的风扇。驱动程序未报告最低手动转速。"
+
+#: crates/rigg/src/pages/kontroller.rs:1092
+msgid "P-tilstanden. P0 er full ytelse, P8 er dyp tomgang."
+msgstr "性能状态：P0 为最高性能，P8 为深度空闲。"
+
+#: crates/rigg/src/pages/kontroller.rs:1106
+msgid "Kortets tillatte område er ikke lest. Ingen modellspesifikke grenser antas."
+msgstr "GPU 未报告其范围。不会按型号推定限制。"
+
+#: crates/rigg/src/pages/kontroller.rs:1124
+msgid "Valgt grense: {grense} av kortets standard · trekker nå {forbruk}"
+msgstr "所选上限：默认值的 {grense} · 当前功耗 {forbruk}"
+
+#: crates/rigg/src/pages/kontroller.rs:1126 crates/rigg/src/pages/kontroller.rs:1169
+msgid "Tilbake til lagret utgangspunkt ({verdi})"
+msgstr "恢复已保存的原始值（{verdi}）"
+
+#: crates/rigg/src/pages/kontroller.rs:1142
+msgid "Kortets område overlapper ikke appens tillatte justeringer. Avlest verdi vises uten å anta et annet korts grenser."
+msgstr "GPU 的范围与应用允许的偏移范围没有交集。仅显示实测值，不套用其他 GPU 的限制。"
+
+#: crates/rigg/src/pages/kontroller.rs:1148
+msgid "Målt nå: {klokke} · rapportert maks: {maks}{merknad}"
+msgstr "实测：{klokke} · 报告上限：{maks}{merknad}"
+
+#: crates/rigg/src/pages/kontroller.rs:1148
+msgid " · gjeldende justering er ukjent"
+msgstr " · 当前偏移量未知"
+
+#: crates/rigg/src/pages/kontroller.rs:1150
+msgid "Tilbake til grunnverdi ({verdi})"
+msgstr "恢复原始值（{verdi}）"
+
+#: crates/rigg/src/pages/kontroller.rs:1151
+msgid "Tjenesten tillater {tjeneste_min} til {tjeneste_maks} når endring er slått på. Kortet tillater {kort_min} til {kort_maks}."
+msgstr "启用调校后，服务允许的范围为 {tjeneste_min} 至 {tjeneste_maks}。GPU 允许的范围为 {kort_min} 至 {kort_maks}。"
+
+#: crates/rigg/src/pages/kontroller.rs:1163
+msgid "GPU-temperatur nå {temperatur} · nedklokking ved {nedklokking}, avstenging ved {avstenging}"
+msgstr "GPU 温度 {temperatur} · {nedklokking} 时降频，{avstenging} 时关机"
+
+#: crates/rigg/src/pages/kontroller.rs:1164
+msgid "GPU-temperatur nå {temperatur}"
+msgstr "GPU 温度 {temperatur}"
+
+#: crates/rigg/src/pages/kontroller.rs:1184
+msgid "Tilbake til standard (Auto)"
+msgstr "恢复默认设置（自动）"
+
+#: crates/rigg/src/pages/kontroller.rs:1186
+msgid "Driveren styrer viftene etter temperaturen, som uten appen."
+msgstr "驱动程序按温度调节风扇转速，与不使用本应用时相同。"
+
+#: crates/rigg/src/pages/kontroller.rs:1187
+msgid "Agentic Rigg setter farten etter viftekurven hvert sekund."
+msgstr "Agentic Rigg 每秒按风扇曲线更新转速。"
+
+#: crates/rigg/src/pages/kontroller.rs:1188
+msgid "Viftene går med fast fart, uansett temperatur."
+msgstr "风扇保持固定转速，不随温度变化。"
+
+#: crates/rigg/src/pages/kontroller.rs:1206
+msgid "Ja · siden {tid}"
+msgstr "是 · 自 {tid} 起"
+
+#: crates/rigg/src/pages/kontroller.rs:1207
+msgid "Ja"
+msgstr "是"
+
+#: crates/rigg/src/pages/kontroller.rs:1210
+msgid "Nei"
+msgstr "否"
+
+#: crates/rigg/src/pages/kontroller.rs:1217
+msgid "{why}\nNå: {arsaker}."
+msgstr "{why}\n当前：{arsaker}。"
+
+#: crates/rigg/src/pages/kontroller.rs:1225
+msgid "Kortet svarer ikke. Begrensningene vises igjen når det er tilbake."
+msgstr "GPU 无响应。恢复响应后会重新显示限制信息。"
+
+#: crates/rigg/src/pages/kontroller.rs:1227
+msgid "Kortet er i tomgang (P8). Årsakene leses når kortet jobber."
+msgstr "GPU 处于空闲状态（P8）。恢复运行后会读取限制原因。"
+
+#: crates/rigg/src/pages/kontroller.rs:1229
+msgid "Kortet melder ikke klokkebegrensninger."
+msgstr "GPU 不报告频率限制。"
+
+#: crates/rigg/src/pages/kontroller.rs:1235
+msgid "I P8 spør tjenesten ikke om årsakene: kallet koster ca. 25 ms og vekker kortet."
+msgstr "在 P8 状态下，查询约需 25 ms，且会唤醒 GPU，因此服务会跳过此查询。"
+
+#: crates/rigg/src/pages/kontroller.rs:1254
+msgid "Utkastet er likt det kortet har nå."
+msgstr "草稿与 GPU 的当前设置一致。"
+
+#: crates/rigg/src/pages/kontroller.rs:1263
+msgid "ukjent"
+msgstr "未知"
+
+#: crates/rigg/src/pages/kontroller.rs:1274
+msgid "Sendes til kortet med Bruk. Behold innen fristen, ellers rulles endringen tilbake."
+msgstr "点击“应用”将更改发送到 GPU。请在倒计时结束前点击“保留”，否则将撤销更改。"
+
+#: crates/rigg/src/pages/kontroller.rs:1274
+msgid "Lagres i appen som utkast. Ctrl+Z angrer."
+msgstr "已在应用中保存为草稿。按 Ctrl+Z 可撤销。"
+
+#: crates/rigg/src/pages/kontroller.rs:1279
 msgid "Ingen endringer"
 msgstr "无更改"
 
-#: crates/rigg/src/pages/kontroller.rs:1274
+#: crates/rigg/src/pages/kontroller.rs:1280
 msgid "{n} endring i utkastet"
 msgid_plural "{n} endringer i utkastet"
 msgstr[0] "草稿中有 {n} 项更改"
 
-#: crates/rigg/src/pages/kontroller.rs:1308
+#: crates/rigg/src/pages/kontroller.rs:1295
+msgid "Endringen venter på Behold"
+msgstr "等待点击“保留”"
+
+#: crates/rigg/src/pages/kontroller.rs:1295
+msgid "Bruk utkastet"
+msgstr "应用草稿"
+
+#: crates/rigg/src/pages/kontroller.rs:1315
 msgid "{used} av {plasser}"
 msgstr "{used}/{plasser}"
 
-#: crates/rigg/src/pages/kontroller.rs:1310
+#: crates/rigg/src/pages/kontroller.rs:1317
 msgid "Ingen profiler ennå. En profil husker alle verdiene på siden, også viftekurven."
 msgstr "暂无配置文件。配置文件可保存此页面的所有设置，包括风扇曲线。"
 
-#: crates/rigg/src/pages/kontroller.rs:1327
+#: crates/rigg/src/pages/kontroller.rs:1334
 msgid "Nytt navn på {profil}"
 msgstr "{profil} 的新名称"
+
+#: crates/rigg/src/pages/kontroller.rs:1365
+msgid "Dobbeltklikk for å gi nytt navn"
+msgstr "双击重命名"
+
+#: crates/rigg/src/pages/kontroller.rs:1380
+msgid "på siden"
+msgstr "与当前页面一致"
+
+#: crates/rigg/src/pages/kontroller.rs:1381
+msgid "Verdiene på siden er de samme som i profilen"
+msgstr "此页面上的设置与配置文件一致。"
+
+#: crates/rigg/src/pages/kontroller.rs:1387
+msgid "Hent"
+msgstr "加载"
+
+#: crates/rigg/src/pages/kontroller.rs:1388
+msgid "Fyll utkastet med verdiene fra profilen"
+msgstr "将配置文件中的设置复制到草稿。"
+
+#: crates/rigg/src/pages/kontroller.rs:1395
+msgid "Hentet «{profil}»"
+msgstr "已加载“{profil}”"
+
+#: crates/rigg/src/pages/kontroller.rs:1395
+msgid "Utkastet har verdiene fra profilen. Ingenting er sendt til kortet."
+msgstr "已将配置文件中的设置复制到草稿，未发送到 GPU。"
+
+#: crates/rigg/src/pages/kontroller.rs:1400
+msgid "Flere valg for {profil}"
+msgstr "“{profil}”的更多选项"
+
+#: crates/rigg/src/pages/kontroller.rs:1406
+msgid "Lagre over med verdiene på siden"
+msgstr "用此页面的设置覆盖"
+
+#: crates/rigg/src/pages/kontroller.rs:1407
+msgid "Gi nytt navn"
+msgstr "重命名"
+
+#: crates/rigg/src/pages/kontroller.rs:1411
+msgid "Tøm plassen"
+msgstr "清空槽位"
+
+#: crates/rigg/src/pages/kontroller.rs:1418
+msgid "egen, {punkter}"
+msgstr "自定义，{punkter}"
+
+#: crates/rigg/src/pages/kontroller.rs:1418
+msgid "standard"
+msgstr "默认"
+
+#: crates/rigg/src/pages/kontroller.rs:1419
+msgid "{verdier}\nViftekurve: {kurve}\nLagret {tid}"
+msgstr "{verdier}\n风扇曲线：{kurve}\n保存时间：{tid}"
+
+#: crates/rigg/src/pages/kontroller.rs:1425
+msgid "Lagre som ny profil"
+msgstr "另存为新配置文件"
+
+#: crates/rigg/src/pages/kontroller.rs:1430
+msgid "Verdiene på siden er de samme som i «{t}»"
+msgstr "此页面上的设置与“{t}”一致。"
+
+#: crates/rigg/src/pages/kontroller.rs:1431
+msgid "Lik «{t}»"
+msgstr "与“{t}”一致"
+
+#: crates/rigg/src/pages/kontroller.rs:1433
+msgid "Lagrer utkastet som en ny profil"
+msgstr "将草稿另存为新配置文件。"
+
+#: crates/rigg/src/pages/kontroller.rs:1433
+msgid "Lagrer verdiene kortet har nå som en ny profil"
+msgstr "将 GPU 的当前设置另存为新配置文件。"
+
+#: crates/rigg/src/pages/kontroller.rs:1445
+msgid "Alle fem plassene er i bruk. Lagre over en profil fra ⋯-menyen."
+msgstr "五个槽位均已占用。可通过配置文件的 ⋯ 菜单将其覆盖。"
+
+#: crates/rigg/src/pages/kontroller.rs:1458 crates/rigg/src/pages/kontroller.rs:1460
+msgid "Profil {n}"
+msgstr "配置文件 {n}"
+
+#: crates/rigg/src/pages/kontroller.rs:1464
+msgid "Lagret i «{name}»"
+msgstr "已保存到“{name}”"
+
+#: crates/rigg/src/pages/kontroller.rs:1485
+msgid "«{name}» er tømt"
+msgstr "已清空“{name}”"

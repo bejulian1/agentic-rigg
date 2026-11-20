@@ -6,43 +6,172 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
 
 #: crates/rigg-core/src/txn.rs:278
+msgid "Aktiver skjermkortstyring i Innstillinger, og vent til hjelperen er klar"
+msgstr "設定でGPUの設定変更を有効にし、補助プログラムの準備が整うまでお待ちください"
+
+#: crates/rigg-core/src/txn.rs:279
 msgid "Viftekurven må være en liste med punkter"
 msgstr "ファンカーブは点のリストで指定してください"
 
-#: crates/rigg-core/src/txn.rs:279
+#: crates/rigg-core/src/txn.rs:280
 msgid "Temperaturene i viftekurven må stige"
 msgstr "ファンカーブの温度は昇順で指定してください"
 
-#: crates/rigg-core/src/txn.rs:280
+#: crates/rigg-core/src/txn.rs:281
 msgid "fan.curves må være en liste med kurver"
 msgstr "fan.curvesはカーブのリストで指定してください"
 
-#: crates/rigg-core/src/txn.rs:281
+#: crates/rigg-core/src/txn.rs:282
 msgid "settings må være et objekt"
 msgstr "settingsはオブジェクトで指定してください"
 
-#: crates/rigg-core/src/txn.rs:282
+#: crates/rigg-core/src/txn.rs:283
 msgid "clockOffsets må være et objekt"
 msgstr "clockOffsetsはオブジェクトで指定してください"
 
-#: crates/rigg-core/src/txn.rs:283
+#: crates/rigg-core/src/txn.rs:284
 msgid "fan må være et objekt"
 msgstr "fanはオブジェクトで指定してください"
 
-#: crates/rigg-core/src/txn.rs:284
+#: crates/rigg-core/src/txn.rs:285
 msgid "fan.mode må være auto, curve eller manual"
 msgstr "fan.modeにはauto、curve、manualのいずれかを指定してください"
 
-#: crates/rigg-core/src/txn.rs:285
+#: crates/rigg-core/src/txn.rs:286
 msgid "fan.perFan må være true eller false"
 msgstr "fan.perFanにはtrueまたはfalseを指定してください"
 
-#: crates/rigg-core/src/txn.rs:286
+#: crates/rigg-core/src/txn.rs:287
 msgid "confirmTimeoutS må være et tall"
 msgstr "confirmTimeoutSは数値で指定してください"
 
-#: crates/rigg-core/src/txn.rs:287
+#: crates/rigg-core/src/txn.rs:288
 msgid "Oppsettet må være innenfor rapporterte grenser og viftekurven må være stigende."
 msgstr "設定は報告された範囲内とし、ファンカーブは右上がりにしてください。"
+
+#: crates/rigg-core/src/txn.rs:304
+msgid "Vifte {nummer}: {feil}"
+msgstr "ファン {nummer}：{feil}"
+
+#: crates/rigg-core/src/txn.rs:307
+msgid "Ukjent felt: {felt}"
+msgstr "不明な項目：{felt}"
+
+#: crates/rigg-core/src/txn.rs:311
+msgid "Effektgrensen"
+msgstr "電力制限"
+
+#: crates/rigg-core/src/txn.rs:312
+msgid "Temperaturmålet"
+msgstr "目標温度"
+
+#: crates/rigg-core/src/txn.rs:313
+msgid "Kjerneklokke-offset"
+msgstr "コアクロックオフセット"
+
+#: crates/rigg-core/src/txn.rs:314
+msgid "Minneklokke-offset"
+msgstr "メモリクロックオフセット"
+
+#: crates/rigg-core/src/txn.rs:315
+msgid "Viftefarten"
+msgstr "ファン速度"
+
+#: crates/rigg-core/src/txn.rs:316
+msgid "Viftefarten i kurven"
+msgstr "カーブのファン速度"
+
+#: crates/rigg-core/src/txn.rs:317
+msgid "Temperaturen i kurven"
+msgstr "カーブの温度"
+
+#: crates/rigg-core/src/txn.rs:318
+msgid "Hysteresen"
+msgstr "ヒステリシス"
+
+#: crates/rigg-core/src/txn.rs:319
+msgid "Rampefarten opp"
+msgstr "上昇レート"
+
+#: crates/rigg-core/src/txn.rs:320
+msgid "Rampefarten ned"
+msgstr "下降レート"
+
+#: crates/rigg-core/src/txn.rs:321
+msgid "Utjevningen"
+msgstr "平滑化"
+
+#: crates/rigg-core/src/txn.rs:322
+msgid "«Hold minimum til»"
+msgstr "「最低速度を保つ温度」"
+
+#: crates/rigg-core/src/txn.rs:325
+msgid "{felt} må være et tall"
+msgstr "{felt}は数値で指定してください"
+
+#: crates/rigg-core/src/txn.rs:340
+msgid "Viftekurven må ha {min}–{maks} punkter"
+msgstr "ファンカーブは{min}～{maks}点で指定してください"
+
+#: crates/rigg-core/src/txn.rs:345
+msgid "Ugyldig punkt {nummer} i viftekurven"
+msgstr "ファンカーブの点 {nummer} が無効です"
+
+#: crates/rigg-core/src/txn.rs:350
+msgid "Punkt {nummer}: temperaturen må være {min}–{maks}"
+msgstr "点 {nummer}：温度は{min}～{maks}で指定してください"
+
+#: crates/rigg-core/src/txn.rs:355
+msgid "fan.curves kan ha høyst {maks} kurver"
+msgstr "fan.curvesに指定できるカーブは最大{maks}個です"
+
+#: crates/rigg-core/src/txn.rs:1104
+msgid "Effektgrense"
+msgstr "電力制限"
+
+#: crates/rigg-core/src/txn.rs:1105
+msgid "Klokke-offset (kjerne og minne)"
+msgstr "クロックオフセット（コアとメモリ）"
+
+#: crates/rigg-core/src/txn.rs:1106
+msgid "Vifte, manuell fart"
+msgstr "ファン速度（手動）"
+
+#: crates/rigg-core/src/txn.rs:1107
+msgid "Viftekurve"
+msgstr "ファンカーブ"
+
+#: crates/rigg-core/src/txn.rs:1110
+msgid "Temperaturmål"
+msgstr "目標温度"
+
+#: crates/rigg-core/src/txn.rs:1111
+msgid " (ikke verifisert på GeForce)"
+msgstr " （GeForceでは未検証）"
+
+#: crates/rigg-core/src/txn.rs:1115
+msgid "RGB-lys (Palit-kontrolleren på I2C)"
+msgstr "RGBライティング（PalitのI2Cコントローラー）"
+
+#: crates/rigg-core/src/txn.rs:1116
+msgid " (kontrolleren er ikke bekreftet)"
+msgstr " （コントローラー未確認）"
+
+#: crates/rigg-core/src/txn.rs:1128
+msgid "Tilgjengelig"
+msgstr "利用可能"
+
+#: crates/rigg-core/src/txn.rs:1129
+msgid "Ikke tilgjengelig{note}"
+msgstr "利用不可{note}"
+
+#: crates/rigg-core/src/txn.rs:1130
+msgid "Godkjent (eldre protokoll)"
+msgstr "許可済み（旧プロトコル）"
+
+#: crates/rigg-core/src/txn.rs:1131
+msgid "Ikke godkjent{note}"
+msgstr "未許可{note}"

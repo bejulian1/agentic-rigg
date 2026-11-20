@@ -73,7 +73,7 @@ fn state_text(app: &App) -> String {
     match locked::helper_state(app).as_str() {
         "on" if locked::control_ready(app) => tr!("Styring er klar for det valgte skjermkortet. Endringer brukes først når du trykker Bruk.").into(),
         "on" if locked::gate(app) == rigg_core::txn::Gate::Sim => tr!("Simulert styring. Det ekte skjermkortet endres ikke.").into(),
-        "on" | "error" => h["message"].as_str().map(rigg_core::hjelper::display_message).unwrap_or(tr!("Hjelperen er ikke klar for kortet som vises. Se funksjonsstøtten under, eller trykk Sjekk igjen.")).into(),
+        "on" | "error" => h["message"].as_str().map_or_else(|| tr!("Hjelperen er ikke klar for kortet som vises. Se funksjonsstøtten under, eller trykk Sjekk igjen.").into(), |message| rigg_core::hjelper::display_diagnostic(message).into_owned()),
         "outdated" => tr!("Hjelperen må oppdateres. Slå bryteren av og på igjen for å aktivere denne versjonen.").into(),
         _ if !data_dir(app).join("aktiver.sh").exists() => tr!("Hjelperfilene mangler. Installer den nye appversjonen først.").into(),
         _ => tr!("Bare visning. Endring av skjermkortet er slått av.").into(),
@@ -91,7 +91,7 @@ fn state_tip(app: &App) -> Option<String> {
         parts.push(if b == "sim" { tr!("Simulert kort").to_string() } else { tr!("Det ekte kortet (NVML)").to_string() });
     }
     if let Some(m) = h["message"].as_str() {
-        parts.push(rigg_core::hjelper::display_message(m).to_string());
+        parts.push(rigg_core::hjelper::display_diagnostic(m).into_owned());
     }
     (!parts.is_empty()).then(|| parts.join("\n"))
 }
@@ -126,7 +126,10 @@ fn failure(code: i32, err: &str, title: &str) -> Option<Toast> {
         0 => None,
         126 => Some(Toast::new(tr!("Avbrutt")).body(tr!("Passordet ble ikke gitt. Ingenting er endret.")).ms(3500)),
         127 => Some(Toast::new(title).body(tr!("Fant ikke pkexec, eller ingen kan spørre om passordet (polkit).")).error()),
-        _ => Some(Toast::new(title).body(if err.is_empty() { tr!("Skriptet feilet.") } else { rigg_core::hjelper::display_message(err) }).error()),
+        _ => {
+            let body = rigg_core::hjelper::display_diagnostic(err);
+            Some(Toast::new(title).body(if body.is_empty() { tr!("Skriptet feilet.") } else { body.as_ref() }).error())
+        }
     }
 }
 
