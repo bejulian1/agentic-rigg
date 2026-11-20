@@ -8,218 +8,577 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Rigg-Status: complete\n"
 
+#: crates/rigg-core/src/report/system.rs:43
+msgid "Ikke berørt"
+msgstr "影響なし"
+
+#: crates/rigg-core/src/report/system.rs:46
+msgid "Tiltak: {detalj}"
+msgstr "緩和策：{detalj}"
+
+#: crates/rigg-core/src/report/system.rs:49
+msgid "Sårbar{detalj}"
+msgstr "脆弱{detalj}"
+
+#: crates/rigg-core/src/report/system.rs:67
+msgid "Gammel mikrokode"
+msgstr "古いマイクロコード"
+
+#: crates/rigg-core/src/report/system.rs:92
+msgid "Data"
+msgstr "データ"
+
+#: crates/rigg-core/src/report/system.rs:93
+msgid "Instruksjon"
+msgstr "命令"
+
+#: crates/rigg-core/src/report/system.rs:94
+msgid "Felles"
+msgstr "統合"
+
+#: crates/rigg-core/src/report/system.rs:101
+msgid "Type {nr}"
+msgstr "タイプ {nr}"
+
+#: crates/rigg-core/src/report/system.rs:104
+msgid "Stasjonær"
+msgstr "デスクトップ"
+
+#: crates/rigg-core/src/report/system.rs:105
+msgid "Lavprofil stasjonær"
+msgstr "ロープロファイルデスクトップ"
+
+#: crates/rigg-core/src/report/system.rs:106
+msgid "Pizzaboks"
+msgstr "ピザボックス型"
+
+#: crates/rigg-core/src/report/system.rs:107
+msgid "Minitårn"
+msgstr "ミニタワー"
+
+#: crates/rigg-core/src/report/system.rs:108
+msgid "Tårn"
+msgstr "タワー"
+
+#: crates/rigg-core/src/report/system.rs:109
+msgid "Bærbar"
+msgstr "ノート PC"
+
+#: crates/rigg-core/src/report/system.rs:110
+msgid "Håndholdt"
+msgstr "携帯型"
+
 #: crates/rigg-core/src/report/system.rs:111
+msgid "Alt-i-ett"
+msgstr "一体型"
+
+#: crates/rigg-core/src/report/system.rs:112
+msgid "Plassbesparende"
+msgstr "省スペース型"
+
+#: crates/rigg-core/src/report/system.rs:113
+msgid "Server (hovedenhet)"
+msgstr "サーバー本体"
+
+#: crates/rigg-core/src/report/system.rs:114
+msgid "Rackmontert"
+msgstr "ラックマウント"
+
+#: crates/rigg-core/src/report/system.rs:115
+msgid "Nettbrett"
+msgstr "タブレット"
+
+#: crates/rigg-core/src/report/system.rs:116
+msgid "Konvertibel"
+msgstr "コンバーチブル"
+
+#: crates/rigg-core/src/report/system.rs:117
+msgid "Mini-PC"
+msgstr "ミニ PC"
+
+#: crates/rigg-core/src/report/system.rs:118
+msgid "Stick-PC"
+msgstr "スティック PC"
+
+#: crates/rigg-core/src/report/system.rs:144
 msgid "Bygg #{nummer}"
 msgstr "ビルド #{nummer}"
 
-#: crates/rigg-core/src/report/system.rs:135
+#: crates/rigg-core/src/report/system.rs:168
 msgid "Ubuntu-økt"
 msgstr "Ubuntu セッション"
 
-#: crates/rigg-core/src/report/system.rs:136
+#: crates/rigg-core/src/report/system.rs:169
 msgid "Pop-økt"
 msgstr "Pop セッション"
 
-#: crates/rigg-core/src/report/system.rs:137
+#: crates/rigg-core/src/report/system.rs:170
 msgid "Zorin-økt"
 msgstr "Zorin セッション"
 
-#: crates/rigg-core/src/report/system.rs:138
+#: crates/rigg-core/src/report/system.rs:171
 msgid "{navn}-økt"
 msgstr "{navn} セッション"
 
-#: crates/rigg-core/src/report/system.rs:311
-msgid "Hovedkort og BIOS"
-msgstr "マザーボードと BIOS"
+#: crates/rigg-core/src/report/system.rs:246
+msgid "Prosessor"
+msgstr "プロセッサー"
 
-#: crates/rigg-core/src/report/system.rs:313
+#: crates/rigg-core/src/report/system.rs:247
+msgid "Navn"
+msgstr "名前"
+
+#: crates/rigg-core/src/report/system.rs:247
+msgid "Ukjent prosessor"
+msgstr "不明なプロセッサー"
+
+#: crates/rigg-core/src/report/system.rs:249
+msgid "Modelloppslag, ikke målt. Kilde: AMD, {navn}: {url}"
+msgstr "モデルから参照した値です。出典：AMD、{navn}：{url}"
+
+#: crates/rigg-core/src/report/system.rs:251
+msgid "Lansert"
+msgstr "発売日"
+
+#: crates/rigg-core/src/report/system.rs:252
+msgid "Ikke i modelloppslaget"
+msgstr "モデルが参照テーブルにありません"
+
+#: crates/rigg-core/src/report/system.rs:253
+msgid "Lanseringsdato krever et kjent modellnavn og riktig leverandør. CPUID-familie og kodenavn brukes ikke som erstatning."
+msgstr "発売日の取得には既知のモデル名と正しいベンダーが必要です。CPUID ファミリーやコード名で代用することはありません。"
+
+#: crates/rigg-core/src/report/system.rs:259
+msgid "Kodenavn"
+msgstr "コード名"
+
+#: crates/rigg-core/src/report/system.rs:262
+msgid "Ikke i oppslagstabellen"
+msgstr "参照テーブルにありません"
+
+#: crates/rigg-core/src/report/system.rs:263
+msgid "Slått opp fra produsent, familie og modell. Kjernen oppgir ikke kodenavn, prosess og sokkel."
+msgstr "メーカー、ファミリー、モデルから参照した値です。カーネルはコード名、製造プロセス、ソケットを報告しません。"
+
+#: crates/rigg-core/src/report/system.rs:265 crates/rigg-core/src/report/system.rs:408
 msgid "Produsent"
 msgstr "メーカー"
 
-#: crates/rigg-core/src/report/system.rs:313 crates/rigg-core/src/report/system.rs:314 crates/rigg-core/src/report/system.rs:315 crates/rigg-core/src/report/system.rs:318 crates/rigg-core/src/report/system.rs:321 crates/rigg-core/src/report/system.rs:322 crates/rigg-core/src/report/system.rs:323 crates/rigg-core/src/report/system.rs:324
+#: crates/rigg-core/src/report/system.rs:268
+msgid "Familie · modell · rev."
+msgstr "ファミリー · モデル · リビジョン"
+
+#: crates/rigg-core/src/report/system.rs:274
+msgid "Familie, modell og stepping (revisjon). Familien står heksadesimalt og desimalt; modell {modell}h, stepping {stepping}h."
+msgstr "ファミリー、モデル、ステッピング（リビジョン）です。ファミリーは 16 進数と 10 進数で表示します。モデル {modell}h、ステッピング {stepping}h。"
+
+#: crates/rigg-core/src/report/system.rs:278
+msgid "Mikrokode-revisjon"
+msgstr "マイクロコードのリビジョン"
+
+#: crates/rigg-core/src/report/system.rs:282
+msgid "Kjerner og tråder"
+msgstr "コアとスレッド"
+
+#: crates/rigg-core/src/report/system.rs:286
+msgid "{antall} kjerne"
+msgid_plural "{antall} kjerner"
+msgstr[0] "{antall} コア"
+
+#: crates/rigg-core/src/report/system.rs:287 crates/rigg-core/src/report/system.rs:289
+msgid "{antall} tråd"
+msgid_plural "{antall} tråder"
+msgstr[0] "{antall} スレッド"
+
+#: crates/rigg-core/src/report/system.rs:295
+msgid "L3-grupper"
+msgstr "L3 グループ"
+
+#: crates/rigg-core/src/report/system.rs:295
+msgid "{antall} · tråd {liste}"
+msgstr "{antall} · スレッド {liste}"
+
+#: crates/rigg-core/src/report/system.rs:295
+msgid " og "
+msgstr "と"
+
+#: crates/rigg-core/src/report/system.rs:295
+msgid "Grupper av tråder som deler L3-cache, slik kjernen rapporterer dem. Gruppene er ikke nødvendigvis CCX-er."
+msgstr "カーネルが報告する、L3 キャッシュを共有するスレッドのグループです。必ずしも CCX とは一致しません。"
+
+#: crates/rigg-core/src/report/system.rs:301
+msgid "Klokke (cpufreq)"
+msgstr "クロック（cpufreq）"
+
+#: crates/rigg-core/src/report/system.rs:305
+msgid "{min}–{maks} · boost til {boost} (målt)"
+msgstr "{min}～{maks} · 最大ブースト {boost}（実測）"
+
+#: crates/rigg-core/src/report/system.rs:316
+msgid "cpufreq er ikke tilgjengelig"
+msgstr "cpufreq を利用できません"
+
+#: crates/rigg-core/src/report/system.rs:317
+msgid "Nominelt område fra cpufreq. Med boost på går kjernene over maks; «målt» er den høyeste trådklokken tjenesten har sett."
+msgstr "cpufreq の公称範囲です。ブースト有効時はコアが上限を超えることがあります。「実測」はサービスが記録した最高スレッドクロックです。"
+
+#: crates/rigg-core/src/report/system.rs:320
+msgid "P-tilstander"
+msgstr "パフォーマンスステート"
+
+#: crates/rigg-core/src/report/system.rs:324
+msgid "Governor og driver"
+msgstr "ガバナーとドライバー"
+
+#: crates/rigg-core/src/report/system.rs:327
+msgid "På"
+msgstr "有効"
+
+#: crates/rigg-core/src/report/system.rs:327
+msgid "Av"
+msgstr "無効"
+
+#: crates/rigg-core/src/report/system.rs:327 crates/rigg-core/src/report/system.rs:408 crates/rigg-core/src/report/system.rs:409 crates/rigg-core/src/report/system.rs:410 crates/rigg-core/src/report/system.rs:413 crates/rigg-core/src/report/system.rs:416 crates/rigg-core/src/report/system.rs:417 crates/rigg-core/src/report/system.rs:418 crates/rigg-core/src/report/system.rs:419
 msgid "Ikke oppgitt"
 msgstr "情報なし"
 
-#: crates/rigg-core/src/report/system.rs:314
-msgid "Modell"
-msgstr "モデル"
+#: crates/rigg-core/src/report/system.rs:330
+msgid "CPU-temperatur"
+msgstr "CPU 温度"
 
-#: crates/rigg-core/src/report/system.rs:315
-msgid "Versjon"
-msgstr "バージョン"
-
-#: crates/rigg-core/src/report/system.rs:317
-msgid "Brikkesett"
-msgstr "チップセット"
-
-#: crates/rigg-core/src/report/system.rs:319
-msgid "Slått opp i pci.ids fra {id}."
-msgstr "{id} をもとに pci.ids で識別しました。"
-
-#: crates/rigg-core/src/report/system.rs:321
-msgid "System"
-msgstr "システム"
-
-#: crates/rigg-core/src/report/system.rs:322
-msgid "Utgave {versjon}"
-msgstr "リリース {versjon}"
-
-#: crates/rigg-core/src/report/system.rs:323
-msgid "BIOS-dato"
-msgstr "BIOS の日付"
-
-#: crates/rigg-core/src/report/system.rs:323
-msgid "Rå verdi: {dato}"
-msgstr "生の値：{dato}"
-
-#: crates/rigg-core/src/report/system.rs:324
-msgid "Kabinett"
-msgstr "筐体"
-
-#: crates/rigg-core/src/report/system.rs:325
-msgid "Serienumre"
-msgstr "シリアル番号"
-
-#: crates/rigg-core/src/report/system.rs:325
-msgid "Leses ikke (krever root)"
-msgstr "未読み取り（root 権限が必要）"
-
-#: crates/rigg-core/src/report/system.rs:325
-msgid "Serienummerfilene i /sys/class/dmi/id er bare lesbare for root. Appen åpner dem ikke."
-msgstr "/sys/class/dmi/id のシリアル番号ファイルを読み取れるのは root のみです。アプリはこれらのファイルを開きません。"
-
-#: crates/rigg-core/src/report/system.rs:329
-msgid "Minne"
-msgstr "メモリ"
-
-#: crates/rigg-core/src/report/system.rs:332
-msgid "Totalt"
-msgstr "合計"
-
-#: crates/rigg-core/src/report/system.rs:332
-msgid "Det kjernen kan bruke. Resten av modulene er reservert av fastvaren og kjernen."
-msgstr "カーネルが使用できるメモリです。残りの搭載メモリはファームウェアとカーネルが予約しています。"
-
-#: crates/rigg-core/src/report/system.rs:335
-msgid "Brukt"
-msgstr "使用済み"
+#: crates/rigg-core/src/report/system.rs:334
+msgid "Tctl rapporteres separat: {temp}. Sensorbetydningen avhenger av CPU-modellen og driveren."
+msgstr "Tctl は別途報告されます：{temp}。この値の意味は CPU モデルとドライバーによって異なります。"
 
 #: crates/rigg-core/src/report/system.rs:338
-msgid "Tilgjengelig"
-msgstr "利用可能"
+msgid "Adresser"
+msgstr "アドレス幅"
+
+#: crates/rigg-core/src/report/system.rs:340
+msgid "bit fysisk"
+msgstr "ビット物理"
+
+#: crates/rigg-core/src/report/system.rs:341
+msgid "bit virtuelt"
+msgstr "ビット仮想"
+
+#: crates/rigg-core/src/report/system.rs:344
+msgid "Kjernespenning"
+msgstr "コア電圧"
+
+#: crates/rigg-core/src/report/system.rs:344 crates/rigg-core/src/report/system.rs:345 crates/rigg-core/src/report/system.rs:346
+msgid "Ikke innsamlet"
+msgstr "未収集"
+
+#: crates/rigg-core/src/report/system.rs:344
+msgid "Appen samler ikke inn CPU-kjernespenning. Tilgang og målekilde avhenger av CPU, hovedkort og driver; SVI2-støtte er ikke verifisert her."
+msgstr "アプリは CPU のコア電圧を取得しません。読み取り可否と測定元は CPU、マザーボード、ドライバーによって異なります。SVI2 対応は未検証です。"
+
+#: crates/rigg-core/src/report/system.rs:345
+msgid "Pakkeeffekt"
+msgstr "CPU パッケージ電力"
+
+#: crates/rigg-core/src/report/system.rs:345
+msgid "Appen samler ikke inn CPU-pakkeeffekt. Tilgjengelige energitellere, eventuell RAPL-støtte og lesetilgang avhenger av maskinen og kjernen."
+msgstr "アプリは CPU パッケージ電力を取得しません。エネルギーカウンター、RAPL 対応、読み取り可否はコンピューターとカーネルによって異なります。"
 
 #: crates/rigg-core/src/report/system.rs:346
-msgid "Buffer og cache"
-msgstr "バッファーとキャッシュ"
+msgid "Multiplikator og bussklokke"
+msgstr "倍率とバスクロック"
 
 #: crates/rigg-core/src/report/system.rs:346
-msgid "Buffer, cache og frigjørbar slab, uten delt minne (Shmem, tmpfs: {minne}). Delt minne kan ikke frigjøres og er regnet med i Brukt."
-msgstr "バッファー、キャッシュ、解放可能な slab の合計です。共有メモリ（Shmem、tmpfs：{minne}）は解放できないため、使用済みに含まれます。"
+msgid "Appen samler ikke inn multiplikator og bussklokke. Trådklokken leses separat fra cpufreq; målekilden avhenger av driveren."
+msgstr "アプリは倍率とバスクロックを取得しません。スレッドクロックは cpufreq で別に取得します。測定元はドライバーによって異なります。"
 
-#: crates/rigg-core/src/report/system.rs:349
-msgid "Swap"
-msgstr "スワップ"
+#: crates/rigg-core/src/report/system.rs:350
+msgid "Lanseringsdato: {kilde}"
+msgstr "発売日：{kilde}"
 
-#: crates/rigg-core/src/report/system.rs:351
-msgid "Ingen swap"
-msgstr "スワップなし"
-
-#: crates/rigg-core/src/report/system.rs:352
-msgid "{brukt} av {totalt}"
-msgstr "{totalt} 中 {brukt}"
+#: crates/rigg-core/src/report/system.rs:355
+msgid "Cache"
+msgstr "キャッシュ"
 
 #: crates/rigg-core/src/report/system.rs:359
-msgid "{antall} SPD-brikker er funnet ({driver}). Produsent, delenummer og timingene modulene støtter, kan leses derfra uten root, men lesingen er I2C-trafikk på hovedkortets SMBus, og den er ikke slått på. Hastigheten minnet faktisk går på, og timingene BIOS har satt, krever root."
-msgstr "SPD チップを {antall} 個検出しました（{driver}）。メーカー、部品番号、対応タイミングは root 権限なしで読み取れますが、必要なマザーボードの SMBus への I2C アクセスは無効です。現在のメモリ速度と BIOS 設定のタイミングの取得には root 権限が必要です。"
+msgid "Nivå"
+msgstr "レベル"
 
-#: crates/rigg-core/src/report/system.rs:365
-msgid "Moduler, hastighet og timinger ligger i SMBIOS-tabellen og i registrene i minnekontrolleren, som bare root kan lese."
-msgstr "メモリモジュール、速度、タイミングの情報は SMBIOS テーブルとメモリコントローラーのレジスターにあり、読み取りには root 権限が必要です。"
-
-#: crates/rigg-core/src/report/system.rs:367
-msgid "Moduler og timinger"
-msgstr "モジュールとタイミング"
-
-#: crates/rigg-core/src/report/system.rs:367
-msgid "Krever godkjenning"
-msgstr "許可が必要"
-
-#: crates/rigg-core/src/report/system.rs:367
-msgid "Krever root"
-msgstr "root 権限が必要"
-
-#: crates/rigg-core/src/report/system.rs:371
-msgid "Operativsystem"
-msgstr "オペレーティングシステム"
-
-#: crates/rigg-core/src/report/system.rs:372
-msgid "Distribusjon"
-msgstr "ディストリビューション"
-
-#: crates/rigg-core/src/report/system.rs:373
-msgid "Kjerne"
-msgstr "カーネル"
-
-#: crates/rigg-core/src/report/system.rs:374
-msgid "Kjernebygg"
-msgstr "カーネルビルド"
-
-#: crates/rigg-core/src/report/system.rs:374
-msgid "{bygg}\nPREEMPT_DYNAMIC: hvor ofte kjernen kan avbryte seg selv, velges ved oppstart."
-msgstr "{bygg}\nPREEMPT_DYNAMIC：カーネルのプリエンプションモードは起動時に選択されます。"
-
-#: crates/rigg-core/src/report/system.rs:375
-msgid "Arkitektur"
-msgstr "アーキテクチャ"
-
-#: crates/rigg-core/src/report/system.rs:380
-msgid "Skrivebord"
-msgstr "デスクトップ"
-
-#: crates/rigg-core/src/report/system.rs:384 crates/rigg-core/src/report/system.rs:386
-msgid "Vertsnavn"
-msgstr "ホスト名"
-
-#: crates/rigg-core/src/report/system.rs:386
-msgid "Ikke tatt med"
-msgstr "省略"
-
-#: crates/rigg-core/src/report/system.rs:388
-msgid "Oppetid"
-msgstr "稼働時間"
-
-#: crates/rigg-core/src/report/system.rs:390
-msgid "Last (1 / 5 / 15 min)"
-msgstr "平均負荷（1 / 5 / 15 分）"
-
-#: crates/rigg-core/src/report/system.rs:391
-msgid "Gjennomsnittlig antall prosesser som kjører eller venter. Over antall tråder betyr kø."
-msgstr "実行中または待機中のプロセスの平均数です。スレッド数を超えると待ち行列が発生しています。"
-
-#: crates/rigg-core/src/report/system.rs:397
-msgid "Kontrollere"
-msgstr "コントローラー"
-
-#: crates/rigg-core/src/report/system.rs:400
+#: crates/rigg-core/src/report/system.rs:359 crates/rigg-core/src/report/system.rs:495 crates/rigg-core/src/report/system.rs:547 crates/rigg-core/src/report/system.rs:581
 msgid "Type"
 msgstr "種類"
 
-#: crates/rigg-core/src/report/system.rs:400
+#: crates/rigg-core/src/report/system.rs:359
+msgid "Per instans"
+msgstr "インスタンスごと"
+
+#: crates/rigg-core/src/report/system.rs:359
+msgid "Antall"
+msgstr "数"
+
+#: crates/rigg-core/src/report/system.rs:359 crates/rigg-core/src/report/system.rs:427
+msgid "Totalt"
+msgstr "合計"
+
+#: crates/rigg-core/src/report/system.rs:359
+msgid "Assosiativitet"
+msgstr "連想度"
+
+#: crates/rigg-core/src/report/system.rs:371
+msgid "{veier}-veis"
+msgstr "{veier} ウェイ"
+
+#: crates/rigg-core/src/report/system.rs:379
+msgid "Instruksjonssett"
+msgstr "命令セット"
+
+#: crates/rigg-core/src/report/system.rs:382
+msgid "Utvalgte"
+msgstr "選択項目"
+
+#: crates/rigg-core/src/report/system.rs:383
+msgid "Alle flagg"
+msgstr "すべてのフラグ"
+
+#: crates/rigg-core/src/report/system.rs:383
+msgid "{antall} i alt"
+msgstr "全 {antall} 件"
+
+#: crates/rigg-core/src/report/system.rs:391
+msgid "Sårbarheter"
+msgstr "脆弱性"
+
+#: crates/rigg-core/src/report/system.rs:394
+msgid "ingen åpne"
+msgstr "未対処なし"
+
+#: crates/rigg-core/src/report/system.rs:396
+msgid "{antall} åpen"
+msgid_plural "{antall} åpne"
+msgstr[0] "未対処 {antall} 件"
+
+#: crates/rigg-core/src/report/system.rs:406
+msgid "Hovedkort og BIOS"
+msgstr "マザーボードと BIOS"
+
+#: crates/rigg-core/src/report/system.rs:409 crates/rigg-core/src/report/system.rs:547 crates/rigg-core/src/report/system.rs:581
+msgid "Modell"
+msgstr "モデル"
+
+#: crates/rigg-core/src/report/system.rs:410
+msgid "Versjon"
+msgstr "バージョン"
+
+#: crates/rigg-core/src/report/system.rs:412
+msgid "Brikkesett"
+msgstr "チップセット"
+
+#: crates/rigg-core/src/report/system.rs:414
+msgid "Slått opp i pci.ids fra {id}."
+msgstr "{id} をもとに pci.ids で識別しました。"
+
+#: crates/rigg-core/src/report/system.rs:416
+msgid "System"
+msgstr "システム"
+
+#: crates/rigg-core/src/report/system.rs:417
+msgid "Utgave {versjon}"
+msgstr "リリース {versjon}"
+
+#: crates/rigg-core/src/report/system.rs:418
+msgid "BIOS-dato"
+msgstr "BIOS の日付"
+
+#: crates/rigg-core/src/report/system.rs:418
+msgid "Rå verdi: {dato}"
+msgstr "生の値：{dato}"
+
+#: crates/rigg-core/src/report/system.rs:419
+msgid "Kabinett"
+msgstr "筐体"
+
+#: crates/rigg-core/src/report/system.rs:420
+msgid "Serienumre"
+msgstr "シリアル番号"
+
+#: crates/rigg-core/src/report/system.rs:420
+msgid "Leses ikke (krever root)"
+msgstr "未読み取り（root 権限が必要）"
+
+#: crates/rigg-core/src/report/system.rs:420
+msgid "Serienummerfilene i /sys/class/dmi/id er bare lesbare for root. Appen åpner dem ikke."
+msgstr "/sys/class/dmi/id のシリアル番号ファイルを読み取れるのは root のみです。アプリはこれらのファイルを開きません。"
+
+#: crates/rigg-core/src/report/system.rs:424
+msgid "Minne"
+msgstr "メモリ"
+
+#: crates/rigg-core/src/report/system.rs:427
+msgid "Det kjernen kan bruke. Resten av modulene er reservert av fastvaren og kjernen."
+msgstr "カーネルが使用できるメモリです。残りの搭載メモリはファームウェアとカーネルが予約しています。"
+
+#: crates/rigg-core/src/report/system.rs:430
+msgid "Brukt"
+msgstr "使用済み"
+
+#: crates/rigg-core/src/report/system.rs:433
+msgid "Tilgjengelig"
+msgstr "利用可能"
+
+#: crates/rigg-core/src/report/system.rs:441
+msgid "Buffer og cache"
+msgstr "バッファーとキャッシュ"
+
+#: crates/rigg-core/src/report/system.rs:441
+msgid "Buffer, cache og frigjørbar slab, uten delt minne (Shmem, tmpfs: {minne}). Delt minne kan ikke frigjøres og er regnet med i Brukt."
+msgstr "バッファー、キャッシュ、解放可能な slab の合計です。共有メモリ（Shmem、tmpfs：{minne}）は解放できないため、使用済みに含まれます。"
+
+#: crates/rigg-core/src/report/system.rs:444
+msgid "Swap"
+msgstr "スワップ"
+
+#: crates/rigg-core/src/report/system.rs:446
+msgid "Ingen swap"
+msgstr "スワップなし"
+
+#: crates/rigg-core/src/report/system.rs:447
+msgid "{brukt} av {totalt}"
+msgstr "{totalt} 中 {brukt}"
+
+#: crates/rigg-core/src/report/system.rs:454
+msgid "{antall} SPD-brikker er funnet ({driver}). Produsent, delenummer og timingene modulene støtter, kan leses derfra uten root, men lesingen er I2C-trafikk på hovedkortets SMBus, og den er ikke slått på. Hastigheten minnet faktisk går på, og timingene BIOS har satt, krever root."
+msgstr "SPD チップを {antall} 個検出しました（{driver}）。メーカー、部品番号、対応タイミングは root 権限なしで読み取れますが、必要なマザーボードの SMBus への I2C アクセスは無効です。現在のメモリ速度と BIOS 設定のタイミングの取得には root 権限が必要です。"
+
+#: crates/rigg-core/src/report/system.rs:460
+msgid "Moduler, hastighet og timinger ligger i SMBIOS-tabellen og i registrene i minnekontrolleren, som bare root kan lese."
+msgstr "メモリモジュール、速度、タイミングの情報は SMBIOS テーブルとメモリコントローラーのレジスターにあり、読み取りには root 権限が必要です。"
+
+#: crates/rigg-core/src/report/system.rs:462
+msgid "Moduler og timinger"
+msgstr "モジュールとタイミング"
+
+#: crates/rigg-core/src/report/system.rs:462
+msgid "Krever godkjenning"
+msgstr "許可が必要"
+
+#: crates/rigg-core/src/report/system.rs:462
+msgid "Krever root"
+msgstr "root 権限が必要"
+
+#: crates/rigg-core/src/report/system.rs:466
+msgid "Operativsystem"
+msgstr "オペレーティングシステム"
+
+#: crates/rigg-core/src/report/system.rs:467
+msgid "Distribusjon"
+msgstr "ディストリビューション"
+
+#: crates/rigg-core/src/report/system.rs:468
+msgid "Kjerne"
+msgstr "カーネル"
+
+#: crates/rigg-core/src/report/system.rs:469
+msgid "Kjernebygg"
+msgstr "カーネルビルド"
+
+#: crates/rigg-core/src/report/system.rs:469
+msgid "{bygg}\nPREEMPT_DYNAMIC: hvor ofte kjernen kan avbryte seg selv, velges ved oppstart."
+msgstr "{bygg}\nPREEMPT_DYNAMIC：カーネルのプリエンプションモードは起動時に選択されます。"
+
+#: crates/rigg-core/src/report/system.rs:470
+msgid "Arkitektur"
+msgstr "アーキテクチャ"
+
+#: crates/rigg-core/src/report/system.rs:475
+msgid "Skrivebord"
+msgstr "デスクトップ"
+
+#: crates/rigg-core/src/report/system.rs:479 crates/rigg-core/src/report/system.rs:481
+msgid "Vertsnavn"
+msgstr "ホスト名"
+
+#: crates/rigg-core/src/report/system.rs:481
+msgid "Ikke tatt med"
+msgstr "省略"
+
+#: crates/rigg-core/src/report/system.rs:483
+msgid "Oppetid"
+msgstr "稼働時間"
+
+#: crates/rigg-core/src/report/system.rs:485
+msgid "Last (1 / 5 / 15 min)"
+msgstr "平均負荷（1 / 5 / 15 分）"
+
+#: crates/rigg-core/src/report/system.rs:486
+msgid "Gjennomsnittlig antall prosesser som kjører eller venter. Over antall tråder betyr kø."
+msgstr "実行中または待機中のプロセスの平均数です。スレッド数を超えると待ち行列が発生しています。"
+
+#: crates/rigg-core/src/report/system.rs:492
+msgid "Kontrollere"
+msgstr "コントローラー"
+
+#: crates/rigg-core/src/report/system.rs:495
 msgid "Enhet"
 msgstr "デバイス"
 
-#: crates/rigg-core/src/report/system.rs:400
+#: crates/rigg-core/src/report/system.rs:495
 msgid "Driver"
 msgstr "ドライバー"
 
-#: crates/rigg-core/src/report/system.rs:408
+#: crates/rigg-core/src/report/system.rs:503
 msgid "Trådløst nett"
 msgstr "無線ネットワーク"
 
-#: crates/rigg-core/src/report/system.rs:409
+#: crates/rigg-core/src/report/system.rs:504
 msgid "Lyd"
 msgstr "オーディオ"
 
-#: crates/rigg-core/src/report/system.rs:413
+#: crates/rigg-core/src/report/system.rs:508
 msgid "ingen"
 msgstr "なし"
+
+#: crates/rigg-core/src/report/system.rs:524
+msgid "Klokke og last per tråd"
+msgstr "スレッド別クロックと負荷"
+
+#: crates/rigg-core/src/report/system.rs:527
+msgid "Tråd"
+msgstr "スレッド"
+
+#: crates/rigg-core/src/report/system.rs:527
+msgid "Klokke"
+msgstr "クロック"
+
+#: crates/rigg-core/src/report/system.rs:527
+msgid "Last"
+msgstr "負荷"
+
+#: crates/rigg-core/src/report/system.rs:541
+msgid "Disker"
+msgstr "ディスク"
+
+#: crates/rigg-core/src/report/system.rs:547 crates/rigg-core/src/report/system.rs:581
+msgid "Disk"
+msgstr "ドライブ"
+
+#: crates/rigg-core/src/report/system.rs:547 crates/rigg-core/src/report/system.rs:581
+msgid "Størrelse"
+msgstr "サイズ"
+
+#: crates/rigg-core/src/report/system.rs:547
+msgid "Helse"
+msgstr "健康状態"
+
+#: crates/rigg-core/src/report/system.rs:547
+msgid "Temperatur"
+msgstr "温度"
+
+#: crates/rigg-core/src/report/system.rs:554 crates/rigg-core/src/report/system.rs:588
+msgid "{navn} · system"
+msgstr "{navn} · システム"
+
+#: crates/rigg-core/src/report/system.rs:574
+msgid "SMART mangler: UDisks2 svarte ikke."
+msgstr "SMART データなし：UDisks2 から応答がありませんでした。"
+
+#: crates/rigg-core/src/report/system.rs:596
+msgid "Helse og temperatur står på Disker-siden når tjenesten har lest diskene."
+msgstr "サービスがディスクを読み込むと、「ディスク」ページに正常性と温度が表示されます。"

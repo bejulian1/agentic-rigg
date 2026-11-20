@@ -1,0 +1,17 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg-core/src/vendor.rs:81
+msgid "NVIDIA-referansekort"
+msgstr "Tarjeta de referencia de NVIDIA"
+
+#: crates/rigg-core/src/vendor.rs:82
+msgid "PCI-leverandør {id}"
+msgstr "Proveedor PCI {id}"

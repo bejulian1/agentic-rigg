@@ -12,6 +12,7 @@
 //! (`tests/fixtures/udisks`).
 
 use rigg_core::disk::{Disk, NvmeHealth, SmartAttr};
+use rigg_core::{tr, trf};
 use serde_json::{Map, Value, json};
 use std::collections::HashMap;
 
@@ -186,11 +187,11 @@ pub fn apply(d: &mut Disk, u: &UDrive, now: i64) {
             sm.selftest_remaining = a["SmartSelftestPercentRemaining"].as_i64().map(|v| v as i32);
         }
         if !sm.supported {
-            sm.note = Some("Disken støtter ikke SMART.".into());
+            sm.note = Some(tr!("Disken støtter ikke SMART.").into());
         } else if !sm.enabled {
-            sm.note = Some("SMART er slått av på disken.".into());
+            sm.note = Some(tr!("SMART er slått av på disken.").into());
         } else if updated.is_none() {
-            sm.note = Some("UDisks2 har ikke lest SMART ennå.".into());
+            sm.note = Some(tr!("UDisks2 har ikke lest SMART ennå.").into());
         }
         sm.attributes = u.attrs.clone();
     } else if let Some(n) = &u.nvme {
@@ -224,7 +225,7 @@ pub fn apply(d: &mut Disk, u: &UDrive, now: i64) {
         sm.nvme = Some(h);
     } else {
         sm.source.clear();
-        sm.note = Some(if d.bus == "USB" { "USB-broen sender ikke SMART videre." } else { "UDisks2 har ingen SMART for denne disken." }.into());
+        sm.note = Some(if d.bus == "USB" { tr!("USB-broen sender ikke SMART videre.") } else { tr!("UDisks2 har ingen SMART for denne disken.") }.into());
     }
     let _ = now;
 }
@@ -248,7 +249,7 @@ impl Udisks {
         {
             return Ok(c.clone());
         }
-        let c = gio::bus_get_sync(gio::BusType::System, None::<&gio::Cancellable>).map_err(|e| format!("Fikk ikke kontakt med systembussen ({e})."))?;
+        let c = gio::bus_get_sync(gio::BusType::System, None::<&gio::Cancellable>).map_err(|e| trf!("Fikk ikke kontakt med systembussen ({feil}).", feil = e))?;
         self.conn = Some(c.clone());
         Ok(c)
     }
@@ -267,9 +268,9 @@ impl Udisks {
     pub fn drives(&mut self, attrs: bool) -> Result<Vec<UDrive>, String> {
         let objs = self.call("/org/freedesktop/UDisks2", "org.freedesktop.DBus.ObjectManager", "GetManagedObjects", None).map_err(|e| {
             if e.contains("ServiceUnknown") || e.contains("NameHasNoOwner") || e.contains("was not provided") {
-                "UDisks2 svarer ikke på systembussen.".to_string()
+                tr!("UDisks2 svarer ikke på systembussen.").to_string()
             } else {
-                format!("UDisks2 svarte ikke ({e}).")
+                trf!("UDisks2 svarte ikke ({feil}).", feil = e)
             }
         })?;
         let mut list = drives_from_objects(objs.get(0).unwrap_or(&objs));

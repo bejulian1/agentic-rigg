@@ -8,106 +8,126 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg/src/rapport_ui.rs:356 crates/rigg/src/rapport_ui.rs:357
+#: crates/rigg/src/rapport_ui.rs:99
+msgid "Tallene kommer fra en innebygd tabell slått opp på PCI-ID. De gjelder brikken og referansekortet og er ikke målt på denne maskinen."
+msgstr "Os valores vêm de uma tabela interna consultada pelo ID PCI. Referem-se ao chip e à placa de referência e não foram medidos neste computador."
+
+#: crates/rigg/src/rapport_ui.rs:352 crates/rigg/src/rapport_ui.rs:353
 msgid "Kopier"
 msgstr "Copiar"
 
-#: crates/rigg/src/rapport_ui.rs:363
+#: crates/rigg/src/rapport_ui.rs:359
 msgid "Kopier som tekst"
 msgstr "Copiar como texto"
 
-#: crates/rigg/src/rapport_ui.rs:363
+#: crates/rigg/src/rapport_ui.rs:359
 msgid "Kopier som Markdown"
 msgstr "Copiar como Markdown"
 
-#: crates/rigg/src/rapport_ui.rs:367
+#: crates/rigg/src/rapport_ui.rs:363
 msgid "Ingenting å kopiere ennå"
 msgstr "Ainda não há nada para copiar"
 
-#: crates/rigg/src/rapport_ui.rs:367
+#: crates/rigg/src/rapport_ui.rs:363
 msgid "Dataene er ikke lest ferdig."
 msgstr "Os dados ainda estão sendo carregados."
 
-#: crates/rigg/src/rapport_ui.rs:371
+#: crates/rigg/src/rapport_ui.rs:367
 msgid "Kunne ikke kopiere"
 msgstr "Não foi possível copiar"
 
-#: crates/rigg/src/rapport_ui.rs:371
+#: crates/rigg/src/rapport_ui.rs:367
 msgid "Utklippstavlen er ikke tilgjengelig."
 msgstr "A área de transferência não está disponível."
 
-#: crates/rigg/src/rapport_ui.rs:376
+#: crates/rigg/src/rapport_ui.rs:372
 msgid "tekst"
 msgstr "texto"
 
-#: crates/rigg/src/rapport_ui.rs:378
+#: crates/rigg/src/rapport_ui.rs:374
 msgid "Kopiert som {format} ({linjer} linje)"
 msgid_plural "Kopiert som {format} ({linjer} linjer)"
 msgstr[0] "Copiado como {format} ({linjer} linha)"
 msgstr[1] "Copiado como {format} ({linjer} linhas)"
 
-#: crates/rigg/src/rapport_ui.rs:380
+#: crates/rigg/src/rapport_ui.rs:376
 msgid "Kopiert som {format} ({linjer} linje, {merknad})"
 msgid_plural "Kopiert som {format} ({linjer} linjer, {merknad})"
 msgstr[0] "Copiado como {format} ({linjer} linha, {merknad})"
 msgstr[1] "Copiado como {format} ({linjer} linhas, {merknad})"
 
-#: crates/rigg/src/rapport_ui.rs:492
+#: crates/rigg/src/rapport_ui.rs:397
+msgid "programvare (cairo)"
+msgstr "software (cairo)"
+
+#: crates/rigg/src/rapport_ui.rs:434
+msgid "Vindu"
+msgstr "Janela"
+
+#: crates/rigg/src/rapport_ui.rs:440
+msgid " · tegner {tegner}"
+msgstr " · renderizador {tegner}"
+
+#: crates/rigg/src/rapport_ui.rs:444
+msgid "Økttype"
+msgstr "Tipo de sessão"
+
+#: crates/rigg/src/rapport_ui.rs:488
 msgid "Kunne ikke åpne mappa"
 msgstr "Não foi possível abrir a pasta"
 
-#: crates/rigg/src/rapport_ui.rs:500 crates/rigg/src/rapport_ui.rs:536
+#: crates/rigg/src/rapport_ui.rs:496 crates/rigg/src/rapport_ui.rs:532
 msgid "Lagre rapport"
 msgstr "Salvar relatório"
 
-#: crates/rigg/src/rapport_ui.rs:504 crates/rigg/src/rapport_ui.rs:541
+#: crates/rigg/src/rapport_ui.rs:500 crates/rigg/src/rapport_ui.rs:537
 msgid "Tekst"
 msgstr "Texto"
 
-#: crates/rigg/src/rapport_ui.rs:521
+#: crates/rigg/src/rapport_ui.rs:517
 msgid "Rapporten er lagret"
 msgstr "Relatório salvo"
 
-#: crates/rigg/src/rapport_ui.rs:522
+#: crates/rigg/src/rapport_ui.rs:518
 msgid "{fil} · uten serienumre og UUID"
 msgstr "{fil} · sem números de série nem UUIDs"
 
-#: crates/rigg/src/rapport_ui.rs:524
+#: crates/rigg/src/rapport_ui.rs:520
 msgid "Vis i Filer"
 msgstr "Mostrar em Arquivos"
 
-#: crates/rigg/src/rapport_ui.rs:527
+#: crates/rigg/src/rapport_ui.rs:523
 msgid "Kunne ikke lagre rapporten"
 msgstr "Não foi possível salvar o relatório"
 
-#: crates/rigg/src/rapport_ui.rs:537
+#: crates/rigg/src/rapport_ui.rs:533
 msgid "Program og versjon, operativsystem, driver, skjermkort, prosessor, hovedkort, minne, disker og alle sensorer med nå, min, maks og snitt."
 msgstr "Aplicativo e versão, sistema operacional, driver, GPU, CPU, placa-mãe, memória, discos e todos os sensores com valores atual, mínimo, máximo e médio."
 
-#: crates/rigg/src/rapport_ui.rs:541 crates/rigg/src/rapport_ui.rs:543
+#: crates/rigg/src/rapport_ui.rs:537 crates/rigg/src/rapport_ui.rs:539
 msgid "Format"
 msgstr "Formato"
 
-#: crates/rigg/src/rapport_ui.rs:550
+#: crates/rigg/src/rapport_ui.rs:546
 msgid "Ta med serienumre og UUID"
 msgstr "Incluir números de série e UUIDs"
 
-#: crates/rigg/src/rapport_ui.rs:552
+#: crates/rigg/src/rapport_ui.rs:548
 msgid "Rapporten lagres bare på denne maskinen. Appen sender ingenting ut."
 msgstr "O relatório é salvo localmente. O aplicativo não o envia."
 
-#: crates/rigg/src/rapport_ui.rs:556
+#: crates/rigg/src/rapport_ui.rs:552
 msgid "Velg fil …"
 msgstr "Escolher arquivo…"
 
-#: crates/rigg/src/rapport_ui.rs:573 crates/rigg/src/rapport_ui.rs:574 crates/rigg/src/rapport_ui.rs:582
+#: crates/rigg/src/rapport_ui.rs:569 crates/rigg/src/rapport_ui.rs:570 crates/rigg/src/rapport_ui.rs:578
 msgid "Lagre rapport …"
 msgstr "Salvar relatório…"
 
-#: crates/rigg/src/rapport_ui.rs:586
+#: crates/rigg/src/rapport_ui.rs:582
 msgid "Rapport"
 msgstr "Relatório"
 
-#: crates/rigg/src/rapport_ui.rs:587
+#: crates/rigg/src/rapport_ui.rs:583
 msgid "Alt appen vet om maskinen i én fil, som tekst eller Markdown. Serienumre og UUID er ikke med, med mindre du velger det."
 msgstr "Todas as informações do computador em um arquivo de texto ou Markdown. Você pode optar por incluir números de série e UUIDs."

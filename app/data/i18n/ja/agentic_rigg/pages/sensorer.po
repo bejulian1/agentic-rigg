@@ -1,0 +1,581 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/pages/sensorer.rs:344
+msgid "GPU-temp"
+msgstr "GPU 温度"
+
+#: crates/rigg/src/pages/sensorer.rs:345 crates/rigg/src/pages/sensorer.rs:540
+msgid "GPU-last"
+msgstr "GPU 負荷"
+
+#: crates/rigg/src/pages/sensorer.rs:346
+msgid "Minnekontr."
+msgstr "メモリ制御"
+
+#: crates/rigg/src/pages/sensorer.rs:347
+msgid "Encoder"
+msgstr "エンコーダー"
+
+#: crates/rigg/src/pages/sensorer.rs:348
+msgid "Decoder"
+msgstr "デコーダー"
+
+#: crates/rigg/src/pages/sensorer.rs:349 crates/rigg/src/pages/sensorer.rs:544
+msgid "Kjerneklokke"
+msgstr "コアクロック"
+
+#: crates/rigg/src/pages/sensorer.rs:350 crates/rigg/src/pages/sensorer.rs:545
+msgid "SM-klokke"
+msgstr "SM クロック"
+
+#: crates/rigg/src/pages/sensorer.rs:351 crates/rigg/src/pages/sensorer.rs:546
+msgid "Minneklokke"
+msgstr "メモリクロック"
+
+#: crates/rigg/src/pages/sensorer.rs:352 crates/rigg/src/pages/sensorer.rs:547
+msgid "Videoklokke"
+msgstr "ビデオクロック"
+
+#: crates/rigg/src/pages/sensorer.rs:353
+msgid "Effekt"
+msgstr "電力"
+
+#: crates/rigg/src/pages/sensorer.rs:354 crates/rigg/src/pages/sensorer.rs:549
+msgid "Effektgrense"
+msgstr "電力上限"
+
+#: crates/rigg/src/pages/sensorer.rs:355
+msgid "Vifte"
+msgstr "ファン"
+
+#: crates/rigg/src/pages/sensorer.rs:358
+msgid "Vifte {nr} o/min"
+msgstr "ファン {nr} RPM"
+
+#: crates/rigg/src/pages/sensorer.rs:359 crates/rigg/src/pages/sensorer.rs:553
+msgid "Vifte {nr}"
+msgstr "ファン {nr}"
+
+#: crates/rigg/src/pages/sensorer.rs:366
+msgid "CPU-temp"
+msgstr "CPU 温度"
+
+#: crates/rigg/src/pages/sensorer.rs:368
+msgid "CPU-last"
+msgstr "CPU 負荷"
+
+#: crates/rigg/src/pages/sensorer.rs:369
+msgid "CPU-tråd {nr}"
+msgstr "CPU スレッド {nr}"
+
+#: crates/rigg/src/pages/sensorer.rs:370 crates/rigg/src/pages/sensorer.rs:613
+msgid "Tråd {nr}"
+msgstr "スレッド {nr}"
+
+#: crates/rigg/src/pages/sensorer.rs:371
+msgid "RAM brukt"
+msgstr "使用中の RAM"
+
+#: crates/rigg/src/pages/sensorer.rs:372 crates/rigg/src/pages/sensorer.rs:621
+msgid "Minne"
+msgstr "メモリ"
+
+#: crates/rigg/src/pages/sensorer.rs:373
+msgid "RAM ledig"
+msgstr "利用可能な RAM"
+
+#: crates/rigg/src/pages/sensorer.rs:374
+msgid "Swap"
+msgstr "スワップ"
+
+#: crates/rigg/src/pages/sensorer.rs:375
+msgid "Mottatt"
+msgstr "受信"
+
+#: crates/rigg/src/pages/sensorer.rs:376
+msgid "Sendt"
+msgstr "送信"
+
+#: crates/rigg/src/pages/sensorer.rs:378 crates/rigg/src/pages/sensorer.rs:383
+msgid "Disk les"
+msgstr "ディスク読み取り"
+
+#: crates/rigg/src/pages/sensorer.rs:379 crates/rigg/src/pages/sensorer.rs:384
+msgid "Disk skriv"
+msgstr "ディスク書き込み"
+
+#: crates/rigg/src/pages/sensorer.rs:382
+msgid "Disktemp"
+msgstr "ディスク温度"
+
+#: crates/rigg/src/pages/sensorer.rs:385
+msgid "Disk aktiv"
+msgstr "ディスク稼働率"
+
+#: crates/rigg/src/pages/sensorer.rs:402
+msgid "temp"
+msgstr "温度"
+
+#: crates/rigg/src/pages/sensorer.rs:402 crates/rigg/src/pages/sensorer.rs:640
+msgid "temperatur"
+msgstr "温度"
+
+#: crates/rigg/src/pages/sensorer.rs:403
+msgid "les"
+msgstr "読み取り"
+
+#: crates/rigg/src/pages/sensorer.rs:403 crates/rigg/src/pages/sensorer.rs:646
+msgid "lesing"
+msgstr "読み取り"
+
+#: crates/rigg/src/pages/sensorer.rs:404
+msgid "skriv"
+msgstr "書き込み"
+
+#: crates/rigg/src/pages/sensorer.rs:404 crates/rigg/src/pages/sensorer.rs:647
+msgid "skriving"
+msgstr "書き込み"
+
+#: crates/rigg/src/pages/sensorer.rs:405
+msgid "aktiv"
+msgstr "稼働"
+
+#: crates/rigg/src/pages/sensorer.rs:405 crates/rigg/src/pages/sensorer.rs:649
+msgid "aktivitet"
+msgstr "稼働率"
+
+#: crates/rigg/src/pages/sensorer.rs:539
+msgid "Temperatur"
+msgstr "温度"
+
+#: crates/rigg/src/pages/sensorer.rs:539
+msgid "NVML · den eneste temperatursensoren på kortet"
+msgstr "NVML · GPU 唯一の温度センサー"
+
+#: crates/rigg/src/pages/sensorer.rs:541
+msgid "Minnekontroller-last"
+msgstr "メモリコントローラー負荷"
+
+#: crates/rigg/src/pages/sensorer.rs:542
+msgid "Videokoder (encoder)"
+msgstr "ビデオエンコーダー"
+
+#: crates/rigg/src/pages/sensorer.rs:543
+msgid "Videodekoder (decoder)"
+msgstr "ビデオデコーダー"
+
+#: crates/rigg/src/pages/sensorer.rs:548
+msgid "Effekttrekk"
+msgstr "消費電力"
+
+#: crates/rigg/src/pages/sensorer.rs:548
+msgid "Snitt for perioden, regnet fra kortets energiteller."
+msgstr "GPU のエネルギーカウンターから算出した期間平均です。"
+
+#: crates/rigg/src/pages/sensorer.rs:549
+msgid "Grensen kortet håndhever nå."
+msgstr "GPU が現在適用している上限です。"
+
+#: crates/rigg/src/pages/sensorer.rs:556
+msgid "Viftefart"
+msgstr "ファン回転数"
+
+#: crates/rigg/src/pages/sensorer.rs:560
+msgid "Vifte {nr}, turtall"
+msgstr "ファン {nr}（RPM）"
+
+#: crates/rigg/src/pages/sensorer.rs:560
+msgid "Viftens turtall"
+msgstr "ファン回転数（RPM）"
+
+#: crates/rigg/src/pages/sensorer.rs:563
+msgid "Videominne brukt"
+msgstr "使用中のビデオメモリ"
+
+#: crates/rigg/src/pages/sensorer.rs:564
+msgid "PCIe-generasjon"
+msgstr "PCIe 世代"
+
+#: crates/rigg/src/pages/sensorer.rs:565
+msgid "Generasjonen lenken går på nå. Kortet går ned i tomgang for å spare strøm."
+msgstr "現在のリンク世代です。GPU はアイドル時に省電力のため速度を下げます。"
+
+#: crates/rigg/src/pages/sensorer.rs:577
+msgid "Skjermkort {nr} · {navn}"
+msgstr "GPU {nr} · {navn}"
+
+#: crates/rigg/src/pages/sensorer.rs:577
+msgid "Skjermkort"
+msgstr "GPU"
+
+#: crates/rigg/src/pages/sensorer.rs:594
+msgid "Temperatur ({sensor})"
+msgstr "温度（{sensor}）"
+
+#: crates/rigg/src/pages/sensorer.rs:594
+msgid "CPU-temperatur"
+msgstr "CPU 温度"
+
+#: crates/rigg/src/pages/sensorer.rs:595
+msgid "Temperatur fra den valgte CPU-sensoren. Samme verdi brukes i sidefeltet, på Oversikt og i Grafer."
+msgstr "選択した CPU センサーの温度です。サイドバー、概要、グラフで同じ値を使用します。"
+
+#: crates/rigg/src/pages/sensorer.rs:597
+msgid "Temperatur (Tctl)"
+msgstr "温度（Tctl）"
+
+#: crates/rigg/src/pages/sensorer.rs:599
+msgid "Tctl rapporteres av CPU-driveren. Eventuell forskyvning fra brikketemperaturen avhenger av CPU-modellen."
+msgstr "Tctl は CPU ドライバーが報告する値です。チップ温度とのずれは CPU モデルによって異なります。"
+
+#: crates/rigg/src/pages/sensorer.rs:611
+msgid "Total last"
+msgstr "全体の負荷"
+
+#: crates/rigg/src/pages/sensorer.rs:617
+msgid "Prosessor"
+msgstr "プロセッサー"
+
+#: crates/rigg/src/pages/sensorer.rs:617
+msgid "/proc/stat, cpufreq og hwmon"
+msgstr "/proc/stat、cpufreq、hwmon"
+
+#: crates/rigg/src/pages/sensorer.rs:624
+msgid "Brukt"
+msgstr "使用済み"
+
+#: crates/rigg/src/pages/sensorer.rs:624
+msgid "Det programmene bruker. Buffer og cache er ikke med."
+msgstr "アプリが使用しているメモリです。バッファーとキャッシュは含みません。"
+
+#: crates/rigg/src/pages/sensorer.rs:625
+msgid "Brukt av totalt"
+msgstr "使用率"
+
+#: crates/rigg/src/pages/sensorer.rs:626
+msgid "Tilgjengelig"
+msgstr "利用可能"
+
+#: crates/rigg/src/pages/sensorer.rs:626
+msgid "Det som kan tas i bruk uten å bytte ut noe (MemAvailable)."
+msgstr "スワップせずに利用できるメモリです（MemAvailable）。"
+
+#: crates/rigg/src/pages/sensorer.rs:627
+msgid "Swap brukt"
+msgstr "使用中のスワップ"
+
+#: crates/rigg/src/pages/sensorer.rs:642
+msgid "Fra SMART. UDisks2 leser den selv omtrent hvert 10. min, uten å vekke disken."
+msgstr "SMART の値です。UDisks2 はディスクを復帰させずに約 10 min ごとに読み取ります。"
+
+#: crates/rigg/src/pages/sensorer.rs:651
+msgid "Andel av tiden disken hadde lesing eller skriving i gang."
+msgstr "ディスクが読み取りまたは書き込みを行っていた時間の割合です。"
+
+#: crates/rigg/src/pages/sensorer.rs:656
+msgid "Disker"
+msgstr "ディスク"
+
+#: crates/rigg/src/pages/sensorer.rs:656
+msgid "/proc/diskstats og SMART fra UDisks2"
+msgstr "/proc/diskstats と UDisks2 の SMART"
+
+#: crates/rigg/src/pages/sensorer.rs:687
+msgid "Andre sensorer"
+msgstr "その他のセンサー"
+
+#: crates/rigg/src/pages/sensorer.rs:696
+msgid "mottatt"
+msgstr "受信"
+
+#: crates/rigg/src/pages/sensorer.rs:696
+msgid "sendt"
+msgstr "送信"
+
+#: crates/rigg/src/pages/sensorer.rs:699
+msgid "ikke tilkoblet"
+msgstr "未接続"
+
+#: crates/rigg/src/pages/sensorer.rs:705
+msgid "Nett"
+msgstr "ネットワーク"
+
+#: crates/rigg/src/pages/sensorer.rs:783 crates/rigg/src/pages/sensorer.rs:784 crates/rigg/src/pages/sensorer.rs:1422
+msgid "Fold sammen alle"
+msgstr "すべて折りたたむ"
+
+#: crates/rigg/src/pages/sensorer.rs:791
+msgid "Filtrer"
+msgstr "絞り込み"
+
+#: crates/rigg/src/pages/sensorer.rs:795
+msgid "Filtrer sensorer"
+msgstr "センサーを絞り込む"
+
+#: crates/rigg/src/pages/sensorer.rs:796
+msgid "Filtrer sensorer. Esc tømmer filteret og avslutter søket."
+msgstr "センサーを絞り込みます。Esc で条件をクリアし、検索を閉じます。"
+
+#: crates/rigg/src/pages/sensorer.rs:800
+msgid "Min, maks og snitt regnes fra tjenesten startet eller du trykket ↺."
+msgstr "最小・最大・平均は、サービスの開始時または ↺ を押した時点から集計します。"
+
+#: crates/rigg/src/pages/sensorer.rs:807 crates/rigg/src/pages/sensorer.rs:808
+msgid "Nullstill min, maks og snitt"
+msgstr "最小・最大・平均をリセット"
+
+#: crates/rigg/src/pages/sensorer.rs:822
+msgid "Sensorer"
+msgstr "センサー"
+
+#: crates/rigg/src/pages/sensorer.rs:832 crates/rigg/src/pages/sensorer.rs:1498
+msgid "Ingen sensorer passer filteret."
+msgstr "条件に一致するセンサーはありません。"
+
+#: crates/rigg/src/pages/sensorer.rs:838
+msgid "Ikke tilgjengelig"
+msgstr "取得不可"
+
+#: crates/rigg/src/pages/sensorer.rs:839
+msgid "Det som ikke kan leses, og hvorfor"
+msgstr "取得できないデータとその理由"
+
+#: crates/rigg/src/pages/sensorer.rs:905
+msgid "Snitt"
+msgstr "平均"
+
+#: crates/rigg/src/pages/sensorer.rs:906
+msgid "Snitt siden tjenesten startet eller siden siste nullstilling"
+msgstr "サービス開始時または前回リセット時点からの平均"
+
+#: crates/rigg/src/pages/sensorer.rs:907
+msgid "Sensor"
+msgstr "センサー"
+
+#: crates/rigg/src/pages/sensorer.rs:907
+msgid "Nå"
+msgstr "現在"
+
+#: crates/rigg/src/pages/sensorer.rs:907
+msgid "Min"
+msgstr "最小"
+
+#: crates/rigg/src/pages/sensorer.rs:907
+msgid "Maks"
+msgstr "最大"
+
+#: crates/rigg/src/pages/sensorer.rs:1217
+msgid "Per tråd ({antall})"
+msgstr "スレッド別（{antall}）"
+
+#: crates/rigg/src/pages/sensorer.rs:1285
+msgid "Kilde: {kilde}"
+msgstr "ソース：{kilde}"
+
+#: crates/rigg/src/pages/sensorer.rs:1286
+msgid "{navn}. Klikk for graf."
+msgstr "{navn}。クリックしてグラフを表示します。"
+
+#: crates/rigg/src/pages/sensorer.rs:1422
+msgid "Fold ut alle"
+msgstr "すべて展開"
+
+#: crates/rigg/src/pages/sensorer.rs:1554
+msgid "Ikke støttet"
+msgstr "非対応"
+
+#: crates/rigg/src/pages/sensorer.rs:1555
+msgid "Kan ikke leses på dette kortet. Driveren svarer at verdien ikke støttes (NOT_SUPPORTED)."
+msgstr "この GPU では取得できません。ドライバーは NOT_SUPPORTED を返しました。"
+
+#: crates/rigg/src/pages/sensorer.rs:1580
+msgid "Snitt gir ikke mening for en generasjon."
+msgstr "リンク世代の平均値は算出しません。"
+
+#: crates/rigg/src/pages/sensorer.rs:1621
+msgid "Min/maks siden {tid}"
+msgstr "{tid} 以降の最小・最大"
+
+#: crates/rigg/src/pages/sensorer.rs:1624
+msgid "Nullstill min, maks og snitt (regnet fra {tid})"
+msgstr "最小・最大・平均をリセット（{tid} から集計）"
+
+#: crates/rigg/src/pages/sensorer.rs:1626
+msgid "Min og maks huskes mellom økter, også når appen er lukket. Snitt gjelder siden {tid}."
+msgstr "最小・最大はアプリを閉じてもセッション間で保持されます。平均は {tid} から集計します。"
+
+#: crates/rigg/src/pages/sensorer.rs:1628
+msgid "Min og maks gjelder siden tjenesten startet ({tid}). Snitt gjelder siden {snitt}."
+msgstr "最小・最大はサービス開始時点（{tid}）から、平均は {snitt} から集計します。"
+
+#: crates/rigg/src/pages/sensorer.rs:1645
+msgid "Svarer ikke"
+msgstr "応答なし"
+
+#: crates/rigg/src/pages/sensorer.rs:1647
+msgid "Skjermkortet svarer ikke ({detalj}). Tjenesten prøver å finne det igjen hvert 10. s."
+msgstr "GPU が応答しません（{detalj}）。サービスは 10 s ごとに検出を試みます。"
+
+#: crates/rigg/src/pages/sensorer.rs:1648
+msgid "Skjermkortet svarer ikke. Tjenesten prøver å finne det igjen hvert 10. s."
+msgstr "GPU が応答しません。サービスは 10 s ごとに検出を試みます。"
+
+#: crates/rigg/src/pages/sensorer.rs:1663
+msgid "P-tilstand. P0 er full ytelse, P8 er dyp tomgang."
+msgstr "パフォーマンスステートです。P0 は最高性能、P8 はディープアイドルです。"
+
+#: crates/rigg/src/pages/sensorer.rs:1667
+msgid "Ingen begrensning"
+msgstr "制限なし"
+
+#: crates/rigg/src/pages/sensorer.rs:1670
+msgid "Klokkebegrensning akkurat nå."
+msgstr "現在のクロック制限です。"
+
+#: crates/rigg/src/pages/sensorer.rs:1671
+msgid "Klokkebegrensning akkurat nå. I P8 leses den ikke (kallet koster 25 ms)."
+msgstr "現在のクロック制限です。P8 では取得しません（呼び出しに 25 ms かかります）。"
+
+#: crates/rigg/src/pages/sensorer.rs:1672
+msgid "Klokkebegrensning akkurat nå: {arsaker}."
+msgstr "現在のクロック制限：{arsaker}。"
+
+#: crates/rigg/src/pages/sensorer.rs:1673
+msgid "Klokkebegrensning akkurat nå: {arsaker}. I P8 leses den ikke (kallet koster 25 ms)."
+msgstr "現在のクロック制限：{arsaker}。P8 では取得しません（呼び出しに 25 ms かかります）。"
+
+#: crates/rigg/src/pages/sensorer.rs:1691
+msgid "Løsne «{navn}» fra statusblokken"
+msgstr "ステータスパネルから「{navn}」の固定を解除"
+
+#: crates/rigg/src/pages/sensorer.rs:1691
+msgid "Fest «{navn}» i statusblokken"
+msgstr "「{navn}」をステータスパネルに固定"
+
+#: crates/rigg/src/pages/sensorer.rs:1710
+msgid "Statusblokken er full ({maks} av {maks})"
+msgstr "ステータスパネルに空きがありません（{maks}/{maks}）"
+
+#: crates/rigg/src/pages/sensorer.rs:1710
+msgid "Løsne en verdi først, eller bytt ut en under Innstillinger › Sidefelt."
+msgstr "先に値の固定を解除するか、設定 › サイドバーで別の値に置き換えてください。"
+
+#: crates/rigg/src/pages/sensorer.rs:1710
+msgid "Åpne"
+msgstr "開く"
+
+#: crates/rigg/src/pages/sensorer.rs:1726
+msgid "Løsne fra statusblokken"
+msgstr "ステータスパネルから固定を解除"
+
+#: crates/rigg/src/pages/sensorer.rs:1726
+msgid "Fest i statusblokken"
+msgstr "ステータスパネルに固定"
+
+#: crates/rigg/src/pages/sensorer.rs:1737
+msgid "Logges · alle sensorer er valgt"
+msgstr "記録中 · 全センサーを選択済み"
+
+#: crates/rigg/src/pages/sensorer.rs:1740
+msgid "Ta ut av loggen"
+msgstr "このセンサーの記録を停止"
+
+#: crates/rigg/src/pages/sensorer.rs:1740
+msgid "Ta med i loggen"
+msgstr "このセンサーを記録"
+
+#: crates/rigg/src/pages/sensorer.rs:1747
+msgid "Nullstill min og maks"
+msgstr "最小・最大をリセット"
+
+#: crates/rigg/src/pages/sensorer.rs:1754
+msgid "Rekkefølge i statusblokken …"
+msgstr "ステータスパネルの並べ替え…"
+
+#: crates/rigg/src/pages/sensorer.rs:1792
+msgid "Min, maks og snitt er nullstilt"
+msgstr "最小・最大・平均をリセットしました"
+
+#: crates/rigg/src/pages/sensorer.rs:1793
+msgid "Tallene var regnet fra {tid}."
+msgstr "値は {tid} から集計されていました。"
+
+#: crates/rigg/src/pages/sensorer.rs:1797
+msgid "Min og maks for «{navn}» er nullstilt"
+msgstr "「{navn}」の最小・最大をリセットしました"
+
+#: crates/rigg/src/pages/sensorer.rs:1801
+msgid "Angre"
+msgstr "元に戻す"
+
+#: crates/rigg/src/pages/sensorer.rs:1832
+msgid "Kunne ikke nullstille"
+msgstr "リセットできませんでした"
+
+#: crates/rigg/src/pages/sensorer.rs:1874
+msgid "Tidsvindu for grafen"
+msgstr "グラフの時間範囲"
+
+#: crates/rigg/src/pages/sensorer.rs:1884 crates/rigg/src/pages/sensorer.rs:1885
+msgid "Lukk grafen"
+msgstr "グラフを閉じる"
+
+#: crates/rigg/src/pages/sensorer.rs:1947
+msgid "Graf: {navn}, kilde {kilde}. Mellomrom setter på pause."
+msgstr "グラフ：{navn}、ソース：{kilde}。スペースキーで一時停止します。"
+
+#: crates/rigg/src/pages/sensorer.rs:1948
+msgid "Graf: {navn}. Mellomrom setter på pause."
+msgstr "グラフ：{navn}。スペースキーで一時停止します。"
+
+#: crates/rigg/src/pages/sensorer.rs:2123
+msgid "Ikke innsamlet av appen. Tilgjengelighet for dette kortet og denne driveren er ikke verifisert her."
+msgstr "アプリはこの値を収集しません。この GPU とドライバーで取得できるかは未検証です。"
+
+#: crates/rigg/src/pages/sensorer.rs:2124
+msgid "Skjermkort · Hotspot-temperatur"
+msgstr "GPU · ホットスポット温度"
+
+#: crates/rigg/src/pages/sensorer.rs:2125
+msgid "Skjermkort · Minnetemperatur"
+msgstr "GPU · メモリ温度"
+
+#: crates/rigg/src/pages/sensorer.rs:2126
+msgid "Skjermkort · Kjernespenning"
+msgstr "GPU · コア電圧"
+
+#: crates/rigg/src/pages/sensorer.rs:2126
+msgid "Ikke innsamlet: appen samler ikke inn GPU-kjernespenning."
+msgstr "未収集：アプリは GPU のコア電圧を取得しません。"
+
+#: crates/rigg/src/pages/sensorer.rs:2129
+msgid "Prosessor · Kjernespenning"
+msgstr "CPU · コア電圧"
+
+#: crates/rigg/src/pages/sensorer.rs:2129
+msgid "Ikke innsamlet av appen. Målekilde og tilgang avhenger av CPU, hovedkort og driver."
+msgstr "アプリはこの値を収集しません。測定元と読み取り可否は CPU、マザーボード、ドライバーによって異なります。"
+
+#: crates/rigg/src/pages/sensorer.rs:2131
+msgid "Hovedkort · vifter, spenninger og temperaturer"
+msgstr "マザーボード · ファン、電圧、温度"
+
+#: crates/rigg/src/pages/sensorer.rs:2131
+msgid "Ingen gjenkjent hovedkortsensor er tilgjengelig i hwmon. Sensorbrikke og driverstøtte er ikke verifisert; appen laster ikke kjernemoduler."
+msgstr "hwmon に認識できるマザーボードセンサーがありません。センサーチップとドライバーの対応は未検証です。アプリはカーネルモジュールを読み込みません。"
+
+#: crates/rigg/src/pages/sensorer.rs:2137 crates/rigg/src/pages/sensorer.rs:2147
+msgid "Krever root"
+msgstr "root 権限が必要"
+
+#: crates/rigg/src/pages/sensorer.rs:2147
+msgid "Ikke støttet eller ikke tilgjengelig"
+msgstr "非対応または取得不可"

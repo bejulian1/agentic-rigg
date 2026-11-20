@@ -1,0 +1,321 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg-core/src/report.rs:166
+msgid "Felt"
+msgstr "項目"
+
+#: crates/rigg-core/src/report.rs:166
+msgid "Verdi"
+msgstr "値"
+
+#: crates/rigg-core/src/report.rs:284
+msgid "Leses med NVML"
+msgstr "NVML で読み取り"
+
+#: crates/rigg-core/src/report.rs:285
+msgid "Driveren er oppdatert ({installert} er installert, {kjorer} kjører). Start maskinen på nytt for å lese skjermkortet."
+msgstr "ドライバーを更新済みです（インストール済み：{installert}、実行中：{kjorer}）。再起動すると GPU の監視が再開します。"
+
+#: crates/rigg-core/src/report.rs:287
+msgid "ny"
+msgstr "新しいドライバー"
+
+#: crates/rigg-core/src/report.rs:288
+msgid "den gamle"
+msgstr "古いドライバー"
+
+#: crates/rigg-core/src/report.rs:290
+msgid "Fant ingen NVIDIA-driver"
+msgstr "NVIDIA ドライバーが見つかりません"
+
+#: crates/rigg-core/src/report.rs:291
+msgid "Skjermkortet svarer ikke"
+msgstr "GPU が応答しません"
+
+#: crates/rigg-core/src/report.rs:292
+msgid "Maskinen sover"
+msgstr "コンピューターはスリープ中です"
+
+#: crates/rigg-core/src/report.rs:299
+msgid "Temperatur"
+msgstr "温度"
+
+#: crates/rigg-core/src/report.rs:300
+msgid "GPU-last"
+msgstr "GPU 負荷"
+
+#: crates/rigg-core/src/report.rs:301
+msgid "Minnekontroller-last"
+msgstr "メモリコントローラー負荷"
+
+#: crates/rigg-core/src/report.rs:302
+msgid "Videokoder"
+msgstr "ビデオエンコーダー"
+
+#: crates/rigg-core/src/report.rs:303
+msgid "Videodekoder"
+msgstr "ビデオデコーダー"
+
+#: crates/rigg-core/src/report.rs:304
+msgid "Kjerneklokke"
+msgstr "コアクロック"
+
+#: crates/rigg-core/src/report.rs:305
+msgid "SM-klokke"
+msgstr "SM クロック"
+
+#: crates/rigg-core/src/report.rs:306
+msgid "Minneklokke"
+msgstr "メモリクロック"
+
+#: crates/rigg-core/src/report.rs:307
+msgid "Videoklokke"
+msgstr "ビデオクロック"
+
+#: crates/rigg-core/src/report.rs:308
+msgid "Effekttrekk"
+msgstr "消費電力"
+
+#: crates/rigg-core/src/report.rs:309
+msgid "Effektgrense"
+msgstr "電力上限"
+
+#: crates/rigg-core/src/report.rs:310
+msgid "Viftefart"
+msgstr "ファン回転数"
+
+#: crates/rigg-core/src/report.rs:311
+msgid "Videominne brukt"
+msgstr "使用中のビデオメモリ"
+
+#: crates/rigg-core/src/report.rs:312
+msgid "PCIe-generasjon"
+msgstr "PCIe 世代"
+
+#: crates/rigg-core/src/report.rs:316
+msgid "Vifte {nr}, turtall"
+msgstr "ファン {nr}（RPM）"
+
+#: crates/rigg-core/src/report.rs:318
+msgid "Vifte {nr}"
+msgstr "ファン {nr}"
+
+#: crates/rigg-core/src/report.rs:326
+msgid "mottatt"
+msgstr "受信"
+
+#: crates/rigg-core/src/report.rs:326
+msgid "sendt"
+msgstr "送信"
+
+#: crates/rigg-core/src/report.rs:328
+msgid "lesing"
+msgstr "読み取り"
+
+#: crates/rigg-core/src/report.rs:329
+msgid "skriving"
+msgstr "書き込み"
+
+#: crates/rigg-core/src/report.rs:330
+msgid "aktivitet"
+msgstr "稼働率"
+
+#: crates/rigg-core/src/report.rs:331
+msgid "temperatur"
+msgstr "温度"
+
+#: crates/rigg-core/src/report.rs:335 crates/rigg-core/src/report.rs:337 crates/rigg-core/src/report.rs:341
+msgid "Prosessor"
+msgstr "プロセッサー"
+
+#: crates/rigg-core/src/report.rs:335
+msgid "Total last"
+msgstr "全体の負荷"
+
+#: crates/rigg-core/src/report.rs:336
+msgid "CPU-temperatur"
+msgstr "CPU 温度"
+
+#: crates/rigg-core/src/report.rs:339
+msgid "Tråd {nr}"
+msgstr "スレッド {nr}"
+
+#: crates/rigg-core/src/report.rs:340
+msgid "Last"
+msgstr "負荷"
+
+#: crates/rigg-core/src/report.rs:340
+msgid "Klokke"
+msgstr "クロック"
+
+#: crates/rigg-core/src/report.rs:343
+msgid "Minne"
+msgstr "メモリ"
+
+#: crates/rigg-core/src/report.rs:343
+msgid "Brukt av totalt"
+msgstr "使用率"
+
+#: crates/rigg-core/src/report.rs:344
+msgid "RAM brukt"
+msgstr "使用中の RAM"
+
+#: crates/rigg-core/src/report.rs:345
+msgid "RAM ledig"
+msgstr "利用可能な RAM"
+
+#: crates/rigg-core/src/report.rs:346
+msgid "Swap brukt"
+msgstr "使用中のスワップ"
+
+#: crates/rigg-core/src/report.rs:347
+msgid "Nett"
+msgstr "ネットワーク"
+
+#: crates/rigg-core/src/report.rs:349
+msgid "Disker"
+msgstr "ディスク"
+
+#: crates/rigg-core/src/report.rs:361
+msgid "Sensorer"
+msgstr "センサー"
+
+#: crates/rigg-core/src/report.rs:377
+msgid "Sensor"
+msgstr "センサー"
+
+#: crates/rigg-core/src/report.rs:377
+msgid "Nå"
+msgstr "現在"
+
+#: crates/rigg-core/src/report.rs:377
+msgid "Min"
+msgstr "最小"
+
+#: crates/rigg-core/src/report.rs:377
+msgid "Maks"
+msgstr "最大"
+
+#: crates/rigg-core/src/report.rs:377
+msgid "Snitt"
+msgstr "平均"
+
+#: crates/rigg-core/src/report.rs:381
+msgid "Nå: prøven fra {tid}."
+msgstr "現在値：{tid} のサンプル。"
+
+#: crates/rigg-core/src/report.rs:384
+msgid "Min og maks siden {tid}."
+msgstr "{tid} 以降の最小・最大値。"
+
+#: crates/rigg-core/src/report.rs:387
+msgid "Snitt siden {tid}."
+msgstr "{tid} 以降の平均値。"
+
+#: crates/rigg-core/src/report.rs:399
+msgid "{app} · rapport"
+msgstr "{app} · レポート"
+
+#: crates/rigg-core/src/report.rs:412
+msgid "App"
+msgstr "アプリ"
+
+#: crates/rigg-core/src/report.rs:412
+msgid "{navn} {versjon} · bygg {bygg}"
+msgstr "{navn} {versjon} · ビルド {bygg}"
+
+#: crates/rigg-core/src/report.rs:413
+msgid "Laget"
+msgstr "作成日時"
+
+#: crates/rigg-core/src/report.rs:418
+msgid "Tjenesten"
+msgstr "サービス"
+
+#: crates/rigg-core/src/report.rs:419
+msgid "{navn} {versjon} · bygg {bygg} · {kilde}"
+msgstr "{navn} {versjon} · ビルド {bygg} · {kilde}"
+
+#: crates/rigg-core/src/report.rs:425
+msgid "NVML, bare lesing"
+msgstr "NVML、読み取り専用"
+
+#: crates/rigg-core/src/report.rs:426
+msgid "testdata"
+msgstr "テストデータ"
+
+#: crates/rigg-core/src/report.rs:427
+msgid "uten skjermkort"
+msgstr "GPU なし"
+
+#: crates/rigg-core/src/report.rs:428
+msgid "ukjent kilde"
+msgstr "不明なソース"
+
+#: crates/rigg-core/src/report.rs:433
+msgid "Operativsystem"
+msgstr "オペレーティングシステム"
+
+#: crates/rigg-core/src/report.rs:434
+msgid "Kjerne"
+msgstr "カーネル"
+
+#: crates/rigg-core/src/report.rs:439
+msgid "NVIDIA-driver"
+msgstr "NVIDIA ドライバー"
+
+#: crates/rigg-core/src/report.rs:439
+msgid "Ikke funnet"
+msgstr "見つかりません"
+
+#: crates/rigg-core/src/report.rs:441
+msgid "CUDA (driver)"
+msgstr "CUDA（ドライバー）"
+
+#: crates/rigg-core/src/report.rs:444
+msgid "Serienumre og UUID"
+msgstr "シリアル番号と UUID"
+
+#: crates/rigg-core/src/report.rs:445
+msgid "Tatt med"
+msgstr "含む"
+
+#: crates/rigg-core/src/report.rs:445
+msgid "Ikke tatt med (velg «Ta med serienumre og UUID» når du lagrer)"
+msgstr "含まない（保存時に「シリアル番号と UUID を含める」を選択）"
+
+#: crates/rigg-core/src/report.rs:452
+msgid "Skjermkort"
+msgstr "GPU"
+
+#: crates/rigg-core/src/report.rs:453
+msgid "Ingen skjermkort funnet"
+msgstr "GPU が見つかりません"
+
+#: crates/rigg-core/src/report.rs:454 crates/rigg-core/src/report.rs:469 crates/rigg-core/src/report.rs:470
+msgid "Tilstand"
+msgstr "状態"
+
+#: crates/rigg-core/src/report.rs:461
+msgid "Skjermkort {nr} · {navn}"
+msgstr "GPU {nr} · {navn}"
+
+#: crates/rigg-core/src/report.rs:463
+msgid "Skjermkort · {navn}"
+msgstr "GPU · {navn}"
+
+#: crates/rigg-core/src/report.rs:472
+msgid "Siden"
+msgstr "開始時刻"
+
+#: crates/rigg-core/src/report.rs:482
+msgid "Maskinen"
+msgstr "コンピューター"

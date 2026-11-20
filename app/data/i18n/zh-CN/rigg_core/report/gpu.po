@@ -1,0 +1,796 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg-core/src/report/gpu.rs:87
+msgid "{na} · maks {maks}"
+msgstr "{na} · 最大 {maks}"
+
+#: crates/rigg-core/src/report/gpu.rs:106
+msgid "Gen {gen} = {rate} per lane"
+msgstr "第 {gen} 代 = 每通道 {rate}"
+
+#: crates/rigg-core/src/report/gpu.rs:114
+msgid "Lenken går på Gen {na} nå fordi kortet sparer strøm i tomgang, og går opp til Gen {maks} under last. {rate_na}, {rate_maks}."
+msgstr "链路在空闲时以第 {na} 代运行以节能，负载下升至第 {maks} 代。{rate_na}，{rate_maks}。"
+
+#: crates/rigg-core/src/report/gpu.rs:122
+msgid "Lenken går på full hastighet. {rate}."
+msgstr "链路正以全速运行。{rate}。"
+
+#: crates/rigg-core/src/report/gpu.rs:130
+msgid "Tomgang"
+msgstr "空闲"
+
+#: crates/rigg-core/src/report/gpu.rs:131
+msgid "App-klokker"
+msgstr "应用时钟"
+
+#: crates/rigg-core/src/report/gpu.rs:132
+msgid "Effektgrense"
+msgstr "功率上限"
+
+#: crates/rigg-core/src/report/gpu.rs:133
+msgid "HW-nedklokking"
+msgstr "硬件降频"
+
+#: crates/rigg-core/src/report/gpu.rs:134
+msgid "Sync boost"
+msgstr "Sync Boost"
+
+#: crates/rigg-core/src/report/gpu.rs:135
+msgid "Termisk (SW)"
+msgstr "软件温度限制"
+
+#: crates/rigg-core/src/report/gpu.rs:136
+msgid "Termisk (HW)"
+msgstr "硬件温度限制"
+
+#: crates/rigg-core/src/report/gpu.rs:137
+msgid "Strømbrems (HW)"
+msgstr "硬件功率抑制"
+
+#: crates/rigg-core/src/report/gpu.rs:138
+msgid "Skjermklokke"
+msgstr "显示时钟"
+
+#: crates/rigg-core/src/report/gpu.rs:149
+msgid "NVIDIA virtuell GPU"
+msgstr "NVIDIA 虚拟 GPU"
+
+#: crates/rigg-core/src/report/gpu.rs:150
+msgid "Ukjent"
+msgstr "未知"
+
+#: crates/rigg-core/src/report/gpu.rs:157
+msgid "Lukket kjernemodul"
+msgstr "闭源内核模块"
+
+#: crates/rigg-core/src/report/gpu.rs:164
+msgid "grafikk"
+msgstr "图形"
+
+#: crates/rigg-core/src/report/gpu.rs:165
+msgid "compute"
+msgstr "计算"
+
+#: crates/rigg-core/src/report/gpu.rs:166
+msgid "grafikk og compute"
+msgstr "图形和计算"
+
+#: crates/rigg-core/src/report/gpu.rs:191 crates/rigg-core/src/report/gpu.rs:552
+msgid "Ikke støttet"
+msgstr "不支持"
+
+#: crates/rigg-core/src/report/gpu.rs:192
+msgid "Kunne ikke leses"
+msgstr "无法读取"
+
+#: crates/rigg-core/src/report/gpu.rs:208
+msgid "Fra driveren"
+msgstr "来自驱动程序"
+
+#: crates/rigg-core/src/report/gpu.rs:209
+msgid "Navn"
+msgstr "名称"
+
+#: crates/rigg-core/src/report/gpu.rs:210
+msgid "Merke"
+msgstr "品牌"
+
+#: crates/rigg-core/src/report/gpu.rs:212 crates/rigg-core/src/report/gpu.rs:213 crates/rigg-core/src/report/gpu.rs:594
+msgid "Arkitektur"
+msgstr "架构"
+
+#: crates/rigg-core/src/report/gpu.rs:213
+msgid "Fra referansetabellen."
+msgstr "来自参考表。"
+
+#: crates/rigg-core/src/report/gpu.rs:215
+msgid "GPU-brikke"
+msgstr "GPU 芯片"
+
+#: crates/rigg-core/src/report/gpu.rs:215
+msgid "Slått opp på PCI-ID. NVML oppgir ikke delenummeret."
+msgstr "通过 PCI ID 查得。NVML 不报告部件号。"
+
+#: crates/rigg-core/src/report/gpu.rs:217
+msgid "PCI-ID, enhet"
+msgstr "PCI 设备 ID"
+
+#: crates/rigg-core/src/report/gpu.rs:217
+msgid "ukjent leverandør"
+msgstr "供应商未知"
+
+#: crates/rigg-core/src/report/gpu.rs:222
+msgid "PCI-ID, subsystem"
+msgstr "PCI 子系统 ID"
+
+#: crates/rigg-core/src/report/gpu.rs:223
+msgid "samme som enheten"
+msgstr "与设备相同"
+
+#: crates/rigg-core/src/report/gpu.rs:223
+msgid "ukjent produsent"
+msgstr "制造商未知"
+
+#: crates/rigg-core/src/report/gpu.rs:225
+msgid "Subsystemet melder NVIDIAs egen ID, ikke kortprodusentens. Derfor kan ikke appen lese hvem som har laget kortet."
+msgstr "子系统报告的是 NVIDIA 自身的 ID，而非显卡制造商的 ID，因此应用无法识别制造商。"
+
+#: crates/rigg-core/src/report/gpu.rs:227
+msgid "Bus-ID"
+msgstr "总线 ID"
+
+#: crates/rigg-core/src/report/gpu.rs:227
+msgid "Kjernedriver: {driver}"
+msgstr "内核驱动程序：{driver}"
+
+#: crates/rigg-core/src/report/gpu.rs:228
+msgid "Revisjon"
+msgstr "修订版本"
+
+#: crates/rigg-core/src/report/gpu.rs:231
+msgid "Driver"
+msgstr "驱动程序"
+
+#: crates/rigg-core/src/report/gpu.rs:236
+msgid "CUDA (driver)"
+msgstr "CUDA（驱动程序）"
+
+#: crates/rigg-core/src/report/gpu.rs:237
+msgid "Compute capability"
+msgstr "计算能力"
+
+#: crates/rigg-core/src/report/gpu.rs:241
+msgid "{versjon} · på"
+msgstr "{versjon} · 已开启"
+
+#: crates/rigg-core/src/report/gpu.rs:242
+msgid "{versjon} · av"
+msgstr "{versjon} · 已关闭"
+
+#: crates/rigg-core/src/report/gpu.rs:246
+msgid "GSP-fastvare"
+msgstr "GSP 固件"
+
+#: crates/rigg-core/src/report/gpu.rs:246
+msgid "Fastvaren på kortet som driveren snakker med. «På» er standard med åpen kjernemodul."
+msgstr "驱动程序与此显卡固件通信。使用开源内核模块时默认开启。"
+
+#: crates/rigg-core/src/report/gpu.rs:256
+msgid "NVML svarer «ikke støttet». Det er vanlig for GeForce-kort."
+msgstr "NVML 返回“不支持”。这在 GeForce 显卡上很常见。"
+
+#: crates/rigg-core/src/report/gpu.rs:257
+msgid "Skjult"
+msgstr "已隐藏"
+
+#: crates/rigg-core/src/report/gpu.rs:258
+msgid "Serienummer"
+msgstr "序列号"
+
+#: crates/rigg-core/src/report/gpu.rs:258
+msgid "Ikke oppgitt av kortet"
+msgstr "GPU 未报告"
+
+#: crates/rigg-core/src/report/gpu.rs:259
+msgid "Persistence-modus"
+msgstr "持久模式"
+
+#: crates/rigg-core/src/report/gpu.rs:259
+msgid "På"
+msgstr "开启"
+
+#: crates/rigg-core/src/report/gpu.rs:259
+msgid "Av"
+msgstr "关闭"
+
+#: crates/rigg-core/src/report/gpu.rs:259
+msgid "Holder driveren lastet når ingen program bruker kortet."
+msgstr "没有应用使用 GPU 时也保持驱动程序处于加载状态。"
+
+#: crates/rigg-core/src/report/gpu.rs:261
+msgid "Skjerm aktiv (driverens flagg)"
+msgstr "显示器活动（驱动程序标志）"
+
+#: crates/rigg-core/src/report/gpu.rs:261
+msgid "Ja"
+msgstr "是"
+
+#: crates/rigg-core/src/report/gpu.rs:261
+msgid "Nei"
+msgstr "否"
+
+#: crates/rigg-core/src/report/gpu.rs:262
+msgid "NVML displayActive. Med den åpne kjernemodulen på Wayland står det ofte «Nei» selv når en skjerm er koblet til."
+msgstr "NVML displayActive。在 Wayland 下使用开源内核模块时，即使连接了显示器，也常显示“否”。"
+
+#: crates/rigg-core/src/report/gpu.rs:267
+msgid "Minne og buss"
+msgstr "显存与总线"
+
+#: crates/rigg-core/src/report/gpu.rs:268 crates/rigg-core/src/report/gpu.rs:563
+msgid "Videominne"
+msgstr "显存"
+
+#: crates/rigg-core/src/report/gpu.rs:268
+msgid "{minne} er reservert av driveren og regnes ikke som brukt (MemoryInfo_v2)."
+msgstr "驱动程序预留了 {minne}，不计入已用显存（MemoryInfo_v2）。"
+
+#: crates/rigg-core/src/report/gpu.rs:269
+msgid "Minnebuss"
+msgstr "显存总线"
+
+#: crates/rigg-core/src/report/gpu.rs:269
+msgid "Lest fra driveren, ikke fra referansetabellen."
+msgstr "从驱动程序读取，而非参考表。"
+
+#: crates/rigg-core/src/report/gpu.rs:270 crates/rigg-core/src/report/gpu.rs:598
+msgid "CUDA-kjerner"
+msgstr "CUDA 核心"
+
+#: crates/rigg-core/src/report/gpu.rs:270
+msgid "Lest fra driveren."
+msgstr "从驱动程序读取。"
+
+#: crates/rigg-core/src/report/gpu.rs:277
+msgid "sysfs: {hastighet} x{bredde}, maks {maks_hastighet} x{maks_bredde}"
+msgstr "sysfs：{hastighet} x{bredde}，最大 {maks_hastighet} x{maks_bredde}"
+
+#: crates/rigg-core/src/report/gpu.rs:283
+msgid "PCIe maks"
+msgstr "PCIe 上限"
+
+#: crates/rigg-core/src/report/gpu.rs:285
+msgid "Kortet {kort} · hovedkortet {hovedkort}"
+msgstr "GPU {kort} · 主板 {hovedkort}"
+
+#: crates/rigg-core/src/report/gpu.rs:286
+msgid "Kortet {kort}"
+msgstr "GPU {kort}"
+
+#: crates/rigg-core/src/report/gpu.rs:295
+msgid "{totalt} · {brukt} i bruk"
+msgstr "{totalt} · 已用 {brukt}"
+
+#: crates/rigg-core/src/report/gpu.rs:299
+msgid "Lest fra sysfs (resource1 og resource1_resize)."
+msgstr "从 sysfs 读取（resource1 和 resource1_resize）。"
+
+#: crates/rigg-core/src/report/gpu.rs:305
+msgid "PCIe-feil"
+msgstr "PCIe 错误"
+
+#: crates/rigg-core/src/report/gpu.rs:313
+msgid "{antall} gjentatt sending"
+msgid_plural "{antall} gjentatte sendinger"
+msgstr[0] "重传 {antall} 次"
+
+#: crates/rigg-core/src/report/gpu.rs:318
+msgid "{antall} korrigert"
+msgid_plural "{antall} korrigerte"
+msgstr[0] "已纠正 {antall} 个"
+
+#: crates/rigg-core/src/report/gpu.rs:328
+msgid "Telleren for gjentatte sendinger (replay) fra NVML og korrigerte AER-feil fra sysfs, siden oppstart. Null er normalt."
+msgstr "系统启动以来 NVML 记录的重传次数和 sysfs 记录的已纠正 AER 错误数。零为正常。"
+
+#: crates/rigg-core/src/report/gpu.rs:332
+msgid "Klokker"
+msgstr "时钟频率"
+
+#: crates/rigg-core/src/report/gpu.rs:334 crates/rigg-core/src/report/gpu.rs:373
+msgid "Kjerne"
+msgstr "核心"
+
+#: crates/rigg-core/src/report/gpu.rs:334 crates/rigg-core/src/report/gpu.rs:373 crates/rigg-core/src/report/gpu.rs:605
+msgid "Minne"
+msgstr "显存"
+
+#: crates/rigg-core/src/report/gpu.rs:334
+msgid "Video"
+msgstr "视频"
+
+#: crates/rigg-core/src/report/gpu.rs:337
+msgid "Nå"
+msgstr "当前"
+
+#: crates/rigg-core/src/report/gpu.rs:337
+msgid "Maks (driver)"
+msgstr "最大值（驱动程序）"
+
+#: crates/rigg-core/src/report/gpu.rs:343
+msgid "Driveren oppgir ikke standardklokker (applications clocks er avviklet)."
+msgstr "驱动程序不报告默认频率（应用时钟已弃用）。"
+
+#: crates/rigg-core/src/report/gpu.rs:346
+msgid "Boost etter spesifikasjonen er {klokke} (referanse, ikke målt)."
+msgstr "规格标称加速频率：{klokke}（参考值，非实测）。"
+
+#: crates/rigg-core/src/report/gpu.rs:350
+msgid "ingen"
+msgstr "无"
+
+#: crates/rigg-core/src/report/gpu.rs:352
+msgid "Begrenser nå: {arsaker} (i P8 leses ikke årsaken; kortet er i tomgang)."
+msgstr "当前限制：{arsaker}（P8 状态下不读取原因；GPU 处于空闲状态）。"
+
+#: crates/rigg-core/src/report/gpu.rs:354
+msgid "Begrenser nå: {arsaker}."
+msgstr "当前限制：{arsaker}。"
+
+#: crates/rigg-core/src/report/gpu.rs:363
+msgid "P-tilstander"
+msgstr "性能状态"
+
+#: crates/rigg-core/src/report/gpu.rs:379
+msgid "{navn} · nå"
+msgstr "{navn} · 当前"
+
+#: crates/rigg-core/src/report/gpu.rs:384
+msgid "Område per P-tilstand fra driveren. P0 er full ytelse, P8 er tomgang."
+msgstr "驱动程序报告的各性能状态范围。P0 表示最高性能，P8 表示空闲。"
+
+#: crates/rigg-core/src/report/gpu.rs:386
+msgid "Støttede minneklokker: {klokker} MHz."
+msgstr "支持的显存频率：{klokker} MHz。"
+
+#: crates/rigg-core/src/report/gpu.rs:393
+msgid "Grenser"
+msgstr "限制"
+
+#: crates/rigg-core/src/report/gpu.rs:395
+msgid "Effektgrense nå"
+msgstr "当前功率上限"
+
+#: crates/rigg-core/src/report/gpu.rs:395
+msgid "Håndhevet grense fra driveren."
+msgstr "驱动程序执行的上限。"
+
+#: crates/rigg-core/src/report/gpu.rs:398
+msgid "Standard / område"
+msgstr "默认值 / 范围"
+
+#: crates/rigg-core/src/report/gpu.rs:408
+msgid "Temperaturmål"
+msgstr "目标温度"
+
+#: crates/rigg-core/src/report/gpu.rs:410
+msgid "{mal} · område {min}–{maks}"
+msgstr "{mal} · 范围 {min}–{maks}"
+
+#: crates/rigg-core/src/report/gpu.rs:414
+msgid "Akustisk mål: kortet senker klokken for å holde seg her."
+msgstr "噪声控制目标：GPU 通过降频维持在此温度。"
+
+#: crates/rigg-core/src/report/gpu.rs:416
+msgid "Maks driftstemperatur"
+msgstr "最高工作温度"
+
+#: crates/rigg-core/src/report/gpu.rs:417
+msgid "Nedklokking"
+msgstr "降频"
+
+#: crates/rigg-core/src/report/gpu.rs:418
+msgid "Avstenging"
+msgstr "关机"
+
+#: crates/rigg-core/src/report/gpu.rs:420
+msgid "Avstand til nedklokking"
+msgstr "距降频阈值的余量"
+
+#: crates/rigg-core/src/report/gpu.rs:421
+msgid "Utregnet: nedklokkingsgrensen minus temperaturen nå. Dette er ikke en direkte måling av T.Limit."
+msgstr "计算方式为降频阈值减去当前温度，并非直接读取 T.Limit。"
+
+#: crates/rigg-core/src/report/gpu.rs:426
+msgid "{na} · område {min}…{maks}"
+msgstr "{na} · 范围 {min}…{maks}"
+
+#: crates/rigg-core/src/report/gpu.rs:428
+msgid "Klokkeoffset, kjerne"
+msgstr "核心频率偏移"
+
+#: crates/rigg-core/src/report/gpu.rs:428
+msgid "Lest med NVML. Klokker og effekt er låst; appen endrer ikke offset."
+msgstr "通过 NVML 读取。时钟频率和功率控制已锁定；应用不会更改偏移。"
+
+#: crates/rigg-core/src/report/gpu.rs:430
+msgid "Klokkeoffset, minne"
+msgstr "显存频率偏移"
+
+#: crates/rigg-core/src/report/gpu.rs:431
+msgid "I effektiv MHz, som Klokker og effekt bruker. NVML oppgir minneoffset i dobbel dataklokke (dobbelt så store tall)."
+msgstr "与“频率与功率”一致，使用有效 MHz。NVML 以双倍数据速率时钟报告显存频率偏移（数值翻倍）。"
+
+#: crates/rigg-core/src/report/gpu.rs:436
+msgid "Vifter og kjøling"
+msgstr "风扇与散热"
+
+#: crates/rigg-core/src/report/gpu.rs:444
+msgid "av/på"
+msgstr "开/关"
+
+#: crates/rigg-core/src/report/gpu.rs:445
+msgid "variabel fart"
+msgstr "可变转速"
+
+#: crates/rigg-core/src/report/gpu.rs:446
+msgid "ukjent styring"
+msgstr "控制方式未知"
+
+#: crates/rigg-core/src/report/gpu.rs:449
+msgid "minne"
+msgstr "显存"
+
+#: crates/rigg-core/src/report/gpu.rs:449
+msgid "strømforsyning"
+msgstr "供电"
+
+#: crates/rigg-core/src/report/gpu.rs:454
+msgid "Kjølerinfo fra driveren: {signal}, kjøler {mal}."
+msgstr "驱动程序报告的散热信息：{signal}，冷却对象为 {mal}。"
+
+#: crates/rigg-core/src/report/gpu.rs:454 crates/rigg-core/src/report/gpu.rs:587
+msgid "ukjent"
+msgstr "未知"
+
+#: crates/rigg-core/src/report/gpu.rs:461
+msgid "Vifter"
+msgstr "风扇"
+
+#: crates/rigg-core/src/report/gpu.rs:477
+msgid "turtall ikke støttet"
+msgstr "不支持读取转速"
+
+#: crates/rigg-core/src/report/gpu.rs:480
+msgid "mål {prosent}"
+msgstr "目标 {prosent}"
+
+#: crates/rigg-core/src/report/gpu.rs:483
+msgid "Vifte {nr}"
+msgstr "风扇 {nr}"
+
+#: crates/rigg-core/src/report/gpu.rs:489
+msgid "Styring"
+msgstr "控制"
+
+#: crates/rigg-core/src/report/gpu.rs:490
+msgid "Auto · driveren styrer"
+msgstr "自动 · 由驱动程序控制"
+
+#: crates/rigg-core/src/report/gpu.rs:490
+msgid "Manuell · rapportert av driveren"
+msgstr "手动 · 由驱动程序报告"
+
+#: crates/rigg-core/src/report/gpu.rs:492
+msgid "Lest med NVML (viftepolicy). Viser driverens rapporterte modus; angir ikke hvilket program som satte den."
+msgstr "通过 NVML 读取（风扇策略）。显示驱动程序报告的模式，不显示设置该模式的应用。"
+
+#: crates/rigg-core/src/report/gpu.rs:497
+msgid "Termiske sensorer"
+msgstr "温度传感器"
+
+#: crates/rigg-core/src/report/gpu.rs:501
+msgid "intern GPU-kontroller"
+msgstr "GPU 内部控制器"
+
+#: crates/rigg-core/src/report/gpu.rs:503
+msgid "kontroller {id}"
+msgstr "控制器 {id}"
+
+#: crates/rigg-core/src/report/gpu.rs:516
+msgid "Datatilgjengelighet"
+msgstr "数据可用性"
+
+#: crates/rigg-core/src/report/gpu.rs:517
+msgid "ikke innsamlet eller utilgjengelig"
+msgstr "未采集或不可用"
+
+#: crates/rigg-core/src/report/gpu.rs:518
+msgid "Hotspot-temperatur"
+msgstr "热点温度"
+
+#: crates/rigg-core/src/report/gpu.rs:518 crates/rigg-core/src/report/gpu.rs:523 crates/rigg-core/src/report/gpu.rs:524
+msgid "Ikke innsamlet"
+msgstr "未采集"
+
+#: crates/rigg-core/src/report/gpu.rs:518
+msgid "Appen samler ikke inn en egen hotspot-temperatur. De termiske sensorene som driveren rapporterer, vises over; dette avklarer ikke alene om kortet har en hotspot-sensor."
+msgstr "应用不会单独读取热点温度。上方列出驱动程序报告的温度传感器，仅凭此列表无法确认 GPU 是否配有热点传感器。"
+
+#: crates/rigg-core/src/report/gpu.rs:519
+msgid "Appen har ingen tilgjengelig minnetemperatur fra NVML for denne prøven. Tilgjengelighet avhenger av kortet og driveren."
+msgstr "NVML 未提供本次采样的显存温度。是否可用取决于 GPU 和驱动程序。"
+
+#: crates/rigg-core/src/report/gpu.rs:520
+msgid "Minnetemperatur"
+msgstr "显存温度"
+
+#: crates/rigg-core/src/report/gpu.rs:520 crates/rigg-core/src/report/gpu.rs:522
+msgid "Ikke verifisert"
+msgstr "未验证"
+
+#: crates/rigg-core/src/report/gpu.rs:521
+msgid "Appen har ingen tilgjengelig T.Limit-margin fra NVML for denne prøven. Avstanden til nedklokking under Grenser er regnet ut av appen."
+msgstr "NVML 未提供本次采样的 T.Limit 余量。“限制”中的降频余量由应用计算。"
+
+#: crates/rigg-core/src/report/gpu.rs:522
+msgid "T.Limit (margin)"
+msgstr "T.Limit（余量）"
+
+#: crates/rigg-core/src/report/gpu.rs:523
+msgid "Kjernespenning"
+msgstr "核心电压"
+
+#: crates/rigg-core/src/report/gpu.rs:523
+msgid "Appen samler ikke inn GPU-kjernespenning. Tilgang for dette kortet og denne driveren er ikke verifisert."
+msgstr "应用不读取 GPU 核心电压。尚未验证此 GPU 和驱动程序是否支持读取。"
+
+#: crates/rigg-core/src/report/gpu.rs:524
+msgid "Gjennomsnittseffekt fra driveren"
+msgstr "驱动程序报告的平均功率"
+
+#: crates/rigg-core/src/report/gpu.rs:524
+msgid "Appen samler ikke inn driverens eget effektgjennomsnitt. Effekten beregnes fra energitelleren når den finnes, ellers brukes den rapporterte øyeblikksverdien."
+msgstr "应用不采集驱动程序自身计算的平均功率。能量计数器可用时由其计算功率，否则使用驱动程序报告的瞬时值。"
+
+#: crates/rigg-core/src/report/gpu.rs:526
+msgid "Standardklokker (applications clocks)"
+msgstr "默认时钟（应用时钟）"
+
+#: crates/rigg-core/src/report/gpu.rs:526
+msgid "Avviklet"
+msgstr "已弃用"
+
+#: crates/rigg-core/src/report/gpu.rs:526
+msgid "Avviklet i driveren for dette kortet."
+msgstr "此 GPU 的驱动程序已弃用该功能。"
+
+#: crates/rigg-core/src/report/gpu.rs:529
+msgid "Delenummer (board part number)"
+msgstr "显卡部件号"
+
+#: crates/rigg-core/src/report/gpu.rs:529
+msgid "Ikke oppgitt"
+msgstr "未报告"
+
+#: crates/rigg-core/src/report/gpu.rs:529
+msgid "Driveren svarer, men feltet er tomt på dette kortet."
+msgstr "驱动程序已响应，但此 GPU 的该字段为空。"
+
+#: crates/rigg-core/src/report/gpu.rs:534
+msgid "Viftens turtall"
+msgstr "风扇转速（RPM）"
+
+#: crates/rigg-core/src/report/gpu.rs:534
+msgid "NVML gir «ikke støttet» for turtallet."
+msgstr "NVML 报告不支持读取风扇转速。"
+
+#: crates/rigg-core/src/report/gpu.rs:535
+msgid "Videokoder"
+msgstr "视频编码器"
+
+#: crates/rigg-core/src/report/gpu.rs:535
+msgid "NVML gir «ikke støttet» for koderen."
+msgstr "NVML 报告不支持编码器。"
+
+#: crates/rigg-core/src/report/gpu.rs:536
+msgid "Videodekoder"
+msgstr "视频解码器"
+
+#: crates/rigg-core/src/report/gpu.rs:536
+msgid "NVML gir «ikke støttet» for dekoderen."
+msgstr "NVML 报告不支持解码器。"
+
+#: crates/rigg-core/src/report/gpu.rs:537
+msgid "Klokkebegrensninger"
+msgstr "频率限制原因"
+
+#: crates/rigg-core/src/report/gpu.rs:537
+msgid "NVML gir «ikke støttet» for årsakene."
+msgstr "NVML 报告不支持读取频率限制原因。"
+
+#: crates/rigg-core/src/report/gpu.rs:538
+msgid "Effekttrekk"
+msgstr "功耗"
+
+#: crates/rigg-core/src/report/gpu.rs:538
+msgid "Verken energitelleren eller effekten kan leses."
+msgstr "无法读取能量计数器或功率。"
+
+#: crates/rigg-core/src/report/gpu.rs:539
+msgid "Energiteller"
+msgstr "能量计数器"
+
+#: crates/rigg-core/src/report/gpu.rs:539
+msgid "Effekten leses som øyeblikksverdi i stedet."
+msgstr "改为读取瞬时功率。"
+
+#: crates/rigg-core/src/report/gpu.rs:540
+msgid "Temperatur"
+msgstr "温度"
+
+#: crates/rigg-core/src/report/gpu.rs:540
+msgid "NVML gir «ikke støttet» for temperaturen."
+msgstr "NVML 报告不支持读取温度。"
+
+#: crates/rigg-core/src/report/gpu.rs:558
+msgid "Prosesser som bruker skjermkortet"
+msgstr "使用 GPU 的进程"
+
+#: crates/rigg-core/src/report/gpu.rs:563
+msgid "Prosess"
+msgstr "进程"
+
+#: crates/rigg-core/src/report/gpu.rs:563 crates/rigg-core/src/report/gpu.rs:606
+msgid "Type"
+msgstr "类型"
+
+#: crates/rigg-core/src/report/gpu.rs:573
+msgid "Ingen prosesser brukte skjermkortet kl. {tid}."
+msgstr "{tid} 时没有进程使用 GPU。"
+
+#: crates/rigg-core/src/report/gpu.rs:574
+msgid "Ingen prosesser bruker skjermkortet (lest kl. {tid}). Lista oppdateres hvert 5. s mens siden vises."
+msgstr "没有进程使用 GPU（读取于 {tid}）。页面显示期间，列表每 5 s 刷新一次。"
+
+#: crates/rigg-core/src/report/gpu.rs:575
+msgid "Øyeblikksbilde fra kl. {tid}, da tjenesten leste de faste dataene. Videominne per prosess fra driveren."
+msgstr "服务读取静态数据时的快照（{tid}）。各进程的显存用量由驱动程序报告。"
+
+#: crates/rigg-core/src/report/gpu.rs:576
+msgid "Lest kl. {tid}. Lista oppdateres hvert 5. s mens siden vises. Videominne per prosess fra driveren."
+msgstr "读取于 {tid}。页面显示期间，列表每 5 s 刷新一次。各进程的显存用量由驱动程序报告。"
+
+#: crates/rigg-core/src/report/gpu.rs:579
+msgid "Lista leses sammen med de faste dataene."
+msgstr "列表与静态数据一同读取。"
+
+#: crates/rigg-core/src/report/gpu.rs:584
+msgid "Spesifikasjon"
+msgstr "规格"
+
+#: crates/rigg-core/src/report/gpu.rs:585
+msgid "Referanse, ikke målt"
+msgstr "参考值，非实测"
+
+#: crates/rigg-core/src/report/gpu.rs:587
+msgid "Ingen oppføring for PCI-ID {id} i den innebygde tabellen."
+msgstr "内置表中没有 PCI ID {id} 的条目。"
+
+#: crates/rigg-core/src/report/gpu.rs:591 crates/rigg-core/src/report/gpu.rs:593
+msgid "Brikke"
+msgstr "芯片"
+
+#: crates/rigg-core/src/report/gpu.rs:592
+msgid "Modell"
+msgstr "型号"
+
+#: crates/rigg-core/src/report/gpu.rs:595
+msgctxt "produksjonsprosess"
+msgid "Prosess"
+msgstr "制程"
+
+#: crates/rigg-core/src/report/gpu.rs:596
+msgid "Brikkestørrelse"
+msgstr "芯片面积"
+
+#: crates/rigg-core/src/report/gpu.rs:597
+msgid "Transistorer"
+msgstr "晶体管"
+
+#: crates/rigg-core/src/report/gpu.rs:597
+msgid "{antall} mrd."
+msgstr "{antall} 十亿"
+
+#: crates/rigg-core/src/report/gpu.rs:599
+msgid "SM-er"
+msgstr "SM 数量"
+
+#: crates/rigg-core/src/report/gpu.rs:602
+msgid "L2-cache"
+msgstr "L2 缓存"
+
+#: crates/rigg-core/src/report/gpu.rs:603
+msgid "Grunnklokke"
+msgstr "基础频率"
+
+#: crates/rigg-core/src/report/gpu.rs:604
+msgid "Boostklokke"
+msgstr "加速频率"
+
+#: crates/rigg-core/src/report/gpu.rs:607
+msgid "Buss"
+msgstr "总线"
+
+#: crates/rigg-core/src/report/gpu.rs:608
+msgid "Mengde"
+msgstr "容量"
+
+#: crates/rigg-core/src/report/gpu.rs:609
+msgid "Hastighet"
+msgstr "速度"
+
+#: crates/rigg-core/src/report/gpu.rs:609
+msgid "{verdi} effektivt"
+msgstr "有效速率 {verdi}"
+
+#: crates/rigg-core/src/report/gpu.rs:610
+msgid "Båndbredde"
+msgstr "带宽"
+
+#: crates/rigg-core/src/report/gpu.rs:611
+msgid "Leverandør"
+msgstr "供应商"
+
+#: crates/rigg-core/src/report/gpu.rs:611
+msgid "Ukjent på Linux"
+msgstr "Linux 下未知"
+
+#: crates/rigg-core/src/report/gpu.rs:612
+msgid "Ytelse og kort"
+msgstr "性能与显卡"
+
+#: crates/rigg-core/src/report/gpu.rs:613
+msgid "Pikselfyllrate"
+msgstr "像素填充率"
+
+#: crates/rigg-core/src/report/gpu.rs:614
+msgid "Teksturfyllrate"
+msgstr "纹理填充率"
+
+#: crates/rigg-core/src/report/gpu.rs:616
+msgid "TDP (referansekort)"
+msgstr "TDP（公版卡）"
+
+#: crates/rigg-core/src/report/gpu.rs:616
+msgid "Kortprodusenten kan sette en annen grense. Driveren oppgir standardgrensen under Grenser."
+msgstr "显卡制造商可设置不同的上限。驱动程序报告的默认上限显示在“限制”中。"
+
+#: crates/rigg-core/src/report/gpu.rs:624
+msgid "Lansert"
+msgstr "发布日期"
+
+#: crates/rigg-core/src/report/gpu.rs:649
+msgid "På · BAR1 dekker hele videominnet"
+msgstr "开启 · BAR1 覆盖整个显存"
+
+#: crates/rigg-core/src/report/gpu.rs:654
+msgid "Ikke støttet · største BAR1 er {storrelse}"
+msgstr "不支持 · BAR1 最大为 {storrelse}"
+
+#: crates/rigg-core/src/report/gpu.rs:656
+msgid "Av · kortet støtter opptil {storrelse}"
+msgstr "关闭 · GPU 最高支持 {storrelse}"
+
+#: crates/rigg-core/src/report/gpu.rs:658
+msgid "Av · BAR1 er {storrelse}"
+msgstr "关闭 · BAR1 为 {storrelse}"

@@ -6,6 +6,8 @@
 //! denne maskinen melder 10de:1e87, så der må brukeren sette produsenten selv
 //! (`Settings::gpu_makers`).
 
+use crate::{tr, trf};
+
 /// Det vi vet om produsenten.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Maker {
@@ -76,8 +78,8 @@ pub fn maker_text(user: Option<&str>, subsys: Option<u32>) -> (String, &'static 
     }
     match board_maker(subsys) {
         Maker::Known(n) => (n.to_string(), "kort"),
-        Maker::Reference => ("NVIDIA-referansekort".into(), "kort"),
-        Maker::Other(v) => (format!("PCI-leverandør {v:04x}"), "kort"),
+        Maker::Reference => (tr!("NVIDIA-referansekort").into(), "kort"),
+        Maker::Other(v) => (trf!("PCI-leverandør {id}", id = format!("{v:04x}")), "kort"),
         Maker::Unknown => (String::new(), ""),
     }
 }

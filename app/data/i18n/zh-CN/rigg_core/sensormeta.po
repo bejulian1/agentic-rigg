@@ -1,0 +1,101 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg-core/src/sensormeta.rs:12 crates/rigg-core/src/sensormeta.rs:13 crates/rigg-core/src/sensormeta.rs:14
+msgid "Prosessor"
+msgstr "处理器"
+
+#: crates/rigg-core/src/sensormeta.rs:15 crates/rigg-core/src/sensormeta.rs:55
+msgid "Wi-Fi-kort"
+msgstr "Wi-Fi 网卡"
+
+#: crates/rigg-core/src/sensormeta.rs:16
+msgid "USB-C-kontroller (skjermkort)"
+msgstr "USB-C 控制器（GPU）"
+
+#: crates/rigg-core/src/sensormeta.rs:17
+msgid "Batteri i trådløs mus/tastatur"
+msgstr "无线鼠标或键盘电池"
+
+#: crates/rigg-core/src/sensormeta.rs:18
+msgid "NVMe-disk"
+msgstr "NVMe 驱动器"
+
+#: crates/rigg-core/src/sensormeta.rs:19
+msgid "Disk"
+msgstr "磁盘"
+
+#: crates/rigg-core/src/sensormeta.rs:20
+msgid "AMD-grafikk"
+msgstr "AMD 显卡"
+
+#: crates/rigg-core/src/sensormeta.rs:21
+msgid "Skjermkort (nouveau)"
+msgstr "GPU（nouveau）"
+
+#: crates/rigg-core/src/sensormeta.rs:22
+msgid "ACPI-termisk sone"
+msgstr "ACPI 温控区域"
+
+#: crates/rigg-core/src/sensormeta.rs:23 crates/rigg-core/src/sensormeta.rs:24
+msgid "Minnemodul"
+msgstr "内存模块"
+
+#: crates/rigg-core/src/sensormeta.rs:25
+msgid "Innebygd kontroller"
+msgstr "嵌入式控制器"
+
+#: crates/rigg-core/src/sensormeta.rs:58
+msgid "Hovedkort"
+msgstr "主板"
+
+#: crates/rigg-core/src/sensormeta.rs:61
+msgid "Batteri"
+msgstr "电池"
+
+#: crates/rigg-core/src/sensormeta.rs:64
+msgid "Nettverkskort"
+msgstr "网卡"
+
+#: crates/rigg-core/src/sensormeta.rs:71
+msgid "temperatur"
+msgstr "温度"
+
+#: crates/rigg-core/src/sensormeta.rs:72
+msgid "vifte"
+msgstr "风扇"
+
+#: crates/rigg-core/src/sensormeta.rs:73
+msgid "spenning"
+msgstr "电压"
+
+#: crates/rigg-core/src/sensormeta.rs:74
+msgid "effekt"
+msgstr "功率"
+
+#: crates/rigg-core/src/sensormeta.rs:75
+msgid "strøm"
+msgstr "电流"
+
+#: crates/rigg-core/src/sensormeta.rs:113
+msgid "Virtuelt ({navn})"
+msgstr "虚拟网络（{navn}）"
+
+#: crates/rigg-core/src/sensormeta.rs:116
+msgid "Wi-Fi ({navn})"
+msgstr "Wi-Fi（{navn}）"
+
+#: crates/rigg-core/src/sensormeta.rs:119
+msgid "Ethernet ({navn})"
+msgstr "以太网（{navn}）"
+
+#: crates/rigg-core/src/sensormeta.rs:122
+msgid "Mobilnett ({navn})"
+msgstr "移动网络（{navn}）"

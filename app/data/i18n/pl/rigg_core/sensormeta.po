@@ -1,0 +1,101 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n == 1 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : 2);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg-core/src/sensormeta.rs:12 crates/rigg-core/src/sensormeta.rs:13 crates/rigg-core/src/sensormeta.rs:14
+msgid "Prosessor"
+msgstr "Procesor"
+
+#: crates/rigg-core/src/sensormeta.rs:15 crates/rigg-core/src/sensormeta.rs:55
+msgid "Wi-Fi-kort"
+msgstr "Karta Wi-Fi"
+
+#: crates/rigg-core/src/sensormeta.rs:16
+msgid "USB-C-kontroller (skjermkort)"
+msgstr "Kontroler USB-C (GPU)"
+
+#: crates/rigg-core/src/sensormeta.rs:17
+msgid "Batteri i trådløs mus/tastatur"
+msgstr "Bateria myszy lub klawiatury bezprzewodowej"
+
+#: crates/rigg-core/src/sensormeta.rs:18
+msgid "NVMe-disk"
+msgstr "Dysk NVMe"
+
+#: crates/rigg-core/src/sensormeta.rs:19
+msgid "Disk"
+msgstr "Dysk"
+
+#: crates/rigg-core/src/sensormeta.rs:20
+msgid "AMD-grafikk"
+msgstr "Grafika AMD"
+
+#: crates/rigg-core/src/sensormeta.rs:21
+msgid "Skjermkort (nouveau)"
+msgstr "GPU (nouveau)"
+
+#: crates/rigg-core/src/sensormeta.rs:22
+msgid "ACPI-termisk sone"
+msgstr "Strefa termiczna ACPI"
+
+#: crates/rigg-core/src/sensormeta.rs:23 crates/rigg-core/src/sensormeta.rs:24
+msgid "Minnemodul"
+msgstr "Moduł pamięci"
+
+#: crates/rigg-core/src/sensormeta.rs:25
+msgid "Innebygd kontroller"
+msgstr "Kontroler wbudowany"
+
+#: crates/rigg-core/src/sensormeta.rs:58
+msgid "Hovedkort"
+msgstr "Płyta główna"
+
+#: crates/rigg-core/src/sensormeta.rs:61
+msgid "Batteri"
+msgstr "Bateria"
+
+#: crates/rigg-core/src/sensormeta.rs:64
+msgid "Nettverkskort"
+msgstr "Karta sieciowa"
+
+#: crates/rigg-core/src/sensormeta.rs:71
+msgid "temperatur"
+msgstr "temperatura"
+
+#: crates/rigg-core/src/sensormeta.rs:72
+msgid "vifte"
+msgstr "wentylator"
+
+#: crates/rigg-core/src/sensormeta.rs:73
+msgid "spenning"
+msgstr "napięcie"
+
+#: crates/rigg-core/src/sensormeta.rs:74
+msgid "effekt"
+msgstr "moc"
+
+#: crates/rigg-core/src/sensormeta.rs:75
+msgid "strøm"
+msgstr "prąd"
+
+#: crates/rigg-core/src/sensormeta.rs:113
+msgid "Virtuelt ({navn})"
+msgstr "Wirtualna ({navn})"
+
+#: crates/rigg-core/src/sensormeta.rs:116
+msgid "Wi-Fi ({navn})"
+msgstr "Wi-Fi ({navn})"
+
+#: crates/rigg-core/src/sensormeta.rs:119
+msgid "Ethernet ({navn})"
+msgstr "Ethernet ({navn})"
+
+#: crates/rigg-core/src/sensormeta.rs:122
+msgid "Mobilnett ({navn})"
+msgstr "Sieć komórkowa ({navn})"

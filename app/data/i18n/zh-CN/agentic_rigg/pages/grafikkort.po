@@ -1,0 +1,153 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/pages/grafikkort.rs:89 crates/rigg/src/pages/grafikkort.rs:93 crates/rigg/src/pages/grafikkort.rs:100 crates/rigg/src/pages/grafikkort.rs:106 crates/rigg/src/pages/grafikkort.rs:110
+msgid "Tilstand"
+msgstr "状态"
+
+#: crates/rigg/src/pages/grafikkort.rs:93 crates/rigg/src/pages/grafikkort.rs:197
+msgid "Driveren er oppdatert"
+msgstr "驱动程序已更新"
+
+#: crates/rigg/src/pages/grafikkort.rs:94
+msgid "Kjører"
+msgstr "运行中"
+
+#: crates/rigg/src/pages/grafikkort.rs:95
+msgid "Installert"
+msgstr "已安装"
+
+#: crates/rigg/src/pages/grafikkort.rs:96
+msgid "Hva du kan gjøre"
+msgstr "建议操作"
+
+#: crates/rigg/src/pages/grafikkort.rs:96
+msgid "Start maskinen på nytt. Da lastes den nye driveren, og kortet leses som før."
+msgstr "重启计算机以加载新驱动程序并恢复 GPU 监控。"
+
+#: crates/rigg/src/pages/grafikkort.rs:97
+msgid "Tjenesten sjekker driveren hvert 60. s. Verdiene under er de siste som ble lest."
+msgstr "服务每 60 s 检查一次驱动程序。下方显示最后一次读取的数值。"
+
+#: crates/rigg/src/pages/grafikkort.rs:100
+msgid "Skjermkortet svarer ikke"
+msgstr "GPU 无响应"
+
+#: crates/rigg/src/pages/grafikkort.rs:101
+msgid "Siden"
+msgstr "自"
+
+#: crates/rigg/src/pages/grafikkort.rs:102
+msgid "Hvorfor"
+msgstr "原因"
+
+#: crates/rigg/src/pages/grafikkort.rs:102
+msgid "Det skjer når kortet faller av bussen (Xid 79) eller trekkes ut."
+msgstr "GPU 从总线掉线（Xid 79）或被拔出时会发生此情况。"
+
+#: crates/rigg/src/pages/grafikkort.rs:103
+msgid "Tjenesten prøver å finne kortet igjen hvert 10. s. Tallene før det er tatt vare på, og historikken får et hull. Verdiene som leses nå, står som «–»."
+msgstr "服务每 10 s 尝试查找 GPU。之前的读数会保留，历史记录中会留下空白。当前值显示为“–”。"
+
+#: crates/rigg/src/pages/grafikkort.rs:106
+msgid "Maskinen sover"
+msgstr "计算机处于睡眠状态"
+
+#: crates/rigg/src/pages/grafikkort.rs:107
+msgid "Prøvene står stille og starter igjen 2 s etter at maskinen våkner."
+msgstr "采样暂停，并在计算机唤醒后 2 s 恢复。"
+
+#: crates/rigg/src/pages/grafikkort.rs:110 crates/rigg/src/pages/grafikkort.rs:193
+msgid "Fant ingen NVIDIA-driver"
+msgstr "未找到 NVIDIA 驱动程序"
+
+#: crates/rigg/src/pages/grafikkort.rs:194
+msgid "Prosessor, minne og sensorer vises som vanlig. Når driveren er installert og lastet, leses kortet av seg selv. Tjenesten prøver hvert 60. s."
+msgstr "CPU、内存和传感器照常显示。安装并加载驱动程序后，GPU 监控会自动开始。服务每 60 s 重试一次。"
+
+#: crates/rigg/src/pages/grafikkort.rs:198
+msgid "En ny NVIDIA-driver er installert, men den gamle kjører fortsatt. Start maskinen på nytt for å lese skjermkortet."
+msgstr "已安装新的 NVIDIA 驱动程序，但旧驱动程序仍在运行。重启计算机以恢复 GPU 监控。"
+
+#: crates/rigg/src/pages/grafikkort.rs:200
+msgid "Venter på tjenesten"
+msgstr "正在等待服务"
+
+#: crates/rigg/src/pages/grafikkort.rs:200
+msgid "Skjermkortet vises når tjenesten svarer."
+msgstr "服务响应后将显示 GPU。"
+
+#: crates/rigg/src/pages/grafikkort.rs:201
+msgid "Leser skjermkortet …"
+msgstr "正在读取 GPU 数据…"
+
+#: crates/rigg/src/pages/grafikkort.rs:201
+msgid "De faste dataene leses de første sekundene."
+msgstr "静态数据会在最初几秒内读取。"
+
+#: crates/rigg/src/pages/grafikkort.rs:243
+msgid "Faste data er lest på nytt"
+msgstr "已刷新硬件信息"
+
+#: crates/rigg/src/pages/grafikkort.rs:264
+msgid "Klokker"
+msgstr "时钟频率"
+
+#: crates/rigg/src/pages/grafikkort.rs:271
+msgid "Nå"
+msgstr "当前"
+
+#: crates/rigg/src/pages/grafikkort.rs:271
+msgid "Maks (driver)"
+msgstr "最大值（驱动程序）"
+
+#: crates/rigg/src/pages/grafikkort.rs:279
+msgid "Kjerne"
+msgstr "核心"
+
+#: crates/rigg/src/pages/grafikkort.rs:279
+msgid "Minne"
+msgstr "显存"
+
+#: crates/rigg/src/pages/grafikkort.rs:279
+msgid "Video"
+msgstr "视频"
+
+#: crates/rigg/src/pages/grafikkort.rs:321 crates/rigg/src/pages/grafikkort.rs:329
+msgid "Skjul UUID"
+msgstr "隐藏 UUID"
+
+#: crates/rigg/src/pages/grafikkort.rs:321 crates/rigg/src/pages/grafikkort.rs:329
+msgid "Vis UUID"
+msgstr "显示 UUID"
+
+#: crates/rigg/src/pages/grafikkort.rs:337 crates/rigg/src/pages/grafikkort.rs:338
+msgid "Kopier UUID"
+msgstr "复制 UUID"
+
+#: crates/rigg/src/pages/grafikkort.rs:343
+msgid "UUID kopiert"
+msgstr "已复制 UUID"
+
+#: crates/rigg/src/pages/grafikkort.rs:395
+msgid "NVML og sysfs"
+msgstr "NVML 和 sysfs"
+
+#: crates/rigg/src/pages/grafikkort.rs:395
+msgid "testdata"
+msgstr "测试数据"
+
+#: crates/rigg/src/pages/grafikkort.rs:396
+msgid "{app} – Grafikkort ({kilde}, {dato})"
+msgstr "{app} – GPU（{kilde}，{dato}）"
+
+#: crates/rigg/src/pages/grafikkort.rs:397
+msgid "UUID maskert"
+msgstr "UUID 已遮盖"

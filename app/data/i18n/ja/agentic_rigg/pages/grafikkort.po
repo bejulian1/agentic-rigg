@@ -1,0 +1,153 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/pages/grafikkort.rs:89 crates/rigg/src/pages/grafikkort.rs:93 crates/rigg/src/pages/grafikkort.rs:100 crates/rigg/src/pages/grafikkort.rs:106 crates/rigg/src/pages/grafikkort.rs:110
+msgid "Tilstand"
+msgstr "状態"
+
+#: crates/rigg/src/pages/grafikkort.rs:93 crates/rigg/src/pages/grafikkort.rs:197
+msgid "Driveren er oppdatert"
+msgstr "ドライバー更新済み"
+
+#: crates/rigg/src/pages/grafikkort.rs:94
+msgid "Kjører"
+msgstr "実行中"
+
+#: crates/rigg/src/pages/grafikkort.rs:95
+msgid "Installert"
+msgstr "インストール済み"
+
+#: crates/rigg/src/pages/grafikkort.rs:96
+msgid "Hva du kan gjøre"
+msgstr "対処方法"
+
+#: crates/rigg/src/pages/grafikkort.rs:96
+msgid "Start maskinen på nytt. Da lastes den nye driveren, og kortet leses som før."
+msgstr "コンピューターを再起動して新しいドライバーを読み込むと、GPU の監視が再開します。"
+
+#: crates/rigg/src/pages/grafikkort.rs:97
+msgid "Tjenesten sjekker driveren hvert 60. s. Verdiene under er de siste som ble lest."
+msgstr "サービスは 60 s ごとにドライバーを確認します。下の値は最後に取得した値です。"
+
+#: crates/rigg/src/pages/grafikkort.rs:100
+msgid "Skjermkortet svarer ikke"
+msgstr "GPU が応答しません"
+
+#: crates/rigg/src/pages/grafikkort.rs:101
+msgid "Siden"
+msgstr "開始時刻"
+
+#: crates/rigg/src/pages/grafikkort.rs:102
+msgid "Hvorfor"
+msgstr "原因"
+
+#: crates/rigg/src/pages/grafikkort.rs:102
+msgid "Det skjer når kortet faller av bussen (Xid 79) eller trekkes ut."
+msgstr "GPU がバスから切断された（Xid 79）か、取り外された場合に発生します。"
+
+#: crates/rigg/src/pages/grafikkort.rs:103
+msgid "Tjenesten prøver å finne kortet igjen hvert 10. s. Tallene før det er tatt vare på, og historikken får et hull. Verdiene som leses nå, står som «–»."
+msgstr "サービスは 10 s ごとに GPU を探します。過去の値は保持され、履歴には空白が残ります。現在値は「–」と表示されます。"
+
+#: crates/rigg/src/pages/grafikkort.rs:106
+msgid "Maskinen sover"
+msgstr "コンピューターはスリープ中です"
+
+#: crates/rigg/src/pages/grafikkort.rs:107
+msgid "Prøvene står stille og starter igjen 2 s etter at maskinen våkner."
+msgstr "サンプリングは一時停止し、スリープ解除から 2 s 後に再開します。"
+
+#: crates/rigg/src/pages/grafikkort.rs:110 crates/rigg/src/pages/grafikkort.rs:193
+msgid "Fant ingen NVIDIA-driver"
+msgstr "NVIDIA ドライバーが見つかりません"
+
+#: crates/rigg/src/pages/grafikkort.rs:194
+msgid "Prosessor, minne og sensorer vises som vanlig. Når driveren er installert og lastet, leses kortet av seg selv. Tjenesten prøver hvert 60. s."
+msgstr "CPU、メモリ、センサーは通常どおり表示されます。ドライバーがインストールされ、読み込まれると、GPU の監視が自動で始まります。サービスは 60 s ごとに再試行します。"
+
+#: crates/rigg/src/pages/grafikkort.rs:198
+msgid "En ny NVIDIA-driver er installert, men den gamle kjører fortsatt. Start maskinen på nytt for å lese skjermkortet."
+msgstr "新しい NVIDIA ドライバーはインストール済みですが、古いドライバーがまだ動作しています。GPU の監視を再開するには、コンピューターを再起動してください。"
+
+#: crates/rigg/src/pages/grafikkort.rs:200
+msgid "Venter på tjenesten"
+msgstr "サービスの応答待ち"
+
+#: crates/rigg/src/pages/grafikkort.rs:200
+msgid "Skjermkortet vises når tjenesten svarer."
+msgstr "サービスから応答があると GPU が表示されます。"
+
+#: crates/rigg/src/pages/grafikkort.rs:201
+msgid "Leser skjermkortet …"
+msgstr "GPU データを読み込み中…"
+
+#: crates/rigg/src/pages/grafikkort.rs:201
+msgid "De faste dataene leses de første sekundene."
+msgstr "最初の数秒で静的データを読み込みます。"
+
+#: crates/rigg/src/pages/grafikkort.rs:243
+msgid "Faste data er lest på nytt"
+msgstr "ハードウェア情報を更新しました"
+
+#: crates/rigg/src/pages/grafikkort.rs:264
+msgid "Klokker"
+msgstr "クロック"
+
+#: crates/rigg/src/pages/grafikkort.rs:271
+msgid "Nå"
+msgstr "現在"
+
+#: crates/rigg/src/pages/grafikkort.rs:271
+msgid "Maks (driver)"
+msgstr "最大（ドライバー）"
+
+#: crates/rigg/src/pages/grafikkort.rs:279
+msgid "Kjerne"
+msgstr "コア"
+
+#: crates/rigg/src/pages/grafikkort.rs:279
+msgid "Minne"
+msgstr "メモリ"
+
+#: crates/rigg/src/pages/grafikkort.rs:279
+msgid "Video"
+msgstr "ビデオ"
+
+#: crates/rigg/src/pages/grafikkort.rs:321 crates/rigg/src/pages/grafikkort.rs:329
+msgid "Skjul UUID"
+msgstr "UUID を非表示"
+
+#: crates/rigg/src/pages/grafikkort.rs:321 crates/rigg/src/pages/grafikkort.rs:329
+msgid "Vis UUID"
+msgstr "UUID を表示"
+
+#: crates/rigg/src/pages/grafikkort.rs:337 crates/rigg/src/pages/grafikkort.rs:338
+msgid "Kopier UUID"
+msgstr "UUID をコピー"
+
+#: crates/rigg/src/pages/grafikkort.rs:343
+msgid "UUID kopiert"
+msgstr "UUID をコピーしました"
+
+#: crates/rigg/src/pages/grafikkort.rs:395
+msgid "NVML og sysfs"
+msgstr "NVML と sysfs"
+
+#: crates/rigg/src/pages/grafikkort.rs:395
+msgid "testdata"
+msgstr "テストデータ"
+
+#: crates/rigg/src/pages/grafikkort.rs:396
+msgid "{app} – Grafikkort ({kilde}, {dato})"
+msgstr "{app} – GPU（{kilde}、{dato}）"
+
+#: crates/rigg/src/pages/grafikkort.rs:397
+msgid "UUID maskert"
+msgstr "UUID はマスク済み"

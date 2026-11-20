@@ -4,35 +4,47 @@
 //! **Tdie** når den finnes, ikke Tctl.
 
 use crate::model::{HwmonDevice, HwmonSensor, SysSample};
+use crate::{tr, trf};
 
-const DEVICES: &[(&str, &str)] = &[
-    ("k10temp", "Prosessor"),
-    ("coretemp", "Prosessor"),
-    ("zenpower", "Prosessor"),
-    ("iwlwifi", "Wi-Fi-kort"),
-    ("ucsi_source_psy", "USB-C-kontroller (skjermkort)"),
-    ("hidpp_battery", "Batteri i trådløs mus/tastatur"),
-    ("nvme", "NVMe-disk"),
-    ("drivetemp", "Disk"),
-    ("amdgpu", "AMD-grafikk"),
-    ("nouveau", "Skjermkort (nouveau)"),
-    ("acpitz", "ACPI-termisk sone"),
-    ("spd5118", "Minnemodul"),
-    ("jc42", "Minnemodul"),
-    ("cros_ec", "Innebygd kontroller"),
+type DeviceLabel = (&'static str, &'static str, fn() -> &'static str);
+
+const DEVICES: &[DeviceLabel] = &[
+    ("k10temp", "Prosessor", || tr!("Prosessor")),
+    ("coretemp", "Prosessor", || tr!("Prosessor")),
+    ("zenpower", "Prosessor", || tr!("Prosessor")),
+    ("iwlwifi", "Wi-Fi-kort", || tr!("Wi-Fi-kort")),
+    ("ucsi_source_psy", "USB-C-kontroller (skjermkort)", || tr!("USB-C-kontroller (skjermkort)")),
+    ("hidpp_battery", "Batteri i trådløs mus/tastatur", || tr!("Batteri i trådløs mus/tastatur")),
+    ("nvme", "NVMe-disk", || tr!("NVMe-disk")),
+    ("drivetemp", "Disk", || tr!("Disk")),
+    ("amdgpu", "AMD-grafikk", || tr!("AMD-grafikk")),
+    ("nouveau", "Skjermkort (nouveau)", || tr!("Skjermkort (nouveau)")),
+    ("acpitz", "ACPI-termisk sone", || tr!("ACPI-termisk sone")),
+    ("spd5118", "Minnemodul", || tr!("Minnemodul")),
+    ("jc42", "Minnemodul", || tr!("Minnemodul")),
+    ("cros_ec", "Innebygd kontroller", || tr!("Innebygd kontroller")),
 ];
 
 fn starts_digits(s: &str, prefix: &str) -> bool {
     s.strip_prefix(prefix).is_some_and(|r| r.chars().next().is_some_and(|c| c.is_ascii_digit()))
 }
 
+pub fn is_motherboard(raw: &str) -> bool {
+    ["nct", "it", "f71", "w83"].iter().any(|p| starts_digits(raw, p))
+        || ["asus", "gigabyte_wmi", "dell_smm", "thinkpad"].iter().any(|p| raw.starts_with(p))
+}
+
 /// «Prosessor» for k10temp, ellers det rå navnet.
 pub fn device_name(raw: &str) -> String {
+    device_label(raw, true)
+}
+
+pub(crate) fn device_label(raw: &str, localized: bool) -> String {
     let exact = ["k10temp", "coretemp", "zenpower", "nvme", "drivetemp", "amdgpu", "nouveau", "acpitz", "spd5118", "jc42"];
-    for (k, v) in DEVICES {
+    for (k, nb, translate) in DEVICES {
         let hit = if exact.contains(k) { raw == *k } else { raw.starts_with(k) };
         if hit {
-            return (*v).to_string();
+            return if localized { translate() } else { nb }.to_string();
         }
     }
     let ath = raw.strip_prefix("ath").is_some_and(|r| {
@@ -40,41 +52,49 @@ pub fn device_name(raw: &str) -> String {
         rest.len() < r.len() && rest.starts_with('k')
     });
     if ath || starts_digits(raw, "mt7") {
-        return "Wi-Fi-kort".into();
+        return if localized { tr!("Wi-Fi-kort") } else { "Wi-Fi-kort" }.into();
     }
-    if ["nct", "it", "f71", "w83"].iter().any(|p| starts_digits(raw, p))
-        || ["asus", "gigabyte_wmi", "dell_smm", "thinkpad"].iter().any(|p| raw.starts_with(p))
-    {
-        return "Hovedkort".into();
+    if is_motherboard(raw) {
+        return if localized { tr!("Hovedkort") } else { "Hovedkort" }.into();
     }
     if raw.to_ascii_lowercase().starts_with("battery") || starts_digits(raw, "BAT") {
-        return "Batteri".into();
+        return if localized { tr!("Batteri") } else { "Batteri" }.into();
     }
     if ["r8169", "igb", "e1000"].iter().any(|p| raw.starts_with(p)) {
-        return "Nettverkskort".into();
+        return if localized { tr!("Nettverkskort") } else { "Nettverkskort" }.into();
     }
     raw.to_string()
 }
 
-fn kind_name(kind: &str) -> &str {
-    match kind {
-        "temp" => "Temperatur",
-        "fan" => "Vifte",
-        "in" => "Spenning",
-        "power" => "Effekt",
-        "curr" => "Strøm",
-        other => other,
+fn kind_name(kind: &str, localized: bool) -> &str {
+    match (kind, localized) {
+        ("temp", true) => tr!("temperatur"),
+        ("fan", true) => tr!("vifte"),
+        ("in", true) => tr!("spenning"),
+        ("power", true) => tr!("effekt"),
+        ("curr", true) => tr!("strøm"),
+        ("temp", false) => "temperatur",
+        ("fan", false) => "vifte",
+        ("in", false) => "spenning",
+        ("power", false) => "effekt",
+        ("curr", false) => "strøm",
+        (other, _) => other,
     }
 }
 
 /// Navn på én sensor: «Prosessor · Tdie» eller «USB-C-kontroller (skjermkort) · strøm».
 /// Gir `(navn, rått navn til verktøytipset)`.
 pub fn sensor_name(dev: &HwmonDevice, x: &HwmonSensor) -> (String, String) {
-    let d = device_name(&dev.name);
-    let generic = x.label.is_empty() || x.label == x.key || is_generic_label(&x.label);
-    let label = if generic { kind_name(&x.kind).to_lowercase() } else { x.label.clone() };
+    let name = sensor_label(dev, x, true);
     let raw = format!("{} · {} ({})", dev.name, x.key, x.id.split('/').next().unwrap_or(""));
-    (format!("{d} · {label}"), raw)
+    (name, raw)
+}
+
+pub(crate) fn sensor_label(dev: &HwmonDevice, x: &HwmonSensor, localized: bool) -> String {
+    let d = device_label(&dev.name, localized);
+    let generic = x.label.is_empty() || x.label == x.key || is_generic_label(&x.label);
+    let label = if generic { kind_name(&x.kind, localized) } else { &x.label };
+    format!("{d} · {label}")
 }
 
 fn is_generic_label(l: &str) -> bool {
@@ -90,16 +110,16 @@ pub fn is_physical_net(name: &str) -> bool {
 /// «Wi-Fi (wlo1)», «Ethernet (enp24s0)».
 pub fn net_name(name: &str, wireless: bool) -> String {
     if !is_physical_net(name) {
-        return format!("Virtuelt ({name})");
+        return trf!("Virtuelt ({navn})", navn = name);
     }
     if wireless || name.starts_with("wl") {
-        return format!("Wi-Fi ({name})");
+        return trf!("Wi-Fi ({navn})", navn = name);
     }
     if name.starts_with("en") || name.starts_with("eth") {
-        return format!("Ethernet ({name})");
+        return trf!("Ethernet ({navn})", navn = name);
     }
     if name.starts_with("ww") {
-        return format!("Mobilnett ({name})");
+        return trf!("Mobilnett ({navn})", navn = name);
     }
     name.to_string()
 }

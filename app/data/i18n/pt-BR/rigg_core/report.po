@@ -1,0 +1,321 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg-core/src/report.rs:166
+msgid "Felt"
+msgstr "Campo"
+
+#: crates/rigg-core/src/report.rs:166
+msgid "Verdi"
+msgstr "Valor"
+
+#: crates/rigg-core/src/report.rs:284
+msgid "Leses med NVML"
+msgstr "Lido via NVML"
+
+#: crates/rigg-core/src/report.rs:285
+msgid "Driveren er oppdatert ({installert} er installert, {kjorer} kjører). Start maskinen på nytt for å lese skjermkortet."
+msgstr "Driver atualizado ({installert} instalado, {kjorer} em execução). Reinicie o computador para retomar o monitoramento da GPU."
+
+#: crates/rigg-core/src/report.rs:287
+msgid "ny"
+msgstr "driver novo"
+
+#: crates/rigg-core/src/report.rs:288
+msgid "den gamle"
+msgstr "driver antigo"
+
+#: crates/rigg-core/src/report.rs:290
+msgid "Fant ingen NVIDIA-driver"
+msgstr "Nenhum driver NVIDIA encontrado"
+
+#: crates/rigg-core/src/report.rs:291
+msgid "Skjermkortet svarer ikke"
+msgstr "A GPU não responde"
+
+#: crates/rigg-core/src/report.rs:292
+msgid "Maskinen sover"
+msgstr "Computador em suspensão"
+
+#: crates/rigg-core/src/report.rs:299
+msgid "Temperatur"
+msgstr "Temperatura"
+
+#: crates/rigg-core/src/report.rs:300
+msgid "GPU-last"
+msgstr "Carga GPU"
+
+#: crates/rigg-core/src/report.rs:301
+msgid "Minnekontroller-last"
+msgstr "Carga do controlador de memória"
+
+#: crates/rigg-core/src/report.rs:302
+msgid "Videokoder"
+msgstr "Codificador de vídeo"
+
+#: crates/rigg-core/src/report.rs:303
+msgid "Videodekoder"
+msgstr "Decodificador de vídeo"
+
+#: crates/rigg-core/src/report.rs:304
+msgid "Kjerneklokke"
+msgstr "Clock do núcleo"
+
+#: crates/rigg-core/src/report.rs:305
+msgid "SM-klokke"
+msgstr "Clock de SM"
+
+#: crates/rigg-core/src/report.rs:306
+msgid "Minneklokke"
+msgstr "Clock da memória"
+
+#: crates/rigg-core/src/report.rs:307
+msgid "Videoklokke"
+msgstr "Clock de vídeo"
+
+#: crates/rigg-core/src/report.rs:308
+msgid "Effekttrekk"
+msgstr "Consumo de potência"
+
+#: crates/rigg-core/src/report.rs:309
+msgid "Effektgrense"
+msgstr "Limite de potência"
+
+#: crates/rigg-core/src/report.rs:310
+msgid "Viftefart"
+msgstr "Velocidade da ventoinha"
+
+#: crates/rigg-core/src/report.rs:311
+msgid "Videominne brukt"
+msgstr "Memória de vídeo usada"
+
+#: crates/rigg-core/src/report.rs:312
+msgid "PCIe-generasjon"
+msgstr "Geração PCIe"
+
+#: crates/rigg-core/src/report.rs:316
+msgid "Vifte {nr}, turtall"
+msgstr "Ventoinha {nr} (rpm)"
+
+#: crates/rigg-core/src/report.rs:318
+msgid "Vifte {nr}"
+msgstr "Ventoinha {nr}"
+
+#: crates/rigg-core/src/report.rs:326
+msgid "mottatt"
+msgstr "recebido"
+
+#: crates/rigg-core/src/report.rs:326
+msgid "sendt"
+msgstr "enviado"
+
+#: crates/rigg-core/src/report.rs:328
+msgid "lesing"
+msgstr "leitura"
+
+#: crates/rigg-core/src/report.rs:329
+msgid "skriving"
+msgstr "gravação"
+
+#: crates/rigg-core/src/report.rs:330
+msgid "aktivitet"
+msgstr "atividade"
+
+#: crates/rigg-core/src/report.rs:331
+msgid "temperatur"
+msgstr "temperatura"
+
+#: crates/rigg-core/src/report.rs:335 crates/rigg-core/src/report.rs:337 crates/rigg-core/src/report.rs:341
+msgid "Prosessor"
+msgstr "Processador"
+
+#: crates/rigg-core/src/report.rs:335
+msgid "Total last"
+msgstr "Carga total"
+
+#: crates/rigg-core/src/report.rs:336
+msgid "CPU-temperatur"
+msgstr "Temperatura da CPU"
+
+#: crates/rigg-core/src/report.rs:339
+msgid "Tråd {nr}"
+msgstr "Thread {nr}"
+
+#: crates/rigg-core/src/report.rs:340
+msgid "Last"
+msgstr "Carga"
+
+#: crates/rigg-core/src/report.rs:340
+msgid "Klokke"
+msgstr "Frequência"
+
+#: crates/rigg-core/src/report.rs:343
+msgid "Minne"
+msgstr "Memória"
+
+#: crates/rigg-core/src/report.rs:343
+msgid "Brukt av totalt"
+msgstr "Proporção usada"
+
+#: crates/rigg-core/src/report.rs:344
+msgid "RAM brukt"
+msgstr "RAM usada"
+
+#: crates/rigg-core/src/report.rs:345
+msgid "RAM ledig"
+msgstr "RAM disponível"
+
+#: crates/rigg-core/src/report.rs:346
+msgid "Swap brukt"
+msgstr "Swap usado"
+
+#: crates/rigg-core/src/report.rs:347
+msgid "Nett"
+msgstr "Rede"
+
+#: crates/rigg-core/src/report.rs:349
+msgid "Disker"
+msgstr "Discos"
+
+#: crates/rigg-core/src/report.rs:361
+msgid "Sensorer"
+msgstr "Sensores"
+
+#: crates/rigg-core/src/report.rs:377
+msgid "Sensor"
+msgstr "Sensor"
+
+#: crates/rigg-core/src/report.rs:377
+msgid "Nå"
+msgstr "Atual"
+
+#: crates/rigg-core/src/report.rs:377
+msgid "Min"
+msgstr "Mín."
+
+#: crates/rigg-core/src/report.rs:377
+msgid "Maks"
+msgstr "Máx."
+
+#: crates/rigg-core/src/report.rs:377
+msgid "Snitt"
+msgstr "Média"
+
+#: crates/rigg-core/src/report.rs:381
+msgid "Nå: prøven fra {tid}."
+msgstr "Atual: amostra de {tid}."
+
+#: crates/rigg-core/src/report.rs:384
+msgid "Min og maks siden {tid}."
+msgstr "Mín. e máx. desde {tid}."
+
+#: crates/rigg-core/src/report.rs:387
+msgid "Snitt siden {tid}."
+msgstr "Média desde {tid}."
+
+#: crates/rigg-core/src/report.rs:399
+msgid "{app} · rapport"
+msgstr "{app} · relatório"
+
+#: crates/rigg-core/src/report.rs:412
+msgid "App"
+msgstr "Aplicativo"
+
+#: crates/rigg-core/src/report.rs:412
+msgid "{navn} {versjon} · bygg {bygg}"
+msgstr "{navn} {versjon} · compilação {bygg}"
+
+#: crates/rigg-core/src/report.rs:413
+msgid "Laget"
+msgstr "Criado"
+
+#: crates/rigg-core/src/report.rs:418
+msgid "Tjenesten"
+msgstr "Serviço"
+
+#: crates/rigg-core/src/report.rs:419
+msgid "{navn} {versjon} · bygg {bygg} · {kilde}"
+msgstr "{navn} {versjon} · compilação {bygg} · {kilde}"
+
+#: crates/rigg-core/src/report.rs:425
+msgid "NVML, bare lesing"
+msgstr "NVML, somente leitura"
+
+#: crates/rigg-core/src/report.rs:426
+msgid "testdata"
+msgstr "dados de teste"
+
+#: crates/rigg-core/src/report.rs:427
+msgid "uten skjermkort"
+msgstr "sem GPU"
+
+#: crates/rigg-core/src/report.rs:428
+msgid "ukjent kilde"
+msgstr "fonte desconhecida"
+
+#: crates/rigg-core/src/report.rs:433
+msgid "Operativsystem"
+msgstr "Sistema operacional"
+
+#: crates/rigg-core/src/report.rs:434
+msgid "Kjerne"
+msgstr "Kernel"
+
+#: crates/rigg-core/src/report.rs:439
+msgid "NVIDIA-driver"
+msgstr "Driver NVIDIA"
+
+#: crates/rigg-core/src/report.rs:439
+msgid "Ikke funnet"
+msgstr "Não encontrado"
+
+#: crates/rigg-core/src/report.rs:441
+msgid "CUDA (driver)"
+msgstr "CUDA (driver)"
+
+#: crates/rigg-core/src/report.rs:444
+msgid "Serienumre og UUID"
+msgstr "Números de série e UUIDs"
+
+#: crates/rigg-core/src/report.rs:445
+msgid "Tatt med"
+msgstr "Incluídos"
+
+#: crates/rigg-core/src/report.rs:445
+msgid "Ikke tatt med (velg «Ta med serienumre og UUID» når du lagrer)"
+msgstr "Não incluídos (marque “Incluir números de série e UUIDs” ao salvar)"
+
+#: crates/rigg-core/src/report.rs:452
+msgid "Skjermkort"
+msgstr "GPU"
+
+#: crates/rigg-core/src/report.rs:453
+msgid "Ingen skjermkort funnet"
+msgstr "Nenhuma GPU encontrada"
+
+#: crates/rigg-core/src/report.rs:454 crates/rigg-core/src/report.rs:469 crates/rigg-core/src/report.rs:470
+msgid "Tilstand"
+msgstr "Estado"
+
+#: crates/rigg-core/src/report.rs:461
+msgid "Skjermkort {nr} · {navn}"
+msgstr "GPU {nr} · {navn}"
+
+#: crates/rigg-core/src/report.rs:463
+msgid "Skjermkort · {navn}"
+msgstr "GPU · {navn}"
+
+#: crates/rigg-core/src/report.rs:472
+msgid "Siden"
+msgstr "Desde"
+
+#: crates/rigg-core/src/report.rs:482
+msgid "Maskinen"
+msgstr "Computador"

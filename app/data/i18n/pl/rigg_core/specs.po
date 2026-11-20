@@ -1,0 +1,29 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n == 1 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : 2);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg-core/src/specs.rs:163
+msgid "Minneleverandøren (Samsung eller Micron) står i VBIOS-en. NVML oppgir den ikke, og VBIOS kan ikke leses uten root."
+msgstr "Producent pamięci (Samsung lub Micron) jest zapisany w VBIOS-ie. NVML go nie podaje, a odczyt VBIOS-u wymaga uprawnień root."
+
+#: crates/rigg-core/src/specs.rs:174
+msgid "{rop} ROP × {mhz} MHz (referanse-boost) = {verdi} GPixel/s"
+msgstr "{rop} ROP × {mhz} MHz (referencyjny boost) = {verdi} GPixel/s"
+
+#: crates/rigg-core/src/specs.rs:183
+msgid "{tmu} TMU × {mhz} MHz (referanse-boost) = {verdi} GTexel/s"
+msgstr "{tmu} TMU × {mhz} MHz (referencyjny boost) = {verdi} GTexel/s"
+
+#: crates/rigg-core/src/specs.rs:192
+msgid "{cuda} CUDA-kjerner × 2 operasjoner (FMA) × {mhz} MHz = {verdi} TFLOPS"
+msgstr "{cuda} rdzeni CUDA × 2 operacje (FMA) × {mhz} MHz = {verdi} TFLOPS"
+
+#: crates/rigg-core/src/specs.rs:202
+msgid "{bredde} bit ÷ 8 × {gbps} Gbps = {verdi} GB/s"
+msgstr "{bredde} bitów ÷ 8 × {gbps} Gbps = {verdi} GB/s"

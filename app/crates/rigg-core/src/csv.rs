@@ -131,7 +131,7 @@ fn gpu_field(field: &str) -> (String, &'static str, usize) {
 }
 
 /// Navnet på et skjermkort i kolonnene: «GPU» med ett kort, «GPU 1», «GPU 2» med flere.
-fn gpu_prefix(id: &str, t: Option<&Telemetry>) -> String {
+pub(crate) fn gpu_prefix(id: &str, t: Option<&Telemetry>) -> String {
     match t {
         Some(t) if t.gpus.len() > 1 => match t.gpus.keys().position(|k| k == id) {
             Some(i) => format!("GPU {}", i + 1),
@@ -144,6 +144,10 @@ fn gpu_prefix(id: &str, t: Option<&Telemetry>) -> String {
 /// Navn, enhet og desimaler for en sensornøkkel. `t` gir navnene på
 /// hwmon-sensorene og antall skjermkort.
 pub fn column(key: &str, t: Option<&Telemetry>) -> Column {
+    sensor_column(key, t, false)
+}
+
+pub(crate) fn sensor_column(key: &str, t: Option<&Telemetry>, localized_hwmon: bool) -> Column {
     let c = |name: String, unit: &'static str, decimals: usize| Column { key: key.to_string(), name, unit, decimals };
     if let Some((id, field)) = crate::sensor_key::split_gpu(key) {
         let (n, u, d) = gpu_field(field);
@@ -194,8 +198,8 @@ pub fn column(key: &str, t: Option<&Telemetry>) -> Column {
             let hit = find(dev, 0).map(|h| (h, *dev)).or_else(|| split.and_then(|(b, n)| find(b, n).map(|h| (h, b))));
             let base = hit.map(|(_, b)| b).or(split.map(|(b, _)| b)).unwrap_or(dev);
             let name = hit
-                .and_then(|(h, _)| h.sensors.iter().find(|x| x.key == *sensor).map(|x| crate::sensormeta::sensor_name(h, x).0))
-                .unwrap_or_else(|| format!("{} · {sensor}", crate::sensormeta::device_name(base)));
+                .and_then(|(h, _)| h.sensors.iter().find(|x| x.key == *sensor).map(|x| crate::sensormeta::sensor_label(h, x, localized_hwmon)))
+                .unwrap_or_else(|| format!("{} · {sensor}", crate::sensormeta::device_label(base, localized_hwmon)));
             c(name, unit, d)
         }
         _ => c(key.to_string(), "", 2),

@@ -1,0 +1,152 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: nb\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: crates/rigg/src/pages/grafikkort.rs:89 crates/rigg/src/pages/grafikkort.rs:93 crates/rigg/src/pages/grafikkort.rs:100 crates/rigg/src/pages/grafikkort.rs:106 crates/rigg/src/pages/grafikkort.rs:110
+msgid "Tilstand"
+msgstr "Tilstand"
+
+#: crates/rigg/src/pages/grafikkort.rs:93 crates/rigg/src/pages/grafikkort.rs:197
+msgid "Driveren er oppdatert"
+msgstr "Driveren er oppdatert"
+
+#: crates/rigg/src/pages/grafikkort.rs:94
+msgid "Kjører"
+msgstr "Kjører"
+
+#: crates/rigg/src/pages/grafikkort.rs:95
+msgid "Installert"
+msgstr "Installert"
+
+#: crates/rigg/src/pages/grafikkort.rs:96
+msgid "Hva du kan gjøre"
+msgstr "Hva du kan gjøre"
+
+#: crates/rigg/src/pages/grafikkort.rs:96
+msgid "Start maskinen på nytt. Da lastes den nye driveren, og kortet leses som før."
+msgstr "Start maskinen på nytt. Da lastes den nye driveren, og kortet leses som før."
+
+#: crates/rigg/src/pages/grafikkort.rs:97
+msgid "Tjenesten sjekker driveren hvert 60. s. Verdiene under er de siste som ble lest."
+msgstr "Tjenesten sjekker driveren hvert 60. s. Verdiene under er de siste som ble lest."
+
+#: crates/rigg/src/pages/grafikkort.rs:100
+msgid "Skjermkortet svarer ikke"
+msgstr "Skjermkortet svarer ikke"
+
+#: crates/rigg/src/pages/grafikkort.rs:101
+msgid "Siden"
+msgstr "Siden"
+
+#: crates/rigg/src/pages/grafikkort.rs:102
+msgid "Hvorfor"
+msgstr "Hvorfor"
+
+#: crates/rigg/src/pages/grafikkort.rs:102
+msgid "Det skjer når kortet faller av bussen (Xid 79) eller trekkes ut."
+msgstr "Det skjer når kortet faller av bussen (Xid 79) eller trekkes ut."
+
+#: crates/rigg/src/pages/grafikkort.rs:103
+msgid "Tjenesten prøver å finne kortet igjen hvert 10. s. Tallene før det er tatt vare på, og historikken får et hull. Verdiene som leses nå, står som «–»."
+msgstr "Tjenesten prøver å finne kortet igjen hvert 10. s. Tallene før det er tatt vare på, og historikken får et hull. Verdiene som leses nå, står som «–»."
+
+#: crates/rigg/src/pages/grafikkort.rs:106
+msgid "Maskinen sover"
+msgstr "Maskinen sover"
+
+#: crates/rigg/src/pages/grafikkort.rs:107
+msgid "Prøvene står stille og starter igjen 2 s etter at maskinen våkner."
+msgstr "Prøvene står stille og starter igjen 2 s etter at maskinen våkner."
+
+#: crates/rigg/src/pages/grafikkort.rs:110 crates/rigg/src/pages/grafikkort.rs:193
+msgid "Fant ingen NVIDIA-driver"
+msgstr "Fant ingen NVIDIA-driver"
+
+#: crates/rigg/src/pages/grafikkort.rs:194
+msgid "Prosessor, minne og sensorer vises som vanlig. Når driveren er installert og lastet, leses kortet av seg selv. Tjenesten prøver hvert 60. s."
+msgstr "Prosessor, minne og sensorer vises som vanlig. Når driveren er installert og lastet, leses kortet av seg selv. Tjenesten prøver hvert 60. s."
+
+#: crates/rigg/src/pages/grafikkort.rs:198
+msgid "En ny NVIDIA-driver er installert, men den gamle kjører fortsatt. Start maskinen på nytt for å lese skjermkortet."
+msgstr "En ny NVIDIA-driver er installert, men den gamle kjører fortsatt. Start maskinen på nytt for å lese skjermkortet."
+
+#: crates/rigg/src/pages/grafikkort.rs:200
+msgid "Venter på tjenesten"
+msgstr "Venter på tjenesten"
+
+#: crates/rigg/src/pages/grafikkort.rs:200
+msgid "Skjermkortet vises når tjenesten svarer."
+msgstr "Skjermkortet vises når tjenesten svarer."
+
+#: crates/rigg/src/pages/grafikkort.rs:201
+msgid "Leser skjermkortet …"
+msgstr "Leser skjermkortet …"
+
+#: crates/rigg/src/pages/grafikkort.rs:201
+msgid "De faste dataene leses de første sekundene."
+msgstr "De faste dataene leses de første sekundene."
+
+#: crates/rigg/src/pages/grafikkort.rs:243
+msgid "Faste data er lest på nytt"
+msgstr "Faste data er lest på nytt"
+
+#: crates/rigg/src/pages/grafikkort.rs:264
+msgid "Klokker"
+msgstr "Klokker"
+
+#: crates/rigg/src/pages/grafikkort.rs:271
+msgid "Nå"
+msgstr "Nå"
+
+#: crates/rigg/src/pages/grafikkort.rs:271
+msgid "Maks (driver)"
+msgstr "Maks (driver)"
+
+#: crates/rigg/src/pages/grafikkort.rs:279
+msgid "Kjerne"
+msgstr "Kjerne"
+
+#: crates/rigg/src/pages/grafikkort.rs:279
+msgid "Minne"
+msgstr "Minne"
+
+#: crates/rigg/src/pages/grafikkort.rs:279
+msgid "Video"
+msgstr "Video"
+
+#: crates/rigg/src/pages/grafikkort.rs:321 crates/rigg/src/pages/grafikkort.rs:329
+msgid "Skjul UUID"
+msgstr "Skjul UUID"
+
+#: crates/rigg/src/pages/grafikkort.rs:321 crates/rigg/src/pages/grafikkort.rs:329
+msgid "Vis UUID"
+msgstr "Vis UUID"
+
+#: crates/rigg/src/pages/grafikkort.rs:337 crates/rigg/src/pages/grafikkort.rs:338
+msgid "Kopier UUID"
+msgstr "Kopier UUID"
+
+#: crates/rigg/src/pages/grafikkort.rs:343
+msgid "UUID kopiert"
+msgstr "UUID kopiert"
+
+#: crates/rigg/src/pages/grafikkort.rs:395
+msgid "NVML og sysfs"
+msgstr "NVML og sysfs"
+
+#: crates/rigg/src/pages/grafikkort.rs:395
+msgid "testdata"
+msgstr "testdata"
+
+#: crates/rigg/src/pages/grafikkort.rs:396
+msgid "{app} – Grafikkort ({kilde}, {dato})"
+msgstr "{app} – Grafikkort ({kilde}, {dato})"
+
+#: crates/rigg/src/pages/grafikkort.rs:397
+msgid "UUID maskert"
+msgstr "UUID maskert"

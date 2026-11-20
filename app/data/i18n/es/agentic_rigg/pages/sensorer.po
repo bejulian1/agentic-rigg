@@ -1,0 +1,581 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/pages/sensorer.rs:344
+msgid "GPU-temp"
+msgstr "Temp. GPU"
+
+#: crates/rigg/src/pages/sensorer.rs:345 crates/rigg/src/pages/sensorer.rs:540
+msgid "GPU-last"
+msgstr "Carga GPU"
+
+#: crates/rigg/src/pages/sensorer.rs:346
+msgid "Minnekontr."
+msgstr "Contr. mem."
+
+#: crates/rigg/src/pages/sensorer.rs:347
+msgid "Encoder"
+msgstr "Codificador"
+
+#: crates/rigg/src/pages/sensorer.rs:348
+msgid "Decoder"
+msgstr "Decodificador"
+
+#: crates/rigg/src/pages/sensorer.rs:349 crates/rigg/src/pages/sensorer.rs:544
+msgid "Kjerneklokke"
+msgstr "Frecuencia del núcleo"
+
+#: crates/rigg/src/pages/sensorer.rs:350 crates/rigg/src/pages/sensorer.rs:545
+msgid "SM-klokke"
+msgstr "Frecuencia SM"
+
+#: crates/rigg/src/pages/sensorer.rs:351 crates/rigg/src/pages/sensorer.rs:546
+msgid "Minneklokke"
+msgstr "Frecuencia de memoria"
+
+#: crates/rigg/src/pages/sensorer.rs:352 crates/rigg/src/pages/sensorer.rs:547
+msgid "Videoklokke"
+msgstr "Frecuencia de vídeo"
+
+#: crates/rigg/src/pages/sensorer.rs:353
+msgid "Effekt"
+msgstr "Potencia"
+
+#: crates/rigg/src/pages/sensorer.rs:354 crates/rigg/src/pages/sensorer.rs:549
+msgid "Effektgrense"
+msgstr "Límite de potencia"
+
+#: crates/rigg/src/pages/sensorer.rs:355
+msgid "Vifte"
+msgstr "Ventilador"
+
+#: crates/rigg/src/pages/sensorer.rs:358
+msgid "Vifte {nr} o/min"
+msgstr "Ventilador {nr} rpm"
+
+#: crates/rigg/src/pages/sensorer.rs:359 crates/rigg/src/pages/sensorer.rs:553
+msgid "Vifte {nr}"
+msgstr "Ventilador {nr}"
+
+#: crates/rigg/src/pages/sensorer.rs:366
+msgid "CPU-temp"
+msgstr "Temp. CPU"
+
+#: crates/rigg/src/pages/sensorer.rs:368
+msgid "CPU-last"
+msgstr "Carga CPU"
+
+#: crates/rigg/src/pages/sensorer.rs:369
+msgid "CPU-tråd {nr}"
+msgstr "Hilo CPU {nr}"
+
+#: crates/rigg/src/pages/sensorer.rs:370 crates/rigg/src/pages/sensorer.rs:613
+msgid "Tråd {nr}"
+msgstr "Hilo {nr}"
+
+#: crates/rigg/src/pages/sensorer.rs:371
+msgid "RAM brukt"
+msgstr "RAM usada"
+
+#: crates/rigg/src/pages/sensorer.rs:372 crates/rigg/src/pages/sensorer.rs:621
+msgid "Minne"
+msgstr "Memoria"
+
+#: crates/rigg/src/pages/sensorer.rs:373
+msgid "RAM ledig"
+msgstr "RAM disponible"
+
+#: crates/rigg/src/pages/sensorer.rs:374
+msgid "Swap"
+msgstr "Intercambio"
+
+#: crates/rigg/src/pages/sensorer.rs:375
+msgid "Mottatt"
+msgstr "Recibido"
+
+#: crates/rigg/src/pages/sensorer.rs:376
+msgid "Sendt"
+msgstr "Enviado"
+
+#: crates/rigg/src/pages/sensorer.rs:378 crates/rigg/src/pages/sensorer.rs:383
+msgid "Disk les"
+msgstr "Lectura de disco"
+
+#: crates/rigg/src/pages/sensorer.rs:379 crates/rigg/src/pages/sensorer.rs:384
+msgid "Disk skriv"
+msgstr "Escritura de disco"
+
+#: crates/rigg/src/pages/sensorer.rs:382
+msgid "Disktemp"
+msgstr "Temp. disco"
+
+#: crates/rigg/src/pages/sensorer.rs:385
+msgid "Disk aktiv"
+msgstr "Actividad de disco"
+
+#: crates/rigg/src/pages/sensorer.rs:402
+msgid "temp"
+msgstr "temp."
+
+#: crates/rigg/src/pages/sensorer.rs:402 crates/rigg/src/pages/sensorer.rs:640
+msgid "temperatur"
+msgstr "temperatura"
+
+#: crates/rigg/src/pages/sensorer.rs:403
+msgid "les"
+msgstr "lectura"
+
+#: crates/rigg/src/pages/sensorer.rs:403 crates/rigg/src/pages/sensorer.rs:646
+msgid "lesing"
+msgstr "lectura"
+
+#: crates/rigg/src/pages/sensorer.rs:404
+msgid "skriv"
+msgstr "escritura"
+
+#: crates/rigg/src/pages/sensorer.rs:404 crates/rigg/src/pages/sensorer.rs:647
+msgid "skriving"
+msgstr "escritura"
+
+#: crates/rigg/src/pages/sensorer.rs:405
+msgid "aktiv"
+msgstr "activo"
+
+#: crates/rigg/src/pages/sensorer.rs:405 crates/rigg/src/pages/sensorer.rs:649
+msgid "aktivitet"
+msgstr "actividad"
+
+#: crates/rigg/src/pages/sensorer.rs:539
+msgid "Temperatur"
+msgstr "Temperatura"
+
+#: crates/rigg/src/pages/sensorer.rs:539
+msgid "NVML · den eneste temperatursensoren på kortet"
+msgstr "NVML · único sensor de temperatura de la GPU"
+
+#: crates/rigg/src/pages/sensorer.rs:541
+msgid "Minnekontroller-last"
+msgstr "Carga del controlador de memoria"
+
+#: crates/rigg/src/pages/sensorer.rs:542
+msgid "Videokoder (encoder)"
+msgstr "Codificador de vídeo"
+
+#: crates/rigg/src/pages/sensorer.rs:543
+msgid "Videodekoder (decoder)"
+msgstr "Decodificador de vídeo"
+
+#: crates/rigg/src/pages/sensorer.rs:548
+msgid "Effekttrekk"
+msgstr "Consumo de energía"
+
+#: crates/rigg/src/pages/sensorer.rs:548
+msgid "Snitt for perioden, regnet fra kortets energiteller."
+msgstr "Media del periodo, calculada con el contador de energía de la GPU."
+
+#: crates/rigg/src/pages/sensorer.rs:549
+msgid "Grensen kortet håndhever nå."
+msgstr "Límite que aplica actualmente la GPU."
+
+#: crates/rigg/src/pages/sensorer.rs:556
+msgid "Viftefart"
+msgstr "Velocidad del ventilador"
+
+#: crates/rigg/src/pages/sensorer.rs:560
+msgid "Vifte {nr}, turtall"
+msgstr "Ventilador {nr} (rpm)"
+
+#: crates/rigg/src/pages/sensorer.rs:560
+msgid "Viftens turtall"
+msgstr "Ventilador (rpm)"
+
+#: crates/rigg/src/pages/sensorer.rs:563
+msgid "Videominne brukt"
+msgstr "Memoria de vídeo usada"
+
+#: crates/rigg/src/pages/sensorer.rs:564
+msgid "PCIe-generasjon"
+msgstr "Generación PCIe"
+
+#: crates/rigg/src/pages/sensorer.rs:565
+msgid "Generasjonen lenken går på nå. Kortet går ned i tomgang for å spare strøm."
+msgstr "Generación actual del enlace. En reposo, la GPU la reduce para ahorrar energía."
+
+#: crates/rigg/src/pages/sensorer.rs:577
+msgid "Skjermkort {nr} · {navn}"
+msgstr "GPU {nr} · {navn}"
+
+#: crates/rigg/src/pages/sensorer.rs:577
+msgid "Skjermkort"
+msgstr "GPU"
+
+#: crates/rigg/src/pages/sensorer.rs:594
+msgid "Temperatur ({sensor})"
+msgstr "Temperatura ({sensor})"
+
+#: crates/rigg/src/pages/sensorer.rs:594
+msgid "CPU-temperatur"
+msgstr "Temperatura de la CPU"
+
+#: crates/rigg/src/pages/sensorer.rs:595
+msgid "Temperatur fra den valgte CPU-sensoren. Samme verdi brukes i sidefeltet, på Oversikt og i Grafer."
+msgstr "Temperatura del sensor de CPU seleccionado. La barra lateral, el resumen y los gráficos usan el mismo valor."
+
+#: crates/rigg/src/pages/sensorer.rs:597
+msgid "Temperatur (Tctl)"
+msgstr "Temperatura (Tctl)"
+
+#: crates/rigg/src/pages/sensorer.rs:599
+msgid "Tctl rapporteres av CPU-driveren. Eventuell forskyvning fra brikketemperaturen avhenger av CPU-modellen."
+msgstr "El controlador de la CPU informa de Tctl. La diferencia respecto a la temperatura del chip depende del modelo de CPU."
+
+#: crates/rigg/src/pages/sensorer.rs:611
+msgid "Total last"
+msgstr "Carga total"
+
+#: crates/rigg/src/pages/sensorer.rs:617
+msgid "Prosessor"
+msgstr "Procesador"
+
+#: crates/rigg/src/pages/sensorer.rs:617
+msgid "/proc/stat, cpufreq og hwmon"
+msgstr "/proc/stat, cpufreq y hwmon"
+
+#: crates/rigg/src/pages/sensorer.rs:624
+msgid "Brukt"
+msgstr "Usado"
+
+#: crates/rigg/src/pages/sensorer.rs:624
+msgid "Det programmene bruker. Buffer og cache er ikke med."
+msgstr "Memoria usada por las aplicaciones, sin búferes ni caché."
+
+#: crates/rigg/src/pages/sensorer.rs:625
+msgid "Brukt av totalt"
+msgstr "Proporción usada"
+
+#: crates/rigg/src/pages/sensorer.rs:626
+msgid "Tilgjengelig"
+msgstr "Disponible"
+
+#: crates/rigg/src/pages/sensorer.rs:626
+msgid "Det som kan tas i bruk uten å bytte ut noe (MemAvailable)."
+msgstr "Memoria utilizable sin recurrir al área de intercambio (MemAvailable)."
+
+#: crates/rigg/src/pages/sensorer.rs:627
+msgid "Swap brukt"
+msgstr "Intercambio usado"
+
+#: crates/rigg/src/pages/sensorer.rs:642
+msgid "Fra SMART. UDisks2 leser den selv omtrent hvert 10. min, uten å vekke disken."
+msgstr "Dato de SMART. UDisks2 lo lee aproximadamente cada 10 min sin despertar el disco."
+
+#: crates/rigg/src/pages/sensorer.rs:651
+msgid "Andel av tiden disken hadde lesing eller skriving i gang."
+msgstr "Porcentaje de tiempo que el disco estuvo leyendo o escribiendo."
+
+#: crates/rigg/src/pages/sensorer.rs:656
+msgid "Disker"
+msgstr "Discos"
+
+#: crates/rigg/src/pages/sensorer.rs:656
+msgid "/proc/diskstats og SMART fra UDisks2"
+msgstr "/proc/diskstats y SMART de UDisks2"
+
+#: crates/rigg/src/pages/sensorer.rs:687
+msgid "Andre sensorer"
+msgstr "Otros sensores"
+
+#: crates/rigg/src/pages/sensorer.rs:696
+msgid "mottatt"
+msgstr "recibido"
+
+#: crates/rigg/src/pages/sensorer.rs:696
+msgid "sendt"
+msgstr "enviado"
+
+#: crates/rigg/src/pages/sensorer.rs:699
+msgid "ikke tilkoblet"
+msgstr "desconectado"
+
+#: crates/rigg/src/pages/sensorer.rs:705
+msgid "Nett"
+msgstr "Red"
+
+#: crates/rigg/src/pages/sensorer.rs:783 crates/rigg/src/pages/sensorer.rs:784 crates/rigg/src/pages/sensorer.rs:1422
+msgid "Fold sammen alle"
+msgstr "Contraer todo"
+
+#: crates/rigg/src/pages/sensorer.rs:791
+msgid "Filtrer"
+msgstr "Filtrar"
+
+#: crates/rigg/src/pages/sensorer.rs:795
+msgid "Filtrer sensorer"
+msgstr "Filtrar sensores"
+
+#: crates/rigg/src/pages/sensorer.rs:796
+msgid "Filtrer sensorer. Esc tømmer filteret og avslutter søket."
+msgstr "Filtra los sensores. Esc borra el filtro y cierra la búsqueda."
+
+#: crates/rigg/src/pages/sensorer.rs:800
+msgid "Min, maks og snitt regnes fra tjenesten startet eller du trykket ↺."
+msgstr "Mín., máx. y media se calculan desde el inicio del servicio o desde que pulsaste ↺."
+
+#: crates/rigg/src/pages/sensorer.rs:807 crates/rigg/src/pages/sensorer.rs:808
+msgid "Nullstill min, maks og snitt"
+msgstr "Restablecer mín., máx. y media"
+
+#: crates/rigg/src/pages/sensorer.rs:822
+msgid "Sensorer"
+msgstr "Sensores"
+
+#: crates/rigg/src/pages/sensorer.rs:832 crates/rigg/src/pages/sensorer.rs:1498
+msgid "Ingen sensorer passer filteret."
+msgstr "Ningún sensor coincide con el filtro."
+
+#: crates/rigg/src/pages/sensorer.rs:838
+msgid "Ikke tilgjengelig"
+msgstr "No disponible"
+
+#: crates/rigg/src/pages/sensorer.rs:839
+msgid "Det som ikke kan leses, og hvorfor"
+msgstr "Qué no se puede leer y por qué"
+
+#: crates/rigg/src/pages/sensorer.rs:905
+msgid "Snitt"
+msgstr "Media"
+
+#: crates/rigg/src/pages/sensorer.rs:906
+msgid "Snitt siden tjenesten startet eller siden siste nullstilling"
+msgstr "Media desde el inicio del servicio o el último restablecimiento"
+
+#: crates/rigg/src/pages/sensorer.rs:907
+msgid "Sensor"
+msgstr "Sensor"
+
+#: crates/rigg/src/pages/sensorer.rs:907
+msgid "Nå"
+msgstr "Actual"
+
+#: crates/rigg/src/pages/sensorer.rs:907
+msgid "Min"
+msgstr "Mín."
+
+#: crates/rigg/src/pages/sensorer.rs:907
+msgid "Maks"
+msgstr "Máx."
+
+#: crates/rigg/src/pages/sensorer.rs:1217
+msgid "Per tråd ({antall})"
+msgstr "Por hilo ({antall})"
+
+#: crates/rigg/src/pages/sensorer.rs:1285
+msgid "Kilde: {kilde}"
+msgstr "Origen: {kilde}"
+
+#: crates/rigg/src/pages/sensorer.rs:1286
+msgid "{navn}. Klikk for graf."
+msgstr "{navn}. Haz clic para abrir el gráfico."
+
+#: crates/rigg/src/pages/sensorer.rs:1422
+msgid "Fold ut alle"
+msgstr "Expandir todo"
+
+#: crates/rigg/src/pages/sensorer.rs:1554
+msgid "Ikke støttet"
+msgstr "No compatible"
+
+#: crates/rigg/src/pages/sensorer.rs:1555
+msgid "Kan ikke leses på dette kortet. Driveren svarer at verdien ikke støttes (NOT_SUPPORTED)."
+msgstr "No se puede leer en esta GPU. El controlador devuelve NOT_SUPPORTED."
+
+#: crates/rigg/src/pages/sensorer.rs:1580
+msgid "Snitt gir ikke mening for en generasjon."
+msgstr "No tiene sentido promediar generaciones del enlace."
+
+#: crates/rigg/src/pages/sensorer.rs:1621
+msgid "Min/maks siden {tid}"
+msgstr "Mín./máx. desde {tid}"
+
+#: crates/rigg/src/pages/sensorer.rs:1624
+msgid "Nullstill min, maks og snitt (regnet fra {tid})"
+msgstr "Restablecer mín., máx. y media (calculados desde {tid})"
+
+#: crates/rigg/src/pages/sensorer.rs:1626
+msgid "Min og maks huskes mellom økter, også når appen er lukket. Snitt gjelder siden {tid}."
+msgstr "Los valores mín. y máx. se conservan entre sesiones, incluso con la aplicación cerrada. La media se calcula desde {tid}."
+
+#: crates/rigg/src/pages/sensorer.rs:1628
+msgid "Min og maks gjelder siden tjenesten startet ({tid}). Snitt gjelder siden {snitt}."
+msgstr "Mín. y máx. se calculan desde el inicio del servicio ({tid}). La media se calcula desde {snitt}."
+
+#: crates/rigg/src/pages/sensorer.rs:1645
+msgid "Svarer ikke"
+msgstr "No responde"
+
+#: crates/rigg/src/pages/sensorer.rs:1647
+msgid "Skjermkortet svarer ikke ({detalj}). Tjenesten prøver å finne det igjen hvert 10. s."
+msgstr "La GPU no responde ({detalj}). El servicio la busca cada 10 s."
+
+#: crates/rigg/src/pages/sensorer.rs:1648
+msgid "Skjermkortet svarer ikke. Tjenesten prøver å finne det igjen hvert 10. s."
+msgstr "La GPU no responde. El servicio la busca cada 10 s."
+
+#: crates/rigg/src/pages/sensorer.rs:1663
+msgid "P-tilstand. P0 er full ytelse, P8 er dyp tomgang."
+msgstr "Estado de rendimiento. P0 indica el máximo rendimiento; P8, reposo profundo."
+
+#: crates/rigg/src/pages/sensorer.rs:1667
+msgid "Ingen begrensning"
+msgstr "Sin límite"
+
+#: crates/rigg/src/pages/sensorer.rs:1670
+msgid "Klokkebegrensning akkurat nå."
+msgstr "Límite de frecuencia actual."
+
+#: crates/rigg/src/pages/sensorer.rs:1671
+msgid "Klokkebegrensning akkurat nå. I P8 leses den ikke (kallet koster 25 ms)."
+msgstr "Límite de frecuencia actual. No se lee en P8 (la llamada tarda 25 ms)."
+
+#: crates/rigg/src/pages/sensorer.rs:1672
+msgid "Klokkebegrensning akkurat nå: {arsaker}."
+msgstr "Límite de frecuencia actual: {arsaker}."
+
+#: crates/rigg/src/pages/sensorer.rs:1673
+msgid "Klokkebegrensning akkurat nå: {arsaker}. I P8 leses den ikke (kallet koster 25 ms)."
+msgstr "Límite de frecuencia actual: {arsaker}. No se lee en P8 (la llamada tarda 25 ms)."
+
+#: crates/rigg/src/pages/sensorer.rs:1691
+msgid "Løsne «{navn}» fra statusblokken"
+msgstr "Desanclar «{navn}» del panel de estado"
+
+#: crates/rigg/src/pages/sensorer.rs:1691
+msgid "Fest «{navn}» i statusblokken"
+msgstr "Anclar «{navn}» al panel de estado"
+
+#: crates/rigg/src/pages/sensorer.rs:1710
+msgid "Statusblokken er full ({maks} av {maks})"
+msgstr "Panel de estado lleno ({maks} de {maks})"
+
+#: crates/rigg/src/pages/sensorer.rs:1710
+msgid "Løsne en verdi først, eller bytt ut en under Innstillinger › Sidefelt."
+msgstr "Desancla primero un valor o sustituye uno en Configuración › Barra lateral."
+
+#: crates/rigg/src/pages/sensorer.rs:1710
+msgid "Åpne"
+msgstr "Abrir"
+
+#: crates/rigg/src/pages/sensorer.rs:1726
+msgid "Løsne fra statusblokken"
+msgstr "Desanclar del panel de estado"
+
+#: crates/rigg/src/pages/sensorer.rs:1726
+msgid "Fest i statusblokken"
+msgstr "Anclar al panel de estado"
+
+#: crates/rigg/src/pages/sensorer.rs:1737
+msgid "Logges · alle sensorer er valgt"
+msgstr "Registro · todos los sensores seleccionados"
+
+#: crates/rigg/src/pages/sensorer.rs:1740
+msgid "Ta ut av loggen"
+msgstr "Quitar del registro"
+
+#: crates/rigg/src/pages/sensorer.rs:1740
+msgid "Ta med i loggen"
+msgstr "Incluir en el registro"
+
+#: crates/rigg/src/pages/sensorer.rs:1747
+msgid "Nullstill min og maks"
+msgstr "Restablecer mín. y máx."
+
+#: crates/rigg/src/pages/sensorer.rs:1754
+msgid "Rekkefølge i statusblokken …"
+msgstr "Reordenar el panel de estado…"
+
+#: crates/rigg/src/pages/sensorer.rs:1792
+msgid "Min, maks og snitt er nullstilt"
+msgstr "Mín., máx. y media restablecidos"
+
+#: crates/rigg/src/pages/sensorer.rs:1793
+msgid "Tallene var regnet fra {tid}."
+msgstr "Los valores se calcularon desde {tid}."
+
+#: crates/rigg/src/pages/sensorer.rs:1797
+msgid "Min og maks for «{navn}» er nullstilt"
+msgstr "Mín. y máx. de «{navn}» restablecidos"
+
+#: crates/rigg/src/pages/sensorer.rs:1801
+msgid "Angre"
+msgstr "Deshacer"
+
+#: crates/rigg/src/pages/sensorer.rs:1832
+msgid "Kunne ikke nullstille"
+msgstr "No se pudo restablecer"
+
+#: crates/rigg/src/pages/sensorer.rs:1874
+msgid "Tidsvindu for grafen"
+msgstr "Intervalo del gráfico"
+
+#: crates/rigg/src/pages/sensorer.rs:1884 crates/rigg/src/pages/sensorer.rs:1885
+msgid "Lukk grafen"
+msgstr "Cerrar gráfico"
+
+#: crates/rigg/src/pages/sensorer.rs:1947
+msgid "Graf: {navn}, kilde {kilde}. Mellomrom setter på pause."
+msgstr "Gráfico: {navn}, origen {kilde}. Pulsa Espacio para pausar."
+
+#: crates/rigg/src/pages/sensorer.rs:1948
+msgid "Graf: {navn}. Mellomrom setter på pause."
+msgstr "Gráfico: {navn}. Pulsa Espacio para pausar."
+
+#: crates/rigg/src/pages/sensorer.rs:2123
+msgid "Ikke innsamlet av appen. Tilgjengelighet for dette kortet og denne driveren er ikke verifisert her."
+msgstr "La aplicación no recopila este dato. No se ha comprobado su disponibilidad con esta GPU y este controlador."
+
+#: crates/rigg/src/pages/sensorer.rs:2124
+msgid "Skjermkort · Hotspot-temperatur"
+msgstr "GPU · temperatura del punto caliente"
+
+#: crates/rigg/src/pages/sensorer.rs:2125
+msgid "Skjermkort · Minnetemperatur"
+msgstr "GPU · temperatura de la memoria"
+
+#: crates/rigg/src/pages/sensorer.rs:2126
+msgid "Skjermkort · Kjernespenning"
+msgstr "GPU · voltaje del núcleo"
+
+#: crates/rigg/src/pages/sensorer.rs:2126
+msgid "Ikke innsamlet: appen samler ikke inn GPU-kjernespenning."
+msgstr "No recopilado: la aplicación no lee el voltaje del núcleo de la GPU."
+
+#: crates/rigg/src/pages/sensorer.rs:2129
+msgid "Prosessor · Kjernespenning"
+msgstr "CPU · voltaje del núcleo"
+
+#: crates/rigg/src/pages/sensorer.rs:2129
+msgid "Ikke innsamlet av appen. Målekilde og tilgang avhenger av CPU, hovedkort og driver."
+msgstr "La aplicación no recopila este dato. El origen y el acceso dependen de la CPU, la placa base y el controlador."
+
+#: crates/rigg/src/pages/sensorer.rs:2131
+msgid "Hovedkort · vifter, spenninger og temperaturer"
+msgstr "Placa base · ventiladores, voltajes y temperaturas"
+
+#: crates/rigg/src/pages/sensorer.rs:2131
+msgid "Ingen gjenkjent hovedkortsensor er tilgjengelig i hwmon. Sensorbrikke og driverstøtte er ikke verifisert; appen laster ikke kjernemoduler."
+msgstr "hwmon no ofrece ningún sensor de placa base reconocido. No se han comprobado el chip sensor ni su compatibilidad con el controlador. La aplicación no carga módulos del kernel."
+
+#: crates/rigg/src/pages/sensorer.rs:2137 crates/rigg/src/pages/sensorer.rs:2147
+msgid "Krever root"
+msgstr "Requiere root"
+
+#: crates/rigg/src/pages/sensorer.rs:2147
+msgid "Ikke støttet eller ikke tilgjengelig"
+msgstr "No compatible o no disponible"
