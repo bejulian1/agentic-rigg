@@ -11,18 +11,20 @@ use crate::store::Store;
 use crate::varsler::Alarms;
 use rigg_core::history::History;
 use rigg_core::model::{GpuStatic, Telemetry};
+use rigg_core::paths::Profile;
 use rigg_core::proto::{self, LineEvent};
 use rigg_core::settings::ServiceSettings;
 use rigg_core::stats::Stats;
 use serde_json::{Value, json};
 use std::cell::RefCell;
 use std::collections::BTreeMap;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::rc::{Rc, Weak};
 use std::time::Duration;
 
 pub struct Options {
     pub backend: String,
+    pub profile: Profile,
     pub root: PathBuf,
     pub grace_ms: u32,
     /// Stiene til root-hjelperen (`/`, eller en falsk rot i tester og dev).
@@ -30,6 +32,18 @@ pub struct Options {
     /// `--backend sim:hete` (runde 8A): prosessoren og diskene følger
     /// hete-syklusen også (`rigg_hw::gpu::sim::hete`). Bare skjermbilder.
     pub hete: bool,
+}
+
+impl Options {
+    fn rgb_paths(&self) -> Option<rigg_core::rgb_auth::Paths> {
+        let root = &self.hjelper.root;
+        if root == Path::new("/")
+            && (self.profile.is_dev() || self.backend != "nvml" || self.root != Path::new("/"))
+        {
+            return None;
+        }
+        Some(rigg_core::rgb_auth::Paths::new(root.clone()))
+    }
 }
 
 pub struct Daemon {
@@ -103,7 +117,7 @@ impl Daemon {
             eprintln!("{n}");
         }
         let hjelper = crate::hjelper::Hjelper::new(opts.hjelper.clone());
-        let (rgb, rgb_results) = crate::rgb_hjelper::RgbClient::start(rigg_core::rgb_auth::Paths::new(opts.hjelper.root.clone()));
+        let (rgb, rgb_results) = crate::rgb_hjelper::RgbClient::start(opts.rgb_paths());
         let d = Rc::new(RefCell::new(Daemon {
             me: Weak::new(),
             opts,
@@ -614,5 +628,46 @@ fn overlay_hete(gpus: &mut BTreeMap<String, rigg_core::model::GpuSample>, sys: &
     }
     if let Some(d) = sys.disks.get_mut(3) {
         d.temp = Some(h.disk_kald);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rigg_core::proto::{ErrorCode, Request};
+
+    #[test]
+    fn simulering_og_utvikling_uten_privat_rot_starter_ingen_rgb_klient() {
+        for (backend, profile) in [("sim", Profile::Prod), ("nvml", Profile::Dev)] {
+            let mut opts = Options {
+                backend: backend.into(),
+                profile,
+                root: "/".into(),
+                grace_ms: 0,
+                hjelper: rigg_core::hjelper::Paths::new("/"),
+                hete: false,
+            };
+            // Ingen sonde mot vertens socket. Manglende privat rot betyr at
+            // ingen RGB-IPC-tråd startes, også ved en eksplisitt refresh.
+            assert!(opts.rgb_paths().is_none());
+            let (mut client, events) = crate::rgb_hjelper::RgbClient::start(opts.rgb_paths());
+            let mut request = Request {
+                id: json!(1),
+                op: "get_rgb_helper".into(),
+                args: json!({"refresh": true}),
+            };
+            let view = client.enqueue(1, &request).unwrap().unwrap();
+            assert_eq!(view["state"], "disabled");
+            assert_eq!(view["systemAdmin"], false);
+            assert!(events.is_closed());
+            request.op = "rgb_reset".into();
+            request.args = json!({"gpu": "0000:1c:00.0", "uuid": "GPU-private-fixture"});
+            assert_eq!(
+                client.enqueue(1, &request).unwrap_err().code,
+                ErrorCode::WriteLocked
+            );
+            opts.hjelper = rigg_core::hjelper::Paths::new("/tmp/eksplisitt-rgb-fixture");
+            assert_eq!(opts.rgb_paths().unwrap().root, opts.hjelper.root);
+        }
     }
 }

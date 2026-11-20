@@ -267,22 +267,38 @@ pub struct RgbClient {
     next_seq: u64,
     view: View,
     thread: Option<std::thread::JoinHandle<()>>,
+    system_admin: bool,
 }
 
 impl RgbClient {
-    pub fn start(paths: Paths) -> (Self, async_channel::Receiver<Completion>) {
+    pub fn start(paths: Option<Paths>) -> (Self, async_channel::Receiver<Completion>) {
         let (commands, requests) = mpsc::sync_channel(MAX_PENDING);
         let (events, rx) = async_channel::bounded(MAX_PENDING + 2);
         let control = Arc::new(Control::default());
-        let worker_control = control.clone();
-        let thread = std::thread::Builder::new()
-            .name("rigg-rgb-ipc".into())
-            .spawn(move || worker(paths, worker_control, requests, events));
+        let system_admin = paths
+            .as_ref()
+            .is_some_and(|paths| paths.root == Path::new("/"));
+        let thread = paths.map(|paths| {
+            let worker_control = control.clone();
+            std::thread::Builder::new()
+                .name("rigg-rgb-ipc".into())
+                .spawn(move || worker(paths, worker_control, requests, events))
+        });
         let (thread, view) = match thread {
-            Ok(thread) => (Some(thread), View::off()),
-            Err(error) => (
+            Some(Ok(thread)) => (Some(thread), View::off()),
+            Some(Err(error)) => (
                 None,
                 View::error(format!("RGB-tråden kunne ikke starte: {error}")),
+            ),
+            None => (
+                None,
+                View {
+                    state: "disabled",
+                    message: Some(
+                        "Simulering og utvikling krever en egen privat RGB-hjelperrot.".into(),
+                    ),
+                    status: Value::Null,
+                },
             ),
         };
         (
@@ -293,6 +309,7 @@ impl RgbClient {
                 next_seq: 1,
                 view,
                 thread,
+                system_admin,
             },
             rx,
         )
@@ -305,6 +322,7 @@ impl RgbClient {
     pub fn view(&self, sid: u64) -> Value {
         let owner = self.control.owner.load(Ordering::SeqCst);
         json!({"state": self.view.state, "message": self.view.message, "status": self.view.status,
+            "systemAdmin": self.system_admin,
             "owned": owner == sid && sid != 0,
             "busy": (owner != 0 && owner != sid)
                 || (owner == 0 && !self.view.status["holding"].is_null())
@@ -320,6 +338,16 @@ impl RgbClient {
     pub fn enqueue(&mut self, sid: u64, request: &Request) -> Result<Option<Value>, ProtoError> {
         validate_args(&request.op, &request.args)?;
         let refresh = request.op == "get_rgb_helper";
+        if self.view.state == "disabled" {
+            return if refresh {
+                Ok(Some(self.view(sid)))
+            } else {
+                Err(ProtoError::msg(
+                    ErrorCode::WriteLocked,
+                    self.view.message.clone().unwrap_or_default(),
+                ))
+            };
+        }
         let owner = self.control.owner.load(Ordering::SeqCst);
         if refresh
             && (request.args["refresh"] != true
@@ -610,11 +638,6 @@ fn socket_metadata(paths: &Paths) -> Result<Option<(std::fs::Metadata, u32)>, St
         }
     }
     let path = paths.socket();
-    let metadata = match std::fs::symlink_metadata(&path) {
-        Err(e) if e.kind() == ErrorKind::NotFound => return Ok(None),
-        Err(e) => return Err(e.to_string()),
-        Ok(meta) => meta,
-    };
     let expected = if real { 0 } else { uid };
     for directory in [
         root.join("run"),
@@ -622,7 +645,11 @@ fn socket_metadata(paths: &Paths) -> Result<Option<(std::fs::Metadata, u32)>, St
             .ok_or("RGB-socketen mangler mappe.")?
             .to_path_buf(),
     ] {
-        let meta = std::fs::symlink_metadata(&directory).map_err(|e| e.to_string())?;
+        let meta = match std::fs::symlink_metadata(&directory) {
+            Err(e) if e.kind() == ErrorKind::NotFound => return Ok(None),
+            Err(e) => return Err(e.to_string()),
+            Ok(meta) => meta,
+        };
         if !meta.is_dir()
             || meta.file_type().is_symlink()
             || meta.uid() != expected
@@ -631,6 +658,11 @@ fn socket_metadata(paths: &Paths) -> Result<Option<(std::fs::Metadata, u32)>, St
             return Err("RGB-socketen ligger i en utrygg mappe.".into());
         }
     }
+    let metadata = match std::fs::symlink_metadata(&path) {
+        Err(e) if e.kind() == ErrorKind::NotFound => return Ok(None),
+        Err(e) => return Err(e.to_string()),
+        Ok(meta) => meta,
+    };
     if !metadata.file_type().is_socket()
         || ![expected, uid].contains(&metadata.uid())
         || metadata.mode() & 0o777 != 0o600
@@ -1363,7 +1395,7 @@ mod tests {
     fn koen_er_begrenset_og_ukjente_argumenter_gir_ingen_rpc() {
         let root = Temp::new();
         let fake = Fake::start(&root.paths(), true);
-        let (mut client, _rx) = RgbClient::start(root.paths());
+        let (mut client, _rx) = RgbClient::start(Some(root.paths()));
         let mut invalid = request(1, "rgb_apply");
         invalid.args["path"] = json!("vilkaarlig");
         assert_eq!(
@@ -1400,7 +1432,7 @@ mod tests {
     fn behold_holder_egen_lease_og_klienttap_lukker_bare_rgb() {
         let root = Temp::new();
         let fake = Fake::start(&root.paths(), false);
-        let (mut client, rx) = RgbClient::start(root.paths());
+        let (mut client, rx) = RgbClient::start(Some(root.paths()));
         client.enqueue(7, &request(1, "get_rgb_helper")).unwrap();
         let view = complete(&mut client, &rx).unwrap();
         assert_eq!(view["state"], "on", "RGB-fixturestatus: {view}");
@@ -1446,7 +1478,7 @@ mod tests {
     fn treg_status_blokkerer_ikke_cache_og_doed_oekt_kan_ikke_apply() {
         let root = Temp::new();
         let fake = Fake::start(&root.paths(), true);
-        let (mut client, rx) = RgbClient::start(root.paths());
+        let (mut client, rx) = RgbClient::start(Some(root.paths()));
         let started = Instant::now();
         client.enqueue(7, &request(1, "rgb_apply")).unwrap();
         assert!(started.elapsed() < Duration::from_millis(100));
@@ -1471,7 +1503,7 @@ mod tests {
     #[test]
     fn sene_svar_fra_doed_sid_gjenoppretter_ikke_eierskap() {
         let root = Temp::new();
-        let (mut client, _rx) = RgbClient::start(root.paths());
+        let (mut client, _rx) = RgbClient::start(Some(root.paths()));
         client.enqueue(7, &request(1, "rgb_apply")).unwrap();
         let seq = *client.pending.keys().next().unwrap();
         client.session_closed(7);
@@ -1495,7 +1527,7 @@ mod tests {
     fn utloept_koejobb_sender_ingen_status_eller_endring() {
         let root = Temp::new();
         let fake = Fake::start(&root.paths(), false);
-        let (mut client, rx) = RgbClient::start(root.paths());
+        let (mut client, rx) = RgbClient::start(Some(root.paths()));
         let alive = Arc::new(AtomicBool::new(true));
         client.control.owner.store(7, Ordering::SeqCst);
         client.pending.insert(
@@ -1558,6 +1590,7 @@ mod tests {
                 next_seq: 2,
                 view: View::off(),
                 thread: None,
+                system_admin: false,
             };
             client.pending.insert(
                 1,
