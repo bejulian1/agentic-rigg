@@ -1,0 +1,125 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/widgets/styrer.rs:32
+msgid "NVIDIA-referansekort"
+msgstr "NVIDIA 公版显卡"
+
+#: crates/rigg/src/widgets/styrer.rs:33
+msgid "PCI-leverandør {id}"
+msgstr "PCI 供应商 {id}"
+
+#: crates/rigg/src/widgets/styrer.rs:53
+msgid "Produsenten er satt av deg. Kortet melder NVIDIAs referanse i PCI-subsystemet ({s})."
+msgstr "制造商由你手动设置。显卡在 PCI 子系统中报告 NVIDIA 公版 ID（{s}）。"
+
+#: crates/rigg/src/widgets/styrer.rs:54
+msgid "Produsenten er satt av deg."
+msgstr "制造商由你手动设置。"
+
+#: crates/rigg/src/widgets/styrer.rs:55
+msgid "Kortet melder NVIDIAs referanse i PCI-subsystemet ({s}). Det er et referansekort, eller en produsent som ikke setter sin egen ID. Du kan sette produsenten selv."
+msgstr "显卡在 PCI 子系统中报告 NVIDIA 公版 ID（{s}）。它可能是公版显卡，也可能是制造商未设置自己的 ID。你可以手动设置制造商。"
+
+#: crates/rigg/src/widgets/styrer.rs:56
+msgid "Fra PCI-subsystemet ({s})."
+msgstr "来自 PCI 子系统（{s}）。"
+
+#: crates/rigg/src/widgets/styrer.rs:57
+msgid "Produsenten er ikke lest."
+msgstr "未检测到制造商。"
+
+#: crates/rigg/src/widgets/styrer.rs:81
+msgid "Styrer"
+msgstr "控制对象"
+
+#: crates/rigg/src/widgets/styrer.rs:101 crates/rigg/src/widgets/styrer.rs:102
+msgid "Sett produsenten"
+msgstr "设置制造商"
+
+#: crates/rigg/src/widgets/styrer.rs:114
+msgid "Velg kortet som styres"
+msgstr "选择要控制的显卡"
+
+#: crates/rigg/src/widgets/styrer.rs:173
+msgid "Venter på tjenesten"
+msgstr "正在等待服务"
+
+#: crates/rigg/src/widgets/styrer.rs:173
+msgid "kortet vises når tjenesten svarer"
+msgstr "服务响应后将显示显卡"
+
+#: crates/rigg/src/widgets/styrer.rs:174
+msgid "Leser skjermkortet …"
+msgstr "正在检测显卡…"
+
+#: crates/rigg/src/widgets/styrer.rs:175
+msgid "Fant ingen NVIDIA-driver"
+msgstr "未找到 NVIDIA 驱动程序"
+
+#: crates/rigg/src/widgets/styrer.rs:175
+msgid "ingen skjermkort å styre"
+msgstr "没有可控制的显卡"
+
+#: crates/rigg/src/widgets/styrer.rs:178 crates/rigg/src/widgets/styrer.rs:186
+msgid "Skjermkortet"
+msgstr "显卡"
+
+#: crates/rigg/src/widgets/styrer.rs:179
+msgid "driveren er oppdatert · start maskinen på nytt for å styre kortet"
+msgstr "驱动程序已更新 · 重启电脑后才能控制显卡"
+
+#: crates/rigg/src/widgets/styrer.rs:187
+msgid "svarer ikke siden {since} · styringen er utilgjengelig"
+msgstr "自 {since} 起无响应 · 无法控制"
+
+#: crates/rigg/src/widgets/styrer.rs:203
+msgid "driver {d}"
+msgstr "驱动程序 {d}"
+
+#: crates/rigg/src/widgets/styrer.rs:205
+msgid "{kort}\nProdusent: {produsent}\nPCI-adresse: {pci}\nVBIOS: {vbios}\n{detalj}"
+msgstr "{kort}\n制造商：{produsent}\nPCI 地址：{pci}\nVBIOS：{vbios}\n{detalj}"
+
+#: crates/rigg/src/widgets/styrer.rs:213
+msgid "Skjermkort"
+msgstr "显卡"
+
+#: crates/rigg/src/widgets/styrer.rs:232
+msgid "Kort {i} av {antall}"
+msgstr "显卡 {i}/{antall}"
+
+#: crates/rigg/src/widgets/styrer.rs:234
+msgid "Styrer: {name}. {meta}"
+msgstr "控制对象：{name}。{meta}"
+
+#: crates/rigg/src/widgets/styrer.rs:240
+msgid "Kortet som styres"
+msgstr "要控制的显卡"
+
+#: crates/rigg/src/widgets/styrer.rs:280
+msgid "Produsent (valgfritt)"
+msgstr "制造商（可选）"
+
+#: crates/rigg/src/widgets/styrer.rs:292
+msgid "Produsent"
+msgstr "制造商"
+
+#: crates/rigg/src/widgets/styrer.rs:294
+msgid "Vises bare i appen, i Styrer-linja og i maskinhodet. Kortet endres ikke."
+msgstr "仅在应用的显卡选择器和系统标题栏中显示，不会更改显卡。"
+
+#: crates/rigg/src/widgets/styrer.rs:303
+msgid "Fjern"
+msgstr "移除"
+
+#: crates/rigg/src/widgets/styrer.rs:305
+msgid "Lagre"
+msgstr "保存"

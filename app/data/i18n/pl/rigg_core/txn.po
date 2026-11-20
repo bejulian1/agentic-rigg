@@ -1,0 +1,177 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n == 1 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : 2);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg-core/src/txn.rs:278
+msgid "Aktiver skjermkortstyring i Innstillinger, og vent til hjelperen er klar"
+msgstr "Włącz sterowanie GPU w ustawieniach i poczekaj na gotowość programu pomocniczego"
+
+#: crates/rigg-core/src/txn.rs:279
+msgid "Viftekurven må være en liste med punkter"
+msgstr "Krzywa wentylatorów musi być listą punktów"
+
+#: crates/rigg-core/src/txn.rs:280
+msgid "Temperaturene i viftekurven må stige"
+msgstr "Temperatury na krzywej wentylatorów muszą rosnąć"
+
+#: crates/rigg-core/src/txn.rs:281
+msgid "fan.curves må være en liste med kurver"
+msgstr "fan.curves musi być listą krzywych"
+
+#: crates/rigg-core/src/txn.rs:282
+msgid "settings må være et objekt"
+msgstr "settings musi być obiektem"
+
+#: crates/rigg-core/src/txn.rs:283
+msgid "clockOffsets må være et objekt"
+msgstr "clockOffsets musi być obiektem"
+
+#: crates/rigg-core/src/txn.rs:284
+msgid "fan må være et objekt"
+msgstr "fan musi być obiektem"
+
+#: crates/rigg-core/src/txn.rs:285
+msgid "fan.mode må være auto, curve eller manual"
+msgstr "fan.mode musi mieć wartość auto, curve lub manual"
+
+#: crates/rigg-core/src/txn.rs:286
+msgid "fan.perFan må være true eller false"
+msgstr "fan.perFan musi mieć wartość true lub false"
+
+#: crates/rigg-core/src/txn.rs:287
+msgid "confirmTimeoutS må være et tall"
+msgstr "confirmTimeoutS musi być liczbą"
+
+#: crates/rigg-core/src/txn.rs:288
+msgid "Oppsettet må være innenfor rapporterte grenser og viftekurven må være stigende."
+msgstr "Ustawienia muszą mieścić się w zgłoszonych granicach, a krzywa wentylatorów musi rosnąć."
+
+#: crates/rigg-core/src/txn.rs:304
+msgid "Vifte {nummer}: {feil}"
+msgstr "Wentylator {nummer}: {feil}"
+
+#: crates/rigg-core/src/txn.rs:307
+msgid "Ukjent felt: {felt}"
+msgstr "Nieznane pole: {felt}"
+
+#: crates/rigg-core/src/txn.rs:311
+msgid "Effektgrensen"
+msgstr "Limit mocy"
+
+#: crates/rigg-core/src/txn.rs:312
+msgid "Temperaturmålet"
+msgstr "Temperatura docelowa"
+
+#: crates/rigg-core/src/txn.rs:313
+msgid "Kjerneklokke-offset"
+msgstr "Przesunięcie taktowania rdzenia"
+
+#: crates/rigg-core/src/txn.rs:314
+msgid "Minneklokke-offset"
+msgstr "Przesunięcie taktowania pamięci"
+
+#: crates/rigg-core/src/txn.rs:315
+msgid "Viftefarten"
+msgstr "Obroty wentylatorów"
+
+#: crates/rigg-core/src/txn.rs:316
+msgid "Viftefarten i kurven"
+msgstr "Obroty na krzywej"
+
+#: crates/rigg-core/src/txn.rs:317
+msgid "Temperaturen i kurven"
+msgstr "Temperatura na krzywej"
+
+#: crates/rigg-core/src/txn.rs:318
+msgid "Hysteresen"
+msgstr "Histereza"
+
+#: crates/rigg-core/src/txn.rs:319
+msgid "Rampefarten opp"
+msgstr "Tempo wzrostu obrotów"
+
+#: crates/rigg-core/src/txn.rs:320
+msgid "Rampefarten ned"
+msgstr "Tempo spadku obrotów"
+
+#: crates/rigg-core/src/txn.rs:321
+msgid "Utjevningen"
+msgstr "Wygładzanie"
+
+#: crates/rigg-core/src/txn.rs:322
+msgid "«Hold minimum til»"
+msgstr "„Utrzymuj minimum do”"
+
+#: crates/rigg-core/src/txn.rs:325
+msgid "{felt} må være et tall"
+msgstr "Pole „{felt}” musi zawierać liczbę"
+
+#: crates/rigg-core/src/txn.rs:340
+msgid "Viftekurven må ha {min}–{maks} punkter"
+msgstr "Krzywa wentylatorów musi mieć {min}–{maks} punktów"
+
+#: crates/rigg-core/src/txn.rs:345
+msgid "Ugyldig punkt {nummer} i viftekurven"
+msgstr "Nieprawidłowy punkt {nummer} krzywej wentylatorów"
+
+#: crates/rigg-core/src/txn.rs:350
+msgid "Punkt {nummer}: temperaturen må være {min}–{maks}"
+msgstr "Punkt {nummer}: temperatura musi mieścić się w zakresie {min}–{maks}"
+
+#: crates/rigg-core/src/txn.rs:355
+msgid "fan.curves kan ha høyst {maks} kurver"
+msgstr "fan.curves obsługuje maks. {maks} krzywych"
+
+#: crates/rigg-core/src/txn.rs:1104
+msgid "Effektgrense"
+msgstr "Limit mocy"
+
+#: crates/rigg-core/src/txn.rs:1105
+msgid "Klokke-offset (kjerne og minne)"
+msgstr "Przesunięcia taktowania (rdzeń i pamięć)"
+
+#: crates/rigg-core/src/txn.rs:1106
+msgid "Vifte, manuell fart"
+msgstr "Ręczne ustawianie obrotów"
+
+#: crates/rigg-core/src/txn.rs:1107
+msgid "Viftekurve"
+msgstr "Krzywa wentylatorów"
+
+#: crates/rigg-core/src/txn.rs:1110
+msgid "Temperaturmål"
+msgstr "Temperatura docelowa"
+
+#: crates/rigg-core/src/txn.rs:1111
+msgid " (ikke verifisert på GeForce)"
+msgstr " (nie zweryfikowano na kartach GeForce)"
+
+#: crates/rigg-core/src/txn.rs:1115
+msgid "RGB-lys (Palit-kontrolleren på I2C)"
+msgstr "Podświetlenie RGB (kontroler Palit I2C)"
+
+#: crates/rigg-core/src/txn.rs:1116
+msgid " (kontrolleren er ikke bekreftet)"
+msgstr " (nie potwierdzono kontrolera)"
+
+#: crates/rigg-core/src/txn.rs:1128
+msgid "Tilgjengelig"
+msgstr "Dostępne"
+
+#: crates/rigg-core/src/txn.rs:1129
+msgid "Ikke tilgjengelig{note}"
+msgstr "Niedostępne{note}"
+
+#: crates/rigg-core/src/txn.rs:1130
+msgid "Godkjent (eldre protokoll)"
+msgstr "Autoryzowano (starszy protokół)"
+
+#: crates/rigg-core/src/txn.rs:1131
+msgid "Ikke godkjent{note}"
+msgstr "Brak autoryzacji{note}"

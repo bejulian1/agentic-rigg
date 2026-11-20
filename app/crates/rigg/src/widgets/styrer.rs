@@ -12,6 +12,7 @@ use crate::state::App;
 use crate::widgets::{Icon, class, hbox, label, set_text, vbox};
 use gtk::prelude::*;
 use rigg_core::model::{DeviceState, GpuStatic};
+use rigg_core::{tr, trf};
 use rigg_core::vendor;
 use serde_json::json;
 use std::rc::Rc;
@@ -25,7 +26,17 @@ pub fn maker_key(st: &GpuStatic) -> String {
 /// (tekst, «bruker»/«kort»/«»).
 pub fn maker(app: &App, st: &GpuStatic) -> (String, &'static str) {
     let user = app.settings().gpu_makers.get(&maker_key(st)).cloned();
-    vendor::maker_text(user.as_deref(), st.pci_subsystem_id)
+    let (name, source) = vendor::maker_text(user.as_deref(), st.pci_subsystem_id);
+    let name = if source == "kort" {
+        match vendor::board_maker(st.pci_subsystem_id) {
+            vendor::Maker::Reference => tr!("NVIDIA-referansekort").into(),
+            vendor::Maker::Other(id) => trf!("PCI-leverandør {id}", id = format!("{id:04x}")),
+            _ => name,
+        }
+    } else {
+        name
+    };
+    (name, source)
 }
 
 /// Produsenten når den er kjent (satt av brukeren eller en kjent
@@ -39,11 +50,11 @@ pub fn maker_short(app: &App, st: &GpuStatic) -> Option<String> {
 fn maker_tip(st: &GpuStatic, src: &str) -> String {
     let sub = st.pci_subsystem_id.map(vendor::subsystem_text);
     match (src, vendor::board_maker(st.pci_subsystem_id), sub) {
-        ("bruker", vendor::Maker::Reference, Some(s)) => format!("Produsenten er satt av deg. Kortet melder NVIDIAs referanse i PCI-subsystemet ({s})."),
-        ("bruker", _, _) => "Produsenten er satt av deg.".into(),
-        (_, vendor::Maker::Reference, Some(s)) => format!("Kortet melder NVIDIAs referanse i PCI-subsystemet ({s}). Det er et referansekort, eller en produsent som ikke setter sin egen ID. Du kan sette produsenten selv."),
-        (_, vendor::Maker::Known(_), Some(s)) => format!("Fra PCI-subsystemet ({s})."),
-        _ => "Produsenten er ikke lest.".into(),
+        ("bruker", vendor::Maker::Reference, Some(s)) => trf!("Produsenten er satt av deg. Kortet melder NVIDIAs referanse i PCI-subsystemet ({s}).", s = s),
+        ("bruker", _, _) => tr!("Produsenten er satt av deg.").into(),
+        (_, vendor::Maker::Reference, Some(s)) => trf!("Kortet melder NVIDIAs referanse i PCI-subsystemet ({s}). Det er et referansekort, eller en produsent som ikke setter sin egen ID. Du kan sette produsenten selv.", s = s),
+        (_, vendor::Maker::Known(_), Some(s)) => trf!("Fra PCI-subsystemet ({s}).", s = s),
+        _ => tr!("Produsenten er ikke lest.").into(),
     }
 }
 
@@ -67,7 +78,7 @@ impl TargetLine {
         icon.add_css_class("tl-icon");
         icon.set_valign(gtk::Align::Center);
         root.append(&icon);
-        let lead = label("Styrer", &["tl-lead"]);
+        let lead = label(tr!("Styrer"), &["tl-lead"]);
         lead.set_valign(gtk::Align::Baseline);
         root.append(&lead);
         let text = hbox(8, &[]);
@@ -87,8 +98,8 @@ impl TargetLine {
         root.append(&text);
         let maker_btn = crate::widgets::button(Some("pencil"), None, &["flat", "sm", "icon-only", "tl-btn"]);
         maker_btn.set_valign(gtk::Align::Center);
-        crate::widgets::tip(&maker_btn, "Sett produsenten", None);
-        maker_btn.update_property(&[gtk::accessible::Property::Label("Sett produsenten")]);
+        crate::widgets::tip(&maker_btn, tr!("Sett produsenten"), None);
+        maker_btn.update_property(&[gtk::accessible::Property::Label(tr!("Sett produsenten"))]);
         root.append(&maker_btn);
         let pick = gtk::Button::new();
         pick.add_css_class("flat");
@@ -100,7 +111,7 @@ impl TargetLine {
         pb.append(&pick_label);
         pb.append(&Icon::new("chevron-down", 14));
         pick.set_child(Some(&pb));
-        crate::widgets::tip(&pick, "Velg kortet som styres", None);
+        crate::widgets::tip(&pick, tr!("Velg kortet som styres"), None);
         pick.set_visible(false);
         root.append(&pick);
         let t = Rc::new(TargetLine { root, icon, name, meta, maker_btn, pick, pick_label, app: app.clone() });
@@ -159,21 +170,21 @@ impl TargetLine {
         let cards: Vec<_> = app.data.borrow().gpus.iter().filter(|g| !g.id.is_empty()).cloned().collect();
         let full_name = st.as_ref().map(|s| s.name.clone()).filter(|n| !n.is_empty()).or_else(|| info.as_ref().map(|i| i.name.clone()).filter(|n| !n.is_empty()));
         let (kind, name, meta, tip) = match (app.client.is_connected(), info.as_ref().map(|i| i.state)) {
-            (false, _) => ("", "Venter på tjenesten".to_string(), "kortet vises når tjenesten svarer".to_string(), String::new()),
-            (true, None) => ("", "Leser skjermkortet …".to_string(), String::new(), String::new()),
-            (true, Some(DeviceState::NoDriver)) => ("warn", "Fant ingen NVIDIA-driver".to_string(), "ingen skjermkort å styre".to_string(), info.as_ref().and_then(|i| i.detail.clone()).unwrap_or_default()),
+            (false, _) => ("", tr!("Venter på tjenesten").to_string(), tr!("kortet vises når tjenesten svarer").to_string(), String::new()),
+            (true, None) => ("", tr!("Leser skjermkortet …").to_string(), String::new(), String::new()),
+            (true, Some(DeviceState::NoDriver)) => ("warn", tr!("Fant ingen NVIDIA-driver").to_string(), tr!("ingen skjermkort å styre").to_string(), info.as_ref().and_then(|i| i.detail.clone()).unwrap_or_default()),
             (true, Some(DeviceState::DriverUpdated)) => (
                 "warn",
-                full_name.clone().unwrap_or_else(|| "Skjermkortet".into()),
-                "driveren er oppdatert · start maskinen på nytt for å styre kortet".to_string(),
+                full_name.clone().unwrap_or_else(|| tr!("Skjermkortet").into()),
+                tr!("driveren er oppdatert · start maskinen på nytt for å styre kortet").to_string(),
                 info.as_ref().and_then(|i| i.detail.clone()).unwrap_or_default(),
             ),
             (true, Some(DeviceState::Lost)) => {
                 let since = info.as_ref().map(|i| rigg_core::fmt::since(crate::app::local_time(i.since), crate::app::local_now())).unwrap_or_default();
                 (
                     "danger",
-                    full_name.clone().unwrap_or_else(|| "Skjermkortet".into()),
-                    format!("svarer ikke siden {since} · styringen er utilgjengelig"),
+                    full_name.clone().unwrap_or_else(|| tr!("Skjermkortet").into()),
+                    trf!("svarer ikke siden {since} · styringen er utilgjengelig", since = since),
                     info.as_ref().and_then(|i| i.detail.clone()).unwrap_or_default(),
                 )
             }
@@ -189,17 +200,17 @@ impl TargetLine {
                     parts.push(format!("VBIOS {v}"));
                 }
                 if let Some(d) = st.driver.clone().or_else(|| info.as_ref().and_then(|i| i.driver.clone())) {
-                    parts.push(format!("driver {d}"));
+                    parts.push(trf!("driver {d}", d = d));
                 }
-                let tip = format!(
-                    "{}\nProdusent: {}\nPCI-adresse: {}\nVBIOS: {}\n{}",
-                    full_name.clone().unwrap_or_default(),
-                    maker(app, &st).0,
-                    st.id,
-                    st.vbios.clone().unwrap_or_else(|| "–".into()),
-                    maker_tip(&st, src)
+                let tip = trf!(
+                    "{kort}\nProdusent: {produsent}\nPCI-adresse: {pci}\nVBIOS: {vbios}\n{detalj}",
+                    kort = full_name.clone().unwrap_or_default(),
+                    produsent = maker(app, &st).0,
+                    pci = st.id,
+                    vbios = st.vbios.clone().unwrap_or_else(|| "–".into()),
+                    detalj = maker_tip(&st, src),
                 );
-                ("", full_name.clone().unwrap_or_else(|| "Skjermkort".into()), parts.into_iter().filter(|p| !p.is_empty()).collect::<Vec<_>>().join(" · "), tip)
+                ("", full_name.clone().unwrap_or_else(|| tr!("Skjermkort").into()), parts.into_iter().filter(|p| !p.is_empty()).collect::<Vec<_>>().join(" · "), tip)
             }
         };
         set_text(&self.name, &name);
@@ -218,15 +229,15 @@ impl TargetLine {
         self.pick.set_visible(many);
         if many {
             let i = info.as_ref().map(|i| i.index as usize + 1).unwrap_or(1);
-            set_text(&self.pick_label, &format!("Kort {i} av {}", cards.len()));
+            set_text(&self.pick_label, &trf!("Kort {i} av {antall}", i = i, antall = cards.len()));
         }
-        self.root.update_property(&[gtk::accessible::Property::Label(&format!("Styrer: {name}. {meta}"))]);
+        self.root.update_property(&[gtk::accessible::Property::Label(&trf!("Styrer: {name}. {meta}", name = name, meta = meta))]);
     }
 
     /// Kortene, med det som styres merket. Som valget i maskinhodet.
     fn show_cards(&self, anchor: &gtk::Button) {
         let body = vbox(0, &[]);
-        body.append(&label("Kortet som styres", &["menu-label"]));
+        body.append(&label(tr!("Kortet som styres"), &["menu-label"]));
         let cur = self.app.gpu_id();
         let cards: Vec<_> = self.app.data.borrow().gpus.iter().filter(|g| !g.id.is_empty()).cloned().collect();
         for g in cards {
@@ -266,7 +277,7 @@ impl TargetLine {
         let current = self.app.settings().gpu_makers.get(&key).cloned().unwrap_or_default();
         let detected = vendor::maker_text(None, st.pci_subsystem_id).0;
         let body = vbox(6, &["tl-maker"]);
-        body.append(&label("Produsent (valgfritt)", &["pop-title"]));
+        body.append(&label(tr!("Produsent (valgfritt)"), &["pop-title"]));
         let why = label(&maker_tip(&st, if current.is_empty() { "kort" } else { "bruker" }), &["pop-sub"]);
         why.set_wrap(true);
         why.set_max_width_chars(42);
@@ -278,9 +289,9 @@ impl TargetLine {
         entry.set_max_length(40);
         entry.set_margin_start(8);
         entry.set_margin_end(8);
-        entry.update_property(&[gtk::accessible::Property::Label("Produsent")]);
+        entry.update_property(&[gtk::accessible::Property::Label(tr!("Produsent"))]);
         body.append(&entry);
-        let note = label("Vises bare i appen, i Styrer-linja og i maskinhodet. Kortet endres ikke.", &["pop-sub"]);
+        let note = label(tr!("Vises bare i appen, i Styrer-linja og i maskinhodet. Kortet endres ikke."), &["pop-sub"]);
         note.set_wrap(true);
         note.set_max_width_chars(42);
         note.set_xalign(0.0);
@@ -289,9 +300,9 @@ impl TargetLine {
         row.set_halign(gtk::Align::End);
         row.set_margin_end(8);
         row.set_margin_bottom(4);
-        let clear = crate::widgets::button(None, Some("Fjern"), &["sm", "flat"]);
+        let clear = crate::widgets::button(None, Some(tr!("Fjern")), &["sm", "flat"]);
         clear.set_sensitive(!current.is_empty());
-        let save = crate::widgets::button(None, Some("Lagre"), &["sm", "suggested"]);
+        let save = crate::widgets::button(None, Some(tr!("Lagre")), &["sm", "suggested"]);
         row.append(&clear);
         row.append(&save);
         body.append(&row);

@@ -1,0 +1,177 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg-core/src/txn.rs:278
+msgid "Aktiver skjermkortstyring i Innstillinger, og vent til hjelperen er klar"
+msgstr "请在设置中启用显卡调校，并等待辅助程序就绪"
+
+#: crates/rigg-core/src/txn.rs:279
+msgid "Viftekurven må være en liste med punkter"
+msgstr "风扇曲线必须是点列表"
+
+#: crates/rigg-core/src/txn.rs:280
+msgid "Temperaturene i viftekurven må stige"
+msgstr "风扇曲线的温度必须递增"
+
+#: crates/rigg-core/src/txn.rs:281
+msgid "fan.curves må være en liste med kurver"
+msgstr "fan.curves 必须是曲线列表"
+
+#: crates/rigg-core/src/txn.rs:282
+msgid "settings må være et objekt"
+msgstr "settings 必须是对象"
+
+#: crates/rigg-core/src/txn.rs:283
+msgid "clockOffsets må være et objekt"
+msgstr "clockOffsets 必须是对象"
+
+#: crates/rigg-core/src/txn.rs:284
+msgid "fan må være et objekt"
+msgstr "fan 必须是对象"
+
+#: crates/rigg-core/src/txn.rs:285
+msgid "fan.mode må være auto, curve eller manual"
+msgstr "fan.mode 必须为 auto、curve 或 manual"
+
+#: crates/rigg-core/src/txn.rs:286
+msgid "fan.perFan må være true eller false"
+msgstr "fan.perFan 必须为 true 或 false"
+
+#: crates/rigg-core/src/txn.rs:287
+msgid "confirmTimeoutS må være et tall"
+msgstr "confirmTimeoutS 必须是数字"
+
+#: crates/rigg-core/src/txn.rs:288
+msgid "Oppsettet må være innenfor rapporterte grenser og viftekurven må være stigende."
+msgstr "设置必须在报告的限制范围内，且风扇曲线必须递增。"
+
+#: crates/rigg-core/src/txn.rs:304
+msgid "Vifte {nummer}: {feil}"
+msgstr "风扇 {nummer}：{feil}"
+
+#: crates/rigg-core/src/txn.rs:307
+msgid "Ukjent felt: {felt}"
+msgstr "未知字段：{felt}"
+
+#: crates/rigg-core/src/txn.rs:311
+msgid "Effektgrensen"
+msgstr "功率限制"
+
+#: crates/rigg-core/src/txn.rs:312
+msgid "Temperaturmålet"
+msgstr "目标温度"
+
+#: crates/rigg-core/src/txn.rs:313
+msgid "Kjerneklokke-offset"
+msgstr "核心频率偏移"
+
+#: crates/rigg-core/src/txn.rs:314
+msgid "Minneklokke-offset"
+msgstr "显存频率偏移"
+
+#: crates/rigg-core/src/txn.rs:315
+msgid "Viftefarten"
+msgstr "风扇转速"
+
+#: crates/rigg-core/src/txn.rs:316
+msgid "Viftefarten i kurven"
+msgstr "曲线中的风扇转速"
+
+#: crates/rigg-core/src/txn.rs:317
+msgid "Temperaturen i kurven"
+msgstr "曲线中的温度"
+
+#: crates/rigg-core/src/txn.rs:318
+msgid "Hysteresen"
+msgstr "温度滞回"
+
+#: crates/rigg-core/src/txn.rs:319
+msgid "Rampefarten opp"
+msgstr "升速速率"
+
+#: crates/rigg-core/src/txn.rs:320
+msgid "Rampefarten ned"
+msgstr "降速速率"
+
+#: crates/rigg-core/src/txn.rs:321
+msgid "Utjevningen"
+msgstr "平滑"
+
+#: crates/rigg-core/src/txn.rs:322
+msgid "«Hold minimum til»"
+msgstr "“保持最低转速直至”"
+
+#: crates/rigg-core/src/txn.rs:325
+msgid "{felt} må være et tall"
+msgstr "{felt} 必须为数字"
+
+#: crates/rigg-core/src/txn.rs:340
+msgid "Viftekurven må ha {min}–{maks} punkter"
+msgstr "风扇曲线必须包含 {min}–{maks} 个控制点"
+
+#: crates/rigg-core/src/txn.rs:345
+msgid "Ugyldig punkt {nummer} i viftekurven"
+msgstr "风扇曲线中的第 {nummer} 个控制点无效"
+
+#: crates/rigg-core/src/txn.rs:350
+msgid "Punkt {nummer}: temperaturen må være {min}–{maks}"
+msgstr "控制点 {nummer}：温度必须在 {min}–{maks} 范围内"
+
+#: crates/rigg-core/src/txn.rs:355
+msgid "fan.curves kan ha høyst {maks} kurver"
+msgstr "fan.curves 最多支持 {maks} 条曲线"
+
+#: crates/rigg-core/src/txn.rs:1104
+msgid "Effektgrense"
+msgstr "功率限制"
+
+#: crates/rigg-core/src/txn.rs:1105
+msgid "Klokke-offset (kjerne og minne)"
+msgstr "频率偏移（核心和显存）"
+
+#: crates/rigg-core/src/txn.rs:1106
+msgid "Vifte, manuell fart"
+msgstr "手动风扇转速"
+
+#: crates/rigg-core/src/txn.rs:1107
+msgid "Viftekurve"
+msgstr "风扇曲线"
+
+#: crates/rigg-core/src/txn.rs:1110
+msgid "Temperaturmål"
+msgstr "目标温度"
+
+#: crates/rigg-core/src/txn.rs:1111
+msgid " (ikke verifisert på GeForce)"
+msgstr "（未在 GeForce 上验证）"
+
+#: crates/rigg-core/src/txn.rs:1115
+msgid "RGB-lys (Palit-kontrolleren på I2C)"
+msgstr "RGB 灯光（Palit I2C 控制器）"
+
+#: crates/rigg-core/src/txn.rs:1116
+msgid " (kontrolleren er ikke bekreftet)"
+msgstr "（尚未确认控制器）"
+
+#: crates/rigg-core/src/txn.rs:1128
+msgid "Tilgjengelig"
+msgstr "可用"
+
+#: crates/rigg-core/src/txn.rs:1129
+msgid "Ikke tilgjengelig{note}"
+msgstr "不可用{note}"
+
+#: crates/rigg-core/src/txn.rs:1130
+msgid "Godkjent (eldre protokoll)"
+msgstr "已授权（旧版协议）"
+
+#: crates/rigg-core/src/txn.rs:1131
+msgid "Ikke godkjent{note}"
+msgstr "未授权{note}"

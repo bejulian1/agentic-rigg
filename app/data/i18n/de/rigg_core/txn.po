@@ -1,0 +1,177 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg-core/src/txn.rs:278
+msgid "Aktiver skjermkortstyring i Innstillinger, og vent til hjelperen er klar"
+msgstr "Aktiviere die GPU-Steuerung in den Einstellungen und warte, bis der Hilfsdienst bereit ist."
+
+#: crates/rigg-core/src/txn.rs:279
+msgid "Viftekurven må være en liste med punkter"
+msgstr "Die Lüfterkurve muss eine Liste von Punkten sein"
+
+#: crates/rigg-core/src/txn.rs:280
+msgid "Temperaturene i viftekurven må stige"
+msgstr "Die Temperaturen auf der Lüfterkurve müssen ansteigen"
+
+#: crates/rigg-core/src/txn.rs:281
+msgid "fan.curves må være en liste med kurver"
+msgstr "fan.curves muss eine Liste von Kurven sein"
+
+#: crates/rigg-core/src/txn.rs:282
+msgid "settings må være et objekt"
+msgstr "settings muss ein Objekt sein"
+
+#: crates/rigg-core/src/txn.rs:283
+msgid "clockOffsets må være et objekt"
+msgstr "clockOffsets muss ein Objekt sein"
+
+#: crates/rigg-core/src/txn.rs:284
+msgid "fan må være et objekt"
+msgstr "fan muss ein Objekt sein"
+
+#: crates/rigg-core/src/txn.rs:285
+msgid "fan.mode må være auto, curve eller manual"
+msgstr "fan.mode muss auto, curve oder manual sein"
+
+#: crates/rigg-core/src/txn.rs:286
+msgid "fan.perFan må være true eller false"
+msgstr "fan.perFan muss true oder false sein"
+
+#: crates/rigg-core/src/txn.rs:287
+msgid "confirmTimeoutS må være et tall"
+msgstr "confirmTimeoutS muss eine Zahl sein"
+
+#: crates/rigg-core/src/txn.rs:288
+msgid "Oppsettet må være innenfor rapporterte grenser og viftekurven må være stigende."
+msgstr "Die Einstellungen müssen innerhalb der gemeldeten Grenzen liegen und die Lüfterkurve muss ansteigen."
+
+#: crates/rigg-core/src/txn.rs:304
+msgid "Vifte {nummer}: {feil}"
+msgstr "Lüfter {nummer}: {feil}"
+
+#: crates/rigg-core/src/txn.rs:307
+msgid "Ukjent felt: {felt}"
+msgstr "Unbekanntes Feld: {felt}"
+
+#: crates/rigg-core/src/txn.rs:311
+msgid "Effektgrensen"
+msgstr "Leistungslimit"
+
+#: crates/rigg-core/src/txn.rs:312
+msgid "Temperaturmålet"
+msgstr "Temperaturziel"
+
+#: crates/rigg-core/src/txn.rs:313
+msgid "Kjerneklokke-offset"
+msgstr "Kerntakt-Offset"
+
+#: crates/rigg-core/src/txn.rs:314
+msgid "Minneklokke-offset"
+msgstr "Speichertakt-Offset"
+
+#: crates/rigg-core/src/txn.rs:315
+msgid "Viftefarten"
+msgstr "Lüfterdrehzahl"
+
+#: crates/rigg-core/src/txn.rs:316
+msgid "Viftefarten i kurven"
+msgstr "Drehzahl in der Lüfterkurve"
+
+#: crates/rigg-core/src/txn.rs:317
+msgid "Temperaturen i kurven"
+msgstr "Temperatur in der Lüfterkurve"
+
+#: crates/rigg-core/src/txn.rs:318
+msgid "Hysteresen"
+msgstr "Hysterese"
+
+#: crates/rigg-core/src/txn.rs:319
+msgid "Rampefarten opp"
+msgstr "Anstiegsrate"
+
+#: crates/rigg-core/src/txn.rs:320
+msgid "Rampefarten ned"
+msgstr "Absenkrate"
+
+#: crates/rigg-core/src/txn.rs:321
+msgid "Utjevningen"
+msgstr "Glättung"
+
+#: crates/rigg-core/src/txn.rs:322
+msgid "«Hold minimum til»"
+msgstr "„Mindestdrehzahl halten bis“"
+
+#: crates/rigg-core/src/txn.rs:325
+msgid "{felt} må være et tall"
+msgstr "{felt} muss eine Zahl sein"
+
+#: crates/rigg-core/src/txn.rs:340
+msgid "Viftekurven må ha {min}–{maks} punkter"
+msgstr "Die Lüfterkurve muss {min}–{maks} Punkte enthalten"
+
+#: crates/rigg-core/src/txn.rs:345
+msgid "Ugyldig punkt {nummer} i viftekurven"
+msgstr "Ungültiger Punkt {nummer} in der Lüfterkurve"
+
+#: crates/rigg-core/src/txn.rs:350
+msgid "Punkt {nummer}: temperaturen må være {min}–{maks}"
+msgstr "Punkt {nummer}: Die Temperatur muss im Bereich {min}–{maks} liegen"
+
+#: crates/rigg-core/src/txn.rs:355
+msgid "fan.curves kan ha høyst {maks} kurver"
+msgstr "fan.curves unterstützt höchstens {maks} Kurven"
+
+#: crates/rigg-core/src/txn.rs:1104
+msgid "Effektgrense"
+msgstr "Leistungslimit"
+
+#: crates/rigg-core/src/txn.rs:1105
+msgid "Klokke-offset (kjerne og minne)"
+msgstr "Takt-Offsets (Kern und Speicher)"
+
+#: crates/rigg-core/src/txn.rs:1106
+msgid "Vifte, manuell fart"
+msgstr "Manuelle Lüfterdrehzahl"
+
+#: crates/rigg-core/src/txn.rs:1107
+msgid "Viftekurve"
+msgstr "Lüfterkurve"
+
+#: crates/rigg-core/src/txn.rs:1110
+msgid "Temperaturmål"
+msgstr "Temperaturziel"
+
+#: crates/rigg-core/src/txn.rs:1111
+msgid " (ikke verifisert på GeForce)"
+msgstr " (für GeForce nicht bestätigt)"
+
+#: crates/rigg-core/src/txn.rs:1115
+msgid "RGB-lys (Palit-kontrolleren på I2C)"
+msgstr "RGB-Beleuchtung (Palit-I2C-Controller)"
+
+#: crates/rigg-core/src/txn.rs:1116
+msgid " (kontrolleren er ikke bekreftet)"
+msgstr " (Controller nicht bestätigt)"
+
+#: crates/rigg-core/src/txn.rs:1128
+msgid "Tilgjengelig"
+msgstr "Verfügbar"
+
+#: crates/rigg-core/src/txn.rs:1129
+msgid "Ikke tilgjengelig{note}"
+msgstr "Nicht verfügbar{note}"
+
+#: crates/rigg-core/src/txn.rs:1130
+msgid "Godkjent (eldre protokoll)"
+msgstr "Autorisiert (älteres Protokoll)"
+
+#: crates/rigg-core/src/txn.rs:1131
+msgid "Ikke godkjent{note}"
+msgstr "Nicht autorisiert{note}"
