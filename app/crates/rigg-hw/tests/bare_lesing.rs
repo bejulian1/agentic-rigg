@@ -15,6 +15,8 @@
 //!   mot det avgrensede skrivegrensesnittet.
 //! - `rigg/src/settings/styring.rs` starter `pkexec` når brukeren selv slår
 //!   på bryteren (passordvinduet er polkit sitt).
+//! - Vinduets språkvalg kan erstatte vindusprosessen med samme kjørbare fil.
+//! - Kjernens byggskript kjører PO-valideringen under kompilering.
 
 use std::path::{Path, PathBuf};
 
@@ -142,6 +144,22 @@ fn ingen_programmer_startes() {
             );
             continue;
         }
+        // Tillat bare de konkrete kallene for omstart og katalogbygging.
+        let c = match name.as_str() {
+            "rigg/src/app.rs" => c
+                .replacen("use std::os::unix::process::CommandExt;", "", 1)
+                .replacen(
+                    r#"std::process::Command::new(exe).args(["--innstillinger", "generelt"]).exec()"#,
+                    "",
+                    1,
+                ),
+            "rigg-core/build.rs" => c.replacen(
+                r#"std::process::Command::new("python3").arg(script).arg("--build").arg(out)"#,
+                "",
+                1,
+            ),
+            _ => c,
+        };
         if c.contains("Command::new")
             || c.contains("process::Command")
             || c.contains("libc::exec")

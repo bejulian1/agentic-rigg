@@ -2,7 +2,7 @@
 // kap. 13) og gjør verdiene tilgjengelige som RIGG_NAME, RIGG_VERSION og
 // RIGG_BUILD. Fila er liten og flat, så den tolkes for hånd (ingen
 // byggeavhengigheter).
-use std::{env, fs, path::Path, process::Command};
+use std::{env, fs, path::Path};
 
 fn field<'a>(text: &'a str, key: &str) -> &'a str {
     let pat = format!("\"{key}\"");
@@ -33,7 +33,7 @@ fn main() {
     println!("cargo:rerun-if-changed={}", script.display());
     println!("cargo:rerun-if-changed={}", app.join("data/i18n").display());
     #[allow(clippy::disallowed_methods)] // Byggverktøyet validerer PO, utenfor appen.
-    let status = Command::new("python3").arg(script).arg("--build").arg(out)
+    let status = std::process::Command::new("python3").arg(script).arg("--build").arg(out)
         .status().expect("trenger Python 3 til PO-katalogene");
     assert!(status.success(), "kunne ikke bygge inn PO-katalogene");
 }
