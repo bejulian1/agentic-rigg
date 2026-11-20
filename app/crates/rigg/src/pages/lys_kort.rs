@@ -255,6 +255,12 @@ fn bound_status(helper: &Value, selected: Option<&(String, String)>) -> bool {
             .is_some_and(rgb_auth::compatible_build)
 }
 
+fn should_read_clean(helper: &Value, selected: Option<&(String, String)>) -> bool {
+    bound_status(helper, selected)
+        && helper["busy"] != true
+        && helper["status"]["state"]["dirty"] == false
+}
+
 fn boottime_ms() -> Option<u64> {
     let mut time = libc::timespec {
         tv_sec: 0,
@@ -457,11 +463,7 @@ impl CardLight {
         let weak = Rc::downgrade(self);
         self.refresh.connect_clicked(move |_| {
             if let Some(p) = weak.upgrade() {
-                let clean = {
-                    let helper = p.helper.borrow();
-                    bound_status(&helper, selected_identity(&p.app).as_ref())
-                        && helper["status"]["state"]["dirty"] == false
-                };
+                let clean = should_read_clean(&p.helper.borrow(), selected_identity(&p.app).as_ref());
                 if clean {
                     p.operation("rgb_read", json!({}));
                 } else {
@@ -697,11 +699,12 @@ impl CardLight {
                         p.helper.borrow_mut()["status"] = details["status"].clone();
                     }
                     *p.message.borrow_mut() = Some(error.message.clone());
-                    p.app.toast(
-                        Toast::new("Lysendringen ble ikke fullført")
-                            .body(&error.message)
-                            .error(),
-                    );
+                    let title = if op == "rgb_read" {
+                        "Kunne ikke lese kortlyset"
+                    } else {
+                        "Lysendringen ble ikke fullført"
+                    };
+                    p.app.toast(Toast::new(title).body(&error.message).error());
                 }
             }
             p.render();
@@ -1624,5 +1627,48 @@ mod tests {
         let mut wrong_port = value;
         wrong_port["status"]["identity"]["adapter"]["port"] = json!(0);
         assert!(!bound_status(&wrong_port, Some(&selected)));
+    }
+
+    #[test]
+    fn sjekk_igjen_leser_ren_tilstand_bare_nar_arbeideren_er_ledig() {
+        let selected = ("0000:1c:00.0".into(), "GPU-fixture".into());
+        let mut value = json!({
+            "state": "on",
+            "busy": false,
+            "status": {
+                "authorized": true,
+                "helper": {
+                    "name": rgb_auth::HELPER_NAME,
+                    "domain": rgb_auth::DOMAIN,
+                    "protocol": rgb_auth::PROTOCOL,
+                    "build": rigg_core::version::build()
+                },
+                "identity": {
+                    "pci": selected.0,
+                    "uuid": selected.1,
+                    "pciIds": {
+                        "vendor": 0x10de,
+                        "device": 0x1e87,
+                        "subsystemVendor": 0x10de,
+                        "subsystemDevice": 0x1e87
+                    },
+                    "adapter": {
+                        "port": 1,
+                        "name": "NVIDIA i2c adapter 1 at 1c:00.0",
+                        "parentPci": selected.0,
+                        "driver": "nvidia"
+                    },
+                    "address": 73,
+                    "signature": "palit_150"
+                },
+                "state": {"dirty": false}
+            }
+        });
+        assert!(should_read_clean(&value, Some(&selected)));
+        value["busy"] = json!(true);
+        assert!(!should_read_clean(&value, Some(&selected)));
+        value["busy"] = json!(false);
+        value["status"]["state"]["dirty"] = json!(true);
+        assert!(!should_read_clean(&value, Some(&selected)));
     }
 }
