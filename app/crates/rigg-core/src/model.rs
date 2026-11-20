@@ -71,12 +71,32 @@ pub struct CpuSample {
     pub load: Option<f64>,
     pub core_load: Vec<Option<f64>>,
     pub core_mhz: Vec<Option<f64>>,
+    /// Aktive Linux-CPU-ID-er i prøven (sortert). Tom for eldre tjenester uten feltet.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub thread_ids: Vec<u32>,
     /// CPU-temperaturen som vises: Tdie når den finnes (maskinvare-revisjon kap. 7).
     pub temp: Option<f64>,
     /// Tctl (10 °C over Tdie på 2700X), står i verktøytipset.
     pub tctl: Option<f64>,
     pub governor: Option<String>,
     pub boost: Option<bool>,
+}
+
+impl CpuSample {
+    /// Aktive Linux-CPU-ID-er i prøven: `thread_ids` når tjenesten sender dem,
+    /// ellers indeksene som har last eller klokke (eldre tjenester).
+    pub fn active_thread_ids(&self) -> Vec<usize> {
+        if !self.thread_ids.is_empty() {
+            return self.thread_ids.iter().filter_map(|&id| usize::try_from(id).ok()).collect();
+        }
+        let n = self.core_load.len().max(self.core_mhz.len());
+        (0..n)
+            .filter(|&i| {
+                self.core_load.get(i).copied().flatten().is_some()
+                    || self.core_mhz.get(i).copied().flatten().is_some()
+            })
+            .collect()
+    }
 }
 
 /// Minne fra `/proc/meminfo`, i kB.
@@ -309,5 +329,26 @@ mod tests {
     fn kort_navn() {
         assert_eq!(short_gpu_name("NVIDIA GeForce RTX 2080"), "RTX 2080");
         assert_eq!(short_gpu_name("Quadro P4000"), "Quadro P4000");
+    }
+
+    #[test]
+    fn cpu_sample_active_thread_ids_og_serialisering() {
+        let empty = CpuSample::default();
+        assert!(serde_json::to_value(&empty).unwrap().get("threadIds").is_none());
+        assert!(empty.active_thread_ids().is_empty());
+
+        let with_ids = CpuSample { thread_ids: vec![0, 8], core_load: vec![Some(10.0), None, None, None, None, None, None, None, None], ..Default::default() };
+        let v = serde_json::to_value(&with_ids).unwrap();
+        assert_eq!(v["threadIds"], serde_json::json!([0, 8]));
+        assert_eq!(with_ids.active_thread_ids(), vec![0, 8]);
+
+        // Eldre tjeneste uten threadIds: utleder aktive ID-er fra last/klokke.
+        let legacy: CpuSample = serde_json::from_value(serde_json::json!({
+            "coreLoad": [12.0, null, null, null, null, null, null, null, 45.0],
+            "coreMhz": [2000.0, null, null, null, null, null, null, null, 3600.0]
+        }))
+        .unwrap();
+        assert!(legacy.thread_ids.is_empty());
+        assert_eq!(legacy.active_thread_ids(), vec![0, 8]);
     }
 }

@@ -155,6 +155,21 @@ pub fn cpu_thread_ids(cpu: &Value) -> Vec<usize> {
     }
 }
 
+/// Om telemetrien melder et annet sett med aktive Linux-CPU-ID-er enn det
+/// gjeldende `get_system`-svaret. Returnerer det nye ID-settet når siden bør
+/// hente `get_system` på nytt, uten å gjenta forespørselen for samme sett.
+pub fn cpu_topology_update(system: &Value, cpu: &crate::model::CpuSample, last_requested: &[usize]) -> Option<Vec<usize>> {
+    if system.is_null() {
+        return None;
+    }
+    let live = cpu.active_thread_ids();
+    if live.is_empty() {
+        return None;
+    }
+    let known = cpu_thread_ids(&system["cpu"]);
+    (known != live && last_requested != live.as_slice()).then_some(live)
+}
+
 pub fn sections(i: &SysInput) -> Vec<Section> {
     let cpu = &i.system["cpu"];
     let board = &i.system["board"];
@@ -557,5 +572,26 @@ mod tests {
         let d = disks_section(&sys);
         let t = crate::report::render_sections(&[d], crate::report::ReportFormat::Text, 2);
         assert!(t.contains("Advarsel") && t.contains("38") && t.contains("sda: 10 dårlige sektorer"), "{t}");
+    }
+
+    #[test]
+    fn cpu_topology_update_oppdager_hotplug_med_likt_antall() {
+        let system = serde_json::json!({"cpu": {"threads": 2, "threadIds": [0, 1]}});
+        let same = crate::model::CpuSample { thread_ids: vec![0, 1], ..Default::default() };
+        assert_eq!(cpu_topology_update(&system, &same, &[]), None);
+
+        // Hotplug [0, 1] -> [0, 8]: samme antall tråder, men nytt ID-sett.
+        let hotplugged = crate::model::CpuSample { thread_ids: vec![0, 8], ..Default::default() };
+        assert_eq!(cpu_topology_update(&system, &hotplugged, &[]), Some(vec![0, 8]));
+        // Gjentar ikke forespørsel for samme ID-sett før noe nytt skjer.
+        assert_eq!(cpu_topology_update(&system, &hotplugged, &[0, 8]), None);
+
+        // Etter at get_system er oppdatert til [0, 8], gir nytt bytte tilbake nytt varsel.
+        let updated = serde_json::json!({"cpu": {"threads": 2, "threadIds": [0, 8]}});
+        assert_eq!(cpu_topology_update(&updated, &hotplugged, &[0, 8]), None);
+        assert_eq!(cpu_topology_update(&updated, &same, &[0, 8]), Some(vec![0, 1]));
+
+        // Før første get_system trigges ingen ekstra henting.
+        assert_eq!(cpu_topology_update(&Value::Null, &hotplugged, &[]), None);
     }
 }

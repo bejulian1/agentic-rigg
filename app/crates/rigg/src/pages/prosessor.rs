@@ -257,6 +257,7 @@ struct State {
     visible: Cell<bool>,
     system: RefCell<Value>,
     loading: Cell<bool>,
+    cpu_ids_requested: RefCell<Vec<usize>>,
     view: Rc<Sections>,
     flags: Flags,
     live: Live,
@@ -282,7 +283,7 @@ impl Page for Prosessor {
     fn show(&self, _q: Option<&str>) {
         self.st.visible.set(true);
         if self.st.system.borrow().is_null() {
-            self.st.load();
+            self.st.load(false);
         }
         self.st.refresh();
     }
@@ -291,7 +292,7 @@ impl Page for Prosessor {
     }
     fn on_key(&self, k: &Key) -> bool {
         if k.key == gtk::gdk::Key::F5 && !k.ctrl && !k.alt {
-            self.st.load();
+            self.st.load(true);
             return true;
         }
         if k.ctrl && !k.alt && matches!(k.key, gtk::gdk::Key::f | gtk::gdk::Key::F) && self.st.flags.all.get() {
@@ -303,12 +304,11 @@ impl Page for Prosessor {
 }
 
 impl State {
-    fn load(self: &Rc<Self>) {
+    fn load(self: &Rc<Self>, announce: bool) {
         if self.loading.replace(true) {
             return;
         }
         let w = Rc::downgrade(self);
-        let first = self.system.borrow().is_null();
         self.app.client.request("get_system", json!({}), move |res| {
             let Some(s) = w.upgrade() else { return };
             s.loading.set(false);
@@ -317,17 +317,34 @@ impl State {
                     *s.system.borrow_mut() = v;
                     s.groups_sig.borrow_mut().clear();
                     s.refresh();
-                    if !first {
+                    if announce {
                         s.app.toast(crate::toast::Toast::new("Faste data er lest på nytt").ms(2500));
                     }
                 }
                 Err(e) => {
-                    if !first {
+                    if announce {
                         s.app.toast(crate::toast::Toast::new("Kunne ikke hente prosessordata").body(&e.message).error());
                     }
                 }
             }
         });
+    }
+
+    /// Henter `get_system` på nytt når telemetrien melder et nytt sett aktive CPU-ID-er.
+    fn sync_cpu_topology(self: &Rc<Self>) {
+        if self.loading.get() {
+            return;
+        }
+        let Some(sys) = self.app.sys() else { return };
+        let next = report::system::cpu_topology_update(
+            &self.system.borrow(),
+            &sys.cpu,
+            &self.cpu_ids_requested.borrow(),
+        );
+        if let Some(ids) = next {
+            *self.cpu_ids_requested.borrow_mut() = ids;
+            self.load(false);
+        }
     }
 
     fn sections(&self, report: bool) -> Vec<Section> {
@@ -354,10 +371,11 @@ impl State {
         d.stats["stats"].as_object().and_then(|o| o.iter().filter(|(k, _)| k.starts_with("cpu/thread/") && k.ends_with("/mhz")).filter_map(|(_, v)| v["max"].as_f64()).reduce(f64::max))
     }
 
-    fn refresh(&self) {
+    fn refresh(self: &Rc<Self>) {
         if !self.visible.get() {
             return;
         }
+        self.sync_cpu_topology();
         let secs = self.sections(false);
         self.view.show(&secs);
         self.render_flags();
@@ -622,6 +640,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         visible: Cell::new(false),
         system: RefCell::new(Value::Null),
         loading: Cell::new(false),
+        cpu_ids_requested: RefCell::new(Vec::new()),
         view,
         flags,
         live,
@@ -688,10 +707,12 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         app.on_conn.connect(move |c| {
             if let Some(s) = w.upgrade()
                 && *c == crate::state::Conn::Connected
-                && s.visible.get()
-                && s.system.borrow().is_null()
             {
-                s.load();
+                s.cpu_ids_requested.borrow_mut().clear();
+                *s.system.borrow_mut() = Value::Null;
+                if s.visible.get() {
+                    s.load(false);
+                }
             }
         });
     }

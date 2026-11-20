@@ -317,6 +317,7 @@ struct Inner {
     sig: RefCell<String>,
     system: RefCell<serde_json::Value>,
     system_loading: Cell<bool>,
+    cpu_ids_requested: RefCell<Vec<usize>>,
     filter: RefCell<String>,
     collapsed: RefCell<HashSet<String>>,
     threads_open: Cell<bool>,
@@ -872,6 +873,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         sig: RefCell::new(String::new()),
         system: RefCell::new(serde_json::Value::Null),
         system_loading: Cell::new(false),
+        cpu_ids_requested: RefCell::new(Vec::new()),
         filter: RefCell::new(String::new()),
         collapsed: RefCell::new(HashSet::new()),
         threads_open: Cell::new(false),
@@ -949,6 +951,7 @@ impl Inner {
             let Some(s) = w.upgrade() else { return };
             s.track_pending();
             if s.visible.get() {
+                s.sync_cpu_topology();
                 s.rebuild_if_needed();
                 s.paint();
             }
@@ -1008,6 +1011,7 @@ impl Inner {
             {
                 s.prefilled.set(false);
                 *s.system.borrow_mut() = serde_json::Value::Null;
+                s.cpu_ids_requested.borrow_mut().clear();
                 if s.visible.get() {
                     s.load_system();
                     s.prefill();
@@ -1139,9 +1143,27 @@ impl Inner {
                     s.rebuild_if_needed();
                     s.paint();
                     s.prefill();
+                    s.sync_cpu_topology();
                 }
             }
         });
+    }
+
+    /// Henter `get_system` på nytt når telemetrien melder et nytt sett aktive CPU-ID-er.
+    fn sync_cpu_topology(self: &Rc<Self>) {
+        if self.system_loading.get() {
+            return;
+        }
+        let Some(tel) = self.app.telemetry() else { return };
+        let next = rigg_core::report::system::cpu_topology_update(
+            &self.system.borrow(),
+            &tel.sys.cpu,
+            &self.cpu_ids_requested.borrow(),
+        );
+        if let Some(ids) = next {
+            *self.cpu_ids_requested.borrow_mut() = ids;
+            self.load_system();
+        }
     }
 
     fn rebuild_if_needed(self: &Rc<Self>) {
