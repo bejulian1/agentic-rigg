@@ -8,6 +8,11 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Rigg-Status: complete\n"
 
+#: crates/rigg-core/src/fmt.rs:158
+msgctxt "turtallsenhet"
+msgid "o/min"
+msgstr "rpm"
+
 #: crates/rigg-core/src/fmt.rs:359
 msgid "{verdi} døgn"
 msgstr "{verdi} d"

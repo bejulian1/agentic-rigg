@@ -155,7 +155,7 @@ pub fn mhz(v: Option<f64>) -> String {
 }
 
 pub fn rpm(v: Option<f64>) -> String {
-    with_unit(num(v, 0), "o/min")
+    with_unit(num(v, 0), crate::tr!("turtallsenhet", "o/min"))
 }
 
 // ---- Minne ----
