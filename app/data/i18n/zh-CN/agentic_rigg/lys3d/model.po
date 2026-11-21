@@ -1,0 +1,220 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: crates/rigg/src/lys3d/model.rs:42
+msgid "Deksel"
+msgstr "外壳"
+
+#: crates/rigg/src/lys3d/model.rs:42
+msgid "Plast, med lyslist og to lysringer"
+msgstr "塑料材质，带灯条和两个灯环"
+
+#: crates/rigg/src/lys3d/model.rs:43
+msgid "Lyslist"
+msgstr "灯条"
+
+#: crates/rigg/src/lys3d/model.rs:43 crates/rigg/src/lys3d/model.rs:44 crates/rigg/src/lys3d/model.rs:45
+msgid "Del av kortets ene fysiske lyssone"
+msgstr "显卡单一物理灯区的一部分"
+
+#: crates/rigg/src/lys3d/model.rs:44
+msgid "Lysring, vifte 1"
+msgstr "灯环（风扇 1）"
+
+#: crates/rigg/src/lys3d/model.rs:45
+msgid "Lysring, vifte 2"
+msgstr "灯环（风扇 2）"
+
+#: crates/rigg/src/lys3d/model.rs:46
+msgid "Vifte 1"
+msgstr "风扇 1"
+
+#: crates/rigg/src/lys3d/model.rs:46 crates/rigg/src/lys3d/model.rs:47
+msgid "90 mm, 11 blader"
+msgstr "90 mm，11 片扇叶"
+
+#: crates/rigg/src/lys3d/model.rs:47
+msgid "Vifte 2"
+msgstr "风扇 2"
+
+#: crates/rigg/src/lys3d/model.rs:48
+msgid "Kjøleribbe"
+msgstr "散热鳍片"
+
+#: crates/rigg/src/lys3d/model.rs:48
+msgid "Lameller i aluminium"
+msgstr "铝制鳍片"
+
+#: crates/rigg/src/lys3d/model.rs:49
+msgid "Varmerør"
+msgstr "热管"
+
+#: crates/rigg/src/lys3d/model.rs:49
+msgid "5 × Ø 6 mm, kobber"
+msgstr "5 × Ø 6 mm，铜质"
+
+#: crates/rigg/src/lys3d/model.rs:50
+msgid "Kontaktplate"
+msgstr "均热接触底座"
+
+#: crates/rigg/src/lys3d/model.rs:50
+msgid "Forniklet kobber over GPU-en"
+msgstr "GPU 上方的镀镍铜底座"
+
+#: crates/rigg/src/lys3d/model.rs:51
+msgid "Kjøleplate"
+msgstr "显存散热板"
+
+#: crates/rigg/src/lys3d/model.rs:51
+msgid "Over minnet"
+msgstr "位于显存上方"
+
+#: crates/rigg/src/lys3d/model.rs:52
+msgid "VRM-kjøler"
+msgstr "VRM 散热片"
+
+#: crates/rigg/src/lys3d/model.rs:52
+msgid "Over spolene og effekttrinnene"
+msgstr "位于电感与供电模组上方"
+
+#: crates/rigg/src/lys3d/model.rs:53
+msgid "Termiske puter"
+msgstr "导热垫"
+
+#: crates/rigg/src/lys3d/model.rs:53
+msgid "Leder varme fra minnet og effekttrinnene"
+msgstr "将显存和供电模组的热量传导出去"
+
+#: crates/rigg/src/lys3d/model.rs:54
+msgid "Festekryss"
+msgstr "背部固定支架"
+
+#: crates/rigg/src/lys3d/model.rs:54
+msgid "Fjærstål, holder kjøleren mot GPU-en"
+msgstr "弹簧钢材质，将散热器压紧在 GPU 上"
+
+#: crates/rigg/src/lys3d/model.rs:55
+msgid "GPU-brikke"
+msgstr "GPU 芯片"
+
+#: crates/rigg/src/lys3d/model.rs:55
+msgid "TU104-klasse, 545 mm², 12 nm"
+msgstr "TU104 级别，545 mm²，12 nm"
+
+#: crates/rigg/src/lys3d/model.rs:56
+msgid "GDDR6-minne"
+msgstr "GDDR6 显存"
+
+#: crates/rigg/src/lys3d/model.rs:56
+msgid "8 × 1 GB, 256 bit, 14 Gbps"
+msgstr "8 × 1 GB，256 位宽，14 Gbps"
+
+#: crates/rigg/src/lys3d/model.rs:57
+msgid "Spoler"
+msgstr "电感"
+
+#: crates/rigg/src/lys3d/model.rs:57
+msgid "Strømfaser: 8 for kjernen, 2 for minnet"
+msgstr "供电相：8 相核心，2 相显存"
+
+#: crates/rigg/src/lys3d/model.rs:58
+msgid "Effekttrinn"
+msgstr "供电模组"
+
+#: crates/rigg/src/lys3d/model.rs:58
+msgid "Én MOSFET-pakke per fase"
+msgstr "每相一颗 MOSFET 封装"
+
+#: crates/rigg/src/lys3d/model.rs:59
+msgid "Polymerkondensatorer"
+msgstr "固态聚合物电容"
+
+#: crates/rigg/src/lys3d/model.rs:59
+msgid "Glatter spenningen fra fasene"
+msgstr "对各供电相的电压进行滤波稳压"
+
+#: crates/rigg/src/lys3d/model.rs:60
+msgid "Små komponenter"
+msgstr "贴片小元件"
+
+#: crates/rigg/src/lys3d/model.rs:60
+msgid "Kondensatorer og motstander (0402 og 0603)"
+msgstr "电容与电阻（0402 与 0603）"
+
+#: crates/rigg/src/lys3d/model.rs:61
+msgid "Kontrollere"
+msgstr "控制器芯片"
+
+#: crates/rigg/src/lys3d/model.rs:61
+msgid "Spenningsregulering, BIOS og lys"
+msgstr "电压调节、BIOS 与灯光控制"
+
+#: crates/rigg/src/lys3d/model.rs:62
+msgid "PCIe x16-kontakt"
+msgstr "PCIe x16 金手指"
+
+#: crates/rigg/src/lys3d/model.rs:62
+msgid "Gullbelagte kontakter, 82 per side"
+msgstr "镀金触点，每侧 82 针"
+
+#: crates/rigg/src/lys3d/model.rs:63
+msgid "Strømkontakter"
+msgstr "辅助供电接口"
+
+#: crates/rigg/src/lys3d/model.rs:63
+msgid "8-pin og 6-pin, 12 V"
+msgstr "8 针与 6 针，12 V"
+
+#: crates/rigg/src/lys3d/model.rs:64
+msgid "Utganger"
+msgstr "显示输出"
+
+#: crates/rigg/src/lys3d/model.rs:64
+msgid "3 × DisplayPort, HDMI og USB-C"
+msgstr "3 × DisplayPort、HDMI 与 USB-C"
+
+#: crates/rigg/src/lys3d/model.rs:65
+msgid "Pinnehoder"
+msgstr "排针接口"
+
+#: crates/rigg/src/lys3d/model.rs:65
+msgid "Vifter og lys"
+msgstr "风扇与灯光"
+
+#: crates/rigg/src/lys3d/model.rs:66
+msgid "Kretskort"
+msgstr "电路板（PCB）"
+
+#: crates/rigg/src/lys3d/model.rs:66
+msgid "267 × 111 mm"
+msgstr "267 × 111 mm"
+
+#: crates/rigg/src/lys3d/model.rs:67
+msgid "Kondensatorer bak GPU-en"
+msgstr "GPU 背面电容"
+
+#: crates/rigg/src/lys3d/model.rs:67
+msgid "Keramiske (MLCC)"
+msgstr "陶瓷电容（MLCC）"
+
+#: crates/rigg/src/lys3d/model.rs:68
+msgid "Brakett"
+msgstr "I/O 挡板"
+
+#: crates/rigg/src/lys3d/model.rs:68
+msgid "Stål, to spor"
+msgstr "钢制，双槽位"
+
+#: crates/rigg/src/lys3d/model.rs:69
+msgid "Bakplate"
+msgstr "背板"
+
+#: crates/rigg/src/lys3d/model.rs:69
+msgid "Aluminium, med vindu bak GPU-en"
+msgstr "铝制，GPU 背面带镂空窗口"

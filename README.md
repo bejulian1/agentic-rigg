@@ -11,7 +11,7 @@ A lightweight Linux hardware monitor with opt-in NVIDIA GPU control, written in 
   <tr>
     <td><a href="docs/images/vifter.png"><img src="docs/images/vifter.png" alt="Fans page with Simple and Advanced views" width="320"></a></td>
     <td><a href="docs/images/klokker.png"><img src="docs/images/klokker.png" alt="Clocks and Power page with live readings and GPU tuning" width="320"></a></td>
-    <td><a href="docs/images/rgb.png"><img src="docs/images/rgb.png" alt="Card lighting with Apply, Keep and Roll back" width="320"></a></td>
+    <td><a href="docs/images/rgb.png"><img src="docs/images/rgb.png" alt="Card lighting with the 2D card preview, Apply, Keep and Roll back (simulated data)" width="320"></a></td>
   </tr>
 </table>
 
@@ -30,7 +30,7 @@ A lightweight Linux hardware monitor with opt-in NVIDIA GPU control, written in 
 | Disks | SMART/NVMe health via UDisks2, temperature, power-on time, wear, I/O and partitions |
 | System | Motherboard, BIOS, memory, operating system and controllers |
 | Clocks & Power, Fans | Opt-in NVML control of power limit, core/memory clock offset, temperature target and fans (Simple/Advanced views, curves, drafts and profiles) |
-| RGB lighting | Card-bound lighting control for the Palit GeForce RTX 2080 Super JetStream: static colour, off, brightness, breathing, rainbow and colour cycle |
+| RGB lighting | Card-bound lighting control for the Palit GeForce RTX 2080 Super JetStream: static colour, off, brightness, breathing, rainbow and colour cycle, with a 2D or 3D card that previews the chosen light |
 
 Readings come from `/proc`, sysfs/DMI, hwmon, UDisks2 and NVIDIA NVML. Available fields depend on your hardware and drivers; anything missing or unsupported is shown as unknown rather than made up. Reference data is kept separate from live measurements.
 

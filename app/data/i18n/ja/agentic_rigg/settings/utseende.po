@@ -104,7 +104,7 @@ msgstr "ダーク"
 msgid "Nesten svart flis"
 msgstr "ほぼ黒のタイル"
 
-#: crates/rigg/src/settings/utseende.rs:57 crates/rigg/src/settings/utseende.rs:409
+#: crates/rigg/src/settings/utseende.rs:57 crates/rigg/src/settings/utseende.rs:409 crates/rigg/src/settings/utseende.rs:460
 msgid "Lys"
 msgstr "ライト"
 
@@ -266,6 +266,35 @@ msgstr "特大"
 msgctxt "søkeord"
 msgid "tekst zoom skrift"
 msgstr "テキスト ズーム フォント 文字サイズ"
+
+#: crates/rigg/src/settings/utseende.rs:463
+msgid "3D-kortet"
+msgstr "3Dカード表示"
+
+#: crates/rigg/src/settings/utseende.rs:464
+msgid "Auto viser 2D til du har valgt 3D én gang, deretter det du valgte sist. 3D bruker ca. 120 MB mer minne og vekker skjermkortet i noen sekunder første gang."
+msgstr "自動は一度 3D を選ぶまで 2D を表示し、以降は前回の選択を記憶します。3D はメモリを約 120 MB 多く使用し、初回のみ GPU を数秒間起動します。"
+
+#: crates/rigg/src/settings/utseende.rs:465
+msgid "Auto"
+msgstr "自動"
+
+#: crates/rigg/src/settings/utseende.rs:465
+msgid "Alltid 3D"
+msgstr "常に 3D"
+
+#: crates/rigg/src/settings/utseende.rs:465
+msgid "Alltid 2D"
+msgstr "常に 2D"
+
+#: crates/rigg/src/settings/utseende.rs:465
+msgid "3D-kortet på RGB-lys"
+msgstr "RGB ライト画面の 3D カード"
+
+#: crates/rigg/src/settings/utseende.rs:466
+msgctxt "søkeord"
+msgid "lys rgb 3d 2d kort"
+msgstr "ライト rgb 3d 2d カード"
 
 #: crates/rigg/src/settings/utseende.rs:470
 msgid "Bevegelse"

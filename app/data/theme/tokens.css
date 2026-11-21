@@ -112,6 +112,7 @@ window.rigg {
   --tip-bg: #2e2e32;
   --tip-fg: #ffffff;
   --scrim: rgba(0, 0, 0, 0.3);
+  --stage: #16181b;
   --series-3: #6c6c73;
 }
 window.rigg.dark {
@@ -150,6 +151,7 @@ window.rigg.dark {
   --tip-bg: #f1f1f3;
   --tip-fg: #1e1e21;
   --scrim: rgba(0, 0, 0, 0.5);
+  --stage: #16181b;
   --series-3: #a4a4ab;
 }
 
@@ -294,6 +296,7 @@ window.rigg.pal-midnatt.dark {
   --seg-on: #3a3a40;
   --tip-bg: #ececef;
   --tip-fg: #111113;
+  --stage: #050506;
   --series-3: #9c9ca3;
 }
 
@@ -419,3 +422,31 @@ window.rigg.acc-green { --a-l: #257736; --a-d: #5bac66; --accent-bg: #308540; }
 window.rigg.acc-pink { --a-l: #a84576; --a-d: #e677ab; --accent-bg: #b95083; }
 window.rigg.acc-purple { --a-l: #8a3da4; --a-d: #c481dc; --accent-bg: #9141ac; }
 window.rigg.acc-slate { --a-l: #536475; --a-d: #8a9daf; --accent-bg: #5f7184; }
+
+/* Scenen på Lys (v0.0.13): mørk i alle temaer, i temaets tone. */
+window.rigg {
+  --stage-text: #d2d5da;
+  --stage-dim: #a3a7ae;
+  --stage-chip: color-mix(in srgb, var(--stage) 82%, transparent);
+  --stage-focus: var(--a-d);
+}
+window.rigg.pal-sand {
+  --stage: #1b1815;
+  --stage-text: #d9d3ca;
+  --stage-dim: #aba397;
+}
+window.rigg.pal-fjord {
+  --stage: #12181e;
+  --stage-text: #cdd6de;
+  --stage-dim: #9eabb7;
+}
+window.rigg.pal-midnatt:not(.dark) {
+  --stage: #0c0d12;
+}
+window.rigg.hc:not(.dark),
+window.rigg.hc.dark {
+  --stage: #000000;
+  --stage-text: #ffffff;
+  --stage-dim: #d6d6dc;
+  --stage-chip: #000000;
+}

@@ -170,7 +170,7 @@ class FakeState:
             "testMarker": MARKER,
             "helper": {
                 "name": "agentic-rigg-rgb-helper", "domain": "palit_rgb",
-                "protocol": 2, "strictRequests": True, "build": self.build, "version": "testfixture",
+                "protocol": 3, "strictRequests": True, "build": self.build, "version": "testfixture",
             },
             "identity": copy.deepcopy(BINDING),
             "authorized": True,
@@ -286,16 +286,27 @@ class FakeState:
         result = None
         if op == "rgb_apply":
             self.require_owner(sid, allow_unowned=True)
-            if self.pending or self.effect is not None:
+            if self.pending:
                 raise RpcError("busy", "En lysprøve venter allerede.")
             if self.error or (self.recovery and self.confirmation_source is None):
                 raise RpcError("write_locked", "Gjenopprettingen må bekreftes først.")
-            if effect is not None and (self.dirty or self.may_have_written or self.owner is not None
-                                       or self.confirmed != BASELINE):
-                raise RpcError("write_locked", "Effektstart krever et rent, opprinnelig utgangspunkt.")
-            self.observed = observed(self.confirmed)
+            if effect is not None and BASELINE["mode"] != "static":
+                raise RpcError("not_supported", "Programvareeffekter krever et statisk utgangspunkt.")
+            from_effect = self.effect is not None
+            if from_effect:
+                # Aktiv effekt stoppes; før-tilstanden er siste viste statiske ramme.
+                before_req = {
+                    "mode": "static",
+                    "color": self.observed["color"][:],
+                    "brightness": self.observed["brightnessRaw"],
+                }
+                before_obs = copy.deepcopy(self.observed)
+            else:
+                before_req = copy.deepcopy(self.confirmed)
+                self.observed = observed(self.confirmed)
+                before_obs = copy.deepcopy(self.observed)
             self.observation_source = "operation_readback"
-            if request == self.confirmed and effect is None:
+            if request == before_req and effect is None and not from_effect:
                 if self.owner is not None:
                     self.lease = now + LEASE_MS
                 result = self.outcome("unchanged", "apply")
@@ -308,8 +319,8 @@ class FakeState:
                 self.pending = {
                     "txn": self.sequence, "owner": sid,
                     "deadlineMs": now + args["confirmTimeoutS"] * 1000,
-                    "before": copy.deepcopy(self.confirmed),
-                    "beforeObserved": copy.deepcopy(self.observed),
+                    "before": before_req,
+                    "beforeObserved": before_obs,
                     "requested": request,
                 }
                 self.sequence += 1

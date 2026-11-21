@@ -16,7 +16,7 @@ pub const BINARY_PATH: &str = "/usr/local/libexec/agentic-rigg-rgb-v2/agentic-ri
 pub const LIBEXEC_DIR: &str = "/usr/local/libexec/agentic-rigg-rgb-v2";
 pub const POLICY_PATH: &str = "/usr/share/polkit-1/actions/io.github.AgenticRigg.rgb.v2.policy";
 pub const UNIT: &str = "agentic-rigg-rgb.service";
-pub const PROTOCOL: u32 = 2;
+pub const PROTOCOL: u32 = 3;
 pub const DOMAIN: &str = "palit_rgb";
 pub const HELPER_NAME: &str = "agentic-rigg-rgb-helper";
 pub const UI_OPS: &[&str] = &[
@@ -66,7 +66,9 @@ impl Paths {
 }
 /// Bare RGB-formatet og sikkerhetsmodellen fra dette bygget er gjennomgått.
 /// Dette er uavhengig av NVML-hjelperens kompatibilitet og autorisasjon.
-pub const MIN_COMPATIBLE_BUILD: u32 = 25;
+/// Bygg 29 innførte protokoll 3 (bytte mellom effekter); eldre RGB-hjelpere
+/// og tillatelser må installeres og aktiveres på nytt.
+pub const MIN_COMPATIBLE_BUILD: u32 = 29;
 
 pub fn compatible_build(build: u32) -> bool {
     (MIN_COMPATIBLE_BUILD..=crate::version::build()).contains(&build)
@@ -246,7 +248,8 @@ mod tests {
     #[test]
     fn rgb_har_egen_kompatibilitetsgrense() {
         assert!(!compatible_build(24));
-        assert!(compatible_build(25));
+        assert!(!compatible_build(28), "protokoll 2-hjelpere må installeres på nytt");
+        assert!(compatible_build(29));
         assert!(compatible_build(crate::version::build()));
         assert!(!compatible_build(crate::version::build() + 1));
     }

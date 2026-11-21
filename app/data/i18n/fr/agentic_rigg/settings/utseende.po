@@ -104,7 +104,7 @@ msgstr "Sombre"
 msgid "Nesten svart flis"
 msgstr "Tuile presque noire"
 
-#: crates/rigg/src/settings/utseende.rs:57 crates/rigg/src/settings/utseende.rs:409
+#: crates/rigg/src/settings/utseende.rs:57 crates/rigg/src/settings/utseende.rs:409 crates/rigg/src/settings/utseende.rs:460
 msgid "Lys"
 msgstr "Clair"
 
@@ -266,6 +266,35 @@ msgstr "Très grande"
 msgctxt "søkeord"
 msgid "tekst zoom skrift"
 msgstr "texte zoom police taille"
+
+#: crates/rigg/src/settings/utseende.rs:463
+msgid "3D-kortet"
+msgstr "Carte 3D"
+
+#: crates/rigg/src/settings/utseende.rs:464
+msgid "Auto viser 2D til du har valgt 3D én gang, deretter det du valgte sist. 3D bruker ca. 120 MB mer minne og vekker skjermkortet i noen sekunder første gang."
+msgstr "Auto affiche la 2D jusqu’à ce que vous choisissiez la 3D une fois, puis conserve votre dernier choix. La 3D utilise environ 120 Mo de mémoire en plus et réveille le GPU quelques secondes la première fois."
+
+#: crates/rigg/src/settings/utseende.rs:465
+msgid "Auto"
+msgstr "Auto"
+
+#: crates/rigg/src/settings/utseende.rs:465
+msgid "Alltid 3D"
+msgstr "Toujours 3D"
+
+#: crates/rigg/src/settings/utseende.rs:465
+msgid "Alltid 2D"
+msgstr "Toujours 2D"
+
+#: crates/rigg/src/settings/utseende.rs:465
+msgid "3D-kortet på RGB-lys"
+msgstr "Carte 3D sur l’éclairage RGB"
+
+#: crates/rigg/src/settings/utseende.rs:466
+msgctxt "søkeord"
+msgid "lys rgb 3d 2d kort"
+msgstr "lumiere eclairage rgb 3d 2d carte"
 
 #: crates/rigg/src/settings/utseende.rs:470
 msgid "Bevegelse"

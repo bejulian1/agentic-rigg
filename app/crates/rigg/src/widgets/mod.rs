@@ -67,6 +67,15 @@ pub fn label(text: &str, classes: &[&str]) -> gtk::Label {
     l
 }
 
+/// Gir ledig minne i malloc tilbake til systemet (alle arenaene, også de
+/// byggetråder har brukt). Kalles etter store, kortvarige jobber (3D-kortet).
+pub fn trim_memory() {
+    // SAFETY: malloc_trim har ingen forutsetninger.
+    unsafe {
+        libc::malloc_trim(0);
+    }
+}
+
 /// Fyll og strek for grafene: GSK-stier med GL/Vulkan, eller én cairo-node
 /// med vanlig cairo-fyll og -strek med cairo-tegneren. Med cairo tegnet GSK
 /// stiene som klippemasker; direkte cairo halverte tida per bilde (runde 3C).

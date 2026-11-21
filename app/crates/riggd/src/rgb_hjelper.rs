@@ -120,7 +120,7 @@ impl View {
         {
             return Err(Self {
                 state: "outdated",
-                message: Some("Oppdater RGB-hjelperen med kommandoen for systeminstallasjon.".into()),
+                message: Some("RGB-hjelperen må oppdateres. Trykk «Aktiver kortlys» for å oppdatere og aktivere den med ett passord.".into()),
                 status: Value::Null,
             });
         }
@@ -184,11 +184,16 @@ impl View {
         if !status["effect"].is_null() {
             let effect: Effect = serde_json::from_value(status["effect"].clone())
                 .map_err(|_| Self::error("RGB-hjelperens valgte effekt er ukjent."))?;
+            let static_target = if state["pending"].is_null() {
+                state["confirmed"]["mode"] == "static"
+            } else {
+                state["pending"]["requested"]["mode"] == "static"
+            };
             if !effects.contains(&effect)
                 || owner.is_none()
                 || state["dirty"] != true
                 || state["mayHaveWritten"] != true
-                || state["confirmed"]["mode"] != "static"
+                || !static_target
             {
                 return Err(Self::error(
                     "RGB-effekten mangler gyldig støtte eller eierskap.",
@@ -1628,5 +1633,27 @@ mod tests {
             assert_eq!(client.view(7)["state"], "error");
             assert!(client.view(7)["status"].is_null());
         }
+    }
+
+    #[test]
+    fn ventende_effekt_etter_av_godtas_mens_aktiv_effekt_krever_statisk_bekreftet() {
+        let mut status = initial_status();
+        status["softwareEffects"] = json!(["breathing", "rainbow", "cycle"]);
+        status["effect"] = json!("breathing");
+        status["holding"] = json!({"owner": 7, "deadlineMs": 16_000, "leaseMs": 15_000});
+        status["state"]["owner"] = json!(7);
+        status["state"]["dirty"] = json!(true);
+        status["state"]["mayHaveWritten"] = json!(true);
+        status["state"]["confirmed"] = json!({"mode": "off"});
+        status["state"]["pending"] = json!({
+            "txn": 2,
+            "owner": 7,
+            "deadlineMs": 15_000,
+            "requested": {"mode": "static", "color": [10, 20, 30], "brightness": 80}
+        });
+        assert!(View::checked(status.clone()).is_ok());
+        // Når prøven ikke lenger venter, må bekreftet valg være statisk.
+        status["state"]["pending"] = Value::Null;
+        assert!(View::checked(status).is_err());
     }
 }

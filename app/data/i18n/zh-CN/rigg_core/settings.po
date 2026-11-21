@@ -68,186 +68,190 @@ msgstr "GPU 温度红色阈值必须高于黄色阈值"
 msgid "Rød grense for CPU-temperatur må være over gul"
 msgstr "CPU 温度红色阈值必须高于黄色阈值"
 
-#: crates/rigg-core/src/settings.rs:276
+#: crates/rigg-core/src/settings.rs:285
 msgid "{felt} må være true/false"
 msgstr "{felt} 必须是 true/false"
 
-#: crates/rigg-core/src/settings.rs:280
+#: crates/rigg-core/src/settings.rs:289
 msgid "{felt} må være en liste"
 msgstr "{felt} 必须是列表"
 
-#: crates/rigg-core/src/settings.rs:289
+#: crates/rigg-core/src/settings.rs:298
 msgid "Ukjent verdi i {felt}: {verdi}"
 msgstr "{felt} 中存在未知值：{verdi}"
 
-#: crates/rigg-core/src/settings.rs:296
+#: crates/rigg-core/src/settings.rs:305
 msgid "{felt} må ha {min}–{max} valg"
 msgstr "{felt} 必须包含 {min}–{max} 项"
 
-#: crates/rigg-core/src/settings.rs:325
+#: crates/rigg-core/src/settings.rs:334
 msgid "statusItems må være en liste"
 msgstr "statusItems 必须是列表"
 
-#: crates/rigg-core/src/settings.rs:330
+#: crates/rigg-core/src/settings.rs:339
 msgid "Ukjent verdi i statusItems: {verdi}"
 msgstr "statusItems 中存在未知值：{verdi}"
 
-#: crates/rigg-core/src/settings.rs:337
+#: crates/rigg-core/src/settings.rs:346
 msgid "Statusblokken kan ha høyst {maks} verdier"
 msgstr "状态栏最多可包含 {maks} 项"
 
-#: crates/rigg-core/src/settings.rs:345
+#: crates/rigg-core/src/settings.rs:354
 msgid "{felt} er ugyldig"
 msgstr "{felt} 无效"
 
-#: crates/rigg-core/src/settings.rs:352 crates/rigg-core/src/settings.rs:582 crates/rigg-core/src/settings.rs:691
+#: crates/rigg-core/src/settings.rs:361 crates/rigg-core/src/settings.rs:592 crates/rigg-core/src/settings.rs:701
 msgid "Forventet et JSON-objekt"
 msgstr "需要 JSON 对象"
 
-#: crates/rigg-core/src/settings.rs:358
+#: crates/rigg-core/src/settings.rs:367
 msgid "Ukjent språkvalg"
 msgstr "未知的语言选项"
 
-#: crates/rigg-core/src/settings.rs:360
+#: crates/rigg-core/src/settings.rs:369
 msgid "Ugyldig intervall"
 msgstr "无效的间隔"
 
-#: crates/rigg-core/src/settings.rs:361
+#: crates/rigg-core/src/settings.rs:370
 msgid "Enhet må være C eller F"
 msgstr "单位必须为 C 或 F"
 
-#: crates/rigg-core/src/settings.rs:362
+#: crates/rigg-core/src/settings.rs:371
 msgid "Tema må være system, light eller dark"
 msgstr "主题必须为 system、light 或 dark"
 
-#: crates/rigg-core/src/settings.rs:364
+#: crates/rigg-core/src/settings.rs:373
 msgid "Ukjent aksentfarge"
 msgstr "未知强调色"
 
-#: crates/rigg-core/src/settings.rs:366
+#: crates/rigg-core/src/settings.rs:375
 msgid "Ukjent fargetema"
 msgstr "未知配色主题"
 
-#: crates/rigg-core/src/settings.rs:368
+#: crates/rigg-core/src/settings.rs:377
 msgid "Ukjent tetthet"
 msgstr "未知界面密度"
 
-#: crates/rigg-core/src/settings.rs:369
+#: crates/rigg-core/src/settings.rs:378
 msgid "Ugyldig skriftstørrelse"
 msgstr "无效的字体大小"
 
-#: crates/rigg-core/src/settings.rs:370
+#: crates/rigg-core/src/settings.rs:379
 msgid "Animasjoner må være system, full, reduced eller off"
 msgstr "动画设置必须为 system、full、reduced 或 off"
 
-#: crates/rigg-core/src/settings.rs:374
+#: crates/rigg-core/src/settings.rs:383
 msgid "Ukjent startside"
 msgstr "未知启动页"
 
-#: crates/rigg-core/src/settings.rs:386 crates/rigg-core/src/settings.rs:391
+#: crates/rigg-core/src/settings.rs:395 crates/rigg-core/src/settings.rs:400
 msgid "Tidsvindu må være en av {verdier} s"
 msgstr "时间范围必须为 {verdier} s 之一"
 
-#: crates/rigg-core/src/settings.rs:390
+#: crates/rigg-core/src/settings.rs:399
 msgid "windows må være et objekt"
 msgstr "windows 必须是对象"
 
-#: crates/rigg-core/src/settings.rs:398
+#: crates/rigg-core/src/settings.rs:407
 msgid "Ukjent side i windows: {side}"
 msgstr "windows 中存在未知页面：{side}"
 
-#: crates/rigg-core/src/settings.rs:403
+#: crates/rigg-core/src/settings.rs:412
 msgid "chartScale må være auto eller fixed"
 msgstr "chartScale 必须为 auto 或 fixed"
 
-#: crates/rigg-core/src/settings.rs:408
+#: crates/rigg-core/src/settings.rs:417
 msgid "Desimaler må være auto, 0 eller 1"
 msgstr "小数位数必须为 auto、0 或 1"
 
-#: crates/rigg-core/src/settings.rs:409
+#: crates/rigg-core/src/settings.rs:418
 msgid "memUnit må være bin eller dec"
 msgstr "memUnit 必须为 bin 或 dec"
 
-#: crates/rigg-core/src/settings.rs:410
+#: crates/rigg-core/src/settings.rs:419
 msgid "netUnit må være byte eller bit"
 msgstr "netUnit 必须为 byte 或 bit"
 
-#: crates/rigg-core/src/settings.rs:411
+#: crates/rigg-core/src/settings.rs:420
 msgid "Klokke må være system, 24 eller 12"
 msgstr "时间格式必须为 system、24 或 12"
 
-#: crates/rigg-core/src/settings.rs:414
+#: crates/rigg-core/src/settings.rs:423
 msgid "Fristen må være {verdier} s"
 msgstr "超时时间必须为 {verdier} s"
 
-#: crates/rigg-core/src/settings.rs:426
+#: crates/rigg-core/src/settings.rs:427
+msgid "lys3d må være auto, 3d eller 2d"
+msgstr "lys3d 必须为 auto、3d 或 2d"
+
+#: crates/rigg-core/src/settings.rs:436
 msgid "Ukjent del av Innstillinger"
 msgstr "未知的设置分组"
 
-#: crates/rigg-core/src/settings.rs:429
+#: crates/rigg-core/src/settings.rs:439
 msgid "Ukjent side"
 msgstr "未知页面"
 
-#: crates/rigg-core/src/settings.rs:432
+#: crates/rigg-core/src/settings.rs:442
 msgid "window må være et objekt"
 msgstr "window 必须是对象"
 
-#: crates/rigg-core/src/settings.rs:452
+#: crates/rigg-core/src/settings.rs:462
 msgid "gpuMakers må være et objekt"
 msgstr "gpuMakers 必须是对象"
 
-#: crates/rigg-core/src/settings.rs:454
+#: crates/rigg-core/src/settings.rs:464
 msgid "Høyst 16 kort i gpuMakers"
 msgstr "gpuMakers 最多支持 16 张显卡"
 
-#: crates/rigg-core/src/settings.rs:458
+#: crates/rigg-core/src/settings.rs:468
 msgid "Produsenten må være tekst"
 msgstr "厂商名称必须是文本"
 
-#: crates/rigg-core/src/settings.rs:461
+#: crates/rigg-core/src/settings.rs:471
 msgid "Ugyldig kort i gpuMakers"
 msgstr "gpuMakers 中存在无效显卡"
 
-#: crates/rigg-core/src/settings.rs:464
+#: crates/rigg-core/src/settings.rs:474
 msgid "Produsenten kan ha høyst 40 tegn"
 msgstr "厂商名称最多 40 个字符"
 
-#: crates/rigg-core/src/settings.rs:587
+#: crates/rigg-core/src/settings.rs:597
 msgid "Takten i bakgrunnen må være 1, 2 eller 5 s"
 msgstr "后台采样间隔必须为 1、2 或 5 s"
 
-#: crates/rigg-core/src/settings.rs:590
+#: crates/rigg-core/src/settings.rs:600
 msgid "Fristen må være 10, 15, 30 eller 60 s"
 msgstr "超时时间必须为 10、15、30 或 60 s"
 
-#: crates/rigg-core/src/settings.rs:592
+#: crates/rigg-core/src/settings.rs:602
 msgid "log må være et objekt"
 msgstr "log 必须是对象"
 
-#: crates/rigg-core/src/settings.rs:597
+#: crates/rigg-core/src/settings.rs:607
 msgid "log.keys må være en liste"
 msgstr "log.keys 必须是列表"
 
-#: crates/rigg-core/src/settings.rs:603
+#: crates/rigg-core/src/settings.rs:613
 msgid "Ukjent sensor i log.keys"
 msgstr "log.keys 中存在未知传感器"
 
-#: crates/rigg-core/src/settings.rs:608
+#: crates/rigg-core/src/settings.rs:618
 msgid "Loggintervallet må være 0,5, 1, 2, 5 eller 10 s"
 msgstr "日志间隔必须为 0.5、1、2、5 或 10 s"
 
-#: crates/rigg-core/src/settings.rs:613
+#: crates/rigg-core/src/settings.rs:623
 msgid "Loggmappa må være en full sti"
 msgstr "日志文件夹必须是完整路径"
 
-#: crates/rigg-core/src/settings.rs:616
+#: crates/rigg-core/src/settings.rs:626
 msgid "Formatet må være standard eller norsk"
 msgstr "格式必须为 standard 或 norsk"
 
-#: crates/rigg-core/src/settings.rs:622
+#: crates/rigg-core/src/settings.rs:632
 msgid "alarms må være et objekt"
 msgstr "alarms 必须是对象"
 
-#: crates/rigg-core/src/settings.rs:687
+#: crates/rigg-core/src/settings.rs:697
 msgid "Fila har ingen innstillinger"
 msgstr "文件中不包含设置"

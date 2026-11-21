@@ -1,6 +1,13 @@
 # Versjonslogg
 
-Gjeldende versjon: **1.5.3 · bygg 28**. Nedlastinger og utgivelsesnotater ligger under [Releases](https://github.com/bejulian1/agentic-rigg/releases).
+Gjeldende versjon: **1.5.4 · bygg 29**. Nedlastinger og utgivelsesnotater ligger under [Releases](https://github.com/bejulian1/agentic-rigg/releases).
+
+## 1.5.4 · bygg 29 – 21. november 2026
+
+- **Kortet er tilbake:** RGB-lys viser skjermkortet i 2D eller 3D igjen (valget «3D-kortet» i Innstillinger › Utseende: Auto, Alltid 3D, Alltid 2D). Modellen speiler den ekte kortstyringen: valgt farge, lysstyrke og effekt som forhåndsvisning, og fargen som sist ble lest fra kortet. Det finnes bare ett sett kontroller, og kortet vises med sin ene fysiske sone. 3D-ressursene frigjøres når du forlater siden.
+- **Effektbytte:** Du kan bytte direkte mellom fast farge, av og effektene, også mens en effekt går, og starte en effekt etter en beholdt farge. Hvert bytte er en ny prøve med Behold/Rull tilbake. Det lagrede utgangspunktet endres aldri. Leser hjelperen en annen farge enn effekten skrev, eller kan ikke lese kortet, stoppes effekten uten ny skriving. Når «Bruk» er sperret, står årsaken under knappen.
+- **RGB-protokoll 3:** Laveste kompatible RGB-hjelperbygg er 29. «Aktiver kortlys» oppdaterer og aktiverer med ett passord: installasjonen slår av den gamle RGB-tilgangen (lyset og utgangspunktet beholdes) og slår GPU-styringen på igjen for samme kort. NVML-hjelperen og dens protokoll er uendret; en fungerende GPU-styring vises ikke som utdatert.
+- **Begrensninger:** Rull tilbake etter et bytte fra en effekt går til siste effektramme, ikke til effekten. Effektene og oppgraderingen er prøvd mot et simulert kort, ikke på ekte maskinvare.
 
 ## 1.5.3 · bygg 28 – 21. november 2026
 

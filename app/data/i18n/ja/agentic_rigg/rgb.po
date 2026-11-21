@@ -1,0 +1,44 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: crates/rigg/src/rgb.rs:23
+msgid "Hvit"
+msgstr "白"
+
+#: crates/rigg/src/rgb.rs:24
+msgid "Rød"
+msgstr "赤"
+
+#: crates/rigg/src/rgb.rs:25
+msgid "Oransje"
+msgstr "オレンジ"
+
+#: crates/rigg/src/rgb.rs:26
+msgid "Gul"
+msgstr "黄"
+
+#: crates/rigg/src/rgb.rs:27
+msgid "Grønn"
+msgstr "緑"
+
+#: crates/rigg/src/rgb.rs:28
+msgid "Cyan"
+msgstr "シアン"
+
+#: crates/rigg/src/rgb.rs:29
+msgid "Blå"
+msgstr "青"
+
+#: crates/rigg/src/rgb.rs:30
+msgid "Lilla"
+msgstr "紫"
+
+#: crates/rigg/src/rgb.rs:31
+msgid "Rosa"
+msgstr "ピンク"

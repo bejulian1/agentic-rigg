@@ -1,0 +1,136 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: crates/rigg/src/lys3d/mod.rs:38
+msgid "Forfra"
+msgstr "Face"
+
+#: crates/rigg/src/lys3d/mod.rs:39
+msgid "Skrått"
+msgstr "Oblique"
+
+#: crates/rigg/src/lys3d/mod.rs:40
+msgid "Ovenfra"
+msgstr "Dessus"
+
+#: crates/rigg/src/lys3d/mod.rs:41
+msgid "Bakfra"
+msgstr "Arrière"
+
+#: crates/rigg/src/lys3d/mod.rs:44
+msgid "Hel"
+msgstr "Complète"
+
+#: crates/rigg/src/lys3d/mod.rs:45
+msgid "Uten deksel"
+msgstr "Sans carénage"
+
+#: crates/rigg/src/lys3d/mod.rs:46
+msgid "Uten kjøler"
+msgstr "Sans dissipateur"
+
+#: crates/rigg/src/lys3d/mod.rs:47
+msgid "Bare kretskort"
+msgstr "PCB seul"
+
+#: crates/rigg/src/lys3d/mod.rs:50
+msgid "Alle deler er på: deksel med vifter og lys, kjøler, kretskort, brakett og bakplate."
+msgstr "Toutes les pièces sont montées : carénage avec ventilateurs et lumières, dissipateur, PCB, équerre et plaque arrière."
+
+#: crates/rigg/src/lys3d/mod.rs:51
+msgid "Dekselet og viftene er tatt av, så kjøleribben og varmerørene synes."
+msgstr "Le carénage et les ventilateurs sont retirés, exposant les ailettes et les caloducs."
+
+#: crates/rigg/src/lys3d/mod.rs:52
+msgid "Kjøleren er også tatt av. Kretskortet synes med brakett og bakplate."
+msgstr "Le dissipateur est également retiré. Le PCB est visible avec l’équerre et la plaque arrière."
+
+#: crates/rigg/src/lys3d/mod.rs:53
+msgid "Bare kretskortet: GPU-brikken, åtte minnebrikker, strømfaser, kontakter og utganger."
+msgstr "PCB seul : puce GPU, huit puces mémoire, phases d’alimentation, connecteurs et sorties."
+
+#: crates/rigg/src/lys3d/mod.rs:624
+msgid "fra venstre"
+msgstr "de gauche"
+
+#: crates/rigg/src/lys3d/mod.rs:624
+msgid "fra høyre"
+msgstr "de droite"
+
+#: crates/rigg/src/lys3d/mod.rs:627
+msgid "ovenfra, med lyslisten mot deg"
+msgstr "de dessus, avec la barre lumineuse face à vous"
+
+#: crates/rigg/src/lys3d/mod.rs:629
+msgid "nedenfra"
+msgstr "de dessous"
+
+#: crates/rigg/src/lys3d/mod.rs:631
+msgid "rett forfra"
+msgstr "droit de face"
+
+#: crates/rigg/src/lys3d/mod.rs:633
+msgid "skrått forfra {side}"
+msgstr "de trois quarts avant ({side})"
+
+#: crates/rigg/src/lys3d/mod.rs:636
+msgid "fra siden med braketten og utgangene"
+msgstr "du côté avec l’équerre et les sorties"
+
+#: crates/rigg/src/lys3d/mod.rs:638
+msgid "fra enden"
+msgstr "par l’extrémité"
+
+#: crates/rigg/src/lys3d/mod.rs:641
+msgid "skrått bakfra {side}"
+msgstr "de trois quarts arrière ({side})"
+
+#: crates/rigg/src/lys3d/mod.rs:643
+msgid "rett bakfra, mot bakplaten"
+msgstr "droit de l’arrière, face à la plaque arrière"
+
+#: crates/rigg/src/lys3d/mod.rs:646
+msgid "Lagene er skilt fra hverandre ({prosent})."
+msgstr "Les couches sont séparées ({prosent})."
+
+#: crates/rigg/src/lys3d/mod.rs:653
+msgid "Viftene går på {fart}."
+msgstr "Les ventilateurs tournent à {fart}."
+
+#: crates/rigg/src/lys3d/mod.rs:655
+msgid "Viftene står stille."
+msgstr "Les ventilateurs sont à l’arrêt."
+
+#: crates/rigg/src/lys3d/mod.rs:657
+msgid "Skjermkort i 3D, sett {vinkel}. {lag}"
+msgstr "Carte graphique en 3D, vue {vinkel}. {lag}"
+
+#: crates/rigg/src/lys3d/mod.rs:755
+msgid "Skjermkortet i 3D"
+msgstr "Carte graphique en 3D"
+
+#: crates/rigg/src/lys3d/mod.rs:756
+msgid "3D-visning"
+msgstr "Vue 3D"
+
+#: crates/rigg/src/lys3d/mod.rs:835
+msgid "GL kunne ikke startes: {feil}"
+msgstr "Impossible de démarrer GL : {feil}"
+
+#: crates/rigg/src/lys3d/mod.rs:898
+msgid "GL-feil i GLArea"
+msgstr "Erreur GL dans GLArea"
+
+#: crates/rigg/src/lys3d/mod.rs:917
+msgid "3D-kortet kunne ikke startes: {feil}"
+msgstr "Impossible de démarrer la carte 3D : {feil}"
+
+#: crates/rigg/src/lys3d/mod.rs:1134
+msgid "Bygger 3D-kortet …"
+msgstr "Construction de la carte 3D …"

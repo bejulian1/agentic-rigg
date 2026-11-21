@@ -428,12 +428,12 @@ impl Book {
         now_ms: u64,
         timeout_ms: u64,
     ) -> Result<Outcome, Error> {
-        self.apply_inner(backend, owner, request, now_ms, timeout_ms, false)
+        self.apply_inner(backend, owner, request, now_ms, timeout_ms, false, None)
     }
 
     /// En effekt trenger en vanlig journalført prøve og Behold også når
-    /// startfargen er lik originalen. Dermed finnes skriveansvar og en varig
-    /// original før senere animasjonsbilder avviker fra startfargen.
+    /// startfargen er lik forrige bekreftede valg. Dermed finnes skriveansvar
+    /// og en varig original før senere animasjonsbilder avviker fra startfargen.
     pub fn apply_for_effect<B: Backend>(
         &mut self,
         backend: &mut B,
@@ -448,9 +448,40 @@ impl Book {
                 message: "En programvareanimasjon trenger en statisk startfarge.".into(),
             });
         }
-        self.apply_inner(backend, owner, request, now_ms, timeout_ms, true)
+        self.apply_inner(backend, owner, request, now_ms, timeout_ms, true, None)
     }
 
+    /// Bytter trygt fra en pågående, beholdt programvareeffekt til et nytt valg
+    /// (statisk farge, av eller ny effekt) for samme eier. Kontrollerer at kortet
+    /// fortsatt viser siste kjente animasjonsramme før en ny journalført prøve
+    /// startes; opprinnelig baseline beholdes alltid urørt.
+    pub fn apply_after_animation<B: Backend>(
+        &mut self,
+        backend: &mut B,
+        owner: u64,
+        expected_frame: Request,
+        request: Request,
+        now_ms: u64,
+        timeout_ms: u64,
+    ) -> Result<Outcome, Error> {
+        if !matches!(expected_frame, Request::Static { .. }) {
+            return Err(Error::Backend {
+                operation: "animasjon",
+                message: "En aktiv programvareanimasjon må ha en statisk siste ramme.".into(),
+            });
+        }
+        self.apply_inner(
+            backend,
+            owner,
+            request,
+            now_ms,
+            timeout_ms,
+            true,
+            Some(expected_frame),
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
     fn apply_inner<B: Backend>(
         &mut self,
         backend: &mut B,
@@ -459,6 +490,7 @@ impl Book {
         now_ms: u64,
         timeout_ms: u64,
         force_transaction: bool,
+        animation_frame: Option<Request>,
     ) -> Result<Outcome, Error> {
         self.tick(backend, now_ms)?;
         if owner == 0 {
@@ -469,18 +501,30 @@ impl Book {
         }
         let deadline_ms = now_ms.checked_add(timeout_ms).ok_or(Error::Overflow)?;
         let next = self.next_txn.checked_add(1).ok_or(Error::Overflow)?;
-        if self.blocked() {
+        if self.blocked() || self.automatic_recovery_blocked {
             return Err(Error::RecoveryRequired);
         }
         if self.pending.is_some() || self.owner.is_some_and(|held| held != owner) {
             return Err(Error::Busy);
         }
+        if animation_frame.is_some()
+            && (self.owner != Some(owner) || !self.dirty || !self.may_have_written)
+        {
+            return Err(Error::RecoveryRequired);
+        }
         self.observe(backend)?;
-        let before_match = request_readback(&self.confirmed, &self.observed);
+        let before_request = animation_frame.clone().unwrap_or_else(|| self.confirmed.clone());
+        let before_match = request_readback(&before_request, &self.observed);
         if !matched(before_match) {
+            if animation_frame.is_some() {
+                self.automatic_recovery_blocked = true;
+                self.recovery = Some(RecoveryReadback::Unknown);
+                self.recovery_confirmation_source = None;
+                self.error = Some("Lyset ble endret utenfor appen mens effekten kjørte.".into());
+            }
             return Err(Error::Readback(before_match));
         }
-        if request == self.confirmed && !force_transaction {
+        if request == before_request && !force_transaction {
             return Ok(Outcome {
                 txn: None,
                 status: Status::Unchanged,
@@ -492,7 +536,7 @@ impl Book {
             txn: self.next_txn,
             owner,
             deadline_ms,
-            before: self.confirmed.clone(),
+            before: before_request,
             before_observed: self.observed.clone(),
             requested: request.clone(),
         };
@@ -554,6 +598,9 @@ impl Book {
                     // Ingen egen setter ble forsøkt: ikke overskriv aktøren
                     // med en automatisk rollback. Journalen må avklares.
                     self.pending = None;
+                    if animation_frame.is_some() {
+                        self.automatic_recovery_blocked = true;
+                    }
                     self.recovery = Some(RecoveryReadback::Unknown);
                     self.error = Some(format!(
                         "Endringen ble avvist før første setter: {}",
@@ -1702,5 +1749,71 @@ mod tests {
         assert_eq!(hw.writes.len(), 2);
         assert!(book.release(&mut hw).is_none());
         assert_eq!(hw.writes.len(), 2);
+    }
+
+    #[test]
+    fn bytte_fra_aktiv_animasjon_sjekker_siste_ramme_og_beholder_original() {
+        let (mut book, mut hw) = setup(false);
+        let txn = book
+            .apply_for_effect(&mut hw, 7, color([20, 40, 60]), 0, 10_000)
+            .unwrap()
+            .txn
+            .unwrap();
+        book.keep(&mut hw, 7, txn, 1).unwrap();
+        let frame = color([90, 10, 120]);
+        book.animation_frame(&mut hw, 7, frame.clone()).unwrap();
+        assert_eq!(book.snapshot().confirmed, color([20, 40, 60]));
+        assert_eq!(book.snapshot().observed.color, Some([90, 10, 120]));
+
+        // Nytt valg fra aktiv animasjon verifiserer siste animasjonsramme og
+        // krever ny Behold; ved Rull tilbake ruller den til siste ramme.
+        let next_txn = book
+            .apply_after_animation(&mut hw, 7, frame.clone(), Request::Off {}, 2, 10_000)
+            .unwrap()
+            .txn
+            .unwrap();
+        assert_eq!(
+            book.snapshot().pending.as_ref().unwrap().before,
+            frame
+        );
+        let rev = book.revert(&mut hw, 7, next_txn, 3).unwrap();
+        assert_eq!(rev.status, Status::RecoveryNeedsConfirmation);
+        assert_eq!(book.snapshot().confirmed, frame);
+        book.ack_recovery(&mut hw, 7, 4).unwrap();
+
+        // Nytt bytte + Behold, deretter release gjenoppretter fortsatt originalen.
+        let off_txn = book
+            .apply(&mut hw, 7, Request::Off {}, 5, 10_000)
+            .unwrap()
+            .txn
+            .unwrap();
+        book.keep(&mut hw, 7, off_txn, 6).unwrap();
+        let rel = book.release(&mut hw).unwrap();
+        assert_eq!(rel.reason, Reason::Release);
+        assert_eq!(hw.writes.last(), Some(&color([1, 2, 3])));
+    }
+
+    #[test]
+    fn ekstern_drift_ved_bytte_fra_animasjon_skriver_ikke_og_sperrer_auto_recovery() {
+        let (mut book, mut hw) = setup(false);
+        let txn = book
+            .apply_for_effect(&mut hw, 7, color([20, 40, 60]), 0, 10_000)
+            .unwrap()
+            .txn
+            .unwrap();
+        book.keep(&mut hw, 7, txn, 1).unwrap();
+        let frame = color([90, 10, 120]);
+        book.animation_frame(&mut hw, 7, frame.clone()).unwrap();
+        // Ekstern endring før brukeren trykker Bruk på en ny modus.
+        hw.observed.color = Some([200, 100, 50]);
+        let writes_before = hw.writes.len();
+        assert_eq!(
+            book.apply_after_animation(&mut hw, 7, frame, Request::Off {}, 2, 10_000),
+            Err(Error::Readback(RecoveryReadback::Mismatch))
+        );
+        assert_eq!(hw.writes.len(), writes_before);
+        assert!(book.snapshot().error.is_some());
+        assert!(book.release(&mut hw).is_none());
+        assert_eq!(hw.writes.len(), writes_before);
     }
 }

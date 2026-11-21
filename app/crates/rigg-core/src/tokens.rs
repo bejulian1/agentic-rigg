@@ -270,6 +270,11 @@ pub fn checks(env: &Env) -> Result<Vec<Check>, String> {
     text("--text på --danger-soft over --bg".into(), c("--text")?, solid("--danger-soft", "--bg")?);
     let ok = c("--ok")?;
     text("--ok på 14 % --ok over --card".into(), ok, over([ok[0], ok[1], ok[2], 0.14], c("--card")?));
+    for f in ["--stage-text", "--stage-dim"] {
+        text(format!("{f} på --stage"), c(f)?, c("--stage")?);
+        text(format!("{f} på --stage-chip"), c(f)?, solid("--stage-chip", "--stage")?);
+        text(format!("{f} på --stage-chip over lyst bilde"), c(f)?, over(c("--stage-chip")?, [128.0, 128.0, 128.0, 1.0]));
+    }
     let mut ui = |l: String, fg: Rgba, bg: Rgba| list.push((format!("ui: {l}"), 3.0, ratio(fg, bg)));
     for s in ["--field", "--card", "--bg"] {
         ui(format!("--field-border mot {s}"), c("--field-border")?, c(s)?);
@@ -288,6 +293,7 @@ pub fn checks(env: &Env) -> Result<Vec<Check>, String> {
         }
     }
     ui("hake (#fff) mot --accent-bg".into(), [255.0, 255.0, 255.0, 1.0], c("--accent-bg")?);
+    ui("--stage-focus mot --stage".into(), c("--stage-focus")?, c("--stage")?);
     if env.high_contrast {
         for s in ["--card", "--bg", "--sidebar"] {
             ui(format!("--border mot {s} (høy kontrast)"), c("--border")?, c(s)?);
@@ -324,6 +330,7 @@ mod tests {
         assert_eq!(color(&e, "--accent").unwrap(), [0x4d as f64, 0xa8 as f64, 0xbb as f64, 1.0], "mørkt bruker --a-d");
         let e = Env::new(true, "midnatt", true, "blue");
         assert_eq!(color(&e, "--text").unwrap(), [255.0, 255.0, 255.0, 1.0], "høy kontrast vinner over fargetemaet");
+        assert_eq!(color(&e, "--stage").unwrap(), [0.0, 0.0, 0.0, 1.0]);
         let soft = color(&Env::new(false, "grafitt", false, "blue"), "--accent-soft").unwrap();
         assert!((soft[3] - 0.12).abs() < 1e-9);
     }

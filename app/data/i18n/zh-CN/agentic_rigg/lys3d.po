@@ -1,0 +1,136 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: crates/rigg/src/lys3d/mod.rs:38
+msgid "Forfra"
+msgstr "正面"
+
+#: crates/rigg/src/lys3d/mod.rs:39
+msgid "Skrått"
+msgstr "斜角"
+
+#: crates/rigg/src/lys3d/mod.rs:40
+msgid "Ovenfra"
+msgstr "顶部"
+
+#: crates/rigg/src/lys3d/mod.rs:41
+msgid "Bakfra"
+msgstr "背面"
+
+#: crates/rigg/src/lys3d/mod.rs:44
+msgid "Hel"
+msgstr "完整"
+
+#: crates/rigg/src/lys3d/mod.rs:45
+msgid "Uten deksel"
+msgstr "无外壳"
+
+#: crates/rigg/src/lys3d/mod.rs:46
+msgid "Uten kjøler"
+msgstr "无散热器"
+
+#: crates/rigg/src/lys3d/mod.rs:47
+msgid "Bare kretskort"
+msgstr "仅 PCB"
+
+#: crates/rigg/src/lys3d/mod.rs:50
+msgid "Alle deler er på: deksel med vifter og lys, kjøler, kretskort, brakett og bakplate."
+msgstr "所有部件已安装：带风扇与灯光的外壳、散热器、PCB、挡板和背板。"
+
+#: crates/rigg/src/lys3d/mod.rs:51
+msgid "Dekselet og viftene er tatt av, så kjøleribben og varmerørene synes."
+msgstr "已移除外壳和风扇，露出散热鳍片和热管。"
+
+#: crates/rigg/src/lys3d/mod.rs:52
+msgid "Kjøleren er også tatt av. Kretskortet synes med brakett og bakplate."
+msgstr "散热器也已移除，可以看到 PCB、挡板和背板。"
+
+#: crates/rigg/src/lys3d/mod.rs:53
+msgid "Bare kretskortet: GPU-brikken, åtte minnebrikker, strømfaser, kontakter og utganger."
+msgstr "仅 PCB：GPU 芯片、八颗显存芯片、供电相、接口和输出端口。"
+
+#: crates/rigg/src/lys3d/mod.rs:624
+msgid "fra venstre"
+msgstr "从左侧"
+
+#: crates/rigg/src/lys3d/mod.rs:624
+msgid "fra høyre"
+msgstr "从右侧"
+
+#: crates/rigg/src/lys3d/mod.rs:627
+msgid "ovenfra, med lyslisten mot deg"
+msgstr "从上方，灯条朝向你"
+
+#: crates/rigg/src/lys3d/mod.rs:629
+msgid "nedenfra"
+msgstr "从下方"
+
+#: crates/rigg/src/lys3d/mod.rs:631
+msgid "rett forfra"
+msgstr "正前方"
+
+#: crates/rigg/src/lys3d/mod.rs:633
+msgid "skrått forfra {side}"
+msgstr "前斜角（{side}）"
+
+#: crates/rigg/src/lys3d/mod.rs:636
+msgid "fra siden med braketten og utgangene"
+msgstr "从挡板与输出端口一侧"
+
+#: crates/rigg/src/lys3d/mod.rs:638
+msgid "fra enden"
+msgstr "从末端"
+
+#: crates/rigg/src/lys3d/mod.rs:641
+msgid "skrått bakfra {side}"
+msgstr "后斜角（{side}）"
+
+#: crates/rigg/src/lys3d/mod.rs:643
+msgid "rett bakfra, mot bakplaten"
+msgstr "正后方，面向背板"
+
+#: crates/rigg/src/lys3d/mod.rs:646
+msgid "Lagene er skilt fra hverandre ({prosent})."
+msgstr "层级已展开（{prosent}）。"
+
+#: crates/rigg/src/lys3d/mod.rs:653
+msgid "Viftene går på {fart}."
+msgstr "风扇转速为 {fart}。"
+
+#: crates/rigg/src/lys3d/mod.rs:655
+msgid "Viftene står stille."
+msgstr "风扇已停转。"
+
+#: crates/rigg/src/lys3d/mod.rs:657
+msgid "Skjermkort i 3D, sett {vinkel}. {lag}"
+msgstr "3D 显卡，视角：{vinkel}。{lag}"
+
+#: crates/rigg/src/lys3d/mod.rs:755
+msgid "Skjermkortet i 3D"
+msgstr "3D 显卡"
+
+#: crates/rigg/src/lys3d/mod.rs:756
+msgid "3D-visning"
+msgstr "3D 视图"
+
+#: crates/rigg/src/lys3d/mod.rs:835
+msgid "GL kunne ikke startes: {feil}"
+msgstr "无法启动 GL：{feil}"
+
+#: crates/rigg/src/lys3d/mod.rs:898
+msgid "GL-feil i GLArea"
+msgstr "GLArea 中发生 GL 错误"
+
+#: crates/rigg/src/lys3d/mod.rs:917
+msgid "3D-kortet kunne ikke startes: {feil}"
+msgstr "无法启动 3D 显卡：{feil}"
+
+#: crates/rigg/src/lys3d/mod.rs:1134
+msgid "Bygger 3D-kortet …"
+msgstr "正在构建 3D 显卡 …"

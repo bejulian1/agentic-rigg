@@ -1,5 +1,12 @@
 # Patchlog
 
+## 1.5.4 · bygg 29 – 21. november 2026: 2D/3D-kortet og effektbytte
+
+- `lys3d/` (2D og 3D), shaderne i `data/lys3d/`, valget `lys3d` og `--stage*`-tokenene er gjeninnført fra før `c4d5745`. `rgb.rs` er nå en forhåndsvisning med én sone (56 LED-er) som følger `CardLight`; demosonene og den lokale lagringen av lysvalg kommer ikke tilbake. `glow`/`glam` er tilbake i `LISENSER.md`.
+- RGB-protokoll 3: `Book::apply_after_animation` leser kortet og sammenligner med siste effektramme før bytte. Avvik sperrer automatisk gjenoppretting uten skriving; `before` i journalen er rammen, `baseline` er uendret. Runtime tillater eier å bytte fra aktiv effekt og starte effekt fra beholdt fast farge/av. Lesefeil under bytte stopper effekten og frigir som ved feilet ramme; feil før lesing lar effekten gå videre. `lys_kort.rs` bruker `can_apply` og viser årsaken under «Bruk».
+- `rgb_auth::MIN_COMPATIBLE_BUILD` = 29. `system_install::ready` tar `Need::{Cleanup, Nvml, Rgb}`, så RGB-grensen ikke gjør NVML utdatert. «Aktiver kortlys» er aktiv når RGB-hjelperen er utdatert og kan installeres.
+- `system-hent.py`: leser aktive tillatelser (root-eid, samme `PKEXEC_UID`) før nettet brukes. Etter kontrollert arkiv kjøres installert `rgb-deaktiver.sh --pci --uuid` for en aktiv RGB-tilgang; etter installasjonen kjøres `aktiver.sh` for den forrige GPU-bindingen når brukeren ikke selv ba om GPU-styring. Tre nye Python-prøver.
+
 ## 1.5.3 · bygg 28 – 21. november 2026: én bryter, ett passord
 
 - `system-hent.py` tar `VERSJON BYGG [nvml|rgb PCI UUID]`. Argumentene og `PKEXEC_UID` kontrolleres før nettet brukes. Etter vellykket installasjon kjøres `/usr/local/libexec/agentic-rigg/aktiver.sh` eller `…/agentic-rigg-rgb-v2/rgb-aktiver.sh --static-confirmed` med fast miljø og `PKEXEC_UID`. Feiler installasjonen, aktiveres ingenting.

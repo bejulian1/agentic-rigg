@@ -393,6 +393,8 @@ pub struct Stored {
     pub utkast_gpu: Option<String>,
     /// Visningsnivå på Vifter. Endrer aldri kortet eller utkastet.
     pub fan_advanced: bool,
+    /// Visningsvalg for 2D/3D-kortet på Lys (vinkel, zoom, lagtrinn, 2D/3D).
+    pub lys: Value,
 }
 
 impl Stored {
@@ -404,6 +406,7 @@ impl Stored {
             "utkastBase": self.utkast_base,
             "utkastGpu": self.utkast_gpu,
             "fanAdvanced": self.fan_advanced,
+            "lys": self.lys,
         })
     }
     /// Ett dårlig felt nullstiller ikke resten.
@@ -414,6 +417,7 @@ impl Stored {
             utkast_base: serde_json::from_value(v["utkastBase"].clone()).ok(),
             utkast_gpu: v["utkastGpu"].as_str().map(str::to_string),
             fan_advanced: v["fanAdvanced"].as_bool().unwrap_or(false),
+            lys: if v["lys"].is_object() { v["lys"].clone() } else { Value::Null },
         };
         s.profiles.resize(SLOTS, None);
         s.profiles.truncate(SLOTS);
@@ -1154,7 +1158,8 @@ mod tests {
         assert_eq!(saved["profiles"][0]["name"], "Stille");
         assert_eq!(stored.utkast, v(200.0));
         assert!(stored.fan_advanced);
-        assert!(saved.get("rgb").is_none() && saved.get("lys").is_none());
+        assert!(saved.get("rgb").is_none());
+        assert_eq!(saved["lys"]["picked"], "3d");
     }
 
     #[test]

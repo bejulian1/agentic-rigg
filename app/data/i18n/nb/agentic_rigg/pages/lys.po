@@ -1,0 +1,144 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: nb\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: crates/rigg/src/pages/lys.rs:155
+msgid "Skjermkort"
+msgstr "Skjermkort"
+
+#: crates/rigg/src/pages/lys.rs:157 crates/rigg/src/pages/lys.rs:537
+msgid "Ikke aktivert"
+msgstr "Ikke aktivert"
+
+#: crates/rigg/src/pages/lys.rs:159
+msgid "3D"
+msgstr "3D"
+
+#: crates/rigg/src/pages/lys.rs:159
+msgid "2D"
+msgstr "2D"
+
+#: crates/rigg/src/pages/lys.rs:159
+msgid "Visning"
+msgstr "Visning"
+
+#: crates/rigg/src/pages/lys.rs:181
+msgid "Dra for å vri · rull for zoom · 0 tilbakestiller"
+msgstr "Dra for å vri · rull for zoom · 0 tilbakestiller"
+
+#: crates/rigg/src/pages/lys.rs:187
+msgid "Bygger 3D-kortet …"
+msgstr "Bygger 3D-kortet …"
+
+#: crates/rigg/src/pages/lys.rs:225 crates/rigg/src/pages/lys.rs:231
+msgid "Vinkel"
+msgstr "Vinkel"
+
+#: crates/rigg/src/pages/lys.rs:227 crates/rigg/src/pages/lys.rs:228
+msgid "Tilbakestill visningen"
+msgstr "Tilbakestill visningen"
+
+#: crates/rigg/src/pages/lys.rs:238 crates/rigg/src/pages/lys.rs:241
+msgid "Lag"
+msgstr "Lag"
+
+#: crates/rigg/src/pages/lys.rs:249 crates/rigg/src/pages/lys.rs:254
+msgid "Skill lagene"
+msgstr "Skill lagene"
+
+#: crates/rigg/src/pages/lys.rs:262 crates/rigg/src/pages/lys.rs:265
+msgid "Bakgrunnslys"
+msgstr "Bakgrunnslys"
+
+#: crates/rigg/src/pages/lys.rs:292
+msgid "Deler i 3D-modellen"
+msgstr "Deler i 3D-modellen"
+
+#: crates/rigg/src/pages/lys.rs:539
+msgid "Prøve på kortet"
+msgstr "Prøve på kortet"
+
+#: crates/rigg/src/pages/lys.rs:541
+msgid "Aktiv effekt"
+msgstr "Aktiv effekt"
+
+#: crates/rigg/src/pages/lys.rs:553
+msgid "Speiler kortlyset"
+msgstr "Speiler kortlyset"
+
+#: crates/rigg/src/pages/lys.rs:555
+msgid "Forhåndsvisning av valg"
+msgstr "Forhåndsvisning av valg"
+
+#: crates/rigg/src/pages/lys.rs:568
+msgid "Utgangspunkt: {farge} · {styrke}"
+msgstr "Utgangspunkt: {farge} · {styrke}"
+
+#: crates/rigg/src/pages/lys.rs:570
+msgid "Sist lest: {farge} · {styrke}"
+msgstr "Sist lest: {farge} · {styrke}"
+
+#: crates/rigg/src/pages/lys.rs:739 crates/rigg/src/pages/lys.rs:942
+msgid "Lys vises i 2D"
+msgstr "Lys vises i 2D"
+
+#: crates/rigg/src/pages/lys.rs:739
+msgid "3D-kortet kunne ikke tegnes med grafikken her. Det flate kortet viser de samme lysvalgene."
+msgstr "3D-kortet kunne ikke tegnes med grafikken her. Det flate kortet viser de samme lysvalgene."
+
+#: crates/rigg/src/pages/lys.rs:820
+msgid "3D kan ikke tegnes her ({feil}). Klikk for å prøve igjen."
+msgstr "3D kan ikke tegnes her ({feil}). Klikk for å prøve igjen."
+
+#: crates/rigg/src/pages/lys.rs:822
+msgid "Grafikken tegnet 3D for tregt. Klikk for å prøve igjen."
+msgstr "Grafikken tegnet 3D for tregt. Klikk for å prøve igjen."
+
+#: crates/rigg/src/pages/lys.rs:824
+msgid "Kortet i 3D. Dra for å vri."
+msgstr "Kortet i 3D. Dra for å vri."
+
+#: crates/rigg/src/pages/lys.rs:829
+msgid "Flatt kort sett forfra. Bruker minst ressurser."
+msgstr "Flatt kort sett forfra. Bruker minst ressurser."
+
+#: crates/rigg/src/pages/lys.rs:844
+msgid "Stillbilde: grafikken tegner for tregt"
+msgstr "Stillbilde: grafikken tegner for tregt"
+
+#: crates/rigg/src/pages/lys.rs:846
+msgid "Animasjon av"
+msgstr "Animasjon av"
+
+#: crates/rigg/src/pages/lys.rs:942
+msgid "Grafikken tegnet 3D-kortet for tregt. Velg 3D over visningen for å prøve igjen."
+msgstr "Grafikken tegnet 3D-kortet for tregt. Velg 3D over visningen for å prøve igjen."
+
+#: crates/rigg/src/pages/lys.rs:1049
+msgid "Kortlys er ikke aktivert."
+msgstr "Kortlys er ikke aktivert."
+
+#: crates/rigg/src/pages/lys.rs:1051
+msgid "Lysene er av."
+msgstr "Lysene er av."
+
+#: crates/rigg/src/pages/lys.rs:1053
+msgid "Lysstyrke {styrke}."
+msgstr "Lysstyrke {styrke}."
+
+#: crates/rigg/src/pages/lys.rs:1067
+msgid "{lag} · lagene skilt"
+msgstr "{lag} · lagene skilt"
+
+#: crates/rigg/src/pages/lys.rs:1090
+msgid "Flatt skjermkort sett forfra."
+msgstr "Flatt skjermkort sett forfra."
+
+#: crates/rigg/src/pages/lys.rs:1106
+msgid "Kortet har én fysisk lyssone."
+msgstr "Kortet har én fysisk lyssone."

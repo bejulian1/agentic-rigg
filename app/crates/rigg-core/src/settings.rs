@@ -157,7 +157,7 @@ impl Default for WindowGeom {
 }
 
 /// `ui.json`: alle app-innstillingene fra demoen unntatt `startSimulated`,
-/// pluss `appIcon`, `eggsFound`, `settingsSection`, `lastPage` og `window`.
+/// pluss `appIcon`, `eggsFound`, `settingsSection`, `lastPage`, `window` og `lys3d`.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Settings {
@@ -200,6 +200,10 @@ pub struct Settings {
     pub settings_section: String,
     pub last_page: String,
     pub window: WindowGeom,
+    /// 3D-kortet på Lys: «auto» (2D til du har valgt 3D én gang, deretter det
+    /// sist valgte), «3d» (alltid 3D) eller «2d» (alltid 2D).
+    #[serde(default = "default_lys3d")]
+    pub lys3d: String,
     // ---- nytt i 1.3 ----
     /// Produsenten brukeren har satt per kort (UUID, ellers PCI-adressen):
     /// «Palit». Kortet melder ofte NVIDIA-referanse (10de) i PCI-subsystemet,
@@ -210,6 +214,10 @@ pub struct Settings {
 
 fn default_language() -> String {
     crate::i18n::SYSTEM.into()
+}
+
+fn default_lys3d() -> String {
+    "auto".into()
 }
 
 impl Default for Settings {
@@ -253,6 +261,7 @@ impl Default for Settings {
             settings_section: "generelt".into(),
             last_page: "oversikt".into(),
             window: WindowGeom::default(),
+            lys3d: default_lys3d(),
             gpu_makers: Default::default(),
         }
     }
@@ -415,6 +424,7 @@ pub fn merge(base: &Settings, patch: &Value) -> Result<Settings, ValidationError
             }
             "surprises" => o.surprises = boolean(v, "surprises")?,
             "appIcon" => o.app_icon = ident(v, "appIcon")?,
+            "lys3d" => o.lys3d = one_of(v, &["auto", "3d", "2d"], tr!("lys3d må være auto, 3d eller 2d"))?,
             "gpuMakers" => o.gpu_makers = gpu_makers(v)?,
             "eggsFound" => {
                 let mut value = v.clone();
@@ -717,8 +727,9 @@ mod tests {
     fn gamle_lysvalg_ignoreres_uten_aa_miste_naboer() {
         let loaded = lenient(&json!({"lys3d": "3d", "theme": "dark", "eggsFound": ["stov", "nordlys", "kaffe"]}));
         assert_eq!(loaded.theme, "dark");
+        assert_eq!(loaded.lys3d, "3d");
         assert_eq!(loaded.eggs_found, ["stov", "kaffe"]);
-        assert!(loaded.to_value().get("lys3d").is_none());
+        assert_eq!(loaded.to_value().get("lys3d"), Some(&json!("3d")));
     }
 
     #[test]

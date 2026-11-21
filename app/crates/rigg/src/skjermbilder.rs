@@ -81,34 +81,30 @@ fn plan() -> Vec<Step> {
 fn plan_rgb_flow() -> Vec<Step> {
     use Step::*;
     use crate::pages::lys_kort::debug_flow as flow;
-    let mut steps = vec![
+    vec![
         Size(1440, 1000), Set(base()), Go("lys"), Wait(1800),
         Eval(|_| flow("ready")), Eval(|_| flow("edit")), Wait(700), Eval(|_| flow("unchanged")),
         Eval(|_| flow("apply")), Wait(1000), Eval(|_| flow("pending")), Shot("rgb-flow-pending-sim"),
         Eval(|_| flow("keep")), Wait(1000), Eval(|_| flow("kept")), Shot("rgb-flow-beholdt-sim"),
-        Eval(|_| flow("effect_blocked")),
-        Eval(|_| flow("reset")), Wait(1000), Eval(|_| flow("recovery")),
-        Eval(|_| flow("stale_ack")), Wait(1000), Eval(|_| flow("stale_rejected")), Shot("rgb-flow-gammel-bekreftelse-avvist-sim"),
-        Eval(|_| flow("ack")), Wait(1000), Eval(|_| flow("acknowledged")), Shot("rgb-flow-brukerbekreftet-sim"),
+        // Direkte fra beholdt fast farge -> Pusting -> aktiv -> Regnbue -> aktiv -> Fargesyklus -> aktiv -> Av!
+        Eval(|_| flow("effect_from_kept")), Wait(500),
+        Eval(|_| flow("apply")), Wait(1000), Eval(|_| flow("effect_pending")),
+        Wait(700), Eval(|_| flow("effect_not_started")),
+        Eval(|_| flow("keep")), Wait(2400), Eval(|_| flow("effect_active")), Shot("rgb-flow-pusting-aktiv-sim"),
+        Eval(|_| flow("effect_rainbow")), Wait(500), Eval(|_| flow("effect_edit_unchanged")),
+        Eval(|_| flow("apply")), Wait(1000), Eval(|_| flow("effect_pending")),
+        Wait(700), Eval(|_| flow("effect_not_started")),
+        Eval(|_| flow("keep")), Wait(2400), Eval(|_| flow("effect_active")), Shot("rgb-flow-regnbue-aktiv-sim"),
+        Eval(|_| flow("effect_cycle")), Wait(500), Eval(|_| flow("effect_edit_unchanged")),
+        Eval(|_| flow("apply")), Wait(1000), Eval(|_| flow("effect_pending")),
+        Wait(700), Eval(|_| flow("effect_not_started")),
+        Eval(|_| flow("keep")), Wait(3800), Eval(|_| flow("effect_active")), Shot("rgb-flow-fargesyklus-aktiv-sim"),
+        // Direkte fra aktiv effekt -> Av -> Frigi -> gammel ACK avvist -> visuell bekreftelse.
         Eval(|_| flow("off")), Eval(|_| flow("apply")), Wait(1000), Eval(|_| flow("off_pending")),
         Eval(|_| flow("release")), Wait(1000), Eval(|_| flow("released")), Shot("rgb-flow-frigitt-sim"),
-        Eval(|_| flow("ack")), Wait(1000), Eval(|_| flow("acknowledged")),
-    ];
-    for (select, shot_name, wait_for_frame_ms) in [
-        ((|_: &Rc<App>| flow("effect_breathing")) as fn(&Rc<App>), "rgb-flow-pusting-aktiv-sim", 2400),
-        ((|_: &Rc<App>| flow("effect_rainbow")) as fn(&Rc<App>), "rgb-flow-regnbue-aktiv-sim", 2400),
-        ((|_: &Rc<App>| flow("effect_cycle")) as fn(&Rc<App>), "rgb-flow-fargesyklus-aktiv-sim", 3800),
-    ] {
-        steps.extend([
-            Eval(select), Wait(500), Eval(|_| flow("effect_edit_unchanged")),
-            Eval(|_| flow("apply")), Wait(1000), Eval(|_| flow("effect_pending")),
-            Wait(700), Eval(|_| flow("effect_not_started")),
-            Eval(|_| flow("keep")), Wait(wait_for_frame_ms), Eval(|_| flow("effect_active")), Shot(shot_name),
-            Eval(|_| flow("release")), Wait(1000), Eval(|_| flow("released")),
-            Eval(|_| flow("ack")), Wait(1000), Eval(|_| flow("acknowledged")),
-        ]);
-    }
-    steps
+        Eval(|_| flow("stale_ack")), Wait(1000), Eval(|_| flow("stale_rejected")), Shot("rgb-flow-gammel-bekreftelse-avvist-sim"),
+        Eval(|_| flow("ack")), Wait(1000), Eval(|_| flow("acknowledged")), Shot("rgb-flow-brukerbekreftet-sim"),
+    ]
 }
 
 /// Privat visningskontroll. All fysisk RGB-status er tydelig merket fixture;
@@ -116,7 +112,17 @@ fn plan_rgb_flow() -> Vec<Step> {
 fn plan_rgb() -> Vec<Step> {
     use Step::*;
     vec![
-        Size(1920, 1080), Set(base()), Go("lys"), Wait(1200),
+        Size(1440, 960), Set(base()), Go("lys"), Wait(1200),
+        Eval(|_| crate::pages::lys::debug_mode("2d")),
+        Eval(|_| crate::pages::lys_kort::debug_fixture("stored")), Wait(500), Shot("rgb-2d-lys-sim"),
+        Set(json!({"theme":"dark"})), Wait(500), Shot("rgb-2d-mork-sim"),
+        Eval(|_| crate::pages::lys::debug_mode("3d")), Wait(1800),
+        Eval(|_| { let _ = crate::pages::lys::debug_ready(); }), Wait(1000), Shot("rgb-3d-mork-sim"),
+        Set(json!({"theme":"light"})), Wait(800), Shot("rgb-3d-lys-sim"),
+        Eval(|_| crate::pages::lys::debug_explode(0.6)), Wait(700), Shot("rgb-3d-skill-lagene-lys-sim"),
+        Eval(|_| crate::pages::lys::debug_explode(0.0)),
+        Eval(|_| crate::pages::lys::debug_mode("2d")), Wait(400),
+        Size(1920, 1080),
         Eval(|_| crate::pages::lys_kort::debug_fixture("off")), Wait(400), Shot("rgb-1920-av-sim"),
         Eval(|_| crate::pages::lys_kort::debug_fixture("stored")), Wait(400), Shot("rgb-1920-lagret-sim"),
         Eval(|_| crate::pages::lys_kort::debug_fixture("pending")), Wait(400), Shot("rgb-1920-pending-sim"),

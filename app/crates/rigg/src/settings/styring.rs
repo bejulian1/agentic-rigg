@@ -33,7 +33,7 @@ fn admin(app: &App, activate: bool) -> Option<PathBuf> {
             && data_dir(app).is_absolute() && app.data.borrow().backend.starts_with("sim")).then_some(fake);
     }
     let dir = data_dir(app);
-    (!app.data.borrow().backend.starts_with("sim") && crate::system_install::ready(activate)
+    (!app.data.borrow().backend.starts_with("sim") && crate::system_install::ready(if activate { crate::system_install::Need::Nvml } else { crate::system_install::Need::Cleanup })
         && [PathBuf::from("/usr/local/libexec/agentic-rigg-helper"), dir.join("agentic-rigg-helper.service"), dir.join("aktiver.sh"), dir.join("deaktiver.sh"), dir.join("nvml-admin.py"),
             PathBuf::from("/usr/share/polkit-1/actions/io.github.AgenticRigg.helper.policy")]
             .iter().all(|path| crate::system_install::trusted(path))).then(|| "/usr/bin/pkexec".into())
