@@ -150,7 +150,18 @@ struct Conn {
 
 impl Conn {
     fn new(p: &Path) -> Conn {
-        let s = UnixStream::connect(p).unwrap();
+        // Socketfila finnes før daemonen kaller listen(). Prøv på nytt en
+        // kort stund ved ConnectionRefused i stedet for å feile tilfeldig.
+        let t0 = Instant::now();
+        let s = loop {
+            match UnixStream::connect(p) {
+                Ok(s) => break s,
+                Err(e) if e.kind() == std::io::ErrorKind::ConnectionRefused && t0.elapsed() < Duration::from_secs(2) => {
+                    std::thread::sleep(Duration::from_millis(10));
+                },
+                Err(e) => panic!("kobler til {}: {e}", p.display()),
+            }
+        };
         s.set_read_timeout(Some(Duration::from_secs(5))).unwrap();
         Conn {
             w: s.try_clone().unwrap(),

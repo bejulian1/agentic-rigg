@@ -43,7 +43,7 @@ pub trait Page {
         None
     }
     /// Skal skallet legge innholdet i en rullbar flate? (Sider som fyller
-    /// høyden selv, som Grafer og Lys, svarer `false`.)
+    /// høyden selv, som Sensorer og Oppgaver, svarer `false`.)
     fn scrolls(&self) -> bool {
         true
     }
