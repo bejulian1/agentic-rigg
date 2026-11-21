@@ -1,3 +1,63 @@
+/* Agentic Rigg · Lys (2D/3D-kortvisning + fysisk kortlys).
+ * Scenen er mørk i alle temaer: lysdioder synes ikke mot lyst. Tonen følger
+ * temaet (--stage), og merkene over scenen bruker --stage-text og
+ * --stage-chip, som kontrasttesten sjekker. */
+
+.lys .rgb-preview > .group-body { padding: var(--sp-1) var(--sp-1) 0; }
+.lys .rgb-stage {
+  min-height: 260px;
+  border-radius: var(--r);
+  background-color: var(--stage);
+}
+.lys .rgb-stage glarea.rgb-view { border-radius: var(--r); }
+.lys .rgb-stage glarea.rgb-view:focus:focus-visible { outline: var(--focus-w) solid var(--stage-focus); outline-offset: -3px; }
+.lys .rgb-stage flatcard { min-height: 220px; }
+
+/* Små merker på scenen: bildetekst, tastene, «Animasjon av». */
+.lys .stage-chip {
+  margin: var(--sp-2);
+  padding: 2px var(--sp-2);
+  border-radius: var(--r-sm);
+  background-color: var(--stage-chip);
+  color: var(--stage-text);
+  font-size: var(--fs-cap);
+}
+.lys .stage-chip.stage-hint { color: var(--stage-dim); }
+.lys .stage-tip {
+  padding: 5px var(--sp-2);
+  border-radius: var(--r);
+  background-color: var(--tip-bg);
+  color: var(--tip-fg);
+  font-size: var(--fs-sm);
+  box-shadow: 0 2px 8px var(--shadow-pop);
+}
+.lys .stage-tip label { color: var(--tip-fg); }
+
+/* Linja under scenen. */
+.lys .rgb-bar { padding: var(--sp-2) var(--pad); }
+.lys .rgb-bar > flowboxchild { padding: 0; min-height: var(--h-md); }
+.lys .rgb-bar .pair { border-spacing: var(--sp-2); }
+
+/* Dellisten i 3D (sammenleggbar under scenen). */
+.lys .rgb-parts-expander { padding: 0 var(--pad) var(--sp-2); }
+.lys .rgb-parts { padding-top: var(--sp-1); }
+window.rigg .lys button.part {
+  min-height: var(--h-row);
+  padding: 3px var(--sp-2);
+  border-radius: var(--r);
+  font-weight: 400;
+}
+window.rigg .lys button.part .n { font-weight: 600; }
+window.rigg .lys button.part:checked { background-color: var(--accent-soft); box-shadow: inset 2px 0 0 var(--accent); }
+
+/* Hurtigfarger i fysisk kortlys. */
+.lys .swatches { border-spacing: 4px; }
+window.rigg .lys button.swatch { min-width: 24px; min-height: 24px; padding: 0; border-radius: 50%; background: none; border: none; }
+window.rigg .lys button.swatch:hover { background-color: var(--hover); }
+window.rigg .lys button.swatch:focus:focus-visible { outline-offset: 1px; }
+
+/* Fysisk kortlys har egne valg og egen bekreftelse. FlowBox lar knappene
+ * flyte også ved 640 px og stor skrift, uten horisontal rulling. */
 .lys .rgb-card-control > .group-body { border-spacing: var(--sp-2); }
 .lys .rgb-card-flow > flowboxchild { padding: 0; }
 .lys .rgb-card-flow entry { min-height: var(--h-sm); }

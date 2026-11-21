@@ -1,0 +1,220 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: crates/rigg/src/lys3d/model.rs:42
+msgid "Deksel"
+msgstr "Carenagem"
+
+#: crates/rigg/src/lys3d/model.rs:42
+msgid "Plast, med lyslist og to lysringer"
+msgstr "Plástico, com barra de luz e dois anéis luminosos"
+
+#: crates/rigg/src/lys3d/model.rs:43
+msgid "Lyslist"
+msgstr "Barra de luz"
+
+#: crates/rigg/src/lys3d/model.rs:43 crates/rigg/src/lys3d/model.rs:44 crates/rigg/src/lys3d/model.rs:45
+msgid "Del av kortets ene fysiske lyssone"
+msgstr "Parte da única zona física de iluminação da placa"
+
+#: crates/rigg/src/lys3d/model.rs:44
+msgid "Lysring, vifte 1"
+msgstr "Anel de luz, ventoinha 1"
+
+#: crates/rigg/src/lys3d/model.rs:45
+msgid "Lysring, vifte 2"
+msgstr "Anel de luz, ventoinha 2"
+
+#: crates/rigg/src/lys3d/model.rs:46
+msgid "Vifte 1"
+msgstr "Ventoinha 1"
+
+#: crates/rigg/src/lys3d/model.rs:46 crates/rigg/src/lys3d/model.rs:47
+msgid "90 mm, 11 blader"
+msgstr "90 mm, 11 pás"
+
+#: crates/rigg/src/lys3d/model.rs:47
+msgid "Vifte 2"
+msgstr "Ventoinha 2"
+
+#: crates/rigg/src/lys3d/model.rs:48
+msgid "Kjøleribbe"
+msgstr "Dissipador"
+
+#: crates/rigg/src/lys3d/model.rs:48
+msgid "Lameller i aluminium"
+msgstr "Aletas de alumínio"
+
+#: crates/rigg/src/lys3d/model.rs:49
+msgid "Varmerør"
+msgstr "Heatpipes"
+
+#: crates/rigg/src/lys3d/model.rs:49
+msgid "5 × Ø 6 mm, kobber"
+msgstr "5 × Ø 6 mm, cobre"
+
+#: crates/rigg/src/lys3d/model.rs:50
+msgid "Kontaktplate"
+msgstr "Placa de contato"
+
+#: crates/rigg/src/lys3d/model.rs:50
+msgid "Forniklet kobber over GPU-en"
+msgstr "Cobre niquelado sobre a GPU"
+
+#: crates/rigg/src/lys3d/model.rs:51
+msgid "Kjøleplate"
+msgstr "Placa de resfriamento"
+
+#: crates/rigg/src/lys3d/model.rs:51
+msgid "Over minnet"
+msgstr "Sobre a memória"
+
+#: crates/rigg/src/lys3d/model.rs:52
+msgid "VRM-kjøler"
+msgstr "Dissipador VRM"
+
+#: crates/rigg/src/lys3d/model.rs:52
+msgid "Over spolene og effekttrinnene"
+msgstr "Sobre os indutores e estágios de potência"
+
+#: crates/rigg/src/lys3d/model.rs:53
+msgid "Termiske puter"
+msgstr "Thermal pads"
+
+#: crates/rigg/src/lys3d/model.rs:53
+msgid "Leder varme fra minnet og effekttrinnene"
+msgstr "Conduz calor da memória e dos estágios de potência"
+
+#: crates/rigg/src/lys3d/model.rs:54
+msgid "Festekryss"
+msgstr "Suporte em X"
+
+#: crates/rigg/src/lys3d/model.rs:54
+msgid "Fjærstål, holder kjøleren mot GPU-en"
+msgstr "Aço mola, mantém o dissipador pressionado contra a GPU"
+
+#: crates/rigg/src/lys3d/model.rs:55
+msgid "GPU-brikke"
+msgstr "Chip GPU"
+
+#: crates/rigg/src/lys3d/model.rs:55
+msgid "TU104-klasse, 545 mm², 12 nm"
+msgstr "Classe TU104, 545 mm², 12 nm"
+
+#: crates/rigg/src/lys3d/model.rs:56
+msgid "GDDR6-minne"
+msgstr "Memória GDDR6"
+
+#: crates/rigg/src/lys3d/model.rs:56
+msgid "8 × 1 GB, 256 bit, 14 Gbps"
+msgstr "8 × 1 GB, 256 bits, 14 Gbps"
+
+#: crates/rigg/src/lys3d/model.rs:57
+msgid "Spoler"
+msgstr "Indutores"
+
+#: crates/rigg/src/lys3d/model.rs:57
+msgid "Strømfaser: 8 for kjernen, 2 for minnet"
+msgstr "Fases de energia: 8 para o núcleo, 2 para a memória"
+
+#: crates/rigg/src/lys3d/model.rs:58
+msgid "Effekttrinn"
+msgstr "Estágios de potência"
+
+#: crates/rigg/src/lys3d/model.rs:58
+msgid "Én MOSFET-pakke per fase"
+msgstr "Um encapsulamento MOSFET por fase"
+
+#: crates/rigg/src/lys3d/model.rs:59
+msgid "Polymerkondensatorer"
+msgstr "Capacitores de polímero"
+
+#: crates/rigg/src/lys3d/model.rs:59
+msgid "Glatter spenningen fra fasene"
+msgstr "Estabiliza a tensão das fases"
+
+#: crates/rigg/src/lys3d/model.rs:60
+msgid "Små komponenter"
+msgstr "Componentes pequenos"
+
+#: crates/rigg/src/lys3d/model.rs:60
+msgid "Kondensatorer og motstander (0402 og 0603)"
+msgstr "Capacitores e resistores (0402 e 0603)"
+
+#: crates/rigg/src/lys3d/model.rs:61
+msgid "Kontrollere"
+msgstr "Controladores"
+
+#: crates/rigg/src/lys3d/model.rs:61
+msgid "Spenningsregulering, BIOS og lys"
+msgstr "Regulação de tensão, BIOS e iluminação"
+
+#: crates/rigg/src/lys3d/model.rs:62
+msgid "PCIe x16-kontakt"
+msgstr "Conector PCIe x16"
+
+#: crates/rigg/src/lys3d/model.rs:62
+msgid "Gullbelagte kontakter, 82 per side"
+msgstr "Contatos banhados a ouro, 82 por lado"
+
+#: crates/rigg/src/lys3d/model.rs:63
+msgid "Strømkontakter"
+msgstr "Conectores de energia"
+
+#: crates/rigg/src/lys3d/model.rs:63
+msgid "8-pin og 6-pin, 12 V"
+msgstr "8 pinos e 6 pinos, 12 V"
+
+#: crates/rigg/src/lys3d/model.rs:64
+msgid "Utganger"
+msgstr "Saídas"
+
+#: crates/rigg/src/lys3d/model.rs:64
+msgid "3 × DisplayPort, HDMI og USB-C"
+msgstr "3 × DisplayPort, HDMI e USB-C"
+
+#: crates/rigg/src/lys3d/model.rs:65
+msgid "Pinnehoder"
+msgstr "Conectores de pinos"
+
+#: crates/rigg/src/lys3d/model.rs:65
+msgid "Vifter og lys"
+msgstr "Ventoinhas e iluminação"
+
+#: crates/rigg/src/lys3d/model.rs:66
+msgid "Kretskort"
+msgstr "Placa de circuito (PCB)"
+
+#: crates/rigg/src/lys3d/model.rs:66
+msgid "267 × 111 mm"
+msgstr "267 × 111 mm"
+
+#: crates/rigg/src/lys3d/model.rs:67
+msgid "Kondensatorer bak GPU-en"
+msgstr "Capacitores atrás da GPU"
+
+#: crates/rigg/src/lys3d/model.rs:67
+msgid "Keramiske (MLCC)"
+msgstr "Cerâmicos (MLCC)"
+
+#: crates/rigg/src/lys3d/model.rs:68
+msgid "Brakett"
+msgstr "Suporte"
+
+#: crates/rigg/src/lys3d/model.rs:68
+msgid "Stål, to spor"
+msgstr "Aço, dois slots"
+
+#: crates/rigg/src/lys3d/model.rs:69
+msgid "Bakplate"
+msgstr "Backplate"
+
+#: crates/rigg/src/lys3d/model.rs:69
+msgid "Aluminium, med vindu bak GPU-en"
+msgstr "Alumínio, com recorte atrás da GPU"

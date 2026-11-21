@@ -1,0 +1,44 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: crates/rigg/src/rgb.rs:23
+msgid "Hvit"
+msgstr "Blanc"
+
+#: crates/rigg/src/rgb.rs:24
+msgid "Rød"
+msgstr "Rouge"
+
+#: crates/rigg/src/rgb.rs:25
+msgid "Oransje"
+msgstr "Orange"
+
+#: crates/rigg/src/rgb.rs:26
+msgid "Gul"
+msgstr "Jaune"
+
+#: crates/rigg/src/rgb.rs:27
+msgid "Grønn"
+msgstr "Vert"
+
+#: crates/rigg/src/rgb.rs:28
+msgid "Cyan"
+msgstr "Cyan"
+
+#: crates/rigg/src/rgb.rs:29
+msgid "Blå"
+msgstr "Bleu"
+
+#: crates/rigg/src/rgb.rs:30
+msgid "Lilla"
+msgstr "Violet"
+
+#: crates/rigg/src/rgb.rs:31
+msgid "Rosa"
+msgstr "Rose"

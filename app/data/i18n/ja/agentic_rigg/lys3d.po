@@ -1,0 +1,136 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: crates/rigg/src/lys3d/mod.rs:38
+msgid "Forfra"
+msgstr "正面"
+
+#: crates/rigg/src/lys3d/mod.rs:39
+msgid "Skrått"
+msgstr "斜め"
+
+#: crates/rigg/src/lys3d/mod.rs:40
+msgid "Ovenfra"
+msgstr "上面"
+
+#: crates/rigg/src/lys3d/mod.rs:41
+msgid "Bakfra"
+msgstr "背面"
+
+#: crates/rigg/src/lys3d/mod.rs:44
+msgid "Hel"
+msgstr "全体"
+
+#: crates/rigg/src/lys3d/mod.rs:45
+msgid "Uten deksel"
+msgstr "シュラウドなし"
+
+#: crates/rigg/src/lys3d/mod.rs:46
+msgid "Uten kjøler"
+msgstr "クーラーなし"
+
+#: crates/rigg/src/lys3d/mod.rs:47
+msgid "Bare kretskort"
+msgstr "基板のみ"
+
+#: crates/rigg/src/lys3d/mod.rs:50
+msgid "Alle deler er på: deksel med vifter og lys, kjøler, kretskort, brakett og bakplate."
+msgstr "すべての部品を装着：ファンとライト付きシュラウド、クーラー、基板、ブラケット、バックプレート。"
+
+#: crates/rigg/src/lys3d/mod.rs:51
+msgid "Dekselet og viftene er tatt av, så kjøleribben og varmerørene synes."
+msgstr "シュラウドとファンを外し、ヒートシンクとヒートパイプを表示しています。"
+
+#: crates/rigg/src/lys3d/mod.rs:52
+msgid "Kjøleren er også tatt av. Kretskortet synes med brakett og bakplate."
+msgstr "クーラーも外し、基板・ブラケット・バックプレートを表示しています。"
+
+#: crates/rigg/src/lys3d/mod.rs:53
+msgid "Bare kretskortet: GPU-brikken, åtte minnebrikker, strømfaser, kontakter og utganger."
+msgstr "基板のみ：GPU チップ、8 個のメモリチップ、電源フェーズ、コネクタ、出力端子。"
+
+#: crates/rigg/src/lys3d/mod.rs:624
+msgid "fra venstre"
+msgstr "左から"
+
+#: crates/rigg/src/lys3d/mod.rs:624
+msgid "fra høyre"
+msgstr "右から"
+
+#: crates/rigg/src/lys3d/mod.rs:627
+msgid "ovenfra, med lyslisten mot deg"
+msgstr "上から（ライトバーが手前）"
+
+#: crates/rigg/src/lys3d/mod.rs:629
+msgid "nedenfra"
+msgstr "下から"
+
+#: crates/rigg/src/lys3d/mod.rs:631
+msgid "rett forfra"
+msgstr "真正面から"
+
+#: crates/rigg/src/lys3d/mod.rs:633
+msgid "skrått forfra {side}"
+msgstr "斜め前から（{side}）"
+
+#: crates/rigg/src/lys3d/mod.rs:636
+msgid "fra siden med braketten og utgangene"
+msgstr "ブラケットと出力端子の側面から"
+
+#: crates/rigg/src/lys3d/mod.rs:638
+msgid "fra enden"
+msgstr "端から"
+
+#: crates/rigg/src/lys3d/mod.rs:641
+msgid "skrått bakfra {side}"
+msgstr "斜め後ろから（{side}）"
+
+#: crates/rigg/src/lys3d/mod.rs:643
+msgid "rett bakfra, mot bakplaten"
+msgstr "真後ろから（バックプレート側）"
+
+#: crates/rigg/src/lys3d/mod.rs:646
+msgid "Lagene er skilt fra hverandre ({prosent})."
+msgstr "レイヤーが展開されています（{prosent}）。"
+
+#: crates/rigg/src/lys3d/mod.rs:653
+msgid "Viftene går på {fart}."
+msgstr "ファンは {fart} で回転中です。"
+
+#: crates/rigg/src/lys3d/mod.rs:655
+msgid "Viftene står stille."
+msgstr "ファンは停止しています。"
+
+#: crates/rigg/src/lys3d/mod.rs:657
+msgid "Skjermkort i 3D, sett {vinkel}. {lag}"
+msgstr "3D グラフィックカード（{vinkel}）。{lag}"
+
+#: crates/rigg/src/lys3d/mod.rs:755
+msgid "Skjermkortet i 3D"
+msgstr "3D グラフィックカード"
+
+#: crates/rigg/src/lys3d/mod.rs:756
+msgid "3D-visning"
+msgstr "3D ビュー"
+
+#: crates/rigg/src/lys3d/mod.rs:835
+msgid "GL kunne ikke startes: {feil}"
+msgstr "GL を開始できませんでした: {feil}"
+
+#: crates/rigg/src/lys3d/mod.rs:898
+msgid "GL-feil i GLArea"
+msgstr "GLArea で GL エラーが発生しました"
+
+#: crates/rigg/src/lys3d/mod.rs:917
+msgid "3D-kortet kunne ikke startes: {feil}"
+msgstr "3D カードを開始できませんでした: {feil}"
+
+#: crates/rigg/src/lys3d/mod.rs:1134
+msgid "Bygger 3D-kortet …"
+msgstr "3D カードを構築中 …"

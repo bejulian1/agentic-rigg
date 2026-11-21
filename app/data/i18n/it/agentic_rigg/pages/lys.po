@@ -1,0 +1,144 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: crates/rigg/src/pages/lys.rs:155
+msgid "Skjermkort"
+msgstr "Scheda grafica"
+
+#: crates/rigg/src/pages/lys.rs:157 crates/rigg/src/pages/lys.rs:537
+msgid "Ikke aktivert"
+msgstr "Non attivato"
+
+#: crates/rigg/src/pages/lys.rs:159
+msgid "3D"
+msgstr "3D"
+
+#: crates/rigg/src/pages/lys.rs:159
+msgid "2D"
+msgstr "2D"
+
+#: crates/rigg/src/pages/lys.rs:159
+msgid "Visning"
+msgstr "Vista"
+
+#: crates/rigg/src/pages/lys.rs:181
+msgid "Dra for å vri · rull for zoom · 0 tilbakestiller"
+msgstr "Trascina per ruotare · scorri per lo zoom · 0 reimposta"
+
+#: crates/rigg/src/pages/lys.rs:187
+msgid "Bygger 3D-kortet …"
+msgstr "Costruzione della scheda 3D …"
+
+#: crates/rigg/src/pages/lys.rs:225 crates/rigg/src/pages/lys.rs:231
+msgid "Vinkel"
+msgstr "Angolo"
+
+#: crates/rigg/src/pages/lys.rs:227 crates/rigg/src/pages/lys.rs:228
+msgid "Tilbakestill visningen"
+msgstr "Reimposta vista"
+
+#: crates/rigg/src/pages/lys.rs:238 crates/rigg/src/pages/lys.rs:241
+msgid "Lag"
+msgstr "Strati"
+
+#: crates/rigg/src/pages/lys.rs:249 crates/rigg/src/pages/lys.rs:254
+msgid "Skill lagene"
+msgstr "Separa gli strati"
+
+#: crates/rigg/src/pages/lys.rs:262 crates/rigg/src/pages/lys.rs:265
+msgid "Bakgrunnslys"
+msgstr "Luce ambientale"
+
+#: crates/rigg/src/pages/lys.rs:292
+msgid "Deler i 3D-modellen"
+msgstr "Parti nel modello 3D"
+
+#: crates/rigg/src/pages/lys.rs:539
+msgid "Prøve på kortet"
+msgstr "Prova sulla scheda"
+
+#: crates/rigg/src/pages/lys.rs:541
+msgid "Aktiv effekt"
+msgstr "Effetto attivo"
+
+#: crates/rigg/src/pages/lys.rs:553
+msgid "Speiler kortlyset"
+msgstr "Rispecchia la scheda"
+
+#: crates/rigg/src/pages/lys.rs:555
+msgid "Forhåndsvisning av valg"
+msgstr "Anteprima della scelta"
+
+#: crates/rigg/src/pages/lys.rs:568
+msgid "Utgangspunkt: {farge} · {styrke}"
+msgstr "Stato iniziale: {farge} · {styrke}"
+
+#: crates/rigg/src/pages/lys.rs:570
+msgid "Sist lest: {farge} · {styrke}"
+msgstr "Ultima lettura: {farge} · {styrke}"
+
+#: crates/rigg/src/pages/lys.rs:739 crates/rigg/src/pages/lys.rs:942
+msgid "Lys vises i 2D"
+msgstr "Visualizzazione in 2D"
+
+#: crates/rigg/src/pages/lys.rs:739
+msgid "3D-kortet kunne ikke tegnes med grafikken her. Det flate kortet viser de samme lysvalgene."
+msgstr "Impossibile disegnare la scheda 3D con la grafica attuale. La vista 2D mostra le stesse scelte di illuminazione."
+
+#: crates/rigg/src/pages/lys.rs:820
+msgid "3D kan ikke tegnes her ({feil}). Klikk for å prøve igjen."
+msgstr "Impossibile disegnare in 3D qui ({feil}). Fai clic per riprovare."
+
+#: crates/rigg/src/pages/lys.rs:822
+msgid "Grafikken tegnet 3D for tregt. Klikk for å prøve igjen."
+msgstr "La grafica ha disegnato il 3D troppo lentamente. Fai clic per riprovare."
+
+#: crates/rigg/src/pages/lys.rs:824
+msgid "Kortet i 3D. Dra for å vri."
+msgstr "Scheda in 3D. Trascina per ruotare."
+
+#: crates/rigg/src/pages/lys.rs:829
+msgid "Flatt kort sett forfra. Bruker minst ressurser."
+msgstr "Scheda piatta vista frontalmente. Consuma meno risorse."
+
+#: crates/rigg/src/pages/lys.rs:844
+msgid "Stillbilde: grafikken tegner for tregt"
+msgstr "Immagine fissa: il rendering grafico è troppo lento"
+
+#: crates/rigg/src/pages/lys.rs:846
+msgid "Animasjon av"
+msgstr "Animazione disattivata"
+
+#: crates/rigg/src/pages/lys.rs:942
+msgid "Grafikken tegnet 3D-kortet for tregt. Velg 3D over visningen for å prøve igjen."
+msgstr "Il rendering della scheda 3D era troppo lento. Seleziona 3D sopra la vista per riprovare."
+
+#: crates/rigg/src/pages/lys.rs:1049
+msgid "Kortlys er ikke aktivert."
+msgstr "L’illuminazione della scheda non è attivata."
+
+#: crates/rigg/src/pages/lys.rs:1051
+msgid "Lysene er av."
+msgstr "Le luci sono spente."
+
+#: crates/rigg/src/pages/lys.rs:1053
+msgid "Lysstyrke {styrke}."
+msgstr "Luminosità {styrke}."
+
+#: crates/rigg/src/pages/lys.rs:1067
+msgid "{lag} · lagene skilt"
+msgstr "{lag} · strati separati"
+
+#: crates/rigg/src/pages/lys.rs:1090
+msgid "Flatt skjermkort sett forfra."
+msgstr "Scheda grafica piatta vista frontalmente."
+
+#: crates/rigg/src/pages/lys.rs:1106
+msgid "Kortet har én fysisk lyssone."
+msgstr "La scheda dispone di una sola zona fisica di illuminazione."

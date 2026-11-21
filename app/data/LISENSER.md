@@ -56,7 +56,7 @@ SOFTWARE.
 
 ## Rust-biblioteker som er bygget inn
 
-Alle er lisensiert under MIT, eller under MIT og Apache 2.0 etter eget valg. Agentic Rigg bruker dem under MIT. memchr kan også brukes under Unlicense. unicode-ident har i tillegg Unicode-3.0 for tabellene.
+Alle er lisensiert under MIT, eller under MIT og Apache 2.0 etter eget valg. Agentic Rigg bruker dem under MIT. glow kan også brukes under Zlib, og memchr under Unlicense. unicode-ident har i tillegg Unicode-3.0 for tabellene.
 
 | Bibliotek | Versjon | Lisens |
 |---|---|---|
@@ -82,10 +82,12 @@ Alle er lisensiert under MIT, eller under MIT og Apache 2.0 etter eget valg. Age
 | gdk4-sys | 0.11.5 | MIT |
 | gio | 0.22.10 | MIT |
 | gio-sys | 0.22.9 | MIT |
+| glam | 0.30.10 | MIT OR Apache-2.0 |
 | glib | 0.22.10 | MIT |
 | glib-sys | 0.22.9 | MIT |
 | glib-unix | 0.22.8 | MIT |
 | glib-unix-sys | 0.22.9 | MIT |
+| glow | 0.16.0 | MIT OR Apache-2.0 OR Zlib |
 | gobject-sys | 0.22.9 | MIT |
 | graphene-rs | 0.22.8 | MIT |
 | graphene-sys | 0.22.9 | MIT |

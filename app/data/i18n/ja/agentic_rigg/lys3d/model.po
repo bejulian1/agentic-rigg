@@ -1,0 +1,220 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: crates/rigg/src/lys3d/model.rs:42
+msgid "Deksel"
+msgstr "シュラウド"
+
+#: crates/rigg/src/lys3d/model.rs:42
+msgid "Plast, med lyslist og to lysringer"
+msgstr "プラスチック製、ライトバーと 2 つのライトリング付き"
+
+#: crates/rigg/src/lys3d/model.rs:43
+msgid "Lyslist"
+msgstr "ライトバー"
+
+#: crates/rigg/src/lys3d/model.rs:43 crates/rigg/src/lys3d/model.rs:44 crates/rigg/src/lys3d/model.rs:45
+msgid "Del av kortets ene fysiske lyssone"
+msgstr "カードの単一物理ライトゾーンの一部"
+
+#: crates/rigg/src/lys3d/model.rs:44
+msgid "Lysring, vifte 1"
+msgstr "ライトリング（ファン 1）"
+
+#: crates/rigg/src/lys3d/model.rs:45
+msgid "Lysring, vifte 2"
+msgstr "ライトリング（ファン 2）"
+
+#: crates/rigg/src/lys3d/model.rs:46
+msgid "Vifte 1"
+msgstr "ファン 1"
+
+#: crates/rigg/src/lys3d/model.rs:46 crates/rigg/src/lys3d/model.rs:47
+msgid "90 mm, 11 blader"
+msgstr "90 mm、11 枚羽根"
+
+#: crates/rigg/src/lys3d/model.rs:47
+msgid "Vifte 2"
+msgstr "ファン 2"
+
+#: crates/rigg/src/lys3d/model.rs:48
+msgid "Kjøleribbe"
+msgstr "ヒートシンク"
+
+#: crates/rigg/src/lys3d/model.rs:48
+msgid "Lameller i aluminium"
+msgstr "アルミニウムフィン"
+
+#: crates/rigg/src/lys3d/model.rs:49
+msgid "Varmerør"
+msgstr "ヒートパイプ"
+
+#: crates/rigg/src/lys3d/model.rs:49
+msgid "5 × Ø 6 mm, kobber"
+msgstr "5 × Ø 6 mm、銅製"
+
+#: crates/rigg/src/lys3d/model.rs:50
+msgid "Kontaktplate"
+msgstr "コールドプレート"
+
+#: crates/rigg/src/lys3d/model.rs:50
+msgid "Forniklet kobber over GPU-en"
+msgstr "GPU 上部のニッケルメッキ銅"
+
+#: crates/rigg/src/lys3d/model.rs:51
+msgid "Kjøleplate"
+msgstr "冷却プレート"
+
+#: crates/rigg/src/lys3d/model.rs:51
+msgid "Over minnet"
+msgstr "メモリの上部"
+
+#: crates/rigg/src/lys3d/model.rs:52
+msgid "VRM-kjøler"
+msgstr "VRM ヒートシンク"
+
+#: crates/rigg/src/lys3d/model.rs:52
+msgid "Over spolene og effekttrinnene"
+msgstr "チョークとパワーステージの上部"
+
+#: crates/rigg/src/lys3d/model.rs:53
+msgid "Termiske puter"
+msgstr "サーマルパッド"
+
+#: crates/rigg/src/lys3d/model.rs:53
+msgid "Leder varme fra minnet og effekttrinnene"
+msgstr "メモリとパワーステージから熱を伝えます"
+
+#: crates/rigg/src/lys3d/model.rs:54
+msgid "Festekryss"
+msgstr "X ブラケット"
+
+#: crates/rigg/src/lys3d/model.rs:54
+msgid "Fjærstål, holder kjøleren mot GPU-en"
+msgstr "ばね鋼製、クーラーを GPU に押し付けます"
+
+#: crates/rigg/src/lys3d/model.rs:55
+msgid "GPU-brikke"
+msgstr "GPU チップ"
+
+#: crates/rigg/src/lys3d/model.rs:55
+msgid "TU104-klasse, 545 mm², 12 nm"
+msgstr "TU104 クラス、545 mm²、12 nm"
+
+#: crates/rigg/src/lys3d/model.rs:56
+msgid "GDDR6-minne"
+msgstr "GDDR6 メモリ"
+
+#: crates/rigg/src/lys3d/model.rs:56
+msgid "8 × 1 GB, 256 bit, 14 Gbps"
+msgstr "8 × 1 GB、256 ビット、14 Gbps"
+
+#: crates/rigg/src/lys3d/model.rs:57
+msgid "Spoler"
+msgstr "チョーク"
+
+#: crates/rigg/src/lys3d/model.rs:57
+msgid "Strømfaser: 8 for kjernen, 2 for minnet"
+msgstr "電源フェーズ：コア用 8 相、メモリ用 2 相"
+
+#: crates/rigg/src/lys3d/model.rs:58
+msgid "Effekttrinn"
+msgstr "パワーステージ"
+
+#: crates/rigg/src/lys3d/model.rs:58
+msgid "Én MOSFET-pakke per fase"
+msgstr "各フェーズ 1 個の MOSFET パッケージ"
+
+#: crates/rigg/src/lys3d/model.rs:59
+msgid "Polymerkondensatorer"
+msgstr "ポリマーコンデンサ"
+
+#: crates/rigg/src/lys3d/model.rs:59
+msgid "Glatter spenningen fra fasene"
+msgstr "各フェーズの電圧を平滑化します"
+
+#: crates/rigg/src/lys3d/model.rs:60
+msgid "Små komponenter"
+msgstr "小型部品"
+
+#: crates/rigg/src/lys3d/model.rs:60
+msgid "Kondensatorer og motstander (0402 og 0603)"
+msgstr "コンデンサおよび抵抗器（0402・0603）"
+
+#: crates/rigg/src/lys3d/model.rs:61
+msgid "Kontrollere"
+msgstr "コントローラ"
+
+#: crates/rigg/src/lys3d/model.rs:61
+msgid "Spenningsregulering, BIOS og lys"
+msgstr "電圧制御、BIOS、ライト制御"
+
+#: crates/rigg/src/lys3d/model.rs:62
+msgid "PCIe x16-kontakt"
+msgstr "PCIe x16 コネクタ"
+
+#: crates/rigg/src/lys3d/model.rs:62
+msgid "Gullbelagte kontakter, 82 per side"
+msgstr "金メッキ接点、片面 82 ピン"
+
+#: crates/rigg/src/lys3d/model.rs:63
+msgid "Strømkontakter"
+msgstr "電源コネクタ"
+
+#: crates/rigg/src/lys3d/model.rs:63
+msgid "8-pin og 6-pin, 12 V"
+msgstr "8 ピンおよび 6 ピン、12 V"
+
+#: crates/rigg/src/lys3d/model.rs:64
+msgid "Utganger"
+msgstr "出力端子"
+
+#: crates/rigg/src/lys3d/model.rs:64
+msgid "3 × DisplayPort, HDMI og USB-C"
+msgstr "DisplayPort × 3、HDMI、USB-C"
+
+#: crates/rigg/src/lys3d/model.rs:65
+msgid "Pinnehoder"
+msgstr "ピンヘッダ"
+
+#: crates/rigg/src/lys3d/model.rs:65
+msgid "Vifter og lys"
+msgstr "ファンおよびライト"
+
+#: crates/rigg/src/lys3d/model.rs:66
+msgid "Kretskort"
+msgstr "プリント基板（PCB）"
+
+#: crates/rigg/src/lys3d/model.rs:66
+msgid "267 × 111 mm"
+msgstr "267 × 111 mm"
+
+#: crates/rigg/src/lys3d/model.rs:67
+msgid "Kondensatorer bak GPU-en"
+msgstr "GPU 背面のコンデンサ"
+
+#: crates/rigg/src/lys3d/model.rs:67
+msgid "Keramiske (MLCC)"
+msgstr "セラミック（MLCC）"
+
+#: crates/rigg/src/lys3d/model.rs:68
+msgid "Brakett"
+msgstr "ブラケット"
+
+#: crates/rigg/src/lys3d/model.rs:68
+msgid "Stål, to spor"
+msgstr "スチール製、2 スロット"
+
+#: crates/rigg/src/lys3d/model.rs:69
+msgid "Bakplate"
+msgstr "バックプレート"
+
+#: crates/rigg/src/lys3d/model.rs:69
+msgid "Aluminium, med vindu bak GPU-en"
+msgstr "アルミ製、GPU 背面に開口部あり"
