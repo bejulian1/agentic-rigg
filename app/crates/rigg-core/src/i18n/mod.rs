@@ -137,7 +137,20 @@ fn forms(lang: Language, key: MsgKey) -> Option<Forms> {
     if lang == Language::Nb {
         return None;
     }
-    CATALOG.get_or_init(|| catalog(lang).iter().copied().collect()).get(&key).copied()
+    lookup(CATALOG.get_or_init(|| catalog(lang).iter().copied().collect()), key)
+}
+
+/// Katalogene ligger per kildefil. Tekst i en nestet modul (for eksempel
+/// `mod imp` i en GTK-widget) har en lengre `module_path!()` enn fila, så
+/// oppslaget går opp til foreldremodulen til det finnes et treff.
+fn lookup(catalog: &Catalog, (module, context, source): MsgKey) -> Option<Forms> {
+    let mut module = module;
+    loop {
+        if let Some(forms) = catalog.get(&(module, context, source)) {
+            return Some(*forms);
+        }
+        module = &module[..module.rfind("::")?];
+    }
 }
 
 #[doc(hidden)]
@@ -247,6 +260,16 @@ mod tests {
         assert_eq!(Language::Ja.plural_index(9), 0);
         assert_eq!(Language::Fr.plural_index(0), 0);
         assert_eq!(Language::PtBr.plural_index(2), 1);
+    }
+
+    #[test]
+    fn nestet_modul_finner_filens_katalog() {
+        static FORMS: [&str; 1] = ["Emergency"];
+        let catalog: Catalog = [(("agentic_rigg::pages::viftekurve", "", "Nødregel"), &FORMS[..])].into_iter().collect();
+        assert_eq!(lookup(&catalog, ("agentic_rigg::pages::viftekurve::edit_imp", "", "Nødregel")), Some(&FORMS[..]));
+        assert_eq!(lookup(&catalog, ("agentic_rigg::pages::viftekurve", "", "Nødregel")), Some(&FORMS[..]));
+        assert_eq!(lookup(&catalog, ("agentic_rigg::pages::viftekurve::edit_imp", "", "Annet")), None);
+        assert_eq!(lookup(&catalog, ("agentic_rigg::pages::kontroller", "", "Nødregel")), None);
     }
 
     #[test]
