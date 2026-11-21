@@ -343,14 +343,32 @@ impl<B: Backend> Runtime<B> {
                     (args.request, None)
                 };
                 let result = if let Some(active) = self.animation.take() {
-                    self.book.apply_after_animation(
+                    let result = self.book.apply_after_animation(
                         &mut self.backend,
                         conn,
-                        active.last_request,
+                        active.last_request.clone(),
                         request.clone(),
                         now_ms,
                         args.confirm_timeout_s * 1000,
-                    )
+                    );
+                    match &result {
+                        // Avvist før kortet ble lest: effekten fortsetter uendret.
+                        Err(Error::InvalidOwner
+                        | Error::InvalidTimeout
+                        | Error::Overflow
+                        | Error::ClockReversed
+                        | Error::Busy) => self.animation = Some(active),
+                        // Kortet kunne ikke leses før byttet. Samme vei som en
+                        // feilet effektramme: stopp effekten og gi kortet
+                        // tilbake til det lagrede utgangspunktet.
+                        Err(error @ Error::Backend { operation: "lesing", .. }) => {
+                            self.effect_error = Some(format!("Lyseffekten er stoppet: {error}"));
+                            self.observation_source = ObservationSource::Unknown;
+                            self.release();
+                        }
+                        _ => {}
+                    }
+                    result
                 } else if seed.is_some() {
                     self.book.apply_for_effect(
                         &mut self.backend,
@@ -1526,6 +1544,48 @@ mod tests {
         assert_eq!(runtime.backend.writes.len(), 4);
         assert!(!runtime.animate(10_001).unwrap());
         assert_eq!(runtime.status()["holding"]["deadlineMs"], 15_000);
+    }
+
+    #[test]
+    fn lesefeil_under_effektbytte_stopper_effekten_og_gir_tilbake_utgangspunktet() {
+        let mut runtime = setup();
+        start_effect(&mut runtime, Effect::Cycle, 0);
+        assert!(runtime.animate(2500).unwrap());
+        runtime.frame_completed(2500).unwrap();
+        let writes = runtime.backend.writes.len();
+        runtime.backend.fail_read = true;
+        assert!(
+            runtime
+                .handle(1000, 7, "rgb_apply", &apply_args(Request::Off {}, 10), 2600)
+                .is_err()
+        );
+        runtime.backend.fail_read = false;
+        assert!(!runtime.animation_active());
+        // Ingen ny farge ble skrevet før lesingen; bare tilbakeføringen.
+        assert_eq!(runtime.backend.writes.get(writes..).map(<[_]>::len), Some(1));
+        assert_eq!(runtime.backend.writes.last(), Some(&color([1, 2, 3])));
+        // Som ved feilet effektramme: sluttilstanden bekreftes visuelt.
+        let locked = runtime
+            .handle(1000, 7, "rgb_read", &identity(), 2700)
+            .unwrap_err();
+        assert_eq!(locked.code, ErrorCode::WriteLocked);
+        let status = &locked.details.as_ref().unwrap()["status"];
+        assert!(status["effect"].is_null());
+        assert!(
+            status["runtimeError"]
+                .as_str()
+                .is_some_and(|e| e.starts_with("Lyseffekten er stoppet"))
+        );
+        runtime
+            .handle(1000, 7, "rgb_ack_recovery", &ack_args(&runtime), 2750)
+            .unwrap();
+        // Ugyldig frist avvises før lesing, og effekten går videre.
+        start_effect(&mut runtime, Effect::Rainbow, 2800);
+        assert!(runtime.animation_active());
+        let mut args = apply_args(Request::Off {}, 10);
+        args["confirmTimeoutS"] = json!(1);
+        assert!(runtime.handle(1000, 7, "rgb_apply", &args, 2900).is_err());
+        assert!(runtime.animation_active());
     }
 
     #[test]

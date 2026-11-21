@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import runpy
+import shutil
 import tarfile
 import tempfile
 import unittest
@@ -52,11 +53,21 @@ class HentTest(unittest.TestCase):
         self.assets = [{'name': NAME, 'digest': 'sha256:' + self.digest}]
         self.urls = []
         self.runs = []
+        self.deactivate_code = 0
         patcher = patch('os.geteuid', return_value=0)
         patcher.start()
         self.addCleanup(patcher.stop)
         self.mod['open_url'] = self.open_url
         self.mod['subprocess'] = type('S', (), {'run': self.fake_run, 'DEVNULL': -3})
+        # Aldri vertens /etc/agentic-rigg: tillatelsene ligger i testmappa.
+        self.etc = Path(tmp.name + '-etc')
+        self.etc.mkdir(mode=0o755)
+        self.addCleanup(shutil.rmtree, self.etc)
+        self.mod['CONFIG'] = {'nvml': str(self.etc / 'helper.json'), 'rgb': str(self.etc / 'rgb.json')}
+        self.mod['OWNER'] = os.getuid()
+        uid = patch.dict(os.environ, {'PKEXEC_UID': '1000'})
+        uid.start()
+        self.addCleanup(uid.stop)
 
     def open_url(self, request, hosts):
         url = request.full_url
@@ -73,6 +84,10 @@ class HentTest(unittest.TestCase):
         self.runs.append(argv)
         if argv[0].startswith('/usr/local/libexec/'):
             self.assertEqual(kwargs['env'], {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C', 'PKEXEC_UID': '1000'})
+            if argv[0].endswith('rgb-deaktiver.sh'):
+                # Etter kontrollen av arkivet, før installasjonen.
+                self.assertEqual(len(list(self.staging.iterdir())), 1)
+                return type('R', (), {'returncode': self.deactivate_code})()
             self.assertEqual(list(self.staging.iterdir()), [])
             return type('R', (), {'returncode': 0})()
         self.assertEqual(Path(argv[-3]).read_bytes(), b'print("installert")\n')
@@ -97,6 +112,49 @@ class HentTest(unittest.TestCase):
             self.assertEqual(self.runs[-1], ['/usr/local/libexec/agentic-rigg-rgb-v2/rgb-aktiver.sh', '--pci', pci.lower(),
                                              '--uuid', uuid, '--static-confirmed'])
         self.assertEqual(len(self.runs), 4)
+
+    def permission(self, domain, uid=1000, pci='0000:1c:00.0', uuid='GPU-12345678-abcd-ef01-2345-6789abcdef01', mode=0o644):
+        card = {'pci': pci, 'uuid': uuid}
+        data = {'version': 1, 'uid': uid, 'enabled': True, 'binding': card, 'build': 28} if domain == 'rgb' else \
+            {'versjon': 2, 'uid': uid, 'enabled': True, **card, 'bygg': 28}
+        path = Path(self.mod['CONFIG'][domain])
+        path.write_text(json.dumps(data))
+        path.chmod(mode)
+
+    def test_oppdatering_beholder_gpu_styring_og_slaar_av_gammel_rgb(self):
+        uuid = 'GPU-12345678-abcd-ef01-2345-6789abcdef01'
+        other = 'GPU-87654321-abcd-ef01-2345-6789abcdef01'
+        self.permission('nvml', pci='0000:01:00.0', uuid=other)
+        self.permission('rgb', mode=0o600)
+        self.assertEqual(self.mod['main'](['1.5.2', '27', 'rgb', '0000:1c:00.0', uuid]), 0)
+        self.assertEqual(self.runs[0], ['/usr/local/libexec/agentic-rigg-rgb-v2/rgb-deaktiver.sh', '--pci', '0000:1c:00.0', '--uuid', uuid])
+        self.assertEqual(self.runs[1][:3], ['/usr/bin/python3', '-I', '-S'])
+        self.assertEqual(self.runs[2], ['/usr/local/libexec/agentic-rigg/aktiver.sh', '--pci', '0000:01:00.0', '--uuid', other])
+        self.assertEqual(self.runs[3][0], '/usr/local/libexec/agentic-rigg-rgb-v2/rgb-aktiver.sh')
+        # Ber brukeren selv om GPU-styring, aktiveres den bare én gang.
+        self.runs.clear()
+        self.assertEqual(self.mod['main'](['1.5.2', '27', 'nvml', '0000:1c:00.0', uuid]), 0)
+        self.assertEqual([r[0] for r in self.runs], ['/usr/local/libexec/agentic-rigg-rgb-v2/rgb-deaktiver.sh', '/usr/bin/python3',
+                                                     '/usr/local/libexec/agentic-rigg/aktiver.sh'])
+        self.assertEqual(self.runs[-1][2], '0000:1c:00.0')
+
+    def test_uavklart_rgb_stopper_for_installasjonen(self):
+        self.permission('rgb', mode=0o600)
+        self.deactivate_code = 1
+        self.assertEqual(self.mod['main'](['1.5.2', '27']), 1)
+        self.assertEqual(len(self.runs), 1)
+        self.assertEqual(list(self.staging.iterdir()), [])
+
+    def test_fremmed_eller_utrygg_tillatelse_stopper_for_nettet(self):
+        for domain, kwargs in (('nvml', {'uid': 1001}), ('rgb', {'uid': 1001}), ('nvml', {'mode': 0o666}),
+                               ('rgb', {'pci': '../x'}), ('nvml', {'uuid': 'GPU-x'})):
+            for path in self.etc.iterdir():
+                path.unlink()
+            self.permission(domain, **kwargs)
+            with self.assertRaises(SystemExit):
+                self.mod['main'](['1.5.2', '27'])
+        self.assertEqual(self.urls, [])
+        self.assertEqual(self.runs, [])
 
     def test_aktivering_bare_etter_vellykket_installasjon(self):
         def failing(argv, **kwargs):

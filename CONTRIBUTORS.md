@@ -3,13 +3,13 @@
 | Contributor | Role |
 |---|---|
 | [Julian / bejulian1](https://github.com/bejulian1) | Project owner: product vision, priorities, hardware, physical testing and approval of every release. |
-| [Claude Code · Anthropic Claude Opus 5.5](https://github.com/apps/claude) | AI assistance on the original application, the Rust/GTK foundation, features and documentation up to 1.3.0. In 1.5.0 it coordinated the work: open-source preparation, history cleanup, merging and integration of all branches, and the release. |
+| [Claude Code · Anthropic Claude Opus 5.5](https://github.com/apps/claude) | AI assistance on the original application, the Rust/GTK foundation, features and documentation up to 1.3.0. In 1.5.0 it coordinated the work: open-source preparation, history cleanup, merging and integration of all branches, and the release. In 1.5.1–1.5.4: installing the system components from the app with one password, and the RGB-helper upgrade path. |
 | [Codex · OpenAI GPT 6.1 Sol](https://github.com/codex) | AI assistance on the sidebar, navigation and search, adaptive graphs, CPU launch dates, code/UI review, NVML control in 1.4.0, hardware adaptation and UI in 1.4.1, GitHub releases, and the first version of the Tasks page. |
 | [Codex · OpenAI GPT 6 Astra](https://github.com/codex) | AI assistance on source research, security review and the implementation of card-bound Palit RGB. |
 | [Codex · OpenAI GPT 6.2 Sol](https://github.com/codex) | AI assistance in 1.5.0: RGB fixes for issues #4–#6, the Tasks fix for issue #7, the translation framework and language setting, translations of most modules, removal of the local RGB preview, the translation audit, and reviews of Gemini's work. |
 | [Codex · OpenAI GPT 6.2 Astra](https://github.com/codex) | AI assistance in 1.5.0: security hardening of both root helpers (verified system installation, fixed polkit entry points, sandboxed admin I2C, duplicate-key rejection). |
-| Google Gemini 4 Neon (Antigravity) | AI assistance in 1.5.0: English README and community files, the CPU-hotplug fix for issue #3, the "no demo" audit, translations of settings and hardware pages, and reviews of Codex's work. |
-| Anthropic Claude Fable 5.2 | AI assistance in 1.5.0: independent security reviews of the root helpers, and reviews of the translation audit and the RGB-page cleanup. |
+| Google Gemini 4 Neon (Antigravity) | AI assistance in 1.5.0: English README and community files, the CPU-hotplug fix for issue #3, the "no demo" audit, translations of settings and hardware pages, and reviews of Codex's work. In 1.5.4: restored the 2D/3D card on the RGB page, connected to the real controls, and RGB protocol 3 for switching between effects. |
+| Anthropic Claude Fable 5.2 | AI assistance in 1.5.0: independent security reviews of the root helpers, and reviews of the translation audit and the RGB-page cleanup. Security reviews of the one-password installer (1.5.1–1.5.3) and RGB protocol 3 (1.5.4). |
 
 Claude Code, Codex and Gemini are AI tools, not human project members. The project owner decides on features and approves releases. Translations were produced and cross-reviewed by these AI models; corrections from native speakers are very welcome.
 

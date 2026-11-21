@@ -926,7 +926,7 @@ impl CardLight {
             tr!("RGB-tillatelsen gjelder ikke kortet som er valgt. Ingen endringer kan sendes her.")
                 .into()
         } else if helper["state"] == "outdated" {
-            tr!("Oppdater RGB-hjelperen med kommandoen for systeminstallasjon.").into()
+            tr!("RGB-hjelperen må oppdateres. Trykk «Aktiver kortlys» for å oppdatere og aktivere den med ett passord.").into()
         } else if helper["state"] == "error" {
             tr!("RGB-hjelperen er ikke klar. Kontroller oppsettet og avklar en eventuell tidligere RGB-økt.").into()
         } else {
@@ -1096,7 +1096,7 @@ impl CardLight {
             && !other
             && selected_identity(&self.app).is_some();
         self.activate
-            .set_sensitive(admin_available && helper["state"] != "outdated" && (activation.is_ok() || installable));
+            .set_sensitive(admin_available && (helper["state"] != "outdated" || installable) && (activation.is_ok() || installable));
         self.activate.set_tooltip_text(activation.err().filter(|_| !installable).as_deref());
         self.resolve.set_visible(
             !bound && present && admin_ui && matches!(helper["state"].as_str(), Some("off" | "error" | "outdated")),
@@ -1394,7 +1394,7 @@ impl CardLight {
 /// dem selv sammen med RGB-aktiveringen.
 fn installable(app: &App, helper: &Value) -> bool {
     !app.profile.is_dev() && helper["systemAdmin"] == true && crate::system_install::can_install()
-        && !crate::system_install::ready(true)
+        && !crate::system_install::ready(crate::system_install::Need::Rgb)
 }
 
 /// En RGB-handling pågår (installasjonen venter da).
@@ -1414,7 +1414,12 @@ fn admin_paths(
     }
     let pkexec = PathBuf::from("/usr/bin/pkexec");
     let script = rgb_auth::Paths::new("/").libexec(action.script());
-    if !crate::system_install::ready(action == AdminAction::Activate)
+    let need = if action == AdminAction::Activate {
+        crate::system_install::Need::Rgb
+    } else {
+        crate::system_install::Need::Cleanup
+    };
+    if !crate::system_install::ready(need)
         || [
             pkexec.as_path(),
             &script,

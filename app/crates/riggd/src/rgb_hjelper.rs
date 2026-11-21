@@ -120,7 +120,7 @@ impl View {
         {
             return Err(Self {
                 state: "outdated",
-                message: Some("Oppdater RGB-hjelperen med kommandoen for systeminstallasjon.".into()),
+                message: Some("RGB-hjelperen må oppdateres. Trykk «Aktiver kortlys» for å oppdatere og aktivere den med ett passord.".into()),
                 status: Value::Null,
             });
         }

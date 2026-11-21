@@ -45,7 +45,18 @@ pub fn trusted(path: &Path) -> bool {
     })
 }
 
-pub fn ready(activate: bool) -> bool {
+/// Hva den installerte revisjonen må dekke.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Need {
+    /// Slå av, avklare eller gjenopprette: også eldre installasjoner.
+    Cleanup,
+    /// Aktivere GPU-styring (NVML-hjelperen).
+    Nvml,
+    /// Aktivere kortlys (RGB-hjelperen).
+    Rgb,
+}
+
+pub fn ready(need: Need) -> bool {
     [
         MARK,
         "/usr/local/libexec/agentic-rigg-system/system-install",
@@ -53,17 +64,21 @@ pub fn ready(activate: bool) -> bool {
     ]
     .iter()
     .all(|path| trusted(Path::new(path)))
-        && std::fs::read_to_string(MARK).is_ok_and(|value| compatible_revision(&value, activate))
+        && std::fs::read_to_string(MARK).is_ok_and(|value| compatible_revision(&value, need))
 }
 
-fn compatible_revision(value: &str, activate: bool) -> bool {
+/// NVML og RGB har hver sin kompatibilitetsgrense, så en ny RGB-protokoll
+/// gjør ikke en fungerende GPU-styring «utdatert».
+fn compatible_revision(value: &str, need: Need) -> bool {
     if value == "1\n" {
-        return !activate;
+        return need == Need::Cleanup;
     }
     value.strip_prefix("2:").and_then(|v| v.trim_end().parse::<u32>().ok()).is_some_and(|build| {
-        build > 0 && build <= rigg_core::version::build() && (!activate ||
-            (rigg_core::hjelper::compatible(rigg_core::hjelper::PROTOCOL, build)
-             && rigg_core::rgb_auth::compatible_build(build)))
+        build > 0 && build <= rigg_core::version::build() && match need {
+            Need::Cleanup => true,
+            Need::Nvml => rigg_core::hjelper::compatible(rigg_core::hjelper::PROTOCOL, build),
+            Need::Rgb => rigg_core::rgb_auth::compatible_build(build),
+        }
     })
 }
 
@@ -211,12 +226,19 @@ mod tests {
     #[test]
     fn gammel_installasjon_tillater_bare_opprydding() {
         for old in ["1\n", "2:24\n"] {
-            assert!(!compatible_revision(old, true));
-            assert!(compatible_revision(old, false));
+            assert!(!compatible_revision(old, Need::Nvml));
+            assert!(!compatible_revision(old, Need::Rgb));
+            assert!(compatible_revision(old, Need::Cleanup));
         }
-        assert!(compatible_revision("2:25\n", true));
+        // RGB-protokoll 3 (bygg 29) gjør bare RGB-delen utdatert.
+        for nvml_only in ["2:25\n", "2:28\n"] {
+            assert!(compatible_revision(nvml_only, Need::Nvml));
+            assert!(!compatible_revision(nvml_only, Need::Rgb));
+        }
+        assert!(compatible_revision("2:29\n", Need::Rgb));
+        assert!(compatible_revision("2:29\n", Need::Nvml));
         for unknown in ["", "3:25\n", "2:0\n", "2:4294967295\n"] {
-            assert!(!compatible_revision(unknown, false));
+            assert!(!compatible_revision(unknown, Need::Cleanup));
         }
     }
 

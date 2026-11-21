@@ -11,6 +11,12 @@ GitHub publiserer for akkurat den filen (samme sum som står på utgivelsessiden
 Først da hentes `system-install` ut og kjøres med `python3 -I -S`, som
 kontrollerer summen på nytt og installerer bare navngitte filer.
 
+Installasjonen bytter hjelperne og fjerner derfor aktive tillatelser. Etter
+at arkivet er kontrollert slås en eksisterende RGB-tilgang av med det
+installerte `rgb-deaktiver.sh` (lyset og utgangspunktet beholdes), og en
+GPU-tillatelse for samme bruker aktiveres igjen for samme kort etterpå, så
+ett passord holder også ved oppdatering.
+
 Uten nett finnes terminalkommandoen (`system-bootstrap.command`) med
 arkiv og sum oppgitt for hånd.
 """
@@ -20,6 +26,7 @@ import json
 import os
 import re
 import shutil
+import stat
 import subprocess
 import sys
 import tarfile
@@ -41,6 +48,9 @@ ACTIVATE = {'nvml': ['/usr/local/libexec/agentic-rigg/aktiver.sh'],
             'rgb': ['/usr/local/libexec/agentic-rigg-rgb-v2/rgb-aktiver.sh']}
 # RGB-aktiveringen krever at brukeren har sett på kortet; appen spør før pkexec.
 ACTIVATE_FLAGS = {'nvml': [], 'rgb': ['--static-confirmed']}
+RGB_DEACTIVATE = ['/usr/local/libexec/agentic-rigg-rgb-v2/rgb-deaktiver.sh']
+CONFIG = {'nvml': '/etc/agentic-rigg/helper.json', 'rgb': '/etc/agentic-rigg/rgb.json'}
+OWNER = 0
 PCI = r'[0-9a-f]{4}:[0-9a-f]{2}:[01][0-9a-f]\.[0-7]'
 UUID = r'GPU-[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}'
 
@@ -126,6 +136,17 @@ def installer_from(archive):
         return tar.extractfile(members[0]).read()
 
 
+def pkexec_uid():
+    uid = os.environ.get('PKEXEC_UID', '')
+    if not re.fullmatch(r'[1-9][0-9]{0,9}', uid, re.ASCII):
+        fail('Fant ikke brukeren bak administratorforespørselen.')
+    return uid
+
+
+def env(uid):
+    return {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C', 'PKEXEC_UID': uid}
+
+
 def activation(argv):
     """`[]` eller `[domene, pci, uuid]` → kommandoen og miljøet, eller None."""
     if not argv:
@@ -135,11 +156,47 @@ def activation(argv):
     domain, pci, uuid = argv[0], argv[1].lower(), argv[2]
     if not re.fullmatch(PCI, pci, re.ASCII) or not re.fullmatch(UUID, uuid, re.ASCII):
         fail('Aktivering krever full PCI-adresse og GPU-UUID.')
-    uid = os.environ.get('PKEXEC_UID', '')
-    if not re.fullmatch(r'[1-9][0-9]{0,9}', uid, re.ASCII):
-        fail('Fant ikke brukeren bak administratorforespørselen.')
+    uid = pkexec_uid()
     command = [*ACTIVATE[domain], '--pci', pci, '--uuid', uuid, *ACTIVATE_FLAGS[domain]]
-    return command, {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C', 'PKEXEC_UID': uid}
+    return command, env(uid)
+
+
+def root_json(path):
+    """En root-eid, ikke gruppe-/allment skrivbar tillatelse, eller None."""
+    try:
+        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    except FileNotFoundError:
+        return None
+    with os.fdopen(fd, 'rb') as stream:
+        info = os.fstat(stream.fileno())
+        if not stat.S_ISREG(info.st_mode) or info.st_uid != OWNER or info.st_mode & 0o022:
+            fail(f'Utrygg tillatelsesfil: {path}')
+        raw = stream.read(16385)
+    if len(raw) > 16384:
+        fail(f'For stor tillatelsesfil: {path}')
+    try:
+        data = json.loads(raw)
+    except ValueError:
+        fail(f'Ugyldig tillatelsesfil: {path}')
+    return data if isinstance(data, dict) else fail(f'Ugyldig tillatelsesfil: {path}')
+
+
+def binding(domain, uid):
+    """(pci, uuid) for en aktiv tillatelse i `domain` som tilhører `uid`."""
+    data = root_json(CONFIG[domain])
+    if data is None:
+        return None
+    card = data.get('binding') if domain == 'rgb' else data
+    if not isinstance(card, dict) or str(data.get('uid')) != uid or data.get('enabled') is not True:
+        fail('Den aktive tillatelsen gjelder en annen bruker. Slå den av først.')
+    pci, uuid = str(card.get('pci', '')).lower(), str(card.get('uuid', ''))
+    if not re.fullmatch(PCI, pci, re.ASCII) or not re.fullmatch(UUID, uuid, re.ASCII):
+        fail('Den aktive tillatelsen har ugyldig kortbinding.')
+    return pci, uuid
+
+
+def run(command, uid):
+    return subprocess.run(command, stdin=subprocess.DEVNULL, env=env(uid), check=False).returncode
 
 
 def main(argv):
@@ -149,6 +206,9 @@ def main(argv):
         fail('Systeminstallasjon krever administrator.')
     version, build = argv[:2]
     then = activation(argv[2:])
+    uid = pkexec_uid()
+    # Leses før nettet brukes, så en fremmed tillatelse stopper alt tidlig.
+    nvml, rgb = binding('nvml', uid), binding('rgb', uid)
     name = ASSET.format(version=version, build=build)
     digest = published_digest(version, name)
     os.umask(0o077)
@@ -166,14 +226,26 @@ def main(argv):
         installer = os.path.join(temp, 'installer')
         with open(installer, 'xb') as out:
             out.write(installer_from(archive))
+        # Installasjonen nekter mens RGB er aktiv. Den gamle, installerte
+        # deaktiveringen beholder lyset og utgangspunktet; en uavklart
+        # RGB-økt stopper her før noe er byttet.
+        if rgb is not None and run([*RGB_DEACTIVATE, '--pci', rgb[0], '--uuid', rgb[1]], uid):
+            return 1
         result = subprocess.run([*INSTALLER, installer, archive, digest], stdin=subprocess.DEVNULL,
                                 env={'PATH': '/usr/bin:/bin', 'LC_ALL': 'C'}, check=False)
-        if result.returncode or then is None:
+        if result.returncode:
             return result.returncode
     finally:
         shutil.rmtree(temp, ignore_errors=True)
-    command, env = then
-    return subprocess.run(command, stdin=subprocess.DEVNULL, env=env, check=False).returncode
+    # Installasjonen fjernet GPU-tillatelsen. Gi den tilbake for samme kort,
+    # med mindre brukeren nettopp ba om GPU-styring (da gjør `then` det).
+    if nvml is not None and not (then and then[0][0] == ACTIVATE['nvml'][0]):
+        if run([*ACTIVATE['nvml'], '--pci', nvml[0], '--uuid', nvml[1]], uid):
+            print('GPU-styringen ble ikke slått på igjen. Slå på bryteren i appen.', file=sys.stderr)
+    if then is None:
+        return 0
+    command, environment = then
+    return subprocess.run(command, stdin=subprocess.DEVNULL, env=environment, check=False).returncode
 
 
 if __name__ == '__main__':

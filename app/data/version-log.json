@@ -1,5 +1,16 @@
 [
   {
+    "version": "1.5.4",
+    "build": 29,
+    "date": "2026-11-21",
+    "title": "Kortet tilbake på RGB-siden",
+    "changes": [
+      "RGB-lys viser skjermkortet igjen, i 2D eller 3D. Kortet speiler den ekte kortstyringen: valgt farge, lysstyrke og effekt, og fargen som sist ble lest fra kortet.",
+      "Bytt fritt mellom fast farge, av, pusting, regnbue og fargesyklus. «Bruk» er ikke lenger grå etter en beholdt farge eller mens en effekt går, og en sperre forklares under knappen.",
+      "RGB-hjelperen bruker ny protokoll. «Aktiver kortlys» oppdaterer og aktiverer den med ett passord, og skjermkortstyringen beholdes."
+    ]
+  },
+  {
     "version": "1.5.3",
     "build": 28,
     "date": "2026-11-21",
