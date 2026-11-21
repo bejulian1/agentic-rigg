@@ -71,6 +71,10 @@ class HentTest(unittest.TestCase):
 
     def fake_run(self, argv, **kwargs):
         self.runs.append(argv)
+        if argv[0].startswith('/usr/local/libexec/'):
+            self.assertEqual(kwargs['env'], {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C', 'PKEXEC_UID': '1000'})
+            self.assertEqual(list(self.staging.iterdir()), [])
+            return type('R', (), {'returncode': 0})()
         self.assertEqual(Path(argv[-3]).read_bytes(), b'print("installert")\n')
         self.assertEqual(hashlib.sha256(Path(argv[-2]).read_bytes()).hexdigest(), argv[-1])
         self.assertEqual(oct(os.stat(Path(argv[-3]).parent).st_mode & 0o777), '0o700')
@@ -83,6 +87,35 @@ class HentTest(unittest.TestCase):
         self.assertEqual(self.runs[0][:3], ['/usr/bin/python3', '-I', '-S'])
         self.assertEqual(self.runs[0][-1], self.digest)
         self.assertEqual(list(self.staging.iterdir()), [])
+
+    def test_installerer_og_aktiverer_med_ett_passord(self):
+        pci, uuid = '0000:1C:00.0', 'GPU-12345678-abcd-ef01-2345-6789abcdef01'
+        with patch.dict(os.environ, {'PKEXEC_UID': '1000'}):
+            self.assertEqual(self.mod['main'](['1.5.2', '27', 'nvml', pci, uuid]), 0)
+            self.assertEqual(self.runs[-1], ['/usr/local/libexec/agentic-rigg/aktiver.sh', '--pci', pci.lower(), '--uuid', uuid])
+            self.assertEqual(self.mod['main'](['1.5.2', '27', 'rgb', pci, uuid]), 0)
+            self.assertEqual(self.runs[-1], ['/usr/local/libexec/agentic-rigg-rgb-v2/rgb-aktiver.sh', '--pci', pci.lower(),
+                                             '--uuid', uuid, '--static-confirmed'])
+        self.assertEqual(len(self.runs), 4)
+
+    def test_aktivering_bare_etter_vellykket_installasjon(self):
+        def failing(argv, **kwargs):
+            self.runs.append(argv)
+            return type('R', (), {'returncode': 3})()
+        self.mod['subprocess'] = type('S', (), {'run': failing, 'DEVNULL': -3})
+        with patch.dict(os.environ, {'PKEXEC_UID': '1000'}):
+            self.assertEqual(self.mod['main'](['1.5.2', '27', 'nvml', '0000:1c:00.0', 'GPU-12345678-abcd-ef01-2345-6789abcdef01']), 3)
+        self.assertEqual(len(self.runs), 1)
+
+    def test_ugyldig_aktivering_stopper_for_nettet(self):
+        uuid = 'GPU-12345678-abcd-ef01-2345-6789abcdef01'
+        for extra, env in ((['gpu', '0000:1c:00.0', uuid], '1000'), (['nvml', '1c:00.0', uuid], '1000'),
+                           (['nvml', '0000:1c:00.0', 'GPU-x'], '1000'), (['nvml', '0000:1c:00.0', uuid], ''),
+                           (['nvml', '0000:1c:00.0', uuid], '0'), (['rgb', '0000:1c:00.0', uuid, '--x'], '1000')):
+            with patch.dict(os.environ, {'PKEXEC_UID': env}), self.assertRaises(SystemExit):
+                self.mod['main'](['1.5.2', '27', *extra])
+        self.assertEqual(self.urls, [])
+        self.assertEqual(self.runs, [])
 
     def test_feil_sum_kjorer_ingenting(self):
         self.assets[0]['digest'] = 'sha256:' + '0' * 64

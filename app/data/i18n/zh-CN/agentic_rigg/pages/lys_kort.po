@@ -160,7 +160,7 @@ msgstr "停用 RGB 访问…"
 msgid "Gjenopprett utgangspunkt"
 msgstr "恢复原始设置"
 
-#: crates/rigg/src/pages/lys_kort.rs:449 crates/rigg/src/pages/lys_kort.rs:1058
+#: crates/rigg/src/pages/lys_kort.rs:449 crates/rigg/src/pages/lys_kort.rs:1061
 msgid "Avslutt lysstyring"
 msgstr "释放灯光控制"
 
@@ -184,7 +184,7 @@ msgstr "我看到显卡灯光已熄灭。"
 msgid "Jeg ser at lyset viser den forventede faste fargen."
 msgstr "我看到显卡显示预期的固定颜色。"
 
-#: crates/rigg/src/pages/lys_kort.rs:582 crates/rigg/src/pages/lys_kort.rs:1487
+#: crates/rigg/src/pages/lys_kort.rs:582 crates/rigg/src/pages/lys_kort.rs:1529
 msgid "Bekreft lyset på kortet"
 msgstr "确认显卡灯光"
 
@@ -192,7 +192,7 @@ msgstr "确认显卡灯光"
 msgid "Forventet lys: {lys}.\n\nSe på det fysiske kortet. Samsvarende fargeverdier alene er ikke nok. Hjelperen leser verdiene på nytt før observasjonen din lagres."
 msgstr "预期灯光：{lys}。\n\n请查看实体显卡。仅颜色值一致并不足够。辅助程序会再次读取数值，然后记录目视确认结果。"
 
-#: crates/rigg/src/pages/lys_kort.rs:582 crates/rigg/src/pages/lys_kort.rs:1509
+#: crates/rigg/src/pages/lys_kort.rs:582 crates/rigg/src/pages/lys_kort.rs:1551
 msgid "Bekreft min observasjon"
 msgstr "确认我的观察"
 
@@ -364,126 +364,126 @@ msgstr "已超时；正在等待状态"
 msgid "bekreft innen {tid}"
 msgstr "请在 {tid} 内确认"
 
-#: crates/rigg/src/pages/lys_kort.rs:1056 crates/rigg/src/pages/lys_kort.rs:1448
+#: crates/rigg/src/pages/lys_kort.rs:1059 crates/rigg/src/pages/lys_kort.rs:1490
 msgid "Stopp"
 msgstr "停止"
 
-#: crates/rigg/src/pages/lys_kort.rs:1060
+#: crates/rigg/src/pages/lys_kort.rs:1063
 msgid "Gjenopprett det lagrede utgangspunktet og frigi lysstyringen. Se på kortet før du bekrefter gjenopprettingen."
 msgstr "恢复已保存的基准状态并释放灯光控制。确认恢复前请查看显卡。"
 
-#: crates/rigg/src/pages/lys_kort.rs:1084
+#: crates/rigg/src/pages/lys_kort.rs:1088
 msgid "RGB-oppsettet er ikke klart"
 msgstr "RGB 设置未就绪"
 
-#: crates/rigg/src/pages/lys_kort.rs:1096
+#: crates/rigg/src/pages/lys_kort.rs:1100
 msgid "Slå av RGB-tilgang"
 msgstr "停用 RGB 访问"
 
-#: crates/rigg/src/pages/lys_kort.rs:1097
+#: crates/rigg/src/pages/lys_kort.rs:1101
 msgid "Dette stopper RGB-arbeideren og fjerner kortets RGB-tillatelse når gjenopprettingen er avklart. Det lagrede utgangspunktet beholdes."
 msgstr "这将停止 RGB 工作进程，并在恢复处理完成后撤销显卡的 RGB 权限。保存的基准状态将保留。"
 
-#: crates/rigg/src/pages/lys_kort.rs:1098
+#: crates/rigg/src/pages/lys_kort.rs:1102
 msgid "Jeg vil slå av RGB-tilgangen for dette kortet."
 msgstr "我要停用此显卡的 RGB 访问。"
 
-#: crates/rigg/src/pages/lys_kort.rs:1102
+#: crates/rigg/src/pages/lys_kort.rs:1106
 msgid "Gjenopprett lagret lys"
 msgstr "恢复已保存的灯光"
 
-#: crates/rigg/src/pages/lys_kort.rs:1103
+#: crates/rigg/src/pages/lys_kort.rs:1107
 msgid "Administratorhjelperen stopper RGB-arbeideren hvis den kjører. Hvis det finnes en uavklart journal, forsøker den deretter å gjenopprette det lagrede utgangspunktet. Kontroller lyset og velg «Avklar tidligere økt» etterpå."
 msgstr "管理员辅助程序会停止正在运行的 RGB 工作进程。如果日志中有未解决的操作，辅助程序随后会尝试恢复已保存的基准状态。检查灯光，然后选择“处理先前会话”。"
 
-#: crates/rigg/src/pages/lys_kort.rs:1104
+#: crates/rigg/src/pages/lys_kort.rs:1108
 msgid "Jeg vil gjenopprette det lagrede utgangspunktet på dette kortet."
 msgstr "我要在此显卡上恢复已保存的基准状态。"
 
-#: crates/rigg/src/pages/lys_kort.rs:1107
+#: crates/rigg/src/pages/lys_kort.rs:1111
 msgid "Aktiver lys på kortet"
 msgstr "启用显卡灯光"
 
-#: crates/rigg/src/pages/lys_kort.rs:1108
+#: crates/rigg/src/pages/lys_kort.rs:1112
 msgid "Se på det fysiske kortet før du fortsetter. Lyset må allerede vise én fast farge. Pust, fargeskift og et ukjent utgangspunkt kan ikke lagres som et sikkert utgangspunkt. Administratorgodkjenningen gjelder bare kortlyset; den endrer ikke GPU-tillatelsen."
 msgstr "继续前请查看实体显卡。灯光必须已显示单一固定颜色。呼吸、变色或未知状态均无法保存为安全基准状态。管理员授权仅限灯光，不会更改 GPU 权限。"
 
-#: crates/rigg/src/pages/lys_kort.rs:1109
+#: crates/rigg/src/pages/lys_kort.rs:1113
 msgid "Jeg ser kortet og bekrefter at det viser én fast farge."
 msgstr "我看到了显卡，并确认它显示单一固定颜色。"
 
-#: crates/rigg/src/pages/lys_kort.rs:1116
+#: crates/rigg/src/pages/lys_kort.rs:1120
 msgid "Kort: {kort}\n\n{beskrivelse}"
 msgstr "显卡：{kort}\n\n{beskrivelse}"
 
-#: crates/rigg/src/pages/lys_kort.rs:1116
+#: crates/rigg/src/pages/lys_kort.rs:1120
 msgid "Lagret binding"
 msgstr "已保存的显卡绑定"
 
-#: crates/rigg/src/pages/lys_kort.rs:1118 crates/rigg/src/pages/lys_kort.rs:1136
+#: crates/rigg/src/pages/lys_kort.rs:1122 crates/rigg/src/pages/lys_kort.rs:1140
 msgid "Fortsett til administratorgodkjenning"
 msgstr "继续进行管理员授权"
 
-#: crates/rigg/src/pages/lys_kort.rs:1133
+#: crates/rigg/src/pages/lys_kort.rs:1137
 msgid "Avklar tidligere RGB-økt"
 msgstr "处理先前的 RGB 会话"
 
-#: crates/rigg/src/pages/lys_kort.rs:1134
+#: crates/rigg/src/pages/lys_kort.rs:1138
 msgid "Lagret lys for {kort}: {lys}.\n\nSe på kortet. Fortsett bare hvis lyset viser dette utgangspunktet som én fast farge."
 msgstr "{kort} 的已保存灯光：{lys}。\n\n请查看显卡。仅当显卡以单一固定颜色显示此基准状态时才继续。"
 
-#: crates/rigg/src/pages/lys_kort.rs:1135
+#: crates/rigg/src/pages/lys_kort.rs:1139
 msgid "Jeg ser at kortlyset viser det lagrede, faste utgangspunktet."
 msgstr "我看到显卡显示已保存的固定基准状态。"
 
-#: crates/rigg/src/pages/lys_kort.rs:1197 crates/rigg/src/pages/lys_kort.rs:1241
-msgid "RGB-oppsettet kunne ikke fullføres."
-msgstr "无法完成 RGB 设置。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1233
-msgid "RGB-arbeideren er stoppet. Kontroller lyset og velg «Avklar tidligere økt» hvis en gjenoppretting gjenstår."
-msgstr "RGB 工作进程已停止。请检查灯光，如仍有未完成的恢复，请选择“处理先前会话”。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1234
-msgid "Ingen uavklart RGB-journal for kortet. Du kan slå av RGB-tilgangen."
-msgstr "此显卡没有未处理的 RGB 日志。可以停用 RGB 访问。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1235
-msgid "Gjenopprettingen er avklart. Du kan slå av RGB-tilgangen eller aktivere lysstyring på nytt."
-msgstr "恢复已处理完成。可停用 RGB 访问或重新启用灯光控制。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1236
-msgid "RGB-tilgangen er slått av."
-msgstr "RGB 访问已停用。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1237
+#: crates/rigg/src/pages/lys_kort.rs:1166 crates/rigg/src/pages/lys_kort.rs:1272
 msgid "RGB-oppsettet er oppdatert. Kontroller status før du bruker en farge."
 msgstr "RGB 设置已更新。应用颜色前请检查状态。"
 
-#: crates/rigg/src/pages/lys_kort.rs:1238
-msgid "Administratorgodkjenningen ble avbrutt."
-msgstr "管理员授权已取消。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1239
-msgid "Avklaringsmålet er ugyldig eller gjelder et annet valgt kort."
-msgstr "恢复目标无效或属于其他显卡。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1245
+#: crates/rigg/src/pages/lys_kort.rs:1168 crates/rigg/src/pages/lys_kort.rs:1280
 msgid "RGB-oppsett"
 msgstr "RGB 设置"
 
-#: crates/rigg/src/pages/lys_kort.rs:1245
+#: crates/rigg/src/pages/lys_kort.rs:1232 crates/rigg/src/pages/lys_kort.rs:1276
+msgid "RGB-oppsettet kunne ikke fullføres."
+msgstr "无法完成 RGB 设置。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1268
+msgid "RGB-arbeideren er stoppet. Kontroller lyset og velg «Avklar tidligere økt» hvis en gjenoppretting gjenstår."
+msgstr "RGB 工作进程已停止。请检查灯光，如仍有未完成的恢复，请选择“处理先前会话”。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1269
+msgid "Ingen uavklart RGB-journal for kortet. Du kan slå av RGB-tilgangen."
+msgstr "此显卡没有未处理的 RGB 日志。可以停用 RGB 访问。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1270
+msgid "Gjenopprettingen er avklart. Du kan slå av RGB-tilgangen eller aktivere lysstyring på nytt."
+msgstr "恢复已处理完成。可停用 RGB 访问或重新启用灯光控制。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1271
+msgid "RGB-tilgangen er slått av."
+msgstr "RGB 访问已停用。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1273
+msgid "Administratorgodkjenningen ble avbrutt."
+msgstr "管理员授权已取消。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1274
+msgid "Avklaringsmålet er ugyldig eller gjelder et annet valgt kort."
+msgstr "恢复目标无效或属于其他显卡。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1280
 msgid "RGB-oppsett ble ikke fullført"
 msgstr "RGB 设置未完成"
 
-#: crates/rigg/src/pages/lys_kort.rs:1264
+#: crates/rigg/src/pages/lys_kort.rs:1306
 msgid "Administratorhandlinger for RGB krever appens vanlige maskinvareoppsett."
 msgstr "RGB 管理员操作要求应用使用正常的硬件设置。"
 
-#: crates/rigg/src/pages/lys_kort.rs:1280
+#: crates/rigg/src/pages/lys_kort.rs:1322
 msgid "Installer systemkomponentene først. Knappen står over."
 msgstr "请先安装系统组件，按钮在上方。"
 
-#: crates/rigg/src/pages/lys_kort.rs:1302
+#: crates/rigg/src/pages/lys_kort.rs:1344
 msgid "Avbryt"
 msgstr "取消"

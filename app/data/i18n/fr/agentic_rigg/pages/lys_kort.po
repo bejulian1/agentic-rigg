@@ -160,7 +160,7 @@ msgstr "Désactiver l’accès RGB…"
 msgid "Gjenopprett utgangspunkt"
 msgstr "Restaurer les réglages d’origine"
 
-#: crates/rigg/src/pages/lys_kort.rs:449 crates/rigg/src/pages/lys_kort.rs:1058
+#: crates/rigg/src/pages/lys_kort.rs:449 crates/rigg/src/pages/lys_kort.rs:1061
 msgid "Avslutt lysstyring"
 msgstr "Libérer le contrôle de l’éclairage"
 
@@ -184,7 +184,7 @@ msgstr "Je vois que l’éclairage de la carte est éteint."
 msgid "Jeg ser at lyset viser den forventede faste fargen."
 msgstr "Je vois la couleur fixe attendue sur la carte."
 
-#: crates/rigg/src/pages/lys_kort.rs:582 crates/rigg/src/pages/lys_kort.rs:1487
+#: crates/rigg/src/pages/lys_kort.rs:582 crates/rigg/src/pages/lys_kort.rs:1529
 msgid "Bekreft lyset på kortet"
 msgstr "Confirmer l’éclairage de la carte"
 
@@ -192,7 +192,7 @@ msgstr "Confirmer l’éclairage de la carte"
 msgid "Forventet lys: {lys}.\n\nSe på det fysiske kortet. Samsvarende fargeverdier alene er ikke nok. Hjelperen leser verdiene på nytt før observasjonen din lagres."
 msgstr "Éclairage attendu : {lys}.\n\nObservez la carte elle-même. La seule concordance des valeurs de couleur ne suffit pas. L’assistant relit les valeurs avant d’enregistrer votre observation."
 
-#: crates/rigg/src/pages/lys_kort.rs:582 crates/rigg/src/pages/lys_kort.rs:1509
+#: crates/rigg/src/pages/lys_kort.rs:582 crates/rigg/src/pages/lys_kort.rs:1551
 msgid "Bekreft min observasjon"
 msgstr "Confirmer mon observation"
 
@@ -364,126 +364,126 @@ msgstr "délai expiré ; en attente de l’état"
 msgid "bekreft innen {tid}"
 msgstr "confirmer dans les {tid}"
 
-#: crates/rigg/src/pages/lys_kort.rs:1056 crates/rigg/src/pages/lys_kort.rs:1448
+#: crates/rigg/src/pages/lys_kort.rs:1059 crates/rigg/src/pages/lys_kort.rs:1490
 msgid "Stopp"
 msgstr "Arrêter"
 
-#: crates/rigg/src/pages/lys_kort.rs:1060
+#: crates/rigg/src/pages/lys_kort.rs:1063
 msgid "Gjenopprett det lagrede utgangspunktet og frigi lysstyringen. Se på kortet før du bekrefter gjenopprettingen."
 msgstr "Restaurez l’état de référence enregistré et libérez le contrôle. Observez la carte avant de confirmer la restauration."
 
-#: crates/rigg/src/pages/lys_kort.rs:1084
+#: crates/rigg/src/pages/lys_kort.rs:1088
 msgid "RGB-oppsettet er ikke klart"
 msgstr "Configuration RGB non prête"
 
-#: crates/rigg/src/pages/lys_kort.rs:1096
+#: crates/rigg/src/pages/lys_kort.rs:1100
 msgid "Slå av RGB-tilgang"
 msgstr "Désactiver l’accès RGB"
 
-#: crates/rigg/src/pages/lys_kort.rs:1097
+#: crates/rigg/src/pages/lys_kort.rs:1101
 msgid "Dette stopper RGB-arbeideren og fjerner kortets RGB-tillatelse når gjenopprettingen er avklart. Det lagrede utgangspunktet beholdes."
 msgstr "Cette action arrête le processus RGB et retire l’autorisation RGB de la carte une fois la restauration résolue. L’état de référence enregistré est conservé."
 
-#: crates/rigg/src/pages/lys_kort.rs:1098
+#: crates/rigg/src/pages/lys_kort.rs:1102
 msgid "Jeg vil slå av RGB-tilgangen for dette kortet."
 msgstr "Je veux désactiver l’accès RGB pour cette carte."
 
-#: crates/rigg/src/pages/lys_kort.rs:1102
+#: crates/rigg/src/pages/lys_kort.rs:1106
 msgid "Gjenopprett lagret lys"
 msgstr "Restaurer l’éclairage enregistré"
 
-#: crates/rigg/src/pages/lys_kort.rs:1103
+#: crates/rigg/src/pages/lys_kort.rs:1107
 msgid "Administratorhjelperen stopper RGB-arbeideren hvis den kjører. Hvis det finnes en uavklart journal, forsøker den deretter å gjenopprette det lagrede utgangspunktet. Kontroller lyset og velg «Avklar tidligere økt» etterpå."
 msgstr "L’assistant administrateur arrête le processus RGB s’il est en cours. Si le journal contient une opération non résolue, il tente ensuite de restaurer l’état de référence enregistré. Vérifiez l’éclairage, puis choisissez « Résoudre la session précédente »."
 
-#: crates/rigg/src/pages/lys_kort.rs:1104
+#: crates/rigg/src/pages/lys_kort.rs:1108
 msgid "Jeg vil gjenopprette det lagrede utgangspunktet på dette kortet."
 msgstr "Je veux restaurer l’état de référence enregistré sur cette carte."
 
-#: crates/rigg/src/pages/lys_kort.rs:1107
+#: crates/rigg/src/pages/lys_kort.rs:1111
 msgid "Aktiver lys på kortet"
 msgstr "Activer l’éclairage de la carte"
 
-#: crates/rigg/src/pages/lys_kort.rs:1108
+#: crates/rigg/src/pages/lys_kort.rs:1112
 msgid "Se på det fysiske kortet før du fortsetter. Lyset må allerede vise én fast farge. Pust, fargeskift og et ukjent utgangspunkt kan ikke lagres som et sikkert utgangspunkt. Administratorgodkjenningen gjelder bare kortlyset; den endrer ikke GPU-tillatelsen."
 msgstr "Observez la carte physique avant de continuer. Elle doit déjà afficher une couleur fixe unique. Une pulsation, des couleurs changeantes ou un état inconnu ne peuvent pas servir d’état de référence sûr. L’autorisation administrateur concerne uniquement l’éclairage et ne modifie pas les autorisations GPU."
 
-#: crates/rigg/src/pages/lys_kort.rs:1109
+#: crates/rigg/src/pages/lys_kort.rs:1113
 msgid "Jeg ser kortet og bekrefter at det viser én fast farge."
 msgstr "Je vois la carte et confirme qu’elle affiche une seule couleur fixe."
 
-#: crates/rigg/src/pages/lys_kort.rs:1116
+#: crates/rigg/src/pages/lys_kort.rs:1120
 msgid "Kort: {kort}\n\n{beskrivelse}"
 msgstr "Carte : {kort}\n\n{beskrivelse}"
 
-#: crates/rigg/src/pages/lys_kort.rs:1116
+#: crates/rigg/src/pages/lys_kort.rs:1120
 msgid "Lagret binding"
 msgstr "Association de carte enregistrée"
 
-#: crates/rigg/src/pages/lys_kort.rs:1118 crates/rigg/src/pages/lys_kort.rs:1136
+#: crates/rigg/src/pages/lys_kort.rs:1122 crates/rigg/src/pages/lys_kort.rs:1140
 msgid "Fortsett til administratorgodkjenning"
 msgstr "Continuer vers l’autorisation administrateur"
 
-#: crates/rigg/src/pages/lys_kort.rs:1133
+#: crates/rigg/src/pages/lys_kort.rs:1137
 msgid "Avklar tidligere RGB-økt"
 msgstr "Résoudre la session RGB précédente"
 
-#: crates/rigg/src/pages/lys_kort.rs:1134
+#: crates/rigg/src/pages/lys_kort.rs:1138
 msgid "Lagret lys for {kort}: {lys}.\n\nSe på kortet. Fortsett bare hvis lyset viser dette utgangspunktet som én fast farge."
 msgstr "Éclairage enregistré pour {kort} : {lys}.\n\nObservez la carte. Ne continuez que si elle affiche cet état de référence sous forme d’une seule couleur fixe."
 
-#: crates/rigg/src/pages/lys_kort.rs:1135
+#: crates/rigg/src/pages/lys_kort.rs:1139
 msgid "Jeg ser at kortlyset viser det lagrede, faste utgangspunktet."
 msgstr "Je vois que la carte affiche l’état de référence fixe enregistré."
 
-#: crates/rigg/src/pages/lys_kort.rs:1197 crates/rigg/src/pages/lys_kort.rs:1241
-msgid "RGB-oppsettet kunne ikke fullføres."
-msgstr "Impossible de terminer la configuration RGB."
-
-#: crates/rigg/src/pages/lys_kort.rs:1233
-msgid "RGB-arbeideren er stoppet. Kontroller lyset og velg «Avklar tidligere økt» hvis en gjenoppretting gjenstår."
-msgstr "Le processus RGB est arrêté. Vérifiez l’éclairage et choisissez « Résoudre la session précédente » si une restauration est encore en attente."
-
-#: crates/rigg/src/pages/lys_kort.rs:1234
-msgid "Ingen uavklart RGB-journal for kortet. Du kan slå av RGB-tilgangen."
-msgstr "Aucun journal RGB non résolu pour cette carte. Vous pouvez désactiver l’accès RGB."
-
-#: crates/rigg/src/pages/lys_kort.rs:1235
-msgid "Gjenopprettingen er avklart. Du kan slå av RGB-tilgangen eller aktivere lysstyring på nytt."
-msgstr "La restauration est résolue. Vous pouvez désactiver l’accès RGB ou réactiver le contrôle de l’éclairage."
-
-#: crates/rigg/src/pages/lys_kort.rs:1236
-msgid "RGB-tilgangen er slått av."
-msgstr "L’accès RGB est désactivé."
-
-#: crates/rigg/src/pages/lys_kort.rs:1237
+#: crates/rigg/src/pages/lys_kort.rs:1166 crates/rigg/src/pages/lys_kort.rs:1272
 msgid "RGB-oppsettet er oppdatert. Kontroller status før du bruker en farge."
 msgstr "La configuration RGB a été mise à jour. Vérifiez l’état avant d’appliquer une couleur."
 
-#: crates/rigg/src/pages/lys_kort.rs:1238
-msgid "Administratorgodkjenningen ble avbrutt."
-msgstr "L’autorisation administrateur a été annulée."
-
-#: crates/rigg/src/pages/lys_kort.rs:1239
-msgid "Avklaringsmålet er ugyldig eller gjelder et annet valgt kort."
-msgstr "La cible de restauration est invalide ou concerne une autre carte."
-
-#: crates/rigg/src/pages/lys_kort.rs:1245
+#: crates/rigg/src/pages/lys_kort.rs:1168 crates/rigg/src/pages/lys_kort.rs:1280
 msgid "RGB-oppsett"
 msgstr "Configuration RGB"
 
-#: crates/rigg/src/pages/lys_kort.rs:1245
+#: crates/rigg/src/pages/lys_kort.rs:1232 crates/rigg/src/pages/lys_kort.rs:1276
+msgid "RGB-oppsettet kunne ikke fullføres."
+msgstr "Impossible de terminer la configuration RGB."
+
+#: crates/rigg/src/pages/lys_kort.rs:1268
+msgid "RGB-arbeideren er stoppet. Kontroller lyset og velg «Avklar tidligere økt» hvis en gjenoppretting gjenstår."
+msgstr "Le processus RGB est arrêté. Vérifiez l’éclairage et choisissez « Résoudre la session précédente » si une restauration est encore en attente."
+
+#: crates/rigg/src/pages/lys_kort.rs:1269
+msgid "Ingen uavklart RGB-journal for kortet. Du kan slå av RGB-tilgangen."
+msgstr "Aucun journal RGB non résolu pour cette carte. Vous pouvez désactiver l’accès RGB."
+
+#: crates/rigg/src/pages/lys_kort.rs:1270
+msgid "Gjenopprettingen er avklart. Du kan slå av RGB-tilgangen eller aktivere lysstyring på nytt."
+msgstr "La restauration est résolue. Vous pouvez désactiver l’accès RGB ou réactiver le contrôle de l’éclairage."
+
+#: crates/rigg/src/pages/lys_kort.rs:1271
+msgid "RGB-tilgangen er slått av."
+msgstr "L’accès RGB est désactivé."
+
+#: crates/rigg/src/pages/lys_kort.rs:1273
+msgid "Administratorgodkjenningen ble avbrutt."
+msgstr "L’autorisation administrateur a été annulée."
+
+#: crates/rigg/src/pages/lys_kort.rs:1274
+msgid "Avklaringsmålet er ugyldig eller gjelder et annet valgt kort."
+msgstr "La cible de restauration est invalide ou concerne une autre carte."
+
+#: crates/rigg/src/pages/lys_kort.rs:1280
 msgid "RGB-oppsett ble ikke fullført"
 msgstr "Configuration RGB incomplète"
 
-#: crates/rigg/src/pages/lys_kort.rs:1264
+#: crates/rigg/src/pages/lys_kort.rs:1306
 msgid "Administratorhandlinger for RGB krever appens vanlige maskinvareoppsett."
 msgstr "Les actions administrateur RGB nécessitent l’environnement matériel normal de l’application."
 
-#: crates/rigg/src/pages/lys_kort.rs:1280
+#: crates/rigg/src/pages/lys_kort.rs:1322
 msgid "Installer systemkomponentene først. Knappen står over."
 msgstr "Installez d’abord les composants système. Le bouton se trouve ci-dessus."
 
-#: crates/rigg/src/pages/lys_kort.rs:1302
+#: crates/rigg/src/pages/lys_kort.rs:1344
 msgid "Avbryt"
 msgstr "Annuler"

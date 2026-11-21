@@ -1,5 +1,11 @@
 # Patchlog
 
+## 1.5.3 · bygg 28 – 21. november 2026: én bryter, ett passord
+
+- `system-hent.py` tar `VERSJON BYGG [nvml|rgb PCI UUID]`. Argumentene og `PKEXEC_UID` kontrolleres før nettet brukes. Etter vellykket installasjon kjøres `/usr/local/libexec/agentic-rigg/aktiver.sh` eller `…/agentic-rigg-rgb-v2/rgb-aktiver.sh --static-confirmed` med fast miljø og `PKEXEC_UID`. Feiler installasjonen, aktiveres ingenting.
+- Skjermkortstyring: bryteren installerer og aktiverer i én `pkexec` når komponentene mangler eller hjelperen er utdatert. Den utdaterte tilstanden vises som av. Kortlys: «Aktiver kortlys» gjør det samme etter den visuelle bekreftelsen. `system_install::prompt` er erstattet av `offline_fallback` (bare terminalkommandoen).
+- Python-prøvene dekker installasjon pluss aktivering, at aktivering bare skjer etter vellykket installasjon, og at ugyldig domene, PCI, UUID eller UID stopper før nettet brukes.
+
 ## 1.5.2 · bygg 27 – 21. november 2026: systemkomponenter med bare passordet
 
 - Ny `data/hjelper/system-hent.py`, kjørt som `pkexec <python3> -I -S -c <skript> VERSJON BYGG`. Python-stien kanoniseres (`/usr/bin/python3` er en lenke) og må være en root-eid fil under `/usr/bin`. Skriptet henter `releases/tags/vVERSJON` fra GitHub-API-et, krever nøyaktig ett arkiv med forventet navn og `digest` `sha256:…`, laster ned med størrelsesgrense og tidsavbrudd til en ny `0700`-mappe under `/var/tmp`, sammenligner summen før tar åpnes, og kjører `system-install` med fast miljø.

@@ -10,7 +10,6 @@
 //! Uten nett finnes terminalkommandoen med arkiv og sum oppgitt for hånd.
 use crate::state::App;
 use crate::toast::Toast;
-use crate::widgets::button;
 use gtk::gio;
 use gtk::glib;
 use gtk::prelude::*;
@@ -101,66 +100,35 @@ fn installed() {
     });
 }
 
-/// Det som skal skje etter en vellykket installasjon.
-pub type Then = Option<Rc<dyn Fn(&Rc<App>)>>;
-
-/// Melding og knapp når systemkomponentene mangler eller er utdaterte.
-/// `then` kjøres etter vellykket installasjon (for eksempel aktiveringen);
-/// uten `then` sier en melding at installasjonen er ferdig.
-pub fn prompt(app: &Rc<App>, then: Then) -> gtk::Box {
-    let box_ = gtk::Box::new(gtk::Orientation::Vertical, 6);
-    let wrap = |text: &str| {
-        let l = gtk::Label::new(Some(text));
-        l.set_wrap(true);
-        l.set_wrap_mode(gtk::pango::WrapMode::WordChar);
-        l.set_xalign(0.0);
-        l
-    };
-    box_.append(&wrap(tr!("Systemkomponentene mangler eller må oppdateres.")));
-    let install = button(Some("download"), Some(tr!("Installer systemkomponenter")), &["suggested"]);
-    install.set_halign(gtk::Align::Start);
-    install.set_sensitive(can_install() && !busy());
-    if !can_install() {
-        install.set_tooltip_text(Some(tr!("Fant ikke pkexec. Bruk terminalkommandoen.")));
-    }
-    box_.append(&install);
-    let how = wrap(&trf!("Henter Agentic Rigg {versjon} fra GitHub, kontrollerer den mot SHA-256-summen GitHub oppgir, og ber om administratorpassordet. Installasjonen gir ingen tilgang i seg selv.", versjon = rigg_core::version::VERSION));
-    how.add_css_class("muted");
-    box_.append(&how);
-    {
-        let a = app.clone();
-        install.connect_clicked(move |button| {
-            button.set_sensitive(false);
-            let button = button.clone();
-            let then = then.clone();
-            let b = a.clone();
-            run(&a, move |ok| {
-                button.set_sensitive(can_install() && !busy());
-                if !ok {
-                    return;
-                }
-                match &then {
-                    Some(f) => f(&b),
-                    None => b.toast(Toast::new(tr!("Systemkomponentene er installert")).body(tr!("Slå på GPU-styring eller kortlys når du vil bruke dem.")).ms(5000)),
-                }
-            });
-        });
-    }
-
+/// Reserven uten nett: terminalkommandoen der administratoren oppgir arkivet
+/// og summen selv. Vanlig installasjon skjer når brukeren slår på
+/// skjermkortstyring eller kortlys ([`run`]).
+pub fn offline_fallback() -> gtk::Expander {
     let terminal = gtk::Box::new(gtk::Orientation::Vertical, 6);
-    terminal.append(&wrap(tr!("Kjør kommandoen i en administratorterminal. Oppgi arkivstien og SHA-256 fra utgivelsessiden.")));
+    let hint = gtk::Label::new(Some(tr!("Kjør kommandoen i en administratorterminal. Oppgi arkivstien og SHA-256 fra utgivelsessiden.")));
+    hint.set_wrap(true);
+    hint.set_wrap_mode(gtk::pango::WrapMode::WordChar);
+    hint.set_xalign(0.0);
     let command = gtk::Entry::new();
     command.set_editable(false);
     command.set_text(COMMAND.trim());
     let copy = gtk::Button::with_label(tr!("Kopier installasjonskommando"));
     copy.set_halign(gtk::Align::Start);
     copy.connect_clicked(|button| button.clipboard().set_text(COMMAND.trim()));
+    terminal.append(&hint);
     terminal.append(&command);
     terminal.append(&copy);
     let expander = gtk::Expander::new(Some(tr!("Uten nett: bruk terminal")));
     expander.set_child(Some(&terminal));
-    box_.append(&expander);
-    box_
+    expander
+}
+
+/// Hvilken tilgang som slås på rett etter installasjonen, for kortet
+/// (PCI-adresse, GPU-UUID). RGB krever at brukeren allerede har bekreftet
+/// det faste lyset på kortet.
+pub enum Activate {
+    Nvml(String, String),
+    Rgb(String, String),
 }
 
 fn failure_text(code: i32, err: &str) -> String {
@@ -177,10 +145,11 @@ fn failure_text(code: i32, err: &str) -> String {
     }
 }
 
-/// Installerer systemkomponentene: `pkexec PYTHON -I -S -c HENT VERSJON BYGG`
-/// uten å blokkere vinduet. Feil vises som melding. `done(true)` etter
-/// vellykket installasjon, når sidene er varslet.
-pub fn run(app: &Rc<App>, done: impl FnOnce(bool) + 'static) {
+/// Installerer systemkomponentene og slår på `activate` med ett passord:
+/// `pkexec PYTHON -I -S -c HENT VERSJON BYGG DOMENE PCI UUID`, uten å
+/// blokkere vinduet. Feil vises som melding. `done(true)` når både
+/// installasjonen og aktiveringen lyktes og sidene er varslet.
+pub fn run(app: &Rc<App>, activate: Activate, done: impl FnOnce(bool) + 'static) {
     // Én administratorhandling om gangen: ikke mens GPU-styring eller RGB
     // aktiveres, slås av eller gjenopprettes.
     let other = crate::settings::styring::admin_busy() || crate::pages::lys_kort::admin_busy();
@@ -191,13 +160,18 @@ pub fn run(app: &Rc<App>, done: impl FnOnce(bool) + 'static) {
         done(false);
         return;
     };
+    let (domain, pci, uuid) = match activate {
+        Activate::Nvml(pci, uuid) => ("nvml", pci, uuid),
+        Activate::Rgb(pci, uuid) => ("rgb", pci, uuid),
+    };
     let argv: Vec<std::ffi::OsString> = vec![
         PKEXEC.into(), python.into_os_string(), "-I".into(), "-S".into(), "-c".into(), FETCH.into(),
         rigg_core::version::VERSION.into(), rigg_core::version::BUILD_STR.into(),
+        domain.into(), pci.into(), uuid.into(),
     ];
     let refs: Vec<&std::ffi::OsStr> = argv.iter().map(|a| a.as_os_str()).collect();
-    // Unntaket fra «ingen programmer» (clippy.toml): brukeren trykket selv
-    // Installer, og pkexec viser passordvinduet fra polkit.
+    // Unntaket fra «ingen programmer» (clippy.toml): brukeren slo selv på
+    // styringen eller kortlyset, og pkexec viser passordvinduet fra polkit.
     #[allow(clippy::disallowed_methods)]
     let started = gio::Subprocess::newv(&refs, gio::SubprocessFlags::STDOUT_SILENCE | gio::SubprocessFlags::STDERR_PIPE);
     let proc = match started {

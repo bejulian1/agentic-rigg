@@ -33,8 +33,8 @@ msgid "Hjelperen er ikke klar for kortet som vises. Se funksjonsstøtten under, 
 msgstr "補助プログラムはこのGPUを制御できる状態ではありません。下の対応機能を確認するか、「再確認」をクリックしてください。"
 
 #: crates/rigg/src/settings/styring.rs:53
-msgid "Hjelperen må oppdateres. Trykk «Installer systemkomponenter» under; styringen slås på igjen etterpå."
-msgstr "補助プログラムの更新が必要です。下の「システムコンポーネントをインストール」をクリックしてください。その後、GPU の設定変更が再び有効になります。"
+msgid "Hjelperen må oppdateres. Slå på bryteren for å oppdatere den og aktivere styring."
+msgstr "補助プログラムの更新が必要です。スイッチをオンにすると、更新して GPU の設定変更を有効にします。"
 
 #: crates/rigg/src/settings/styring.rs:54
 msgid "Systemkomponentene mangler. Slå på bryteren for å installere dem og aktivere styring."
@@ -76,240 +76,240 @@ msgstr "pkexecが見つからないか、polkitでパスワードを要求でき
 msgid "Skriptet feilet."
 msgstr "スクリプトの実行に失敗しました。"
 
-#: crates/rigg/src/settings/styring.rs:127 crates/rigg/src/settings/styring.rs:165
-msgid "Hjelperen er installert, men styring er ikke klar"
-msgstr "補助プログラムはインストール済みですが、GPUを制御できません"
-
-#: crates/rigg/src/settings/styring.rs:144
-msgid "Ingen skjermkort valgt"
-msgstr "GPUが選択されていません"
-
-#: crates/rigg/src/settings/styring.rs:148
-msgid "Kortidentiteten er ikke klar"
-msgstr "GPUの識別情報を取得できません"
-
-#: crates/rigg/src/settings/styring.rs:148
-msgid "Vent til driveren har lest UUID, og prøv igjen."
-msgstr "ドライバーがUUIDを読み取ってから、もう一度お試しください。"
-
-#: crates/rigg/src/settings/styring.rs:155
-msgid "Kunne ikke aktivere styring"
-msgstr "GPUの設定変更を有効にできませんでした"
-
-#: crates/rigg/src/settings/styring.rs:155
-msgid "Kunne ikke slå av styring"
-msgstr "GPUの設定変更を無効にできませんでした"
-
-#: crates/rigg/src/settings/styring.rs:164
+#: crates/rigg/src/settings/styring.rs:125
 msgid "Skjermkortstyring er aktivert"
 msgstr "GPUの設定変更を有効にしました"
 
-#: crates/rigg/src/settings/styring.rs:164
+#: crates/rigg/src/settings/styring.rs:125
 msgid "Velg endringer og trykk Bruk. Behold dem innen fristen, ellers rulles de tilbake."
 msgstr "設定を変更して「適用」をクリックしてください。制限時間内に「維持」をクリックしないと元に戻ります。"
 
-#: crates/rigg/src/settings/styring.rs:166
+#: crates/rigg/src/settings/styring.rs:127
+msgid "Hjelperen er installert, men styring er ikke klar"
+msgstr "補助プログラムはインストール済みですが、GPUを制御できません"
+
+#: crates/rigg/src/settings/styring.rs:139
+msgid "Ingen skjermkort valgt"
+msgstr "GPUが選択されていません"
+
+#: crates/rigg/src/settings/styring.rs:143
+msgid "Kortidentiteten er ikke klar"
+msgstr "GPUの識別情報を取得できません"
+
+#: crates/rigg/src/settings/styring.rs:143
+msgid "Vent til driveren har lest UUID, og prøv igjen."
+msgstr "ドライバーがUUIDを読み取ってから、もう一度お試しください。"
+
+#: crates/rigg/src/settings/styring.rs:163
+msgid "Kunne ikke aktivere styring"
+msgstr "GPUの設定変更を有効にできませんでした"
+
+#: crates/rigg/src/settings/styring.rs:163
+msgid "Kunne ikke slå av styring"
+msgstr "GPUの設定変更を無効にできませんでした"
+
+#: crates/rigg/src/settings/styring.rs:173
 msgid "Skjermkortstyring er slått av"
 msgstr "GPUの設定変更を無効にしました"
 
-#: crates/rigg/src/settings/styring.rs:166
+#: crates/rigg/src/settings/styring.rs:173
 msgid "Hjelperen har gjenopprettet utgangspunktet og tillatelsen er fjernet."
 msgstr "補助プログラムが基準状態を復元し、権限を取り消しました。"
 
-#: crates/rigg/src/settings/styring.rs:175
+#: crates/rigg/src/settings/styring.rs:182
 msgid "Én aktivering"
 msgstr "初回のみ有効化"
 
-#: crates/rigg/src/settings/styring.rs:175
+#: crates/rigg/src/settings/styring.rs:182
 msgid "Bruk Tillat endring av skjermkortet. Funksjonsstøtten bestemmes av kortet og driveren."
 msgstr "「GPUの設定変更を許可」を使用してください。利用できる機能はGPUとドライバーによって異なります。"
 
-#: crates/rigg/src/settings/styring.rs:185
+#: crates/rigg/src/settings/styring.rs:192
 msgid "Effektgrense"
 msgstr "電力制限"
 
-#: crates/rigg/src/settings/styring.rs:185
+#: crates/rigg/src/settings/styring.rs:192
 msgid "Manuell viftefart og Auto"
 msgstr "ファン速度の手動・自動設定"
 
-#: crates/rigg/src/settings/styring.rs:185
+#: crates/rigg/src/settings/styring.rs:192
 msgid "Viftekurve"
 msgstr "ファンカーブ"
 
-#: crates/rigg/src/settings/styring.rs:185
+#: crates/rigg/src/settings/styring.rs:192
 msgid "Kjerneklokke"
 msgstr "コアクロック"
 
-#: crates/rigg/src/settings/styring.rs:185
+#: crates/rigg/src/settings/styring.rs:192
 msgid "Minneklokke"
 msgstr "メモリクロック"
 
-#: crates/rigg/src/settings/styring.rs:185
+#: crates/rigg/src/settings/styring.rs:192
 msgid "Temperaturmål"
 msgstr "目標温度"
 
-#: crates/rigg/src/settings/styring.rs:187
+#: crates/rigg/src/settings/styring.rs:194
 msgid "Tilgjengelig"
 msgstr "利用可能"
 
-#: crates/rigg/src/settings/styring.rs:187
+#: crates/rigg/src/settings/styring.rs:194
 msgid "Ikke undersøkt"
 msgstr "未確認"
 
-#: crates/rigg/src/settings/styring.rs:187
+#: crates/rigg/src/settings/styring.rs:194
 msgid "Utilgjengelig"
 msgstr "利用不可"
 
-#: crates/rigg/src/settings/styring.rs:190
+#: crates/rigg/src/settings/styring.rs:197
 msgid "Leses når administratorhjelperen aktiveres for dette kortet."
 msgstr "このGPU向けに管理者権限の補助プログラムを有効にしたときに確認します。"
 
-#: crates/rigg/src/settings/styring.rs:200
+#: crates/rigg/src/settings/styring.rs:207
 msgid "Kortets rapporterte område: {omraade}."
 msgstr "カードが報告した範囲: {omraade}。"
 
-#: crates/rigg/src/settings/styring.rs:202
+#: crates/rigg/src/settings/styring.rs:209
 msgid "Støttes av den tilkoblede hjelperen."
 msgstr "接続中の補助プログラムが対応しています。"
 
-#: crates/rigg/src/settings/styring.rs:207
+#: crates/rigg/src/settings/styring.rs:214
 msgid "Tilgjengelige funksjoner"
 msgstr "利用可能な機能"
 
-#: crates/rigg/src/settings/styring.rs:208
+#: crates/rigg/src/settings/styring.rs:215
 msgid "Én administratoraktivering gjelder støttede funksjoner på det valgte kortet. Listen er status, ikke ekstra godkjenninger."
 msgstr "1 回の管理者による有効化で、選択したGPUの対応機能すべてが対象になります。この一覧は状態の表示であり、追加の承認ではありません。"
 
-#: crates/rigg/src/settings/styring.rs:209
+#: crates/rigg/src/settings/styring.rs:216
 msgid "Funksjoner uten støtte kan ikke brukes på kortet. RGB har egen tillatelse på siden RGB-lys."
 msgstr "このカードで対応していない機能は使用できません。RGB ライティングのページには別の権限があります。"
 
-#: crates/rigg/src/settings/styring.rs:210
+#: crates/rigg/src/settings/styring.rs:217
 msgctxt "søkeord"
 msgid "funksjoner støtte effekt vifter klokker temperatur"
 msgstr "機能 対応 電力 ファン クロック 温度"
 
-#: crates/rigg/src/settings/styring.rs:238 crates/rigg/src/settings/styring.rs:253
+#: crates/rigg/src/settings/styring.rs:246 crates/rigg/src/settings/styring.rs:261
 msgid "Tillat endring av skjermkortet"
 msgstr "GPUの設定変更を許可"
 
-#: crates/rigg/src/settings/styring.rs:254
+#: crates/rigg/src/settings/styring.rs:262
 msgid "Gir Agentic Rigg tilgang til støttede GPU-funksjoner via en administratorhjelper. Du blir spurt om passord. Ingen verdier endres før du trykker Bruk på en styringsside."
 msgstr "管理者権限の補助プログラムを通じて、Agentic Riggが対応するGPU機能にアクセスできるようにします。パスワードの入力が必要です。設定ページで「適用」をクリックするまで値は変わりません。"
 
-#: crates/rigg/src/settings/styring.rs:256
+#: crates/rigg/src/settings/styring.rs:264
 msgctxt "søkeord"
 msgid "root polkit pkexec hjelper skriving endre overklokking"
 msgstr "root polkit pkexec 補助プログラム 書き込み 変更 オーバークロック"
 
-#: crates/rigg/src/settings/styring.rs:271
+#: crates/rigg/src/settings/styring.rs:279
 msgid "Venter"
 msgstr "待機中"
 
-#: crates/rigg/src/settings/styring.rs:272
+#: crates/rigg/src/settings/styring.rs:280
 msgid "Klar"
 msgstr "準備完了"
 
-#: crates/rigg/src/settings/styring.rs:273
+#: crates/rigg/src/settings/styring.rs:281
 msgid "Simulert"
 msgstr "シミュレーション"
 
-#: crates/rigg/src/settings/styring.rs:274
+#: crates/rigg/src/settings/styring.rs:282
 msgid "Ikke klar"
 msgstr "未準備"
 
-#: crates/rigg/src/settings/styring.rs:275
+#: crates/rigg/src/settings/styring.rs:283
 msgid "Feil"
 msgstr "エラー"
 
-#: crates/rigg/src/settings/styring.rs:276
+#: crates/rigg/src/settings/styring.rs:284
 msgid "Oppdater hjelper"
 msgstr "補助プログラムを更新"
 
-#: crates/rigg/src/settings/styring.rs:277
+#: crates/rigg/src/settings/styring.rs:285
 msgid "Av"
 msgstr "オフ"
 
-#: crates/rigg/src/settings/styring.rs:289
+#: crates/rigg/src/settings/styring.rs:297
 msgid "Åpne styring"
 msgstr "GPU設定を開く"
 
-#: crates/rigg/src/settings/styring.rs:295
+#: crates/rigg/src/settings/styring.rs:303
 msgid "Sjekk igjen"
 msgstr "再確認"
 
-#: crates/rigg/src/settings/styring.rs:306
+#: crates/rigg/src/settings/styring.rs:314
 msgctxt "søkeord"
-msgid "systemkomponenter installasjon"
-msgstr "システムコンポーネント インストール"
+msgid "systemkomponenter installasjon terminal"
+msgstr "システムコンポーネント インストール 端末 オフライン"
 
-#: crates/rigg/src/settings/styring.rs:309
+#: crates/rigg/src/settings/styring.rs:317
 msgid "Endring av skjermkortet"
 msgstr "GPU設定"
 
-#: crates/rigg/src/settings/styring.rs:311
+#: crates/rigg/src/settings/styring.rs:319
 msgid "Slår du bryteren av, gjenopprettes det lagrede utgangspunktet før tillatelsen fjernes. En feil vises hvis gjenopprettingen ikke kan bekreftes. Slå av styring før avinstallasjon."
 msgstr "スイッチをオフにすると、権限を取り消す前に保存済みの基準状態を復元します。復元を確認できない場合はエラーが表示されます。アンインストール前に制御を無効にしてください。"
 
-#: crates/rigg/src/settings/styring.rs:312
+#: crates/rigg/src/settings/styring.rs:320
 msgctxt "søkeord"
 msgid "bryter av på status"
 msgstr "スイッチ オフ オン 状態"
 
-#: crates/rigg/src/settings/styring.rs:321
+#: crates/rigg/src/settings/styring.rs:329
 msgid "Hjelperen"
 msgstr "補助プログラム"
 
-#: crates/rigg/src/settings/styring.rs:321
+#: crates/rigg/src/settings/styring.rs:329
 msgid "Et lite program som kjører i bakgrunnen med administratorrettigheter. Det kan bare endre effekt, vifter og klokker, innenfor det kortet selv tillater"
 msgstr "管理者権限でバックグラウンド動作する小さなプログラムです。GPUが許容する範囲で電力、ファン、クロックのみ変更できます"
 
-#: crates/rigg/src/settings/styring.rs:322
+#: crates/rigg/src/settings/styring.rs:330
 msgid "Passord"
 msgstr "パスワード"
 
-#: crates/rigg/src/settings/styring.rs:322
+#: crates/rigg/src/settings/styring.rs:330
 msgid "Én administratorgodkjenning ved aktivering. Vanlige endringer bruker Bruk og Behold"
 msgstr "有効化時のみ管理者の承認が必要です。通常の変更には「適用」と「維持」を使用します"
 
-#: crates/rigg/src/settings/styring.rs:323
+#: crates/rigg/src/settings/styring.rs:331
 msgid "Hvem"
 msgstr "アクセス権"
 
-#: crates/rigg/src/settings/styring.rs:323
+#: crates/rigg/src/settings/styring.rs:331
 msgid "Bare brukeren din. Andre brukere på maskinen slipper ikke til"
 msgstr "現在のユーザーのみです。このPC上の他のユーザーはアクセスできません"
 
-#: crates/rigg/src/settings/styring.rs:324
+#: crates/rigg/src/settings/styring.rs:332
 msgid "Vern"
 msgstr "保護機能"
 
-#: crates/rigg/src/settings/styring.rs:324
+#: crates/rigg/src/settings/styring.rs:332
 msgid "Endringer rulles tilbake uten Behold innen fristen. Viftekurven har nødregel ved høy temperatur. Frakobling og stopp gjenoppretter utgangspunktet; eventuelle feil rapporteres"
 msgstr "制限時間内に「維持」をクリックしないと変更は元に戻ります。ファンカーブには高温時の緊急保護があります。切断または停止すると元の設定に戻り、問題があれば通知されます"
 
-#: crates/rigg/src/settings/styring.rs:325
+#: crates/rigg/src/settings/styring.rs:333
 msgid "Filene"
 msgstr "ファイル"
 
-#: crates/rigg/src/settings/styring.rs:325
+#: crates/rigg/src/settings/styring.rs:333
 msgid "{hjelper}\n{konfigurasjon} (bruker, kort og aktivering)"
 msgstr "{hjelper}\n{konfigurasjon}（ユーザー、カード、有効化）"
 
-#: crates/rigg/src/settings/styring.rs:327
+#: crates/rigg/src/settings/styring.rs:335
 msgid "Skriptene"
 msgstr "スクリプト"
 
-#: crates/rigg/src/settings/styring.rs:329
+#: crates/rigg/src/settings/styring.rs:337
 msgid "Hva bryteren gjør"
 msgstr "スイッチの動作"
 
-#: crates/rigg/src/settings/styring.rs:329
+#: crates/rigg/src/settings/styring.rs:337
 msgctxt "søkeord"
 msgid "hjelper root polkit systemd sikkerhet passord"
 msgstr "補助プログラム root polkit systemd セキュリティ パスワード"
 
-#: crates/rigg/src/settings/styring.rs:331
+#: crates/rigg/src/settings/styring.rs:339
 msgctxt "søkeord"
 msgid "hjelper root polkit systemd passord vern frist nødregel"
 msgstr "補助プログラム root polkit systemd パスワード 保護 期限 緊急ルール"

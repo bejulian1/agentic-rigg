@@ -44,7 +44,7 @@ pub(super) struct CardLight {
     readback_note: gtk::Label,
     brightness: gtk::SpinButton,
     apply: gtk::Button,
-    install_prompt: gtk::Box,
+    install_prompt: gtk::Expander,
     activate: gtk::Button,
     deactivate: gtk::Button,
     resolve: gtk::Button,
@@ -343,7 +343,7 @@ impl CardLight {
             &[],
         );
         panel.body.append(&summary);
-        let install_prompt = crate::system_install::prompt(app, None);
+        let install_prompt = crate::system_install::offline_fallback();
         panel.body.append(&install_prompt);
         let identity = paragraph("", &["muted", "sm"]);
         panel.body.append(&identity);
@@ -1013,6 +1013,9 @@ impl CardLight {
         let activation = admin_paths(&self.app, &helper, AdminAction::Activate);
         let resolution = admin_paths(&self.app, &helper, AdminAction::Resolve);
         let restoration = admin_paths(&self.app, &helper, AdminAction::Restore);
+        // Mangler systemkomponentene, installerer «Aktiver kortlys» dem med
+        // samme passord. Terminalkommandoen er reserven uten nett.
+        let installable = installable(&self.app, &helper);
         self.install_prompt.set_visible(
             !self.app.profile.is_dev() && helper["systemAdmin"] == true && (helper["state"] == "outdated" || activation.is_err()),
         );
@@ -1023,8 +1026,8 @@ impl CardLight {
             && !other
             && selected_identity(&self.app).is_some();
         self.activate
-            .set_sensitive(admin_available && helper["state"] != "outdated" && activation.is_ok());
-        self.activate.set_tooltip_text(activation.err().as_deref());
+            .set_sensitive(admin_available && helper["state"] != "outdated" && (activation.is_ok() || installable));
+        self.activate.set_tooltip_text(activation.err().filter(|_| !installable).as_deref());
         self.resolve.set_visible(
             !bound && present && admin_ui && matches!(helper["state"].as_str(), Some("off" | "error" | "outdated")),
         );
@@ -1079,7 +1082,8 @@ impl CardLight {
         if identity.is_none() && action != AdminAction::Deactivate {
             return;
         }
-        if let Err(error) = admin_paths(&self.app, &self.helper.borrow(), action) {
+        let install = action == AdminAction::Activate && installable(&self.app, &self.helper.borrow());
+        if let Err(error) = admin_paths(&self.app, &self.helper.borrow(), action).map(|_| ()).or_else(|e| if install { Ok(()) } else { Err(e) }) {
             self.app.toast(
                 Toast::new(tr!("RGB-oppsettet er ikke klart"))
                     .body(&error)
@@ -1144,6 +1148,32 @@ impl CardLight {
         );
     }
 
+    /// Ett passord: hent og installer systemkomponentene, og aktiver kortlyset
+    /// for kortet brukeren nettopp bekreftet visuelt.
+    fn install_and_activate(self: &Rc<Self>, identity: Option<(String, String)>) {
+        let Some((pci, uuid)) = identity else { return };
+        if self.busy.get() {
+            return;
+        }
+        self.message.borrow_mut().take();
+        let weak = Rc::downgrade(self);
+        // `run` avviser selv samtidige administratorhandlinger (også denne
+        // sidens), så `busy` settes først når installasjonen faktisk er i gang.
+        crate::system_install::run(&self.app, crate::system_install::Activate::Rgb(pci, uuid), move |ok| {
+            let Some(p) = weak.upgrade() else { return };
+            p.busy.set(false);
+            if ok {
+                let message = tr!("RGB-oppsettet er oppdatert. Kontroller status før du bruker en farge.").to_string();
+                *p.message.borrow_mut() = Some(message.clone());
+                p.app.toast(Toast::new(tr!("RGB-oppsett")).body(&message));
+            }
+            p.render();
+            p.refresh();
+        });
+        self.busy.set(crate::system_install::busy());
+        self.render();
+    }
+
     fn run_admin(
         self: &Rc<Self>,
         action: AdminAction,
@@ -1153,7 +1183,12 @@ impl CardLight {
         if self.fixture.get() || (action != AdminAction::Deactivate && !card_present(&self.app)) {
             return;
         }
-        let Ok((pkexec, script)) = admin_paths(&self.app, &self.helper.borrow(), action) else {
+        let paths = admin_paths(&self.app, &self.helper.borrow(), action);
+        if paths.is_err() && action == AdminAction::Activate && installable(&self.app, &self.helper.borrow()) {
+            self.install_and_activate(identity);
+            return;
+        }
+        let Ok((pkexec, script)) = paths else {
             return;
         };
         // Aldri samtidig med installasjonen av systemkomponentene.
@@ -1247,6 +1282,13 @@ impl CardLight {
             p.refresh();
         });
     }
+}
+
+/// Systemkomponentene mangler (eller er utdaterte), og appen kan installere
+/// dem selv sammen med RGB-aktiveringen.
+fn installable(app: &App, helper: &Value) -> bool {
+    !app.profile.is_dev() && helper["systemAdmin"] == true && crate::system_install::can_install()
+        && !crate::system_install::ready(true)
 }
 
 /// En RGB-handling pågår (installasjonen venter da).

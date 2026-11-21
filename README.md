@@ -76,15 +76,15 @@ cd agentic-rigg
 
 ### Optional: system components for GPU control and RGB lighting
 
-GPU control and RGB lighting run in small root helpers that are installed once by an administrator. All you need is the administrator password: turn on **Allow changes to the graphics card** under `Settings › GPU control`, or press **Install system components** there or on the RGB lighting page. polkit asks for the password, and the installer, running as root:
+GPU control and RGB lighting run in small root helpers. Like MSI Afterburner's driver on Windows, they are installed with one administrator approval. Turn on **Allow GPU tuning** under `Settings › GPU control`, or press **Enable card lighting…** on the RGB lighting page, and enter the administrator password once. If the helpers are missing or outdated, the installer, running as root:
 
 1. downloads the release matching the app's own version from GitHub into a new root-owned directory,
 2. verifies it against the SHA-256 checksum GitHub publishes for that exact file (the one shown on the release page),
-3. only then runs the installer from that verified copy.
+3. only then runs the installer from that verified copy, and enables the access you asked for in the same step.
 
 Nothing from your home directory is executed as root. Without a network connection, the same steps are available as a terminal command under *Offline: use a terminal*, where you give the archive path and the SHA-256 yourself.
 
-Installing the system components does not grant any access by itself. You then enable GPU control or card lighting in the app, and each enable/disable action asks for the administrator password through polkit; the authorization is not remembered. To remove everything later: turn off both helpers in the app, then run `sudo /usr/local/libexec/agentic-rigg-system/system-install --uninstall` and `./uninstall.sh`.
+Each enable/disable action asks for the administrator password through polkit; the authorization is not remembered. To remove everything later: turn off both helpers in the app, then run `sudo /usr/local/libexec/agentic-rigg-system/system-install --uninstall` and `./uninstall.sh`.
 
 Building the system components from source and the trust model are described in [docs/produksjon/rgb-hjelper.md](docs/produksjon/rgb-hjelper.md) and [docs/produksjon/hjelper-sikkerhet.md](docs/produksjon/hjelper-sikkerhet.md) (Norwegian).
 

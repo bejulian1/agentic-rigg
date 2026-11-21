@@ -8,74 +8,50 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg/src/system_install.rs:119
-msgid "Systemkomponentene mangler eller må oppdateres."
-msgstr "システムコンポーネントがないか、更新が必要です。"
-
-#: crates/rigg/src/system_install.rs:120
-msgid "Installer systemkomponenter"
-msgstr "システムコンポーネントをインストール"
-
-#: crates/rigg/src/system_install.rs:124
-msgid "Fant ikke pkexec. Bruk terminalkommandoen."
-msgstr "pkexec が見つかりません。端末のコマンドを使用してください。"
-
-#: crates/rigg/src/system_install.rs:127
-msgid "Henter Agentic Rigg {versjon} fra GitHub, kontrollerer den mot SHA-256-summen GitHub oppgir, og ber om administratorpassordet. Installasjonen gir ingen tilgang i seg selv."
-msgstr "GitHub から Agentic Rigg {versjon} をダウンロードし、GitHub が公開している SHA-256 チェックサムで検証してから、管理者パスワードを求めます。インストールだけでは何の権限も付与されません。"
-
-#: crates/rigg/src/system_install.rs:144
-msgid "Systemkomponentene er installert"
-msgstr "システムコンポーネントをインストールしました"
-
-#: crates/rigg/src/system_install.rs:144
-msgid "Slå på GPU-styring eller kortlys når du vil bruke dem."
-msgstr "使いたいときに GPU の設定変更またはカードのライティングを有効にしてください。"
-
-#: crates/rigg/src/system_install.rs:151
+#: crates/rigg/src/system_install.rs:108
 msgid "Kjør kommandoen i en administratorterminal. Oppgi arkivstien og SHA-256 fra utgivelsessiden."
 msgstr "管理者の端末でコマンドを実行してください。アーカイブのパスとリリースページの SHA-256 を入力してください。"
 
-#: crates/rigg/src/system_install.rs:155
+#: crates/rigg/src/system_install.rs:115
 msgid "Kopier installasjonskommando"
 msgstr "インストールコマンドをコピー"
 
-#: crates/rigg/src/system_install.rs:160
+#: crates/rigg/src/system_install.rs:121
 msgid "Uten nett: bruk terminal"
 msgstr "オフライン: 端末を使う"
 
-#: crates/rigg/src/system_install.rs:168
+#: crates/rigg/src/system_install.rs:136
 msgid "Passordet ble ikke gitt. Ingenting er endret."
 msgstr "パスワードが入力されなかったため、変更はありません。"
 
-#: crates/rigg/src/system_install.rs:169
+#: crates/rigg/src/system_install.rs:137
 msgid "Fant ikke pkexec, eller ingen kan spørre om passordet (polkit)."
 msgstr "pkexecが見つからないか、polkitでパスワードを要求できません。"
 
-#: crates/rigg/src/system_install.rs:171
+#: crates/rigg/src/system_install.rs:139
 msgid "Fikk ikke kontakt med GitHub. Sjekk nettet, eller bruk terminalkommandoen."
 msgstr "GitHub に接続できません。ネットワークを確認するか、端末のコマンドを使用してください。"
 
-#: crates/rigg/src/system_install.rs:172
+#: crates/rigg/src/system_install.rs:140
 msgid "Fant ikke utgivelsen for denne versjonen på GitHub."
 msgstr "このバージョンのリリースが GitHub に見つかりません。"
 
-#: crates/rigg/src/system_install.rs:174
+#: crates/rigg/src/system_install.rs:142
 msgid "Nedlastingen stemmer ikke med summen GitHub oppgir. Ingen systemfiler er endret."
 msgstr "ダウンロードしたファイルが GitHub の公開チェックサムと一致しません。システムファイルは変更されていません。"
 
-#: crates/rigg/src/system_install.rs:175
+#: crates/rigg/src/system_install.rs:143
 msgid "Installasjonen feilet. Ingen nye tilganger er gitt."
 msgstr "インストールに失敗しました。新しい権限は付与されていません。"
 
-#: crates/rigg/src/system_install.rs:176
+#: crates/rigg/src/system_install.rs:144
 msgid "Installasjonen feilet: {feil}"
 msgstr "インストールに失敗しました: {feil}"
 
-#: crates/rigg/src/system_install.rs:189
+#: crates/rigg/src/system_install.rs:158
 msgid "Vent til den andre administratorhandlingen er ferdig"
 msgstr "別の管理者操作が終わるまでお待ちください"
 
-#: crates/rigg/src/system_install.rs:206 crates/rigg/src/system_install.rs:221
+#: crates/rigg/src/system_install.rs:180 crates/rigg/src/system_install.rs:195
 msgid "Installasjonen ble ikke fullført"
 msgstr "インストールは完了しませんでした"

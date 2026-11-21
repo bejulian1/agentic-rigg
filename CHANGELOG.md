@@ -1,6 +1,12 @@
 # Versjonslogg
 
-Gjeldende versjon: **1.5.2 · bygg 27**. Nedlastinger og utgivelsesnotater ligger under [Releases](https://github.com/bejulian1/agentic-rigg/releases).
+Gjeldende versjon: **1.5.3 · bygg 28**. Nedlastinger og utgivelsesnotater ligger under [Releases](https://github.com/bejulian1/agentic-rigg/releases).
+
+## 1.5.3 · bygg 28 – 21. november 2026
+
+- **Én bryter, ett passord:** «Tillat endring av skjermkortet» henter og installerer systemkomponentene når de mangler eller hjelperen er utdatert, og slår på full skjermkortstyring i samme administratorgodkjenning. En utdatert hjelper vises som av; bryteren oppdaterer og aktiverer.
+- **Kortlys på samme måte:** «Aktiver kortlys» installerer det som mangler og aktiverer RGB med ett passord, etter at du har bekreftet den faste fargen du ser på kortet.
+- Rotskriptet aktiverer bare etter vellykket installasjon, med de faste, nettopp installerte skriptene og brukeren fra `PKEXEC_UID`. Den egne knappen «Installer systemkomponenter» er fjernet; terminalkommandoen står under «Uten nett: bruk terminal». Hjelperne, protokollene og minimumsbygget 25 er uendret.
 
 ## 1.5.2 · bygg 27 – 21. november 2026
 

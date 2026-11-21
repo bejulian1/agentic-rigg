@@ -1,7 +1,10 @@
 """Hent og installer systemkomponentene for én bestemt utgivelse (kjøres som root).
 
-Appen starter dette med `pkexec python3 -I -S -c <denne fila> VERSJON BYGG`
-når brukeren trykker «Installer systemkomponenter». Ingenting fra brukerens
+Appen starter dette med `pkexec python3 -I -S -c <denne fila> VERSJON BYGG
+[nvml|rgb PCI UUID]` når brukeren slår på skjermkortstyring eller kortlys og
+komponentene mangler eller er utdaterte. Med domene aktiveres tilgangen rett
+etter installasjonen med de faste, nettopp installerte skriptene, så ett
+passord holder. Ingenting fra brukerens
 hjemmemappe brukes: arkivet lastes ned fra GitHub-utgivelsen med samme versjon
 som appen, inn i en ny rot-eid mappe, og kontrolleres mot SHA-256-summen
 GitHub publiserer for akkurat den filen (samme sum som står på utgivelsessiden).
@@ -34,6 +37,12 @@ MAX_ARCHIVE = 64 << 20
 HEADERS = {'Accept': 'application/vnd.github+json', 'User-Agent': 'agentic-rigg-system-install'}
 STAGING = '/var/tmp'
 INSTALLER = ['/usr/bin/python3', '-I', '-S']
+ACTIVATE = {'nvml': ['/usr/local/libexec/agentic-rigg/aktiver.sh'],
+            'rgb': ['/usr/local/libexec/agentic-rigg-rgb-v2/rgb-aktiver.sh']}
+# RGB-aktiveringen krever at brukeren har sett på kortet; appen spør før pkexec.
+ACTIVATE_FLAGS = {'nvml': [], 'rgb': ['--static-confirmed']}
+PCI = r'[0-9a-f]{4}:[0-9a-f]{2}:[01][0-9a-f]\.[0-7]'
+UUID = r'GPU-[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}'
 
 
 NET_ERRORS = (OSError, http.client.HTTPException)
@@ -117,12 +126,29 @@ def installer_from(archive):
         return tar.extractfile(members[0]).read()
 
 
+def activation(argv):
+    """`[]` eller `[domene, pci, uuid]` → kommandoen og miljøet, eller None."""
+    if not argv:
+        return None
+    if len(argv) != 3 or argv[0] not in ACTIVATE:
+        fail('Forventet VERSJON BYGG [nvml|rgb PCI UUID].')
+    domain, pci, uuid = argv[0], argv[1].lower(), argv[2]
+    if not re.fullmatch(PCI, pci, re.ASCII) or not re.fullmatch(UUID, uuid, re.ASCII):
+        fail('Aktivering krever full PCI-adresse og GPU-UUID.')
+    uid = os.environ.get('PKEXEC_UID', '')
+    if not re.fullmatch(r'[1-9][0-9]{0,9}', uid, re.ASCII):
+        fail('Fant ikke brukeren bak administratorforespørselen.')
+    command = [*ACTIVATE[domain], '--pci', pci, '--uuid', uuid, *ACTIVATE_FLAGS[domain]]
+    return command, {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C', 'PKEXEC_UID': uid}
+
+
 def main(argv):
-    if len(argv) != 2 or not re.fullmatch(r'[0-9]{1,4}\.[0-9]{1,4}\.[0-9]{1,4}', argv[0]) or not re.fullmatch(r'[1-9][0-9]{0,8}', argv[1]):
-        fail('Forventet VERSJON BYGG.')
+    if len(argv) not in (2, 5) or not re.fullmatch(r'[0-9]{1,4}\.[0-9]{1,4}\.[0-9]{1,4}', argv[0]) or not re.fullmatch(r'[1-9][0-9]{0,8}', argv[1]):
+        fail('Forventet VERSJON BYGG [nvml|rgb PCI UUID].')
     if os.geteuid() != 0:
         fail('Systeminstallasjon krever administrator.')
-    version, build = argv
+    version, build = argv[:2]
+    then = activation(argv[2:])
     name = ASSET.format(version=version, build=build)
     digest = published_digest(version, name)
     os.umask(0o077)
@@ -142,9 +168,12 @@ def main(argv):
             out.write(installer_from(archive))
         result = subprocess.run([*INSTALLER, installer, archive, digest], stdin=subprocess.DEVNULL,
                                 env={'PATH': '/usr/bin:/bin', 'LC_ALL': 'C'}, check=False)
-        return result.returncode
+        if result.returncode or then is None:
+            return result.returncode
     finally:
         shutil.rmtree(temp, ignore_errors=True)
+    command, env = then
+    return subprocess.run(command, stdin=subprocess.DEVNULL, env=env, check=False).returncode
 
 
 if __name__ == '__main__':
