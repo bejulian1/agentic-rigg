@@ -1,5 +1,10 @@
 # Patchlog
 
+## 1.5.5 · bygg 30 – 21. november 2026: lysvalgene alltid fremme
+
+- `lys_kort.rs`: kontrollene er en `gtk::Grid` med overskriftene Modus/Farge/Lysstyrke og en `gtk::Scale` som deler justering med tallfeltet. Kontrollene, effektknappene og «Bruk» vises også uten bundet hjelper. Etterpå filtreres effektene på `softwareEffects` som før. Uten binding åpner «Bruk» `admin_dialog(Activate, then_apply = true)` (tilstand `off`/`outdated`). `queued` settes først etter den visuelle bekreftelsen, nullstilles ved avbrudd, feil og `hide()`, og utløser én `apply()` når hjelperen er bundet og `can_apply` tillater det.
+- Avlesning, identitet, `offline_fallback` og administratorknappene er flyttet til et `gtk::Expander` («Detaljer og feilsøking»), som åpnes ved overgang til tilstanden `error`. `lys.rs`: uten binding forhåndsviser 2D/3D-kortet valgt modus, farge og lysstyrke (før: av). Ny visningsfixture-kontroll: `off` krever synlige kontroller, effekter og «Bruk».
+
 ## 1.5.4 · bygg 29 – 21. november 2026: 2D/3D-kortet og effektbytte
 
 - `lys3d/` (2D og 3D), shaderne i `data/lys3d/`, valget `lys3d` og `--stage*`-tokenene er gjeninnført fra før `c4d5745`. `rgb.rs` er nå en forhåndsvisning med én sone (56 LED-er) som følger `CardLight`; demosonene og den lokale lagringen av lysvalg kommer ikke tilbake. `glow`/`glam` er tilbake i `LISENSER.md`.

@@ -11,7 +11,7 @@ A lightweight Linux hardware monitor with opt-in NVIDIA GPU control, written in 
   <tr>
     <td><a href="docs/images/vifter.png"><img src="docs/images/vifter.png" alt="Fans page with Simple and Advanced views" width="320"></a></td>
     <td><a href="docs/images/klokker.png"><img src="docs/images/klokker.png" alt="Clocks and Power page with live readings and GPU tuning" width="320"></a></td>
-    <td><a href="docs/images/rgb.png"><img src="docs/images/rgb.png" alt="Card lighting with the 2D card preview, Apply, Keep and Roll back (simulated data)" width="320"></a></td>
+    <td><a href="docs/images/rgb.png"><img src="docs/images/rgb.png" alt="Card lighting with the 2D card preview, mode, colour and brightness controls, Keep and Roll back (simulated data)" width="320"></a></td>
   </tr>
 </table>
 

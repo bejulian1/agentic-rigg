@@ -1,5 +1,16 @@
 [
   {
+    "version": "1.5.5",
+    "build": 30,
+    "date": "2026-11-21",
+    "title": "Farger og effekter alltid fremme",
+    "changes": [
+      "RGB-lys viser modus, farge, hurtigfarger og lysstyrke med en glidebryter, også før kortlyset er aktivert. Kortet på siden lyser i fargen og effekten du velger.",
+      "Første «Bruk» aktiverer kortlyset (eller oppdaterer RGB-hjelperen) med ett passord og bruker valget ditt rett etterpå, med «Behold» og «Rull tilbake» som før.",
+      "Avlesning, kortinformasjon og sjeldne knapper ligger under «Detaljer og feilsøking»."
+    ]
+  },
+  {
     "version": "1.5.4",
     "build": 29,
     "date": "2026-11-21",
