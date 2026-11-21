@@ -9,5 +9,5 @@
 disallowed-methods = [
     { path = "std::process::Command::new", reason = "Appen starter ingen programmer (arkitektur.md kap. 8)" },
     { path = "libc::ioctl", reason = "Ingen ioctl: bare lesing fra /proc og /sys" },
-    { path = "gio::Subprocess::newv", reason = "Appen starter ingen programmer; unntaket er pkexec fra bryteren i Innstillinger › Styring (7A)" },
+    { path = "gio::Subprocess::newv", reason = "Appen starter ingen programmer; unntaket er pkexec fra bryterne for GPU-styring og RGB og installasjonsknappen for systemkomponentene" },
 ]

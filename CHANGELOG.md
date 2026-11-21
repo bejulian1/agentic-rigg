@@ -1,6 +1,12 @@
 # Versjonslogg
 
-Gjeldende versjon: **1.5.0 · bygg 25**. Nedlastinger og utgivelsesnotater ligger under [Releases](https://github.com/bejulian1/agentic-rigg/releases).
+Gjeldende versjon: **1.5.1 · bygg 26**. Nedlastinger og utgivelsesnotater ligger under [Releases](https://github.com/bejulian1/agentic-rigg/releases).
+
+## 1.5.1 · bygg 26 – 21. november 2026
+
+- **Systemkomponenter uten terminal:** «Installer systemkomponenter …» i Innstillinger › Skjermkortstyring og på RGB-siden åpner et vindu der du velger utgivelsesarkivet (forhåndsvalgt fra Nedlastinger når det ligger der) og limer inn SHA-256 fra utgivelsessiden (`sha256:`-prefikset fra GitHub godtas). Appen kjører det samme kontrollerte bootstrap-skriptet som terminalkommandoen, via `pkexec` og polkits passordvindu: arkivet kopieres til en ny root-eid mappe og kontrolleres før noe kjøres som root. Terminalkommandoen ligger fortsatt under «Bruk terminal i stedet».
+- **Én bryter:** Når komponentene mangler, åpner «Tillat endring av skjermkortet» installasjonen først og fortsetter med aktiveringen etterpå (to passordspørsmål: installasjon og aktivering).
+- Hjelperne og protokollene er uendret. Systemkomponenter fra 1.5.0 (bygg 25) kan beholdes; ingen ny aktivering kreves for dem.
 
 ## 1.5.0 · bygg 25 – 21. november 2026
 

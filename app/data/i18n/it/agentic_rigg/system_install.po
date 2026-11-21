@@ -8,10 +8,114 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg/src/system_install.rs:48
-msgid "Systemkomponentene mangler eller må oppdateres. Kjør kommandoen i en administratorterminal. Oppgi arkivstien og SHA-256 fra utgivelsessiden."
-msgstr "I componenti di sistema mancano o vanno aggiornati. Esegui il comando in un terminale di amministratore. Indica il percorso dell’archivio e lo SHA-256 dalla pagina della versione."
+#: crates/rigg/src/system_install.rs:138
+msgid "Systemkomponentene mangler eller må oppdateres. Installer dem fra utgivelsesarkivet. Du blir spurt om administratorpassordet."
+msgstr "I componenti di sistema mancano o vanno aggiornati. Installali dall’archivio della versione. Ti verrà chiesta la password di amministratore."
 
-#: crates/rigg/src/system_install.rs:55
+#: crates/rigg/src/system_install.rs:143
+msgid "Installer systemkomponenter …"
+msgstr "Installa componenti di sistema…"
+
+#: crates/rigg/src/system_install.rs:147
+msgid "Fant ikke pkexec. Bruk terminalkommandoen."
+msgstr "pkexec non trovato. Usa il comando del terminale."
+
+#: crates/rigg/src/system_install.rs:154
+msgid "Systemkomponentene er installert"
+msgstr "Componenti di sistema installati"
+
+#: crates/rigg/src/system_install.rs:154
+msgid "Slå på GPU-styring eller kortlys når du vil bruke dem."
+msgstr "Attiva la regolazione della GPU o l’illuminazione della scheda quando vuoi usarle."
+
+#: crates/rigg/src/system_install.rs:161
+msgid "Kjør kommandoen i en administratorterminal. Oppgi arkivstien og SHA-256 fra utgivelsessiden."
+msgstr "Esegui il comando in un terminale di amministratore. Indica il percorso dell’archivio e lo SHA-256 dalla pagina della versione."
+
+#: crates/rigg/src/system_install.rs:167
 msgid "Kopier installasjonskommando"
 msgstr "Copia comando di installazione"
+
+#: crates/rigg/src/system_install.rs:173
+msgid "Bruk terminal i stedet"
+msgstr "Usa invece un terminale"
+
+#: crates/rigg/src/system_install.rs:186
+msgid "Installer systemkomponenter"
+msgstr "Installa componenti di sistema"
+
+#: crates/rigg/src/system_install.rs:219
+msgid "Rothjelperne for GPU-styring og RGB-lys installeres fra utgivelsesarkivet. Arkivet kopieres til en rot-eid mappe og kontrolleres mot SHA-256 fra utgivelsessiden før noe kjøres som administrator."
+msgstr "I servizi di supporto root per la regolazione della GPU e l’illuminazione RGB vengono installati dall’archivio della versione. L’archivio viene copiato in una cartella di proprietà di root e verificato con lo SHA-256 della pagina della versione prima di eseguire qualsiasi cosa come amministratore."
+
+#: crates/rigg/src/system_install.rs:220
+msgid "Installasjonen gir ingen tilgang i seg selv. Du slår på GPU-styring eller kortlys etterpå, med eget passord."
+msgstr "L’installazione da sola non concede alcun accesso. Dopo attivi la regolazione della GPU o l’illuminazione della scheda, con una richiesta di password separata."
+
+#: crates/rigg/src/system_install.rs:224
+msgid "Utgivelsesarkiv"
+msgstr "Archivio della versione"
+
+#: crates/rigg/src/system_install.rs:245
+msgid "Ikke valgt. Last ned {navn}….tar.gz fra utgivelsessiden."
+msgstr "Nessun file scelto. Scarica {navn}….tar.gz dalla pagina della versione."
+
+#: crates/rigg/src/system_install.rs:252
+msgid "Velg …"
+msgstr "Scegli…"
+
+#: crates/rigg/src/system_install.rs:258
+msgid "SHA-256 fra utgivelsessiden"
+msgstr "SHA-256 dalla pagina della versione"
+
+#: crates/rigg/src/system_install.rs:260
+msgid "64 heksadesimale tegn"
+msgstr "64 caratteri esadecimali"
+
+#: crates/rigg/src/system_install.rs:263
+msgid "Kopier summen fra GitHub, ikke fra en fil ved siden av nedlastingen. Den står ved arkivet under Assets."
+msgstr "Copia la somma da GitHub, non da un file accanto al download. È indicata accanto all’archivio sotto Assets."
+
+#: crates/rigg/src/system_install.rs:264
+msgid "Åpne utgivelsessiden"
+msgstr "Apri la pagina della versione"
+
+#: crates/rigg/src/system_install.rs:279
+msgid "Avbryt"
+msgstr "Annulla"
+
+#: crates/rigg/src/system_install.rs:280
+msgid "Installer"
+msgstr "Installa"
+
+#: crates/rigg/src/system_install.rs:307
+msgid "Velg utgivelsesarkivet"
+msgstr "Scegli l’archivio della versione"
+
+#: crates/rigg/src/system_install.rs:309
+msgid "Agentic Rigg-arkiv (.tar.gz)"
+msgstr "Archivio di Agentic Rigg (.tar.gz)"
+
+#: crates/rigg/src/system_install.rs:350
+msgid "Venter på administratorgodkjenning …"
+msgstr "In attesa dell’autorizzazione dell’amministratore…"
+
+#: crates/rigg/src/system_install.rs:386
+msgid "Passordet ble ikke gitt. Ingenting er endret."
+msgstr "Non è stata inserita alcuna password. Nessuna modifica apportata."
+
+#: crates/rigg/src/system_install.rs:387
+msgid "Fant ikke pkexec, eller ingen kan spørre om passordet (polkit)."
+msgstr "pkexec non è disponibile o polkit non può chiedere la password."
+
+#: crates/rigg/src/system_install.rs:390
+msgid "Kontrollsummen stemmer ikke med arkivet. Ingen systemfiler er endret. Sjekk at arkivet og summen gjelder samme fil."
+msgstr "La somma di controllo non corrisponde all’archivio. Nessun file di sistema è stato modificato. Verifica che archivio e somma si riferiscano allo stesso file."
+
+#: crates/rigg/src/system_install.rs:391
+msgid "Installasjonen feilet. Ingen nye tilganger er gitt."
+msgstr "Installazione non riuscita. Non è stato concesso alcun nuovo accesso."
+
+#: crates/rigg/src/system_install.rs:392
+msgid "Installasjonen feilet: {feil}"
+msgstr "Installazione non riuscita: {feil}"

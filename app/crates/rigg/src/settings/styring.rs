@@ -49,7 +49,8 @@ fn state_text(app: &App) -> String {
         "on" if locked::control_ready(app) => tr!("Styring er klar for det valgte skjermkortet. Endringer brukes først når du trykker Bruk.").into(),
         "on" if locked::gate(app) == rigg_core::txn::Gate::Sim => tr!("Simulert styring. Det ekte skjermkortet endres ikke.").into(),
         "on" | "error" => h["message"].as_str().map(display_diagnostic).map(|text| text.into_owned()).unwrap_or_else(|| tr!("Hjelperen er ikke klar for kortet som vises. Se funksjonsstøtten under, eller trykk Sjekk igjen.").into()),
-        "outdated" => tr!("Hjelperen må oppdateres. Bruk kommandoen for systeminstallasjon.").into(),
+        "outdated" => tr!("Hjelperen må oppdateres. Installer systemkomponentene på nytt.").into(),
+        _ if installable(app) => tr!("Systemkomponentene mangler eller må oppdateres. Slå på bryteren for å installere dem.").into(),
         _ if admin(app, true).is_none() => tr!("Systemkomponentene mangler eller må oppdateres.").into(),
         _ => tr!("Bare visning. Endring av skjermkortet er slått av.").into(),
     }
@@ -105,9 +106,31 @@ fn failure(code: i32, err: &str, title: &str) -> Option<Toast> {
     }
 }
 
+/// Systemkomponentene mangler, men appen kan installere dem selv: bryteren
+/// åpner da installasjonsvinduet først og aktiverer etterpå.
+fn installable(app: &App) -> bool {
+    !app.profile.is_dev() && app.data.borrow().backend == "nvml" && admin(app, true).is_none()
+        && crate::system_install::can_install()
+}
+
 pub(crate) fn toggle(app: &Rc<App>, on: bool) {
     if BUSY.with(Cell::get) { return; }
-    let Some(pkexec) = admin(app, on) else { return };
+    let Some(pkexec) = admin(app, on) else {
+        if on && installable(app) {
+            let a = app.clone();
+            crate::system_install::show_dialog(app, move |ok| {
+                if ok && admin(&a, true).is_some() {
+                    toggle(&a, true);
+                } else {
+                    if ok {
+                        a.toast(Toast::new(tr!("Hjelperen er installert, men styring er ikke klar")).body(&state_text(&a)).error());
+                    }
+                    request_render();
+                }
+            });
+        }
+        return;
+    };
     if on && !app.profile.is_dev() && app.data.borrow().backend != "nvml" { return; }
     let args = if on {
         let Some(pci) = app.gpu_id() else {
@@ -206,7 +229,8 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     sw.set_state(active);
     sw.set_valign(gtk::Align::Center);
     sw.update_property(&[gtk::accessible::Property::Label(tr!("Tillat endring av skjermkortet"))]);
-    let can = app.client.is_connected() && admin(app, !active).is_some() && (active || app.profile.is_dev() || app.data.borrow().backend == "nvml");
+    let can = app.client.is_connected() && (admin(app, !active).is_some() || (!active && installable(app)))
+        && (active || app.profile.is_dev() || app.data.borrow().backend == "nvml");
     sw.set_sensitive(can && !busy);
     {
         let a = app.clone();
@@ -272,7 +296,7 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
 
     let mut rows = vec![main_row, status_row];
     if !app.profile.is_dev() && (state == "outdated" || ((active || app.data.borrow().backend == "nvml") && admin(app, true).is_none())) {
-        rows.push(custom_row(&crate::system_install::prompt(), &kw("systemkomponenter installasjon", tr!("søkeord", "systemkomponenter installasjon"))));
+        rows.push(custom_row(&crate::system_install::prompt(app), &kw("systemkomponenter installasjon", tr!("søkeord", "systemkomponenter installasjon"))));
     }
     let toggle_group = group(
         tr!("Endring av skjermkortet"),

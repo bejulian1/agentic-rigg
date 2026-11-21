@@ -1,5 +1,15 @@
 [
   {
+    "version": "1.5.1",
+    "build": 26,
+    "date": "2026-11-21",
+    "title": "Systemkomponenter uten terminal",
+    "changes": [
+      "Systemkomponentene for GPU-styring og RGB-lys installeres fra appen: velg utgivelsesarkivet, lim inn SHA-256 fra utgivelsessiden og godkjenn med administratorpassordet. Terminalkommandoen finnes fortsatt under «Bruk terminal i stedet».",
+      "Bryteren «Tillat endring av skjermkortet» åpner installasjonen når komponentene mangler, og fortsetter med aktiveringen etterpå."
+    ]
+  },
+  {
     "version": "1.5.0",
     "build": 25,
     "date": "2026-11-21",

@@ -76,11 +76,13 @@ cd agentic-rigg
 
 ### Optional: system components for GPU control and RGB lighting
 
-GPU control and RGB lighting run in small root helpers that are installed once by an administrator. The app shows the exact command, with a copy button, under `Settings › GPU control` and on the RGB lighting page. The command:
+GPU control and RGB lighting run in small root helpers that are installed once by an administrator. No terminal is needed: turn on **Allow changes to the graphics card** under `Settings › GPU control`, or press **Install system components …** there or on the RGB lighting page. Choose the release archive you downloaded and paste its SHA-256 from the release page on GitHub; GitHub shows it next to the archive under *Assets*. polkit then asks for the administrator password, and the app:
 
 1. copies the release archive into a new root-owned directory,
-2. verifies it against the SHA-256 that **you** paste from the release page on GitHub (not from a file next to the download),
+2. verifies it against the SHA-256 that **you** pasted from the release page (not from a file next to the download),
 3. only then runs the installer from that verified copy.
+
+The same steps are available as a terminal command under *Use a terminal instead*.
 
 Nothing from your home directory is executed as root. Installing the system components does not grant any access by itself. You then enable GPU control or card lighting in the app, and each enable/disable action asks for the administrator password through polkit; the authorization is not remembered. To remove everything later: turn off both helpers in the app, then run `sudo /usr/local/libexec/agentic-rigg-system/system-install --uninstall` and `./uninstall.sh`.
 
