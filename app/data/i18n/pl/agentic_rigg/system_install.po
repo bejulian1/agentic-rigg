@@ -8,74 +8,50 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n == 1 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : 2);\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg/src/system_install.rs:119
-msgid "Systemkomponentene mangler eller må oppdateres."
-msgstr "Brakuje składników systemowych lub wymagają aktualizacji."
-
-#: crates/rigg/src/system_install.rs:120
-msgid "Installer systemkomponenter"
-msgstr "Zainstaluj składniki systemowe"
-
-#: crates/rigg/src/system_install.rs:124
-msgid "Fant ikke pkexec. Bruk terminalkommandoen."
-msgstr "Nie znaleziono pkexec. Użyj polecenia w terminalu."
-
-#: crates/rigg/src/system_install.rs:127
-msgid "Henter Agentic Rigg {versjon} fra GitHub, kontrollerer den mot SHA-256-summen GitHub oppgir, og ber om administratorpassordet. Installasjonen gir ingen tilgang i seg selv."
-msgstr "Pobiera Agentic Rigg {versjon} z GitHuba, sprawdza je sumą SHA-256 podaną przez GitHuba i prosi o hasło administratora. Sama instalacja nie daje żadnego dostępu."
-
-#: crates/rigg/src/system_install.rs:144
-msgid "Systemkomponentene er installert"
-msgstr "Zainstalowano składniki systemowe"
-
-#: crates/rigg/src/system_install.rs:144
-msgid "Slå på GPU-styring eller kortlys når du vil bruke dem."
-msgstr "Włącz regulację karty lub oświetlenie karty, gdy zechcesz z nich korzystać."
-
-#: crates/rigg/src/system_install.rs:151
+#: crates/rigg/src/system_install.rs:108
 msgid "Kjør kommandoen i en administratorterminal. Oppgi arkivstien og SHA-256 fra utgivelsessiden."
 msgstr "Uruchom polecenie w terminalu administratora. Podaj ścieżkę do archiwum i sumę SHA-256 ze strony wydania."
 
-#: crates/rigg/src/system_install.rs:155
+#: crates/rigg/src/system_install.rs:115
 msgid "Kopier installasjonskommando"
 msgstr "Kopiuj polecenie instalacji"
 
-#: crates/rigg/src/system_install.rs:160
+#: crates/rigg/src/system_install.rs:121
 msgid "Uten nett: bruk terminal"
 msgstr "Bez internetu: użyj terminala"
 
-#: crates/rigg/src/system_install.rs:168
+#: crates/rigg/src/system_install.rs:136
 msgid "Passordet ble ikke gitt. Ingenting er endret."
 msgstr "Nie podano hasła. Nic się nie zmieniło."
 
-#: crates/rigg/src/system_install.rs:169
+#: crates/rigg/src/system_install.rs:137
 msgid "Fant ikke pkexec, eller ingen kan spørre om passordet (polkit)."
 msgstr "Nie znaleziono pkexec lub polkit nie może poprosić o hasło."
 
-#: crates/rigg/src/system_install.rs:171
+#: crates/rigg/src/system_install.rs:139
 msgid "Fikk ikke kontakt med GitHub. Sjekk nettet, eller bruk terminalkommandoen."
 msgstr "Nie można połączyć się z GitHubem. Sprawdź połączenie lub użyj polecenia w terminalu."
 
-#: crates/rigg/src/system_install.rs:172
+#: crates/rigg/src/system_install.rs:140
 msgid "Fant ikke utgivelsen for denne versjonen på GitHub."
 msgstr "Nie znaleziono wydania tej wersji na GitHubie."
 
-#: crates/rigg/src/system_install.rs:174
+#: crates/rigg/src/system_install.rs:142
 msgid "Nedlastingen stemmer ikke med summen GitHub oppgir. Ingen systemfiler er endret."
 msgstr "Pobrany plik nie zgadza się z sumą podaną przez GitHuba. Nie zmieniono żadnych plików systemowych."
 
-#: crates/rigg/src/system_install.rs:175
+#: crates/rigg/src/system_install.rs:143
 msgid "Installasjonen feilet. Ingen nye tilganger er gitt."
 msgstr "Instalacja nie powiodła się. Nie przyznano żadnego nowego dostępu."
 
-#: crates/rigg/src/system_install.rs:176
+#: crates/rigg/src/system_install.rs:144
 msgid "Installasjonen feilet: {feil}"
 msgstr "Instalacja nie powiodła się: {feil}"
 
-#: crates/rigg/src/system_install.rs:189
+#: crates/rigg/src/system_install.rs:158
 msgid "Vent til den andre administratorhandlingen er ferdig"
 msgstr "Poczekaj na zakończenie innej czynności administratora"
 
-#: crates/rigg/src/system_install.rs:206 crates/rigg/src/system_install.rs:221
+#: crates/rigg/src/system_install.rs:180 crates/rigg/src/system_install.rs:195
 msgid "Installasjonen ble ikke fullført"
 msgstr "Instalacja nie została ukończona"

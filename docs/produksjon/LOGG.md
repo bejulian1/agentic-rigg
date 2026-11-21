@@ -877,3 +877,7 @@ Brukeren ønsket at systeminstallasjonen kan startes fra skjermkortstyringen ute
 ## 21. november 2026 – Claude Code: 1.5.2 · bygg 27, systemkomponenter med bare passordet
 
 Brukeren syntes det var utydelig å måtte finne og lime inn SHA-256, og ville at installasjonen skulle virke med bare passordet. Ny `system-hent.py` kjøres som root via `pkexec python3 -I -S -c`. Skriptet henter utgivelsen med appens versjon fra GitHub og kontrollerer den mot `digest` fra GitHub-API-et før `system-install` kjøres fra den kontrollerte kopien. Tillitsankeret er dermed GitHub over TLS, samme kilde som summen ellers ble kopiert fra. Nedlastingen og summen ble prøvd uten root mot den publiserte 1.5.1, og summene stemte. Installasjonsvinduet er fjernet. README og personvernteksten sier nå at denne nedlastingen er appens eneste nettkontakt. Claude Fable 5.2 gjorde sikkerhetsgjennomgangen.
+
+## 21. november 2026 – Claude Code: 1.5.3 · bygg 28, én bryter og ett passord
+
+Brukeren ville at bryteren i Skjermkortstyring skal slå full skjermkortstyring av og på med ett passord, som på Windows, og at fargestyringen skal virke uten SHA. `system-hent.py` aktiverer nå NVML eller RGB rett etter vellykket installasjon i samme `pkexec`. Bryteren og «Aktiver kortlys» bruker dette når komponentene mangler eller hjelperen er utdatert, og ellers den vanlige aktiveringen. Den egne installasjonsknappen er fjernet; bare terminalkommandoen står igjen som reserve uten nett. 604 tester bestod, 4 ignorert. Ingen fysisk prøve er gjort.

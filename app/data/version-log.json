@@ -1,5 +1,16 @@
 [
   {
+    "version": "1.5.3",
+    "build": 28,
+    "date": "2026-11-21",
+    "title": "Én bryter, ett passord",
+    "changes": [
+      "Bryteren «Tillat endring av skjermkortet» installerer det som mangler (eller oppdaterer en gammel hjelper) og slår på full skjermkortstyring med ett passord.",
+      "«Aktiver kortlys» gjør det samme for lyset på kortet: én bekreftelse av fargen du ser, og ett passord.",
+      "Den egne installasjonsknappen er fjernet. Terminalkommandoen finnes fortsatt under «Uten nett: bruk terminal»."
+    ]
+  },
+  {
     "version": "1.5.2",
     "build": 27,
     "date": "2026-11-21",
