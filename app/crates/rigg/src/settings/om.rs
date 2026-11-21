@@ -156,11 +156,12 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     let credits = KvList::new();
     credits.grid.add_css_class("about-debug");
     credits.add(tr!("Prosjekteier"), tr!("Julian · produktidé, prioriteringer og utprøving"));
-    credits.add("Claude Code", "Anthropic Claude Opus 5.5");
-    credits.add("Codex", "OpenAI GPT 6.1 Sol");
-    let mut contributions = group(tr!("Bidrag"), GroupOpts { whole: true, k: &kw("julian claude code anthropic opus 5.5 openai gpt 6.1 sol codex ai bidragsytere", tr!("søkeord", "julian claude code anthropic opus 5.5 openai gpt 6.1 sol codex ai bidragsytere")), ..Default::default() }, vec![]);
+    credits.add("Claude Code", "Anthropic Claude Opus 5.5 · Claude Fable 5.2");
+    credits.add("Codex", "OpenAI GPT 6.1 Sol · GPT 6 Astra · GPT 6.2 Sol · GPT 6.2 Astra");
+    credits.add("Gemini", "Google Gemini 4 Neon");
+    let mut contributions = group(tr!("Bidrag"), GroupOpts { whole: true, k: &kw("julian claude code anthropic opus 5.5 fable 5.2 openai gpt 6.1 6.2 sol astra codex google gemini neon ai bidragsytere", tr!("søkeord", "julian claude code anthropic opus 5.5 openai gpt 6.1 sol codex ai bidragsytere")), ..Default::default() }, vec![]);
     contributions.widget.append(&credits.grid);
-    contributions.rows.push(custom_row(&gtk::Box::new(gtk::Orientation::Horizontal, 0), "Julian Anthropic Claude Opus 5.5 Claude Code OpenAI GPT 6.1 Sol Codex"));
+    contributions.rows.push(custom_row(&gtk::Box::new(gtk::Orientation::Horizontal, 0), "Julian Anthropic Claude Opus 5.5 Fable 5.2 Claude Code OpenAI GPT 6.1 6.2 Sol Astra Codex Google Gemini 4 Neon"));
 
     // ---- Feilsøking ----
     let kv = KvList::new();

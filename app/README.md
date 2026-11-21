@@ -18,6 +18,13 @@ Prosessor viser også lanseringsdato når den konkrete modellen er i det lokale 
 
 Måleaksene utvides også for 110 °C og klokker over kortets oppgitte maksimum. Ferske topper i langtidsvinduer og viftekurvens målte punkter tas med; lovlige redigeringsgrenser og 0–100 % for last og brukt minne beholdes.
 
+## Nytt i 1.5.0
+
+- Ti språk i hele brukerflaten (Innstillinger › Generelt › Språk, standard «Følg systemet»): norsk bokmål, engelsk, tysk, fransk, spansk, portugisisk (Brasil), italiensk, polsk, forenklet kinesisk og japansk.
+- Oppgaver under Overvåking, og Lys på kortet for Palit GeForce RTX 2080 Super JetStream med fast farge, av, lysstyrke, pusting, regnbue og fargesyklus.
+- Den lokale lysmodellen og alt annet som bare var demo er fjernet.
+- GPU- og RGB-hjelperen installeres med én kontrollert systeminstallasjon og bruker faste root-eide polkit-innganger. Laveste kompatible hjelperbygg er 25, så GPU-styring må aktiveres på nytt én gang. Se [RGB-hjelperen](../docs/produksjon/rgb-hjelper.md) og [hjelpersikkerhet](../docs/produksjon/hjelper-sikkerhet.md).
+
 ## Nytt i 1.4.1
 
 - **CPU på den faktiske maskinen:** Linux-CPU-ID-er beholdes ved hull i nummerrekken og hotplug. Prosessor, Sensorer og rapport bruker de aktive ID-ene; flere sokler og ulike cachegrupper behandles separat. Cachevarianter og antall bygger på sysfs-identitet og deling, og ukjent antall vises som ukjent. Temperatur bruker sensorens navn; L3-grupper kalles ikke automatisk CCX.

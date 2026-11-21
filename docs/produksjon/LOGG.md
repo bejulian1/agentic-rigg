@@ -859,3 +859,13 @@ Den 20. november 2026 identifiserte den lesende proben én PALIT 100-sone på NV
 Brukeren ba om å gjøre repoet offentlig som åpen kildekode. Forfatteradressen i første commit var en privat e-postadresse. Etter brukerens valg ble den byttet til GitHubs noreply-adresse med `git filter-branch` på alle brancher og tagger. Trærne er identiske før og etter, og v1.3.3, v1.4.0 og v1.4.1 er flyttet til de nye commitene og force-pushet. Full sikkerhetskopi av historikken ligger lokalt i `~/.cache/agentic-rigg-backup/`. Gamle commit-ID-er i eldre issue-lenker og utgivelsesnotater viser til de opprinnelige commitene.
 
 Localhost-demoen (`web/`, `server/`, `daemon-mock/`, `prototyper/`, `scripts/`, `package.json`) er tatt ut av git-sporingen og lagt i `.gitignore`. Mappene står urørt på disken. REGLER.md og AGENTS.md er oppdatert med språk for offentlige dokumenter, åpen kildekode og at appen ikke skal ha demofunksjoner.
+
+## 20.–21. november 2026 – Claude Code (dirigent): 1.5.0 · bygg 25
+
+Brukeren ba om åpen kildekode, offentlig repo, engelsk README, retningslinjer for bidrag, retting av alle åpne saker og PR-er med Gemini 4 Neon og GPT 6.2 Sol som underagenter, språkstøtte for ti språk og en ferdig app uten demo.
+
+- Åpen kildekode: PR #8 med engelsk README, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY og maler. Repoet er offentlig, privat sårbarhetsrapportering er slått på, og localhost-demoen er tatt ut av sporingen.
+- Saker og PR-er: #3 (Gemini, gjennomgått av GPT, PR #9), #7 og PR #1 (GPT, gjennomgått av Gemini), og #4–#6 på PR #2 (GPT). Gemini gjennomgikk robustheten. Fable 5.2 gjorde to sikkerhetsgjennomganger, og GPT 6.2 Astra rettet funnene: felles `system-install` med SHA-256-kontroll fra root-eid kopi, faste polkit-innganger uten lagret godkjenning, sandkasse for administrativ I2C, avvisning av dupliserte felt og minimumsbygg 25.
+- Språk: grunnmur i `rigg_core::i18n` og fire parallelle oversettelsesgrener, kryssjekket mellom Gemini og GPT. Gemini nådde kvotegrensen tre ganger. Arbeidet ble lagret som WIP og fullført av GPT, og Fable 5.2 tok de siste gjennomgangene. Oppslaget faller nå tilbake til foreldremodulen, så tekst i nestede moduler som `mod imp` blir oversatt.
+- Demo fjernet: 2D/3D-lysmodellen, «3D-kortet», lokal lysvalglagring og «nordlys».
+- README-bildene er tatt på nytt på engelsk med simulerte data (planene 2c og rgb-flow). Planene 1.4.0-ui og 2c finner knapper etter norsk tekst og må kjøres på bokmål for å klikke seg gjennom flyten.
