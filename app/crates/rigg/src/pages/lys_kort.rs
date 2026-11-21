@@ -343,7 +343,7 @@ impl CardLight {
             &[],
         );
         panel.body.append(&summary);
-        let install_prompt = crate::system_install::prompt();
+        let install_prompt = crate::system_install::prompt(app);
         panel.body.append(&install_prompt);
         let identity = paragraph("", &["muted", "sm"]);
         panel.body.append(&identity);
@@ -502,6 +502,8 @@ impl CardLight {
             revert,
         });
         CURRENT.with(|c| *c.borrow_mut() = Rc::downgrade(&p));
+        let weak = Rc::downgrade(&p);
+        crate::system_install::on_installed(move || weak.upgrade().map(|p| p.refresh()).is_some());
         p.wire();
         p.render();
         p
@@ -1269,7 +1271,7 @@ fn admin_paths(
         .into_iter()
         .any(|path| !crate::system_install::trusted(path))
     {
-        return Err(tr!("En administrator må først installere de betrodde RGB-komponentene. Se RGB-HJELPER.md i apppakken.").into());
+        return Err(tr!("Installer systemkomponentene først. Knappen står over.").into());
     }
     Ok((pkexec, script))
 }

@@ -8,10 +8,114 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg/src/system_install.rs:48
-msgid "Systemkomponentene mangler eller må oppdateres. Kjør kommandoen i en administratorterminal. Oppgi arkivstien og SHA-256 fra utgivelsessiden."
-msgstr "システムコンポーネントがないか、更新が必要です。管理者の端末でコマンドを実行してください。アーカイブのパスとリリースページの SHA-256 を入力してください。"
+#: crates/rigg/src/system_install.rs:138
+msgid "Systemkomponentene mangler eller må oppdateres. Installer dem fra utgivelsesarkivet. Du blir spurt om administratorpassordet."
+msgstr "システムコンポーネントがないか、更新が必要です。リリースアーカイブからインストールしてください。管理者パスワードの入力を求められます。"
 
-#: crates/rigg/src/system_install.rs:55
+#: crates/rigg/src/system_install.rs:143
+msgid "Installer systemkomponenter …"
+msgstr "システムコンポーネントをインストール…"
+
+#: crates/rigg/src/system_install.rs:147
+msgid "Fant ikke pkexec. Bruk terminalkommandoen."
+msgstr "pkexec が見つかりません。端末のコマンドを使用してください。"
+
+#: crates/rigg/src/system_install.rs:154
+msgid "Systemkomponentene er installert"
+msgstr "システムコンポーネントをインストールしました"
+
+#: crates/rigg/src/system_install.rs:154
+msgid "Slå på GPU-styring eller kortlys når du vil bruke dem."
+msgstr "使いたいときに GPU の設定変更またはカードのライティングを有効にしてください。"
+
+#: crates/rigg/src/system_install.rs:161
+msgid "Kjør kommandoen i en administratorterminal. Oppgi arkivstien og SHA-256 fra utgivelsessiden."
+msgstr "管理者の端末でコマンドを実行してください。アーカイブのパスとリリースページの SHA-256 を入力してください。"
+
+#: crates/rigg/src/system_install.rs:167
 msgid "Kopier installasjonskommando"
 msgstr "インストールコマンドをコピー"
+
+#: crates/rigg/src/system_install.rs:173
+msgid "Bruk terminal i stedet"
+msgstr "代わりに端末を使う"
+
+#: crates/rigg/src/system_install.rs:186
+msgid "Installer systemkomponenter"
+msgstr "システムコンポーネントをインストール"
+
+#: crates/rigg/src/system_install.rs:219
+msgid "Rothjelperne for GPU-styring og RGB-lys installeres fra utgivelsesarkivet. Arkivet kopieres til en rot-eid mappe og kontrolleres mot SHA-256 fra utgivelsessiden før noe kjøres som administrator."
+msgstr "GPU の設定変更と RGB ライティング用の root 補助プログラムは、リリースアーカイブからインストールされます。アーカイブは root 所有のフォルダーにコピーされ、リリースページの SHA-256 で検証されてから、管理者として実行されます。"
+
+#: crates/rigg/src/system_install.rs:220
+msgid "Installasjonen gir ingen tilgang i seg selv. Du slår på GPU-styring eller kortlys etterpå, med eget passord."
+msgstr "インストールだけでは何の権限も付与されません。GPU の設定変更やカードのライティングは、その後で個別にパスワードを入力して有効にします。"
+
+#: crates/rigg/src/system_install.rs:224
+msgid "Utgivelsesarkiv"
+msgstr "リリースアーカイブ"
+
+#: crates/rigg/src/system_install.rs:245
+msgid "Ikke valgt. Last ned {navn}….tar.gz fra utgivelsessiden."
+msgstr "未選択です。リリースページから {navn}….tar.gz をダウンロードしてください。"
+
+#: crates/rigg/src/system_install.rs:252
+msgid "Velg …"
+msgstr "選択…"
+
+#: crates/rigg/src/system_install.rs:258
+msgid "SHA-256 fra utgivelsessiden"
+msgstr "リリースページの SHA-256"
+
+#: crates/rigg/src/system_install.rs:260
+msgid "64 heksadesimale tegn"
+msgstr "16 進数 64 文字"
+
+#: crates/rigg/src/system_install.rs:263
+msgid "Kopier summen fra GitHub, ikke fra en fil ved siden av nedlastingen. Den står ved arkivet under Assets."
+msgstr "チェックサムはダウンロードの横にあるファイルからではなく、GitHub からコピーしてください。Assets のアーカイブの横に表示されています。"
+
+#: crates/rigg/src/system_install.rs:264
+msgid "Åpne utgivelsessiden"
+msgstr "リリースページを開く"
+
+#: crates/rigg/src/system_install.rs:279
+msgid "Avbryt"
+msgstr "キャンセル"
+
+#: crates/rigg/src/system_install.rs:280
+msgid "Installer"
+msgstr "インストール"
+
+#: crates/rigg/src/system_install.rs:307
+msgid "Velg utgivelsesarkivet"
+msgstr "リリースアーカイブを選択"
+
+#: crates/rigg/src/system_install.rs:309
+msgid "Agentic Rigg-arkiv (.tar.gz)"
+msgstr "Agentic Rigg アーカイブ (.tar.gz)"
+
+#: crates/rigg/src/system_install.rs:350
+msgid "Venter på administratorgodkjenning …"
+msgstr "管理者の承認を待機中…"
+
+#: crates/rigg/src/system_install.rs:386
+msgid "Passordet ble ikke gitt. Ingenting er endret."
+msgstr "パスワードが入力されなかったため、変更はありません。"
+
+#: crates/rigg/src/system_install.rs:387
+msgid "Fant ikke pkexec, eller ingen kan spørre om passordet (polkit)."
+msgstr "pkexecが見つからないか、polkitでパスワードを要求できません。"
+
+#: crates/rigg/src/system_install.rs:390
+msgid "Kontrollsummen stemmer ikke med arkivet. Ingen systemfiler er endret. Sjekk at arkivet og summen gjelder samme fil."
+msgstr "チェックサムがアーカイブと一致しません。システムファイルは変更されていません。アーカイブとチェックサムが同じファイルのものか確認してください。"
+
+#: crates/rigg/src/system_install.rs:391
+msgid "Installasjonen feilet. Ingen nye tilganger er gitt."
+msgstr "インストールに失敗しました。新しい権限は付与されていません。"
+
+#: crates/rigg/src/system_install.rs:392
+msgid "Installasjonen feilet: {feil}"
+msgstr "インストールに失敗しました: {feil}"

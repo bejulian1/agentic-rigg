@@ -199,7 +199,7 @@ fn assert_version_log(app: &Rc<App>, bottom: bool) {
     let mut headers = Vec::new();
     version_headings(win.upcast_ref(), &mut headers);
     assert!(headers.len() >= 9, "hele desktophistorikken skal være med");
-    assert!(headers.first().unwrap().text().starts_with("1.5.0 · bygg "), "nyeste utgave skal være øverst");
+    assert!(headers.first().unwrap().text().starts_with("1.5.1 · bygg "), "nyeste utgave skal være øverst");
     assert!(headers.last().unwrap().text().starts_with("1.0.0 · bygg "), "første utgave skal være nederst");
     let visible = if bottom { headers.last().unwrap() } else { headers.first().unwrap() };
     let rect = visible.compute_bounds(&win).unwrap();

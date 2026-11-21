@@ -28,279 +28,283 @@ msgid "Hjelperen er ikke klar for kortet som vises. Se funksjonsstøtten under, 
 msgstr "Hjelperen er ikke klar for kortet som vises. Se funksjonsstøtten under, eller trykk Sjekk igjen."
 
 #: crates/rigg/src/settings/styring.rs:52
-msgid "Hjelperen må oppdateres. Bruk kommandoen for systeminstallasjon."
-msgstr "Hjelperen må oppdateres. Bruk kommandoen for systeminstallasjon."
+msgid "Hjelperen må oppdateres. Installer systemkomponentene på nytt."
+msgstr "Hjelperen må oppdateres. Installer systemkomponentene på nytt."
 
 #: crates/rigg/src/settings/styring.rs:53
+msgid "Systemkomponentene mangler eller må oppdateres. Slå på bryteren for å installere dem."
+msgstr "Systemkomponentene mangler eller må oppdateres. Slå på bryteren for å installere dem."
+
+#: crates/rigg/src/settings/styring.rs:54
 msgid "Systemkomponentene mangler eller må oppdateres."
 msgstr "Systemkomponentene mangler eller må oppdateres."
 
-#: crates/rigg/src/settings/styring.rs:54
+#: crates/rigg/src/settings/styring.rs:55
 msgid "Bare visning. Endring av skjermkortet er slått av."
 msgstr "Bare visning. Endring av skjermkortet er slått av."
 
-#: crates/rigg/src/settings/styring.rs:63
+#: crates/rigg/src/settings/styring.rs:64
 msgid "agentic-rigg-helper {versjon} · bygg {bygg}"
 msgstr "agentic-rigg-helper {versjon} · bygg {bygg}"
 
-#: crates/rigg/src/settings/styring.rs:66
+#: crates/rigg/src/settings/styring.rs:67
 msgid "Simulert kort"
 msgstr "Simulert kort"
 
-#: crates/rigg/src/settings/styring.rs:66
+#: crates/rigg/src/settings/styring.rs:67
 msgid "Det ekte kortet (NVML)"
 msgstr "Det ekte kortet (NVML)"
 
-#: crates/rigg/src/settings/styring.rs:102
+#: crates/rigg/src/settings/styring.rs:103
 msgid "Avbrutt"
 msgstr "Avbrutt"
 
-#: crates/rigg/src/settings/styring.rs:102
+#: crates/rigg/src/settings/styring.rs:103
 msgid "Passordet ble ikke gitt. Ingenting er endret."
 msgstr "Passordet ble ikke gitt. Ingenting er endret."
 
-#: crates/rigg/src/settings/styring.rs:103
+#: crates/rigg/src/settings/styring.rs:104
 msgid "Fant ikke pkexec, eller ingen kan spørre om passordet (polkit)."
 msgstr "Fant ikke pkexec, eller ingen kan spørre om passordet (polkit)."
 
-#: crates/rigg/src/settings/styring.rs:104
+#: crates/rigg/src/settings/styring.rs:105
 msgid "Skriptet feilet."
 msgstr "Skriptet feilet."
 
-#: crates/rigg/src/settings/styring.rs:114
-msgid "Ingen skjermkort valgt"
-msgstr "Ingen skjermkort valgt"
-
-#: crates/rigg/src/settings/styring.rs:118
-msgid "Kortidentiteten er ikke klar"
-msgstr "Kortidentiteten er ikke klar"
-
-#: crates/rigg/src/settings/styring.rs:118
-msgid "Vent til driveren har lest UUID, og prøv igjen."
-msgstr "Vent til driveren har lest UUID, og prøv igjen."
-
-#: crates/rigg/src/settings/styring.rs:125
-msgid "Kunne ikke aktivere styring"
-msgstr "Kunne ikke aktivere styring"
-
-#: crates/rigg/src/settings/styring.rs:125
-msgid "Kunne ikke slå av styring"
-msgstr "Kunne ikke slå av styring"
-
-#: crates/rigg/src/settings/styring.rs:134
-msgid "Skjermkortstyring er aktivert"
-msgstr "Skjermkortstyring er aktivert"
-
-#: crates/rigg/src/settings/styring.rs:134
-msgid "Velg endringer og trykk Bruk. Behold dem innen fristen, ellers rulles de tilbake."
-msgstr "Velg endringer og trykk Bruk. Behold dem innen fristen, ellers rulles de tilbake."
-
-#: crates/rigg/src/settings/styring.rs:135
+#: crates/rigg/src/settings/styring.rs:126 crates/rigg/src/settings/styring.rs:158
 msgid "Hjelperen er installert, men styring er ikke klar"
 msgstr "Hjelperen er installert, men styring er ikke klar"
 
-#: crates/rigg/src/settings/styring.rs:136
+#: crates/rigg/src/settings/styring.rs:137
+msgid "Ingen skjermkort valgt"
+msgstr "Ingen skjermkort valgt"
+
+#: crates/rigg/src/settings/styring.rs:141
+msgid "Kortidentiteten er ikke klar"
+msgstr "Kortidentiteten er ikke klar"
+
+#: crates/rigg/src/settings/styring.rs:141
+msgid "Vent til driveren har lest UUID, og prøv igjen."
+msgstr "Vent til driveren har lest UUID, og prøv igjen."
+
+#: crates/rigg/src/settings/styring.rs:148
+msgid "Kunne ikke aktivere styring"
+msgstr "Kunne ikke aktivere styring"
+
+#: crates/rigg/src/settings/styring.rs:148
+msgid "Kunne ikke slå av styring"
+msgstr "Kunne ikke slå av styring"
+
+#: crates/rigg/src/settings/styring.rs:157
+msgid "Skjermkortstyring er aktivert"
+msgstr "Skjermkortstyring er aktivert"
+
+#: crates/rigg/src/settings/styring.rs:157
+msgid "Velg endringer og trykk Bruk. Behold dem innen fristen, ellers rulles de tilbake."
+msgstr "Velg endringer og trykk Bruk. Behold dem innen fristen, ellers rulles de tilbake."
+
+#: crates/rigg/src/settings/styring.rs:159
 msgid "Skjermkortstyring er slått av"
 msgstr "Skjermkortstyring er slått av"
 
-#: crates/rigg/src/settings/styring.rs:136
+#: crates/rigg/src/settings/styring.rs:159
 msgid "Hjelperen har gjenopprettet utgangspunktet og tillatelsen er fjernet."
 msgstr "Hjelperen har gjenopprettet utgangspunktet og tillatelsen er fjernet."
 
-#: crates/rigg/src/settings/styring.rs:145
+#: crates/rigg/src/settings/styring.rs:168
 msgid "Én aktivering"
 msgstr "Én aktivering"
 
-#: crates/rigg/src/settings/styring.rs:145
+#: crates/rigg/src/settings/styring.rs:168
 msgid "Bruk Tillat endring av skjermkortet. Funksjonsstøtten bestemmes av kortet og driveren."
 msgstr "Bruk Tillat endring av skjermkortet. Funksjonsstøtten bestemmes av kortet og driveren."
 
-#: crates/rigg/src/settings/styring.rs:155
+#: crates/rigg/src/settings/styring.rs:178
 msgid "Effektgrense"
 msgstr "Effektgrense"
 
-#: crates/rigg/src/settings/styring.rs:155
+#: crates/rigg/src/settings/styring.rs:178
 msgid "Manuell viftefart og Auto"
 msgstr "Manuell viftefart og Auto"
 
-#: crates/rigg/src/settings/styring.rs:155
+#: crates/rigg/src/settings/styring.rs:178
 msgid "Viftekurve"
 msgstr "Viftekurve"
 
-#: crates/rigg/src/settings/styring.rs:155
+#: crates/rigg/src/settings/styring.rs:178
 msgid "Kjerneklokke"
 msgstr "Kjerneklokke"
 
-#: crates/rigg/src/settings/styring.rs:155
+#: crates/rigg/src/settings/styring.rs:178
 msgid "Minneklokke"
 msgstr "Minneklokke"
 
-#: crates/rigg/src/settings/styring.rs:155
+#: crates/rigg/src/settings/styring.rs:178
 msgid "Temperaturmål"
 msgstr "Temperaturmål"
 
-#: crates/rigg/src/settings/styring.rs:157
+#: crates/rigg/src/settings/styring.rs:180
 msgid "Tilgjengelig"
 msgstr "Tilgjengelig"
 
-#: crates/rigg/src/settings/styring.rs:157
+#: crates/rigg/src/settings/styring.rs:180
 msgid "Ikke undersøkt"
 msgstr "Ikke undersøkt"
 
-#: crates/rigg/src/settings/styring.rs:157
+#: crates/rigg/src/settings/styring.rs:180
 msgid "Utilgjengelig"
 msgstr "Utilgjengelig"
 
-#: crates/rigg/src/settings/styring.rs:160
+#: crates/rigg/src/settings/styring.rs:183
 msgid "Leses når administratorhjelperen aktiveres for dette kortet."
 msgstr "Leses når administratorhjelperen aktiveres for dette kortet."
 
-#: crates/rigg/src/settings/styring.rs:170
+#: crates/rigg/src/settings/styring.rs:193
 msgid "Kortets rapporterte område: {omraade}."
 msgstr "Kortets rapporterte område: {omraade}."
 
-#: crates/rigg/src/settings/styring.rs:172
+#: crates/rigg/src/settings/styring.rs:195
 msgid "Støttes av den tilkoblede hjelperen."
 msgstr "Støttes av den tilkoblede hjelperen."
 
-#: crates/rigg/src/settings/styring.rs:177
+#: crates/rigg/src/settings/styring.rs:200
 msgid "Tilgjengelige funksjoner"
 msgstr "Tilgjengelige funksjoner"
 
-#: crates/rigg/src/settings/styring.rs:178
+#: crates/rigg/src/settings/styring.rs:201
 msgid "Én administratoraktivering gjelder støttede funksjoner på det valgte kortet. Listen er status, ikke ekstra godkjenninger."
 msgstr "Én administratoraktivering gjelder støttede funksjoner på det valgte kortet. Listen er status, ikke ekstra godkjenninger."
 
-#: crates/rigg/src/settings/styring.rs:179
+#: crates/rigg/src/settings/styring.rs:202
 msgid "Funksjoner uten støtte kan ikke brukes på kortet. RGB har egen tillatelse på siden RGB-lys."
 msgstr "Funksjoner uten støtte kan ikke brukes på kortet. RGB har egen tillatelse på siden RGB-lys."
 
-#: crates/rigg/src/settings/styring.rs:180
+#: crates/rigg/src/settings/styring.rs:203
 msgctxt "søkeord"
 msgid "funksjoner støtte effekt vifter klokker temperatur"
 msgstr "funksjoner støtte effekt vifter klokker temperatur"
 
-#: crates/rigg/src/settings/styring.rs:208 crates/rigg/src/settings/styring.rs:222
+#: crates/rigg/src/settings/styring.rs:231 crates/rigg/src/settings/styring.rs:246
 msgid "Tillat endring av skjermkortet"
 msgstr "Tillat endring av skjermkortet"
 
-#: crates/rigg/src/settings/styring.rs:223
+#: crates/rigg/src/settings/styring.rs:247
 msgid "Gir Agentic Rigg tilgang til støttede GPU-funksjoner via en administratorhjelper. Du blir spurt om passord. Ingen verdier endres før du trykker Bruk på en styringsside."
 msgstr "Gir Agentic Rigg tilgang til støttede GPU-funksjoner via en administratorhjelper. Du blir spurt om passord. Ingen verdier endres før du trykker Bruk på en styringsside."
 
-#: crates/rigg/src/settings/styring.rs:225
+#: crates/rigg/src/settings/styring.rs:249
 msgctxt "søkeord"
 msgid "root polkit pkexec hjelper skriving endre overklokking"
 msgstr "root polkit pkexec hjelper skriving endre overklokking"
 
-#: crates/rigg/src/settings/styring.rs:240
+#: crates/rigg/src/settings/styring.rs:264
 msgid "Venter"
 msgstr "Venter"
 
-#: crates/rigg/src/settings/styring.rs:241
+#: crates/rigg/src/settings/styring.rs:265
 msgid "Klar"
 msgstr "Klar"
 
-#: crates/rigg/src/settings/styring.rs:242
+#: crates/rigg/src/settings/styring.rs:266
 msgid "Simulert"
 msgstr "Simulert"
 
-#: crates/rigg/src/settings/styring.rs:243
+#: crates/rigg/src/settings/styring.rs:267
 msgid "Ikke klar"
 msgstr "Ikke klar"
 
-#: crates/rigg/src/settings/styring.rs:244
+#: crates/rigg/src/settings/styring.rs:268
 msgid "Feil"
 msgstr "Feil"
 
-#: crates/rigg/src/settings/styring.rs:245
+#: crates/rigg/src/settings/styring.rs:269
 msgid "Oppdater hjelper"
 msgstr "Oppdater hjelper"
 
-#: crates/rigg/src/settings/styring.rs:246
+#: crates/rigg/src/settings/styring.rs:270
 msgid "Av"
 msgstr "Av"
 
-#: crates/rigg/src/settings/styring.rs:258
+#: crates/rigg/src/settings/styring.rs:282
 msgid "Åpne styring"
 msgstr "Åpne styring"
 
-#: crates/rigg/src/settings/styring.rs:264
+#: crates/rigg/src/settings/styring.rs:288
 msgid "Sjekk igjen"
 msgstr "Sjekk igjen"
 
-#: crates/rigg/src/settings/styring.rs:275
+#: crates/rigg/src/settings/styring.rs:299
 msgctxt "søkeord"
 msgid "systemkomponenter installasjon"
 msgstr "systemkomponenter installasjon"
 
-#: crates/rigg/src/settings/styring.rs:278
+#: crates/rigg/src/settings/styring.rs:302
 msgid "Endring av skjermkortet"
 msgstr "Endring av skjermkortet"
 
-#: crates/rigg/src/settings/styring.rs:280
+#: crates/rigg/src/settings/styring.rs:304
 msgid "Slår du bryteren av, gjenopprettes det lagrede utgangspunktet før tillatelsen fjernes. En feil vises hvis gjenopprettingen ikke kan bekreftes. Slå av styring før avinstallasjon."
 msgstr "Slår du bryteren av, gjenopprettes det lagrede utgangspunktet før tillatelsen fjernes. En feil vises hvis gjenopprettingen ikke kan bekreftes. Slå av styring før avinstallasjon."
 
-#: crates/rigg/src/settings/styring.rs:281
+#: crates/rigg/src/settings/styring.rs:305
 msgctxt "søkeord"
 msgid "bryter av på status"
 msgstr "bryter av på status"
 
-#: crates/rigg/src/settings/styring.rs:290
+#: crates/rigg/src/settings/styring.rs:314
 msgid "Hjelperen"
 msgstr "Hjelperen"
 
-#: crates/rigg/src/settings/styring.rs:290
+#: crates/rigg/src/settings/styring.rs:314
 msgid "Et lite program som kjører i bakgrunnen med administratorrettigheter. Det kan bare endre effekt, vifter og klokker, innenfor det kortet selv tillater"
 msgstr "Et lite program som kjører i bakgrunnen med administratorrettigheter. Det kan bare endre effekt, vifter og klokker, innenfor det kortet selv tillater"
 
-#: crates/rigg/src/settings/styring.rs:291
+#: crates/rigg/src/settings/styring.rs:315
 msgid "Passord"
 msgstr "Passord"
 
-#: crates/rigg/src/settings/styring.rs:291
+#: crates/rigg/src/settings/styring.rs:315
 msgid "Én administratorgodkjenning ved aktivering. Vanlige endringer bruker Bruk og Behold"
 msgstr "Én administratorgodkjenning ved aktivering. Vanlige endringer bruker Bruk og Behold"
 
-#: crates/rigg/src/settings/styring.rs:292
+#: crates/rigg/src/settings/styring.rs:316
 msgid "Hvem"
 msgstr "Hvem"
 
-#: crates/rigg/src/settings/styring.rs:292
+#: crates/rigg/src/settings/styring.rs:316
 msgid "Bare brukeren din. Andre brukere på maskinen slipper ikke til"
 msgstr "Bare brukeren din. Andre brukere på maskinen slipper ikke til"
 
-#: crates/rigg/src/settings/styring.rs:293
+#: crates/rigg/src/settings/styring.rs:317
 msgid "Vern"
 msgstr "Vern"
 
-#: crates/rigg/src/settings/styring.rs:293
+#: crates/rigg/src/settings/styring.rs:317
 msgid "Endringer rulles tilbake uten Behold innen fristen. Viftekurven har nødregel ved høy temperatur. Frakobling og stopp gjenoppretter utgangspunktet; eventuelle feil rapporteres"
 msgstr "Endringer rulles tilbake uten Behold innen fristen. Viftekurven har nødregel ved høy temperatur. Frakobling og stopp gjenoppretter utgangspunktet; eventuelle feil rapporteres"
 
-#: crates/rigg/src/settings/styring.rs:294
+#: crates/rigg/src/settings/styring.rs:318
 msgid "Filene"
 msgstr "Filene"
 
-#: crates/rigg/src/settings/styring.rs:294
+#: crates/rigg/src/settings/styring.rs:318
 msgid "{hjelper}\n{konfigurasjon} (bruker, kort og aktivering)"
 msgstr "{hjelper}\n{konfigurasjon} (bruker, kort og aktivering)"
 
-#: crates/rigg/src/settings/styring.rs:296
+#: crates/rigg/src/settings/styring.rs:320
 msgid "Skriptene"
 msgstr "Skriptene"
 
-#: crates/rigg/src/settings/styring.rs:298
+#: crates/rigg/src/settings/styring.rs:322
 msgid "Hva bryteren gjør"
 msgstr "Hva bryteren gjør"
 
-#: crates/rigg/src/settings/styring.rs:298
+#: crates/rigg/src/settings/styring.rs:322
 msgctxt "søkeord"
 msgid "hjelper root polkit systemd sikkerhet passord"
 msgstr "hjelper root polkit systemd sikkerhet passord"
 
-#: crates/rigg/src/settings/styring.rs:300
+#: crates/rigg/src/settings/styring.rs:324
 msgctxt "søkeord"
 msgid "hjelper root polkit systemd passord vern frist nødregel"
 msgstr "hjelper root polkit systemd passord vern frist nødregel"

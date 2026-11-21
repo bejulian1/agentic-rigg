@@ -1,5 +1,11 @@
 # Patchlog
 
+## 1.5.1 · bygg 26 – 21. november 2026: systemkomponenter uten terminal
+
+- `system_install.rs`: installasjonsvindu med filvalg, SHA-256-felt og lenke til utgivelsessiden. Kjører `pkexec /usr/bin/bash -ceu 'PATH=/usr/bin:/bin; export PATH; <skript>' rigg ARKIV SUM`, der skriptet hentes fra `system-bootstrap.command` (én kilde; testen låser at appen og terminalkommandoen kjører det samme). `pkexec` og `bash` må være root-eide vanlige filer; `/bin` og `/usr/bin/env` er lenker på Ubuntu 26.04 og brukes derfor ikke.
+- Skjermkortstyring: bryteren er aktiv når komponentene mangler og `pkexec` finnes, åpner installasjonen og kaller aktiveringen etter vellykket installasjon. RGB-siden oppdateres når installasjonen er ferdig.
+- `bare_lesing.rs` og `clippy.toml` tillater `pkexec` i `system_install.rs`. Ny skjermbildeplan `installer` (trykker aldri Installer). Hjelperne, polkit-handlingene og `MIN_COMPATIBLE_BUILD` (25) er uendret.
+
 ## 1.5.0 · bygg 25 – 21. november 2026: ti språk, Oppgaver og lys på kortet
 
 ### Åpen kildekode
