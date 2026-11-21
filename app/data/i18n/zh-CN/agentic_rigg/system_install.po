@@ -8,114 +8,74 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg/src/system_install.rs:138
-msgid "Systemkomponentene mangler eller må oppdateres. Installer dem fra utgivelsesarkivet. Du blir spurt om administratorpassordet."
-msgstr "系统组件缺失或需要更新。请从发布归档安装，安装时会要求输入管理员密码。"
+#: crates/rigg/src/system_install.rs:119
+msgid "Systemkomponentene mangler eller må oppdateres."
+msgstr "系统组件缺失或需要更新。"
 
-#: crates/rigg/src/system_install.rs:143
-msgid "Installer systemkomponenter …"
-msgstr "安装系统组件…"
-
-#: crates/rigg/src/system_install.rs:147
-msgid "Fant ikke pkexec. Bruk terminalkommandoen."
-msgstr "未找到 pkexec。请使用终端命令。"
-
-#: crates/rigg/src/system_install.rs:154
-msgid "Systemkomponentene er installert"
-msgstr "系统组件已安装"
-
-#: crates/rigg/src/system_install.rs:154
-msgid "Slå på GPU-styring eller kortlys når du vil bruke dem."
-msgstr "需要时再启用显卡调校或显卡灯光。"
-
-#: crates/rigg/src/system_install.rs:161
-msgid "Kjør kommandoen i en administratorterminal. Oppgi arkivstien og SHA-256 fra utgivelsessiden."
-msgstr "请在管理员终端执行命令，提供归档路径及发布页面上的 SHA-256。"
-
-#: crates/rigg/src/system_install.rs:167
-msgid "Kopier installasjonskommando"
-msgstr "复制安装命令"
-
-#: crates/rigg/src/system_install.rs:173
-msgid "Bruk terminal i stedet"
-msgstr "改用终端"
-
-#: crates/rigg/src/system_install.rs:186
+#: crates/rigg/src/system_install.rs:120
 msgid "Installer systemkomponenter"
 msgstr "安装系统组件"
 
-#: crates/rigg/src/system_install.rs:219
-msgid "Rothjelperne for GPU-styring og RGB-lys installeres fra utgivelsesarkivet. Arkivet kopieres til en rot-eid mappe og kontrolleres mot SHA-256 fra utgivelsessiden før noe kjøres som administrator."
-msgstr "显卡调校和 RGB 灯光的 root 辅助程序从发布归档安装。归档会先复制到 root 所有的文件夹，并用发布页面上的 SHA-256 校验，然后才会以管理员身份运行任何内容。"
+#: crates/rigg/src/system_install.rs:124
+msgid "Fant ikke pkexec. Bruk terminalkommandoen."
+msgstr "未找到 pkexec。请使用终端命令。"
 
-#: crates/rigg/src/system_install.rs:220
-msgid "Installasjonen gir ingen tilgang i seg selv. Du slår på GPU-styring eller kortlys etterpå, med eget passord."
-msgstr "安装本身不会授予任何权限。之后再启用显卡调校或显卡灯光，届时需另行输入密码。"
+#: crates/rigg/src/system_install.rs:127
+msgid "Henter Agentic Rigg {versjon} fra GitHub, kontrollerer den mot SHA-256-summen GitHub oppgir, og ber om administratorpassordet. Installasjonen gir ingen tilgang i seg selv."
+msgstr "从 GitHub 下载 Agentic Rigg {versjon}，用 GitHub 公布的 SHA-256 校验和进行校验，然后要求输入管理员密码。安装本身不会授予任何权限。"
 
-#: crates/rigg/src/system_install.rs:224
-msgid "Utgivelsesarkiv"
-msgstr "发布归档"
+#: crates/rigg/src/system_install.rs:144
+msgid "Systemkomponentene er installert"
+msgstr "系统组件已安装"
 
-#: crates/rigg/src/system_install.rs:245
-msgid "Ikke valgt. Last ned {navn}….tar.gz fra utgivelsessiden."
-msgstr "未选择。请从发布页面下载 {navn}….tar.gz。"
+#: crates/rigg/src/system_install.rs:144
+msgid "Slå på GPU-styring eller kortlys når du vil bruke dem."
+msgstr "需要时再启用显卡调校或显卡灯光。"
 
-#: crates/rigg/src/system_install.rs:252
-msgid "Velg …"
-msgstr "选择…"
+#: crates/rigg/src/system_install.rs:151
+msgid "Kjør kommandoen i en administratorterminal. Oppgi arkivstien og SHA-256 fra utgivelsessiden."
+msgstr "请在管理员终端执行命令，提供归档路径及发布页面上的 SHA-256。"
 
-#: crates/rigg/src/system_install.rs:258
-msgid "SHA-256 fra utgivelsessiden"
-msgstr "发布页面上的 SHA-256"
+#: crates/rigg/src/system_install.rs:155
+msgid "Kopier installasjonskommando"
+msgstr "复制安装命令"
 
-#: crates/rigg/src/system_install.rs:260
-msgid "64 heksadesimale tegn"
-msgstr "64 位十六进制字符"
+#: crates/rigg/src/system_install.rs:160
+msgid "Uten nett: bruk terminal"
+msgstr "离线：使用终端"
 
-#: crates/rigg/src/system_install.rs:263
-msgid "Kopier summen fra GitHub, ikke fra en fil ved siden av nedlastingen. Den står ved arkivet under Assets."
-msgstr "请从 GitHub 复制校验和，不要从下载文件旁边的文件复制。它显示在 Assets 下的归档旁边。"
-
-#: crates/rigg/src/system_install.rs:264
-msgid "Åpne utgivelsessiden"
-msgstr "打开发布页面"
-
-#: crates/rigg/src/system_install.rs:279
-msgid "Avbryt"
-msgstr "取消"
-
-#: crates/rigg/src/system_install.rs:280
-msgid "Installer"
-msgstr "安装"
-
-#: crates/rigg/src/system_install.rs:307
-msgid "Velg utgivelsesarkivet"
-msgstr "选择发布归档"
-
-#: crates/rigg/src/system_install.rs:309
-msgid "Agentic Rigg-arkiv (.tar.gz)"
-msgstr "Agentic Rigg 归档 (.tar.gz)"
-
-#: crates/rigg/src/system_install.rs:350
-msgid "Venter på administratorgodkjenning …"
-msgstr "正在等待管理员授权…"
-
-#: crates/rigg/src/system_install.rs:386
+#: crates/rigg/src/system_install.rs:168
 msgid "Passordet ble ikke gitt. Ingenting er endret."
 msgstr "未输入密码，未进行任何更改。"
 
-#: crates/rigg/src/system_install.rs:387
+#: crates/rigg/src/system_install.rs:169
 msgid "Fant ikke pkexec, eller ingen kan spørre om passordet (polkit)."
 msgstr "找不到 pkexec，或 polkit 无法请求输入密码。"
 
-#: crates/rigg/src/system_install.rs:390
-msgid "Kontrollsummen stemmer ikke med arkivet. Ingen systemfiler er endret. Sjekk at arkivet og summen gjelder samme fil."
-msgstr "校验和与归档不匹配。未更改任何系统文件。请确认归档和校验和对应同一个文件。"
+#: crates/rigg/src/system_install.rs:171
+msgid "Fikk ikke kontakt med GitHub. Sjekk nettet, eller bruk terminalkommandoen."
+msgstr "无法连接 GitHub。请检查网络，或使用终端命令。"
 
-#: crates/rigg/src/system_install.rs:391
+#: crates/rigg/src/system_install.rs:172
+msgid "Fant ikke utgivelsen for denne versjonen på GitHub."
+msgstr "在 GitHub 上找不到此版本的发布。"
+
+#: crates/rigg/src/system_install.rs:174
+msgid "Nedlastingen stemmer ikke med summen GitHub oppgir. Ingen systemfiler er endret."
+msgstr "下载内容与 GitHub 公布的校验和不符。未更改任何系统文件。"
+
+#: crates/rigg/src/system_install.rs:175
 msgid "Installasjonen feilet. Ingen nye tilganger er gitt."
 msgstr "安装失败。未授予任何新权限。"
 
-#: crates/rigg/src/system_install.rs:392
+#: crates/rigg/src/system_install.rs:176
 msgid "Installasjonen feilet: {feil}"
 msgstr "安装失败：{feil}"
+
+#: crates/rigg/src/system_install.rs:189
+msgid "Vent til den andre administratorhandlingen er ferdig"
+msgstr "请等待另一项管理员操作完成"
+
+#: crates/rigg/src/system_install.rs:206 crates/rigg/src/system_install.rs:221
+msgid "Installasjonen ble ikke fullført"
+msgstr "安装未完成"

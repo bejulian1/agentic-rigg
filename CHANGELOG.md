@@ -1,6 +1,13 @@
 # Versjonslogg
 
-Gjeldende versjon: **1.5.1 · bygg 26**. Nedlastinger og utgivelsesnotater ligger under [Releases](https://github.com/bejulian1/agentic-rigg/releases).
+Gjeldende versjon: **1.5.2 · bygg 27**. Nedlastinger og utgivelsesnotater ligger under [Releases](https://github.com/bejulian1/agentic-rigg/releases).
+
+## 1.5.2 · bygg 27 – 21. november 2026
+
+- **Bare passordet:** «Installer systemkomponenter» og bryteren «Tillat endring av skjermkortet» trenger ikke lenger filvalg eller innlimt SHA-256. Installasjonsprogrammet kjører som root via `pkexec` og laster ned utgivelsen med appens egen versjon fra GitHub til en ny root-eid mappe. Det kontrollerer arkivet mot SHA-256-summen GitHub publiserer for akkurat den filen (den samme som står på utgivelsessiden), og kjører først da `system-install` fra den kontrollerte kopien.
+- **Utdatert hjelper:** Ett trykk oppdaterer systemkomponentene og slår GPU-styringen på igjen (to passordspørsmål: installasjon og aktivering).
+- **Personvern:** Appen kobler seg fortsatt aldri til nettet av seg selv. Den eneste nettkontakten er denne nedlastingen fra GitHub når du ber om installasjonen. Uten nett finnes terminalkommandoen under «Uten nett: bruk terminal».
+- Installasjonsvinduet fra 1.5.1 er fjernet. Hjelperne, protokollene og minimumsbygget 25 er uendret.
 
 ## 1.5.1 · bygg 26 – 21. november 2026
 

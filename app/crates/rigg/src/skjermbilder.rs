@@ -73,23 +73,8 @@ fn plan() -> Vec<Step> {
         Ok("rgb-ui") => plan_rgb(),
         Ok("rgb-flow") => plan_rgb_flow(),
         Ok("oppgaver") => oppgaver::plan(),
-        Ok("installer") => plan_installer(),
         _ => plan_grunnmur(),
     }
-}
-
-/// Installasjonsvinduet for systemkomponentene, lyst og mørkt. Planen trykker
-/// aldri Installer, så pkexec startes ikke.
-fn plan_installer() -> Vec<Step> {
-    use Step::*;
-    let mut dark = base();
-    dark["theme"] = json!("dark");
-    vec![
-        Size(1440, 1000), Set(base()), Go("oversikt"), Wait(1200),
-        Dialog("installer-lys", |a| crate::system_install::show_dialog(a, |_| {})),
-        Set(dark), Wait(400),
-        Dialog("installer-mork", |a| crate::system_install::show_dialog(a, |_| {})),
-    ]
 }
 
 /// Ekte GTK-handlinger og daemon-IPC, utelukkende mot en merket privat fake.
