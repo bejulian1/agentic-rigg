@@ -168,11 +168,16 @@ msgstr "Compatível com o auxiliar conectado."
 msgid "Tilgjengelige funksjoner"
 msgstr "Recursos disponíveis"
 
+#: crates/rigg/src/settings/styring.rs:178
+msgid "Én administratoraktivering gjelder støttede funksjoner på det valgte kortet. Listen er status, ikke ekstra godkjenninger."
+msgstr "Uma única ativação de administrador vale para os recursos compatíveis da GPU selecionada. A lista mostra o status, não autorizações adicionais."
+
 #: crates/rigg/src/settings/styring.rs:179
 msgid "Funksjoner uten støtte kan ikke brukes på kortet. RGB har egen tillatelse på siden RGB-lys."
 msgstr "Funções não suportadas não podem ser usadas nesta placa. A página Iluminação RGB tem permissão separada."
 
 #: crates/rigg/src/settings/styring.rs:180
+msgctxt "søkeord"
 msgid "funksjoner støtte effekt vifter klokker temperatur"
 msgstr "funções suporte potência ventoinhas frequências temperatura"
 
@@ -183,6 +188,11 @@ msgstr "Permitir ajustes da GPU"
 #: crates/rigg/src/settings/styring.rs:223
 msgid "Gir Agentic Rigg tilgang til støttede GPU-funksjoner via en administratorhjelper. Du blir spurt om passord. Ingen verdier endres før du trykker Bruk på en styringsside."
 msgstr "Dá ao Agentic Rigg acesso aos recursos compatíveis da GPU por meio de um auxiliar de administrador. Sua senha será solicitada. Nenhum valor muda até você clicar em Aplicar em uma página de ajustes."
+
+#: crates/rigg/src/settings/styring.rs:225
+msgctxt "søkeord"
+msgid "root polkit pkexec hjelper skriving endre overklokking"
+msgstr "root polkit pkexec auxiliar gravação alterar overclock"
 
 #: crates/rigg/src/settings/styring.rs:240
 msgid "Venter"
@@ -220,6 +230,11 @@ msgstr "Abrir ajustes da GPU"
 msgid "Sjekk igjen"
 msgstr "Verificar novamente"
 
+#: crates/rigg/src/settings/styring.rs:275
+msgctxt "søkeord"
+msgid "systemkomponenter installasjon"
+msgstr "componentes do sistema instalação"
+
 #: crates/rigg/src/settings/styring.rs:278
 msgid "Endring av skjermkortet"
 msgstr "Ajustes da GPU"
@@ -229,6 +244,7 @@ msgid "Slår du bryteren av, gjenopprettes det lagrede utgangspunktet før tilla
 msgstr "Desligar a chave restaura o estado inicial salvo antes de remover a permissão. Um erro é exibido se não for possível confirmar a restauração. Desative o controle antes de desinstalar."
 
 #: crates/rigg/src/settings/styring.rs:281
+msgctxt "søkeord"
 msgid "bryter av på status"
 msgstr "chave desligado ligado status"
 
@@ -280,6 +296,12 @@ msgstr "Scripts"
 msgid "Hva bryteren gjør"
 msgstr "Como a opção funciona"
 
+#: crates/rigg/src/settings/styring.rs:298
+msgctxt "søkeord"
+msgid "hjelper root polkit systemd sikkerhet passord"
+msgstr "auxiliar root polkit systemd segurança senha"
+
 #: crates/rigg/src/settings/styring.rs:300
+msgctxt "søkeord"
 msgid "hjelper root polkit systemd passord vern frist nødregel"
 msgstr "auxiliar root polkit systemd senha proteção prazo regra de emergência"

@@ -24,6 +24,7 @@ Alle eggene ligger i én fil, `web/js/easter.js`. Lista `EGGS` øverst i fila ha
 - **Tilgjengelighet.**
   - Alt som vises, har tekst for skjermlesere: et verktøytips, en `aria-label`, en skjult tekst, en `aria-live`-linje eller `announce()`.
   - Ingen egg legger til tab-stopp eller endrer fokus.
+  - Juksekoden, filteret, kurven (piltastene) og konsollen utløses med tastaturet. 42 °C, bursdagen og natta skjer av seg selv. Bare appikonet og versjonen må klikkes.
   - Fargene er tokens, så høy kontrast og alle fargetemaer virker uten noe ekstra.
 - **Én bryter.**
   - «Små overraskelser» under Innstillinger › Generelt (gruppen Annet) slår av alt med en gang, også det som vises nå.
@@ -170,3 +171,4 @@ Fila `test/ui/easter.test.js` har fire tester i headless Chrome, mot en egen tes
 - **Lyder, konfetti og noe som dekker skjermen.** Det passer ikke uttrykket, og brukeren ba om stille detaljer.
 - **Mer enn ett egg på samme sted,** og egg i bekreftelseslinja, Kontroller eller noe som har med Bruk og Behold å gjøre. Der skal ingenting være uventet.
 - **Lagring på serveren av hva som er funnet.** Det er en liten ting for én nettleser, ikke en innstilling.
+- **Egen snarvei til Om-egget.** Versjonsmerket er ikke en knapp, og det skulle ikke bli en tab-stopp bare for et egg. Juksekoden dekker tastaturet.

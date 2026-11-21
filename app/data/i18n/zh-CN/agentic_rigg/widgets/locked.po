@@ -70,7 +70,7 @@ msgstr "控制错误"
 
 #: crates/rigg/src/widgets/locked.rs:346
 msgid "Oppdater hjelper"
-msgstr "更新助手"
+msgstr "更新辅助程序"
 
 #: crates/rigg/src/widgets/locked.rs:347
 msgid "Bare visning"
@@ -86,11 +86,11 @@ msgstr "辅助程序尚未就绪，无法调校此 GPU。"
 
 #: crates/rigg/src/widgets/locked.rs:356
 msgid "Hjelperen svarer ikke. Endringer er låst."
-msgstr "助手无响应。更改已锁定。"
+msgstr "辅助程序无响应。更改已锁定。"
 
 #: crates/rigg/src/widgets/locked.rs:357
 msgid "Hjelperen må oppdateres. Oppdater systemkomponentene fra Innstillinger › Skjermkortstyring."
-msgstr "必须更新助手。请在“设置 › GPU 控制”中更新系统组件。"
+msgstr "必须更新辅助程序。请在“设置 › GPU 控制”中更新系统组件。"
 
 #: crates/rigg/src/widgets/locked.rs:516
 msgid "Utkastet må oppdateres"

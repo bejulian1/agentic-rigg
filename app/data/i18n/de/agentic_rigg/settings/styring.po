@@ -30,7 +30,7 @@ msgstr "Der Hilfsdienst ist für diese GPU nicht bereit. Prüfe die unterstützt
 
 #: crates/rigg/src/settings/styring.rs:52
 msgid "Hjelperen må oppdateres. Bruk kommandoen for systeminstallasjon."
-msgstr "Der Hilfsdienst muss aktualisiert werden. Verwenden Sie den Systeminstallationsbefehl."
+msgstr "Der Hilfsdienst muss aktualisiert werden. Verwende den Systeminstallationsbefehl."
 
 #: crates/rigg/src/settings/styring.rs:53
 msgid "Systemkomponentene mangler eller må oppdateres."
@@ -168,11 +168,16 @@ msgstr "Vom verbundenen Hilfsdienst unterstützt."
 msgid "Tilgjengelige funksjoner"
 msgstr "Verfügbare Funktionen"
 
+#: crates/rigg/src/settings/styring.rs:178
+msgid "Én administratoraktivering gjelder støttede funksjoner på det valgte kortet. Listen er status, ikke ekstra godkjenninger."
+msgstr "Eine Administratoraktivierung gilt für die unterstützten Funktionen der ausgewählten GPU. Die Liste zeigt den Status, keine zusätzlichen Freigaben."
+
 #: crates/rigg/src/settings/styring.rs:179
 msgid "Funksjoner uten støtte kan ikke brukes på kortet. RGB har egen tillatelse på siden RGB-lys."
 msgstr "Nicht unterstützte Funktionen sind auf dieser Karte nicht nutzbar. Die RGB-Beleuchtung hat eine eigene Berechtigung."
 
 #: crates/rigg/src/settings/styring.rs:180
+msgctxt "søkeord"
 msgid "funksjoner støtte effekt vifter klokker temperatur"
 msgstr "Funktionen Unterstützung Leistung Lüfter Takt Temperatur"
 
@@ -183,6 +188,11 @@ msgstr "GPU-Einstellungen ändern"
 #: crates/rigg/src/settings/styring.rs:223
 msgid "Gir Agentic Rigg tilgang til støttede GPU-funksjoner via en administratorhjelper. Du blir spurt om passord. Ingen verdier endres før du trykker Bruk på en styringsside."
 msgstr "Erlaubt Agentic Rigg über einen Hilfsdienst mit Administratorrechten den Zugriff auf unterstützte GPU-Funktionen. Du wirst nach dem Passwort gefragt. Werte ändern sich erst mit „Anwenden“ auf einer Steuerungsseite."
+
+#: crates/rigg/src/settings/styring.rs:225
+msgctxt "søkeord"
+msgid "root polkit pkexec hjelper skriving endre overklokking"
+msgstr "root polkit pkexec Hilfsdienst schreiben ändern Übertaktung"
 
 #: crates/rigg/src/settings/styring.rs:240
 msgid "Venter"
@@ -220,15 +230,21 @@ msgstr "GPU-Steuerung öffnen"
 msgid "Sjekk igjen"
 msgstr "Erneut prüfen"
 
+#: crates/rigg/src/settings/styring.rs:275
+msgctxt "søkeord"
+msgid "systemkomponenter installasjon"
+msgstr "Systemkomponenten Installation installieren"
+
 #: crates/rigg/src/settings/styring.rs:278
 msgid "Endring av skjermkortet"
 msgstr "GPU-Steuerung"
 
 #: crates/rigg/src/settings/styring.rs:280
 msgid "Slår du bryteren av, gjenopprettes det lagrede utgangspunktet før tillatelsen fjernes. En feil vises hvis gjenopprettingen ikke kan bekreftes. Slå av styring før avinstallasjon."
-msgstr "Beim Ausschalten wird der gespeicherte Ausgangszustand wiederhergestellt, bevor die Berechtigung entzogen wird. Lässt sich die Wiederherstellung nicht bestätigen, erscheint ein Fehler. Deaktivieren Sie die Steuerung vor der Deinstallation."
+msgstr "Beim Ausschalten wird der gespeicherte Ausgangszustand wiederhergestellt, bevor die Berechtigung entzogen wird. Lässt sich die Wiederherstellung nicht bestätigen, erscheint ein Fehler. Deaktiviere die Steuerung vor der Deinstallation."
 
 #: crates/rigg/src/settings/styring.rs:281
+msgctxt "søkeord"
 msgid "bryter av på status"
 msgstr "Schalter aus ein Status"
 
@@ -280,6 +296,12 @@ msgstr "Skripte"
 msgid "Hva bryteren gjør"
 msgstr "So funktioniert der Schalter"
 
+#: crates/rigg/src/settings/styring.rs:298
+msgctxt "søkeord"
+msgid "hjelper root polkit systemd sikkerhet passord"
+msgstr "Hilfsdienst root polkit systemd Sicherheit Passwort"
+
 #: crates/rigg/src/settings/styring.rs:300
+msgctxt "søkeord"
 msgid "hjelper root polkit systemd passord vern frist nødregel"
 msgstr "Hilfsdienst root polkit systemd Passwort Schutz Frist Notfallregel"

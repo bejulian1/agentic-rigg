@@ -70,7 +70,7 @@ msgstr "制御エラー"
 
 #: crates/rigg/src/widgets/locked.rs:346
 msgid "Oppdater hjelper"
-msgstr "ヘルパーを更新"
+msgstr "補助プログラムを更新"
 
 #: crates/rigg/src/widgets/locked.rs:347
 msgid "Bare visning"
@@ -86,11 +86,11 @@ msgstr "補助プログラムはこのGPUの設定を変更できる状態では
 
 #: crates/rigg/src/widgets/locked.rs:356
 msgid "Hjelperen svarer ikke. Endringer er låst."
-msgstr "ヘルパーが応答していません。変更はロックされています。"
+msgstr "補助プログラムが応答していません。変更はロックされています。"
 
 #: crates/rigg/src/widgets/locked.rs:357
 msgid "Hjelperen må oppdateres. Oppdater systemkomponentene fra Innstillinger › Skjermkortstyring."
-msgstr "ヘルパーの更新が必要です。「設定 › GPU 制御」からシステムコンポーネントを更新してください。"
+msgstr "補助プログラムの更新が必要です。「設定 › GPU 制御」からシステムコンポーネントを更新してください。"
 
 #: crates/rigg/src/widgets/locked.rs:516
 msgid "Utkastet må oppdateres"

@@ -70,7 +70,7 @@ msgstr "Błąd sterowania"
 
 #: crates/rigg/src/widgets/locked.rs:346
 msgid "Oppdater hjelper"
-msgstr "Zaktualizuj usługę pomocniczą"
+msgstr "Zaktualizuj program pomocniczy"
 
 #: crates/rigg/src/widgets/locked.rs:347
 msgid "Bare visning"

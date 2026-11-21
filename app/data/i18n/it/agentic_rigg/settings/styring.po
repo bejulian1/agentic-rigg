@@ -30,7 +30,7 @@ msgstr "Il servizio di supporto non è pronto per questa GPU. Controlla le funzi
 
 #: crates/rigg/src/settings/styring.rs:52
 msgid "Hjelperen må oppdateres. Bruk kommandoen for systeminstallasjon."
-msgstr "L’helper va aggiornato. Usa il comando di installazione di sistema."
+msgstr "Il servizio di supporto va aggiornato. Usa il comando di installazione di sistema."
 
 #: crates/rigg/src/settings/styring.rs:53
 msgid "Systemkomponentene mangler eller må oppdateres."
@@ -106,7 +106,7 @@ msgstr "Regolazione della GPU disattivata"
 
 #: crates/rigg/src/settings/styring.rs:136
 msgid "Hjelperen har gjenopprettet utgangspunktet og tillatelsen er fjernet."
-msgstr "L’helper ha ripristinato lo stato iniziale e rimosso l’autorizzazione."
+msgstr "Il servizio di supporto ha ripristinato lo stato iniziale e rimosso l’autorizzazione."
 
 #: crates/rigg/src/settings/styring.rs:145
 msgid "Én aktivering"
@@ -168,11 +168,16 @@ msgstr "Supportato dal servizio di supporto connesso."
 msgid "Tilgjengelige funksjoner"
 msgstr "Funzioni disponibili"
 
+#: crates/rigg/src/settings/styring.rs:178
+msgid "Én administratoraktivering gjelder støttede funksjoner på det valgte kortet. Listen er status, ikke ekstra godkjenninger."
+msgstr "Una sola attivazione dell’amministratore vale per le funzioni supportate dalla GPU selezionata. L’elenco mostra lo stato, non autorizzazioni aggiuntive."
+
 #: crates/rigg/src/settings/styring.rs:179
 msgid "Funksjoner uten støtte kan ikke brukes på kortet. RGB har egen tillatelse på siden RGB-lys."
 msgstr "Le funzioni non supportate non sono utilizzabili su questa scheda. La pagina Illuminazione RGB ha un’autorizzazione separata."
 
 #: crates/rigg/src/settings/styring.rs:180
+msgctxt "søkeord"
 msgid "funksjoner støtte effekt vifter klokker temperatur"
 msgstr "funzioni supporto potenza ventole frequenze temperatura"
 
@@ -183,6 +188,11 @@ msgstr "Consenti modifiche alla GPU"
 #: crates/rigg/src/settings/styring.rs:223
 msgid "Gir Agentic Rigg tilgang til støttede GPU-funksjoner via en administratorhjelper. Du blir spurt om passord. Ingen verdier endres før du trykker Bruk på en styringsside."
 msgstr "Consente ad Agentic Rigg di accedere alle funzioni GPU supportate tramite un servizio di supporto con privilegi di amministratore. Verrà chiesta la password. Nessun valore cambia finché non fai clic su Applica in una pagina di regolazione."
+
+#: crates/rigg/src/settings/styring.rs:225
+msgctxt "søkeord"
+msgid "root polkit pkexec hjelper skriving endre overklokking"
+msgstr "root polkit pkexec servizio di supporto scrittura modifica overclock"
 
 #: crates/rigg/src/settings/styring.rs:240
 msgid "Venter"
@@ -206,7 +216,7 @@ msgstr "Errore"
 
 #: crates/rigg/src/settings/styring.rs:245
 msgid "Oppdater hjelper"
-msgstr "Aggiorna helper"
+msgstr "Aggiorna servizio di supporto"
 
 #: crates/rigg/src/settings/styring.rs:246
 msgid "Av"
@@ -220,6 +230,11 @@ msgstr "Apri regolazione GPU"
 msgid "Sjekk igjen"
 msgstr "Ricontrolla"
 
+#: crates/rigg/src/settings/styring.rs:275
+msgctxt "søkeord"
+msgid "systemkomponenter installasjon"
+msgstr "componenti di sistema installazione"
+
 #: crates/rigg/src/settings/styring.rs:278
 msgid "Endring av skjermkortet"
 msgstr "Regolazione della GPU"
@@ -229,6 +244,7 @@ msgid "Slår du bryteren av, gjenopprettes det lagrede utgangspunktet før tilla
 msgstr "Spegnere l’interruttore ripristina lo stato iniziale salvato prima di rimuovere l’autorizzazione. Se non si può verificare il ripristino, compare un errore. Disattiva il controllo prima di disinstallare."
 
 #: crates/rigg/src/settings/styring.rs:281
+msgctxt "søkeord"
 msgid "bryter av på status"
 msgstr "interruttore disattivato attivato stato"
 
@@ -280,6 +296,12 @@ msgstr "Script"
 msgid "Hva bryteren gjør"
 msgstr "Come funziona l’opzione"
 
+#: crates/rigg/src/settings/styring.rs:298
+msgctxt "søkeord"
+msgid "hjelper root polkit systemd sikkerhet passord"
+msgstr "servizio di supporto root polkit systemd sicurezza password"
+
 #: crates/rigg/src/settings/styring.rs:300
+msgctxt "søkeord"
 msgid "hjelper root polkit systemd passord vern frist nødregel"
-msgstr "helper root polkit systemd password protezione scadenza regola d’emergenza"
+msgstr "servizio di supporto root polkit systemd password protezione scadenza regola d’emergenza"

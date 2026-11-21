@@ -30,7 +30,7 @@ msgstr "辅助程序尚无法控制当前显卡。请查看下方支持的功能
 
 #: crates/rigg/src/settings/styring.rs:52
 msgid "Hjelperen må oppdateres. Bruk kommandoen for systeminstallasjon."
-msgstr "必须更新助手。请使用系统安装命令。"
+msgstr "必须更新辅助程序。请使用系统安装命令。"
 
 #: crates/rigg/src/settings/styring.rs:53
 msgid "Systemkomponentene mangler eller må oppdateres."
@@ -106,7 +106,7 @@ msgstr "显卡调校已关闭"
 
 #: crates/rigg/src/settings/styring.rs:136
 msgid "Hjelperen har gjenopprettet utgangspunktet og tillatelsen er fjernet."
-msgstr "助手已恢复基准状态并撤销权限。"
+msgstr "辅助程序已恢复基准状态并撤销权限。"
 
 #: crates/rigg/src/settings/styring.rs:145
 msgid "Én aktivering"
@@ -168,11 +168,16 @@ msgstr "当前连接的辅助程序支持此功能。"
 msgid "Tilgjengelige funksjoner"
 msgstr "可用功能"
 
+#: crates/rigg/src/settings/styring.rs:178
+msgid "Én administratoraktivering gjelder støttede funksjoner på det valgte kortet. Listen er status, ikke ekstra godkjenninger."
+msgstr "一次管理员启用即可涵盖所选显卡支持的功能。此列表仅显示状态，并非额外的授权。"
+
 #: crates/rigg/src/settings/styring.rs:179
 msgid "Funksjoner uten støtte kan ikke brukes på kortet. RGB har egen tillatelse på siden RGB-lys."
 msgstr "此显卡无法使用不支持的功能。“RGB 灯光”页面需要单独授权。"
 
 #: crates/rigg/src/settings/styring.rs:180
+msgctxt "søkeord"
 msgid "funksjoner støtte effekt vifter klokker temperatur"
 msgstr "功能 支持 功耗 风扇 频率 温度"
 
@@ -183,6 +188,11 @@ msgstr "允许调校显卡"
 #: crates/rigg/src/settings/styring.rs:223
 msgid "Gir Agentic Rigg tilgang til støttede GPU-funksjoner via en administratorhjelper. Du blir spurt om passord. Ingen verdier endres før du trykker Bruk på en styringsside."
 msgstr "通过管理员辅助程序，允许 Agentic Rigg 访问受支持的显卡功能。系统会要求输入密码。在调校页面点击“应用”前，不会更改任何值。"
+
+#: crates/rigg/src/settings/styring.rs:225
+msgctxt "søkeord"
+msgid "root polkit pkexec hjelper skriving endre overklokking"
+msgstr "root polkit pkexec 辅助程序 写入 更改 超频"
 
 #: crates/rigg/src/settings/styring.rs:240
 msgid "Venter"
@@ -206,7 +216,7 @@ msgstr "错误"
 
 #: crates/rigg/src/settings/styring.rs:245
 msgid "Oppdater hjelper"
-msgstr "更新助手"
+msgstr "更新辅助程序"
 
 #: crates/rigg/src/settings/styring.rs:246
 msgid "Av"
@@ -220,6 +230,11 @@ msgstr "打开显卡调校"
 msgid "Sjekk igjen"
 msgstr "重新检查"
 
+#: crates/rigg/src/settings/styring.rs:275
+msgctxt "søkeord"
+msgid "systemkomponenter installasjon"
+msgstr "系统组件 安装"
+
 #: crates/rigg/src/settings/styring.rs:278
 msgid "Endring av skjermkortet"
 msgstr "显卡调校"
@@ -229,6 +244,7 @@ msgid "Slår du bryteren av, gjenopprettes det lagrede utgangspunktet før tilla
 msgstr "关闭开关会先恢复已保存的基准状态，再撤销权限。无法验证恢复时会显示错误。卸载前请关闭控制。"
 
 #: crates/rigg/src/settings/styring.rs:281
+msgctxt "søkeord"
 msgid "bryter av på status"
 msgstr "开关 开启 关闭 状态"
 
@@ -280,6 +296,12 @@ msgstr "脚本"
 msgid "Hva bryteren gjør"
 msgstr "开关的作用"
 
+#: crates/rigg/src/settings/styring.rs:298
+msgctxt "søkeord"
+msgid "hjelper root polkit systemd sikkerhet passord"
+msgstr "辅助程序 root polkit systemd 安全 密码"
+
 #: crates/rigg/src/settings/styring.rs:300
+msgctxt "søkeord"
 msgid "hjelper root polkit systemd passord vern frist nødregel"
-msgstr "助手 root polkit systemd 密码 保护 期限 紧急规则"
+msgstr "辅助程序 root polkit systemd 密码 保护 期限 紧急规则"

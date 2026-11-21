@@ -168,11 +168,16 @@ msgstr "Obsługiwane przez połączony program pomocniczy."
 msgid "Tilgjengelige funksjoner"
 msgstr "Dostępne funkcje"
 
+#: crates/rigg/src/settings/styring.rs:178
+msgid "Én administratoraktivering gjelder støttede funksjoner på det valgte kortet. Listen er status, ikke ekstra godkjenninger."
+msgstr "Jedna aktywacja administratora obejmuje obsługiwane funkcje wybranej karty. Lista pokazuje stan, a nie dodatkowe zgody."
+
 #: crates/rigg/src/settings/styring.rs:179
 msgid "Funksjoner uten støtte kan ikke brukes på kortet. RGB har egen tillatelse på siden RGB-lys."
 msgstr "Nieobsługiwane funkcje są niedostępne na tej karcie. Strona Oświetlenie RGB ma osobne uprawnienie."
 
 #: crates/rigg/src/settings/styring.rs:180
+msgctxt "søkeord"
 msgid "funksjoner støtte effekt vifter klokker temperatur"
 msgstr "funkcje obsługa moc wentylatory zegary temperatura"
 
@@ -183,6 +188,11 @@ msgstr "Zezwól na zmianę ustawień karty"
 #: crates/rigg/src/settings/styring.rs:223
 msgid "Gir Agentic Rigg tilgang til støttede GPU-funksjoner via en administratorhjelper. Du blir spurt om passord. Ingen verdier endres før du trykker Bruk på en styringsside."
 msgstr "Daje Agentic Rigg dostęp do obsługiwanych funkcji karty przez program pomocniczy administratora. Aplikacja poprosi o hasło. Wartości zmienią się dopiero po kliknięciu „Zastosuj” na stronie ustawień karty."
+
+#: crates/rigg/src/settings/styring.rs:225
+msgctxt "søkeord"
+msgid "root polkit pkexec hjelper skriving endre overklokking"
+msgstr "root polkit pkexec program pomocniczy zapis zmiana podkręcanie overclocking"
 
 #: crates/rigg/src/settings/styring.rs:240
 msgid "Venter"
@@ -206,7 +216,7 @@ msgstr "Błąd"
 
 #: crates/rigg/src/settings/styring.rs:245
 msgid "Oppdater hjelper"
-msgstr "Zaktualizuj usługę pomocniczą"
+msgstr "Zaktualizuj program pomocniczy"
 
 #: crates/rigg/src/settings/styring.rs:246
 msgid "Av"
@@ -220,6 +230,11 @@ msgstr "Otwórz regulację karty"
 msgid "Sjekk igjen"
 msgstr "Sprawdź ponownie"
 
+#: crates/rigg/src/settings/styring.rs:275
+msgctxt "søkeord"
+msgid "systemkomponenter installasjon"
+msgstr "składniki systemowe instalacja"
+
 #: crates/rigg/src/settings/styring.rs:278
 msgid "Endring av skjermkortet"
 msgstr "Regulacja karty graficznej"
@@ -229,6 +244,7 @@ msgid "Slår du bryteren av, gjenopprettes det lagrede utgangspunktet før tilla
 msgstr "Wyłączenie przełącznika przywraca zapisany stan wyjściowy przed odebraniem uprawnienia. Jeśli nie da się potwierdzić przywrócenia, wyświetli się błąd. Wyłącz sterowanie przed odinstalowaniem."
 
 #: crates/rigg/src/settings/styring.rs:281
+msgctxt "søkeord"
 msgid "bryter av på status"
 msgstr "przełącznik wyłącz włącz stan"
 
@@ -280,6 +296,12 @@ msgstr "Skrypty"
 msgid "Hva bryteren gjør"
 msgstr "Działanie przełącznika"
 
+#: crates/rigg/src/settings/styring.rs:298
+msgctxt "søkeord"
+msgid "hjelper root polkit systemd sikkerhet passord"
+msgstr "program pomocniczy root polkit systemd bezpieczeństwo hasło"
+
 #: crates/rigg/src/settings/styring.rs:300
+msgctxt "søkeord"
 msgid "hjelper root polkit systemd passord vern frist nødregel"
-msgstr "usługa pomocnicza root polkit systemd hasło ochrona termin reguła awaryjna"
+msgstr "program pomocniczy root polkit systemd hasło ochrona termin reguła awaryjna"

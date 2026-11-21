@@ -1,5 +1,5 @@
 //! Innstillinger › Skjermkortstyring: én administratoraktivering og støtte per funksjon.
-use super::{Group, GroupOpts, custom_row, group, live, request_render, row};
+use super::{Group, GroupOpts, custom_row, group, kw, live, request_render, row};
 use crate::state::App;
 use crate::toast::Toast;
 use crate::widgets::locked;
@@ -175,9 +175,9 @@ fn capabilities_group(app: &Rc<App>) -> Group {
         rows.push(row(name, Some(&detail), &tag, &format!("funksjonsstøtte {key} {status}")));
     }
     group(tr!("Tilgjengelige funksjoner"), GroupOpts {
-        desc: Some("Én administratoraktivering gjelder støttede funksjoner på det valgte kortet. Listen er status, ikke ekstra godkjenninger."),
+        desc: Some(tr!("Én administratoraktivering gjelder støttede funksjoner på det valgte kortet. Listen er status, ikke ekstra godkjenninger.")),
         note: Some(tr!("Funksjoner uten støtte kan ikke brukes på kortet. RGB har egen tillatelse på siden RGB-lys.")),
-        k: tr!("funksjoner støtte effekt vifter klokker temperatur"),
+        k: &kw("funksjoner støtte effekt vifter klokker temperatur", tr!("søkeord", "funksjoner støtte effekt vifter klokker temperatur")),
         ..Default::default()
     }, rows)
 }
@@ -222,7 +222,7 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
         tr!("Tillat endring av skjermkortet"),
         Some(tr!("Gir Agentic Rigg tilgang til støttede GPU-funksjoner via en administratorhjelper. Du blir spurt om passord. Ingen verdier endres før du trykker Bruk på en styringsside.")),
         &sw,
-        "root polkit pkexec hjelper skriving endre overklokking",
+        &kw("root polkit pkexec hjelper skriving endre overklokking", tr!("søkeord", "root polkit pkexec hjelper skriving endre overklokking")),
     );
     crate::widgets::switchrow::make_row_toggle(&main_row.widget, &sw);
 
@@ -272,13 +272,13 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
 
     let mut rows = vec![main_row, status_row];
     if !app.profile.is_dev() && (state == "outdated" || ((active || app.data.borrow().backend == "nvml") && admin(app, true).is_none())) {
-        rows.push(custom_row(&crate::system_install::prompt(), "systemkomponenter installasjon"));
+        rows.push(custom_row(&crate::system_install::prompt(), &kw("systemkomponenter installasjon", tr!("søkeord", "systemkomponenter installasjon"))));
     }
     let toggle_group = group(
         tr!("Endring av skjermkortet"),
         GroupOpts {
             note: Some(tr!("Slår du bryteren av, gjenopprettes det lagrede utgangspunktet før tillatelsen fjernes. En feil vises hvis gjenopprettingen ikke kan bekreftes. Slå av styring før avinstallasjon.")),
-            k: tr!("bryter av på status"),
+            k: &kw("bryter av på status", tr!("søkeord", "bryter av på status")),
             ..Default::default()
         },
         rows,
@@ -295,9 +295,9 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     files.add_css_class("mono");
     let paths = kv.add(tr!("Skriptene"), &rigg_core::paths::tilde(&data_dir(app)));
     paths.add_css_class("mono");
-    let mut what = group(tr!("Hva bryteren gjør"), GroupOpts { whole: true, k: "hjelper root polkit systemd sikkerhet passord", ..Default::default() }, vec![]);
+    let mut what = group(tr!("Hva bryteren gjør"), GroupOpts { whole: true, k: &kw("hjelper root polkit systemd sikkerhet passord", tr!("søkeord", "hjelper root polkit systemd sikkerhet passord")), ..Default::default() }, vec![]);
     what.widget.append(&kv.grid);
-    what.rows.push(custom_row(&gtk::Box::new(gtk::Orientation::Horizontal, 0), tr!("hjelper root polkit systemd passord vern frist nødregel")));
+    what.rows.push(custom_row(&gtk::Box::new(gtk::Orientation::Horizontal, 0), &kw("hjelper root polkit systemd passord vern frist nødregel", tr!("søkeord", "hjelper root polkit systemd passord vern frist nødregel"))));
 
     vec![toggle_group, capabilities_group(app), what]
 }

@@ -108,16 +108,50 @@ fn supports_effect(status: &Value, effect: &str) -> bool {
             .is_some_and(|values| values.iter().any(|value| value.as_str() == Some(effect)))
 }
 
-fn operation_error(error: &ProtoError) -> &'static str {
+fn operation_error(error: &ProtoError) -> String {
     match error.code {
-        ErrorCode::Busy | ErrorCode::NotOwner => tr!("Lysstyringen er opptatt eller tilhører et annet vindu."),
-        ErrorCode::NoPending | ErrorCode::TxnMismatch => tr!("Lysprøven finnes ikke lenger eller fristen er ute."),
-        ErrorCode::WriteLocked => tr!("Nye lysendringer er sperret. Kontroller status og avklar eventuell gjenoppretting."),
-        ErrorCode::PermissionDenied => tr!("RGB-tillatelsen for dette kortet kunne ikke bekreftes."),
-        ErrorCode::UnknownGpu => tr!("Det valgte kortet er ikke tilgjengelig."),
-        ErrorCode::NotSupported => tr!("RGB-hjelperen støtter ikke dette lysvalget."),
-        ErrorCode::InvalidArgument => tr!("RGB-hjelperen avviste forespørselen. Les status før du prøver igjen."),
-        _ => tr!("RGB-forespørselen mislyktes. Sjekk status og se på kortet før du prøver igjen."),
+        ErrorCode::Busy | ErrorCode::NotOwner => tr!("Lysstyringen er opptatt eller tilhører et annet vindu.").into(),
+        ErrorCode::NoPending | ErrorCode::TxnMismatch => tr!("Lysprøven finnes ikke lenger eller fristen er ute.").into(),
+        ErrorCode::WriteLocked => tr!("Nye lysendringer er sperret. Kontroller status og avklar eventuell gjenoppretting.").into(),
+        ErrorCode::PermissionDenied => tr!("RGB-tillatelsen for dette kortet kunne ikke bekreftes.").into(),
+        ErrorCode::UnknownGpu => tr!("Det valgte kortet er ikke tilgjengelig.").into(),
+        ErrorCode::NotSupported => tr!("RGB-hjelperen støtter ikke dette lysvalget.").into(),
+        ErrorCode::InvalidArgument => tr!("RGB-hjelperen avviste forespørselen. Les status før du prøver igjen.").into(),
+        // Ukjent årsak: behold tjenestens egen melding synlig, ikke bare i et verktøytips.
+        _ => with_diagnostic(
+            tr!("RGB-forespørselen mislyktes. Sjekk status og se på kortet før du prøver igjen."),
+            Some(&rigg_core::hjelper::display_diagnostic(&error.message)),
+        ),
+    }
+}
+
+/// Oversatt forklaring først, deretter den opprinnelige diagnosen uendret.
+/// Skriptene og tjenesten sier hva som må avklares; det skal ikke bare ligge
+/// i et verktøytips som krever pekeren.
+fn with_diagnostic(text: &str, diagnostic: Option<&str>) -> String {
+    match diagnostic.map(str::trim).filter(|detail| !detail.is_empty()) {
+        Some(detail) => format!("{text}\n{detail}"),
+        None => text.to_string(),
+    }
+}
+
+/// Teksten som forklarer en gjenoppretting. En lagret feil går foran
+/// «samsvarer»: hjelperen avviser brukerbekreftelsen så lenge feilen står,
+/// så teksten skal ikke be brukeren bekrefte.
+fn recovery_text(state: &Value) -> String {
+    if state["readError"].is_string() {
+        return tr!("Avlesning av kortlyset mislyktes. Nye lysendringer er sperret.").into();
+    }
+    if state["recoveryConfirmationSource"] == "userVisual" {
+        return tr!("Gjenopprettingen er bekreftet av deg. Effektmodusen er fortsatt ikke maskinelt avlest.").into();
+    }
+    let failed = state["error"].is_string();
+    match state["recovery"].as_str() {
+        Some("readable_fields_match") if !failed => tr!("Farge og lysstyrke samsvarer etter tilbakeføring. Se på kortet før du bekrefter gjenopprettingen.").into(),
+        Some("mismatch") => tr!("Tilbakeføringen samsvarer ikke med avlesningen. Nye fargeendringer er sperret.").into(),
+        Some("unknown") => tr!("Gjenopprettingen er uavklart. Nye fargeendringer er sperret.").into(),
+        _ if failed => tr!("Gjenopprettingen er uavklart. Nye fargeendringer er sperret.").into(),
+        _ => String::new(),
     }
 }
 
@@ -732,14 +766,14 @@ impl CardLight {
                         p.helper.borrow_mut()["status"] = details["status"].clone();
                     }
                     let message = operation_error(&error);
-                    *p.message.borrow_mut() = Some(message.into());
+                    *p.message.borrow_mut() = Some(message.clone());
                     p.summary.set_tooltip_text(Some(&error.message));
                     let title = if op == "rgb_read" {
                         tr!("Kunne ikke lese kortlyset")
                     } else {
                         tr!("Lysendringen ble ikke fullført")
                     };
-                    p.app.toast(Toast::new(title).body(message).error());
+                    p.app.toast(Toast::new(title).body(&message).error());
                 }
             }
             p.render();
@@ -912,20 +946,7 @@ impl CardLight {
             &trf!("Sist bekreftede valg: {lys}. Valget er ikke bevis på avlest effektmodus.", lys = request_text(&state["confirmed"])),
         );
         self.confirmed.set_visible(bound);
-        let recovery = if state["readError"].is_string() {
-            tr!("Avlesning av kortlyset mislyktes. Nye lysendringer er sperret.").into()
-        } else if visually_confirmed {
-            tr!("Gjenopprettingen er bekreftet av deg. Effektmodusen er fortsatt ikke maskinelt avlest.")
-                .to_string()
-        } else {
-            match state["recovery"].as_str() {
-            Some("readable_fields_match") => tr!("Farge og lysstyrke samsvarer etter tilbakeføring. Se på kortet før du bekrefter gjenopprettingen.").into(),
-            Some("mismatch") => tr!("Tilbakeføringen samsvarer ikke med avlesningen. Nye fargeendringer er sperret.").into(),
-            Some("unknown") => tr!("Gjenopprettingen er uavklart. Nye fargeendringer er sperret.").into(),
-            _ if state["error"].is_string() => tr!("Gjenopprettingen er uavklart. Nye fargeendringer er sperret.").into(),
-            _ => String::new(),
-        }
-        };
+        let recovery = recovery_text(state);
         set_text(&self.recovery, &recovery);
         self.recovery.set_tooltip_text(state["readError"].as_str().or_else(|| state["error"].as_str()));
         self.recovery.set_visible(bound && !recovery.is_empty());
@@ -1169,8 +1190,9 @@ impl CardLight {
             Ok(proc) => proc,
             Err(error) => {
                 self.busy.set(false);
-                *self.message.borrow_mut() = Some(tr!("RGB-oppsettet kunne ikke fullføres.").into());
-                self.summary.set_tooltip_text(Some(&error.to_string()));
+                let diagnostic = error.to_string();
+                *self.message.borrow_mut() = Some(with_diagnostic(tr!("RGB-oppsettet kunne ikke fullføres."), Some(&diagnostic)));
+                self.summary.set_tooltip_text(Some(&diagnostic));
                 self.render();
                 return;
             }
@@ -1200,6 +1222,10 @@ impl CardLight {
                     invalid_target = true;
                 }
             }
+            let diagnostic = error
+                .as_deref()
+                .and_then(|text| text.lines().rfind(|line| !line.trim().is_empty()))
+                .filter(|_| code != 0 && code != 126);
             let message = match code {
                 0 if action == AdminAction::Restore => tr!("RGB-arbeideren er stoppet. Kontroller lyset og velg «Avklar tidligere økt» hvis en gjenoppretting gjenstår.").to_string(),
                 0 if action == AdminAction::Inspect => tr!("Ingen uavklart RGB-journal for kortet. Du kan slå av RGB-tilgangen.").to_string(),
@@ -1208,10 +1234,10 @@ impl CardLight {
                 0 => tr!("RGB-oppsettet er oppdatert. Kontroller status før du bruker en farge.").to_string(),
                 126 => tr!("Administratorgodkjenningen ble avbrutt.").to_string(),
                 _ if invalid_target => tr!("Avklaringsmålet er ugyldig eller gjelder et annet valgt kort.").to_string(),
-                _ => tr!("RGB-oppsettet kunne ikke fullføres.").to_string(),
+                // Årsaken fra administratorskriptet sier hva som må avklares.
+                _ => with_diagnostic(tr!("RGB-oppsettet kunne ikke fullføres."), diagnostic),
             };
-            let diagnostic = error.as_deref().and_then(|text| text.lines().rfind(|line| !line.trim().is_empty()));
-            p.summary.set_tooltip_text(diagnostic.filter(|_| code != 0 && code != 126));
+            p.summary.set_tooltip_text(diagnostic);
             *p.message.borrow_mut() = Some(message.clone());
             p.app.toast(if code == 0 { Toast::new(tr!("RGB-oppsett")).body(&message) } else { Toast::new(tr!("RGB-oppsett ble ikke fullført")).body(&message).error() });
             p.render();
@@ -1584,6 +1610,40 @@ mod tests {
             request_text(&json!({"mode": "breathe"})),
             "Ingen kjent innstilling"
         );
+    }
+
+    #[test]
+    fn lagret_feil_ber_aldri_om_brukerbekreftelse() {
+        let confirm = recovery_text(&json!({"recovery": "readable_fields_match"}));
+        assert!(confirm.contains("før du bekrefter"));
+        // Hjelperen avviser bekreftelsen mens `error` står.
+        let failed = recovery_text(&json!({
+            "recovery": "readable_fields_match",
+            "error": "Brukerbekreftelsen kunne ikke lagres: I/O",
+        }));
+        assert_eq!(failed, "Gjenopprettingen er uavklart. Nye fargeendringer er sperret.");
+        assert_eq!(recovery_text(&json!({"error": "Gjenoppretting feilet: I/O"})), failed);
+        assert_eq!(recovery_text(&json!({"recovery": "unknown", "error": "I/O"})), failed);
+        assert!(recovery_text(&json!({"recovery": "mismatch", "error": "I/O"})).contains("samsvarer ikke"));
+        assert!(recovery_text(&json!({"recovery": "readable_fields_match", "readError": "I/O"})).contains("Avlesning"));
+        assert!(recovery_text(&json!({"recovery": "readable_fields_match", "recoveryConfirmationSource": "userVisual"})).contains("bekreftet av deg"));
+        assert_eq!(recovery_text(&json!({"recovery": "verified"})), "");
+        assert_eq!(recovery_text(&Value::Null), "");
+    }
+
+    #[test]
+    fn ukjent_diagnose_vises_uendret_etter_forklaringen() {
+        assert_eq!(with_diagnostic("Forklaring.", None), "Forklaring.");
+        assert_eq!(with_diagnostic("Forklaring.", Some("  \n")), "Forklaring.");
+        assert_eq!(
+            with_diagnostic("Forklaring.", Some("RGB: Uavklart RGB-journal for 0000:1c:00.0 GPU-x. Velg «Gjenopprett lagret lys».\n")),
+            "Forklaring.\nRGB: Uavklart RGB-journal for 0000:1c:00.0 GPU-x. Velg «Gjenopprett lagret lys»."
+        );
+        let known = operation_error(&ProtoError::new(ErrorCode::Busy));
+        assert_eq!(known, "Lysstyringen er opptatt eller tilhører et annet vindu.");
+        let unknown = operation_error(&ProtoError::msg(ErrorCode::Unavailable, "RGB-økta er avsluttet."));
+        assert!(unknown.starts_with("RGB-forespørselen mislyktes."));
+        assert!(unknown.ends_with("\nRGB-økta er avsluttet."));
     }
 
     #[test]

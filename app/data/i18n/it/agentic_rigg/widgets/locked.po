@@ -70,7 +70,7 @@ msgstr "Errore di controllo"
 
 #: crates/rigg/src/widgets/locked.rs:346
 msgid "Oppdater hjelper"
-msgstr "Aggiorna helper"
+msgstr "Aggiorna servizio di supporto"
 
 #: crates/rigg/src/widgets/locked.rs:347
 msgid "Bare visning"
@@ -86,11 +86,11 @@ msgstr "Il servizio di supporto non è pronto a modificare questa GPU."
 
 #: crates/rigg/src/widgets/locked.rs:356
 msgid "Hjelperen svarer ikke. Endringer er låst."
-msgstr "L’helper non risponde. Le modifiche sono bloccate."
+msgstr "Il servizio di supporto non risponde. Le modifiche sono bloccate."
 
 #: crates/rigg/src/widgets/locked.rs:357
 msgid "Hjelperen må oppdateres. Oppdater systemkomponentene fra Innstillinger › Skjermkortstyring."
-msgstr "L’helper va aggiornato. Aggiorna i componenti di sistema in Impostazioni › Controllo GPU."
+msgstr "Il servizio di supporto va aggiornato. Aggiorna i componenti di sistema in Impostazioni › Controllo GPU."
 
 #: crates/rigg/src/widgets/locked.rs:516
 msgid "Utkastet må oppdateres"

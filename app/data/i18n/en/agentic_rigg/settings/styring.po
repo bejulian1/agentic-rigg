@@ -168,11 +168,16 @@ msgstr "Supported by the connected helper."
 msgid "Tilgjengelige funksjoner"
 msgstr "Available features"
 
+#: crates/rigg/src/settings/styring.rs:178
+msgid "Én administratoraktivering gjelder støttede funksjoner på det valgte kortet. Listen er status, ikke ekstra godkjenninger."
+msgstr "One administrator activation covers the supported features on the selected GPU. This list shows status; it is not a set of extra approvals."
+
 #: crates/rigg/src/settings/styring.rs:179
 msgid "Funksjoner uten støtte kan ikke brukes på kortet. RGB har egen tillatelse på siden RGB-lys."
 msgstr "Unsupported features cannot be used on this card. The RGB Lighting page has separate permissions."
 
 #: crates/rigg/src/settings/styring.rs:180
+msgctxt "søkeord"
 msgid "funksjoner støtte effekt vifter klokker temperatur"
 msgstr "features support power fans clocks temperature"
 
@@ -183,6 +188,11 @@ msgstr "Allow GPU tuning"
 #: crates/rigg/src/settings/styring.rs:223
 msgid "Gir Agentic Rigg tilgang til støttede GPU-funksjoner via en administratorhjelper. Du blir spurt om passord. Ingen verdier endres før du trykker Bruk på en styringsside."
 msgstr "Gives Agentic Rigg access to supported GPU features through an administrator helper. You’ll be asked for your password. No values change until you click Apply on a tuning page."
+
+#: crates/rigg/src/settings/styring.rs:225
+msgctxt "søkeord"
+msgid "root polkit pkexec hjelper skriving endre overklokking"
+msgstr "root polkit pkexec helper write change modify overclocking"
 
 #: crates/rigg/src/settings/styring.rs:240
 msgid "Venter"
@@ -220,6 +230,11 @@ msgstr "Open GPU tuning"
 msgid "Sjekk igjen"
 msgstr "Check again"
 
+#: crates/rigg/src/settings/styring.rs:275
+msgctxt "søkeord"
+msgid "systemkomponenter installasjon"
+msgstr "system components installation install"
+
 #: crates/rigg/src/settings/styring.rs:278
 msgid "Endring av skjermkortet"
 msgstr "GPU tuning"
@@ -229,6 +244,7 @@ msgid "Slår du bryteren av, gjenopprettes det lagrede utgangspunktet før tilla
 msgstr "Turning the switch off restores the saved baseline before removing permission. An error appears if restoration cannot be verified. Disable control before uninstalling."
 
 #: crates/rigg/src/settings/styring.rs:281
+msgctxt "søkeord"
 msgid "bryter av på status"
 msgstr "switch off on status"
 
@@ -280,6 +296,12 @@ msgstr "Scripts"
 msgid "Hva bryteren gjør"
 msgstr "How the switch works"
 
+#: crates/rigg/src/settings/styring.rs:298
+msgctxt "søkeord"
+msgid "hjelper root polkit systemd sikkerhet passord"
+msgstr "helper root polkit systemd security password"
+
 #: crates/rigg/src/settings/styring.rs:300
+msgctxt "søkeord"
 msgid "hjelper root polkit systemd passord vern frist nødregel"
 msgstr "helper root polkit systemd password protection deadline emergency rule"

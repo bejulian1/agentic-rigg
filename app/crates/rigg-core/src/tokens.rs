@@ -1,5 +1,5 @@
 //! Fargetokens fra `app/data/theme/tokens.css`: oppslag for det som tegnes i
-//! Rust (miniatyrene i Innstillinger, grafer, målere, 3D-scenen) og
+//! Rust (miniatyrene i Innstillinger, grafer, målere) og
 //! kontrasttesten for alle 96 kombinasjonene (port av `scripts/contrast.js`).
 //!
 //! Fila leses ved bygging (`include_str!`), så CSS og test aldri kan gå i
