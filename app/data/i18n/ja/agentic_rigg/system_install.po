@@ -1,0 +1,17 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/system_install.rs:48
+msgid "Systemkomponentene mangler eller må oppdateres. Kjør kommandoen i en administratorterminal. Oppgi arkivstien og SHA-256 fra utgivelsessiden."
+msgstr "システムコンポーネントがないか、更新が必要です。管理者の端末でコマンドを実行してください。アーカイブのパスとリリースページの SHA-256 を入力してください。"
+
+#: crates/rigg/src/system_install.rs:55
+msgid "Kopier installasjonskommando"
+msgstr "インストールコマンドをコピー"

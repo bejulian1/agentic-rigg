@@ -1,0 +1,17 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/system_install.rs:48
+msgid "Systemkomponentene mangler eller må oppdateres. Kjør kommandoen i en administratorterminal. Oppgi arkivstien og SHA-256 fra utgivelsessiden."
+msgstr "Systemkomponenten fehlen oder müssen aktualisiert werden. Führen Sie den Befehl in einem Administrator-Terminal aus. Geben Sie den Archivpfad und den SHA-256-Wert von der Release-Seite an."
+
+#: crates/rigg/src/system_install.rs:55
+msgid "Kopier installasjonskommando"
+msgstr "Installationsbefehl kopieren"

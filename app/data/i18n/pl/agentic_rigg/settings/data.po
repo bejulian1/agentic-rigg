@@ -218,8 +218,8 @@ msgid "Tilbakestill alle innstillinger"
 msgstr "Resetuj wszystkie ustawienia"
 
 #: crates/rigg/src/settings/data.rs:223
-msgid "Alt i Innstillinger går tilbake til standard. Profiler og lysvalg blir. Kan angres i noen sekunder."
-msgstr "Wszystkie ustawienia wrócą do domyślnych. Profile i oświetlenie zostają. Można cofnąć przez kilka sekund."
+msgid "Alt i Innstillinger går tilbake til standard. Profilene beholdes. Kan angres i noen sekunder."
+msgstr "Wszystkie ustawienia wrócą do wartości domyślnych. Profile zostaną zachowane. Operację można cofnąć przez kilka sekund."
 
 #: crates/rigg/src/settings/data.rs:223
 msgctxt "søkeord"

@@ -1,4 +1,4 @@
-//! Fysisk kortlys, atskilt fra modellens lokale effekter og NVML-styring.
+//! Fysisk kortlys, atskilt fra NVML-styring.
 //! Ingen redigering, profilinnlasting eller sideåpning sender en lysendring.
 
 use crate::state::App;
@@ -6,6 +6,8 @@ use crate::toast::Toast;
 use crate::widgets::{Panel, Seg, button, class, hbox, label, set_text, vbox};
 use gtk::glib;
 use gtk::prelude::*;
+use rigg_core::proto::{ErrorCode, ProtoError};
+use rigg_core::{fmt, tr, trf};
 use rigg_core::rgb::{Binding, Brightness, Request};
 use rigg_core::rgb_auth;
 use serde_json::{Value, json};
@@ -35,8 +37,11 @@ pub(super) struct CardLight {
     runtime_error: gtk::Label,
     mode: Seg,
     color: gtk::Entry,
-    swatch: super::lys::Dot,
-    swatch_color: Cell<Option<[u8; 3]>>,
+    swatch: gtk::DrawingArea,
+    swatch_color: Rc<Cell<Option<[u8; 3]>>>,
+    controls: gtk::FlowBox,
+    support: gtk::Label,
+    readback_note: gtk::Label,
     brightness: gtk::SpinButton,
     apply: gtk::Button,
     install_prompt: gtk::Box,
@@ -82,16 +87,18 @@ thread_local! {
 }
 
 const FLOW_MARKER: &str = "agentic-rigg-rgb-fake-v1";
-const EFFECTS: [(&str, &str); 3] = [
-    ("breathing", "Pusting"),
-    ("rainbow", "Regnbue"),
-    ("cycle", "Fargesyklus"),
+type EffectLabel = (&'static str, fn() -> &'static str);
+
+const EFFECTS: [EffectLabel; 3] = [
+    ("breathing", || tr!("Pusting")),
+    ("rainbow", || tr!("Regnbue")),
+    ("cycle", || tr!("Fargesyklus")),
 ];
 
 fn effect_name(id: &str) -> Option<&'static str> {
     EFFECTS
         .iter()
-        .find_map(|(key, name)| (*key == id).then_some(*name))
+        .find_map(|(key, name)| (*key == id).then(name))
 }
 
 fn supports_effect(status: &Value, effect: &str) -> bool {
@@ -99,6 +106,53 @@ fn supports_effect(status: &Value, effect: &str) -> bool {
         && status["softwareEffects"]
             .as_array()
             .is_some_and(|values| values.iter().any(|value| value.as_str() == Some(effect)))
+}
+
+fn operation_error(error: &ProtoError) -> String {
+    match error.code {
+        ErrorCode::Busy | ErrorCode::NotOwner => tr!("Lysstyringen er opptatt eller tilhører et annet vindu.").into(),
+        ErrorCode::NoPending | ErrorCode::TxnMismatch => tr!("Lysprøven finnes ikke lenger eller fristen er ute.").into(),
+        ErrorCode::WriteLocked => tr!("Nye lysendringer er sperret. Kontroller status og avklar eventuell gjenoppretting.").into(),
+        ErrorCode::PermissionDenied => tr!("RGB-tillatelsen for dette kortet kunne ikke bekreftes.").into(),
+        ErrorCode::UnknownGpu => tr!("Det valgte kortet er ikke tilgjengelig.").into(),
+        ErrorCode::NotSupported => tr!("RGB-hjelperen støtter ikke dette lysvalget.").into(),
+        ErrorCode::InvalidArgument => tr!("RGB-hjelperen avviste forespørselen. Les status før du prøver igjen.").into(),
+        // Ukjent årsak: behold tjenestens egen melding synlig, ikke bare i et verktøytips.
+        _ => with_diagnostic(
+            tr!("RGB-forespørselen mislyktes. Sjekk status og se på kortet før du prøver igjen."),
+            Some(&rigg_core::hjelper::display_diagnostic(&error.message)),
+        ),
+    }
+}
+
+/// Oversatt forklaring først, deretter den opprinnelige diagnosen uendret.
+/// Skriptene og tjenesten sier hva som må avklares; det skal ikke bare ligge
+/// i et verktøytips som krever pekeren.
+fn with_diagnostic(text: &str, diagnostic: Option<&str>) -> String {
+    match diagnostic.map(str::trim).filter(|detail| !detail.is_empty()) {
+        Some(detail) => format!("{text}\n{detail}"),
+        None => text.to_string(),
+    }
+}
+
+/// Teksten som forklarer en gjenoppretting. En lagret feil går foran
+/// «samsvarer»: hjelperen avviser brukerbekreftelsen så lenge feilen står,
+/// så teksten skal ikke be brukeren bekrefte.
+fn recovery_text(state: &Value) -> String {
+    if state["readError"].is_string() {
+        return tr!("Avlesning av kortlyset mislyktes. Nye lysendringer er sperret.").into();
+    }
+    if state["recoveryConfirmationSource"] == "userVisual" {
+        return tr!("Gjenopprettingen er bekreftet av deg. Effektmodusen er fortsatt ikke maskinelt avlest.").into();
+    }
+    let failed = state["error"].is_string();
+    match state["recovery"].as_str() {
+        Some("readable_fields_match") if !failed => tr!("Farge og lysstyrke samsvarer etter tilbakeføring. Se på kortet før du bekrefter gjenopprettingen.").into(),
+        Some("mismatch") => tr!("Tilbakeføringen samsvarer ikke med avlesningen. Nye fargeendringer er sperret.").into(),
+        Some("unknown") => tr!("Gjenopprettingen er uavklart. Nye fargeendringer er sperret.").into(),
+        _ if failed => tr!("Gjenopprettingen er uavklart. Nye fargeendringer er sperret.").into(),
+        _ => String::new(),
+    }
 }
 
 fn clean_effect_start(status: &Value) -> bool {
@@ -185,6 +239,7 @@ fn paragraph(text: &str, classes: &[&str]) -> gtk::Label {
 
 fn flow() -> gtk::FlowBox {
     let row = gtk::FlowBox::new();
+    row.set_halign(gtk::Align::Start);
     row.set_selection_mode(gtk::SelectionMode::None);
     row.set_min_children_per_line(1);
     row.set_max_children_per_line(5);
@@ -222,15 +277,9 @@ fn color_text(value: &Value) -> Option<String> {
 
 fn request_text(value: &Value) -> String {
     match serde_json::from_value::<Request>(value.clone()) {
-        Ok(Request::Off {}) => "Av".into(),
-        Ok(Request::Static { color, brightness }) => format!(
-            "Fast farge #{:02X}{:02X}{:02X} · {} %",
-            color[0],
-            color[1],
-            color[2],
-            brightness.get()
-        ),
-        Err(_) => "Ingen kjent innstilling".into(),
+        Ok(Request::Off {}) => tr!("Av").into(),
+        Ok(Request::Static { color, brightness }) => trf!("Fast farge {farge} · {styrke}", farge = format!("#{:02X}{:02X}{:02X}", color[0], color[1], color[2]), styrke = fmt::pct(Some(f64::from(brightness.get())), 0)),
+        Err(_) => tr!("Ingen kjent innstilling").into(),
     }
 }
 
@@ -282,41 +331,51 @@ fn boottime_ms() -> Option<u64> {
 
 impl CardLight {
     pub fn new(app: &Rc<App>) -> Rc<Self> {
-        let panel = Panel::new("Lys på kortet");
+        let panel = Panel::new(tr!("Lys på kortet"));
         panel.root.add_css_class("rgb-card-control");
-        let badge = label("Ikke aktivert", &["tag", "quiet"]);
+        let badge = label(tr!("Ikke aktivert"), &["tag", "quiet"]);
         badge.set_wrap(true);
         badge.set_wrap_mode(gtk::pango::WrapMode::WordChar);
         badge.set_max_width_chars(24);
         panel.aside.append(&badge);
         let summary = paragraph(
-            "Egen tillatelse kreves for å endre lyset på det valgte kortet.",
+            tr!("Egen tillatelse kreves for å endre lyset på det valgte kortet."),
             &[],
         );
         panel.body.append(&summary);
         let install_prompt = crate::system_install::prompt();
         panel.body.append(&install_prompt);
-        let identity = paragraph("Én fysisk sone · hele kortlyset", &["muted", "sm"]);
+        let identity = paragraph("", &["muted", "sm"]);
         panel.body.append(&identity);
 
         let controls = flow();
         let mode = Seg::new(
             &[
-                ("static", "Fast farge"),
-                ("off", "Av"),
-                ("breathing", "Pusting"),
-                ("rainbow", "Regnbue"),
-                ("cycle", "Fargesyklus"),
+                ("static", tr!("Fast farge")),
+                ("off", tr!("Av")),
+                ("breathing", tr!("Pusting")),
+                ("rainbow", tr!("Regnbue")),
+                ("cycle", tr!("Fargesyklus")),
             ],
             "static",
-            "Fysisk lysmodus",
+            tr!("Fysisk lysmodus"),
         )
         .small();
         controls.insert(&mode.root, -1);
         let color_box = hbox(6, &[]);
-        color_box.append(&label("Farge", &["muted"]));
-        let swatch = super::lys::Dot::new(20);
-        swatch.set("static", &["#3a7bf0"]);
+        color_box.append(&label(tr!("Farge"), &["muted"]));
+        let swatch = gtk::DrawingArea::new();
+        swatch.set_content_width(20);
+        swatch.set_content_height(20);
+        let swatch_color = Rc::new(Cell::new(None::<[u8; 3]>));
+        let fill = swatch_color.clone();
+        swatch.set_draw_func(move |_, context, width, height| {
+            if let Some([red, green, blue]) = fill.get() {
+                context.set_source_rgb(f64::from(red) / 255.0, f64::from(green) / 255.0, f64::from(blue) / 255.0);
+                context.arc(f64::from(width) / 2.0, f64::from(height) / 2.0, 8.0, 0.0, std::f64::consts::TAU);
+                let _ = context.fill();
+            }
+        });
         color_box.append(&swatch);
         let color = gtk::Entry::new();
         color.set_text("#3A7BF0");
@@ -325,18 +384,18 @@ impl CardLight {
         color.set_max_width_chars(8);
         color.add_css_class("mono");
         color.update_property(&[gtk::accessible::Property::Label(
-            "Farge på kortet, seks heksadesimale siffer",
+            tr!("Farge på kortet, seks heksadesimale siffer"),
         )]);
         color_box.append(&color);
         controls.insert(&color_box, -1);
         let brightness_box = hbox(6, &[]);
-        brightness_box.append(&label("Lysstyrke", &["muted"]));
+        brightness_box.append(&label(tr!("Lysstyrke"), &["muted"]));
         let brightness = gtk::SpinButton::with_range(0.0, 100.0, 1.0);
         brightness.set_value(80.0);
         brightness.set_digits(0);
         brightness.set_width_chars(3);
         brightness.update_property(&[gtk::accessible::Property::Label(
-            "Kortlysets lysstyrke i prosent",
+            tr!("Kortlysets lysstyrke i prosent"),
         )]);
         brightness_box.append(&brightness);
         brightness_box.append(&label("%", &["muted"]));
@@ -348,11 +407,11 @@ impl CardLight {
         panel.body.append(&runtime_error);
 
         let actions = flow();
-        let apply = button(Some("check"), Some("Bruk på kortet"), &["sm", "suggested"]);
-        let activate = button(Some("shield"), Some("Aktiver kortlys …"), &["sm"]);
-        let refresh = button(Some("refresh-cw"), Some("Sjekk igjen"), &["sm", "flat"]);
-        let resolve = button(None, Some("Avklar tidligere økt …"), &["sm", "flat"]);
-        let repair = button(None, Some("Gjenopprett lagret lys …"), &["sm", "flat"]);
+        let apply = button(Some("check"), Some(tr!("Bruk")), &["sm", "suggested"]);
+        let activate = button(Some("shield"), Some(tr!("Aktiver kortlys …")), &["sm"]);
+        let refresh = button(Some("refresh-cw"), Some(tr!("Sjekk igjen")), &["sm", "flat"]);
+        let resolve = button(None, Some(tr!("Avklar tidligere økt …")), &["sm", "flat"]);
+        let repair = button(None, Some(tr!("Gjenopprett lagret lys …")), &["sm", "flat"]);
         for b in [&apply, &activate, &refresh, &repair, &resolve] {
             actions.insert(b, -1);
         }
@@ -364,15 +423,15 @@ impl CardLight {
         let pending_hint = paragraph("", &["sm"]);
         pending.append(&pending_hint);
         let confirmation = flow();
-        let keep = button(Some("check"), Some("Behold"), &["sm", "suggested"]);
-        let revert = button(Some("undo-2"), Some("Rull tilbake"), &["sm"]);
+        let keep = button(Some("check"), Some(tr!("Behold")), &["sm", "suggested"]);
+        let revert = button(Some("undo-2"), Some(tr!("Rull tilbake")), &["sm"]);
         confirmation.insert(&keep, -1);
         confirmation.insert(&revert, -1);
         pending.append(&confirmation);
         panel.body.append(&pending);
 
         let observation = paragraph(
-            "Avlesning: ukjent. Kortet er ikke undersøkt av denne visningen.",
+            tr!("Avlesning: ukjent. Kortet er ikke undersøkt av denne visningen."),
             &["sm"],
         );
         let confirmed = paragraph("", &["muted", "sm"]);
@@ -381,20 +440,23 @@ impl CardLight {
             panel.body.append(l);
         }
         let recovery_actions = flow();
-        let deactivate = button(None, Some("Slå av RGB-tilgang …"), &["sm", "flat"]);
+        let deactivate = button(None, Some(tr!("Slå av RGB-tilgang …")), &["sm", "flat"]);
         let reset = button(
             Some("rotate-ccw"),
-            Some("Gjenopprett utgangspunkt"),
+            Some(tr!("Gjenopprett utgangspunkt")),
             &["sm", "flat"],
         );
-        let release = button(None, Some("Avslutt lysstyring"), &["sm", "flat"]);
-        let ack = button(Some("check"), Some("Bekreft gjenoppretting …"), &["sm"]);
+        let release = button(None, Some(tr!("Avslutt lysstyring")), &["sm", "flat"]);
+        let ack = button(Some("check"), Some(tr!("Bekreft gjenoppretting …")), &["sm"]);
         for b in [&reset, &release, &ack] {
             recovery_actions.insert(b, -1);
         }
         panel.body.append(&recovery_actions);
         recovery_actions.insert(&deactivate, -1);
-        panel.body.append(&paragraph("Farge og lysstyrke kan leses tilbake. Effektmodusen kan ikke leses; en visuell bekreftelse er din observasjon. Forhåndsvisningen nedenfor viser en modell.", &["muted", "sm"]));
+        let readback_note = paragraph(tr!("Farge og lysstyrke kan leses tilbake. Effektmodusen kan ikke leses; en visuell bekreftelse er din observasjon."), &["muted", "sm"]);
+        panel.body.append(&readback_note);
+        let support = paragraph(tr!("Ingen støttet RGB-kontroller er tilgjengelig for styring. Agentic Rigg støtter Palit GeForce RTX 2080 Super JetStream via den separate RGB-hjelperen."), &["muted"]);
+        panel.body.insert_child_after(&support, Some(&summary));
 
         let p = Rc::new(Self {
             root: panel.root,
@@ -418,7 +480,10 @@ impl CardLight {
             mode,
             color,
             swatch,
-            swatch_color: Cell::new(None),
+            swatch_color,
+            controls,
+            support,
+            readback_note,
             brightness,
             apply,
             activate,
@@ -509,16 +574,16 @@ impl CardLight {
             };
             let selected = selected_identity(&p.app);
             let check = if expected["mode"] == "off" {
-                "Jeg ser at lyset på kortet er slukket."
-            } else { "Jeg ser at lyset viser den forventede faste fargen." };
+                tr!("Jeg ser at lyset på kortet er slukket.")
+            } else { tr!("Jeg ser at lyset viser den forventede faste fargen.") };
             let w = Rc::downgrade(&p);
-            confirm(&p.app, "Bekreft lyset på kortet", &format!("Forventet lys: {}.\n\nKontroller det fysiske kortet. En tegnet modell eller samsvarende fargeverdier alene er ikke nok. Hjelperen leser verdiene på nytt før observasjonen din lagres.", request_text(&expected)), check, "Bekreft min observasjon", move || {
+            confirm(&p.app, tr!("Bekreft lyset på kortet"), &trf!("Forventet lys: {lys}.\n\nSe på det fysiske kortet. Samsvarende fargeverdier alene er ikke nok. Hjelperen leser verdiene på nytt før observasjonen din lagres.", lys = request_text(&expected)), check, tr!("Bekreft min observasjon"), move || {
                 let Some(p) = w.upgrade() else { return };
                 if selected_identity(&p.app) != selected
                     || p.helper.borrow()["status"]["state"]["confirmed"] != expected
                     || p.helper.borrow()["status"]["recoveryId"] != recovery_id
                 {
-                    p.app.toast(Toast::new("Lystilstanden er endret").body("Kontroller det nye forventede lyset og åpne bekreftelsen på nytt."));
+                    p.app.toast(Toast::new(tr!("Lystilstanden er endret")).body(tr!("Kontroller det nye forventede lyset og åpne bekreftelsen på nytt.")));
                     p.refresh();
                     return;
                 }
@@ -700,13 +765,15 @@ impl CardLight {
                     {
                         p.helper.borrow_mut()["status"] = details["status"].clone();
                     }
-                    *p.message.borrow_mut() = Some(error.message.clone());
+                    let message = operation_error(&error);
+                    *p.message.borrow_mut() = Some(message.clone());
+                    p.summary.set_tooltip_text(Some(&error.message));
                     let title = if op == "rgb_read" {
-                        "Kunne ikke lese kortlyset"
+                        tr!("Kunne ikke lese kortlyset")
                     } else {
-                        "Lysendringen ble ikke fullført"
+                        tr!("Lysendringen ble ikke fullført")
                     };
-                    p.app.toast(Toast::new(title).body(&error.message).error());
+                    p.app.toast(Toast::new(title).body(&message).error());
                 }
             }
             p.render();
@@ -747,28 +814,28 @@ impl CardLight {
             || (state["recovery"] == "readable_fields_match" && !visually_confirmed);
         let available = connected && bound && !self.busy.get() && helper["busy"] != true;
         let badge = if self.busy.get() {
-            "Venter …"
+            tr!("Venter …")
         } else if !connected {
-            "Frakoblet"
+            tr!("Frakoblet")
         } else if !present {
-            "Kortet er utilgjengelig"
+            tr!("Kortet er utilgjengelig")
         } else if !bound {
-            "Ikke klar"
+            tr!("Ikke klar")
         } else if pending {
-            "Prøve pågår"
+            tr!("Prøve pågår")
         } else if worker_effect.is_some() {
-            "Effekt aktiv"
+            tr!("Effekt aktiv")
         } else if blocked {
-            "Må avklares"
+            tr!("Må avklares")
         } else {
-            "Egen RGB-tillatelse"
+            tr!("Egen RGB-tillatelse")
         };
         set_text(
             &self.badge,
             &if self.fixture.get()
                 || (flow_requested(&self.app) && status["testMarker"] == FLOW_MARKER)
             {
-                format!("Simulerte RGB-data · {badge}")
+                trf!("Simulerte RGB-data · {status}", status = badge)
             } else {
                 badge.to_string()
             },
@@ -779,59 +846,66 @@ impl CardLight {
             connected && bound && (pending || blocked),
         );
         let message = if self.busy.get() {
-            "Venter på svar. Ingen ny endring kan sendes nå.".into()
+            tr!("Venter på svar. Ingen ny endring kan sendes nå.").into()
         } else if !connected {
-            "Forbindelsen til tjenesten er brutt. Hjelperen håndterer eventuell tilbakeføring."
+            tr!("Forbindelsen til tjenesten er brutt. Hjelperen håndterer eventuell tilbakeføring.")
                 .into()
         } else if let Some(message) = self.message.borrow().clone() {
             message
         } else if !present {
-            "Kortet er ikke tilgjengelig. Nye lysendringer og aktivering er sperret.".into()
+            tr!("Kortet er ikke tilgjengelig. Nye lysendringer og aktivering er sperret.").into()
         } else if other {
-            "Et annet vindu styrer kortlyset. Her vises bare status.".into()
+            tr!("Et annet vindu styrer kortlyset. Her vises bare status.").into()
         } else if bound {
-            "Én fysisk sone: hele kortlyset. Endringer sendes først med «Bruk på kortet».".into()
+            tr!("Én fysisk sone: hele kortlyset. Endringer sendes først med «Bruk».").into()
         } else if helper["state"] == "on" {
-            "RGB-tillatelsen gjelder ikke kortet som er valgt. Ingen endringer kan sendes her."
+            tr!("RGB-tillatelsen gjelder ikke kortet som er valgt. Ingen endringer kan sendes her.")
                 .into()
+        } else if helper["state"] == "outdated" {
+            tr!("Oppdater RGB-hjelperen med kommandoen for systeminstallasjon.").into()
+        } else if helper["state"] == "error" {
+            tr!("RGB-hjelperen er ikke klar. Kontroller oppsettet og avklar en eventuell tidligere RGB-økt.").into()
         } else {
-            helper["message"].as_str().unwrap_or("Kortlys trenger en egen administratoraktivering og et bekreftet, fast utgangspunkt.").to_string()
+            tr!("Kortlys trenger en egen administratoraktivering og et bekreftet, fast utgangspunkt.").into()
         };
         set_text(&self.summary, &message);
+        if self.message.borrow().is_none() {
+            self.summary.set_tooltip_text(helper["message"].as_str());
+        }
         set_text(
             &self.identity,
             &selected.as_ref().map_or_else(
-                || "Venter på kortets PCI-adresse og UUID.".into(),
-                |(pci, _)| format!("Valgt kort: {pci} · én fysisk lyssone"),
+                || tr!("Venter på kortets PCI-adresse og UUID.").into(),
+                |(pci, _)| trf!("Valgt kort: {pci}", pci = pci),
             ),
         );
         let effect_info = if let Some(name) = worker_effect_name {
             if pending {
-                format!(
-                    "{name} er valgt. Nå vises bare startfargen; animasjonen starter først etter «Behold»."
+                trf!(
+                    "{effekt} er valgt. Nå vises bare startfargen; animasjonen starter først etter «Behold».", effekt = name
                 )
             } else {
-                format!(
-                    "{name} er aktiv på hele kortlyset. Hjelperen oppdaterer fargen mens appen er åpen. «Stopp» gjenoppretter det lagrede utgangspunktet, som du deretter må bekrefte visuelt."
+                trf!(
+                    "{effekt} er aktiv på hele kortlyset. Hjelperen oppdaterer fargen mens appen er åpen. «Stopp» gjenoppretter det lagrede utgangspunktet, som du deretter må bekrefte visuelt.", effekt = name
                 )
             }
         } else if let Some(name) = chosen_effect {
             if !clean_effect_start(status) {
-                format!(
-                    "{name} krever det lagrede utgangspunktet. Gjenopprett og bekreft lyset før du starter en effekt."
+                trf!(
+                    "{effekt} krever det lagrede utgangspunktet. Gjenopprett og bekreft lyset før du starter en effekt.", effekt = name
                 )
             } else {
                 let detail = match selected_mode.as_str() {
-                    "breathing" => "Pusting varierer lysstyrken i fargen du velger.",
+                    "breathing" => tr!("Pusting varierer lysstyrken i fargen du velger."),
                     "rainbow" => {
-                        "Regnbue går gjennom hele fargespekteret fra fargetonen du velger. Gråtoner starter på rødt."
+                        tr!("Regnbue går gjennom hele fargespekteret fra fargetonen du velger. Gråtoner starter på rødt.")
                     }
                     _ => {
-                        "Fargesyklus veksler mellom seks tydelige fargetoner fra fargetonen du velger. Gråtoner starter på rødt."
+                        tr!("Fargesyklus veksler mellom seks tydelige fargetoner fra fargetonen du velger. Gråtoner starter på rødt.")
                     }
                 };
-                format!(
-                    "{detail} Først prøves startfargen; «Behold» starter animasjonen på én lyssone."
+                trf!(
+                    "{detalj} Først prøves startfargen; «Behold» starter animasjonen på én lyssone.", detalj = detail
                 )
             }
         } else {
@@ -841,7 +915,8 @@ impl CardLight {
         self.effect_info
             .set_visible(bound && !effect_info.is_empty());
         let runtime_error = status["runtimeError"].as_str().unwrap_or("");
-        set_text(&self.runtime_error, runtime_error);
+        set_text(&self.runtime_error, tr!("RGB-hjelperen meldte en driftsfeil. Kontroller lyset før du fortsetter."));
+        self.runtime_error.set_tooltip_text(status["runtimeError"].as_str());
         self.runtime_error
             .set_visible(bound && !runtime_error.is_empty());
         let source = status["observationSource"].as_str().unwrap_or("unknown");
@@ -850,54 +925,38 @@ impl CardLight {
             .zip(observed["brightnessRaw"].as_u64())
             .map(|(c, b)| {
                 if b <= 100 {
-                    format!("{c} · {b} %")
+                    format!("{c} · {}", fmt::pct(Some(b as f64), 0))
                 } else {
-                    format!("{c} · rå lysstyrke {b}, utenfor støttet område")
+                    trf!("{farge} · rå lysstyrke {styrke}, utenfor støttet område", farge = c, styrke = fmt::num(Some(b as f64), 0))
                 }
             });
         let observation = match (source, values) {
             ("stored_baseline", Some(v)) => {
-                format!("Lagret utgangspunkt: {v}. Dette er ikke en ny avlesning.")
+                trf!("Lagret utgangspunkt: {lys}. Dette er ikke en ny avlesning.", lys = v)
             }
             ("operation_readback", Some(v)) => {
-                format!("Sist lest fra kortet: {v}. Effektmodus: ukjent.")
+                trf!("Sist lest fra kortet: {lys}. Effektmodus: ukjent.", lys = v)
             }
-            _ => "Avlesning: ukjent. Effektmodusen er ikke bekreftet.".into(),
+            _ => tr!("Avlesning: ukjent. Effektmodusen er ikke bekreftet.").into(),
         };
         set_text(&self.observation, &observation);
         self.observation.set_visible(bound);
         set_text(
             &self.confirmed,
-            &format!(
-                "Sist bekreftede valg: {}. Valget er ikke bevis på avlest effektmodus.",
-                request_text(&state["confirmed"])
-            ),
+            &trf!("Sist bekreftede valg: {lys}. Valget er ikke bevis på avlest effektmodus.", lys = request_text(&state["confirmed"])),
         );
         self.confirmed.set_visible(bound);
-        let recovery = if let Some(error) = state["readError"].as_str() {
-            error.to_string()
-        } else if visually_confirmed {
-            "Gjenopprettingen er bekreftet av deg. Effektmodusen er fortsatt ikke maskinelt avlest."
-                .to_string()
-        } else if let Some(error) = state["error"].as_str() {
-            error.to_string()
-        } else {
-            match state["recovery"].as_str() {
-            Some("readable_fields_match") => "Farge og lysstyrke samsvarer etter tilbakeføring. Se på kortet før du bekrefter gjenopprettingen.".into(),
-            Some("mismatch") => "Tilbakeføringen samsvarer ikke med avlesningen. Nye fargeendringer er sperret.".into(),
-            Some("unknown") => "Gjenopprettingen er uavklart. Nye fargeendringer er sperret.".into(),
-            _ => String::new(),
-        }
-        };
+        let recovery = recovery_text(state);
         set_text(&self.recovery, &recovery);
+        self.recovery.set_tooltip_text(state["readError"].as_str().or_else(|| state["error"].as_str()));
         self.recovery.set_visible(bound && !recovery.is_empty());
         self.pending.set_visible(pending && bound);
         set_text(
             &self.pending_hint,
             if worker_effect.is_some() {
-                "Kontroller startfargen på kortet. «Behold» starter animasjonen; «Rull tilbake» eller fristutløp går tilbake til utgangspunktet."
+                tr!("Kontroller startfargen på kortet. «Behold» starter animasjonen; «Rull tilbake» eller fristutløp går tilbake til utgangspunktet.")
             } else {
-                "Se på det fysiske kortet før du beholder endringen. Uten bekreftelse forsøker hjelperen å rulle tilbake."
+                tr!("Se på det fysiske kortet før du beholder endringen. Uten bekreftelse forsøker hjelperen å rulle tilbake.")
             },
         );
         let remaining = state["pending"]["deadlineMs"]
@@ -910,11 +969,11 @@ impl CardLight {
                 "{} · {}",
                 request_text(&state["pending"]["requested"]),
                 remaining.map_or_else(
-                    || "fristen styres av hjelperen".into(),
+                    || tr!("fristen styres av hjelperen").into(),
                     |s| if s == 0 {
-                        "fristen er ute; venter på status".into()
+                        tr!("fristen er ute; venter på status").into()
                     } else {
-                        format!("bekreft innen {s} s")
+                        trf!("bekreft innen {tid}", tid = fmt::with_unit(fmt::num(Some(s as f64), 0), "s"))
                     }
                 )
             ),
@@ -925,18 +984,14 @@ impl CardLight {
         let off = self.mode.value().as_deref() == Some("off");
         let valid_color = hex_color(&self.color.text()).is_some();
         class(&self.color, "error", !valid_color && !off);
-        if let Some(color) = hex_color(&self.color.text())
-            && self.swatch_color.get() != Some(color)
-        {
-            self.swatch_color.set(Some(color));
-            self.swatch.set(
-                "static",
-                &[&format!(
-                    "#{:02x}{:02x}{:02x}",
-                    color[0], color[1], color[2]
-                )],
-            );
+        let color = (!off).then(|| hex_color(&self.color.text())).flatten();
+        if self.swatch_color.replace(color) != color {
+            self.swatch.queue_draw();
         }
+        self.support.set_visible(!bound);
+        self.controls.set_visible(bound);
+        self.apply.set_visible(bound);
+        self.readback_note.set_visible(bound);
         self.color.set_sensitive(!off && !self.busy.get());
         self.brightness.set_sensitive(!off && !self.busy.get());
         self.mode.root.set_sensitive(!self.busy.get());
@@ -951,7 +1006,8 @@ impl CardLight {
         );
         self.refresh
             .set_sensitive(connected && !self.reading.get() && !self.busy.get());
-        self.activate.set_visible(!bound);
+        let admin_ui = helper["systemAdmin"] == true;
+        self.activate.set_visible(!bound && present && admin_ui);
         let activation = admin_paths(&self.app, &helper, AdminAction::Activate);
         let resolution = admin_paths(&self.app, &helper, AdminAction::Resolve);
         let restoration = admin_paths(&self.app, &helper, AdminAction::Restore);
@@ -968,13 +1024,13 @@ impl CardLight {
             .set_sensitive(admin_available && helper["state"] != "outdated" && activation.is_ok());
         self.activate.set_tooltip_text(activation.err().as_deref());
         self.resolve.set_visible(
-            !bound && matches!(helper["state"].as_str(), Some("off" | "error" | "outdated")),
+            !bound && present && admin_ui && matches!(helper["state"].as_str(), Some("off" | "error" | "outdated")),
         );
         self.resolve
             .set_sensitive(admin_available && resolution.is_ok());
         self.resolve.set_tooltip_text(resolution.err().as_deref());
         self.repair.set_visible(
-            !bound && matches!(helper["state"].as_str(), Some("off" | "error" | "outdated")),
+            !bound && present && admin_ui && matches!(helper["state"].as_str(), Some("off" | "error" | "outdated")),
         );
         self.repair
             .set_sensitive(admin_available && restoration.is_ok());
@@ -995,11 +1051,11 @@ impl CardLight {
         self.release.set_visible(bound && owned);
         self.release.set_sensitive(available);
         self.release.set_label(if worker_effect.is_some() {
-            "Stopp"
+            tr!("Stopp")
         } else {
-            "Avslutt lysstyring"
+            tr!("Avslutt lysstyring")
         });
-        self.release.set_tooltip_text(Some("Gjenopprett det lagrede utgangspunktet og frigi lysstyringen. Se på kortet før du bekrefter gjenopprettingen."));
+        self.release.set_tooltip_text(Some(tr!("Gjenopprett det lagrede utgangspunktet og frigi lysstyringen. Se på kortet før du bekrefter gjenopprettingen.")));
         self.ack
             .set_visible(bound && status["recoveryId"].is_string());
         self.ack.set_sensitive(available && !pending);
@@ -1023,7 +1079,7 @@ impl CardLight {
         }
         if let Err(error) = admin_paths(&self.app, &self.helper.borrow(), action) {
             self.app.toast(
-                Toast::new("RGB-oppsettet er ikke klart")
+                Toast::new(tr!("RGB-oppsettet er ikke klart"))
                     .body(&error)
                     .error(),
             );
@@ -1035,34 +1091,29 @@ impl CardLight {
         }
         let (title, text, check) = match action {
             AdminAction::Deactivate => (
-                "Slå av RGB-tilgang",
-                "Dette stopper RGB-arbeideren og fjerner kortets RGB-tillatelse når gjenopprettingen er avklart. Det lagrede utgangspunktet beholdes.",
-                "Jeg vil slå av RGB-tilgangen for dette kortet.",
+                tr!("Slå av RGB-tilgang"),
+                tr!("Dette stopper RGB-arbeideren og fjerner kortets RGB-tillatelse når gjenopprettingen er avklart. Det lagrede utgangspunktet beholdes."),
+                tr!("Jeg vil slå av RGB-tilgangen for dette kortet."),
             ),
             AdminAction::Inspect | AdminAction::Resolve => unreachable!("egen avklaringsdialog"),
             AdminAction::Restore => (
-                "Gjenopprett lagret lys",
-                "Administratorhjelperen stopper RGB-arbeideren hvis den kjører. Hvis det finnes en uavklart journal, forsøker den deretter å gjenopprette det lagrede utgangspunktet. Kontroller lyset og velg «Avklar tidligere økt» etterpå.",
-                "Jeg vil gjenopprette det lagrede utgangspunktet på dette kortet.",
+                tr!("Gjenopprett lagret lys"),
+                tr!("Administratorhjelperen stopper RGB-arbeideren hvis den kjører. Hvis det finnes en uavklart journal, forsøker den deretter å gjenopprette det lagrede utgangspunktet. Kontroller lyset og velg «Avklar tidligere økt» etterpå."),
+                tr!("Jeg vil gjenopprette det lagrede utgangspunktet på dette kortet."),
             ),
             AdminAction::Activate => (
-                "Aktiver lys på kortet",
-                "Se på det fysiske kortet før du fortsetter. Lyset må allerede vise én fast farge. Pust, fargeskift og et ukjent utgangspunkt kan ikke lagres som et sikkert utgangspunkt. Administratorgodkjenningen gjelder bare kortlyset; den endrer ikke GPU-tillatelsen.",
-                "Jeg ser kortet og bekrefter at det viser én fast farge.",
+                tr!("Aktiver lys på kortet"),
+                tr!("Se på det fysiske kortet før du fortsetter. Lyset må allerede vise én fast farge. Pust, fargeskift og et ukjent utgangspunkt kan ikke lagres som et sikkert utgangspunkt. Administratorgodkjenningen gjelder bare kortlyset; den endrer ikke GPU-tillatelsen."),
+                tr!("Jeg ser kortet og bekrefter at det viser én fast farge."),
             ),
         };
         let weak = Rc::downgrade(self);
         confirm(
             &self.app,
             title,
-            &format!(
-                "Kort: {}\n\n{text}",
-                identity
-                    .as_ref()
-                    .map_or("Lagret binding", |card| card.0.as_str())
-            ),
+            &trf!("Kort: {kort}\n\n{beskrivelse}", kort = identity.as_ref().map_or(tr!("Lagret binding"), |card| card.0.as_str()), beskrivelse = text),
             check,
-            "Fortsett til administratorgodkjenning",
+            tr!("Fortsett til administratorgodkjenning"),
             move || {
                 if let Some(p) = weak.upgrade()
                     && (identity.is_none() || selected_identity(&p.app) == identity)
@@ -1077,14 +1128,10 @@ impl CardLight {
         let weak = Rc::downgrade(self);
         confirm(
             &self.app,
-            "Avklar tidligere RGB-økt",
-            &format!(
-                "Lagret lys for {}: {}.\n\nSe på kortet. Fortsett bare hvis lyset viser dette utgangspunktet som én fast farge.",
-                identity.0,
-                request_text(expected)
-            ),
-            "Jeg ser at kortlyset viser det lagrede, faste utgangspunktet.",
-            "Fortsett til administratorgodkjenning",
+            tr!("Avklar tidligere RGB-økt"),
+            &trf!("Lagret lys for {kort}: {lys}.\n\nSe på kortet. Fortsett bare hvis lyset viser dette utgangspunktet som én fast farge.", kort = identity.0, lys = request_text(expected)),
+            tr!("Jeg ser at kortlyset viser det lagrede, faste utgangspunktet."),
+            tr!("Fortsett til administratorgodkjenning"),
             move || {
                 if let Some(p) = weak.upgrade()
                     && selected_identity(&p.app).as_ref() == Some(&identity)
@@ -1143,7 +1190,9 @@ impl CardLight {
             Ok(proc) => proc,
             Err(error) => {
                 self.busy.set(false);
-                *self.message.borrow_mut() = Some(error.to_string());
+                let diagnostic = error.to_string();
+                *self.message.borrow_mut() = Some(with_diagnostic(tr!("RGB-oppsettet kunne ikke fullføres."), Some(&diagnostic)));
+                self.summary.set_tooltip_text(Some(&diagnostic));
                 self.render();
                 return;
             }
@@ -1155,7 +1204,7 @@ impl CardLight {
             p.busy.set(false);
             let mut code = if result.is_ok() && proc.has_exited() { proc.exit_status() } else { 1 };
             let (output, error) = result.unwrap_or_default();
-            let mut error = error.map(|value| value.to_string()).unwrap_or_default();
+            let mut invalid_target = false;
             if code == 0 && action == AdminAction::Inspect {
                 let report = output.and_then(|out| serde_json::from_str::<Value>(&out).ok());
                 if let Some(report) = &report
@@ -1170,20 +1219,27 @@ impl CardLight {
                 }
                 if !matches!(report, Some(Value::Object(fields)) if fields.is_empty()) {
                     code = 1;
-                    error = "Avklaringsmålet er ugyldig eller gjelder et annet valgt kort.".into();
+                    invalid_target = true;
                 }
             }
+            let diagnostic = error
+                .as_deref()
+                .and_then(|text| text.lines().rfind(|line| !line.trim().is_empty()))
+                .filter(|_| code != 0 && code != 126);
             let message = match code {
-                0 if action == AdminAction::Restore => "RGB-arbeideren er stoppet. Kontroller lyset og velg «Avklar tidligere økt» hvis en gjenoppretting gjenstår.".to_string(),
-                0 if action == AdminAction::Inspect => "Ingen uavklart RGB-journal for kortet. Du kan slå av RGB-tilgangen.".to_string(),
-                0 if action == AdminAction::Resolve => "Gjenopprettingen er avklart. Du kan slå av RGB-tilgangen eller aktivere lysstyring på nytt.".to_string(),
-                0 if action == AdminAction::Deactivate => "RGB-tilgangen er slått av. Den lokale forhåndsvisningen kan fortsatt brukes.".to_string(),
-                0 => "RGB-oppsettet er oppdatert. Kontroller status før du bruker en farge.".to_string(),
-                126 => "Administratorgodkjenningen ble avbrutt.".to_string(),
-                _ => error.lines().rfind(|l| !l.trim().is_empty()).unwrap_or("RGB-oppsettet kunne ikke fullføres.").to_string(),
+                0 if action == AdminAction::Restore => tr!("RGB-arbeideren er stoppet. Kontroller lyset og velg «Avklar tidligere økt» hvis en gjenoppretting gjenstår.").to_string(),
+                0 if action == AdminAction::Inspect => tr!("Ingen uavklart RGB-journal for kortet. Du kan slå av RGB-tilgangen.").to_string(),
+                0 if action == AdminAction::Resolve => tr!("Gjenopprettingen er avklart. Du kan slå av RGB-tilgangen eller aktivere lysstyring på nytt.").to_string(),
+                0 if action == AdminAction::Deactivate => tr!("RGB-tilgangen er slått av.").to_string(),
+                0 => tr!("RGB-oppsettet er oppdatert. Kontroller status før du bruker en farge.").to_string(),
+                126 => tr!("Administratorgodkjenningen ble avbrutt.").to_string(),
+                _ if invalid_target => tr!("Avklaringsmålet er ugyldig eller gjelder et annet valgt kort.").to_string(),
+                // Årsaken fra administratorskriptet sier hva som må avklares.
+                _ => with_diagnostic(tr!("RGB-oppsettet kunne ikke fullføres."), diagnostic),
             };
+            p.summary.set_tooltip_text(diagnostic);
             *p.message.borrow_mut() = Some(message.clone());
-            p.app.toast(if code == 0 { Toast::new("RGB-oppsett").body(&message) } else { Toast::new("RGB-oppsett ble ikke fullført").body(&message).error() });
+            p.app.toast(if code == 0 { Toast::new(tr!("RGB-oppsett")).body(&message) } else { Toast::new(tr!("RGB-oppsett ble ikke fullført")).body(&message).error() });
             p.render();
             p.refresh();
         });
@@ -1197,7 +1253,7 @@ fn admin_paths(
 ) -> Result<(PathBuf, PathBuf), String> {
     if app.profile.is_dev() || helper["systemAdmin"] != true {
         return Err(
-            "Administratorhandlinger for RGB krever appens vanlige maskinvareoppsett.".into(),
+            tr!("Administratorhandlinger for RGB krever appens vanlige maskinvareoppsett.").into(),
         );
     }
     let pkexec = PathBuf::from("/usr/bin/pkexec");
@@ -1213,7 +1269,7 @@ fn admin_paths(
         .into_iter()
         .any(|path| !crate::system_install::trusted(path))
     {
-        return Err("En administrator må først installere de betrodde RGB-komponentene. Se RGB-HJELPER.md i apppakken.".into());
+        return Err(tr!("En administrator må først installere de betrodde RGB-komponentene. Se RGB-HJELPER.md i apppakken.").into());
     }
     Ok((pkexec, script))
 }
@@ -1235,7 +1291,7 @@ fn confirm(
     checked.set_child(Some(&paragraph(check, &[])));
     content.append(&checked);
     let buttons = flow();
-    let cancel = button(None, Some("Avbryt"), &[]);
+    let cancel = button(None, Some(tr!("Avbryt")), &[]);
     let accept = button(None, Some(action), &["suggested"]);
     if let Some(label) = accept.child().and_downcast::<gtk::Label>() {
         label.set_wrap(true);
@@ -1362,7 +1418,7 @@ pub(crate) fn debug_flow(step: &str) {
                 assert!(state["observed"]["mode"].is_null());
                 assert!(p.keep.is_sensitive());
                 assert!(!p.apply.is_sensitive());
-                assert!(p.effect_info.text().contains("starter først etter"));
+                assert!(p.effect_info.is_visible() && !p.effect_info.text().is_empty());
                 FLOW_EFFECT_START.with(|v| *v.borrow_mut() = state["observed"].clone());
             }
             "effect_not_started" => {
@@ -1380,8 +1436,8 @@ pub(crate) fn debug_flow(step: &str) {
                 assert_eq!(helper["owned"], true);
                 assert!(state["observed"]["mode"].is_null());
                 assert_eq!(state["observed"]["brightnessRaw"], 65);
-                assert!(p.effect_info.text().contains("er aktiv"));
-                assert_eq!(p.release.label().as_deref(), Some("Stopp"));
+                assert!(p.effect_info.is_visible() && !p.effect_info.text().is_empty());
+                assert_eq!(p.release.label().as_deref(), Some(tr!("Stopp")));
                 assert!(!p.apply.is_sensitive() && !p.reset.is_visible());
                 FLOW_EFFECT_START.with(|v| {
                     assert_ne!(
@@ -1420,7 +1476,7 @@ pub(crate) fn debug_flow(step: &str) {
                     .into_iter()
                     .filter_map(|w| w.downcast::<gtk::Window>().ok())
                     .find(|w| {
-                        w.is_visible() && w.title().as_deref() == Some("Bekreft lyset på kortet")
+                        w.is_visible() && w.title().as_deref() == Some(tr!("Bekreft lyset på kortet"))
                     })
                     .expect("Den vanlige RGB-bekreftelsesdialogen mangler");
                 fn find<T: IsA<gtk::Widget> + glib::object::ObjectType>(
@@ -1442,7 +1498,7 @@ pub(crate) fn debug_flow(step: &str) {
                     .expect("Visuell avkrysning mangler");
                 let accept = crate::skjermbilder::find_button(
                     dialog.upcast_ref(),
-                    "Bekreft min observasjon",
+                    tr!("Bekreft min observasjon"),
                 )
                 .expect("Visuell bekreftelsesknapp mangler");
                 assert!(!check.is_active() && !accept.is_sensitive());
@@ -1554,6 +1610,40 @@ mod tests {
             request_text(&json!({"mode": "breathe"})),
             "Ingen kjent innstilling"
         );
+    }
+
+    #[test]
+    fn lagret_feil_ber_aldri_om_brukerbekreftelse() {
+        let confirm = recovery_text(&json!({"recovery": "readable_fields_match"}));
+        assert!(confirm.contains("før du bekrefter"));
+        // Hjelperen avviser bekreftelsen mens `error` står.
+        let failed = recovery_text(&json!({
+            "recovery": "readable_fields_match",
+            "error": "Brukerbekreftelsen kunne ikke lagres: I/O",
+        }));
+        assert_eq!(failed, "Gjenopprettingen er uavklart. Nye fargeendringer er sperret.");
+        assert_eq!(recovery_text(&json!({"error": "Gjenoppretting feilet: I/O"})), failed);
+        assert_eq!(recovery_text(&json!({"recovery": "unknown", "error": "I/O"})), failed);
+        assert!(recovery_text(&json!({"recovery": "mismatch", "error": "I/O"})).contains("samsvarer ikke"));
+        assert!(recovery_text(&json!({"recovery": "readable_fields_match", "readError": "I/O"})).contains("Avlesning"));
+        assert!(recovery_text(&json!({"recovery": "readable_fields_match", "recoveryConfirmationSource": "userVisual"})).contains("bekreftet av deg"));
+        assert_eq!(recovery_text(&json!({"recovery": "verified"})), "");
+        assert_eq!(recovery_text(&Value::Null), "");
+    }
+
+    #[test]
+    fn ukjent_diagnose_vises_uendret_etter_forklaringen() {
+        assert_eq!(with_diagnostic("Forklaring.", None), "Forklaring.");
+        assert_eq!(with_diagnostic("Forklaring.", Some("  \n")), "Forklaring.");
+        assert_eq!(
+            with_diagnostic("Forklaring.", Some("RGB: Uavklart RGB-journal for 0000:1c:00.0 GPU-x. Velg «Gjenopprett lagret lys».\n")),
+            "Forklaring.\nRGB: Uavklart RGB-journal for 0000:1c:00.0 GPU-x. Velg «Gjenopprett lagret lys»."
+        );
+        let known = operation_error(&ProtoError::new(ErrorCode::Busy));
+        assert_eq!(known, "Lysstyringen er opptatt eller tilhører et annet vindu.");
+        let unknown = operation_error(&ProtoError::msg(ErrorCode::Unavailable, "RGB-økta er avsluttet."));
+        assert!(unknown.starts_with("RGB-forespørselen mislyktes."));
+        assert!(unknown.ends_with("\nRGB-økta er avsluttet."));
     }
 
     #[test]

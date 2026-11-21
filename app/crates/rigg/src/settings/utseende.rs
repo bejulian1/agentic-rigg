@@ -457,16 +457,6 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
             ],
         ),
         group(
-            "Lys",
-            GroupOpts::default(),
-            vec![row(
-                "3D-kortet",
-                Some("Auto viser 2D til du har valgt 3D én gang, deretter det du valgte sist. 3D bruker ca. 120 MB mer minne og vekker skjermkortet i noen sekunder første gang."),
-                &seg(app, &[("auto", "Auto"), ("3d", "Alltid 3D"), ("2d", "Alltid 2D")], &s.lys3d, "lys3d", "3D-kortet på RGB-lys", false).root,
-                "lys rgb 3d 2d forhåndsvisning kort",
-            )],
-        ),
-        group(
             tr!("Bevegelse"),
             GroupOpts { note: Some(tr!("Redusert gir bare korte toninger, og grafene oppdateres i trinn. Av slår av all animasjon.")), ..Default::default() },
             vec![row(

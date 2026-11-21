@@ -220,7 +220,7 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
             vec![
                 row(tr!("Skjulte meldinger"), Some(&hidden_sub), &show, &kw("infolinje melding", tr!("søkeord", "infolinje melding"))),
                 row(tr!("Slett historikken"), Some(tr!("Grafene og 48 timer med historikk begynner på nytt. Min og maks blir. Kan angres i noen sekunder.")), &clear, &kw("historikk graf slett", tr!("søkeord", "historikk graf slett"))),
-                row(tr!("Tilbakestill alle innstillinger"), Some(tr!("Alt i Innstillinger går tilbake til standard. Profiler og lysvalg blir. Kan angres i noen sekunder.")), &reset, &kw("standard nullstill fabrikk", tr!("søkeord", "standard nullstill fabrikk"))),
+                row(tr!("Tilbakestill alle innstillinger"), Some(tr!("Alt i Innstillinger går tilbake til standard. Profilene beholdes. Kan angres i noen sekunder.")), &reset, &kw("standard nullstill fabrikk", tr!("søkeord", "standard nullstill fabrikk"))),
             ],
         ),
     ]

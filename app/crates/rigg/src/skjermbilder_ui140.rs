@@ -381,13 +381,6 @@ pub(super) fn plan() -> Vec<Step> {
         Shot("styring-av-umiddelbar-status"), Eval(stop_mock), Wait(600),
         Settings("styring"), Wait(400), Eval(|app| crate::settings::styring::toggle(app, false)), Wait(5000),
         Eval(|app| assert_eq!(locked::helper_state(app), "off")), Shot("globalaktivering-av-igjen-sim"), CloseSettings,
-        Go("lys"), Click("2D"), Wait(700), Shot("rgb-pcie-2d-lys"),
-        Click("3D"), Wait(6000),
-        Eval(|_| { let info = crate::pages::lys::debug_info(); assert!(crate::pages::lys::debug_ready() && !info.starts_with("2D"), "3D krever GL-renderer, ikke cairo: {info}"); }),
-        Shot("rgb-pcie-3d-hel-lys"), Click("Bare kretskort"), Click("Forfra"), Wait(600), Shot("rgb-pcie-3d-kretskort-forfra-lys"),
-        Click("Bakfra"), Wait(600), Shot("rgb-pcie-3d-kretskort-bakfra-lys"), Set(json!({"theme": "dark"})), Wait(400),
-        Shot("rgb-pcie-3d-kretskort-bakfra-mork"), Click("Hel"), Click("Skrått"), Wait(600), Shot("rgb-pcie-3d-hel-mork"),
-        Click("2D"), Wait(500), Shot("rgb-pcie-2d-mork"),
         Eval(|_| eprintln!("RIGG_SKJERMBILDER 1.4.0-ui: alle assertions fullført; alle styringsverdier/statusbilder er simulerte")),
     ]
 }

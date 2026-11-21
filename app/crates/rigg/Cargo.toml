@@ -19,9 +19,6 @@ gtk.workspace = true
 glib-unix.workspace = true
 serde_json.workspace = true
 libc.workspace = true
-# Til 3D-kortet på Lys (2C): GL-kall og matriser. Brukes ikke før runde 2.
-glow.workspace = true
-glam.workspace = true
 
 [build-dependencies]
 glib-build-tools.workspace = true

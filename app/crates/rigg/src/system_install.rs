@@ -1,4 +1,5 @@
 use gtk::prelude::*;
+use rigg_core::tr;
 use std::os::unix::fs::MetadataExt;
 use std::path::Path;
 
@@ -44,14 +45,14 @@ fn compatible_revision(value: &str, activate: bool) -> bool {
 pub fn prompt() -> gtk::Box {
     let box_ = gtk::Box::new(gtk::Orientation::Vertical, 6);
     let text = gtk::Label::new(Some(
-        "Systemkomponentene mangler eller må oppdateres. Kjør kommandoen i en administratorterminal. Oppgi arkivstien og SHA-256 fra utgivelsessiden.",
+        tr!("Systemkomponentene mangler eller må oppdateres. Kjør kommandoen i en administratorterminal. Oppgi arkivstien og SHA-256 fra utgivelsessiden."),
     ));
     text.set_wrap(true);
     text.set_xalign(0.0);
     let command = gtk::Entry::new();
     command.set_editable(false);
     command.set_text(COMMAND.trim());
-    let copy = gtk::Button::with_label("Kopier installasjonskommando");
+    let copy = gtk::Button::with_label(tr!("Kopier installasjonskommando"));
     copy.set_halign(gtk::Align::Start);
     copy.connect_clicked(|button| button.clipboard().set_text(COMMAND.trim()));
     box_.append(&text);
