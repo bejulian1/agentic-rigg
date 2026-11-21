@@ -495,13 +495,9 @@ impl Lys {
 
     fn apply_visual(self: &Rc<Self>, v: &VisualState) {
         *self.visual.borrow_mut() = v.clone();
-        let target = if !v.bound {
-            PreviewTarget {
-                mode: "off".into(),
-                color: [0, 0, 0],
-                brightness: 0,
-            }
-        } else if v.pending {
+        // Før aktivering forhåndsviser kortet valget (farge og effekt), slik
+        // at brukeren ser hva «Bruk» vil sende.
+        let target = if v.bound && v.pending {
             let off = v.observed_color == Some([0, 0, 0])
                 || (v.observed_color.is_none() && v.selected_mode == "off");
             PreviewTarget {
@@ -527,7 +523,7 @@ impl Lys {
 
         // Oppdater statusmerket og kortets sist leste farge.
         let tag_text = if !v.bound {
-            tr!("Ikke aktivert")
+            tr!("Forhåndsvisning av valg")
         } else if v.pending {
             tr!("Prøve på kortet")
         } else if v.active_effect.is_some() {

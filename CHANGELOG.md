@@ -1,6 +1,15 @@
 # Versjonslogg
 
-Gjeldende versjon: **1.5.4 · bygg 29**. Nedlastinger og utgivelsesnotater ligger under [Releases](https://github.com/bejulian1/agentic-rigg/releases).
+Gjeldende versjon: **1.5.5 · bygg 30**. Nedlastinger og utgivelsesnotater ligger under [Releases](https://github.com/bejulian1/agentic-rigg/releases).
+
+## 1.5.5 · bygg 30 – 21. november 2026
+
+- **Valgene alltid fremme:** I 1.5.4 var modus, farge og lysstyrke skjult til RGB-hjelperen var aktiv. Med en utdatert eller ikke aktivert hjelper så RGB-siden derfor bare tekst og oppsettsknapper. Nå står Modus (fast farge, av, pusting, regnbue, fargesyklus), Farge (fargekode og ni hurtigfarger) og Lysstyrke (glidebryter og tall) alltid fremme, med korte overskrifter.
+- **Kortet forhåndsviser valget:** 2D/3D-kortet viser fargen og effekten du velger, også før kortlyset er aktivert (merket «Forhåndsvisning av valg»).
+- **«Bruk» aktiverer:** Første «Bruk» åpner den vanlige bekreftelsen av den faste fargen du ser på kortet og ber om passordet én gang. Den installerer eller oppdaterer RGB-hjelperen ved behov og bruker deretter valget som en vanlig prøve med Behold/Rull tilbake. Avbrytes eller feiler aktiveringen, sendes ingenting til kortet.
+- **Ryddigere side:** Avlesning, kortidentitet, terminalreserven og knappene Sjekk igjen, Aktiver kortlys, Gjenopprett lagret lys, Avklar tidligere økt og Slå av RGB-tilgang ligger under «Detaljer og feilsøking». Den åpnes av seg selv når hjelperen melder feil.
+- Hjelperne, protokollene og minimumsbyggene er uendret (RGB 29, NVML 25). En RGB-hjelper fra 1.5.4 kan beholdes.
+- **Begrensninger:** Effektene og oppdateringen av RGB-hjelperen er fortsatt bare prøvd mot et simulert kort.
 
 ## 1.5.4 · bygg 29 – 21. november 2026
 

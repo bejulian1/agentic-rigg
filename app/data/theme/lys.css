@@ -63,3 +63,9 @@ window.rigg .lys button.swatch:focus:focus-visible { outline-offset: 1px; }
 .lys .rgb-card-flow entry { min-height: var(--h-sm); }
 .lys .rgb-card-pending { padding: var(--sp-2); border: 1px solid var(--accent); border-radius: var(--r); background-color: var(--accent-soft); }
 .rgb-card-dialog { padding: 16px; }
+
+/* Kortlysvalg i rader med korte overskrifter; detaljer er sammenlagt. */
+.lys .rgb-card-grid { margin: var(--sp-1) 0; }
+.lys .rgb-card-heading { font-weight: 600; min-width: 80px; }
+.lys .rgb-card-details-expander { margin-top: var(--sp-1); }
+.lys .rgb-card-details { padding-top: var(--sp-1); }

@@ -58,7 +58,12 @@ pub(super) struct CardLight {
     swatch: gtk::DrawingArea,
     swatch_color: Rc<Cell<Option<[u8; 3]>>>,
     swatches_box: gtk::Box,
-    controls: gtk::FlowBox,
+    controls: gtk::Grid,
+    brightness_box: gtk::Box,
+    details: gtk::Expander,
+    /// «Bruk» startet aktiveringen; valget brukes når hjelperen er klar.
+    queued: Cell<bool>,
+    last_state: RefCell<String>,
     support: gtk::Label,
     readback_note: gtk::Label,
     brightness: gtk::SpinButton,
@@ -358,17 +363,20 @@ impl CardLight {
         badge.set_wrap_mode(gtk::pango::WrapMode::WordChar);
         badge.set_max_width_chars(24);
         panel.aside.append(&badge);
-        let summary = paragraph(
-            tr!("Egen tillatelse kreves for å endre lyset på det valgte kortet."),
-            &[],
-        );
+        let summary = paragraph("", &["muted"]);
         panel.body.append(&summary);
-        let install_prompt = crate::system_install::offline_fallback();
-        panel.body.append(&install_prompt);
-        let identity = paragraph("", &["muted", "sm"]);
-        panel.body.append(&identity);
 
-        let controls = flow();
+        // Valgene står alltid fremme. Første «Bruk» aktiverer (eller
+        // oppdaterer) kortlyset med ett passord og bruker deretter valget.
+        let controls = gtk::Grid::new();
+        controls.add_css_class("rgb-card-grid");
+        controls.set_row_spacing(10);
+        controls.set_column_spacing(16);
+        let heading = |text: &str| {
+            let l = label(text, &["rgb-card-heading"]);
+            l.set_valign(gtk::Align::Center);
+            l
+        };
         let mode = Seg::new(
             &[
                 ("static", tr!("Fast farge")),
@@ -381,9 +389,10 @@ impl CardLight {
             tr!("Fysisk lysmodus"),
         )
         .small();
-        controls.insert(&mode.root, -1);
-        let color_box = hbox(6, &[]);
-        color_box.append(&label(tr!("Farge"), &["muted"]));
+        mode.root.set_halign(gtk::Align::Start);
+        controls.attach(&heading(tr!("Modus")), 0, 0, 1, 1);
+        controls.attach(&mode.root, 1, 0, 1, 1);
+
         let swatch = gtk::DrawingArea::new();
         swatch.set_content_width(20);
         swatch.set_content_height(20);
@@ -396,7 +405,6 @@ impl CardLight {
                 let _ = context.fill();
             }
         });
-        color_box.append(&swatch);
         let color = gtk::Entry::new();
         color.set_text("#3A7BF0");
         color.set_max_length(7);
@@ -406,23 +414,11 @@ impl CardLight {
         color.update_property(&[gtk::accessible::Property::Label(
             tr!("Farge på kortet, seks heksadesimale siffer"),
         )]);
+        let color_box = hbox(6, &[]);
+        color_box.append(&swatch);
         color_box.append(&color);
-        controls.insert(&color_box, -1);
-        let brightness_box = hbox(6, &[]);
-        brightness_box.append(&label(tr!("Lysstyrke"), &["muted"]));
-        let brightness = gtk::SpinButton::with_range(0.0, 100.0, 1.0);
-        brightness.set_value(80.0);
-        brightness.set_digits(0);
-        brightness.set_width_chars(3);
-        brightness.update_property(&[gtk::accessible::Property::Label(
-            tr!("Kortlysets lysstyrke i prosent"),
-        )]);
-        brightness_box.append(&brightness);
-        brightness_box.append(&label("%", &["muted"]));
-        controls.insert(&brightness_box, -1);
-        panel.body.append(&controls);
         let swatches_box = hbox(4, &["swatches"]);
-        swatches_box.set_halign(gtk::Align::Start);
+        swatches_box.set_valign(gtk::Align::Center);
         swatches_box.update_property(&[gtk::accessible::Property::Label(tr!("Hurtigfarger"))]);
         for (hex, name_fn) in crate::rgb::SWATCHES {
             let b = gtk::Button::new();
@@ -456,19 +452,50 @@ impl CardLight {
             });
             swatches_box.append(&b);
         }
-        panel.body.append(&swatches_box);
-        let effect_info = paragraph("", &["sm"]);
+        let color_row = flow();
+        color_row.insert(&color_box, -1);
+        color_row.insert(&swatches_box, -1);
+        controls.attach(&heading(tr!("Farge")), 0, 1, 1, 1);
+        controls.attach(&color_row, 1, 1, 1, 1);
+
+        let brightness = gtk::SpinButton::with_range(0.0, 100.0, 1.0);
+        brightness.set_value(80.0);
+        brightness.set_digits(0);
+        brightness.set_width_chars(3);
+        brightness.update_property(&[gtk::accessible::Property::Label(
+            tr!("Kortlysets lysstyrke i prosent"),
+        )]);
+        let slider = gtk::Scale::new(gtk::Orientation::Horizontal, Some(&brightness.adjustment()));
+        slider.set_draw_value(false);
+        slider.set_size_request(260, -1);
+        slider.update_property(&[gtk::accessible::Property::Label(
+            tr!("Kortlysets lysstyrke i prosent"),
+        )]);
+        let brightness_box = hbox(8, &[]);
+        brightness_box.append(&slider);
+        brightness_box.append(&brightness);
+        brightness_box.append(&label("%", &["muted"]));
+        controls.attach(&heading(tr!("Lysstyrke")), 0, 2, 1, 1);
+        controls.attach(&brightness_box, 1, 2, 1, 1);
+        panel.body.append(&controls);
+
+        let effect_info = paragraph("", &["sm", "muted"]);
         panel.body.append(&effect_info);
         let runtime_error = paragraph("", &["sm", "warn"]);
         panel.body.append(&runtime_error);
+        let recovery = paragraph("", &["sm"]);
+        panel.body.append(&recovery);
 
         let actions = flow();
-        let apply = button(Some("check"), Some(tr!("Bruk")), &["sm", "suggested"]);
-        let activate = button(Some("shield"), Some(tr!("Aktiver kortlys …")), &["sm"]);
-        let refresh = button(Some("refresh-cw"), Some(tr!("Sjekk igjen")), &["sm", "flat"]);
-        let resolve = button(None, Some(tr!("Avklar tidligere økt …")), &["sm", "flat"]);
-        let repair = button(None, Some(tr!("Gjenopprett lagret lys …")), &["sm", "flat"]);
-        for b in [&apply, &activate, &refresh, &repair, &resolve] {
+        let apply = button(Some("check"), Some(tr!("Bruk")), &["suggested"]);
+        let reset = button(
+            Some("rotate-ccw"),
+            Some(tr!("Gjenopprett utgangspunkt")),
+            &["sm", "flat"],
+        );
+        let release = button(None, Some(tr!("Avslutt lysstyring")), &["sm"]);
+        let ack = button(Some("check"), Some(tr!("Bekreft gjenoppretting …")), &["sm"]);
+        for b in [&apply, &release, &reset, &ack] {
             actions.insert(b, -1);
         }
         panel.body.append(&actions);
@@ -488,33 +515,35 @@ impl CardLight {
         pending.append(&confirmation);
         panel.body.append(&pending);
 
+        // Sjeldne ting: avlesning, kortidentitet og administratorhandlinger.
+        let details_box = vbox(6, &["rgb-card-details"]);
+        let identity = paragraph("", &["muted", "sm"]);
         let observation = paragraph(
             tr!("Avlesning: ukjent. Kortet er ikke undersøkt av denne visningen."),
             &["sm"],
         );
         let confirmed = paragraph("", &["muted", "sm"]);
-        let recovery = paragraph("", &["sm"]);
-        for l in [&observation, &confirmed, &recovery] {
-            panel.body.append(l);
-        }
-        let recovery_actions = flow();
-        let deactivate = button(None, Some(tr!("Slå av RGB-tilgang …")), &["sm", "flat"]);
-        let reset = button(
-            Some("rotate-ccw"),
-            Some(tr!("Gjenopprett utgangspunkt")),
-            &["sm", "flat"],
-        );
-        let release = button(None, Some(tr!("Avslutt lysstyring")), &["sm", "flat"]);
-        let ack = button(Some("check"), Some(tr!("Bekreft gjenoppretting …")), &["sm"]);
-        for b in [&reset, &release, &ack] {
-            recovery_actions.insert(b, -1);
-        }
-        panel.body.append(&recovery_actions);
-        recovery_actions.insert(&deactivate, -1);
         let readback_note = paragraph(tr!("Farge og lysstyrke kan leses tilbake. Effektmodusen kan ikke leses; en visuell bekreftelse er din observasjon."), &["muted", "sm"]);
-        panel.body.append(&readback_note);
-        let support = paragraph(tr!("Ingen støttet RGB-kontroller er tilgjengelig for styring. Agentic Rigg støtter Palit GeForce RTX 2080 Super JetStream via den separate RGB-hjelperen."), &["muted"]);
-        panel.body.insert_child_after(&support, Some(&summary));
+        let support = paragraph(tr!("Agentic Rigg støtter Palit GeForce RTX 2080 Super JetStream via den separate RGB-hjelperen."), &["muted", "sm"]);
+        for l in [&identity, &observation, &confirmed, &readback_note, &support] {
+            details_box.append(l);
+        }
+        let install_prompt = crate::system_install::offline_fallback();
+        details_box.append(&install_prompt);
+        let details_actions = flow();
+        let refresh = button(Some("refresh-cw"), Some(tr!("Sjekk igjen")), &["sm", "flat"]);
+        let activate = button(Some("shield"), Some(tr!("Aktiver kortlys …")), &["sm", "flat"]);
+        let repair = button(None, Some(tr!("Gjenopprett lagret lys …")), &["sm", "flat"]);
+        let resolve = button(None, Some(tr!("Avklar tidligere økt …")), &["sm", "flat"]);
+        let deactivate = button(None, Some(tr!("Slå av RGB-tilgang …")), &["sm", "flat"]);
+        for b in [&refresh, &activate, &repair, &resolve, &deactivate] {
+            details_actions.insert(b, -1);
+        }
+        details_box.append(&details_actions);
+        let details = gtk::Expander::new(Some(tr!("Detaljer og feilsøking")));
+        details.add_css_class("rgb-card-details-expander");
+        details.set_child(Some(&details_box));
+        panel.body.append(&details);
 
         let p = Rc::new(Self {
             root: panel.root,
@@ -543,6 +572,10 @@ impl CardLight {
             swatch_color,
             swatches_box,
             controls,
+            brightness_box,
+            details,
+            queued: Cell::new(false),
+            last_state: RefCell::new(String::new()),
             support,
             readback_note,
             brightness,
@@ -630,7 +663,7 @@ impl CardLight {
             let weak = Rc::downgrade(self);
             button.connect_clicked(move |_| {
                 if let Some(p) = weak.upgrade() {
-                    p.admin_dialog(action);
+                    p.admin_dialog(action, false);
                 }
             });
         }
@@ -714,6 +747,7 @@ impl CardLight {
 
     pub fn hide(&self) {
         self.visible.set(false);
+        self.queued.set(false);
         if let Some(timer) = self.timer.borrow_mut().take() {
             timer.remove();
         }
@@ -752,6 +786,13 @@ impl CardLight {
 
     fn apply(self: &Rc<Self>) {
         if !card_present(&self.app) {
+            return;
+        }
+        if !bound_status(&self.helper.borrow(), selected_identity(&self.app).as_ref()) {
+            // Første «Bruk»: aktiver (og om nødvendig oppdater) kortlyset med
+            // ett passord. Valget brukes som en vanlig prøve når hjelperen er
+            // klar, med «Behold» og tilbakerulling som før.
+            self.admin_dialog(AdminAction::Activate, true);
             return;
         }
         let mode = self.mode.value().unwrap_or_else(|| "static".into());
@@ -864,12 +905,14 @@ impl CardLight {
         let worker_effect_name = worker_effect.and_then(effect_name);
         for (id, _) in EFFECTS {
             if let Some(button) = self.mode.button(id) {
-                button.set_visible(bound && supports_effect(status, id));
+                // Før aktivering vises alle valg; etterpå bare det hjelperen støtter.
+                button.set_visible(!bound || supports_effect(status, id));
             }
         }
         if let Some(selected_mode) = self.mode.value()
             && effect_name(&selected_mode).is_some()
-            && (!bound || !supports_effect(status, &selected_mode))
+            && bound
+            && !supports_effect(status, &selected_mode)
         {
             self.mode.set("static");
         }
@@ -883,8 +926,12 @@ impl CardLight {
             tr!("Frakoblet")
         } else if !present {
             tr!("Kortet er utilgjengelig")
-        } else if !bound {
+        } else if !bound && helper["state"] == "outdated" {
+            tr!("Må oppdateres")
+        } else if !bound && helper["state"] == "error" {
             tr!("Ikke klar")
+        } else if !bound {
+            tr!("Ikke aktivert")
         } else if pending {
             tr!("Prøve pågår")
         } else if worker_effect.is_some() {
@@ -921,16 +968,16 @@ impl CardLight {
         } else if other {
             tr!("Et annet vindu styrer kortlyset. Her vises bare status.").into()
         } else if bound {
-            tr!("Én fysisk sone: hele kortlyset. Endringer sendes først med «Bruk».").into()
+            tr!("Hele kortlyset er én sone. Ingenting sendes før du trykker «Bruk».").into()
         } else if helper["state"] == "on" {
             tr!("RGB-tillatelsen gjelder ikke kortet som er valgt. Ingen endringer kan sendes her.")
                 .into()
         } else if helper["state"] == "outdated" {
-            tr!("RGB-hjelperen må oppdateres. Trykk «Aktiver kortlys» for å oppdatere og aktivere den med ett passord.").into()
+            tr!("Velg lys og trykk «Bruk». RGB-hjelperen oppdateres først, og du skriver passordet én gang.").into()
         } else if helper["state"] == "error" {
-            tr!("RGB-hjelperen er ikke klar. Kontroller oppsettet og avklar en eventuell tidligere RGB-økt.").into()
+            tr!("RGB-hjelperen er ikke klar. Se «Detaljer og feilsøking» nedenfor.").into()
         } else {
-            tr!("Kortlys trenger en egen administratoraktivering og et bekreftet, fast utgangspunkt.").into()
+            tr!("Velg lys og trykk «Bruk». Første gang aktiveres kortlyset med passordet ditt.").into()
         };
         set_text(&self.summary, &message);
         if self.message.borrow().is_none() {
@@ -970,8 +1017,7 @@ impl CardLight {
             String::new()
         };
         set_text(&self.effect_info, &effect_info);
-        self.effect_info
-            .set_visible(bound && !effect_info.is_empty());
+        self.effect_info.set_visible(!effect_info.is_empty());
         let runtime_error = status["runtimeError"].as_str().unwrap_or("");
         set_text(&self.runtime_error, tr!("RGB-hjelperen meldte en driftsfeil. Kontroller lyset før du fortsetter."));
         self.runtime_error.set_tooltip_text(status["runtimeError"].as_str());
@@ -1047,57 +1093,62 @@ impl CardLight {
             self.swatch.queue_draw();
         }
         self.support.set_visible(!bound);
-        self.controls.set_visible(bound);
-        self.swatches_box.set_visible(bound);
-        self.apply.set_visible(bound);
+        self.controls.set_visible(present);
+        self.apply.set_visible(present);
         self.readback_note.set_visible(bound);
         self.color.set_sensitive(!off && !self.busy.get());
         self.swatches_box.set_sensitive(!self.busy.get());
-        self.brightness.set_sensitive(!off && !self.busy.get());
+        self.brightness_box.set_sensitive(!off && !self.busy.get());
         self.mode.root.set_sensitive(!self.busy.get());
         let chosen_id = chosen_effect.map(|_| selected_mode.as_str());
-        let apply_ok = available
+        let admin_ui = helper["systemAdmin"] == true;
+        let activation = admin_paths(&self.app, &helper, AdminAction::Activate);
+        let installable = installable(&self.app, &helper);
+        let admin_available = connected
             && present
-            && (off || valid_color)
-            && can_apply(status, chosen_id);
+            && !self.busy.get()
+            && !other
+            && selected_identity(&self.app).is_some();
+        let activatable = admin_available
+            && (helper["state"] != "outdated" || installable)
+            && (activation.is_ok() || installable);
+        let apply_ok = if bound {
+            available && present && (off || valid_color) && can_apply(status, chosen_id)
+        } else {
+            activatable && matches!(helper["state"].as_str(), Some("off" | "outdated")) && (off || valid_color)
+        };
         self.apply.set_sensitive(apply_ok);
-        let apply_hint = if !bound || apply_ok || self.busy.get() || !connected || !present || other {
+        let unbound_hint = activation.as_ref().err().filter(|_| !installable).cloned().unwrap_or_default();
+        let apply_hint = if apply_ok || self.busy.get() || !connected || !present || other {
             ""
+        } else if !off && !valid_color {
+            tr!("Oppgi en gyldig fargekode på seks tegn, for eksempel #3A7BF0.")
+        } else if !bound {
+            unbound_hint.as_str()
         } else if pending {
             tr!("Bekreft eller rull tilbake prøven som pågår før du bruker en ny innstilling.")
         } else if blocked {
             tr!("Avklar gjenopprettingen eller feilen nedenfor før du bruker en ny innstilling.")
-        } else if !off && !valid_color {
-            tr!("Oppgi en gyldig fargekode på seks tegn, for eksempel #3A7BF0.")
         } else if chosen_id.is_some_and(|effect| !supports_effect(status, effect)) {
             tr!("RGB-hjelperen støtter ikke dette lysvalget.")
         } else {
             ""
         };
         set_text(&self.apply_hint, apply_hint);
-        self.apply_hint.set_visible(bound && !apply_hint.is_empty());
+        self.apply_hint.set_visible(!apply_hint.is_empty());
         self.refresh
             .set_sensitive(connected && !self.reading.get() && !self.busy.get());
-        let admin_ui = helper["systemAdmin"] == true;
         self.activate.set_visible(!bound && present && admin_ui);
-        let activation = admin_paths(&self.app, &helper, AdminAction::Activate);
         let resolution = admin_paths(&self.app, &helper, AdminAction::Resolve);
         let restoration = admin_paths(&self.app, &helper, AdminAction::Restore);
-        // Mangler systemkomponentene, installerer «Aktiver kortlys» dem med
-        // samme passord. Terminalkommandoen er reserven uten nett.
-        let installable = installable(&self.app, &helper);
+        // Mangler systemkomponentene, installerer «Bruk» dem med samme
+        // passord. Terminalkommandoen er reserven uten nett.
         self.install_prompt.set_visible(
             !self.app.profile.is_dev() && helper["systemAdmin"] == true && (helper["state"] == "outdated" || activation.is_err()),
         );
         let deactivation = admin_paths(&self.app, &helper, AdminAction::Deactivate);
-        let admin_available = connected
-            && present
-            && !self.busy.get()
-            && !other
-            && selected_identity(&self.app).is_some();
-        self.activate
-            .set_sensitive(admin_available && (helper["state"] != "outdated" || installable) && (activation.is_ok() || installable));
-        self.activate.set_tooltip_text(activation.err().filter(|_| !installable).as_deref());
+        self.activate.set_sensitive(activatable);
+        self.activate.set_tooltip_text(activation.as_ref().err().filter(|_| !installable).map(String::as_str));
         self.resolve.set_visible(
             !bound && present && admin_ui && matches!(helper["state"].as_str(), Some("off" | "error" | "outdated")),
         );
@@ -1134,6 +1185,22 @@ impl CardLight {
         self.ack
             .set_visible(bound && status["recoveryId"].is_string());
         self.ack.set_sensitive(available && !pending);
+        let state_name = helper["state"].as_str().unwrap_or("").to_owned();
+        if state_name == "error" && *self.last_state.borrow() != "error" {
+            self.details.set_expanded(true);
+        }
+        *self.last_state.borrow_mut() = state_name;
+        if self.queued.get() && bound && !self.busy.get() {
+            // Aktiveringen er ferdig: bruk valget som utløste den, én gang.
+            self.queued.set(false);
+            if apply_ok {
+                glib::idle_add_local_once(|| {
+                    if let Some(p) = CURRENT.with(|c| c.borrow().upgrade()) {
+                        p.apply();
+                    }
+                });
+            }
+        }
         if let Some(shell) = self.app.shell.get() {
             shell.topbar.set_locked("lys", false);
         }
@@ -1175,7 +1242,7 @@ impl CardLight {
         })
     }
 
-    fn admin_dialog(self: &Rc<Self>, action: AdminAction) {
+    fn admin_dialog(self: &Rc<Self>, action: AdminAction, then_apply: bool) {
         if self.busy.get() || (action != AdminAction::Deactivate && !card_present(&self.app)) {
             return;
         }
@@ -1230,6 +1297,7 @@ impl CardLight {
                 if let Some(p) = weak.upgrade()
                     && (identity.is_none() || selected_identity(&p.app) == identity)
                 {
+                    p.queued.set(then_apply);
                     p.run_admin(action, identity, None);
                 }
             },
@@ -1257,8 +1325,12 @@ impl CardLight {
     /// Ett passord: hent og installer systemkomponentene, og aktiver kortlyset
     /// for kortet brukeren nettopp bekreftet visuelt.
     fn install_and_activate(self: &Rc<Self>, identity: Option<(String, String)>) {
-        let Some((pci, uuid)) = identity else { return };
+        let Some((pci, uuid)) = identity else {
+            self.queued.set(false);
+            return;
+        };
         if self.busy.get() {
+            self.queued.set(false);
             return;
         }
         self.message.borrow_mut().take();
@@ -1268,6 +1340,7 @@ impl CardLight {
         crate::system_install::run(&self.app, crate::system_install::Activate::Rgb(pci, uuid), move |ok| {
             let Some(p) = weak.upgrade() else { return };
             p.busy.set(false);
+            p.queued.set(p.queued.get() && ok);
             if ok {
                 let message = tr!("RGB-oppsettet er oppdatert. Kontroller status før du bruker en farge.").to_string();
                 *p.message.borrow_mut() = Some(message.clone());
@@ -1295,10 +1368,12 @@ impl CardLight {
             return;
         }
         let Ok((pkexec, script)) = paths else {
+            self.queued.set(false);
             return;
         };
         // Aldri samtidig med installasjonen av systemkomponentene.
         if crate::system_install::busy() || self.busy.replace(true) {
+            self.queued.set(false);
             return;
         }
         self.message.borrow_mut().take();
@@ -1334,6 +1409,7 @@ impl CardLight {
             Ok(proc) => proc,
             Err(error) => {
                 self.busy.set(false);
+                self.queued.set(false);
                 let diagnostic = error.to_string();
                 *self.message.borrow_mut() = Some(with_diagnostic(tr!("RGB-oppsettet kunne ikke fullføres."), Some(&diagnostic)));
                 self.summary.set_tooltip_text(Some(&diagnostic));
@@ -1370,6 +1446,9 @@ impl CardLight {
                 .as_deref()
                 .and_then(|text| text.lines().rfind(|line| !line.trim().is_empty()))
                 .filter(|_| code != 0 && code != 126);
+            if code != 0 || action != AdminAction::Activate {
+                p.queued.set(false);
+            }
             let message = match code {
                 0 if action == AdminAction::Restore => tr!("RGB-arbeideren er stoppet. Kontroller lyset og velg «Avklar tidligere økt» hvis en gjenoppretting gjenstår.").to_string(),
                 0 if action == AdminAction::Inspect => tr!("Ingen uavklart RGB-journal for kortet. Du kan slå av RGB-tilgangen.").to_string(),
@@ -1430,7 +1509,7 @@ fn admin_paths(
         .into_iter()
         .any(|path| !crate::system_install::trusted(path))
     {
-        return Err(tr!("Installer systemkomponentene først. Knappen står over.").into());
+        return Err(tr!("Systemkomponentene mangler. Se «Uten nett: bruk terminal» under «Detaljer og feilsøking».").into());
     }
     Ok((pkexec, script))
 }
@@ -1747,7 +1826,14 @@ pub(crate) fn debug_fixture(kind: &str) {
             if kind == "effect_error" {
                 assert!(p.runtime_error.is_visible() && p.ack.is_visible());
                 assert!(p.helper.borrow()["status"]["state"]["error"].is_null());
-            } else {
+            } else if kind == "off" {
+                // Uten aktiv hjelper skal valgene og «Bruk» likevel stå fremme:
+                // første «Bruk» aktiverer kortlyset (1.5.5).
+                assert!(p.controls.is_visible() && p.apply.is_visible(), "Lysvalgene er skjult før aktivering");
+                for (id, _) in EFFECTS {
+                    assert!(p.mode.button(id).unwrap().is_visible(), "Effekter er skjult før aktivering");
+                }
+            } else if bound_status(&p.helper.borrow(), selected_identity(&p.app).as_ref()) {
                 for (id, _) in EFFECTS {
                     assert!(!p.mode.button(id).unwrap().is_visible(), "Ustøttet effekt er synlig");
                 }
