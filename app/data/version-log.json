@@ -1,5 +1,15 @@
 [
   {
+    "version": "1.5.2",
+    "build": 27,
+    "date": "2026-11-21",
+    "title": "Systemkomponenter med bare passordet",
+    "changes": [
+      "«Installer systemkomponenter» henter utgivelsen fra GitHub, kontrollerer den mot summen GitHub oppgir og installerer etter administratorpassordet. Du trenger ikke velge fil eller lime inn SHA-256.",
+      "Bryteren for skjermkortstyring installerer det som mangler og slår på styringen. En utdatert hjelper oppdateres med ett trykk og slås på igjen etterpå."
+    ]
+  },
+  {
     "version": "1.5.1",
     "build": 26,
     "date": "2026-11-21",

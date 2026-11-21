@@ -1,5 +1,11 @@
 # Patchlog
 
+## 1.5.2 · bygg 27 – 21. november 2026: systemkomponenter med bare passordet
+
+- Ny `data/hjelper/system-hent.py`, kjørt som `pkexec <python3> -I -S -c <skript> VERSJON BYGG`. Python-stien kanoniseres (`/usr/bin/python3` er en lenke) og må være en root-eid fil under `/usr/bin`. Skriptet henter `releases/tags/vVERSJON` fra GitHub-API-et, krever nøyaktig ett arkiv med forventet navn og `digest` `sha256:…`, laster ned med størrelsesgrense og tidsavbrudd til en ny `0700`-mappe under `/var/tmp`, sammenligner summen før tar åpnes, og kjører `system-install` med fast miljø.
+- `system_install.rs`: installasjonsvinduet er erstattet av knappen «Installer systemkomponenter», som starter installasjonen direkte. Feilene for GitHub, manglende utgivelse og sumavvik oversettes. Bryteren installerer og aktiverer; ved utdatert hjelper aktiverer knappen styringen igjen etterpå.
+- `scripts/test-system-hent.py` (falske nettsvar, ingen root) og `test-system-install.py` kjøres nå fra `cargo test` (`rigg-helper/tests/skript.rs`). Skjermbildeplanen `installer` er fjernet sammen med vinduet.
+
 ## 1.5.1 · bygg 26 – 21. november 2026: systemkomponenter uten terminal
 
 - `system_install.rs`: installasjonsvindu med filvalg, SHA-256-felt og lenke til utgivelsessiden. Kjører `pkexec /usr/bin/bash -ceu 'PATH=/usr/bin:/bin; export PATH; <skript>' rigg ARKIV SUM`, der skriptet hentes fra `system-bootstrap.command` (én kilde; testen låser at appen og terminalkommandoen kjører det samme). `pkexec` og `bash` må være root-eide vanlige filer; `/bin` og `/usr/bin/env` er lenker på Ubuntu 26.04 og brukes derfor ikke.

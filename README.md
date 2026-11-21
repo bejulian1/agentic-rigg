@@ -76,15 +76,15 @@ cd agentic-rigg
 
 ### Optional: system components for GPU control and RGB lighting
 
-GPU control and RGB lighting run in small root helpers that are installed once by an administrator. No terminal is needed: turn on **Allow changes to the graphics card** under `Settings › GPU control`, or press **Install system components …** there or on the RGB lighting page. Choose the release archive you downloaded and paste its SHA-256 from the release page on GitHub; GitHub shows it next to the archive under *Assets*. polkit then asks for the administrator password, and the app:
+GPU control and RGB lighting run in small root helpers that are installed once by an administrator. All you need is the administrator password: turn on **Allow changes to the graphics card** under `Settings › GPU control`, or press **Install system components** there or on the RGB lighting page. polkit asks for the password, and the installer, running as root:
 
-1. copies the release archive into a new root-owned directory,
-2. verifies it against the SHA-256 that **you** pasted from the release page (not from a file next to the download),
+1. downloads the release matching the app's own version from GitHub into a new root-owned directory,
+2. verifies it against the SHA-256 checksum GitHub publishes for that exact file (the one shown on the release page),
 3. only then runs the installer from that verified copy.
 
-The same steps are available as a terminal command under *Use a terminal instead*.
+Nothing from your home directory is executed as root. Without a network connection, the same steps are available as a terminal command under *Offline: use a terminal*, where you give the archive path and the SHA-256 yourself.
 
-Nothing from your home directory is executed as root. Installing the system components does not grant any access by itself. You then enable GPU control or card lighting in the app, and each enable/disable action asks for the administrator password through polkit; the authorization is not remembered. To remove everything later: turn off both helpers in the app, then run `sudo /usr/local/libexec/agentic-rigg-system/system-install --uninstall` and `./uninstall.sh`.
+Installing the system components does not grant any access by itself. You then enable GPU control or card lighting in the app, and each enable/disable action asks for the administrator password through polkit; the authorization is not remembered. To remove everything later: turn off both helpers in the app, then run `sudo /usr/local/libexec/agentic-rigg-system/system-install --uninstall` and `./uninstall.sh`.
 
 Building the system components from source and the trust model are described in [docs/produksjon/rgb-hjelper.md](docs/produksjon/rgb-hjelper.md) and [docs/produksjon/hjelper-sikkerhet.md](docs/produksjon/hjelper-sikkerhet.md) (Norwegian).
 
@@ -124,7 +124,7 @@ Translations are gettext `.po` catalogs under [`app/data/i18n/`](app/data/i18n/)
 
 ## Privacy
 
-Everything runs locally. The code contains no network client, makes no outbound connections and sends no telemetry or crash reports. CSV logs and reports are written only where you choose. Hardware serial numbers and UUIDs are hidden in exported reports unless you opt in.
+Everything runs locally. The app sends no telemetry or crash reports and never connects to the network on its own. The only network access is when you press **Install system components**: the administrator installer then downloads that release from GitHub. CSV logs and reports are written only where you choose. Hardware serial numbers and UUIDs are hidden in exported reports unless you opt in.
 
 ## Status and roadmap
 

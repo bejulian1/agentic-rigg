@@ -284,3 +284,19 @@ fn install_kopierer_bare_filene_og_uninstall_sier_fra() {
     );
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// Python-prøvene for systeminstallasjonen og hentingen fra GitHub. De bruker
+/// bare midlertidige mapper og falske nettsvar; ingen root, nett eller systemd.
+#[test]
+fn systeminstallasjonens_python_prover() {
+    for script in ["scripts/test-system-install.py", "scripts/test-system-hent.py"] {
+        let out = std::process::Command::new("/usr/bin/python3")
+            .arg("-I")
+            .arg(app_dir().join(script))
+            .env_clear()
+            .env("PATH", "/usr/bin:/bin")
+            .output()
+            .unwrap();
+        assert!(out.status.success(), "{script}:\n{}", String::from_utf8_lossy(&out.stderr));
+    }
+}

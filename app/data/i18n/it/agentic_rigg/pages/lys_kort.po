@@ -184,7 +184,7 @@ msgstr "Vedo che le luci della scheda sono spente."
 msgid "Jeg ser at lyset viser den forventede faste fargen."
 msgstr "Vedo il colore fisso atteso sulla scheda."
 
-#: crates/rigg/src/pages/lys_kort.rs:582 crates/rigg/src/pages/lys_kort.rs:1481
+#: crates/rigg/src/pages/lys_kort.rs:582 crates/rigg/src/pages/lys_kort.rs:1487
 msgid "Bekreft lyset på kortet"
 msgstr "Conferma illuminazione della scheda"
 
@@ -192,7 +192,7 @@ msgstr "Conferma illuminazione della scheda"
 msgid "Forventet lys: {lys}.\n\nSe på det fysiske kortet. Samsvarende fargeverdier alene er ikke nok. Hjelperen leser verdiene på nytt før observasjonen din lagres."
 msgstr "Illuminazione attesa: {lys}.\n\nOsserva la scheda fisica. La corrispondenza dei valori di colore da sola non basta. Il servizio di supporto rilegge i valori prima di registrare la tua osservazione."
 
-#: crates/rigg/src/pages/lys_kort.rs:582 crates/rigg/src/pages/lys_kort.rs:1503
+#: crates/rigg/src/pages/lys_kort.rs:582 crates/rigg/src/pages/lys_kort.rs:1509
 msgid "Bekreft min observasjon"
 msgstr "Conferma ciò che vedo"
 
@@ -364,7 +364,7 @@ msgstr "tempo scaduto; in attesa dello stato"
 msgid "bekreft innen {tid}"
 msgstr "conferma entro {tid}"
 
-#: crates/rigg/src/pages/lys_kort.rs:1056 crates/rigg/src/pages/lys_kort.rs:1442
+#: crates/rigg/src/pages/lys_kort.rs:1056 crates/rigg/src/pages/lys_kort.rs:1448
 msgid "Stopp"
 msgstr "Ferma"
 
@@ -436,54 +436,54 @@ msgstr "Illuminazione salvata per {kort}: {lys}.\n\nOsserva la scheda. Continua 
 msgid "Jeg ser at kortlyset viser det lagrede, faste utgangspunktet."
 msgstr "Vedo che la scheda mostra lo stato iniziale fisso salvato."
 
-#: crates/rigg/src/pages/lys_kort.rs:1196 crates/rigg/src/pages/lys_kort.rs:1240
+#: crates/rigg/src/pages/lys_kort.rs:1197 crates/rigg/src/pages/lys_kort.rs:1241
 msgid "RGB-oppsettet kunne ikke fullføres."
 msgstr "Impossibile completare la configurazione RGB."
 
-#: crates/rigg/src/pages/lys_kort.rs:1232
+#: crates/rigg/src/pages/lys_kort.rs:1233
 msgid "RGB-arbeideren er stoppet. Kontroller lyset og velg «Avklar tidligere økt» hvis en gjenoppretting gjenstår."
 msgstr "Il processo RGB è fermo. Controlla le luci e seleziona «Risolvi sessione precedente» se il ripristino è ancora in sospeso."
 
-#: crates/rigg/src/pages/lys_kort.rs:1233
+#: crates/rigg/src/pages/lys_kort.rs:1234
 msgid "Ingen uavklart RGB-journal for kortet. Du kan slå av RGB-tilgangen."
 msgstr "Non ci sono operazioni irrisolte nel registro RGB della scheda. Puoi disattivare l’accesso RGB."
 
-#: crates/rigg/src/pages/lys_kort.rs:1234
+#: crates/rigg/src/pages/lys_kort.rs:1235
 msgid "Gjenopprettingen er avklart. Du kan slå av RGB-tilgangen eller aktivere lysstyring på nytt."
 msgstr "Il ripristino è risolto. Puoi disattivare l’accesso RGB o riattivare il controllo delle luci."
 
-#: crates/rigg/src/pages/lys_kort.rs:1235
+#: crates/rigg/src/pages/lys_kort.rs:1236
 msgid "RGB-tilgangen er slått av."
 msgstr "L’accesso RGB è disattivato."
 
-#: crates/rigg/src/pages/lys_kort.rs:1236
+#: crates/rigg/src/pages/lys_kort.rs:1237
 msgid "RGB-oppsettet er oppdatert. Kontroller status før du bruker en farge."
 msgstr "Configurazione RGB aggiornata. Controlla lo stato prima di applicare un colore."
 
-#: crates/rigg/src/pages/lys_kort.rs:1237
+#: crates/rigg/src/pages/lys_kort.rs:1238
 msgid "Administratorgodkjenningen ble avbrutt."
 msgstr "L’autorizzazione amministrativa è stata annullata."
 
-#: crates/rigg/src/pages/lys_kort.rs:1238
+#: crates/rigg/src/pages/lys_kort.rs:1239
 msgid "Avklaringsmålet er ugyldig eller gjelder et annet valgt kort."
 msgstr "L’obiettivo del ripristino non è valido o riguarda un’altra scheda."
 
-#: crates/rigg/src/pages/lys_kort.rs:1244
+#: crates/rigg/src/pages/lys_kort.rs:1245
 msgid "RGB-oppsett"
 msgstr "Configurazione RGB"
 
-#: crates/rigg/src/pages/lys_kort.rs:1244
+#: crates/rigg/src/pages/lys_kort.rs:1245
 msgid "RGB-oppsett ble ikke fullført"
 msgstr "Configurazione RGB incompleta"
 
-#: crates/rigg/src/pages/lys_kort.rs:1258
+#: crates/rigg/src/pages/lys_kort.rs:1264
 msgid "Administratorhandlinger for RGB krever appens vanlige maskinvareoppsett."
 msgstr "Le azioni amministrative RGB richiedono la normale configurazione hardware dell’app."
 
-#: crates/rigg/src/pages/lys_kort.rs:1274
+#: crates/rigg/src/pages/lys_kort.rs:1280
 msgid "Installer systemkomponentene først. Knappen står over."
 msgstr "Installa prima i componenti di sistema. Il pulsante si trova sopra."
 
-#: crates/rigg/src/pages/lys_kort.rs:1296
+#: crates/rigg/src/pages/lys_kort.rs:1302
 msgid "Avbryt"
 msgstr "Annulla"

@@ -184,7 +184,7 @@ msgstr "カードのライティングが消えていることを確認しまし
 msgid "Jeg ser at lyset viser den forventede faste fargen."
 msgstr "カードが想定どおりの固定色で点灯していることを確認しました。"
 
-#: crates/rigg/src/pages/lys_kort.rs:582 crates/rigg/src/pages/lys_kort.rs:1481
+#: crates/rigg/src/pages/lys_kort.rs:582 crates/rigg/src/pages/lys_kort.rs:1487
 msgid "Bekreft lyset på kortet"
 msgstr "カードのライティングを確認"
 
@@ -192,7 +192,7 @@ msgstr "カードのライティングを確認"
 msgid "Forventet lys: {lys}.\n\nSe på det fysiske kortet. Samsvarende fargeverdier alene er ikke nok. Hjelperen leser verdiene på nytt før observasjonen din lagres."
 msgstr "想定されるライティング: {lys}。\n\n実物のカードを見てください。色の値が一致するだけでは不十分です。補助プログラムは確認内容を記録する前に値を再度読み取ります。"
 
-#: crates/rigg/src/pages/lys_kort.rs:582 crates/rigg/src/pages/lys_kort.rs:1503
+#: crates/rigg/src/pages/lys_kort.rs:582 crates/rigg/src/pages/lys_kort.rs:1509
 msgid "Bekreft min observasjon"
 msgstr "目視結果を確認"
 
@@ -364,7 +364,7 @@ msgstr "期限切れ。状態を待っています"
 msgid "bekreft innen {tid}"
 msgstr "{tid} 以内に確認"
 
-#: crates/rigg/src/pages/lys_kort.rs:1056 crates/rigg/src/pages/lys_kort.rs:1442
+#: crates/rigg/src/pages/lys_kort.rs:1056 crates/rigg/src/pages/lys_kort.rs:1448
 msgid "Stopp"
 msgstr "停止"
 
@@ -436,54 +436,54 @@ msgstr "{kort} の保存済みライティング: {lys}。\n\nカードを見て
 msgid "Jeg ser at kortlyset viser det lagrede, faste utgangspunktet."
 msgstr "カードが保存済みの固定色の基準状態で点灯していることを確認しました。"
 
-#: crates/rigg/src/pages/lys_kort.rs:1196 crates/rigg/src/pages/lys_kort.rs:1240
+#: crates/rigg/src/pages/lys_kort.rs:1197 crates/rigg/src/pages/lys_kort.rs:1241
 msgid "RGB-oppsettet kunne ikke fullføres."
 msgstr "RGB の設定を完了できませんでした。"
 
-#: crates/rigg/src/pages/lys_kort.rs:1232
+#: crates/rigg/src/pages/lys_kort.rs:1233
 msgid "RGB-arbeideren er stoppet. Kontroller lyset og velg «Avklar tidligere økt» hvis en gjenoppretting gjenstår."
 msgstr "RGB ワーカーは停止しました。ライティングを確認し、復元が保留中なら「前回のセッションを解決」を選んでください。"
 
-#: crates/rigg/src/pages/lys_kort.rs:1233
+#: crates/rigg/src/pages/lys_kort.rs:1234
 msgid "Ingen uavklart RGB-journal for kortet. Du kan slå av RGB-tilgangen."
 msgstr "このカードに未解決の RGB ジャーナルはありません。RGB アクセスを無効にできます。"
 
-#: crates/rigg/src/pages/lys_kort.rs:1234
+#: crates/rigg/src/pages/lys_kort.rs:1235
 msgid "Gjenopprettingen er avklart. Du kan slå av RGB-tilgangen eller aktivere lysstyring på nytt."
 msgstr "復元は解決しました。RGB アクセスを無効にするか、ライティング制御を再度有効にできます。"
 
-#: crates/rigg/src/pages/lys_kort.rs:1235
+#: crates/rigg/src/pages/lys_kort.rs:1236
 msgid "RGB-tilgangen er slått av."
 msgstr "RGB アクセスは無効です。"
 
-#: crates/rigg/src/pages/lys_kort.rs:1236
+#: crates/rigg/src/pages/lys_kort.rs:1237
 msgid "RGB-oppsettet er oppdatert. Kontroller status før du bruker en farge."
 msgstr "RGB の設定を更新しました。色を適用する前に状態を確認してください。"
 
-#: crates/rigg/src/pages/lys_kort.rs:1237
+#: crates/rigg/src/pages/lys_kort.rs:1238
 msgid "Administratorgodkjenningen ble avbrutt."
 msgstr "管理者の承認はキャンセルされました。"
 
-#: crates/rigg/src/pages/lys_kort.rs:1238
+#: crates/rigg/src/pages/lys_kort.rs:1239
 msgid "Avklaringsmålet er ugyldig eller gjelder et annet valgt kort."
 msgstr "復元対象が無効か、別のカードのものです。"
 
-#: crates/rigg/src/pages/lys_kort.rs:1244
+#: crates/rigg/src/pages/lys_kort.rs:1245
 msgid "RGB-oppsett"
 msgstr "RGB 設定"
 
-#: crates/rigg/src/pages/lys_kort.rs:1244
+#: crates/rigg/src/pages/lys_kort.rs:1245
 msgid "RGB-oppsett ble ikke fullført"
 msgstr "RGB 設定が未完了"
 
-#: crates/rigg/src/pages/lys_kort.rs:1258
+#: crates/rigg/src/pages/lys_kort.rs:1264
 msgid "Administratorhandlinger for RGB krever appens vanlige maskinvareoppsett."
 msgstr "RGB の管理者操作には、アプリの通常のハードウェア構成が必要です。"
 
-#: crates/rigg/src/pages/lys_kort.rs:1274
+#: crates/rigg/src/pages/lys_kort.rs:1280
 msgid "Installer systemkomponentene først. Knappen står over."
 msgstr "先にシステムコンポーネントをインストールしてください。ボタンは上にあります。"
 
-#: crates/rigg/src/pages/lys_kort.rs:1296
+#: crates/rigg/src/pages/lys_kort.rs:1302
 msgid "Avbryt"
 msgstr "キャンセル"

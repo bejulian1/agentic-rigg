@@ -183,7 +183,7 @@ msgstr "Jeg ser at lyset på kortet er slukket."
 msgid "Jeg ser at lyset viser den forventede faste fargen."
 msgstr "Jeg ser at lyset viser den forventede faste fargen."
 
-#: crates/rigg/src/pages/lys_kort.rs:582 crates/rigg/src/pages/lys_kort.rs:1481
+#: crates/rigg/src/pages/lys_kort.rs:582 crates/rigg/src/pages/lys_kort.rs:1487
 msgid "Bekreft lyset på kortet"
 msgstr "Bekreft lyset på kortet"
 
@@ -191,7 +191,7 @@ msgstr "Bekreft lyset på kortet"
 msgid "Forventet lys: {lys}.\n\nSe på det fysiske kortet. Samsvarende fargeverdier alene er ikke nok. Hjelperen leser verdiene på nytt før observasjonen din lagres."
 msgstr "Forventet lys: {lys}.\n\nSe på det fysiske kortet. Samsvarende fargeverdier alene er ikke nok. Hjelperen leser verdiene på nytt før observasjonen din lagres."
 
-#: crates/rigg/src/pages/lys_kort.rs:582 crates/rigg/src/pages/lys_kort.rs:1503
+#: crates/rigg/src/pages/lys_kort.rs:582 crates/rigg/src/pages/lys_kort.rs:1509
 msgid "Bekreft min observasjon"
 msgstr "Bekreft min observasjon"
 
@@ -363,7 +363,7 @@ msgstr "fristen er ute; venter på status"
 msgid "bekreft innen {tid}"
 msgstr "bekreft innen {tid}"
 
-#: crates/rigg/src/pages/lys_kort.rs:1056 crates/rigg/src/pages/lys_kort.rs:1442
+#: crates/rigg/src/pages/lys_kort.rs:1056 crates/rigg/src/pages/lys_kort.rs:1448
 msgid "Stopp"
 msgstr "Stopp"
 
@@ -435,54 +435,54 @@ msgstr "Lagret lys for {kort}: {lys}.\n\nSe på kortet. Fortsett bare hvis lyset
 msgid "Jeg ser at kortlyset viser det lagrede, faste utgangspunktet."
 msgstr "Jeg ser at kortlyset viser det lagrede, faste utgangspunktet."
 
-#: crates/rigg/src/pages/lys_kort.rs:1196 crates/rigg/src/pages/lys_kort.rs:1240
+#: crates/rigg/src/pages/lys_kort.rs:1197 crates/rigg/src/pages/lys_kort.rs:1241
 msgid "RGB-oppsettet kunne ikke fullføres."
 msgstr "RGB-oppsettet kunne ikke fullføres."
 
-#: crates/rigg/src/pages/lys_kort.rs:1232
+#: crates/rigg/src/pages/lys_kort.rs:1233
 msgid "RGB-arbeideren er stoppet. Kontroller lyset og velg «Avklar tidligere økt» hvis en gjenoppretting gjenstår."
 msgstr "RGB-arbeideren er stoppet. Kontroller lyset og velg «Avklar tidligere økt» hvis en gjenoppretting gjenstår."
 
-#: crates/rigg/src/pages/lys_kort.rs:1233
+#: crates/rigg/src/pages/lys_kort.rs:1234
 msgid "Ingen uavklart RGB-journal for kortet. Du kan slå av RGB-tilgangen."
 msgstr "Ingen uavklart RGB-journal for kortet. Du kan slå av RGB-tilgangen."
 
-#: crates/rigg/src/pages/lys_kort.rs:1234
+#: crates/rigg/src/pages/lys_kort.rs:1235
 msgid "Gjenopprettingen er avklart. Du kan slå av RGB-tilgangen eller aktivere lysstyring på nytt."
 msgstr "Gjenopprettingen er avklart. Du kan slå av RGB-tilgangen eller aktivere lysstyring på nytt."
 
-#: crates/rigg/src/pages/lys_kort.rs:1235
+#: crates/rigg/src/pages/lys_kort.rs:1236
 msgid "RGB-tilgangen er slått av."
 msgstr "RGB-tilgangen er slått av."
 
-#: crates/rigg/src/pages/lys_kort.rs:1236
+#: crates/rigg/src/pages/lys_kort.rs:1237
 msgid "RGB-oppsettet er oppdatert. Kontroller status før du bruker en farge."
 msgstr "RGB-oppsettet er oppdatert. Kontroller status før du bruker en farge."
 
-#: crates/rigg/src/pages/lys_kort.rs:1237
+#: crates/rigg/src/pages/lys_kort.rs:1238
 msgid "Administratorgodkjenningen ble avbrutt."
 msgstr "Administratorgodkjenningen ble avbrutt."
 
-#: crates/rigg/src/pages/lys_kort.rs:1238
+#: crates/rigg/src/pages/lys_kort.rs:1239
 msgid "Avklaringsmålet er ugyldig eller gjelder et annet valgt kort."
 msgstr "Avklaringsmålet er ugyldig eller gjelder et annet valgt kort."
 
-#: crates/rigg/src/pages/lys_kort.rs:1244
+#: crates/rigg/src/pages/lys_kort.rs:1245
 msgid "RGB-oppsett"
 msgstr "RGB-oppsett"
 
-#: crates/rigg/src/pages/lys_kort.rs:1244
+#: crates/rigg/src/pages/lys_kort.rs:1245
 msgid "RGB-oppsett ble ikke fullført"
 msgstr "RGB-oppsett ble ikke fullført"
 
-#: crates/rigg/src/pages/lys_kort.rs:1258
+#: crates/rigg/src/pages/lys_kort.rs:1264
 msgid "Administratorhandlinger for RGB krever appens vanlige maskinvareoppsett."
 msgstr "Administratorhandlinger for RGB krever appens vanlige maskinvareoppsett."
 
-#: crates/rigg/src/pages/lys_kort.rs:1274
+#: crates/rigg/src/pages/lys_kort.rs:1280
 msgid "Installer systemkomponentene først. Knappen står over."
 msgstr "Installer systemkomponentene først. Knappen står over."
 
-#: crates/rigg/src/pages/lys_kort.rs:1296
+#: crates/rigg/src/pages/lys_kort.rs:1302
 msgid "Avbryt"
 msgstr "Avbryt"

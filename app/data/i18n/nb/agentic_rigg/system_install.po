@@ -7,114 +7,74 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: crates/rigg/src/system_install.rs:138
-msgid "Systemkomponentene mangler eller må oppdateres. Installer dem fra utgivelsesarkivet. Du blir spurt om administratorpassordet."
-msgstr "Systemkomponentene mangler eller må oppdateres. Installer dem fra utgivelsesarkivet. Du blir spurt om administratorpassordet."
+#: crates/rigg/src/system_install.rs:119
+msgid "Systemkomponentene mangler eller må oppdateres."
+msgstr "Systemkomponentene mangler eller må oppdateres."
 
-#: crates/rigg/src/system_install.rs:143
-msgid "Installer systemkomponenter …"
-msgstr "Installer systemkomponenter …"
-
-#: crates/rigg/src/system_install.rs:147
-msgid "Fant ikke pkexec. Bruk terminalkommandoen."
-msgstr "Fant ikke pkexec. Bruk terminalkommandoen."
-
-#: crates/rigg/src/system_install.rs:154
-msgid "Systemkomponentene er installert"
-msgstr "Systemkomponentene er installert"
-
-#: crates/rigg/src/system_install.rs:154
-msgid "Slå på GPU-styring eller kortlys når du vil bruke dem."
-msgstr "Slå på GPU-styring eller kortlys når du vil bruke dem."
-
-#: crates/rigg/src/system_install.rs:161
-msgid "Kjør kommandoen i en administratorterminal. Oppgi arkivstien og SHA-256 fra utgivelsessiden."
-msgstr "Kjør kommandoen i en administratorterminal. Oppgi arkivstien og SHA-256 fra utgivelsessiden."
-
-#: crates/rigg/src/system_install.rs:167
-msgid "Kopier installasjonskommando"
-msgstr "Kopier installasjonskommando"
-
-#: crates/rigg/src/system_install.rs:173
-msgid "Bruk terminal i stedet"
-msgstr "Bruk terminal i stedet"
-
-#: crates/rigg/src/system_install.rs:186
+#: crates/rigg/src/system_install.rs:120
 msgid "Installer systemkomponenter"
 msgstr "Installer systemkomponenter"
 
-#: crates/rigg/src/system_install.rs:219
-msgid "Rothjelperne for GPU-styring og RGB-lys installeres fra utgivelsesarkivet. Arkivet kopieres til en rot-eid mappe og kontrolleres mot SHA-256 fra utgivelsessiden før noe kjøres som administrator."
-msgstr "Rothjelperne for GPU-styring og RGB-lys installeres fra utgivelsesarkivet. Arkivet kopieres til en rot-eid mappe og kontrolleres mot SHA-256 fra utgivelsessiden før noe kjøres som administrator."
+#: crates/rigg/src/system_install.rs:124
+msgid "Fant ikke pkexec. Bruk terminalkommandoen."
+msgstr "Fant ikke pkexec. Bruk terminalkommandoen."
 
-#: crates/rigg/src/system_install.rs:220
-msgid "Installasjonen gir ingen tilgang i seg selv. Du slår på GPU-styring eller kortlys etterpå, med eget passord."
-msgstr "Installasjonen gir ingen tilgang i seg selv. Du slår på GPU-styring eller kortlys etterpå, med eget passord."
+#: crates/rigg/src/system_install.rs:127
+msgid "Henter Agentic Rigg {versjon} fra GitHub, kontrollerer den mot SHA-256-summen GitHub oppgir, og ber om administratorpassordet. Installasjonen gir ingen tilgang i seg selv."
+msgstr "Henter Agentic Rigg {versjon} fra GitHub, kontrollerer den mot SHA-256-summen GitHub oppgir, og ber om administratorpassordet. Installasjonen gir ingen tilgang i seg selv."
 
-#: crates/rigg/src/system_install.rs:224
-msgid "Utgivelsesarkiv"
-msgstr "Utgivelsesarkiv"
+#: crates/rigg/src/system_install.rs:144
+msgid "Systemkomponentene er installert"
+msgstr "Systemkomponentene er installert"
 
-#: crates/rigg/src/system_install.rs:245
-msgid "Ikke valgt. Last ned {navn}….tar.gz fra utgivelsessiden."
-msgstr "Ikke valgt. Last ned {navn}….tar.gz fra utgivelsessiden."
+#: crates/rigg/src/system_install.rs:144
+msgid "Slå på GPU-styring eller kortlys når du vil bruke dem."
+msgstr "Slå på GPU-styring eller kortlys når du vil bruke dem."
 
-#: crates/rigg/src/system_install.rs:252
-msgid "Velg …"
-msgstr "Velg …"
+#: crates/rigg/src/system_install.rs:151
+msgid "Kjør kommandoen i en administratorterminal. Oppgi arkivstien og SHA-256 fra utgivelsessiden."
+msgstr "Kjør kommandoen i en administratorterminal. Oppgi arkivstien og SHA-256 fra utgivelsessiden."
 
-#: crates/rigg/src/system_install.rs:258
-msgid "SHA-256 fra utgivelsessiden"
-msgstr "SHA-256 fra utgivelsessiden"
+#: crates/rigg/src/system_install.rs:155
+msgid "Kopier installasjonskommando"
+msgstr "Kopier installasjonskommando"
 
-#: crates/rigg/src/system_install.rs:260
-msgid "64 heksadesimale tegn"
-msgstr "64 heksadesimale tegn"
+#: crates/rigg/src/system_install.rs:160
+msgid "Uten nett: bruk terminal"
+msgstr "Uten nett: bruk terminal"
 
-#: crates/rigg/src/system_install.rs:263
-msgid "Kopier summen fra GitHub, ikke fra en fil ved siden av nedlastingen. Den står ved arkivet under Assets."
-msgstr "Kopier summen fra GitHub, ikke fra en fil ved siden av nedlastingen. Den står ved arkivet under Assets."
-
-#: crates/rigg/src/system_install.rs:264
-msgid "Åpne utgivelsessiden"
-msgstr "Åpne utgivelsessiden"
-
-#: crates/rigg/src/system_install.rs:279
-msgid "Avbryt"
-msgstr "Avbryt"
-
-#: crates/rigg/src/system_install.rs:280
-msgid "Installer"
-msgstr "Installer"
-
-#: crates/rigg/src/system_install.rs:307
-msgid "Velg utgivelsesarkivet"
-msgstr "Velg utgivelsesarkivet"
-
-#: crates/rigg/src/system_install.rs:309
-msgid "Agentic Rigg-arkiv (.tar.gz)"
-msgstr "Agentic Rigg-arkiv (.tar.gz)"
-
-#: crates/rigg/src/system_install.rs:350
-msgid "Venter på administratorgodkjenning …"
-msgstr "Venter på administratorgodkjenning …"
-
-#: crates/rigg/src/system_install.rs:386
+#: crates/rigg/src/system_install.rs:168
 msgid "Passordet ble ikke gitt. Ingenting er endret."
 msgstr "Passordet ble ikke gitt. Ingenting er endret."
 
-#: crates/rigg/src/system_install.rs:387
+#: crates/rigg/src/system_install.rs:169
 msgid "Fant ikke pkexec, eller ingen kan spørre om passordet (polkit)."
 msgstr "Fant ikke pkexec, eller ingen kan spørre om passordet (polkit)."
 
-#: crates/rigg/src/system_install.rs:390
-msgid "Kontrollsummen stemmer ikke med arkivet. Ingen systemfiler er endret. Sjekk at arkivet og summen gjelder samme fil."
-msgstr "Kontrollsummen stemmer ikke med arkivet. Ingen systemfiler er endret. Sjekk at arkivet og summen gjelder samme fil."
+#: crates/rigg/src/system_install.rs:171
+msgid "Fikk ikke kontakt med GitHub. Sjekk nettet, eller bruk terminalkommandoen."
+msgstr "Fikk ikke kontakt med GitHub. Sjekk nettet, eller bruk terminalkommandoen."
 
-#: crates/rigg/src/system_install.rs:391
+#: crates/rigg/src/system_install.rs:172
+msgid "Fant ikke utgivelsen for denne versjonen på GitHub."
+msgstr "Fant ikke utgivelsen for denne versjonen på GitHub."
+
+#: crates/rigg/src/system_install.rs:174
+msgid "Nedlastingen stemmer ikke med summen GitHub oppgir. Ingen systemfiler er endret."
+msgstr "Nedlastingen stemmer ikke med summen GitHub oppgir. Ingen systemfiler er endret."
+
+#: crates/rigg/src/system_install.rs:175
 msgid "Installasjonen feilet. Ingen nye tilganger er gitt."
 msgstr "Installasjonen feilet. Ingen nye tilganger er gitt."
 
-#: crates/rigg/src/system_install.rs:392
+#: crates/rigg/src/system_install.rs:176
 msgid "Installasjonen feilet: {feil}"
 msgstr "Installasjonen feilet: {feil}"
+
+#: crates/rigg/src/system_install.rs:189
+msgid "Vent til den andre administratorhandlingen er ferdig"
+msgstr "Vent til den andre administratorhandlingen er ferdig"
+
+#: crates/rigg/src/system_install.rs:206 crates/rigg/src/system_install.rs:221
+msgid "Installasjonen ble ikke fullført"
+msgstr "Installasjonen ble ikke fullført"

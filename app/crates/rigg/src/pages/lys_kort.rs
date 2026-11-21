@@ -343,7 +343,7 @@ impl CardLight {
             &[],
         );
         panel.body.append(&summary);
-        let install_prompt = crate::system_install::prompt(app);
+        let install_prompt = crate::system_install::prompt(app, None);
         panel.body.append(&install_prompt);
         let identity = paragraph("", &["muted", "sm"]);
         panel.body.append(&identity);
@@ -1156,7 +1156,8 @@ impl CardLight {
         let Ok((pkexec, script)) = admin_paths(&self.app, &self.helper.borrow(), action) else {
             return;
         };
-        if self.busy.replace(true) {
+        // Aldri samtidig med installasjonen av systemkomponentene.
+        if crate::system_install::busy() || self.busy.replace(true) {
             return;
         }
         self.message.borrow_mut().take();
@@ -1246,6 +1247,11 @@ impl CardLight {
             p.refresh();
         });
     }
+}
+
+/// En RGB-handling pågår (installasjonen venter da).
+pub(crate) fn admin_busy() -> bool {
+    CURRENT.with(|c| c.borrow().upgrade().is_some_and(|p| p.busy.get()))
 }
 
 fn admin_paths(

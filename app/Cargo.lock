@@ -564,7 +564,7 @@ dependencies = [
 
 [[package]]
 name = "rigg"
-version = "1.5.1"
+version = "1.5.2"
 dependencies = [
  "glib-build-tools",
  "glib-unix",
@@ -576,7 +576,7 @@ dependencies = [
 
 [[package]]
 name = "rigg-core"
-version = "1.5.1"
+version = "1.5.2"
 dependencies = [
  "serde",
  "serde_json",
@@ -584,7 +584,7 @@ dependencies = [
 
 [[package]]
 name = "rigg-helper"
-version = "1.5.1"
+version = "1.5.2"
 dependencies = [
  "libc",
  "rigg-core",
@@ -595,7 +595,7 @@ dependencies = [
 
 [[package]]
 name = "rigg-hw"
-version = "1.5.1"
+version = "1.5.2"
 dependencies = [
  "gio",
  "glib",
@@ -606,7 +606,7 @@ dependencies = [
 
 [[package]]
 name = "riggd"
-version = "1.5.1"
+version = "1.5.2"
 dependencies = [
  "async-channel",
  "gio",

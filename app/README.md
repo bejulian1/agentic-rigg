@@ -12,15 +12,15 @@ Agentic Rigg er et overvåkingsverktøy for skjermkort og maskin på Ubuntu, skr
 
 En allerede åpen app følger nå `--innstillinger DEL`. Hjelperstatus sjekkes også mens styring er låst, slik at ny administratoraktivering oppdages uten å starte vinduet på nytt.
 
-Sidefeltet har et maskinhode med skjermkortet og prosessoren, og tastene 1–9 og 0 går til de ti sidene. Klikk på skjermkortet øverst åpner Grafikkort direkte. Kortet under Skjermkortstyring åpner en smal detaljmeny i sidefeltets bredde, med kortvalg når det finnes flere kort. Ikonene står sentrert også når sidefeltet er lagt sammen. Versjon og byggnummer står i Innstillinger › Om, sammen med signaturen Code Pro. Grafene kutter aldri en verdi: aksen utvides når temperaturen går over 100 °C eller under 20 °C, og krymper først når kurven har roet seg. Denne fila gjelder 1.5.1 · bygg 26. Sensorfilteret slipper fokus ved klikk utenfor og ved sideskifte; Esc tømmer/avslutter søket. Nedtrekksmenyene har tydelige tilstander for valgt rad og tastaturfokus.
+Sidefeltet har et maskinhode med skjermkortet og prosessoren, og tastene 1–9 og 0 går til de ti sidene. Klikk på skjermkortet øverst åpner Grafikkort direkte. Kortet under Skjermkortstyring åpner en smal detaljmeny i sidefeltets bredde, med kortvalg når det finnes flere kort. Ikonene står sentrert også når sidefeltet er lagt sammen. Versjon og byggnummer står i Innstillinger › Om, sammen med signaturen Code Pro. Grafene kutter aldri en verdi: aksen utvides når temperaturen går over 100 °C eller under 20 °C, og krymper først når kurven har roet seg. Denne fila gjelder 1.5.2 · bygg 27. Sensorfilteret slipper fokus ved klikk utenfor og ved sideskifte; Esc tømmer/avslutter søket. Nedtrekksmenyene har tydelige tilstander for valgt rad og tastaturfokus.
 
 Prosessor viser også lanseringsdato når den konkrete modellen er i det lokale oppslaget. Ryzen 7 2700X viser 19. april 2018, med AMD som kilde. Ukjente modeller får ingen antatt dato. Gjennomgangen av øvrige spesifikasjoner og mangler står i `docs/produksjon/spesifikasjoner-revisjon-2026-11-14.md`.
 
 Måleaksene utvides også for 110 °C og klokker over kortets oppgitte maksimum. Ferske topper i langtidsvinduer og viftekurvens målte punkter tas med; lovlige redigeringsgrenser og 0–100 % for last og brukt minne beholdes.
 
-## Nytt i 1.5.1
+## Nytt i 1.5.2
 
-- Systemkomponentene installeres fra appen uten terminal: velg arkivet, lim inn SHA-256 fra utgivelsessiden og godkjenn med passordet. Bryteren for skjermkortstyring åpner installasjonen når komponentene mangler.
+- Systemkomponentene installeres med bare administratorpassordet: «Installer systemkomponenter» (eller bryteren for skjermkortstyring) henter utgivelsen fra GitHub, kontrollerer den mot summen GitHub oppgir og installerer. Bryteren slår på styringen etterpå.
 
 ## Nytt i 1.5.0
 
@@ -139,7 +139,7 @@ Målt med kortet i ro (RTX 2080, P8) i 1.2.0: kald start til første bilde 182 m
 
 ## Personvern
 
-Alt blir på maskinen. Appen har ingen nettverkskode, laster ikke ned noe og sender ingenting noe sted: ikke tall, ikke rapporter, ikke feilmeldinger. Rapporter og logger lagres bare der du ber om det. Serienumre og UUID er skjult i rapporten til du slår dem på selv.
+Alt blir på maskinen. Appen sender ingenting noe sted: ikke tall, ikke rapporter, ikke feilmeldinger. Den eneste nettkontakten er når du trykker «Installer systemkomponenter»: da laster administratorinstallasjonen ned denne versjonen fra GitHub. Rapporter og logger lagres bare der du ber om det. Serienumre og UUID er skjult i rapporten til du slår dem på selv.
 
 ## Endring av skjermkortet
 

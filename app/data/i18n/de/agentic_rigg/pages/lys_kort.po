@@ -184,7 +184,7 @@ msgstr "Ich sehe, dass die Kartenbeleuchtung aus ist."
 msgid "Jeg ser at lyset viser den forventede faste fargen."
 msgstr "Ich sehe die erwartete statische Farbe an der Karte."
 
-#: crates/rigg/src/pages/lys_kort.rs:582 crates/rigg/src/pages/lys_kort.rs:1481
+#: crates/rigg/src/pages/lys_kort.rs:582 crates/rigg/src/pages/lys_kort.rs:1487
 msgid "Bekreft lyset på kortet"
 msgstr "Kartenbeleuchtung bestätigen"
 
@@ -192,7 +192,7 @@ msgstr "Kartenbeleuchtung bestätigen"
 msgid "Forventet lys: {lys}.\n\nSe på det fysiske kortet. Samsvarende fargeverdier alene er ikke nok. Hjelperen leser verdiene på nytt før observasjonen din lagres."
 msgstr "Erwartete Beleuchtung: {lys}.\n\nSieh dir die physische Karte an. Übereinstimmende Farbwerte allein genügen nicht. Der Hilfsdienst liest die Werte erneut aus, bevor er deine Beobachtung speichert."
 
-#: crates/rigg/src/pages/lys_kort.rs:582 crates/rigg/src/pages/lys_kort.rs:1503
+#: crates/rigg/src/pages/lys_kort.rs:582 crates/rigg/src/pages/lys_kort.rs:1509
 msgid "Bekreft min observasjon"
 msgstr "Meine Beobachtung bestätigen"
 
@@ -364,7 +364,7 @@ msgstr "Frist abgelaufen; warte auf Status"
 msgid "bekreft innen {tid}"
 msgstr "innerhalb von {tid} bestätigen"
 
-#: crates/rigg/src/pages/lys_kort.rs:1056 crates/rigg/src/pages/lys_kort.rs:1442
+#: crates/rigg/src/pages/lys_kort.rs:1056 crates/rigg/src/pages/lys_kort.rs:1448
 msgid "Stopp"
 msgstr "Stopp"
 
@@ -436,54 +436,54 @@ msgstr "Gespeicherte Beleuchtung für {kort}: {lys}.\n\nSieh dir die Karte an. F
 msgid "Jeg ser at kortlyset viser det lagrede, faste utgangspunktet."
 msgstr "Ich sehe den gespeicherten statischen Ausgangszustand an der Karte."
 
-#: crates/rigg/src/pages/lys_kort.rs:1196 crates/rigg/src/pages/lys_kort.rs:1240
+#: crates/rigg/src/pages/lys_kort.rs:1197 crates/rigg/src/pages/lys_kort.rs:1241
 msgid "RGB-oppsettet kunne ikke fullføres."
 msgstr "Die RGB-Einrichtung konnte nicht abgeschlossen werden."
 
-#: crates/rigg/src/pages/lys_kort.rs:1232
+#: crates/rigg/src/pages/lys_kort.rs:1233
 msgid "RGB-arbeideren er stoppet. Kontroller lyset og velg «Avklar tidligere økt» hvis en gjenoppretting gjenstår."
 msgstr "Der RGB-Prozess ist angehalten. Prüfe die Beleuchtung und wähle „Vorherige Sitzung klären“, falls eine Wiederherstellung noch aussteht."
 
-#: crates/rigg/src/pages/lys_kort.rs:1233
+#: crates/rigg/src/pages/lys_kort.rs:1234
 msgid "Ingen uavklart RGB-journal for kortet. Du kan slå av RGB-tilgangen."
 msgstr "Für diese Karte gibt es kein offenes RGB-Journal. Du kannst den RGB-Zugriff deaktivieren."
 
-#: crates/rigg/src/pages/lys_kort.rs:1234
+#: crates/rigg/src/pages/lys_kort.rs:1235
 msgid "Gjenopprettingen er avklart. Du kan slå av RGB-tilgangen eller aktivere lysstyring på nytt."
 msgstr "Die Wiederherstellung ist geklärt. Du kannst den RGB-Zugriff deaktivieren oder die Beleuchtungssteuerung erneut aktivieren."
 
-#: crates/rigg/src/pages/lys_kort.rs:1235
+#: crates/rigg/src/pages/lys_kort.rs:1236
 msgid "RGB-tilgangen er slått av."
 msgstr "RGB-Zugriff ist deaktiviert."
 
-#: crates/rigg/src/pages/lys_kort.rs:1236
+#: crates/rigg/src/pages/lys_kort.rs:1237
 msgid "RGB-oppsettet er oppdatert. Kontroller status før du bruker en farge."
 msgstr "RGB-Einrichtung aktualisiert. Prüfe den Status, bevor du eine Farbe anwendest."
 
-#: crates/rigg/src/pages/lys_kort.rs:1237
+#: crates/rigg/src/pages/lys_kort.rs:1238
 msgid "Administratorgodkjenningen ble avbrutt."
 msgstr "Die Administratorfreigabe wurde abgebrochen."
 
-#: crates/rigg/src/pages/lys_kort.rs:1238
+#: crates/rigg/src/pages/lys_kort.rs:1239
 msgid "Avklaringsmålet er ugyldig eller gjelder et annet valgt kort."
 msgstr "Das Wiederherstellungsziel ist ungültig oder gehört zu einer anderen Karte."
 
-#: crates/rigg/src/pages/lys_kort.rs:1244
+#: crates/rigg/src/pages/lys_kort.rs:1245
 msgid "RGB-oppsett"
 msgstr "RGB-Einrichtung"
 
-#: crates/rigg/src/pages/lys_kort.rs:1244
+#: crates/rigg/src/pages/lys_kort.rs:1245
 msgid "RGB-oppsett ble ikke fullført"
 msgstr "RGB-Einrichtung nicht abgeschlossen"
 
-#: crates/rigg/src/pages/lys_kort.rs:1258
+#: crates/rigg/src/pages/lys_kort.rs:1264
 msgid "Administratorhandlinger for RGB krever appens vanlige maskinvareoppsett."
 msgstr "RGB-Administratoraktionen erfordern die reguläre Hardware-Umgebung der App."
 
-#: crates/rigg/src/pages/lys_kort.rs:1274
+#: crates/rigg/src/pages/lys_kort.rs:1280
 msgid "Installer systemkomponentene først. Knappen står over."
 msgstr "Installiere zuerst die Systemkomponenten. Die Schaltfläche steht oben."
 
-#: crates/rigg/src/pages/lys_kort.rs:1296
+#: crates/rigg/src/pages/lys_kort.rs:1302
 msgid "Avbryt"
 msgstr "Abbrechen"
