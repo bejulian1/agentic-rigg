@@ -30,7 +30,7 @@ msgstr "The lighting trial is no longer active or has expired."
 
 #: crates/rigg/src/pages/lys_kort.rs:115
 msgid "Nye lysendringer er sperret. Kontroller status og avklar eventuell gjenoppretting."
-msgstr "New lighting changes are blocked. Check the status and resolve any outstanding recovery."
+msgstr "New lighting changes are blocked. Check the status and resolve any pending restoration."
 
 #: crates/rigg/src/pages/lys_kort.rs:116
 msgid "RGB-tillatelsen for dette kortet kunne ikke bekreftes."
@@ -58,11 +58,11 @@ msgstr "Could not read card lighting. New lighting changes are blocked."
 
 #: crates/rigg/src/pages/lys_kort.rs:146
 msgid "Gjenopprettingen er bekreftet av deg. Effektmodusen er fortsatt ikke maskinelt avlest."
-msgstr "You confirmed recovery. The effect mode still has not been read from hardware."
+msgstr "You confirmed restoration. The effect mode still has not been read from hardware."
 
 #: crates/rigg/src/pages/lys_kort.rs:150
 msgid "Farge og lysstyrke samsvarer etter tilbakeføring. Se på kortet før du bekrefter gjenopprettingen."
-msgstr "Color and brightness match after rollback. Look at the card before confirming recovery."
+msgstr "Color and brightness match after rollback. Look at the card before confirming restoration."
 
 #: crates/rigg/src/pages/lys_kort.rs:151
 msgid "Tilbakeføringen samsvarer ikke med avlesningen. Nye fargeendringer er sperret."
@@ -70,7 +70,7 @@ msgstr "Rollback does not match the readback. New color changes are blocked."
 
 #: crates/rigg/src/pages/lys_kort.rs:152 crates/rigg/src/pages/lys_kort.rs:153
 msgid "Gjenopprettingen er uavklart. Nye fargeendringer er sperret."
-msgstr "Recovery is unresolved. New color changes are blocked."
+msgstr "Restoration is unresolved. New color changes are blocked."
 
 #: crates/rigg/src/pages/lys_kort.rs:280 crates/rigg/src/pages/lys_kort.rs:355
 msgid "Av"
@@ -166,7 +166,7 @@ msgstr "Release lighting control"
 
 #: crates/rigg/src/pages/lys_kort.rs:450
 msgid "Bekreft gjenoppretting …"
-msgstr "Confirm recovery…"
+msgstr "Confirm restoration…"
 
 #: crates/rigg/src/pages/lys_kort.rs:456
 msgid "Farge og lysstyrke kan leses tilbake. Effektmodusen kan ikke leses; en visuell bekreftelse er din observasjon."
@@ -370,7 +370,7 @@ msgstr "Stop"
 
 #: crates/rigg/src/pages/lys_kort.rs:1058
 msgid "Gjenopprett det lagrede utgangspunktet og frigi lysstyringen. Se på kortet før du bekrefter gjenopprettingen."
-msgstr "Restore the saved baseline and release lighting control. Look at the card before confirming recovery."
+msgstr "Restore the saved baseline and release lighting control. Look at the card before confirming restoration."
 
 #: crates/rigg/src/pages/lys_kort.rs:1082
 msgid "RGB-oppsettet er ikke klart"
@@ -382,7 +382,7 @@ msgstr "Disable RGB access"
 
 #: crates/rigg/src/pages/lys_kort.rs:1095
 msgid "Dette stopper RGB-arbeideren og fjerner kortets RGB-tillatelse når gjenopprettingen er avklart. Det lagrede utgangspunktet beholdes."
-msgstr "This stops the RGB worker and removes the card’s RGB permission once recovery is resolved. The saved baseline is kept."
+msgstr "This stops the RGB worker and removes the card’s RGB permission once restoration is resolved. The saved baseline is kept."
 
 #: crates/rigg/src/pages/lys_kort.rs:1096
 msgid "Jeg vil slå av RGB-tilgangen for dette kortet."
@@ -442,7 +442,7 @@ msgstr "Could not complete RGB setup."
 
 #: crates/rigg/src/pages/lys_kort.rs:1230
 msgid "RGB-arbeideren er stoppet. Kontroller lyset og velg «Avklar tidligere økt» hvis en gjenoppretting gjenstår."
-msgstr "The RGB worker has stopped. Check the lighting and choose Resolve previous session if recovery is still pending."
+msgstr "The RGB worker has stopped. Check the lighting and choose Resolve previous session if restoration is still pending."
 
 #: crates/rigg/src/pages/lys_kort.rs:1231
 msgid "Ingen uavklart RGB-journal for kortet. Du kan slå av RGB-tilgangen."
@@ -450,7 +450,7 @@ msgstr "No unresolved RGB journal for this card. You can disable RGB access."
 
 #: crates/rigg/src/pages/lys_kort.rs:1232
 msgid "Gjenopprettingen er avklart. Du kan slå av RGB-tilgangen eller aktivere lysstyring på nytt."
-msgstr "Recovery is resolved. You can disable RGB access or enable lighting control again."
+msgstr "Restoration is resolved. You can disable RGB access or enable lighting control again."
 
 #: crates/rigg/src/pages/lys_kort.rs:1233
 msgid "RGB-tilgangen er slått av."
@@ -466,7 +466,7 @@ msgstr "Administrator approval was canceled."
 
 #: crates/rigg/src/pages/lys_kort.rs:1236
 msgid "Avklaringsmålet er ugyldig eller gjelder et annet valgt kort."
-msgstr "The recovery target is invalid or belongs to a different card."
+msgstr "The restoration target is invalid or belongs to a different card."
 
 #: crates/rigg/src/pages/lys_kort.rs:1242
 msgid "RGB-oppsett"

@@ -42,11 +42,11 @@ msgstr "La scheda selezionata non è disponibile."
 
 #: crates/rigg/src/pages/lys_kort.rs:118
 msgid "RGB-hjelperen støtter ikke dette lysvalget."
-msgstr "L’helper RGB non supporta questa impostazione delle luci."
+msgstr "Questa impostazione delle luci non è supportata dal servizio di supporto RGB."
 
 #: crates/rigg/src/pages/lys_kort.rs:119
 msgid "RGB-hjelperen avviste forespørselen. Les status før du prøver igjen."
-msgstr "L’helper RGB ha rifiutato la richiesta. Controlla lo stato prima di riprovare."
+msgstr "Il servizio di supporto RGB ha rifiutato la richiesta. Controlla lo stato prima di riprovare."
 
 #: crates/rigg/src/pages/lys_kort.rs:122
 msgid "RGB-forespørselen mislyktes. Sjekk status og se på kortet før du prøver igjen."
@@ -174,7 +174,7 @@ msgstr "Colore e luminosità possono essere riletti, ma non la modalità dell’
 
 #: crates/rigg/src/pages/lys_kort.rs:458
 msgid "Ingen støttet RGB-kontroller er tilgjengelig for styring. Agentic Rigg støtter Palit GeForce RTX 2080 Super JetStream via den separate RGB-hjelperen."
-msgstr "Nessun controller RGB supportato è disponibile per il controllo. Agentic Rigg supporta la Palit GeForce RTX 2080 Super JetStream tramite l’helper RGB separato."
+msgstr "Nessun controller RGB supportato è disponibile per il controllo. Agentic Rigg supporta la Palit GeForce RTX 2080 Super JetStream tramite il servizio di supporto RGB separato."
 
 #: crates/rigg/src/pages/lys_kort.rs:577
 msgid "Jeg ser at lyset på kortet er slukket."
@@ -190,7 +190,7 @@ msgstr "Conferma illuminazione della scheda"
 
 #: crates/rigg/src/pages/lys_kort.rs:580
 msgid "Forventet lys: {lys}.\n\nSe på det fysiske kortet. Samsvarende fargeverdier alene er ikke nok. Hjelperen leser verdiene på nytt før observasjonen din lagres."
-msgstr "Illuminazione attesa: {lys}.\n\nOsserva la scheda fisica. La corrispondenza dei valori di colore da sola non basta. L’helper rilegge i valori prima di registrare la tua osservazione."
+msgstr "Illuminazione attesa: {lys}.\n\nOsserva la scheda fisica. La corrispondenza dei valori di colore da sola non basta. Il servizio di supporto rilegge i valori prima di registrare la tua osservazione."
 
 #: crates/rigg/src/pages/lys_kort.rs:580 crates/rigg/src/pages/lys_kort.rs:1501
 msgid "Bekreft min observasjon"
@@ -254,7 +254,7 @@ msgstr "In attesa di una risposta. Al momento non si possono inviare nuove modif
 
 #: crates/rigg/src/pages/lys_kort.rs:851
 msgid "Forbindelsen til tjenesten er brutt. Hjelperen håndterer eventuell tilbakeføring."
-msgstr "La connessione al servizio è interrotta. L’helper gestisce l’eventuale annullamento."
+msgstr "La connessione al servizio è interrotta. Il servizio di supporto gestisce l’eventuale annullamento."
 
 #: crates/rigg/src/pages/lys_kort.rs:856
 msgid "Kortet er ikke tilgjengelig. Nye lysendringer og aktivering er sperret."
@@ -274,11 +274,11 @@ msgstr "L’autorizzazione RGB non vale per la scheda selezionata. Qui non si po
 
 #: crates/rigg/src/pages/lys_kort.rs:865
 msgid "Oppdater RGB-hjelperen med kommandoen for systeminstallasjon."
-msgstr "Aggiorna l’helper RGB con il comando di installazione di sistema."
+msgstr "Aggiorna il servizio di supporto RGB con il comando di installazione di sistema."
 
 #: crates/rigg/src/pages/lys_kort.rs:867
 msgid "RGB-hjelperen er ikke klar. Kontroller oppsettet og avklar en eventuell tidligere RGB-økt."
-msgstr "L’helper RGB non è pronto. Verifica la configurazione e risolvi eventuali sessioni RGB precedenti ancora aperte."
+msgstr "Il servizio di supporto RGB non è pronto. Verifica la configurazione e risolvi eventuali sessioni RGB precedenti ancora aperte."
 
 #: crates/rigg/src/pages/lys_kort.rs:869
 msgid "Kortlys trenger en egen administratoraktivering og et bekreftet, fast utgangspunkt."
@@ -298,7 +298,7 @@ msgstr "Hai selezionato {effekt}. Si vede solo il colore iniziale; l’animazion
 
 #: crates/rigg/src/pages/lys_kort.rs:888
 msgid "{effekt} er aktiv på hele kortlyset. Hjelperen oppdaterer fargen mens appen er åpen. «Stopp» gjenoppretter det lagrede utgangspunktet, som du deretter må bekrefte visuelt."
-msgstr "{effekt} è attivo su tutte le luci della scheda. L’helper aggiorna il colore mentre l’app è aperta. «Ferma» ripristina lo stato iniziale salvato, che dovrai confermare a vista."
+msgstr "{effekt} è attivo su tutte le luci della scheda. Il servizio di supporto aggiorna il colore mentre l’app è aperta. «Ferma» ripristina lo stato iniziale salvato, che dovrai confermare visivamente."
 
 #: crates/rigg/src/pages/lys_kort.rs:894
 msgid "{effekt} krever det lagrede utgangspunktet. Gjenopprett og bekreft lyset før du starter en effekt."
@@ -322,7 +322,7 @@ msgstr "{detalj} Prima si prova il colore iniziale. «Mantieni» avvia l’anima
 
 #: crates/rigg/src/pages/lys_kort.rs:918
 msgid "RGB-hjelperen meldte en driftsfeil. Kontroller lyset før du fortsetter."
-msgstr "L’helper RGB ha segnalato un errore di esecuzione. Controlla le luci prima di continuare."
+msgstr "Il servizio di supporto RGB ha segnalato un errore di esecuzione. Controlla le luci prima di continuare."
 
 #: crates/rigg/src/pages/lys_kort.rs:930
 msgid "{farge} · rå lysstyrke {styrke}, utenfor støttet område"
@@ -350,11 +350,11 @@ msgstr "Controlla il colore iniziale sulla scheda. «Mantieni» avvia l’animaz
 
 #: crates/rigg/src/pages/lys_kort.rs:959
 msgid "Se på det fysiske kortet før du beholder endringen. Uten bekreftelse forsøker hjelperen å rulle tilbake."
-msgstr "Osserva la scheda fisica prima di mantenere la modifica. Senza conferma, l’helper tenta di annullarla."
+msgstr "Osserva la scheda fisica prima di mantenere la modifica. Senza conferma, il servizio di supporto tenta di annullarla."
 
 #: crates/rigg/src/pages/lys_kort.rs:972
 msgid "fristen styres av hjelperen"
-msgstr "scadenza gestita dall’helper"
+msgstr "scadenza gestita dal servizio di supporto"
 
 #: crates/rigg/src/pages/lys_kort.rs:974
 msgid "fristen er ute; venter på status"
@@ -394,7 +394,7 @@ msgstr "Ripristina luci salvate"
 
 #: crates/rigg/src/pages/lys_kort.rs:1101
 msgid "Administratorhjelperen stopper RGB-arbeideren hvis den kjører. Hvis det finnes en uavklart journal, forsøker den deretter å gjenopprette det lagrede utgangspunktet. Kontroller lyset og velg «Avklar tidligere økt» etterpå."
-msgstr "L’helper amministrativo ferma il processo RGB se è in esecuzione. Se il registro contiene un’operazione irrisolta, tenta poi di ripristinare lo stato iniziale salvato. Controlla le luci e poi seleziona «Risolvi sessione precedente»."
+msgstr "Il servizio di supporto con privilegi di amministratore ferma il processo RGB se è in esecuzione. Se il registro contiene un’operazione irrisolta, tenta poi di ripristinare lo stato iniziale salvato. Controlla le luci e poi seleziona «Risolvi sessione precedente»."
 
 #: crates/rigg/src/pages/lys_kort.rs:1102
 msgid "Jeg vil gjenopprette det lagrede utgangspunktet på dette kortet."

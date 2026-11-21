@@ -42,11 +42,11 @@ msgstr "選択したカードは使用できません。"
 
 #: crates/rigg/src/pages/lys_kort.rs:118
 msgid "RGB-hjelperen støtter ikke dette lysvalget."
-msgstr "RGB ヘルパーはこのライティング設定に対応していません。"
+msgstr "RGB 補助プログラムはこのライティング設定に対応していません。"
 
 #: crates/rigg/src/pages/lys_kort.rs:119
 msgid "RGB-hjelperen avviste forespørselen. Les status før du prøver igjen."
-msgstr "RGB ヘルパーが要求を拒否しました。再試行前に状態を確認してください。"
+msgstr "RGB 補助プログラムが要求を拒否しました。再試行前に状態を確認してください。"
 
 #: crates/rigg/src/pages/lys_kort.rs:122
 msgid "RGB-forespørselen mislyktes. Sjekk status og se på kortet før du prøver igjen."
@@ -174,7 +174,7 @@ msgstr "色と明るさは読み戻せますが、エフェクトモードは読
 
 #: crates/rigg/src/pages/lys_kort.rs:458
 msgid "Ingen støttet RGB-kontroller er tilgjengelig for styring. Agentic Rigg støtter Palit GeForce RTX 2080 Super JetStream via den separate RGB-hjelperen."
-msgstr "制御可能な対応 RGB コントローラーがありません。Agentic Rigg は専用の RGB ヘルパーで Palit GeForce RTX 2080 Super JetStream に対応します。"
+msgstr "制御可能な対応 RGB コントローラーがありません。Agentic Rigg は専用の RGB 補助プログラムで Palit GeForce RTX 2080 Super JetStream に対応します。"
 
 #: crates/rigg/src/pages/lys_kort.rs:577
 msgid "Jeg ser at lyset på kortet er slukket."
@@ -190,11 +190,11 @@ msgstr "カードのライティングを確認"
 
 #: crates/rigg/src/pages/lys_kort.rs:580
 msgid "Forventet lys: {lys}.\n\nSe på det fysiske kortet. Samsvarende fargeverdier alene er ikke nok. Hjelperen leser verdiene på nytt før observasjonen din lagres."
-msgstr "想定されるライティング: {lys}。\n\n実物のカードを見てください。色の値が一致するだけでは不十分です。ヘルパーは確認内容を記録する前に値を再度読み取ります。"
+msgstr "想定されるライティング: {lys}。\n\n実物のカードを見てください。色の値が一致するだけでは不十分です。補助プログラムは確認内容を記録する前に値を再度読み取ります。"
 
 #: crates/rigg/src/pages/lys_kort.rs:580 crates/rigg/src/pages/lys_kort.rs:1501
 msgid "Bekreft min observasjon"
-msgstr "目視結果を確定"
+msgstr "目視結果を確認"
 
 #: crates/rigg/src/pages/lys_kort.rs:586
 msgid "Lystilstanden er endret"
@@ -254,7 +254,7 @@ msgstr "応答を待っています。現在、新しい変更は送信できま
 
 #: crates/rigg/src/pages/lys_kort.rs:851
 msgid "Forbindelsen til tjenesten er brutt. Hjelperen håndterer eventuell tilbakeføring."
-msgstr "サービスとの接続が失われました。必要なロールバックはヘルパーが処理します。"
+msgstr "サービスとの接続が失われました。必要に応じて補助プログラムが変更を元に戻します。"
 
 #: crates/rigg/src/pages/lys_kort.rs:856
 msgid "Kortet er ikke tilgjengelig. Nye lysendringer og aktivering er sperret."
@@ -274,11 +274,11 @@ msgstr "RGB 権限は選択したカードには適用されません。ここ�
 
 #: crates/rigg/src/pages/lys_kort.rs:865
 msgid "Oppdater RGB-hjelperen med kommandoen for systeminstallasjon."
-msgstr "システムインストールコマンドで RGB ヘルパーを更新してください。"
+msgstr "システムインストールコマンドで RGB 補助プログラムを更新してください。"
 
 #: crates/rigg/src/pages/lys_kort.rs:867
 msgid "RGB-hjelperen er ikke klar. Kontroller oppsettet og avklar en eventuell tidligere RGB-økt."
-msgstr "RGB ヘルパーの準備ができていません。設定を確認し、未解決の RGB セッションがあれば解決してください。"
+msgstr "RGB 補助プログラムの準備ができていません。設定を確認し、未解決の RGB セッションがあれば解決してください。"
 
 #: crates/rigg/src/pages/lys_kort.rs:869
 msgid "Kortlys trenger en egen administratoraktivering og et bekreftet, fast utgangspunkt."
@@ -298,7 +298,7 @@ msgstr "{effekt} が選択されています。現在は開始色のみ表示さ
 
 #: crates/rigg/src/pages/lys_kort.rs:888
 msgid "{effekt} er aktiv på hele kortlyset. Hjelperen oppdaterer fargen mens appen er åpen. «Stopp» gjenoppretter det lagrede utgangspunktet, som du deretter må bekrefte visuelt."
-msgstr "カード全体に {effekt} が適用されています。アプリを開いている間、ヘルパーが色を更新します。「停止」で保存済みの基準状態に戻した後、目視で確認してください。"
+msgstr "カード全体に {effekt} が適用されています。アプリを開いている間、補助プログラムが色を更新します。「停止」で保存済みの基準状態に戻した後、目視で確認してください。"
 
 #: crates/rigg/src/pages/lys_kort.rs:894
 msgid "{effekt} krever det lagrede utgangspunktet. Gjenopprett og bekreft lyset før du starter en effekt."
@@ -322,7 +322,7 @@ msgstr "{detalj} まず開始色を試用します。「維持」で 1 つのゾ
 
 #: crates/rigg/src/pages/lys_kort.rs:918
 msgid "RGB-hjelperen meldte en driftsfeil. Kontroller lyset før du fortsetter."
-msgstr "RGB ヘルパーから実行時エラーが報告されました。続行前にライティングを確認してください。"
+msgstr "RGB 補助プログラムから実行時エラーが報告されました。続行前にライティングを確認してください。"
 
 #: crates/rigg/src/pages/lys_kort.rs:930
 msgid "{farge} · rå lysstyrke {styrke}, utenfor støttet område"
@@ -350,11 +350,11 @@ msgstr "カードの開始色を確認してください。「維持」でアニ
 
 #: crates/rigg/src/pages/lys_kort.rs:959
 msgid "Se på det fysiske kortet før du beholder endringen. Uten bekreftelse forsøker hjelperen å rulle tilbake."
-msgstr "変更を維持する前に実物のカードを確認してください。確認しない場合、ヘルパーが元に戻すことを試みます。"
+msgstr "変更を維持する前に実物のカードを確認してください。確認しない場合、補助プログラムが元に戻すことを試みます。"
 
 #: crates/rigg/src/pages/lys_kort.rs:972
 msgid "fristen styres av hjelperen"
-msgstr "期限はヘルパーが管理"
+msgstr "期限は補助プログラムが管理"
 
 #: crates/rigg/src/pages/lys_kort.rs:974
 msgid "fristen er ute; venter på status"
@@ -394,7 +394,7 @@ msgstr "保存済みのライティングを復元"
 
 #: crates/rigg/src/pages/lys_kort.rs:1101
 msgid "Administratorhjelperen stopper RGB-arbeideren hvis den kjører. Hvis det finnes en uavklart journal, forsøker den deretter å gjenopprette det lagrede utgangspunktet. Kontroller lyset og velg «Avklar tidligere økt» etterpå."
-msgstr "管理者ヘルパーは RGB ワーカーが実行中なら停止します。ジャーナルに未解決の操作があれば、保存済みの基準状態への復元を試みます。その後、ライティングを確認して「前回のセッションを解決」を選んでください。"
+msgstr "管理者権限の補助プログラムは RGB ワーカーが実行中なら停止します。ジャーナルに未解決の操作があれば、保存済みの基準状態への復元を試みます。その後、ライティングを確認して「前回のセッションを解決」を選んでください。"
 
 #: crates/rigg/src/pages/lys_kort.rs:1102
 msgid "Jeg vil gjenopprette det lagrede utgangspunktet på dette kortet."

@@ -62,11 +62,11 @@ msgstr "Vous avez confirmé la restauration. Le mode d’effet n’a toujours pa
 
 #: crates/rigg/src/pages/lys_kort.rs:150
 msgid "Farge og lysstyrke samsvarer etter tilbakeføring. Se på kortet før du bekrefter gjenopprettingen."
-msgstr "La couleur et la luminosité correspondent après le retour en arrière. Observez la carte avant de confirmer la restauration."
+msgstr "La couleur et la luminosité correspondent après l’annulation des modifications. Observez la carte avant de confirmer la restauration."
 
 #: crates/rigg/src/pages/lys_kort.rs:151
 msgid "Tilbakeføringen samsvarer ikke med avlesningen. Nye fargeendringer er sperret."
-msgstr "La lecture ne correspond pas à l’état attendu après le retour en arrière. Les changements de couleur sont bloqués."
+msgstr "La lecture ne correspond pas à l’état attendu après l’annulation des modifications. Les changements de couleur sont bloqués."
 
 #: crates/rigg/src/pages/lys_kort.rs:152 crates/rigg/src/pages/lys_kort.rs:153
 msgid "Gjenopprettingen er uavklart. Nye fargeendringer er sperret."
@@ -254,7 +254,7 @@ msgstr "En attente d’une réponse. Aucune nouvelle modification ne peut être 
 
 #: crates/rigg/src/pages/lys_kort.rs:851
 msgid "Forbindelsen til tjenesten er brutt. Hjelperen håndterer eventuell tilbakeføring."
-msgstr "La connexion au service a été perdue. L’assistant gère tout retour en arrière nécessaire."
+msgstr "La connexion au service a été perdue. L’assistant annule les modifications si nécessaire."
 
 #: crates/rigg/src/pages/lys_kort.rs:856
 msgid "Kortet er ikke tilgjengelig. Nye lysendringer og aktivering er sperret."
@@ -350,7 +350,7 @@ msgstr "Vérifiez la couleur initiale sur la carte. « Conserver » lance l’an
 
 #: crates/rigg/src/pages/lys_kort.rs:959
 msgid "Se på det fysiske kortet før du beholder endringen. Uten bekreftelse forsøker hjelperen å rulle tilbake."
-msgstr "Observez la carte physique avant de conserver la modification. Sans confirmation, l’assistant tente de revenir en arrière."
+msgstr "Observez la carte physique avant de conserver la modification. Sans confirmation, l’assistant tente d’annuler la modification."
 
 #: crates/rigg/src/pages/lys_kort.rs:972
 msgid "fristen styres av hjelperen"

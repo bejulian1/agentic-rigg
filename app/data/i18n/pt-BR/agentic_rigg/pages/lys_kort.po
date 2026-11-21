@@ -346,7 +346,7 @@ msgstr "Última opção confirmada: {lys}. Isso não comprova a leitura do modo 
 
 #: crates/rigg/src/pages/lys_kort.rs:957
 msgid "Kontroller startfargen på kortet. «Behold» starter animasjonen; «Rull tilbake» eller fristutløp går tilbake til utgangspunktet."
-msgstr "Confira a cor inicial na placa. «Manter» inicia a animação; «Reverter» ou o fim do prazo restaura o estado inicial."
+msgstr "Confira a cor inicial na placa. «Manter» inicia a animação. O estado inicial é restaurado ao selecionar «Reverter» ou quando o prazo expira."
 
 #: crates/rigg/src/pages/lys_kort.rs:959
 msgid "Se på det fysiske kortet før du beholder endringen. Uten bekreftelse forsøker hjelperen å rulle tilbake."

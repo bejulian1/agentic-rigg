@@ -42,11 +42,11 @@ msgstr "Wybrana karta jest niedostępna."
 
 #: crates/rigg/src/pages/lys_kort.rs:118
 msgid "RGB-hjelperen støtter ikke dette lysvalget."
-msgstr "Usługa pomocnicza RGB nie obsługuje tego ustawienia oświetlenia."
+msgstr "Program pomocniczy RGB nie obsługuje tego ustawienia oświetlenia."
 
 #: crates/rigg/src/pages/lys_kort.rs:119
 msgid "RGB-hjelperen avviste forespørselen. Les status før du prøver igjen."
-msgstr "Usługa pomocnicza RGB odrzuciła żądanie. Przed ponowną próbą sprawdź stan."
+msgstr "Program pomocniczy RGB odrzucił żądanie. Przed ponowną próbą sprawdź stan."
 
 #: crates/rigg/src/pages/lys_kort.rs:122
 msgid "RGB-forespørselen mislyktes. Sjekk status og se på kortet før du prøver igjen."
@@ -170,11 +170,11 @@ msgstr "Potwierdź przywrócenie…"
 
 #: crates/rigg/src/pages/lys_kort.rs:456
 msgid "Farge og lysstyrke kan leses tilbake. Effektmodusen kan ikke leses; en visuell bekreftelse er din observasjon."
-msgstr "Można odczytać kolor i jasność, lecz nie tryb efektu. Potwierdzenie wzrokowe opiera się na Twojej obserwacji."
+msgstr "Można odczytać kolor i jasność, lecz nie tryb efektu. Potwierdzenie wzrokowe opiera się na twojej obserwacji."
 
 #: crates/rigg/src/pages/lys_kort.rs:458
 msgid "Ingen støttet RGB-kontroller er tilgjengelig for styring. Agentic Rigg støtter Palit GeForce RTX 2080 Super JetStream via den separate RGB-hjelperen."
-msgstr "Brak obsługiwanego kontrolera RGB dostępnego do sterowania. Agentic Rigg obsługuje Palit GeForce RTX 2080 Super JetStream za pomocą osobnej usługi pomocniczej RGB."
+msgstr "Brak obsługiwanego kontrolera RGB dostępnego do sterowania. Agentic Rigg obsługuje Palit GeForce RTX 2080 Super JetStream za pomocą osobnego programu pomocniczego RGB."
 
 #: crates/rigg/src/pages/lys_kort.rs:577
 msgid "Jeg ser at lyset på kortet er slukket."
@@ -190,7 +190,7 @@ msgstr "Potwierdź oświetlenie karty"
 
 #: crates/rigg/src/pages/lys_kort.rs:580
 msgid "Forventet lys: {lys}.\n\nSe på det fysiske kortet. Samsvarende fargeverdier alene er ikke nok. Hjelperen leser verdiene på nytt før observasjonen din lagres."
-msgstr "Oczekiwane oświetlenie: {lys}.\n\nObejrzyj fizyczną kartę. Sama zgodność wartości koloru nie wystarcza. Usługa pomocnicza ponownie odczyta wartości przed zapisaniem Twojej obserwacji."
+msgstr "Oczekiwane oświetlenie: {lys}.\n\nObejrzyj fizyczną kartę. Sama zgodność wartości koloru nie wystarcza. Program pomocniczy ponownie odczyta wartości przed zapisaniem twojej obserwacji."
 
 #: crates/rigg/src/pages/lys_kort.rs:580 crates/rigg/src/pages/lys_kort.rs:1501
 msgid "Bekreft min observasjon"
@@ -254,7 +254,7 @@ msgstr "Oczekiwanie na odpowiedź. Nie można teraz wysłać nowych zmian."
 
 #: crates/rigg/src/pages/lys_kort.rs:851
 msgid "Forbindelsen til tjenesten er brutt. Hjelperen håndterer eventuell tilbakeføring."
-msgstr "Utracono połączenie z usługą. Za ewentualne cofnięcie odpowiada usługa pomocnicza."
+msgstr "Utracono połączenie z usługą. Za ewentualne cofnięcie odpowiada program pomocniczy."
 
 #: crates/rigg/src/pages/lys_kort.rs:856
 msgid "Kortet er ikke tilgjengelig. Nye lysendringer og aktivering er sperret."
@@ -274,11 +274,11 @@ msgstr "Uprawnienie RGB nie obejmuje wybranej karty. Nie można stąd wysłać z
 
 #: crates/rigg/src/pages/lys_kort.rs:865
 msgid "Oppdater RGB-hjelperen med kommandoen for systeminstallasjon."
-msgstr "Zaktualizuj usługę pomocniczą RGB poleceniem instalacji systemowej."
+msgstr "Zaktualizuj program pomocniczy RGB poleceniem instalacji systemowej."
 
 #: crates/rigg/src/pages/lys_kort.rs:867
 msgid "RGB-hjelperen er ikke klar. Kontroller oppsettet og avklar en eventuell tidligere RGB-økt."
-msgstr "Usługa pomocnicza RGB nie jest gotowa. Sprawdź konfigurację i rozwiąż ewentualną poprzednią sesję RGB."
+msgstr "Program pomocniczy RGB nie jest gotowy. Sprawdź konfigurację i rozwiąż ewentualną poprzednią sesję RGB."
 
 #: crates/rigg/src/pages/lys_kort.rs:869
 msgid "Kortlys trenger en egen administratoraktivering og et bekreftet, fast utgangspunkt."
@@ -298,7 +298,7 @@ msgstr "Wybrano efekt {effekt}. Widać tylko kolor początkowy. Animacja rozpocz
 
 #: crates/rigg/src/pages/lys_kort.rs:888
 msgid "{effekt} er aktiv på hele kortlyset. Hjelperen oppdaterer fargen mens appen er åpen. «Stopp» gjenoppretter det lagrede utgangspunktet, som du deretter må bekrefte visuelt."
-msgstr "Efekt {effekt} działa na całej karcie. Usługa pomocnicza aktualizuje kolor, gdy aplikacja jest otwarta. „Zatrzymaj” przywraca zapisany stan wyjściowy, który następnie trzeba potwierdzić wzrokowo."
+msgstr "Efekt {effekt} działa na całej karcie. Program pomocniczy aktualizuje kolor, gdy aplikacja jest otwarta. „Zatrzymaj” przywraca zapisany stan wyjściowy, który następnie trzeba potwierdzić wzrokowo."
 
 #: crates/rigg/src/pages/lys_kort.rs:894
 msgid "{effekt} krever det lagrede utgangspunktet. Gjenopprett og bekreft lyset før du starter en effekt."
@@ -322,7 +322,7 @@ msgstr "{detalj} Najpierw testowany jest kolor początkowy. „Zachowaj” uruch
 
 #: crates/rigg/src/pages/lys_kort.rs:918
 msgid "RGB-hjelperen meldte en driftsfeil. Kontroller lyset før du fortsetter."
-msgstr "Usługa pomocnicza RGB zgłosiła błąd podczas pracy. Sprawdź oświetlenie przed kontynuowaniem."
+msgstr "Program pomocniczy RGB zgłosił błąd podczas pracy. Sprawdź oświetlenie przed kontynuowaniem."
 
 #: crates/rigg/src/pages/lys_kort.rs:930
 msgid "{farge} · rå lysstyrke {styrke}, utenfor støttet område"
@@ -350,11 +350,11 @@ msgstr "Sprawdź kolor początkowy na karcie. „Zachowaj” uruchamia animację
 
 #: crates/rigg/src/pages/lys_kort.rs:959
 msgid "Se på det fysiske kortet før du beholder endringen. Uten bekreftelse forsøker hjelperen å rulle tilbake."
-msgstr "Obejrzyj fizyczną kartę przed zachowaniem zmiany. Bez potwierdzenia usługa pomocnicza spróbuje ją cofnąć."
+msgstr "Obejrzyj fizyczną kartę przed zachowaniem zmiany. Bez potwierdzenia program pomocniczy spróbuje ją cofnąć."
 
 #: crates/rigg/src/pages/lys_kort.rs:972
 msgid "fristen styres av hjelperen"
-msgstr "termin ustalany przez usługę pomocniczą"
+msgstr "termin ustalany przez program pomocniczy"
 
 #: crates/rigg/src/pages/lys_kort.rs:974
 msgid "fristen er ute; venter på status"
@@ -394,7 +394,7 @@ msgstr "Przywróć zapisane oświetlenie"
 
 #: crates/rigg/src/pages/lys_kort.rs:1101
 msgid "Administratorhjelperen stopper RGB-arbeideren hvis den kjører. Hvis det finnes en uavklart journal, forsøker den deretter å gjenopprette det lagrede utgangspunktet. Kontroller lyset og velg «Avklar tidligere økt» etterpå."
-msgstr "Usługa pomocnicza administratora zatrzymuje działający proces RGB. Jeśli w dzienniku jest nierozstrzygnięta operacja, próbuje przywrócić zapisany stan wyjściowy. Sprawdź oświetlenie, a następnie wybierz „Rozwiąż poprzednią sesję”."
+msgstr "Program pomocniczy administratora zatrzymuje działający proces RGB. Jeśli w dzienniku jest nierozstrzygnięta operacja, próbuje przywrócić zapisany stan wyjściowy. Sprawdź oświetlenie, a następnie wybierz „Rozwiąż poprzednią sesję”."
 
 #: crates/rigg/src/pages/lys_kort.rs:1102
 msgid "Jeg vil gjenopprette det lagrede utgangspunktet på dette kortet."
