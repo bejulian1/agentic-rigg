@@ -1,5 +1,10 @@
 # Patchlog
 
+## 1.5.6 · bygg 31 – 21. november 2026: uavklart RGB-journal ved oppdatering
+
+- `system-hent.py`: `settle_rgb()` kjører installerte `rgb-gjenopprett.sh --restore-original`, `rgb-avklar.sh --inspect` (JSON fra stdout, `recoveryId` må være 32 heks) og `rgb-avklar.sh --static-confirmed --recovery-id` etter kontrollert arkiv og før `rgb-deaktiver.sh`. Det skjer bare når `RGB_JOURNAL` finnes og forespurt aktivering er `rgb` for samme PCI/UUID som `rgb.json`; ellers stopper skriptet før nettet. Fem nye Python-prøver (18 totalt), blant annet rekkefølge etter kontrollert arkiv, feil sum med journal og stopp ved hvert feilende trinn. Feil etter gjenopprettingen gir egen melding på stderr, og kortmismatch nevner det bundne kortet.
+- `lys_kort.rs`: aktiveringsdialogen forteller om gjenopprettingen når systemkomponentene skal installeres eller oppdateres.
+
 ## 1.5.5 · bygg 30 – 21. november 2026: lysvalgene alltid fremme
 
 - `lys_kort.rs`: kontrollene er en `gtk::Grid` med overskriftene Modus/Farge/Lysstyrke og en `gtk::Scale` som deler justering med tallfeltet. Kontrollene, effektknappene og «Bruk» vises også uten bundet hjelper. Etterpå filtreres effektene på `softwareEffects` som før. Uten binding åpner «Bruk» `admin_dialog(Activate, then_apply = true)` (tilstand `off`/`outdated`). `queued` settes først etter den visuelle bekreftelsen, nullstilles ved avbrudd, feil og `hide()`, og utløser én `apply()` når hjelperen er bundet og `can_apply` tillater det.

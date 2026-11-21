@@ -1,5 +1,15 @@
 [
   {
+    "version": "1.5.6",
+    "build": 31,
+    "date": "2026-11-21",
+    "title": "RGB-oppdatering uten stopp",
+    "changes": [
+      "Oppdateringen av RGB-hjelperen stoppet hvis en tidligere RGB-økt ikke var avsluttet, for eksempel etter en beholdt farge.",
+      "Nå setter «Bruk» kortet tilbake til det lagrede lyset, avslutter den gamle økten, oppdaterer og aktiverer, med samme bekreftelse og ett passord."
+    ]
+  },
+  {
     "version": "1.5.5",
     "build": 30,
     "date": "2026-11-21",
