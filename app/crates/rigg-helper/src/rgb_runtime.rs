@@ -324,36 +324,52 @@ impl<B: Backend> Runtime<B> {
         let (result, renew) = match action {
             Action::Status => unreachable!("status ble håndtert uten sideeffekter"),
             Action::Apply(args) => {
-                if self.animation.is_some() {
+                if self
+                    .animation
+                    .as_ref()
+                    .is_some_and(|animation| animation.started_ms.is_none() || animation.owner != conn)
+                {
                     return Err(self.transaction_error(Error::Busy));
                 }
-                let result = if let Some(effect) = args.effect {
-                    let state = self.book.snapshot();
-                    if !self.static_baseline {
-                        return Err(self.transaction_error(Error::UnsupportedBaseline));
-                    }
-                    if state.dirty
-                        || state.may_have_written
-                        || state.pending.is_some()
-                        || state.owner.is_some()
-                        || state.recovery_needs_confirmation
-                        || state.error.is_some()
-                        || state.read_error.is_some()
-                    {
-                        return Err(self.transaction_error(Error::RecoveryRequired));
-                    }
+                if args.effect.is_some() && !self.static_baseline {
+                    return Err(self.transaction_error(Error::UnsupportedBaseline));
+                }
+                let (request, seed) = if let Some(effect) = args.effect {
                     let Request::Static { color, brightness } = args.request else {
                         unreachable!("effektargumentet krever statisk forespørsel")
                     };
-                    let request = effect.frame(color, brightness, 0);
-                    let result = self.book.apply_for_effect(
+                    (effect.frame(color, brightness, 0), Some((effect, color, brightness)))
+                } else {
+                    (args.request, None)
+                };
+                let result = if let Some(active) = self.animation.take() {
+                    self.book.apply_after_animation(
+                        &mut self.backend,
+                        conn,
+                        active.last_request,
+                        request.clone(),
+                        now_ms,
+                        args.confirm_timeout_s * 1000,
+                    )
+                } else if seed.is_some() {
+                    self.book.apply_for_effect(
                         &mut self.backend,
                         conn,
                         request.clone(),
                         now_ms,
                         args.confirm_timeout_s * 1000,
-                    );
-                    if let Ok(outcome) = &result {
+                    )
+                } else {
+                    self.book.apply(
+                        &mut self.backend,
+                        conn,
+                        request.clone(),
+                        now_ms,
+                        args.confirm_timeout_s * 1000,
+                    )
+                };
+                if let Ok(outcome) = &result {
+                    if let Some((effect, color, brightness)) = seed {
                         self.animation = outcome.txn.map(|txn| Animation {
                             effect,
                             owner: conn,
@@ -365,17 +381,6 @@ impl<B: Backend> Runtime<B> {
                             last_request: request,
                         });
                     }
-                    result
-                } else {
-                    self.book.apply(
-                        &mut self.backend,
-                        conn,
-                        args.request,
-                        now_ms,
-                        args.confirm_timeout_s * 1000,
-                    )
-                };
-                if result.is_ok() {
                     self.effect_error = None;
                 }
                 (result.map(Some), true)
@@ -1524,7 +1529,7 @@ mod tests {
     }
 
     #[test]
-    fn effekt_krever_gyldig_statisk_valg_og_ren_start() {
+    fn effekt_krever_gyldig_statisk_valg_og_tillater_trygt_modusbytte() {
         let mut runtime = setup();
         for effect in [json!("ukjent"), Value::Null, json!(false)] {
             let mut args = apply_args(color([40, 50, 60]), 10);
@@ -1552,39 +1557,123 @@ mod tests {
         );
         assert_eq!(runtime.backend.reads, 0);
         assert!(runtime.backend.writes.is_empty());
+
+        // 1) Fast farge (beholdt) -> start effekt direkte uten å måtte nullstille.
         let txn = apply(&mut runtime, 0, color([20, 30, 40]), 10);
         runtime
-            .handle(1000, 7, "rgb_confirm", &txn_args(txn), 0)
+            .handle(1000, 7, "rgb_confirm", &txn_args(txn), 1)
             .unwrap();
-        let before = runtime.backend.writes.len();
+        let res = runtime
+            .handle(
+                1000,
+                7,
+                "rgb_apply",
+                &effect_args(Effect::Cycle, color([40, 50, 60])),
+                2,
+            )
+            .unwrap();
+        assert_eq!(res["outcome"]["status"], "pending");
+        assert_eq!(res["status"]["effect"], "cycle");
+        // Mens effekten venter på Behold, avvises ny apply med Busy.
+        assert_eq!(
+            runtime
+                .handle(1000, 7, "rgb_apply", &apply_args(Request::Off {}, 10), 3)
+                .unwrap_err()
+                .code,
+            ErrorCode::Busy
+        );
+        let cycle_txn = res["outcome"]["txn"].as_u64().unwrap();
+        runtime
+            .handle(1000, 7, "rgb_confirm", &txn_args(cycle_txn), 4)
+            .unwrap();
+        assert!(runtime.animation_active());
+        // Kjør en animasjonsramme slik at observed != confirmed.
+        assert!(runtime.animate(2500).unwrap());
+        runtime.frame_completed(2500).unwrap();
+
+        // Annen klient får fortsatt Busy mens eier 7 kjører effekt.
+        assert_eq!(
+            runtime
+                .handle(1000, 8, "rgb_apply", &apply_args(Request::Off {}, 10), 2600)
+                .unwrap_err()
+                .code,
+            ErrorCode::Busy
+        );
+
+        // 2) Aktiv effekt (Cycle) -> bytt direkte til annen effekt (Rainbow).
+        let res = runtime
+            .handle(
+                1000,
+                7,
+                "rgb_apply",
+                &effect_args(Effect::Rainbow, color([10, 200, 30])),
+                2700,
+            )
+            .unwrap();
+        assert_eq!(res["outcome"]["status"], "pending");
+        assert_eq!(res["status"]["effect"], "rainbow");
+        assert!(!runtime.animation_active());
+        let rainbow_txn = res["outcome"]["txn"].as_u64().unwrap();
+        runtime
+            .handle(1000, 7, "rgb_confirm", &txn_args(rainbow_txn), 2800)
+            .unwrap();
+        assert!(runtime.animation_active());
+        assert!(runtime.animate(3800).unwrap());
+        runtime.frame_completed(3800).unwrap();
+
+        // 3) Aktiv effekt (Rainbow) -> bytt direkte til Av.
+        let res = runtime
+            .handle(1000, 7, "rgb_apply", &apply_args(Request::Off {}, 10), 3900)
+            .unwrap();
+        assert_eq!(res["outcome"]["status"], "pending");
+        assert!(res["status"]["effect"].is_null());
+        let off_txn = res["outcome"]["txn"].as_u64().unwrap();
+        runtime
+            .handle(1000, 7, "rgb_confirm", &txn_args(off_txn), 4000)
+            .unwrap();
+        assert!(!runtime.animation_active());
+
+        // 4) Fra Av (beholdt) -> start ny effekt (Breathing) direkte.
+        let res = runtime
+            .handle(
+                1000,
+                7,
+                "rgb_apply",
+                &effect_args(Effect::Breathing, color([100, 150, 200])),
+                4100,
+            )
+            .unwrap();
+        assert_eq!(res["outcome"]["status"], "pending");
+        assert_eq!(res["status"]["effect"], "breathing");
+        let breath_txn = res["outcome"]["txn"].as_u64().unwrap();
+        runtime
+            .handle(1000, 7, "rgb_confirm", &txn_args(breath_txn), 4200)
+            .unwrap();
+        assert!(runtime.animation_active());
+
+        // 5) Uavklart gjenoppretting sperrer fortsatt effektstart.
+        runtime
+            .handle(1000, 7, "rgb_reset", &identity(), 4300)
+            .unwrap();
+        assert!(!runtime.animation_active());
+        assert_eq!(runtime.backend.writes.last(), Some(&color([1, 2, 3])));
         assert_eq!(
             runtime
                 .handle(
                     1000,
                     7,
                     "rgb_apply",
-                    &effect_args(Effect::Cycle, color([40, 50, 60])),
-                    1
+                    &effect_args(Effect::Rainbow, color([40, 50, 60])),
+                    4400
                 )
                 .unwrap_err()
                 .code,
             ErrorCode::WriteLocked
         );
-        assert_eq!(runtime.backend.writes.len(), before);
         runtime
-            .handle(1000, 7, "rgb_reset", &identity(), 2)
+            .handle(1000, 7, "rgb_ack_recovery", &ack_args(&runtime), 4500)
             .unwrap();
-        runtime
-            .handle(1000, 7, "rgb_ack_recovery", &ack_args(&runtime), 3)
-            .unwrap();
-        start_effect(&mut runtime, Effect::Rainbow, 4);
-        assert_eq!(
-            runtime
-                .handle(1000, 7, "rgb_apply", &apply_args(Request::Off {}, 10), 5)
-                .unwrap_err()
-                .code,
-            ErrorCode::Busy
-        );
+        start_effect(&mut runtime, Effect::Rainbow, 4600);
         assert!(runtime.animation_active());
     }
 
