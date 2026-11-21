@@ -17,6 +17,12 @@ installerte `rgb-deaktiver.sh` (lyset og utgangspunktet beholdes), og en
 GPU-tillatelse for samme bruker aktiveres igjen for samme kort etterpå, så
 ett passord holder også ved oppdatering.
 
+Har den gamle RGB-hjelperen en uavklart økt (journal), og brukeren nettopp
+har bekreftet i appen at det samme kortet viser én fast farge, avsluttes
+økten med de installerte skriptene før deaktiveringen: det lagrede
+utgangspunktet skrives tilbake og leses kontrollert, og journalen avklares
+med brukerens bekreftelse. Uten den bekreftelsen stopper alt før nettet.
+
 Uten nett finnes terminalkommandoen (`system-bootstrap.command`) med
 arkiv og sum oppgitt for hånd.
 """
@@ -49,6 +55,9 @@ ACTIVATE = {'nvml': ['/usr/local/libexec/agentic-rigg/aktiver.sh'],
 # RGB-aktiveringen krever at brukeren har sett på kortet; appen spør før pkexec.
 ACTIVATE_FLAGS = {'nvml': [], 'rgb': ['--static-confirmed']}
 RGB_DEACTIVATE = ['/usr/local/libexec/agentic-rigg-rgb-v2/rgb-deaktiver.sh']
+RGB_RESTORE = ['/usr/local/libexec/agentic-rigg-rgb-v2/rgb-gjenopprett.sh']
+RGB_RESOLVE = ['/usr/local/libexec/agentic-rigg-rgb-v2/rgb-avklar.sh']
+RGB_JOURNAL = '/var/lib/agentic-rigg-rgb/journal.json'
 CONFIG = {'nvml': '/etc/agentic-rigg/helper.json', 'rgb': '/etc/agentic-rigg/rgb.json'}
 OWNER = 0
 PCI = r'[0-9a-f]{4}:[0-9a-f]{2}:[01][0-9a-f]\.[0-7]'
@@ -199,6 +208,39 @@ def run(command, uid):
     return subprocess.run(command, stdin=subprocess.DEVNULL, env=env(uid), check=False).returncode
 
 
+def settle_rgb(card, uid):
+    """Avslutt en uavklart RGB-økt for `card` med de installerte skriptene.
+
+    Kalles bare når brukeren nettopp har bekreftet i appen at akkurat dette
+    kortet viser én fast farge. Gjenopprettingen skriver det lagrede
+    utgangspunktet og krever at avlesningen samsvarer; avklaringen leser på
+    nytt før journalen fjernes. Feiler et trinn, beholdes journalen.
+    """
+    ids = ['--pci', card[0], '--uuid', card[1]]
+    if run([*RGB_RESTORE, *ids, '--restore-original'], uid):
+        print('RGB: Det lagrede lyset kunne ikke gjenopprettes. Journalen er beholdt; ingenting er byttet.', file=sys.stderr)
+        return False
+    after = 'RGB: Kortet er satt til det lagrede lyset, men økten ble ikke avsluttet. Velg «Avklar tidligere økt».'
+    inspect = subprocess.run([*RGB_RESOLVE, *ids, '--inspect'], stdin=subprocess.DEVNULL,
+                             stdout=subprocess.PIPE, env=env(uid), check=False)
+    if inspect.returncode:
+        print(after, file=sys.stderr)
+        return False
+    try:
+        report = json.loads(inspect.stdout or b'null')
+    except ValueError:
+        report = None
+    if report == {}:
+        return True
+    recovery = report.get('recoveryId') if isinstance(report, dict) else None
+    if not isinstance(recovery, str) or not re.fullmatch(r'[0-9a-f]{32}', recovery, re.ASCII):
+        fail('RGB-hjelperen ga et ugyldig avklaringsmål. Journalen er beholdt.')
+    if run([*RGB_RESOLVE, *ids, '--static-confirmed', '--recovery-id', recovery], uid):
+        print(after, file=sys.stderr)
+        return False
+    return True
+
+
 def main(argv):
     if len(argv) not in (2, 5) or not re.fullmatch(r'[0-9]{1,4}\.[0-9]{1,4}\.[0-9]{1,4}', argv[0]) or not re.fullmatch(r'[1-9][0-9]{0,8}', argv[1]):
         fail('Forventet VERSJON BYGG [nvml|rgb PCI UUID].')
@@ -209,6 +251,11 @@ def main(argv):
     uid = pkexec_uid()
     # Leses før nettet brukes, så en fremmed tillatelse stopper alt tidlig.
     nvml, rgb = binding('nvml', uid), binding('rgb', uid)
+    # Brukeren bekreftet fast farge for dette kortet (bare RGB-aktivering).
+    confirmed = (argv[3].lower(), argv[4]) if then and argv[2] == 'rgb' else None
+    unsettled = rgb is not None and os.path.lexists(RGB_JOURNAL)
+    if unsettled and confirmed != rgb:
+        fail(f'En tidligere RGB-økt for kortet {rgb[0]} er ikke avsluttet. Velg det kortet, åpne RGB-lys og trykk «Bruk».')
     name = ASSET.format(version=version, build=build)
     digest = published_digest(version, name)
     os.umask(0o077)
@@ -227,9 +274,14 @@ def main(argv):
         with open(installer, 'xb') as out:
             out.write(installer_from(archive))
         # Installasjonen nekter mens RGB er aktiv. Den gamle, installerte
-        # deaktiveringen beholder lyset og utgangspunktet; en uavklart
-        # RGB-økt stopper her før noe er byttet.
+        # deaktiveringen beholder lyset og utgangspunktet. En uavklart økt
+        # avsluttes først (se `settle_rgb`); feiler det, stopper alt her
+        # før noe er byttet.
+        if unsettled and not settle_rgb(rgb, uid):
+            return 1
         if rgb is not None and run([*RGB_DEACTIVATE, '--pci', rgb[0], '--uuid', rgb[1]], uid):
+            if unsettled:
+                print('RGB: Økten er avsluttet, men den gamle RGB-tilgangen ble ikke slått av. Trykk «Bruk» igjen.', file=sys.stderr)
             return 1
         result = subprocess.run([*INSTALLER, installer, archive, digest], stdin=subprocess.DEVNULL,
                                 env={'PATH': '/usr/bin:/bin', 'LC_ALL': 'C'}, check=False)

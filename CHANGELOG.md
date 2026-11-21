@@ -1,6 +1,12 @@
 # Versjonslogg
 
-Gjeldende versjon: **1.5.5 · bygg 30**. Nedlastinger og utgivelsesnotater ligger under [Releases](https://github.com/bejulian1/agentic-rigg/releases).
+Gjeldende versjon: **1.5.6 · bygg 31**. Nedlastinger og utgivelsesnotater ligger under [Releases](https://github.com/bejulian1/agentic-rigg/releases).
+
+## 1.5.6 · bygg 31 – 21. november 2026
+
+- **RGB-oppdateringen stopper ikke på en gammel økt:** Hadde den gamle RGB-hjelperen en økt som ikke var avsluttet (for eksempel en beholdt farge), stoppet oppdateringen med «Uavklart RGB-journal … Velg «Gjenopprett lagret lys»». Nå avslutter «Bruk» økten i samme godkjenning: kortet settes tilbake til det lagrede utgangspunktet (kontrollert ved avlesning), journalen avklares med bekreftelsen du ga, den gamle tilgangen slås av, og den nye hjelperen installeres og aktiveres. Valget ditt brukes etterpå som en prøve.
+- Bekreftelsesvinduet sier dette før du godkjenner. Bekreftelsen av fast farge gis før gjenopprettingen; avlesningen kontrollerer farge og lysstyrke, men effektmodusen kan ikke leses. Bekreft derfor bare når kortet viser én fast farge og ikke styres av et annet RGB-program. Feiler et trinn etter gjenopprettingen, sier meldingen hva som gjenstår. Uten bekreftelse for samme kort, for eksempel fra bryteren for skjermkortstyring, stopper oppdateringen før nettet og ber deg åpne RGB-lys.
+- **Begrensninger:** Oppdateringen av RGB-hjelperen og effektene er bare prøvd mot simulerte skript og kort.
 
 ## 1.5.5 · bygg 30 – 21. november 2026
 

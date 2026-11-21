@@ -1286,6 +1286,13 @@ impl CardLight {
                 tr!("Jeg ser kortet og bekrefter at det viser én fast farge."),
             ),
         };
+        // Oppdateringen avslutter en eventuell gammel RGB-økt med denne
+        // bekreftelsen (system-hent.py), så det må stå her.
+        let text = if install {
+            format!("{text}\n\n{}", tr!("Har en tidligere RGB-økt ikke blitt avsluttet, settes kortet først tilbake til det lagrede, faste lyset i samme godkjenning. Bekreft bare hvis kortet viser én fast farge nå og ikke styres av et annet RGB-program."))
+        } else {
+            text.to_owned()
+        };
         let weak = Rc::downgrade(self);
         confirm(
             &self.app,

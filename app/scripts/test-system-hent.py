@@ -54,17 +54,21 @@ class HentTest(unittest.TestCase):
         self.urls = []
         self.runs = []
         self.deactivate_code = 0
+        self.inspect = b'{}'
+        self.fail_at = None
         patcher = patch('os.geteuid', return_value=0)
         patcher.start()
         self.addCleanup(patcher.stop)
         self.mod['open_url'] = self.open_url
-        self.mod['subprocess'] = type('S', (), {'run': self.fake_run, 'DEVNULL': -3})
+        self.mod['subprocess'] = type('S', (), {'run': self.fake_run, 'DEVNULL': -3, 'PIPE': -1})
         # Aldri vertens /etc/agentic-rigg: tillatelsene ligger i testmappa.
         self.etc = Path(tmp.name + '-etc')
         self.etc.mkdir(mode=0o755)
         self.addCleanup(shutil.rmtree, self.etc)
         self.mod['CONFIG'] = {'nvml': str(self.etc / 'helper.json'), 'rgb': str(self.etc / 'rgb.json')}
         self.mod['OWNER'] = os.getuid()
+        self.journal = self.etc / 'journal.json'
+        self.mod['RGB_JOURNAL'] = str(self.journal)
         uid = patch.dict(os.environ, {'PKEXEC_UID': '1000'})
         uid.start()
         self.addCleanup(uid.stop)
@@ -84,6 +88,20 @@ class HentTest(unittest.TestCase):
         self.runs.append(argv)
         if argv[0].startswith('/usr/local/libexec/'):
             self.assertEqual(kwargs['env'], {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C', 'PKEXEC_UID': '1000'})
+            if argv[0].endswith(('rgb-gjenopprett.sh', 'rgb-avklar.sh')):
+                # Bare etter kontrollert arkiv: installasjonsprogrammet hentes
+                # ut først når summen stemmer.
+                [temp] = list(self.staging.iterdir())
+                self.assertTrue((temp / 'installer').is_file())
+                step = 'inspect' if argv[-1] == '--inspect' else Path(argv[0]).stem
+                if step == self.fail_at:
+                    return type('R', (), {'returncode': 1, 'stdout': b''})()
+                if argv[-1] == '--inspect':
+                    self.assertEqual(kwargs['stdout'], -1)
+                    return type('R', (), {'returncode': 0, 'stdout': self.inspect})()
+                if argv[0].endswith('rgb-avklar.sh'):
+                    self.journal.unlink()
+                return type('R', (), {'returncode': 0})()
             if argv[0].endswith('rgb-deaktiver.sh'):
                 # Etter kontrollen av arkivet, før installasjonen.
                 self.assertEqual(len(list(self.staging.iterdir())), 1)
@@ -143,6 +161,74 @@ class HentTest(unittest.TestCase):
         self.deactivate_code = 1
         self.assertEqual(self.mod['main'](['1.5.2', '27']), 1)
         self.assertEqual(len(self.runs), 1)
+        self.assertEqual(list(self.staging.iterdir()), [])
+
+    def test_uavklart_okt_avsluttes_med_brukerens_bekreftelse(self):
+        uuid = 'GPU-12345678-abcd-ef01-2345-6789abcdef01'
+        self.permission('rgb', mode=0o600)
+        self.journal.write_text('{}')
+        self.inspect = json.dumps({'expected': {'mode': 'static', 'color': [1, 2, 3], 'brightness': 80},
+                                   'recoveryId': 'a' * 32}).encode()
+        self.assertEqual(self.mod['main'](['1.5.2', '27', 'rgb', '0000:1c:00.0', uuid]), 0)
+        ids = ['--pci', '0000:1c:00.0', '--uuid', uuid]
+        lib = '/usr/local/libexec/agentic-rigg-rgb-v2/'
+        self.assertEqual(self.runs[:4], [[lib + 'rgb-gjenopprett.sh', *ids, '--restore-original'],
+                                         [lib + 'rgb-avklar.sh', *ids, '--inspect'],
+                                         [lib + 'rgb-avklar.sh', *ids, '--static-confirmed', '--recovery-id', 'a' * 32],
+                                         [lib + 'rgb-deaktiver.sh', *ids]])
+        self.assertEqual(self.runs[-1][0], lib + 'rgb-aktiver.sh')
+
+    def test_uavklart_okt_feil_trinn_stopper_resten(self):
+        uuid = 'GPU-12345678-abcd-ef01-2345-6789abcdef01'
+        self.permission('rgb', mode=0o600)
+        self.inspect = json.dumps({'expected': {'mode': 'off'}, 'recoveryId': 'b' * 32}).encode()
+        lib = '/usr/local/libexec/agentic-rigg-rgb-v2/'
+        for step, ran in (('rgb-gjenopprett', 1), ('inspect', 2), ('rgb-avklar', 3)):
+            self.runs.clear()
+            self.journal.write_text('{}')
+            self.fail_at = step
+            self.assertEqual(self.mod['main'](['1.5.2', '27', 'rgb', '0000:1c:00.0', uuid]), 1)
+            self.assertEqual(len(self.runs), ran, step)
+            self.assertTrue(all(r[0].startswith(lib) and 'deaktiver' not in r[0] for r in self.runs))
+            self.assertEqual(list(self.staging.iterdir()), [])
+        # Tom rapport: ingen avklaring, men deaktivering og installasjon.
+        self.fail_at, self.inspect = None, b'{}'
+        self.runs.clear()
+        self.assertEqual(self.mod['main'](['1.5.2', '27', 'rgb', '0000:1c:00.0', uuid]), 0)
+        self.assertEqual([Path(r[0]).name for r in self.runs[:4]],
+                         ['rgb-gjenopprett.sh', 'rgb-avklar.sh', 'rgb-deaktiver.sh', 'python3'])
+
+    def test_uavklart_okt_og_feil_sum_rorer_ikke_kortet(self):
+        self.permission('rgb', mode=0o600)
+        self.journal.write_text('{}')
+        self.assets[0]['digest'] = 'sha256:' + '0' * 64
+        with self.assertRaisesRegex(SystemExit, 'Kontrollsummen stemmer ikke'):
+            self.mod['main'](['1.5.2', '27', 'rgb', '0000:1c:00.0', 'GPU-12345678-abcd-ef01-2345-6789abcdef01'])
+        self.assertEqual(self.runs, [])
+
+    def test_uavklart_okt_uten_bekreftelse_stopper_for_nettet(self):
+        uuid = 'GPU-12345678-abcd-ef01-2345-6789abcdef01'
+        other = 'GPU-87654321-abcd-ef01-2345-6789abcdef01'
+        self.permission('rgb', mode=0o600)
+        self.journal.write_text('{}')
+        # GPU-styring, ingen aktivering, eller et annet kort enn RGB-tillatelsen.
+        for extra in (['nvml', '0000:1c:00.0', uuid], [], ['rgb', '0000:1c:00.0', other]):
+            with self.assertRaisesRegex(SystemExit, 'kortet 0000:1c:00.0 .*åpne RGB-lys'):
+                self.mod['main'](['1.5.2', '27', *extra])
+        self.assertEqual(self.urls, [])
+        self.assertEqual(self.runs, [])
+
+    def test_ugyldig_avklaringsmal_beholder_journalen(self):
+        uuid = 'GPU-12345678-abcd-ef01-2345-6789abcdef01'
+        self.permission('rgb', mode=0o600)
+        self.journal.write_text('{}')
+        for report in (b'{"recoveryId": "../x"}', b'[]', b'ikke json'):
+            self.runs.clear()
+            self.inspect = report
+            with self.assertRaisesRegex(SystemExit, 'ugyldig avklaringsmål'):
+                self.mod['main'](['1.5.2', '27', 'rgb', '0000:1c:00.0', uuid])
+            self.assertEqual(len(self.runs), 2)
+        self.assertTrue(self.journal.exists())
         self.assertEqual(list(self.staging.iterdir()), [])
 
     def test_fremmed_eller_utrygg_tillatelse_stopper_for_nettet(self):
