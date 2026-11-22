@@ -28,6 +28,15 @@ pub static STOP: AtomicBool = AtomicBool::new(false);
 /// Hvor lenge et svar til en godkjent klient kan vente på plass i
 /// socketbufferen før forbindelsen regnes som død.
 const REPLY_BUDGET: Duration = Duration::from_millis(500);
+/// All venting på svar i én runde til sammen, så takten (frist og
+/// nødregel) aldri skyves mer enn dette av trege klienter.
+const TURN_REPLY_BUDGET: Duration = Duration::from_millis(500);
+/// Byte lest fra én forbindelse per runde, også tomme linjer og mellomrom.
+const MAX_BYTES_PER_TURN: usize = 64 * 1024;
+/// Hele linjer fra én forbindelse per runde.
+const MAX_LINES_PER_TURN: usize = 64;
+/// Lukket, feilet eller halvlukket (lesesiden hos oss er ferdig) forbindelse.
+const HANGUP: libc::c_short = libc::POLLHUP | libc::POLLERR | libc::POLLNVAL | libc::POLLRDHUP;
 
 /// Monoton tid i millisekunder som også teller hvile (`CLOCK_BOOTTIME`).
 /// Ingen reserve til veggklokka: `None` får tjenesten til å stoppe trygt.
@@ -210,8 +219,20 @@ struct Conn {
     buf: LineBuffer,
 }
 
+/// Har motparten lukket eller halvlukket? Ingen lesing, null ventetid.
+fn peer_closed(stream: &UnixStream) -> bool {
+    let mut fd = libc::pollfd {
+        fd: stream.as_raw_fd(),
+        events: libc::POLLRDHUP,
+        revents: 0,
+    };
+    // SAFETY: én gyldig pollfd; null ventetid.
+    let r = unsafe { libc::poll(&mut fd, 1, 0) };
+    r < 0 || r > 0 && fd.revents & HANGUP != 0
+}
+
 /// `(dev, inode)` for socketen på stien, hvis stien er en socket.
-fn socket_identity(path: &Path) -> Option<(u64, u64)> {
+pub(crate) fn socket_identity(path: &Path) -> Option<(u64, u64)> {
     std::fs::symlink_metadata(path)
         .ok()
         .filter(|m| m.file_type().is_socket())
@@ -276,6 +297,10 @@ pub struct Server {
     clock: fn() -> Option<i64>,
     line: Tidslinje,
     last_tick: Option<i64>,
+    /// Felles svarbudsjett for runden (se `TURN_REPLY_BUDGET`).
+    reply_until: Option<Instant>,
+    /// Klokka feilet midt i runden: ingen flere forespørsler, og løkka stopper.
+    clock_lost: bool,
 }
 
 impl Server {
@@ -296,12 +321,27 @@ impl Server {
             clock: boot_ms,
             line: Tidslinje::default(),
             last_tick: None,
+            reply_until: None,
+            clock_lost: false,
         }
     }
 
     /// Tiden motoren får: monoton, også over hvile og veggklokkehopp.
     fn now(&mut self) -> Option<i64> {
-        (self.clock)().map(|raw| self.line.les(raw))
+        let t = (self.clock)().map(|raw| self.line.les(raw));
+        if t.is_none() {
+            self.clock_lost = true;
+            journal::err("Den monotone klokka (CLOCK_BOOTTIME) kan ikke leses. Stopper.");
+        }
+        t
+    }
+
+    /// Ventetid for neste svar: høyst `REPLY_BUDGET`, og aldri mer enn det
+    /// som er igjen av rundens felles budsjett.
+    fn reply_budget(&self) -> Duration {
+        self.reply_until
+            .map_or(REPLY_BUDGET, |u| u.saturating_duration_since(Instant::now()))
+            .min(REPLY_BUDGET)
     }
 
     /// `helper.json` på nytt når den er endret (trinn godkjent eller trukket).
@@ -343,10 +383,11 @@ impl Server {
 
     /// Én runde: vent på trafikk (høyst til neste takt), svar, og kjør
     /// takten når det har gått ett sekund på den monotone tidslinjen.
-    /// `false`: klokka kan ikke leses, og tjenesten stopper trygt.
+    /// Klokka leses på nytt før hver forespørsel og før takten, så svar som
+    /// har ventet aldri gir en foreldet tid. `false`: klokka kan ikke leses,
+    /// og tjenesten stopper trygt.
     fn turn(&mut self, m: &mut Motor) -> bool {
         let Some(start) = self.now() else {
-            journal::err("Den monotone klokka (CLOCK_BOOTTIME) kan ikke leses. Stopper.");
             return false;
         };
         let wait = self
@@ -361,28 +402,37 @@ impl Server {
         for id in &ids {
             fds.push(libc::pollfd {
                 fd: self.conns[id].stream.as_raw_fd(),
-                events: libc::POLLIN,
+                events: libc::POLLIN | libc::POLLRDHUP,
                 revents: 0,
             });
         }
         // SAFETY: fds er en gyldig liste med pollfd.
         let n = unsafe { libc::poll(fds.as_mut_ptr(), fds.len() as libc::nfds_t, wait) };
-        let Some(now) = self.now() else {
-            journal::err("Den monotone klokka (CLOCK_BOOTTIME) kan ikke leses. Stopper.");
-            return false;
-        };
+        self.reply_until = Some(Instant::now() + TURN_REPLY_BUDGET);
         if n > 0 {
             if fds[0].revents & libc::POLLIN != 0 {
+                let Some(now) = self.now() else {
+                    return false;
+                };
                 self.accept(m, now);
             }
             for (i, id) in ids.iter().enumerate() {
                 let ev = fds[i + 1].revents;
-                if ev != 0 && !self.read(*id, m, now) {
+                if ev != 0 && !self.read(*id, m, ev) {
                     self.conns.remove(id);
+                    let Some(now) = self.now() else {
+                        return false;
+                    };
                     m.disconnect(*id, now);
+                }
+                if self.clock_lost {
+                    return false;
                 }
             }
         }
+        let Some(now) = self.now() else {
+            return false;
+        };
         if self.last_tick.is_none_or(|l| now.saturating_sub(l) >= 1000) {
             self.last_tick = Some(now);
             self.reload(m, now);
@@ -447,38 +497,42 @@ impl Server {
     }
 
     /// Leser det som er kommet og svarer. `false`: forbindelsen er lukket.
-    fn read(&mut self, id: u64, m: &mut Motor, now: i64) -> bool {
-        // Først alle hele linjer (lånet av forbindelsen slippes før svarene).
+    /// `ev` er poll-hendelsene for forbindelsen i denne runden.
+    fn read(&mut self, id: u64, m: &mut Motor, ev: libc::c_short) -> bool {
+        // Først hele linjer, høyst `MAX_BYTES_PER_TURN` byte og
+        // `MAX_LINES_PER_TURN` linjer; resten tas neste runde.
         let mut lines = Vec::new();
-        let mut closed = false;
+        let mut closed = ev & HANGUP != 0;
         {
             let Some(c) = self.conns.get_mut(&id) else {
                 return false;
             };
             let mut chunk = [0u8; 4096];
-            loop {
-                match c.stream.read(&mut chunk) {
+            let mut total = 0usize;
+            while !closed && total < MAX_BYTES_PER_TURN && lines.len() < MAX_LINES_PER_TURN {
+                let room = chunk.len().min(MAX_BYTES_PER_TURN - total);
+                match c.stream.read(&mut chunk[..room]) {
                     Ok(0) => {
                         closed = true;
                         break;
                     }
                     Ok(n) => {
+                        total += n;
                         for ev in c.buf.push(&chunk[..n], hjelper::MAX_LINE) {
                             match ev {
                                 LineEvent::Line(l) => lines.push(l),
                                 LineEvent::TooLarge => {
-                                    let _ = Self::reply(
+                                    let _ = write_bounded(
                                         &mut c.stream,
-                                        &serde_json::Value::Null,
-                                        &Err(ProtoError::new(ErrorCode::MessageTooLarge)),
-                                        REPLY_BUDGET,
+                                        &proto::response_line(
+                                            &serde_json::Value::Null,
+                                            &Err(ProtoError::new(ErrorCode::MessageTooLarge)),
+                                        ),
+                                        Duration::ZERO,
                                     );
                                     return false;
                                 }
                             }
-                        }
-                        if lines.len() > 64 {
-                            break;
                         }
                     }
                     Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => break,
@@ -492,10 +546,18 @@ impl Server {
         }
         // En klient som allerede har lukket, får ikke utført skriving fra
         // data som lå igjen i mottakskøen (ingen kan bekrefte eller se den).
+        // Også ved grensen for runden: lukking sjekkes før hver forespørsel.
         if closed {
             return false;
         }
         for line in lines {
+            if self.conns.get(&id).is_none_or(|c| peer_closed(&c.stream)) {
+                return false;
+            }
+            // Fersk tid for hver forespørsel: et tidligere svar kan ha ventet.
+            let Some(now) = self.now() else {
+                return true;
+            };
             let (rid, r) = match proto::parse_request(&line) {
                 Ok(req) => {
                     // Trinnene kan være endret siden forrige runde (én stat).
@@ -513,10 +575,11 @@ impl Server {
                 }
                 Err((rid, e)) => (rid, Err(e)),
             };
+            let budget = self.reply_budget();
             let Some(c) = self.conns.get_mut(&id) else {
                 return false;
             };
-            if !Self::reply(&mut c.stream, &rid, &r, REPLY_BUDGET) {
+            if !Self::reply(&mut c.stream, &rid, &r, budget) {
                 return false;
             }
         }
@@ -576,12 +639,120 @@ mod tests {
 
     thread_local! {
         static FAKE: Cell<i64> = const { Cell::new(0) };
+        /// Så mange ms går råklokka fram for hver lesing.
+        static STEP: Cell<i64> = const { Cell::new(0) };
     }
     fn fake_clock() -> Option<i64> {
-        Some(FAKE.with(Cell::get))
+        let t = FAKE.with(Cell::get);
+        FAKE.with(|c| c.set(t + STEP.with(Cell::get)));
+        Some(t)
     }
     fn set_fake(ms: i64) {
         FAKE.with(|c| c.set(ms));
+    }
+
+    fn send(c: &UnixStream, v: Value) {
+        (&*c).write_all(format!("{v}\n").as_bytes()).unwrap();
+    }
+
+    #[test]
+    fn hver_forespoersel_faar_fersk_tid_ikke_rundens_gamle() {
+        let fx = Fixture::new("fersk");
+        let (mut srv, mut m) = fx.server();
+        srv.clock = fake_clock;
+        STEP.with(|c| c.set(0));
+        set_fake(2_000_000);
+        let c = UnixStream::connect(fx.socket()).unwrap();
+        assert!(srv.turn(&mut m));
+        let id = *srv.conns.keys().next().unwrap();
+        let r = m
+            .handle(
+                id,
+                "apply",
+                &json!({"settings": {"powerLimitW": 200}, "confirmTimeoutS": 10}),
+                2_000_000,
+            )
+            .unwrap();
+        let deadline = 2_010_000;
+        // To forespørsler i samme runde. Runden starter 2 ms før fristen,
+        // og klokka går 1 ms per lesing: «status» kommer før fristen, Behold
+        // etter. Med én felles tid for runden ville Behold blitt godtatt.
+        send(&c, json!({"id": 1, "op": "status"}));
+        send(&c, json!({"id": 2, "op": "confirm", "args": {"txn": r["txn"]}}));
+        STEP.with(|c| c.set(1));
+        set_fake(deadline - 2);
+        assert!(srv.turn(&mut m));
+        STEP.with(|c| c.set(0));
+        let mut r = std::io::BufReader::new(c.try_clone().unwrap());
+        c.set_read_timeout(Some(Duration::from_secs(2))).unwrap();
+        let mut line = String::new();
+        r.read_line(&mut line).unwrap();
+        assert_eq!(serde_json::from_str::<Value>(&line).unwrap()["ok"], true);
+        line.clear();
+        r.read_line(&mut line).unwrap();
+        let v: Value = serde_json::from_str(&line).unwrap();
+        assert_eq!(v["ok"], false, "foreldet tid ville godtatt Behold: {v}");
+        assert_eq!(v["error"]["code"], "no_pending", "{v}");
+        assert_eq!(m.status(0)["hardware"]["stock"], true);
+    }
+
+    #[test]
+    fn tomme_linjer_er_begrenset_per_runde() {
+        let fx = Fixture::new("tomme");
+        let (mut srv, mut m) = fx.server();
+        let c = UnixStream::connect(fx.socket()).unwrap();
+        assert!(srv.turn(&mut m));
+        c.set_nonblocking(true).unwrap();
+        let blank = [b'\n'; 4096];
+        let mut written = 0;
+        while written < 3 * MAX_BYTES_PER_TURN {
+            match (&c).write(&blank) {
+                Ok(n) => written += n,
+                Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => break,
+                Err(e) => panic!("{e}"),
+            }
+        }
+        assert!(written > MAX_BYTES_PER_TURN + 4096, "{written}");
+        let id = *srv.conns.keys().next().unwrap();
+        assert!(srv.read(id, &mut m, libc::POLLIN));
+        // Resten ligger igjen til neste runde; takten er ikke holdt igjen.
+        let fd = srv.conns[&id].stream.as_raw_fd();
+        let mut b = [0u8; 1];
+        // SAFETY: gyldig fd og buffer; bare titting, ingen venting.
+        let left = unsafe {
+            libc::recv(
+                fd,
+                b.as_mut_ptr().cast(),
+                1,
+                libc::MSG_PEEK | libc::MSG_DONTWAIT,
+            )
+        };
+        assert_eq!(left, 1);
+        drop(c);
+    }
+
+    #[test]
+    fn eof_ved_grensen_for_runden_utforer_ingen_skriving() {
+        let fx = Fixture::new("eof-grense");
+        let (mut srv, mut m) = fx.server();
+        let c = UnixStream::connect(fx.socket()).unwrap();
+        assert!(srv.turn(&mut m));
+        // Flere forespørsler enn én runde tar, så lukking av skrivesiden.
+        let mut batch = String::new();
+        for i in 0..MAX_LINES_PER_TURN + 6 {
+            batch.push_str(&format!(
+                "{}\n",
+                json!({"id": i, "op": "apply", "args": {"settings": {"powerLimitW": 200}}})
+            ));
+        }
+        (&c).write_all(batch.as_bytes()).unwrap();
+        c.shutdown(std::net::Shutdown::Write).unwrap();
+        let id = *srv.conns.keys().next().unwrap();
+        // Lesing direkte, uten poll-hendelsen: lukkingen må likevel oppdages.
+        assert!(!srv.read(id, &mut m, libc::POLLIN));
+        let s = m.status(0);
+        assert_eq!(s["hardware"]["writes"], 0, "{s}");
+        assert!(m.book.pending().is_none());
     }
 
     #[test]

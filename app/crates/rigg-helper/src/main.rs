@@ -228,16 +228,12 @@ fn prepare_baseline(
 }
 
 /// Hvor mange vifter gjenopprettingen må finne igjen. En eldre merkør uten
-/// tallet sier ikke om viftene ble endret: da kreves minst én, så et
-/// bortfall i viftesøket aldri regnes som bekreftet Auto.
-fn marker_fans(marker: Option<&serde_json::Value>) -> usize {
-    match marker.map(|v| &v["fans"]) {
-        Some(serde_json::Value::Number(n)) => n
-            .as_u64()
-            .and_then(|n| usize::try_from(n).ok())
-            .unwrap_or(usize::MAX),
-        _ => 1,
-    }
+/// tallet sier ikke hvor mange vifter som kan være endret, og grunnopptaket
+/// lagrer ikke antallet: `None`, og merkøren beholdes (feil lukket).
+fn marker_fans(marker: Option<&serde_json::Value>) -> Option<usize> {
+    marker?["fans"]
+        .as_u64()
+        .and_then(|n| usize::try_from(n).ok())
 }
 
 /// `--tilbakestill`: gjenopprett og bekreft grunnverdiene. Merkøren fjernes
@@ -249,15 +245,28 @@ fn recover(
     dirty: &std::path::Path,
 ) -> Result<(), String> {
     let fans = marker_fans(marker);
-    if fans > h.fan_count() {
-        journal::err(&format!(
-            "Kortet melder {} styrbare vifter, men {fans} kan være endret. \
+    match fans {
+        Some(n) if n > h.fan_count() => journal::err(&format!(
+            "Kortet melder {} styrbare vifter, men {n} kan være endret. \
              Viftene kan ikke bekreftes på Auto.",
             h.fan_count()
-        ));
+        )),
+        Some(_) => {}
+        None => journal::err(
+            "Merkøren er fra en eldre hjelper uten viftetall. Resten gjenopprettes, \
+             men viftene kan ikke bekreftes på Auto.",
+        ),
     }
-    h.require_fan_count(fans);
+    // Ukjent antall: ingen viftetelling kan bekrefte Auto. Resten skrives.
+    h.require_fan_count(fans.unwrap_or(usize::MAX));
     match h.reset() {
+        Ok(()) if fans.is_none() => {
+            return Err(
+                "Eldre gjenopprettingsmerkør uten viftetall: viftene kan ikke bekreftes. \
+                 Merkøren beholdes."
+                    .into(),
+            );
+        }
         Ok(()) if h.snapshot()["stock"] == true => {}
         Ok(()) => {
             return Err(
@@ -397,6 +406,7 @@ fn main() {
             std::process::exit(1);
         }
     };
+    let socket_id = server::socket_identity(&args.socket);
     let enabled = cfg.enabled;
     journal::notice(&format!(
         "agentic-rigg-helper {} (bygg {}) lytter på {} for uid {}. Backend {backend}{}. Global autorisasjon: {}.",
@@ -415,7 +425,7 @@ fn main() {
     } else {
         journal::err("Hjelperen er ikke klar; oppdagelsen har ikke gitt en tilgjengelig backend.");
         if std::env::var_os("NOTIFY_SOCKET").is_some() {
-            let _ = std::fs::remove_file(&args.socket);
+            server::remove_own_socket(&args.socket, socket_id);
             std::process::exit(1);
         }
     }
@@ -509,8 +519,13 @@ mod baseline_tests {
         for (value, fans, ok) in [
             // To vifter kunne være endret, ingen ble funnet: behold.
             (serde_json::json!({"version": 1, "fans": 2}), 0, false),
-            // Eldre merkør uten tall: ukjent, så minst én vifte kreves.
+            // Eldre merkør uten tall: ukjent antall, merkøren beholdes alltid,
+            // også når ett eller begge av kortets to vifter blir funnet.
             (serde_json::json!({"version": 1}), 0, false),
+            (serde_json::json!({"version": 1}), 1, false),
+            (serde_json::json!({"version": 1}), 2, false),
+            (serde_json::json!({"version": 1, "fans": 2}), 1, false),
+            (serde_json::json!({"version": 1, "fans": "2"}), 2, false),
             (serde_json::json!({"version": 1, "fans": 2}), 2, true),
             // Kortet hadde ingen styrbare vifter da endringene startet.
             (serde_json::json!({"version": 1, "fans": 0}), 0, true),

@@ -2,8 +2,9 @@
 //! (`rigg_core::txn::Book`), nødregelen, viftekurven og journalen. Ingen
 //! socket og ingen klokke her: tiden sendes inn, så alt kan testes direkte.
 //! Tiden er serverens monotone `CLOCK_BOOTTIME`-tidslinje (ms), ikke
-//! veggklokka; `pending.deadline` er derfor på samme tidslinje, og klientene
-//! bruker `remainingMs`.
+//! veggklokka: den alene håndhever fristene og gir `remainingMs`. Bare på
+//! ledningen (`handle`) skrives `pending.deadline` om til veggklokke-ms
+//! (`nå + remainingMs`), samme kontrakt som tjenestens egen sim-sti.
 //!
 //! Reglene (hjelper-sikkerhet.md kap. 3):
 //! - Én global autorisasjon; hvert endret felt krever faktisk HW-støtte.
@@ -49,6 +50,26 @@ pub struct Motor {
     /// tjenestens sim-sløyfe, selv når `apply` og `tick` kommer samme ms.
     vifte_ms: Option<i64>,
     pub limits: Limits,
+    /// Veggklokka for `pending.deadline` i svarene (testene bytter den ut).
+    wall: fn() -> i64,
+}
+
+/// `pending.deadline` (monoton) til veggklokke-ms: `wall + remainingMs`.
+fn wall_deadlines(v: &mut Value, wall: i64) {
+    match v {
+        Value::Object(map) => {
+            if map.contains_key("deadline")
+                && let Some(rem) = map.get("remainingMs").and_then(Value::as_i64)
+            {
+                map.insert("deadline".into(), json!(wall.saturating_add(rem.max(0))));
+            }
+            for x in map.values_mut() {
+                wall_deadlines(x, wall);
+            }
+        }
+        Value::Array(a) => a.iter_mut().for_each(|x| wall_deadlines(x, wall)),
+        _ => {}
+    }
 }
 
 fn owner(conn: u64) -> String {
@@ -185,6 +206,7 @@ impl Motor {
             vifte: None,
             vifte_ms: None,
             limits,
+            wall: rigg_core::now_ms,
         }
     }
 
@@ -383,7 +405,17 @@ impl Motor {
         })
     }
 
+    /// Én forespørsel. `now` er monoton; svaret får `pending.deadline` i
+    /// veggklokke-ms for klientene.
     pub fn handle(&mut self, conn: u64, op: &str, args: &Value, now: i64) -> OpResult {
+        let mut r = self.handle_op(conn, op, args, now);
+        if let Ok(v) = r.as_mut() {
+            wall_deadlines(v, (self.wall)());
+        }
+        r
+    }
+
+    fn handle_op(&mut self, conn: u64, op: &str, args: &Value, now: i64) -> OpResult {
         self.tick(now);
         if self.lease == Some(conn) {
             self.lease_seen = now;
@@ -647,6 +679,8 @@ impl Motor {
                     .as_mut()
                     .is_some_and(|h| h.restore_values(&confirmed).is_ok());
             if !recovered {
+                // Nødregelen er ikke i kraft når 100 % ikke ble skrevet.
+                self.emergency = false;
                 self.hardware_error = Some(format!(
                     "{why}: {}. {}",
                     original.message,
@@ -1180,6 +1214,8 @@ mod tests {
                 !(s["hardware"]["fanNow"] == 35.0 && m.hardware_error.is_none()),
                 "stille lav manuell vifte under nødregelen: {s}"
             );
+            assert!(!m.emergency, "nødregelen meldes ikke som aktiv uten skriving");
+            assert_eq!(s["emergency"], false);
             if reset_fails {
                 assert!(m.hardware_error.is_some());
                 assert_eq!(s["ready"], false);
@@ -1193,6 +1229,32 @@ mod tests {
                 assert_eq!(s["emergency"], false);
             }
         }
+    }
+
+    #[test]
+    fn frist_haandheves_monotont_men_meldes_i_veggklokke() {
+        const WALL: i64 = 1_763_800_000_000;
+        let mut m = motor(r#""effekt""#);
+        m.wall = || WALL;
+        let r = m
+            .handle(
+                1,
+                "apply",
+                &json!({"settings": {"powerLimitW": 200}, "confirmTimeoutS": 15}),
+                T0,
+            )
+            .unwrap();
+        assert_eq!(r["pending"]["remainingMs"], 15_000);
+        assert_eq!(r["pending"]["deadline"], WALL + 15_000, "{r}");
+        let s = m.handle(1, "status", &json!({}), T0 + 5_000).unwrap();
+        assert_eq!(s["state"]["pending"]["remainingMs"], 10_000);
+        assert_eq!(s["state"]["pending"]["deadline"], WALL + 10_000);
+        // Håndhevingen bruker bare den monotone tiden.
+        assert_eq!(m.book.pending().unwrap().deadline, T0 + 15_000);
+        m.tick(T0 + 14_999);
+        assert!(m.book.pending().is_some());
+        m.tick(T0 + 15_000);
+        assert!(m.book.pending().is_none());
     }
 
     #[test]
