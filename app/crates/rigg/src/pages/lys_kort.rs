@@ -983,7 +983,9 @@ impl CardLight {
             tr!("Velg lys og trykk «Bruk». Første gang aktiveres kortlyset med passordet ditt.").into()
         };
         set_text(&self.summary, &message);
-        if self.message.borrow().is_none() {
+        if newer_installed {
+            self.summary.set_tooltip_text(Some(&message));
+        } else if self.message.borrow().is_none() {
             self.summary.set_tooltip_text(helper["message"].as_str());
         }
         set_text(
@@ -1268,7 +1270,7 @@ impl CardLight {
             return;
         }
         if action == AdminAction::Inspect {
-            self.run_admin(action, identity, None);
+            self.run_admin(action, identity, None, false);
             return;
         }
         let (title, text, check) = match action {
@@ -1308,7 +1310,7 @@ impl CardLight {
                     && (identity.is_none() || selected_identity(&p.app) == identity)
                 {
                     p.queued.set(then_apply);
-                    p.run_admin(action, identity, None);
+                    p.run_admin(action, identity, None, install);
                 }
             },
         );
@@ -1326,7 +1328,7 @@ impl CardLight {
                 if let Some(p) = weak.upgrade()
                     && selected_identity(&p.app).as_ref() == Some(&identity)
                 {
-                    p.run_admin(AdminAction::Resolve, Some(identity), Some(id));
+                    p.run_admin(AdminAction::Resolve, Some(identity), Some(id), false);
                 }
             },
         );
@@ -1368,13 +1370,26 @@ impl CardLight {
         action: AdminAction,
         identity: Option<(String, String)>,
         recovery_id: Option<String>,
+        confirmed_install: bool,
     ) {
         if self.fixture.get() || (action != AdminAction::Deactivate && !card_present(&self.app)) {
+            self.queued.set(false);
             return;
         }
-        if action == AdminAction::Activate && installable(&self.app, &self.helper.borrow()) {
-            self.install_and_activate(identity);
-            return;
+        if action == AdminAction::Activate {
+            let can_install = installable(&self.app, &self.helper.borrow());
+            if confirmed_install != can_install {
+                self.queued.set(false);
+                self.message.borrow_mut().take();
+                self.app.toast(Toast::new(tr!("RGB-oppsettet er ikke klart")));
+                self.render();
+                self.refresh();
+                return;
+            }
+            if confirmed_install {
+                self.install_and_activate(identity);
+                return;
+            }
         }
         let Ok((pkexec, script)) = admin_paths(&self.app, &self.helper.borrow(), action) else {
             self.queued.set(false);
