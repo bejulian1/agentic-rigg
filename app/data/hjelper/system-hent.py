@@ -49,6 +49,7 @@ MAX_JSON = 1 << 20
 MAX_ARCHIVE = 64 << 20
 HEADERS = {'Accept': 'application/vnd.github+json', 'User-Agent': 'agentic-rigg-system-install'}
 STAGING = '/var/tmp'
+MARK = '/usr/local/libexec/agentic-rigg-system/revision'
 INSTALLER = ['/usr/bin/python3', '-I', '-S']
 ACTIVATE = {'nvml': ['/usr/local/libexec/agentic-rigg/aktiver.sh'],
             'rgb': ['/usr/local/libexec/agentic-rigg-rgb-v2/rgb-aktiver.sh']}
@@ -170,6 +171,23 @@ def activation(argv):
     return command, env(uid)
 
 
+def reject_downgrade(build):
+    try:
+        fd = os.open(MARK, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    except FileNotFoundError:
+        return
+    with os.fdopen(fd, 'rb') as stream:
+        info = os.fstat(stream.fileno())
+        if not stat.S_ISREG(info.st_mode) or info.st_uid != OWNER or info.st_mode & 0o022:
+            fail(f'Utrygg systemrevisjon: {MARK}')
+        revision = stream.read(65)
+    if len(revision) > 64:
+        fail(f'Ugyldig systemrevisjon: {MARK}')
+    installed = re.fullmatch(rb'2:([0-9]+)', revision.rstrip())
+    if installed and int(installed[1]) > int(build):
+        fail(f'Kan ikke nedgradere systemkomponentene fra bygg {int(installed[1])} til {build}.')
+
+
 def root_json(path):
     """En root-eid, ikke gruppe-/allment skrivbar tillatelse, eller None."""
     try:
@@ -251,6 +269,7 @@ def main(argv):
     if os.geteuid() != 0:
         fail('Systeminstallasjon krever administrator.')
     version, build = argv[:2]
+    reject_downgrade(build)
     then = activation(argv[2:])
     uid = pkexec_uid()
     # Leses før nettet brukes, så en fremmed tillatelse stopper alt tidlig.
@@ -277,6 +296,7 @@ def main(argv):
         installer = os.path.join(temp, 'installer')
         with open(installer, 'xb') as out:
             out.write(installer_from(archive))
+        reject_downgrade(build)
         # Installasjonen nekter mens RGB er aktiv. Den gamle, installerte
         # deaktiveringen beholder lyset og utgangspunktet. En uavklart økt
         # avsluttes først (se `settle_rgb`); feiler det, stopper alt her

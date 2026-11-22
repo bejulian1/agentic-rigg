@@ -889,3 +889,5 @@ Brukeren savnet 2D/3D-kortet på RGB-siden (fjernet som demo i 1.5.0) og meldte 
 ## 22. november 2026 – Codex: tray-stopp, RGB-aktivering og systeminstallasjon
 
 Stopp av bakgrunnsopptak bevarer tjenesten mens en hjelper holder verdier. Utdatert RGB-hjelper kan oppdateres ved aktivering, men appen tilbyr ikke installasjon over et nyere systembygg. «Styring» beholdes som innstillingsseksjon. Systeminstallereren avviser nedgradering før inngrep, kontrollerer hele GPU-oversikten før arkivering og avgrenser pakkekilden. Administratorskriptene skiller eldre tillatelser fra feil eier, avviser tvetydige installerere og håndterer ugyldig NVML-JSON. Kontrollene bruker private testmapper; ingen fysisk prøve, versjonsendring eller installasjon.
+
+Etter gjennomgang: GPU-oversikten må ha gyldig UUID for hvert kort, også når driveren oppgir «Unknown». Netthenting sjekker installert bygg før nedlasting og på nytt før RGB-handlinger. Terminalkommandoen avgrenser kopien før sjekksum og utpakking, og RGB-siden viser «Ikke klar» ved nyere systembygg i stedet for å be brukeren trykke «Bruk».

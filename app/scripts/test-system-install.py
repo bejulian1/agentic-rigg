@@ -49,30 +49,48 @@ class SystemTest(unittest.TestCase):
                 tar.addfile(member, io.BytesIO(data))
         return archive, hashlib.sha256(archive.read_bytes()).hexdigest()
 
-    def test_bootstrap_checks_copy_before_first_instruction(self):
-        entries = [('data/hjelper/system-install', b'import sys; print("GODKJENT", sys.argv[2])')]
-        archive, digest = self.archive(entries)
+    def bootstrap(self, archive, digest):
         command = (DATA / 'system-bootstrap.command').read_text()
         self.assertTrue(command.startswith('/usr/bin/sudo /usr/bin/env -i '))
         command = command.removeprefix('/usr/bin/sudo ').replace('/var/tmp/rigg.', str(self.root / 'rigg.'))
+        result = subprocess.run(['/bin/bash', '-c', command], cwd=self.root, text=True,
+                                input=f'{archive}\n{digest}\n', capture_output=True, check=False, timeout=5)
+        self.assertFalse(list(self.root.glob('rigg.*')))
+        return result
+
+    def test_bootstrap_checks_copy_before_first_instruction(self):
+        entries = [('data/hjelper/system-install', b'import sys; print("GODKJENT", sys.argv[2])')]
+        archive, digest = self.archive(entries)
         for expected, ok in [(digest, True), ('0' * 64, False)]:
-            result = subprocess.run(['/bin/bash', '-c', command], cwd=self.root, text=True,
-                                    input=f'{archive}\n{expected}\n', capture_output=True, check=False)
+            result = self.bootstrap(archive, expected)
             self.assertEqual(result.returncode == 0, ok, result.stderr)
             self.assertEqual('GODKJENT ' + digest in result.stdout, ok)
-        self.assertFalse(list(self.root.glob('rigg.*')))
 
     def test_bootstrap_rejects_duplicate_installer_members(self):
         entry = ('data/hjelper/system-install', b'print("GODKJENT")')
         archive, digest = self.archive([entry, entry])
-        command = (DATA / 'system-bootstrap.command').read_text()
-        command = command.removeprefix('/usr/bin/sudo ').replace('/var/tmp/rigg.', str(self.root / 'rigg.'))
-        result = subprocess.run(['/bin/bash', '-c', command], cwd=self.root, text=True,
-                                input=f'{archive}\n{digest}\n', capture_output=True, check=False)
+        result = self.bootstrap(archive, digest)
         self.assertNotEqual(result.returncode, 0)
         self.assertIn('Tvetydig systeminstallerer', result.stderr)
         self.assertNotIn('GODKJENT', result.stdout)
-        self.assertFalse(list(self.root.glob('rigg.*')))
+
+    def test_bootstrap_rejects_unsafe_source_before_checksum(self):
+        entry = ('data/hjelper/system-install', b'print("GODKJENT")')
+        archive, digest = self.archive([entry])
+        link = self.root / 'link'
+        link.symlink_to(archive)
+        pipe = self.root / 'pipe'
+        os.mkfifo(pipe)
+        oversized = self.root / 'oversized'
+        with oversized.open('wb') as stream:
+            stream.truncate(self.mod['MAX_ARCHIVE'] + 1)
+        for source, error in [(link, 'Kunne ikke åpne eller kopiere'), (pipe, 'regulær fil'),
+                              (oversized, 'større enn 64 MiB')]:
+            with self.subTest(source=source.name):
+                result = self.bootstrap(source, digest)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn(error, result.stderr)
+                self.assertEqual(result.stdout, '')
 
     def test_release_contains_all_allowlisted_assets_but_no_fixtures(self):
         package = runpy.run_path(str(DATA.parents[1] / 'scripts/pakk-utgivelse.py'))
@@ -257,7 +275,7 @@ class SystemTest(unittest.TestCase):
 
     def test_removed_card_needs_stopped_worker_lock_and_bound_uuid(self):
         config, journal, unit, _ = self.mod['active_files']('rgb')
-        pci, uuid = '0000:01:00.0', 'GPU-TEST'
+        pci, uuid = '0000:01:00.0', 'GPU-12345678-abcd-ef01-2345-6789abcdef01'
         for path, text in ((config, json.dumps({'binding': {'pci': pci, 'uuid': uuid}})),
                            (journal, 'uavklart'), (unit, 'fixture')):
             self.directory(path.parent)
@@ -292,7 +310,7 @@ class SystemTest(unittest.TestCase):
 
     def test_removed_card_requires_readable_full_inventory(self):
         config, journal, _, _ = self.mod['active_files']('rgb')
-        uuid = 'GPU-TEST'
+        uuid = 'GPU-12345678-abcd-ef01-2345-6789abcdef01'
         self.directory(config.parent)
         config.write_text(json.dumps({'binding': {'pci': '0000:01:00.0', 'uuid': uuid}}))
         config.chmod(0o600)
@@ -305,16 +323,18 @@ class SystemTest(unittest.TestCase):
         self.directory(moved.parent)
         with self.assertRaisesRegex(ValueError, 'Kunne ikke kontrollere.*GPU-oversikt'):
             archive('rgb', uuid)
-        moved.write_text('Model: GPU\n')
-        with self.assertRaisesRegex(ValueError, 'mangler UUID'):
-            archive('rgb', uuid)
-        moved.write_text(f'GPU UUID: {uuid}\n')
+        for contents in ['Model: GPU\n', 'GPU UUID: Unknown\n', 'GPU UUID: GPU-OTHER\n',
+                         f'GPU UUID: Unknown\nGPU UUID: {uuid}\n']:
+            moved.write_text(contents)
+            with self.subTest(contents=contents), self.assertRaisesRegex(ValueError, 'ingen entydig, gyldig UUID'):
+                archive('rgb', uuid)
+        moved.write_text(f'GPU UUID: {uuid.upper()}\n')
         with self.assertRaisesRegex(ValueError, 'Bundet kort finnes fortsatt'):
             archive('rgb', uuid)
         self.assertTrue(config.exists() and journal.exists())
         self.assertFalse((journal.parent / 'arkivert-tillatelse.json').exists())
         self.assertEqual(self.calls, [])
-        moved.write_text('GPU UUID: GPU-OTHER\n')
+        moved.write_text('GPU UUID: GPU-87654321-abcd-ef01-2345-6789abcdef01\n')
         archive('rgb', uuid)
         self.assertFalse(config.exists() or journal.exists())
 

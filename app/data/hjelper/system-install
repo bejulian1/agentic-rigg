@@ -24,6 +24,7 @@ UNITS = Path('/etc/systemd/system')
 RUN = Path('/run/systemd/system')
 STATE = Path('/var/lib')
 GPU_INFO = Path('/proc/driver/nvidia/gpus')
+GPU_UUID = r'GPU-[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}'
 MARK = SYSTEM / 'revision'
 MAX_ARCHIVE = 64 * 1024**2
 DOMAINS = {'nvml': ('agentic-rigg-helper.service', 'helper.json', 'agentic-rigg', 'dirty.json'),
@@ -103,11 +104,11 @@ def require_card_absent(uuid):
     try:
         for gpu in GPU_INFO.iterdir():
             info = (gpu / 'information').read_text()
-            fields = dict(line.split(':', 1) for line in info.splitlines() if ':' in line)
-            found = fields.get('GPU UUID', '').strip()
-            if not found:
-                raise ValueError(f'GPU-oversikten mangler UUID for {gpu.name}. Arkivering avbrutt.')
-            if found == uuid:
+            fields = re.findall(r'^GPU UUID:([^\r\n]*)', info, re.MULTILINE)
+            found = fields[0].strip() if len(fields) == 1 else ''
+            if not re.fullmatch(GPU_UUID, found):
+                raise ValueError(f'GPU-oversikten har ingen entydig, gyldig UUID for {gpu.name}. Arkivering avbrutt.')
+            if found.lower() == uuid.lower():
                 raise ValueError('Bundet kort finnes fortsatt. Bruk vanlig gjenoppretting.')
     except (OSError, UnicodeError) as error:
         raise ValueError(f'Kunne ikke kontrollere NVIDIA-driverens GPU-oversikt. Arkivering avbrutt: {error}') from error
