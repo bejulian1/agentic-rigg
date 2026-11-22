@@ -601,6 +601,12 @@ impl Motor {
     }
 
     fn restore_stock(&mut self, why: &str, _now: i64) -> Result<(), ProtoError> {
+        self.restore_stock_with(why, true)
+    }
+
+    /// Som `restore_stock`; `clear_marker == false` lar merkøren på disk stå
+    /// urørt (den kunne ikke bekreftes og skal kontrolleres).
+    fn restore_stock_with(&mut self, why: &str, clear_marker: bool) -> Result<(), ProtoError> {
         self.curve_pct = None;
         self.vifte = None;
         self.vifte_ms = None;
@@ -622,7 +628,7 @@ impl Motor {
             self.collect_events();
             return Err(hjelper::hardware_error(format!("readback_mismatch: {e}")));
         }
-        if let Err(e) = self.clear_dirty() {
+        if clear_marker && let Err(e) = self.clear_dirty() {
             self.hardware_error = Some(e.clone());
             return Err(ProtoError::msg(
                 ErrorCode::Unavailable,
@@ -654,8 +660,37 @@ impl Motor {
         }
     }
 
+    /// Merkøren kunne ikke lagres eller bekreftes før en skriving kortet
+    /// venter på (nødregel, frist, tilbakerulling). Feilen kan ikke bare
+    /// returneres: takten forkaster den, og nødregelen ville stått som aktiv
+    /// med lav vifte. Kortet går til grunnverdiene med Auto-vifter, merkøren
+    /// på disk står urørt, og tilstanden er en feil til den er avklart.
+    fn marker_failed(&mut self, why: &str, mut e: ProtoError) -> ProtoError {
+        self.emergency = false;
+        self.book.rollback("hardware_error");
+        self.curve_pct = None;
+        let restored = self.restore_stock_with(why, false).is_ok();
+        let msg = if restored {
+            format!(
+                "{why}: {} Kortet er satt tilbake til grunnverdiene med Auto-vifter, \
+                 men gjenopprettingsmerkøren må kontrolleres.",
+                e.message
+            )
+        } else {
+            format!("{why}: {} Kortets tilstand er ukjent.", e.message)
+        };
+        journal::err(&msg);
+        self.hardware_error = Some(msg);
+        self.collect_events();
+        e.details = Some(json!({"reason": "recovery_marker", "recovered": false,
+            "stockRestored": restored, "recoveryError": self.hardware_error}));
+        e
+    }
+
     fn push_hw(&mut self, why: &str, now: i64) -> Result<(), ProtoError> {
-        self.mark_dirty()?;
+        if let Err(e) = self.mark_dirty() {
+            return Err(self.marker_failed(why, e));
+        }
         let v = self.effective();
         let result = self
             .hw
@@ -1228,6 +1263,54 @@ mod tests {
                 assert!(!m.emergency, "nødregelen meldes ikke som aktiv uten skriving");
                 assert_eq!(s["emergency"], false);
             }
+        }
+    }
+
+    #[test]
+    fn merkorfeil_under_nodregel_og_frist_gir_auto_og_feiltilstand() {
+        for emergency in [true, false] {
+            let (mut m, flags) = bound_motor(false, false, false);
+            let dir = std::env::temp_dir().join(format!(
+                "rigg-merkorfeil-{}-{emergency}",
+                std::process::id()
+            ));
+            let _ = std::fs::remove_dir_all(&dir);
+            std::fs::create_dir_all(&dir).unwrap();
+            let marker = dir.join("dirty.json");
+            m.set_dirty_marker(marker.clone());
+            let r = m
+                .handle(
+                    1,
+                    "apply",
+                    &bound_args(json!({"fan":{"mode":"manual","manualPercent":35}})),
+                    T0,
+                )
+                .unwrap();
+            if emergency {
+                let mut args = bound_args(json!({}));
+                args["txn"] = r["txn"].clone();
+                m.handle(1, "confirm", &args, T0).unwrap();
+            }
+            assert_eq!(m.status(T0)["hardware"]["fanNow"], 35.0);
+            // Merkøren tilhører nå et annet kort: mark_dirty feiler.
+            std::fs::write(&marker, r#"{"version":1,"identity":"annet"}"#).unwrap();
+            let corrupt = std::fs::read(&marker).unwrap();
+            let now = if emergency {
+                flags.set(128);
+                T0 + 1000
+            } else {
+                T0 + 15_000
+            };
+            m.tick(now);
+            let s = m.status(now);
+            assert!(!m.emergency, "{s}");
+            assert_eq!(s["emergency"], false);
+            assert!(m.hardware_error.is_some(), "{s}");
+            assert_eq!(s["ready"], false);
+            assert_eq!(s["hardware"]["stock"], true, "Auto er forsøkt og bekreftet: {s}");
+            assert!(s["hardware"]["fanNow"].is_null());
+            assert_eq!(std::fs::read(&marker).unwrap(), corrupt, "merkøren står urørt");
+            std::fs::remove_dir_all(dir).unwrap();
         }
     }
 

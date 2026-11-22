@@ -33,7 +33,8 @@ const REPLY_BUDGET: Duration = Duration::from_millis(500);
 const TURN_REPLY_BUDGET: Duration = Duration::from_millis(500);
 /// Byte lest fra én forbindelse per runde, også tomme linjer og mellomrom.
 const MAX_BYTES_PER_TURN: usize = 64 * 1024;
-/// Hele linjer fra én forbindelse per runde.
+/// Linjeskift fra én forbindelse per runde: forespørsler og tomme linjer.
+/// Det som er lest utover, venter i forbindelsens kø til neste runde.
 const MAX_LINES_PER_TURN: usize = 64;
 /// Lukket, feilet eller halvlukket (lesesiden hos oss er ferdig) forbindelse.
 const HANGUP: libc::c_short = libc::POLLHUP | libc::POLLERR | libc::POLLNVAL | libc::POLLRDHUP;
@@ -217,6 +218,8 @@ struct Conn {
     uid: u32,
     stream: UnixStream,
     buf: LineBuffer,
+    /// Hele linjer som er lest, men ikke behandlet ennå (over rundens grense).
+    queue: std::collections::VecDeque<Vec<u8>>,
 }
 
 /// Har motparten lukket eller halvlukket? Ingen lesing, null ventetid.
@@ -390,9 +393,14 @@ impl Server {
         let Some(start) = self.now() else {
             return false;
         };
-        let wait = self
-            .last_tick
-            .map_or(0, |l| (1000 - start.saturating_sub(l)).clamp(0, 1000)) as i32;
+        // Linjer som venter i en kø, behandles neste runde uten å vente.
+        let queued = self.conns.values().any(|c| !c.queue.is_empty());
+        let wait = if queued {
+            0
+        } else {
+            self.last_tick
+                .map_or(0, |l| (1000 - start.saturating_sub(l)).clamp(0, 1000)) as i32
+        };
         let mut fds = vec![libc::pollfd {
             fd: self.listener.as_raw_fd(),
             events: libc::POLLIN,
@@ -409,25 +417,24 @@ impl Server {
         // SAFETY: fds er en gyldig liste med pollfd.
         let n = unsafe { libc::poll(fds.as_mut_ptr(), fds.len() as libc::nfds_t, wait) };
         self.reply_until = Some(Instant::now() + TURN_REPLY_BUDGET);
-        if n > 0 {
-            if fds[0].revents & libc::POLLIN != 0 {
+        if n > 0 && fds[0].revents & libc::POLLIN != 0 {
+            let Some(now) = self.now() else {
+                return false;
+            };
+            self.accept(m, now);
+        }
+        for (i, id) in ids.iter().enumerate() {
+            let ev = if n > 0 { fds[i + 1].revents } else { 0 };
+            let queued = self.conns.get(id).is_some_and(|c| !c.queue.is_empty());
+            if (ev != 0 || queued) && !self.read(*id, m, ev) {
+                self.conns.remove(id);
                 let Some(now) = self.now() else {
                     return false;
                 };
-                self.accept(m, now);
+                m.disconnect(*id, now);
             }
-            for (i, id) in ids.iter().enumerate() {
-                let ev = fds[i + 1].revents;
-                if ev != 0 && !self.read(*id, m, ev) {
-                    self.conns.remove(id);
-                    let Some(now) = self.now() else {
-                        return false;
-                    };
-                    m.disconnect(*id, now);
-                }
-                if self.clock_lost {
-                    return false;
-                }
+            if self.clock_lost {
+                return false;
             }
         }
         let Some(now) = self.now() else {
@@ -491,6 +498,7 @@ impl Server {
                     uid: peer.map(|p| p.0).unwrap_or(u32::MAX),
                     stream: s,
                     buf: LineBuffer::new(),
+                    queue: std::collections::VecDeque::new(),
                 },
             );
         }
@@ -499,8 +507,9 @@ impl Server {
     /// Leser det som er kommet og svarer. `false`: forbindelsen er lukket.
     /// `ev` er poll-hendelsene for forbindelsen i denne runden.
     fn read(&mut self, id: u64, m: &mut Motor, ev: libc::c_short) -> bool {
-        // Først hele linjer, høyst `MAX_BYTES_PER_TURN` byte og
-        // `MAX_LINES_PER_TURN` linjer; resten tas neste runde.
+        // Høyst `MAX_BYTES_PER_TURN` byte og `MAX_LINES_PER_TURN` linjeskift
+        // per runde. Tomme linjer (som `LineBuffer` hopper over) teller også.
+        // Hele linjer utover grensen venter i køen til neste runde.
         let mut lines = Vec::new();
         let mut closed = ev & HANGUP != 0;
         {
@@ -509,7 +518,11 @@ impl Server {
             };
             let mut chunk = [0u8; 4096];
             let mut total = 0usize;
-            while !closed && total < MAX_BYTES_PER_TURN && lines.len() < MAX_LINES_PER_TURN {
+            let mut blank = 0usize;
+            while !closed
+                && total < MAX_BYTES_PER_TURN
+                && c.queue.len() + blank < MAX_LINES_PER_TURN
+            {
                 let room = chunk.len().min(MAX_BYTES_PER_TURN - total);
                 match c.stream.read(&mut chunk[..room]) {
                     Ok(0) => {
@@ -518,9 +531,14 @@ impl Server {
                     }
                     Ok(n) => {
                         total += n;
+                        let frames = chunk[..n].iter().filter(|&&b| b == b'\n').count();
+                        let mut full = 0usize;
                         for ev in c.buf.push(&chunk[..n], hjelper::MAX_LINE) {
                             match ev {
-                                LineEvent::Line(l) => lines.push(l),
+                                LineEvent::Line(l) => {
+                                    full += 1;
+                                    c.queue.push_back(l);
+                                }
                                 LineEvent::TooLarge => {
                                     let _ = write_bounded(
                                         &mut c.stream,
@@ -534,6 +552,8 @@ impl Server {
                                 }
                             }
                         }
+                        // Linjeskift uten forespørsel: tomme linjer og mellomrom.
+                        blank += frames.saturating_sub(full);
                     }
                     Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => break,
                     Err(e) if e.kind() == std::io::ErrorKind::Interrupted => continue,
@@ -543,6 +563,10 @@ impl Server {
                     }
                 }
             }
+            let take = MAX_LINES_PER_TURN
+                .saturating_sub(blank)
+                .min(c.queue.len());
+            lines.extend(c.queue.drain(..take));
         }
         // En klient som allerede har lukket, får ikke utført skriving fra
         // data som lå igjen i mottakskøen (ingen kan bekrefte eller se den).
@@ -729,6 +753,64 @@ mod tests {
         };
         assert_eq!(left, 1);
         drop(c);
+    }
+
+    /// Svarlinjer som er kommet fram nå, uten å vente på flere.
+    fn replies_now(r: &mut std::io::BufReader<UnixStream>) -> Vec<Value> {
+        r.get_ref()
+            .set_read_timeout(Some(Duration::from_millis(200)))
+            .unwrap();
+        let mut out = Vec::new();
+        loop {
+            let mut line = String::new();
+            match r.read_line(&mut line) {
+                Ok(0) | Err(_) => return out,
+                Ok(_) => out.push(serde_json::from_str(&line).unwrap()),
+            }
+        }
+    }
+
+    #[test]
+    fn hoyst_64_linjer_per_runde_og_resten_neste_runde() {
+        let fx = Fixture::new("linjer");
+        let (mut srv, mut m) = fx.server();
+        let c = UnixStream::connect(fx.socket()).unwrap();
+        assert!(srv.turn(&mut m));
+        let id = *srv.conns.keys().next().unwrap();
+        let mut r = std::io::BufReader::new(c.try_clone().unwrap());
+        // 100 korte forespørsler i én skriving (godt under én 4 KiB-bit).
+        let mut batch = String::new();
+        for i in 0..100 {
+            batch.push_str(&format!("{{\"id\":{i},\"op\":\"nop\"}}\n"));
+        }
+        assert!(batch.len() < 4096);
+        (&c).write_all(batch.as_bytes()).unwrap();
+        assert!(srv.read(id, &mut m, libc::POLLIN));
+        let first = replies_now(&mut r);
+        assert_eq!(first.len(), MAX_LINES_PER_TURN);
+        assert_eq!(first[63]["id"], 63);
+        assert_eq!(srv.conns[&id].queue.len(), 100 - MAX_LINES_PER_TURN);
+        // Neste runde venter ikke på poll når køen har linjer, og tar resten.
+        let t = Instant::now();
+        assert!(srv.turn(&mut m));
+        assert!(t.elapsed() < Duration::from_millis(500), "{:?}", t.elapsed());
+        let rest = replies_now(&mut r);
+        assert_eq!(rest.len(), 100 - MAX_LINES_PER_TURN);
+        assert_eq!(rest[0]["id"], 64);
+        assert!(srv.conns[&id].queue.is_empty());
+
+        // Tomme linjer teller med: 60 tomme gir plass til bare 4 forespørsler.
+        let mut batch = "\n".repeat(60);
+        for i in 0..10 {
+            batch.push_str(&format!("{{\"id\":{},\"op\":\"nop\"}}\n", 100 + i));
+        }
+        (&c).write_all(batch.as_bytes()).unwrap();
+        assert!(srv.read(id, &mut m, libc::POLLIN));
+        assert_eq!(replies_now(&mut r).len(), 4);
+        assert!(srv.turn(&mut m));
+        let rest = replies_now(&mut r);
+        assert_eq!(rest.len(), 6);
+        assert_eq!(rest[5]["id"], 109);
     }
 
     #[test]
