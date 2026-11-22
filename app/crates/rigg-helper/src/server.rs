@@ -13,8 +13,8 @@
 use crate::journal;
 use crate::motor::Motor;
 use rigg_core::hjelper::{self, Config};
-use rigg_core::proto::{self, ErrorCode, LineBuffer, LineEvent, ProtoError};
-use std::collections::BTreeMap;
+use rigg_core::proto::{self, ErrorCode, ProtoError};
+use std::collections::{BTreeMap, VecDeque};
 use std::io::{Read, Write};
 use std::os::fd::AsRawFd;
 use std::os::unix::fs::{FileTypeExt, MetadataExt, PermissionsExt};
@@ -217,9 +217,40 @@ pub(crate) fn peer_uid(s: &UnixStream) -> Option<(u32, i32)> {
 struct Conn {
     uid: u32,
     stream: UnixStream,
-    buf: LineBuffer,
-    /// Hele linjer som er lest, men ikke behandlet ennå (over rundens grense).
-    queue: std::collections::VecDeque<Vec<u8>>,
+    /// Byte etter siste linjeskift (en linje som ikke er hel ennå).
+    partial: Vec<u8>,
+    /// Hele linjer i ankomstrekkefølge som ikke er behandlet ennå. `None`:
+    /// tom linje eller bare mellomrom (teller mot rundens grense).
+    queue: VecDeque<Option<Vec<u8>>>,
+}
+
+/// Deler mottatte byte i linjer i ankomstrekkefølge: hvert linjeskift gir én
+/// oppføring i `queue`, `None` for tomme linjer og mellomrom, ellers linjen
+/// uten `\n` og `\r`. `Err`: en linje er lengre enn `MAX_LINE`.
+fn frame(
+    partial: &mut Vec<u8>,
+    data: &[u8],
+    queue: &mut VecDeque<Option<Vec<u8>>>,
+) -> Result<(), ()> {
+    partial.extend_from_slice(data);
+    let mut start = 0;
+    while let Some(pos) = partial[start..].iter().position(|&b| b == b'\n') {
+        let end = start + pos;
+        let mut line = &partial[start..end];
+        if line.last() == Some(&b'\r') {
+            line = &line[..line.len() - 1];
+        }
+        if line.len() > hjelper::MAX_LINE {
+            return Err(());
+        }
+        queue.push_back((!line.iter().all(u8::is_ascii_whitespace)).then(|| line.to_vec()));
+        start = end + 1;
+    }
+    partial.drain(..start);
+    if partial.len() > hjelper::MAX_LINE {
+        return Err(());
+    }
+    Ok(())
 }
 
 /// Har motparten lukket eller halvlukket? Ingen lesing, null ventetid.
@@ -497,8 +528,8 @@ impl Server {
                 Conn {
                     uid: peer.map(|p| p.0).unwrap_or(u32::MAX),
                     stream: s,
-                    buf: LineBuffer::new(),
-                    queue: std::collections::VecDeque::new(),
+                    partial: Vec::new(),
+                    queue: VecDeque::new(),
                 },
             );
         }
@@ -507,22 +538,18 @@ impl Server {
     /// Leser det som er kommet og svarer. `false`: forbindelsen er lukket.
     /// `ev` er poll-hendelsene for forbindelsen i denne runden.
     fn read(&mut self, id: u64, m: &mut Motor, ev: libc::c_short) -> bool {
-        // Høyst `MAX_BYTES_PER_TURN` byte og `MAX_LINES_PER_TURN` linjeskift
-        // per runde. Tomme linjer (som `LineBuffer` hopper over) teller også.
-        // Hele linjer utover grensen venter i køen til neste runde.
-        let mut lines = Vec::new();
+        // Høyst `MAX_BYTES_PER_TURN` byte per runde, og det leses bare så
+        // lenge køen har færre enn `MAX_LINES_PER_TURN` linjer. Deretter tas
+        // høyst så mange linjer fra fronten av køen, tomme linjer medregnet:
+        // eldre forespørsler går alltid før nyere tomme linjer.
         let mut closed = ev & HANGUP != 0;
-        {
+        let lines: Vec<Option<Vec<u8>>> = {
             let Some(c) = self.conns.get_mut(&id) else {
                 return false;
             };
             let mut chunk = [0u8; 4096];
             let mut total = 0usize;
-            let mut blank = 0usize;
-            while !closed
-                && total < MAX_BYTES_PER_TURN
-                && c.queue.len() + blank < MAX_LINES_PER_TURN
-            {
+            while !closed && total < MAX_BYTES_PER_TURN && c.queue.len() < MAX_LINES_PER_TURN {
                 let room = chunk.len().min(MAX_BYTES_PER_TURN - total);
                 match c.stream.read(&mut chunk[..room]) {
                     Ok(0) => {
@@ -531,29 +558,17 @@ impl Server {
                     }
                     Ok(n) => {
                         total += n;
-                        let frames = chunk[..n].iter().filter(|&&b| b == b'\n').count();
-                        let mut full = 0usize;
-                        for ev in c.buf.push(&chunk[..n], hjelper::MAX_LINE) {
-                            match ev {
-                                LineEvent::Line(l) => {
-                                    full += 1;
-                                    c.queue.push_back(l);
-                                }
-                                LineEvent::TooLarge => {
-                                    let _ = write_bounded(
-                                        &mut c.stream,
-                                        &proto::response_line(
-                                            &serde_json::Value::Null,
-                                            &Err(ProtoError::new(ErrorCode::MessageTooLarge)),
-                                        ),
-                                        Duration::ZERO,
-                                    );
-                                    return false;
-                                }
-                            }
+                        if frame(&mut c.partial, &chunk[..n], &mut c.queue).is_err() {
+                            let _ = write_bounded(
+                                &mut c.stream,
+                                &proto::response_line(
+                                    &serde_json::Value::Null,
+                                    &Err(ProtoError::new(ErrorCode::MessageTooLarge)),
+                                ),
+                                Duration::ZERO,
+                            );
+                            return false;
                         }
-                        // Linjeskift uten forespørsel: tomme linjer og mellomrom.
-                        blank += frames.saturating_sub(full);
                     }
                     Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => break,
                     Err(e) if e.kind() == std::io::ErrorKind::Interrupted => continue,
@@ -563,18 +578,16 @@ impl Server {
                     }
                 }
             }
-            let take = MAX_LINES_PER_TURN
-                .saturating_sub(blank)
-                .min(c.queue.len());
-            lines.extend(c.queue.drain(..take));
-        }
+            let take = MAX_LINES_PER_TURN.min(c.queue.len());
+            c.queue.drain(..take).collect()
+        };
         // En klient som allerede har lukket, får ikke utført skriving fra
         // data som lå igjen i mottakskøen (ingen kan bekrefte eller se den).
         // Også ved grensen for runden: lukking sjekkes før hver forespørsel.
         if closed {
             return false;
         }
-        for line in lines {
+        for line in lines.into_iter().flatten() {
             if self.conns.get(&id).is_none_or(|c| peer_closed(&c.stream)) {
                 return false;
             }
@@ -811,6 +824,43 @@ mod tests {
         let rest = replies_now(&mut r);
         assert_eq!(rest.len(), 6);
         assert_eq!(rest[5]["id"], 109);
+    }
+
+    #[test]
+    fn tomme_linjer_tar_64_per_runde_og_eldre_forespoersler_gaar_foerst() {
+        let fx = Fixture::new("rekkefolge");
+        let (mut srv, mut m) = fx.server();
+        let c = UnixStream::connect(fx.socket()).unwrap();
+        assert!(srv.turn(&mut m));
+        let id = *srv.conns.keys().next().unwrap();
+        let mut r = std::io::BufReader::new(c.try_clone().unwrap());
+        // (a) 200 tomme linjer i én skriving: 64 per runde.
+        (&c).write_all("\n".repeat(200).as_bytes()).unwrap();
+        for left in [136, 72, 8, 0] {
+            assert!(srv.read(id, &mut m, libc::POLLIN));
+            assert_eq!(srv.conns[&id].queue.len(), left);
+        }
+        assert!(replies_now(&mut r).is_empty());
+        // (b) 100 forespørsler, så 64 tomme linjer og én forespørsel til:
+        // de 36 eldre i køen behandles før de nye tomme linjene.
+        let req = |i: usize| format!("{{\"id\":{i},\"op\":\"nop\"}}\n");
+        (&c).write_all((0..100).map(req).collect::<String>().as_bytes()).unwrap();
+        assert!(srv.read(id, &mut m, libc::POLLIN));
+        assert_eq!(replies_now(&mut r).len(), 64);
+        let mut later = "\n".repeat(64);
+        later.push_str(&req(500));
+        (&c).write_all(later.as_bytes()).unwrap();
+        assert!(srv.read(id, &mut m, libc::POLLIN));
+        let ids: Vec<i64> = replies_now(&mut r)
+            .iter()
+            .map(|v| v["id"].as_i64().unwrap())
+            .collect();
+        assert_eq!(ids, (64..100).collect::<Vec<i64>>());
+        assert!(srv.read(id, &mut m, 0));
+        let last = replies_now(&mut r);
+        assert_eq!(last.len(), 1);
+        assert_eq!(last[0]["id"], 500);
+        assert!(srv.conns[&id].queue.is_empty());
     }
 
     #[test]

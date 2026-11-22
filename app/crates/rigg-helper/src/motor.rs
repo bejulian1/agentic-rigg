@@ -39,6 +39,12 @@ pub struct Motor {
     lease_seen: i64,
     last_tick: Option<i64>,
     pub hardware_error: Option<String>,
+    /// Merkøren kunne ikke bekreftes (`marker_failed`). Da fjernes den
+    /// aldri av denne prosessen, og hjelperen er ikke klar før omstart.
+    marker_unverified: bool,
+    /// En maskinvareskriving er forsøkt siden siste bekreftede standard med
+    /// ryddet merkør. Et uberørt kort skal aldri nullstilles unødig.
+    hw_touched: bool,
     dirty_marker: Option<std::path::PathBuf>,
     events: Vec<Value>,
     /// Siste fart kurven ga (for å ikke skrive samme fart hver runde).
@@ -201,6 +207,8 @@ impl Motor {
             last_tick: None,
             hardware_error: None,
             dirty_marker: None,
+            marker_unverified: false,
+            hw_touched: false,
             events: Vec::new(),
             curve_pct: None,
             vifte: None,
@@ -268,6 +276,10 @@ impl Motor {
         let Some(path) = &self.dirty_marker else {
             return Ok(());
         };
+        // En merkør som ikke kunne bekreftes, står til den er kontrollert.
+        if self.marker_unverified {
+            return Ok(());
+        }
         match std::fs::remove_file(path) {
             Ok(()) => std::fs::File::open(path.parent().unwrap_or(std::path::Path::new("/")))
                 .and_then(|f| f.sync_all())
@@ -382,7 +394,8 @@ impl Motor {
             && bound
             && self.hw.is_some()
             && self.locked.is_none()
-            && self.hardware_error.is_none();
+            && self.hardware_error.is_none()
+            && !self.marker_unverified;
         let l = &self.limits;
         json!({
             "helper": {"name": "agentic-rigg-helper", "version": rigg_core::version::VERSION,
@@ -600,19 +613,16 @@ impl Motor {
         }
     }
 
+    /// Grunnverdiene med Auto-vifter, bekreftet ved tilbakelesing. Merkøren
+    /// ryddes bare når den er bekreftet (`marker_unverified == false`).
     fn restore_stock(&mut self, why: &str, _now: i64) -> Result<(), ProtoError> {
-        self.restore_stock_with(why, true)
-    }
-
-    /// Som `restore_stock`; `clear_marker == false` lar merkøren på disk stå
-    /// urørt (den kunne ikke bekreftes og skal kontrolleres).
-    fn restore_stock_with(&mut self, why: &str, clear_marker: bool) -> Result<(), ProtoError> {
         self.curve_pct = None;
         self.vifte = None;
         self.vifte_ms = None;
         let Some(h) = self.hw.as_mut() else {
             return Err(hjelper::locked("real_writes_off"));
         };
+        self.hw_touched = true;
         if let Err(e) = h.reset() {
             self.hardware_error = Some(e.clone());
             self.book.rollback("reset_failed");
@@ -628,7 +638,7 @@ impl Motor {
             self.collect_events();
             return Err(hjelper::hardware_error(format!("readback_mismatch: {e}")));
         }
-        if clear_marker && let Err(e) = self.clear_dirty() {
+        if let Err(e) = self.clear_dirty() {
             self.hardware_error = Some(e.clone());
             return Err(ProtoError::msg(
                 ErrorCode::Unavailable,
@@ -639,7 +649,14 @@ impl Motor {
         self.book.rollback("reset");
         self.book.confirmed = self.limits.stock();
         self.book.active = self.limits.stock();
-        self.hardware_error = None;
+        // Med ubekreftet merkør er tilstanden fortsatt en feil (også for
+        // avslutningskoden), selv om kortet er tilbake på grunnverdiene.
+        self.hardware_error = self.marker_unverified.then(|| {
+            "Kortet er på grunnverdiene, men gjenopprettingsmerkøren kunne ikke \
+             bekreftes og står urørt."
+                .to_string()
+        });
+        self.hw_touched = self.marker_unverified;
         self.emergency = false;
         self.collect_events();
         journal::notice(&format!("Gjenopprettet kortets grunnverdier ({why})."));
@@ -665,11 +682,28 @@ impl Motor {
     /// returneres: takten forkaster den, og nødregelen ville stått som aktiv
     /// med lav vifte. Kortet går til grunnverdiene med Auto-vifter, merkøren
     /// på disk står urørt, og tilstanden er en feil til den er avklart.
+    ///
+    /// Er ingenting skrevet ennå (og nødregelen ikke i kraft), røres ikke
+    /// kortet: bare boka rulles tilbake.
     fn marker_failed(&mut self, why: &str, mut e: ProtoError) -> ProtoError {
+        let emergency = self.emergency;
         self.emergency = false;
+        self.marker_unverified = true;
         self.book.rollback("hardware_error");
         self.curve_pct = None;
-        let restored = self.restore_stock_with(why, false).is_ok();
+        if !self.hw_touched && !emergency {
+            self.lease = None;
+            self.collect_events();
+            journal::err(&format!(
+                "{why}: {} Ingenting er skrevet til kortet; gjenopprettingsmerkøren \
+                 må kontrolleres.",
+                e.message
+            ));
+            e.details = Some(json!({"reason": "recovery_marker", "recovered": true,
+                "hardwareTouched": false}));
+            return e;
+        }
+        let restored = self.restore_stock(why, 0).is_ok();
         let msg = if restored {
             format!(
                 "{why}: {} Kortet er satt tilbake til grunnverdiene med Auto-vifter, \
@@ -692,10 +726,12 @@ impl Motor {
             return Err(self.marker_failed(why, e));
         }
         let v = self.effective();
-        let result = self
+        let h = self
             .hw
             .as_mut()
-            .ok_or_else(|| hjelper::locked("real_writes_off"))?
+            .ok_or_else(|| hjelper::locked("real_writes_off"))?;
+        self.hw_touched = true;
+        let result = h
             .apply(&v)
             .map_err(hjelper::hardware_error)
             .and_then(|_| self.drive_fans(now));
@@ -803,6 +839,7 @@ impl Motor {
             .map(f64::from)
             .collect();
         if self.curve_pct.as_ref() != Some(&pct) {
+            self.hw_touched = true;
             h.set_fan_percents(&pct).map_err(hjelper::hardware_error)?;
             self.curve_pct = Some(pct);
         }
@@ -1310,8 +1347,58 @@ mod tests {
             assert_eq!(s["hardware"]["stock"], true, "Auto er forsøkt og bekreftet: {s}");
             assert!(s["hardware"]["fanNow"].is_null());
             assert_eq!(std::fs::read(&marker).unwrap(), corrupt, "merkøren står urørt");
+            // Senere gjenoppretting (endret oppsett, stopp) gir grunnverdier,
+            // men fjerner aldri den ubekreftede merkøren.
+            m.set_config(
+                Config::parse(r#"{"versjon":2,"uid":1000,"enabled":true,"pci":"0000:01:00.0","uuid":"GPU-annet"}"#),
+                now,
+            );
+            m.shutdown(now + 1);
+            let s = m.status(now + 1);
+            assert_eq!(s["hardware"]["stock"], true, "{s}");
+            assert!(m.hardware_error.is_some(), "avslutningen melder fortsatt feil");
+            assert_eq!(s["ready"], false);
+            assert_eq!(std::fs::read(&marker).unwrap(), corrupt, "merkøren står urørt");
             std::fs::remove_dir_all(dir).unwrap();
         }
+    }
+
+    #[test]
+    fn merkorfeil_for_forste_skriving_rorer_ikke_et_uberort_kort() {
+        let (mut m, flags) = bound_motor(false, false, false);
+        let dir = std::env::temp_dir().join(format!("rigg-uberort-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        let marker = dir.join("dirty.json");
+        m.set_dirty_marker(marker.clone());
+        // Som om merkøren ble erstattet mellom kontrollen i `apply` og den
+        // i `push_hw`: boka har en ventende endring, kortet er uberørt.
+        m.book
+            .apply("c1", &json!({"powerLimitW": 200}), None, T0)
+            .unwrap();
+        m.lease = Some(1);
+        std::fs::write(&marker, r#"{"version":1,"identity":"annet"}"#).unwrap();
+        let corrupt = std::fs::read(&marker).unwrap();
+        // Både apply og reset feiler her: et kall til kortet ville synes.
+        flags.set(1 | 4);
+        let e = m.push_hw("apply", T0).unwrap_err();
+        assert_eq!(e.details.unwrap()["hardwareTouched"], false);
+        let s = m.status(T0);
+        assert!(m.hardware_error.is_none(), "{s}");
+        assert_eq!(s["hardware"]["applied"]["powerLimitW"], 245.0);
+        assert_eq!(s["hardware"]["writes"], 0);
+        assert!(m.book.pending().is_none());
+        assert_eq!(m.book.active, m.book.confirmed);
+        assert!(!m.emergency);
+        assert_eq!(s["holding"], false);
+        assert_eq!(s["ready"], false, "ubekreftet merkør: ikke klar");
+        // Ingen senere gjenoppretting rører kortet eller merkøren.
+        m.tick(T0 + 1000);
+        m.shutdown(T0 + 2000);
+        assert!(m.hardware_error.is_none());
+        assert_eq!(m.status(T0)["hardware"]["writes"], 0);
+        assert_eq!(std::fs::read(&marker).unwrap(), corrupt);
+        std::fs::remove_dir_all(dir).unwrap();
     }
 
     #[test]
