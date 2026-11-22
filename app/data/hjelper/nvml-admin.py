@@ -72,6 +72,8 @@ class Admin(common['Admin']):
         if path is None:
             return None
         auth = common['bounded_json'](path, 16384)
+        if not isinstance(auth, dict):
+            raise ValueError('GPU-tillatelsen må være et JSON-objekt.')
         if type(auth['uid']) is not int or auth['uid'] != self.uid:
             fail('GPU-tillatelsen gjelder en annen bruker.')
         return auth

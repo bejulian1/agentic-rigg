@@ -73,7 +73,7 @@ fn compatible_revision(value: &str, need: Need) -> bool {
     if value == "1\n" {
         return need == Need::Cleanup;
     }
-    value.strip_prefix("2:").and_then(|v| v.trim_end().parse::<u32>().ok()).is_some_and(|build| {
+    revision_build(value).is_some_and(|build| {
         build > 0 && build <= rigg_core::version::build() && match need {
             Need::Cleanup => true,
             Need::Nvml => rigg_core::hjelper::compatible(rigg_core::hjelper::PROTOCOL, build),
@@ -82,15 +82,27 @@ fn compatible_revision(value: &str, need: Need) -> bool {
     })
 }
 
+fn revision_build(value: &str) -> Option<u32> {
+    value.strip_prefix("2:")?.trim_end().parse().ok()
+}
+
+fn newer_revision(value: &str) -> bool {
+    revision_build(value).is_some_and(|build| build > rigg_core::version::build())
+}
+
+pub fn newer_installed() -> bool {
+    trusted(Path::new(MARK)) && std::fs::read_to_string(MARK).is_ok_and(|value| newer_revision(&value))
+}
+
 /// Pythons faktiske fil (`/usr/bin/python3` er en lenke), bare når den og
 /// alle mappene over er eid av root og ikke skrivbare for andre.
 fn python() -> Option<PathBuf> {
     std::fs::canonicalize("/usr/bin/python3").ok().filter(|path| path.starts_with("/usr/bin/") && trusted(path))
 }
 
-/// Kan appen selv starte installasjonen? Krever betrodd pkexec og python.
+/// Kan appen selv starte installasjonen? Krever betrodd pkexec og python, uten nedgradering.
 pub fn can_install() -> bool {
-    trusted(Path::new(PKEXEC)) && python().is_some()
+    !newer_installed() && trusted(Path::new(PKEXEC)) && python().is_some()
 }
 
 /// Installasjonen pågår.
@@ -168,7 +180,7 @@ pub fn run(app: &Rc<App>, activate: Activate, done: impl FnOnce(bool) + 'static)
     // Én administratorhandling om gangen: ikke mens GPU-styring eller RGB
     // aktiveres, slås av eller gjenopprettes.
     let other = crate::settings::styring::admin_busy() || crate::pages::lys_kort::admin_busy();
-    let Some(python) = python().filter(|_| trusted(Path::new(PKEXEC)) && !busy() && !other) else {
+    let Some(python) = python().filter(|_| !newer_installed() && trusted(Path::new(PKEXEC)) && !busy() && !other) else {
         if other {
             app.toast(Toast::new(tr!("Vent til den andre administratorhandlingen er ferdig")).ms(3500));
         }
@@ -222,6 +234,19 @@ pub fn run(app: &Rc<App>, activate: Activate, done: impl FnOnce(bool) + 'static)
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn nyere_revisjon_er_ikke_manglende_eller_utdatert() {
+        let app_build = rigg_core::version::build();
+        let newer = format!("2:{}\n", app_build + 1);
+        assert!(newer_revision(&newer));
+        for need in [Need::Cleanup, Need::Nvml, Need::Rgb] {
+            assert!(!compatible_revision(&newer, need));
+        }
+        for other in ["".into(), "1\n".into(), "2:24\n".into(), format!("2:{app_build}\n")] {
+            assert!(!newer_revision(&other));
+        }
+    }
 
     #[test]
     fn gammel_installasjon_tillater_bare_opprydding() {

@@ -242,6 +242,15 @@ class HentTest(unittest.TestCase):
         self.assertEqual(self.urls, [])
         self.assertEqual(self.runs, [])
 
+    def test_eldre_tillatelse_for_samme_bruker_faar_egen_melding(self):
+        path = self.etc / 'helper.json'
+        path.write_text(json.dumps({'versjon': 1, 'uid': 1000}))
+        path.chmod(0o600)
+        with self.assertRaisesRegex(SystemExit, 'eldre oppsett'):
+            self.mod['main'](['1.5.2', '27'])
+        self.assertEqual(self.urls, [])
+        self.assertEqual(self.runs, [])
+
     def test_aktivering_bare_etter_vellykket_installasjon(self):
         def failing(argv, **kwargs):
             self.runs.append(argv)
@@ -290,7 +299,9 @@ class HentTest(unittest.TestCase):
     def test_manglende_utgivelse_og_nettbrudd(self):
         import urllib.error, http.client
         def missing(request, hosts):
-            raise urllib.error.HTTPError(request.full_url, 404, 'Not Found', {}, None)
+            error = urllib.error.HTTPError(request.full_url, 404, 'Not Found', {}, None)
+            self.addCleanup(error.close)
+            raise error
         self.mod['open_url'] = missing
         with self.assertRaisesRegex(SystemExit, 'finnes ikke på GitHub'):
             self.mod['main'](['1.5.2', '27'])

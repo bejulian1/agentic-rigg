@@ -195,9 +195,13 @@ def binding(domain, uid):
     data = root_json(CONFIG[domain])
     if data is None:
         return None
-    card = data.get('binding') if domain == 'rgb' else data
-    if not isinstance(card, dict) or str(data.get('uid')) != uid or data.get('enabled') is not True:
+    if str(data.get('uid')) != uid:
         fail('Den aktive tillatelsen gjelder en annen bruker. Slå den av først.')
+    if data.get('enabled') is not True:
+        fail('Den lagrede tillatelsen bruker et eldre oppsett eller er ikke aktiv. Fjern den gamle tillatelsen før installasjon.')
+    card = data.get('binding') if domain == 'rgb' else data
+    if not isinstance(card, dict):
+        fail('Den aktive tillatelsen har ugyldig kortbinding.')
     pci, uuid = str(card.get('pci', '')).lower(), str(card.get('uuid', ''))
     if not re.fullmatch(PCI, pci, re.ASCII) or not re.fullmatch(UUID, uuid, re.ASCII):
         fail('Den aktive tillatelsen har ugyldig kortbinding.')
