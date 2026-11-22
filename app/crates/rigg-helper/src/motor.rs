@@ -1,6 +1,9 @@
 //! Motoren i hjelperen: autorisasjon, grensesjekk, bekreft eller rull tilbake
 //! (`rigg_core::txn::Book`), nødregelen, viftekurven og journalen. Ingen
 //! socket og ingen klokke her: tiden sendes inn, så alt kan testes direkte.
+//! Tiden er serverens monotone `CLOCK_BOOTTIME`-tidslinje (ms), ikke
+//! veggklokka; `pending.deadline` er derfor på samme tidslinje, og klientene
+//! bruker `remainingMs`.
 //!
 //! Reglene (hjelper-sikkerhet.md kap. 3):
 //! - Én global autorisasjon; hvert endret felt krever faktisk HW-støtte.
@@ -33,7 +36,7 @@ pub struct Motor {
     /// Forbindelsen som skrev sist. Forsvinner den, går kortet til standard.
     lease: Option<u64>,
     lease_seen: i64,
-    last_tick: i64,
+    last_tick: Option<i64>,
     pub hardware_error: Option<String>,
     dirty_marker: Option<std::path::PathBuf>,
     events: Vec<Value>,
@@ -174,7 +177,7 @@ impl Motor {
             emergency: false,
             lease: None,
             lease_seen: 0,
-            last_tick: 0,
+            last_tick: None,
             hardware_error: None,
             dirty_marker: None,
             events: Vec::new(),
@@ -201,6 +204,9 @@ impl Motor {
             .as_ref()
             .map(|h| h.identity())
             .unwrap_or(Value::Null);
+        // Viftene som kan bli endret: recovery må finne og bekrefte like
+        // mange på Auto før merkøren kan fjernes.
+        let fans = self.hw.as_ref().map_or(0, |h| h.fan_count());
         if let Ok(meta) = std::fs::symlink_metadata(path) {
             let data = std::fs::read_to_string(path)
                 .ok()
@@ -223,7 +229,7 @@ impl Motor {
                 .create_new(true)
                 .mode(0o600)
                 .open(path)?;
-            let data = json!({"version": 1, "identity": identity}).to_string();
+            let data = json!({"version": 1, "identity": identity, "fans": fans}).to_string();
             f.write_all(data.as_bytes())?;
             f.sync_all()?;
             std::fs::File::open(path.parent().unwrap_or(std::path::Path::new("/")))?.sync_all()
@@ -630,15 +636,25 @@ impl Motor {
             self.book.rollback("hardware_error");
             self.curve_pct = None;
             let confirmed = self.book.confirmed.clone();
-            let recovered = confirmed.fan_mode != FanMode::Curve
+            // Under nødregelen er bekreftet oppsett (for eksempel lav manuell
+            // vifte) ingen trygg gjenoppretting: da skal driveren styre viftene
+            // igjen (bekreftet Auto), ellers er kortet i feiltilstand.
+            let emergency = self.emergency;
+            let recovered = !emergency
+                && confirmed.fan_mode != FanMode::Curve
                 && self
                     .hw
                     .as_mut()
                     .is_some_and(|h| h.restore_values(&confirmed).is_ok());
             if !recovered {
                 self.hardware_error = Some(format!(
-                    "{why}: {}. Gjenoppretting til bekreftet oppsett feilet.",
-                    original.message
+                    "{why}: {}. {}",
+                    original.message,
+                    if emergency {
+                        "Full viftefart kunne ikke skrives."
+                    } else {
+                        "Gjenoppretting til bekreftet oppsett feilet."
+                    }
                 ));
                 // Forsøk alle fabrikk-/grunnverdier selv om bekreftet oppsett feilet.
                 if self
@@ -647,6 +663,12 @@ impl Motor {
                 {
                     self.hardware_error = Some(format!(
                         "{why}: {}. Kortets tilstand er ukjent.",
+                        original.message
+                    ));
+                } else if emergency {
+                    journal::err(&format!(
+                        "Nødregelen kunne ikke gi full viftefart ({}). Kortet er satt \
+                         tilbake til grunnverdiene, og driveren styrer viftene (Auto).",
                         original.message
                     ));
                 }
@@ -722,9 +744,13 @@ impl Motor {
         if self.hw.is_none() || !self.authorized() || self.hardware_error.is_some() {
             return;
         }
+        // Tidslinjen er monoton og teller hvile; deltaene klemmes likevel,
+        // så et avvik aldri gir negative tider.
         if self.lease.is_some()
-            && (now - self.lease_seen > 65_000
-                || self.last_tick != 0 && now - self.last_tick > 15_000)
+            && (now.saturating_sub(self.lease_seen) > 65_000
+                || self
+                    .last_tick
+                    .is_some_and(|last| now.saturating_sub(last) > 15_000))
         {
             self.lease = None;
             self.til_standard("livssignal mangler eller maskinen har vært i hvile", now);
@@ -732,7 +758,7 @@ impl Motor {
                 return;
             }
         }
-        self.last_tick = now;
+        self.last_tick = Some(now);
         if self.book.tick(now) {
             let _ = self.push_hw("frist", now);
             self.collect_events();
@@ -948,6 +974,8 @@ mod tests {
         m.handle(1, "apply", &bound_args(json!({"powerLimitW":200})), T0)
             .unwrap();
         assert!(marker.exists());
+        let saved: Value = serde_json::from_str(&std::fs::read_to_string(&marker).unwrap()).unwrap();
+        assert_eq!(saved["fans"], 2, "recovery må vite hvor mange vifter som kan være endret");
         assert_eq!(
             std::fs::metadata(&marker).unwrap().permissions().mode() & 0o777,
             0o600
@@ -1124,6 +1152,71 @@ mod tests {
             let events = s["events"].as_array().unwrap();
             assert!(!events.is_empty());
             assert!(events.iter().all(|e| e["status"] == "failed"));
+        }
+    }
+
+    #[test]
+    fn nodregel_med_skrivefeil_blir_ikke_staaende_paa_lav_manuell_vifte() {
+        for reset_fails in [false, true] {
+            let (mut m, flags) = bound_motor(false, false, false);
+            let r = m
+                .handle(
+                    1,
+                    "apply",
+                    &bound_args(json!({"fan":{"mode":"manual","manualPercent":35}})),
+                    T0,
+                )
+                .unwrap();
+            let mut args = bound_args(json!({}));
+            args["txn"] = r["txn"].clone();
+            m.handle(1, "confirm", &args, T0).unwrap();
+            assert_eq!(m.book.confirmed.fan_mode, FanMode::Manual);
+            assert_eq!(m.status(T0)["hardware"]["fanNow"], 35.0);
+            // 86 °C: 100 % feiler, mens bekreftet 35 % ville latt seg skrive.
+            flags.set(1 | 128 | if reset_fails { 4 } else { 0 });
+            m.tick(T0 + 1000);
+            let s = m.status(T0 + 1000);
+            assert!(
+                !(s["hardware"]["fanNow"] == 35.0 && m.hardware_error.is_none()),
+                "stille lav manuell vifte under nødregelen: {s}"
+            );
+            if reset_fails {
+                assert!(m.hardware_error.is_some());
+                assert_eq!(s["ready"], false);
+                assert_eq!(s["state"]["hardwareKnown"], false);
+            } else {
+                assert!(m.hardware_error.is_none(), "{s}");
+                assert_eq!(s["hardware"]["stock"], true, "{s}");
+                assert!(s["hardware"]["fanNow"].is_null(), "driveren styrer (Auto)");
+                assert_eq!(m.book.active.fan_mode, FanMode::Auto);
+                assert!(!m.emergency, "nødregelen meldes ikke som aktiv uten skriving");
+                assert_eq!(s["emergency"], false);
+            }
+        }
+    }
+
+    #[test]
+    fn hvile_paa_den_monotone_tidslinjen_tilbakestiller_men_avvik_bakover_ikke() {
+        for gap in [-50_000, 16_000] {
+            let (mut m, _) = bound_motor(false, false, false);
+            let r = m
+                .handle(1, "apply", &bound_args(json!({"powerLimitW":200})), T0)
+                .unwrap();
+            let mut args = bound_args(json!({}));
+            args["txn"] = r["txn"].clone();
+            m.handle(1, "confirm", &args, T0).unwrap();
+            m.tick(T0 + 1000);
+            m.tick(T0 + 1000 + gap);
+            let s = m.status(T0);
+            if gap < 0 {
+                // Et avvik bakover gir ingen negative deltaer og ingen reset.
+                assert_eq!(s["holding"], true);
+                assert_eq!(s["hardware"]["applied"]["powerLimitW"], 200.0);
+            } else {
+                // CLOCK_BOOTTIME teller hvile: 16 s uten runde er hvile.
+                assert_eq!(s["hardware"]["stock"], true);
+                assert_eq!(s["holding"], false);
+            }
         }
     }
 
