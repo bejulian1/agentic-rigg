@@ -572,6 +572,25 @@ mod tests {
         assert!(!compatible(PROTOCOL, crate::version::build() + 1));
     }
 
+    /// Første bygg med NVML-sikkerhetsrettingene i hjelperen (PR #23:
+    /// monoton klokke, merkøren slettes aldri ubekreftet, overtemperaturvern
+    /// i feiltilstand og IPC-herding). Eldre hjelpere mangler dem og skal
+    /// avvises fra og med utgaven som tar dem med. Utgivelsen må derfor heve
+    /// `MIN_COMPATIBLE_BUILD` til dette bygget sammen med byggnummeret.
+    const NVML_SIKKERHET_BYGG: u32 = 32;
+
+    #[test]
+    fn utgaven_med_nvml_rettingene_avviser_eldre_hjelpere() {
+        let build = crate::version::build();
+        if build >= NVML_SIKKERHET_BYGG {
+            assert!(
+                !compatible(PROTOCOL, NVML_SIKKERHET_BYGG - 1),
+                "Bygg {build} tar med NVML-rettingene: hev MIN_COMPATIBLE_BUILD til minst {NVML_SIKKERHET_BYGG}."
+            );
+            assert!(compatible(PROTOCOL, build));
+        }
+    }
+
     #[test]
     fn helper_json_tolkes_strengt() {
         let c = Config::parse(

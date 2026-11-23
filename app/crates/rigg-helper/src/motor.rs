@@ -16,6 +16,12 @@
 //!   (når viftestyring støttes; ellers styrer driveren dem som før) til
 //!   kortet er under 80 °C.
 //! - Hjelperen stopper etter egen skriving: fangede grunnverdier gjenopprettes.
+//! - Feiltilstand (`hardware_error`): ingen nye endringer, men temperaturen
+//!   leses fortsatt. Er kortet varmt (≥ 85 °C) eller temperaturen ukjent uten
+//!   bekreftet standard, forsøkes grunnverdiene med Auto-vifter igjen, med
+//!   økende mellomrom (overtemperaturvernet, `ThermalGuard`).
+//! - En gjenopprettingsmerkør som ikke kan bekreftes, slettes aldri av denne
+//!   prosessen, og hjelperen tar ikke imot nye endringer før omstart.
 
 use crate::journal;
 use rigg_core::hjelper::{self, Config, Step};
@@ -24,6 +30,30 @@ use rigg_core::txn::{self, Book, FanMode, Range, Values};
 use rigg_core::vifte;
 use rigg_hw::gpu::skriv::{Limits, Skriver};
 use serde_json::{Value, json};
+
+/// Første nye forsøk fra overtemperaturvernet i feiltilstand (ms).
+const THERMAL_RETRY_MIN_MS: i64 = 5_000;
+/// Lengste mellomrom mellom forsøkene (ms).
+const THERMAL_RETRY_MAX_MS: i64 = 60_000;
+
+/// Overtemperaturvernet i feiltilstand (#20). Nødregelen krever at hjelperen
+/// eier aktive innstillinger, og takten gjør ellers ingenting når
+/// `hardware_error` er satt. Da står kortet kanskje igjen med en lav manuell
+/// vifte. Vernet leser derfor temperaturen hver runde og forsøker
+/// grunnverdiene med Auto-vifter (det samme som stopp og `reset` skriver)
+/// når kortet er varmt eller temperaturen er ukjent, så lenge standard ikke
+/// er bekreftet. Aldri andre verdier, og feiltilstanden står til brukeren
+/// selv har tilbakestilt.
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+struct ThermalGuard {
+    /// Neste forsøk tidligst (monoton ms).
+    next: i64,
+    /// Ventetiden etter forrige forsøk (ms), dobles opp til maksimum.
+    wait: i64,
+    attempts: u32,
+    /// Grunnverdiene med Auto-vifter er bekreftet ved tilbakelesing.
+    stock_verified: bool,
+}
 
 pub struct Motor {
     pub book: Book,
@@ -39,9 +69,12 @@ pub struct Motor {
     lease_seen: i64,
     last_tick: Option<i64>,
     pub hardware_error: Option<String>,
-    /// Merkøren kunne ikke bekreftes (`marker_failed`). Da fjernes den
-    /// aldri av denne prosessen, og hjelperen er ikke klar før omstart.
+    /// Merkøren kunne ikke lagres eller bekreftes (`mark_dirty`,
+    /// `clear_dirty`). Da fjernes den aldri av denne prosessen, nye endringer
+    /// avvises, og hjelperen er ikke klar før omstart.
     marker_unverified: bool,
+    /// Overtemperaturvernet i feiltilstand. `None`: ikke i kraft.
+    thermal: Option<ThermalGuard>,
     /// En maskinvareskriving er forsøkt siden siste bekreftede standard med
     /// ryddet merkør. Et uberørt kort skal aldri nullstilles unødig.
     hw_touched: bool,
@@ -208,6 +241,7 @@ impl Motor {
             hardware_error: None,
             dirty_marker: None,
             marker_unverified: false,
+            thermal: None,
             hw_touched: false,
             events: Vec::new(),
             curve_pct: None,
@@ -222,13 +256,61 @@ impl Motor {
         self.dirty_marker = Some(path);
     }
 
+    /// Merkøren på disk: `Ok(false)` finnes ikke, `Ok(true)` er vår (vanlig
+    /// fil eid av oss, ingen tilgang for andre, samme kortidentitet). Alt
+    /// annet er en avvist merkør som aldri skal overskrives eller slettes.
+    fn check_marker(&self, path: &std::path::Path) -> Result<bool, ProtoError> {
+        use std::os::unix::fs::MetadataExt;
+        let meta = match std::fs::symlink_metadata(path) {
+            Ok(m) => m,
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(false),
+            Err(e) => {
+                return Err(ProtoError::msg(
+                    ErrorCode::Unavailable,
+                    format!("Gjenopprettingsmerkøren kan ikke undersøkes: {e}"),
+                ));
+            }
+        };
+        let identity = self
+            .hw
+            .as_ref()
+            .map(|h| h.identity())
+            .unwrap_or(Value::Null);
+        let data = std::fs::read_to_string(path)
+            .ok()
+            .and_then(|s| serde_json::from_str::<Value>(&s).ok());
+        if !meta.is_file()
+            || meta.uid() != unsafe { libc::geteuid() }
+            || meta.mode() & 0o077 != 0
+            || data.as_ref().is_none_or(|v| v["identity"] != identity)
+        {
+            return Err(ProtoError::msg(
+                ErrorCode::PermissionDenied,
+                "Gjenopprettingsmerkøren har feil identitet eller utrygg eier/modus.",
+            ));
+        }
+        Ok(true)
+    }
+
     /// Rot-eid, varig eierskap før første setter, også ved delvis feil/krasj.
-    fn mark_dirty(&self) -> Result<(), ProtoError> {
+    /// Feiler det, er merkøren ubekreftet for resten av prosessen.
+    fn mark_dirty(&mut self) -> Result<(), ProtoError> {
+        let r = self.save_marker();
+        if r.is_err() {
+            self.marker_unverified = true;
+        }
+        r
+    }
+
+    fn save_marker(&self) -> Result<(), ProtoError> {
         use std::io::Write;
-        use std::os::unix::fs::{MetadataExt, OpenOptionsExt};
+        use std::os::unix::fs::OpenOptionsExt;
         let Some(path) = &self.dirty_marker else {
             return Ok(());
         };
+        if self.check_marker(path)? {
+            return Ok(());
+        }
         let identity = self
             .hw
             .as_ref()
@@ -237,22 +319,6 @@ impl Motor {
         // Viftene som kan bli endret: recovery må finne og bekrefte like
         // mange på Auto før merkøren kan fjernes.
         let fans = self.hw.as_ref().map_or(0, |h| h.fan_count());
-        if let Ok(meta) = std::fs::symlink_metadata(path) {
-            let data = std::fs::read_to_string(path)
-                .ok()
-                .and_then(|s| serde_json::from_str::<Value>(&s).ok());
-            if !meta.is_file()
-                || meta.uid() != unsafe { libc::geteuid() }
-                || meta.mode() & 0o077 != 0
-                || data.as_ref().is_none_or(|v| v["identity"] != identity)
-            {
-                return Err(ProtoError::msg(
-                    ErrorCode::PermissionDenied,
-                    "Gjenopprettingsmerkøren har feil identitet eller utrygg eier/modus.",
-                ));
-            }
-            return Ok(());
-        }
         let save = || -> Result<(), std::io::Error> {
             let mut f = std::fs::OpenOptions::new()
                 .write(true)
@@ -272,15 +338,27 @@ impl Motor {
         })
     }
 
-    fn clear_dirty(&self) -> Result<(), String> {
-        let Some(path) = &self.dirty_marker else {
+    /// Fjerner merkøren etter bekreftet standard, men bare når den fortsatt
+    /// er vår. En avvist merkør (feil identitet, eier eller modus) står
+    /// urørt og gjør merkøren ubekreftet; `restore_stock` melder det som feil.
+    fn clear_dirty(&mut self) -> Result<(), String> {
+        let Some(path) = self.dirty_marker.clone() else {
             return Ok(());
         };
         // En merkør som ikke kunne bekreftes, står til den er kontrollert.
         if self.marker_unverified {
             return Ok(());
         }
-        match std::fs::remove_file(path) {
+        match self.check_marker(&path) {
+            Ok(true) => {}
+            Ok(false) => return Ok(()),
+            Err(e) => {
+                self.marker_unverified = true;
+                journal::err(&format!("{} Merkøren beholdes.", e.message));
+                return Ok(());
+            }
+        }
+        match std::fs::remove_file(&path) {
             Ok(()) => std::fs::File::open(path.parent().unwrap_or(std::path::Path::new("/")))
                 .and_then(|f| f.sync_all())
                 .map_err(|e| e.to_string()),
@@ -345,6 +423,8 @@ impl Motor {
         s["hardwareKnown"] = json!(self.hardware_error.is_none() && self.hw.is_some());
         s["hardwareError"] = json!(self.hardware_error);
         s["emergency"] = json!(self.nod());
+        s["thermalGuard"] = json!(self.thermal.map(|g| json!({
+            "attempts": g.attempts, "stockVerified": g.stock_verified})));
         s
     }
 
@@ -464,7 +544,12 @@ impl Motor {
             }
             return Err(hjelper::locked("authorization_required"));
         }
-        if self.hardware_error.is_some() && op != "reset" {
+        // Feiltilstand eller ubekreftet merkør: bare gjenoppretting til
+        // grunnverdiene, og bare når denne prosessen faktisk har skrevet til
+        // kortet. Et uberørt kort med ubekreftet merkør røres ikke før omstart.
+        if (self.hardware_error.is_some() || self.marker_unverified)
+            && (op != "reset" || (self.hardware_error.is_none() && !self.hw_touched))
+        {
             return Err(hjelper::locked("recovery_failed"));
         }
         match op {
@@ -571,8 +656,8 @@ impl Motor {
             args.get("confirmTimeoutS"),
             &limits,
         )?;
-        if changing {
-            self.mark_dirty()?;
+        if changing && let Err(e) = self.mark_dirty() {
+            return Err(self.marker_failed("apply", e));
         }
         let before = self.book.active.clone();
         let r = self.book.apply_with_limits(
@@ -602,7 +687,9 @@ impl Motor {
         if self.book.pending().is_some_and(|p| p.owner != owner(conn)) {
             return Err(ProtoError::new(ErrorCode::Busy));
         }
-        self.mark_dirty()?;
+        if let Err(e) = self.mark_dirty() {
+            return Err(self.marker_failed("tilbakestill", e));
+        }
         self.restore_stock("tilbakestill", now)?;
         Ok(self.state_view(now))
     }
@@ -658,6 +745,7 @@ impl Motor {
         });
         self.hw_touched = self.marker_unverified;
         self.emergency = false;
+        self.thermal = None;
         self.collect_events();
         journal::notice(&format!("Gjenopprettet kortets grunnverdier ({why})."));
         Ok(())
@@ -677,11 +765,12 @@ impl Motor {
         }
     }
 
-    /// Merkøren kunne ikke lagres eller bekreftes før en skriving kortet
-    /// venter på (nødregel, frist, tilbakerulling). Feilen kan ikke bare
+    /// Merkøren kunne ikke lagres eller bekreftes før en skriving (endring,
+    /// tilbakestilling, nødregel, frist, tilbakerulling). Feilen kan ikke bare
     /// returneres: takten forkaster den, og nødregelen ville stått som aktiv
-    /// med lav vifte. Kortet går til grunnverdiene med Auto-vifter, merkøren
-    /// på disk står urørt, og tilstanden er en feil til den er avklart.
+    /// med lav vifte. Gjenopprettingen etter et krasj kan heller ikke lenger
+    /// stoles på. Kortet går til grunnverdiene med Auto-vifter, merkøren på
+    /// disk står urørt, og tilstanden er en feil til den er avklart.
     ///
     /// Er ingenting skrevet ennå (og nødregelen ikke i kraft), røres ikke
     /// kortet: bare boka rulles tilbake.
@@ -847,7 +936,14 @@ impl Motor {
     }
 
     pub fn tick(&mut self, now: i64) {
-        if self.hw.is_none() || !self.authorized() || self.hardware_error.is_some() {
+        if self.hw.is_none() {
+            return;
+        }
+        if self.hardware_error.is_some() {
+            self.thermal_guard(now);
+            return;
+        }
+        if !self.authorized() {
             return;
         }
         // Tidslinjen er monoton og teller hvile; deltaene klemmes likevel,
@@ -906,6 +1002,73 @@ impl Motor {
             journal::err(&format!("Viftekurven feilet: {}", e.message));
             self.hardware_error = Some(e.message);
             self.til_standard("viftekurven kunne ikke skrives", now);
+        }
+    }
+
+    /// Overtemperaturvernet i feiltilstand (`ThermalGuard`). Skriver bare
+    /// grunnverdiene med Auto-vifter, bare på et kort denne prosessen har
+    /// skrevet til, og aldri når kortet er sperret. Uavhengig av eierskap og
+    /// autorisasjon, som stopp og endret oppsett: det rydder opp etter
+    /// hjelperens egne skrivinger og åpner ikke for nye endringer.
+    fn thermal_guard(&mut self, now: i64) {
+        if self.locked.is_some() || !self.hw_touched {
+            return;
+        }
+        let Some(h) = self.hw.as_mut() else {
+            return;
+        };
+        let temp = h.temperature();
+        // Samme hysterese som nødregelen: inn ved 85 °C, ut under 80 °C.
+        let hot = temp.is_none_or(|t| {
+            t >= txn::EMERGENCY_FAN_C || self.thermal.is_some() && t >= txn::EMERGENCY_RELEASE_C
+        });
+        if !hot {
+            if self.thermal.take().is_some() {
+                journal::notice("Overtemperaturvernet i feiltilstand er over: kortet er under 80 °C.");
+            }
+            return;
+        }
+        let g = self.thermal.get_or_insert(ThermalGuard {
+            next: now,
+            ..ThermalGuard::default()
+        });
+        if h.snapshot()["stock"] == true {
+            // Driveren styrer viftene (bekreftet Auto): ingenting å skrive.
+            g.stock_verified = true;
+            return;
+        }
+        g.stock_verified = false;
+        if now < g.next {
+            return;
+        }
+        g.wait = g
+            .wait
+            .saturating_mul(2)
+            .clamp(THERMAL_RETRY_MIN_MS, THERMAL_RETRY_MAX_MS);
+        g.next = now.saturating_add(g.wait);
+        g.attempts = g.attempts.saturating_add(1);
+        let why = match temp {
+            Some(t) => format!("{t:.0} °C"),
+            None => "temperaturen kan ikke leses".to_string(),
+        };
+        let result = h.reset().and_then(|()| {
+            if h.snapshot()["stock"] == true {
+                Ok(())
+            } else {
+                Err("standardtilstanden kunne ikke bekreftes ved tilbakelesing".to_string())
+            }
+        });
+        g.stock_verified = result.is_ok();
+        match result {
+            Ok(()) => journal::notice(&format!(
+                "Overtemperaturvernet i feiltilstand ({why}): grunnverdiene med Auto-vifter \
+                 er bekreftet. Nye endringer er fortsatt sperret til kortet er tilbakestilt."
+            )),
+            Err(e) => journal::err(&format!(
+                "Overtemperaturvernet i feiltilstand ({why}): Auto-vifter kunne ikke \
+                 bekreftes ({e}). Nytt forsøk om {} s.",
+                g.wait / 1000
+            )),
         }
     }
 
@@ -1399,6 +1562,252 @@ mod tests {
         assert_eq!(m.status(T0)["hardware"]["writes"], 0);
         assert_eq!(std::fs::read(&marker).unwrap(), corrupt);
         std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    /// Egen, tom mappe til merkøren per test (aldri vertens tilstandsmappe).
+    fn marker_dir(tag: &str) -> std::path::PathBuf {
+        let dir = std::env::temp_dir().join(format!("rigg-{tag}-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        dir
+    }
+
+    const ANNEN_MERKOR: &str = r#"{"version":1,"identity":"annet"}"#;
+
+    /// SOL4-23-1: en merkør som er avvist (her: et annet korts merkør) mens
+    /// kortet holdes, slettes aldri av en senere gjenoppretting, verken etter
+    /// en avvist endring, en avvist tilbakestilling eller uten noen
+    /// forespørsel. Kortet går til grunnverdiene, og tilstanden er en feil.
+    #[test]
+    fn avvist_merkor_slettes_aldri_ved_senere_gjenoppretting() {
+        for trigger in ["apply", "reset", "ingen"] {
+            for after in ["oppsett", "stopp"] {
+                let (mut m, _) = bound_motor(false, false, false);
+                let dir = marker_dir(&format!("avvist-{trigger}-{after}"));
+                let marker = dir.join("dirty.json");
+                m.set_dirty_marker(marker.clone());
+                let r = m
+                    .handle(1, "apply", &bound_args(json!({"powerLimitW":200})), T0)
+                    .unwrap();
+                let mut args = bound_args(json!({}));
+                args["txn"] = r["txn"].clone();
+                m.handle(1, "confirm", &args, T0).unwrap();
+                assert!(marker.exists());
+                assert_eq!(m.status(T0)["holding"], true);
+                std::fs::write(&marker, ANNEN_MERKOR).unwrap();
+                let corrupt = std::fs::read(&marker).unwrap();
+                let case = format!("{trigger}/{after}");
+                match trigger {
+                    "apply" => {
+                        let e = m
+                            .handle(1, "apply", &bound_args(json!({"powerLimitW":210})), T0 + 1)
+                            .unwrap_err();
+                        assert_eq!(e.details.unwrap()["reason"], "recovery_marker", "{case}");
+                    }
+                    "reset" => {
+                        let e = m
+                            .handle(1, "reset", &bound_args(json!({})), T0 + 1)
+                            .unwrap_err();
+                        assert_eq!(e.details.unwrap()["reason"], "recovery_marker", "{case}");
+                    }
+                    _ => {}
+                }
+                if trigger != "ingen" {
+                    let s = m.status(T0 + 1);
+                    assert_eq!(s["ready"], false, "{case}: {s}");
+                    assert!(m.hardware_error.is_some(), "{case}");
+                    assert_eq!(s["hardware"]["stock"], true, "{case}: ikke holdt uten merkør: {s}");
+                    assert_eq!(std::fs::read(&marker).unwrap(), corrupt, "{case}");
+                }
+                if after == "oppsett" {
+                    m.set_config(
+                        Config::parse(r#"{"versjon":2,"uid":1000,"enabled":true,"pci":"0000:01:00.0","uuid":"GPU-annet"}"#),
+                        T0 + 2,
+                    );
+                } else {
+                    m.shutdown(T0 + 2);
+                }
+                let s = m.status(T0 + 2);
+                assert_eq!(s["hardware"]["stock"], true, "{case}: {s}");
+                assert!(m.hardware_error.is_some(), "{case}: avvist merkør meldes som feil");
+                assert_eq!(s["ready"], false, "{case}");
+                assert_eq!(s["holding"], true, "{case}: feiltilstanden holder tjenesten");
+                assert_eq!(
+                    std::fs::read(&marker).unwrap(),
+                    corrupt,
+                    "{case}: merkøren står urørt"
+                );
+                std::fs::remove_dir_all(dir).unwrap();
+            }
+        }
+    }
+
+    /// SOL5-23-1: en ubekreftet merkør på et uberørt kort (ingen
+    /// `hardware_error`) gir `ready: false`, og forespørselsporten avviser da
+    /// også alle nye skrivinger, også etter at merkøren er fjernet.
+    #[test]
+    fn ubekreftet_merkor_paa_uberort_kort_avviser_nye_skrivinger() {
+        let (mut m, _) = bound_motor(false, false, false);
+        let dir = marker_dir("ubekreftet-uberort");
+        let marker = dir.join("dirty.json");
+        m.set_dirty_marker(marker.clone());
+        std::fs::write(&marker, ANNEN_MERKOR).unwrap();
+        let e = m
+            .handle(1, "apply", &bound_args(json!({"powerLimitW":200})), T0)
+            .unwrap_err();
+        assert_eq!(e.details.unwrap()["hardwareTouched"], false);
+        assert!(m.hardware_error.is_none());
+        assert_eq!(m.status(T0)["ready"], false);
+        assert_eq!(std::fs::read(&marker).unwrap(), ANNEN_MERKOR.as_bytes());
+        // Sperren står til omstart, også når merkøren er borte.
+        std::fs::remove_file(&marker).unwrap();
+        for op in ["apply", "confirm", "revert", "reset"] {
+            let mut args = bound_args(json!({"powerLimitW":200}));
+            args["txn"] = json!("t1");
+            let e = m.handle(1, op, &args, T0 + 1).unwrap_err();
+            assert_eq!(e.details.unwrap()["reason"], "recovery_failed", "{op}");
+        }
+        let s = m.status(T0 + 1);
+        assert_eq!(s["ready"], false);
+        assert_eq!(s["hardware"]["writes"], 0, "kortet er ikke rørt: {s}");
+        assert!(m.book.pending().is_none());
+        assert!(!marker.exists(), "ingen ny merkør");
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    /// Feiltilstand med lav manuell vifte: verken bekreftet oppsett eller
+    /// grunnverdiene kunne skrives.
+    fn feiltilstand_med_lav_vifte() -> (Motor, std::rc::Rc<std::cell::Cell<u8>>) {
+        let (mut m, flags) = bound_motor(false, false, false);
+        let r = m
+            .handle(
+                1,
+                "apply",
+                &bound_args(json!({"fan":{"mode":"manual","manualPercent":35}})),
+                T0,
+            )
+            .unwrap();
+        let mut args = bound_args(json!({}));
+        args["txn"] = r["txn"].clone();
+        m.handle(1, "confirm", &args, T0).unwrap();
+        flags.set(1 | 2 | 4);
+        assert!(
+            m.handle(1, "apply", &bound_args(json!({"powerLimitW":200})), T0 + 1)
+                .is_err()
+        );
+        assert!(m.hardware_error.is_some());
+        let s = m.status(T0 + 1);
+        assert_eq!(s["hardware"]["fanNow"], 35.0);
+        assert_eq!(s["hardware"]["stock"], false);
+        (m, flags)
+    }
+
+    fn thermal_view(m: &mut Motor, now: i64) -> Value {
+        m.status(now)["state"]["thermalGuard"].clone()
+    }
+
+    /// #20: i feiltilstand leses temperaturen fortsatt. Over 85 °C forsøkes
+    /// grunnverdiene med Auto-vifter straks og så med økende mellomrom, uten
+    /// at nye endringer slippes gjennom. Feiltilstanden står til brukerens
+    /// egen tilbakestilling.
+    #[test]
+    fn overtemperaturvernet_virker_ogsaa_i_feiltilstand() {
+        let (mut m, flags) = feiltilstand_med_lav_vifte();
+        let writes = m.status(T0 + 1)["hardware"]["writes"].clone();
+        // Kjølig kort: vernet er ikke i kraft og skriver ingenting.
+        m.tick(T0 + 1_000);
+        assert!(thermal_view(&mut m, T0 + 1_000).is_null());
+        assert_eq!(m.status(T0 + 1_000)["hardware"]["writes"], writes);
+        // 86 °C, og grunnverdiene kan fortsatt ikke skrives.
+        flags.set(1 | 2 | 4 | 128);
+        for (now, attempts) in [
+            (T0 + 2_000, 1),
+            (T0 + 3_000, 1),
+            (T0 + 6_999, 1),
+            (T0 + 7_000, 2),
+            (T0 + 16_999, 2),
+            (T0 + 17_000, 3),
+        ] {
+            m.tick(now);
+            let g = thermal_view(&mut m, now);
+            assert_eq!(g["attempts"], attempts, "{now}: {g}");
+            assert_eq!(g["stockVerified"], false);
+        }
+        let e = m
+            .handle(1, "apply", &bound_args(json!({"powerLimitW":220})), T0 + 17_500)
+            .unwrap_err();
+        assert_eq!(e.details.unwrap()["reason"], "recovery_failed");
+        assert_eq!(m.status(T0 + 17_500)["hardware"]["fanNow"], 35.0);
+        // Gjenopprettingen virker igjen: Auto bekreftes ved neste forsøk.
+        flags.set(128);
+        m.tick(T0 + 36_999);
+        assert_eq!(thermal_view(&mut m, T0 + 36_999)["attempts"], 3);
+        m.tick(T0 + 37_000);
+        let s = m.status(T0 + 37_000);
+        assert_eq!(s["state"]["thermalGuard"]["attempts"], 4, "{s}");
+        assert_eq!(s["state"]["thermalGuard"]["stockVerified"], true);
+        assert_eq!(s["hardware"]["stock"], true, "{s}");
+        assert!(s["hardware"]["fanNow"].is_null(), "driveren styrer (Auto)");
+        assert!(m.hardware_error.is_some(), "feiltilstanden står");
+        assert_eq!(s["ready"], false);
+        assert_eq!(s["emergency"], false);
+        let writes = s["hardware"]["writes"].clone();
+        assert!(
+            m.handle(1, "apply", &bound_args(json!({"powerLimitW":220})), T0 + 38_000)
+                .is_err()
+        );
+        // Bekreftet standard: ingen flere skrivinger mens kortet er varmt.
+        m.tick(T0 + 120_000);
+        let s = m.status(T0 + 120_000);
+        assert_eq!(s["hardware"]["writes"], writes);
+        assert_eq!(s["state"]["thermalGuard"]["attempts"], 4);
+        // Under 80 °C slipper vernet.
+        flags.set(0);
+        m.tick(T0 + 121_000);
+        assert!(thermal_view(&mut m, T0 + 121_000).is_null());
+        m.handle(1, "reset", &bound_args(json!({})), T0 + 122_000)
+            .unwrap();
+        let s = m.status(T0 + 122_000);
+        assert_eq!(s["ready"], true, "{s}");
+        assert!(s["state"]["thermalGuard"].is_null());
+    }
+
+    /// #20: ukjent temperatur i feiltilstand uten bekreftet standard gir
+    /// også et forsøk på Auto, som når temperaturen ikke kan leses under
+    /// manuell vifte ellers.
+    #[test]
+    fn ukjent_temperatur_i_feiltilstand_gir_auto() {
+        let (mut m, flags) = feiltilstand_med_lav_vifte();
+        flags.set(1 | 2 | 32);
+        m.tick(T0 + 1_000);
+        let s = m.status(T0 + 1_000);
+        assert_eq!(s["state"]["thermalGuard"]["attempts"], 1, "{s}");
+        assert_eq!(s["state"]["thermalGuard"]["stockVerified"], true);
+        assert_eq!(s["hardware"]["stock"], true);
+        assert!(s["hardware"]["fanNow"].is_null());
+        assert!(m.hardware_error.is_some());
+        assert_eq!(s["ready"], false);
+    }
+
+    /// Vernet griper aldri inn på et kort denne prosessen ikke har skrevet
+    /// til, og heller ikke på et sperret kort.
+    #[test]
+    fn overtemperaturvernet_rorer_ikke_et_uberort_eller_sperret_kort() {
+        for locked in [false, true] {
+            let (mut m, flags) = bound_motor(false, false, false);
+            if locked {
+                m.hw_touched = true;
+                m.locked = Some("test".into());
+                m.hw.as_mut().unwrap().set_fan_percent(35.0).unwrap();
+            }
+            m.hardware_error = Some("test".into());
+            flags.set(128);
+            m.tick(T0 + 1_000);
+            let s = m.status(T0 + 1_000);
+            assert!(s["state"]["thermalGuard"].is_null(), "{s}");
+            assert!(m.thermal.is_none());
+            assert_eq!(s["hardware"]["writes"], u64::from(locked), "{s}");
+        }
     }
 
     #[test]
