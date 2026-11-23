@@ -30,6 +30,9 @@ mod oppgaver;
 #[path = "skjermbilder_revisjon.rs"]
 mod revisjon;
 
+#[path = "skjermbilder_nettverk.rs"]
+mod nettverk;
+
 thread_local! {
     /// Bredden planen sist ba om (`Step::Size`), for layoutrevisjonen.
     static REQUESTED_WIDTH: std::cell::Cell<i32> = const { std::cell::Cell::new(0) };
@@ -83,6 +86,7 @@ fn plan() -> Vec<Step> {
         Ok("rgb-ui") => plan_rgb(),
         Ok("rgb-flow") => plan_rgb_flow(),
         Ok("oppgaver") => oppgaver::plan(),
+        Ok("nettverk") => nettverk::plan(),
         Ok("revisjon") => revisjon::plan(),
         _ => plan_grunnmur(),
     }
@@ -537,7 +541,7 @@ fn plan_3a_borte() -> Vec<Step> {
 }
 
 /// Alle ti sidene i rekkefølgen i sidefeltet (tastene 1–9 og 0).
-const PAGES: [&str; 11] = ["oversikt", "sensorer", "grafer", "grafikkort", "prosessor", "disker", "system", "kontroller", "viftekurve", "lys", "oppgaver"];
+const PAGES: [&str; 12] = ["oversikt", "sensorer", "grafer", "grafikkort", "prosessor", "disker", "system", "kontroller", "viftekurve", "lys", "oppgaver", "nettverk"];
 
 /// Navn til et bilde som lages i løkka (planen kjører én gang per prosess).
 fn name(s: String) -> &'static str {

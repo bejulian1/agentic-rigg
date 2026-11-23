@@ -37,6 +37,7 @@ pub const READ_OPS: &[&str] = &[
     "get_tasks",
     "get_task_detail",
     "get_disks",
+    "get_network",
     "log_start",
     "log_stop",
     "log_status",

@@ -380,7 +380,7 @@ mod tests {
     #[test]
     fn sifrene_gir_alle_ti_sidene() {
         use super::page_index;
-        assert_eq!(crate::pages::PAGES.len(), 11);
+        assert_eq!(crate::pages::PAGES.len(), 12);
         assert_eq!(page_index(1), Some(0));
         assert_eq!(page_index(9), Some(8));
         assert_eq!(page_index(0), Some(9));

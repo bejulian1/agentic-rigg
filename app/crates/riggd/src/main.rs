@@ -17,6 +17,7 @@ mod hjelper;
 mod rgb_hjelper;
 mod lifecycle;
 mod logg;
+mod nett;
 mod ops;
 mod sampler;
 mod schedule;

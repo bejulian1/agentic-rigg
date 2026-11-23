@@ -1,0 +1,570 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic Rigg\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/pages/nettverk.rs:41
+msgid "Ethernet"
+msgstr "Ethernet"
+
+#: crates/rigg/src/pages/nettverk.rs:42 crates/rigg/src/pages/nettverk.rs:821
+msgid "Wi-Fi"
+msgstr "Wi-Fi"
+
+#: crates/rigg/src/pages/nettverk.rs:43
+msgid "Mobilnett"
+msgstr "Rete mobile"
+
+#: crates/rigg/src/pages/nettverk.rs:44
+msgid "Loopback"
+msgstr "Loopback"
+
+#: crates/rigg/src/pages/nettverk.rs:45
+msgid "Bro"
+msgstr "Bridge"
+
+#: crates/rigg/src/pages/nettverk.rs:46
+msgid "VPN eller tunnel"
+msgstr "VPN o tunnel"
+
+#: crates/rigg/src/pages/nettverk.rs:47
+msgid "Virtuelt"
+msgstr "Virtuale"
+
+#: crates/rigg/src/pages/nettverk.rs:48
+msgid "Nettverkskort"
+msgstr "Scheda di rete"
+
+#: crates/rigg/src/pages/nettverk.rs:64
+msgctxt "nettverksstatus"
+msgid "Tilkoblet"
+msgstr "Connesso"
+
+#: crates/rigg/src/pages/nettverk.rs:67
+msgctxt "nettverksstatus"
+msgid "Venter"
+msgstr "In attesa"
+
+#: crates/rigg/src/pages/nettverk.rs:68
+msgctxt "nettverksstatus"
+msgid "Ingen kabel"
+msgstr "Nessun cavo"
+
+#: crates/rigg/src/pages/nettverk.rs:69
+msgctxt "nettverksstatus"
+msgid "Ikke tilkoblet"
+msgstr "Non connesso"
+
+#: crates/rigg/src/pages/nettverk.rs:70
+msgctxt "nettverksstatus"
+msgid "Lokal"
+msgstr "Locale"
+
+#: crates/rigg/src/pages/nettverk.rs:71
+msgctxt "nettverksstatus"
+msgid "Nede"
+msgstr "Inattivo"
+
+#: crates/rigg/src/pages/nettverk.rs:72
+msgctxt "nettverksstatus"
+msgid "Ukjent"
+msgstr "Sconosciuto"
+
+#: crates/rigg/src/pages/nettverk.rs:79
+msgctxt "operstate"
+msgid "oppe"
+msgstr "attivo"
+
+#: crates/rigg/src/pages/nettverk.rs:80
+msgctxt "operstate"
+msgid "nede"
+msgstr "inattivo"
+
+#: crates/rigg/src/pages/nettverk.rs:81
+msgctxt "operstate"
+msgid "venter på tilknytning"
+msgstr "in attesa di associazione"
+
+#: crates/rigg/src/pages/nettverk.rs:82
+msgctxt "operstate"
+msgid "underliggende lenke nede"
+msgstr "livello inferiore inattivo"
+
+#: crates/rigg/src/pages/nettverk.rs:83
+msgctxt "operstate"
+msgid "ikke til stede"
+msgstr "non presente"
+
+#: crates/rigg/src/pages/nettverk.rs:84
+msgctxt "operstate"
+msgid "tester"
+msgstr "in test"
+
+#: crates/rigg/src/pages/nettverk.rs:85
+msgctxt "operstate"
+msgid "ukjent"
+msgstr "sconosciuto"
+
+#: crates/rigg/src/pages/nettverk.rs:101
+msgid "Åpent (ingen kryptering)"
+msgstr "Aperta (nessuna cifratura)"
+
+#: crates/rigg/src/pages/nettverk.rs:108
+msgid "Enhanced Open (OWE)"
+msgstr "Enhanced Open (OWE)"
+
+#: crates/rigg/src/pages/nettverk.rs:120
+msgid "{band} · kanal {kanal}"
+msgstr "{band} · canale {kanal}"
+
+#: crates/rigg/src/pages/nettverk.rs:122
+msgid "kanal {kanal}"
+msgstr "canale {kanal}"
+
+#: crates/rigg/src/pages/nettverk.rs:149
+msgid "alle (IPv6)"
+msgstr "tutti (IPv6)"
+
+#: crates/rigg/src/pages/nettverk.rs:149
+msgid "alle (IPv4)"
+msgstr "tutti (IPv4)"
+
+#: crates/rigg/src/pages/nettverk.rs:265 crates/rigg/src/pages/nettverk.rs:1153
+msgid "Ned"
+msgstr "Download"
+
+#: crates/rigg/src/pages/nettverk.rs:265
+msgid "Mottatt nå (statistics/rx_bytes)"
+msgstr "Ricevuto ora (statistics/rx_bytes)"
+
+#: crates/rigg/src/pages/nettverk.rs:266 crates/rigg/src/pages/nettverk.rs:1154
+msgid "Opp"
+msgstr "Upload"
+
+#: crates/rigg/src/pages/nettverk.rs:266
+msgid "Sendt nå (statistics/tx_bytes)"
+msgstr "Inviato ora (statistics/tx_bytes)"
+
+#: crates/rigg/src/pages/nettverk.rs:308
+msgid "Navnet på grensesnittet i kjernen"
+msgstr "Nome dell’interfaccia nel kernel"
+
+#: crates/rigg/src/pages/nettverk.rs:312
+msgid "Lenkehastigheten som er forhandlet nå"
+msgstr "Velocità di collegamento negoziata ora"
+
+#: crates/rigg/src/pages/nettverk.rs:323
+msgid "Standardrute"
+msgstr "Route predefinita"
+
+#: crates/rigg/src/pages/nettverk.rs:324
+msgid "Trafikk ut av maskinen går hit som standard"
+msgstr "Il traffico in uscita passa di qui per impostazione predefinita"
+
+#: crates/rigg/src/pages/nettverk.rs:331
+msgid "operstate: {tilstand} · carrier: {carrier}"
+msgstr "operstate: {tilstand} · carrier: {carrier}"
+
+#: crates/rigg/src/pages/nettverk.rs:335
+msgid "ja"
+msgstr "sì"
+
+#: crates/rigg/src/pages/nettverk.rs:336
+msgid "nei"
+msgstr "no"
+
+#: crates/rigg/src/pages/nettverk.rs:358
+msgid "ingen adresse"
+msgstr "nessun indirizzo"
+
+#: crates/rigg/src/pages/nettverk.rs:362
+msgid "{type} {navn}, {status}"
+msgstr "{type} {navn}, {status}"
+
+#: crates/rigg/src/pages/nettverk.rs:422
+msgctxt "ett grensesnitt"
+msgid "Grensesnitt"
+msgstr "Interfaccia"
+
+#: crates/rigg/src/pages/nettverk.rs:425 crates/rigg/src/pages/nettverk.rs:830
+msgid "Status"
+msgstr "Stato"
+
+#: crates/rigg/src/pages/nettverk.rs:427
+msgid "Tilkobling"
+msgstr "Connessione"
+
+#: crates/rigg/src/pages/nettverk.rs:427 crates/rigg/src/pages/nettverk.rs:469 crates/rigg/src/pages/nettverk.rs:475 crates/rigg/src/pages/nettverk.rs:806
+msgid "Ingen"
+msgstr "Nessuna"
+
+#: crates/rigg/src/pages/nettverk.rs:427 crates/rigg/src/pages/nettverk.rs:794 crates/rigg/src/pages/nettverk.rs:828
+msgid "Krever NetworkManager"
+msgstr "Richiede NetworkManager"
+
+#: crates/rigg/src/pages/nettverk.rs:429 crates/rigg/src/pages/nettverk.rs:439
+msgid "Ingen adresse"
+msgstr "Nessun indirizzo"
+
+#: crates/rigg/src/pages/nettverk.rs:434
+msgid "{adresse} (midlertidig)"
+msgstr "{adresse} (temporaneo)"
+
+#: crates/rigg/src/pages/nettverk.rs:435
+msgid "{adresse} (lenkelokal)"
+msgstr "{adresse} (link-local)"
+
+#: crates/rigg/src/pages/nettverk.rs:441
+msgid "MAC-adresse"
+msgstr "Indirizzo MAC"
+
+#: crates/rigg/src/pages/nettverk.rs:441 crates/rigg/src/pages/nettverk.rs:443 crates/rigg/src/pages/nettverk.rs:476 crates/rigg/src/pages/nettverk.rs:486 crates/rigg/src/pages/nettverk.rs:828
+msgid "Ikke oppgitt"
+msgstr "Non indicato"
+
+#: crates/rigg/src/pages/nettverk.rs:446
+msgid "Se bitrate under Wi-Fi"
+msgstr "Vedi bitrate in Wi-Fi"
+
+#: crates/rigg/src/pages/nettverk.rs:446 crates/rigg/src/pages/nettverk.rs:453
+msgid "Ukjent (ingen lenke)"
+msgstr "Sconosciuta (nessun collegamento)"
+
+#: crates/rigg/src/pages/nettverk.rs:447
+msgid "Lenkehastighet"
+msgstr "Velocità di collegamento"
+
+#: crates/rigg/src/pages/nettverk.rs:451
+msgid "Dupleks"
+msgstr "Duplex"
+
+#: crates/rigg/src/pages/nettverk.rs:452
+msgctxt "dupleks"
+msgid "Full"
+msgstr "Full"
+
+#: crates/rigg/src/pages/nettverk.rs:452
+msgctxt "dupleks"
+msgid "Halv"
+msgstr "Half"
+
+#: crates/rigg/src/pages/nettverk.rs:462
+msgid "Maskinvare"
+msgstr "Hardware"
+
+#: crates/rigg/src/pages/nettverk.rs:465
+msgid "Grensesnittet er laget av programvare og har ingen egen maskinvare."
+msgstr "Questa interfaccia è creata dal software e non ha hardware proprio."
+
+#: crates/rigg/src/pages/nettverk.rs:469 crates/rigg/src/pages/nettverk.rs:475
+msgid "Driver"
+msgstr "Driver"
+
+#: crates/rigg/src/pages/nettverk.rs:473
+msgid "Produsent"
+msgstr "Produttore"
+
+#: crates/rigg/src/pages/nettverk.rs:473 crates/rigg/src/pages/nettverk.rs:474 crates/rigg/src/pages/nettverk.rs:484 crates/rigg/src/pages/nettverk.rs:801 crates/rigg/src/pages/nettverk.rs:807
+msgid "Ukjent"
+msgstr "Sconosciuto"
+
+#: crates/rigg/src/pages/nettverk.rs:474
+msgid "Modell"
+msgstr "Modello"
+
+#: crates/rigg/src/pages/nettverk.rs:476
+msgid "Fastvare"
+msgstr "Firmware"
+
+#: crates/rigg/src/pages/nettverk.rs:479
+msgid "Buss"
+msgstr "Bus"
+
+#: crates/rigg/src/pages/nettverk.rs:486
+msgid "ID-er"
+msgstr "ID"
+
+#: crates/rigg/src/pages/nettverk.rs:493
+msgid "Tellere"
+msgstr "Contatori"
+
+#: crates/rigg/src/pages/nettverk.rs:494
+msgid "siden grensesnittet kom opp"
+msgstr "da quando l’interfaccia è attiva"
+
+#: crates/rigg/src/pages/nettverk.rs:498
+msgid "Data"
+msgstr "Dati"
+
+#: crates/rigg/src/pages/nettverk.rs:498
+msgid "Pakker"
+msgstr "Pacchetti"
+
+#: crates/rigg/src/pages/nettverk.rs:498
+msgid "Feil"
+msgstr "Errori"
+
+#: crates/rigg/src/pages/nettverk.rs:498
+msgid "Droppet"
+msgstr "Scartati"
+
+#: crates/rigg/src/pages/nettverk.rs:508 crates/rigg/src/pages/nettverk.rs:548
+msgid "Mottatt"
+msgstr "Ricevuto"
+
+#: crates/rigg/src/pages/nettverk.rs:508 crates/rigg/src/pages/nettverk.rs:548
+msgid "Sendt"
+msgstr "Inviato"
+
+#: crates/rigg/src/pages/nettverk.rs:527
+msgid "Multicast mottatt"
+msgstr "Multicast ricevuto"
+
+#: crates/rigg/src/pages/nettverk.rs:527
+msgid "Kollisjoner"
+msgstr "Collisioni"
+
+#: crates/rigg/src/pages/nettverk.rs:547
+msgid "Trafikk · {navn}"
+msgstr "Traffico · {navn}"
+
+#: crates/rigg/src/pages/nettverk.rs:741
+msgid "Fant ingen nettverkskort"
+msgstr "Nessuna scheda di rete trovata"
+
+#: crates/rigg/src/pages/nettverk.rs:741
+msgid "Det er ingen grensesnitt i /sys/class/net."
+msgstr "Non ci sono interfacce in /sys/class/net."
+
+#: crates/rigg/src/pages/nettverk.rs:742
+msgid "Leser nettverket …"
+msgstr "Lettura della rete…"
+
+#: crates/rigg/src/pages/nettverk.rs:742
+msgid "Tjenesten henter grensesnittene, rutene og DNS. Det tar et øyeblikk."
+msgstr "Il servizio legge interfacce, route e DNS. Ci vuole un attimo."
+
+#: crates/rigg/src/pages/nettverk.rs:743
+msgid "Venter på tjenesten"
+msgstr "In attesa del servizio"
+
+#: crates/rigg/src/pages/nettverk.rs:743
+msgid "Nettverket leses av tjenesten (agentic-riggd). Siden fylles når den svarer."
+msgstr "La rete viene letta dal servizio (agentic-riggd). La pagina si riempie quando risponde."
+
+#: crates/rigg/src/pages/nettverk.rs:799
+msgid "Ruting og DNS"
+msgstr "Routing e DNS"
+
+#: crates/rigg/src/pages/nettverk.rs:801
+msgid "Vertsnavn"
+msgstr "Nome host"
+
+#: crates/rigg/src/pages/nettverk.rs:802
+msgid "{adresse} via {grensesnitt}"
+msgstr "{adresse} tramite {grensesnitt}"
+
+#: crates/rigg/src/pages/nettverk.rs:803
+msgid "Standard gateway"
+msgstr "Gateway predefinito"
+
+#: crates/rigg/src/pages/nettverk.rs:803 crates/rigg/src/pages/nettverk.rs:804
+msgid "Ingen standardrute"
+msgstr "Nessuna route predefinita"
+
+#: crates/rigg/src/pages/nettverk.rs:804
+msgid "IPv6-gateway"
+msgstr "Gateway IPv6"
+
+#: crates/rigg/src/pages/nettverk.rs:805
+msgid "DNS-servere"
+msgstr "Server DNS"
+
+#: crates/rigg/src/pages/nettverk.rs:805
+msgid "Ingen oppgitt"
+msgstr "Nessuno indicato"
+
+#: crates/rigg/src/pages/nettverk.rs:806
+msgid "Søkedomener"
+msgstr "Domini di ricerca"
+
+#: crates/rigg/src/pages/nettverk.rs:807
+msgid "DNS fra"
+msgstr "DNS da"
+
+#: crates/rigg/src/pages/nettverk.rs:809
+msgid "Programmene spør den lokale mellomtjeneren {adresse} (systemd-resolved), som sender videre til serverne over."
+msgstr "I programmi interrogano il resolver locale {adresse} (systemd-resolved), che inoltra ai server sopra."
+
+#: crates/rigg/src/pages/nettverk.rs:813
+msgid "{kilde} · via {adresse}"
+msgstr "{kilde} · tramite {adresse}"
+
+#: crates/rigg/src/pages/nettverk.rs:832
+msgid "Nettverk (SSID)"
+msgstr "Rete (SSID)"
+
+#: crates/rigg/src/pages/nettverk.rs:832
+msgid "Ikke tilkoblet"
+msgstr "Non connesso"
+
+#: crates/rigg/src/pages/nettverk.rs:842
+msgid "Signalnivå fra /proc/net/wireless og signalstyrke fra NetworkManager. Over −60 dBm er godt, under −75 dBm er svakt."
+msgstr "Livello del segnale da /proc/net/wireless e intensità da NetworkManager. Sopra −60 dBm è buono, sotto −75 dBm è debole."
+
+#: crates/rigg/src/pages/nettverk.rs:843
+msgid "Signal"
+msgstr "Segnale"
+
+#: crates/rigg/src/pages/nettverk.rs:844
+msgid "Frekvens"
+msgstr "Frequenza"
+
+#: crates/rigg/src/pages/nettverk.rs:845
+msgid "Bitrate"
+msgstr "Bitrate"
+
+#: crates/rigg/src/pages/nettverk.rs:846
+msgid "Overføringshastigheten mot tilgangspunktet nå"
+msgstr "Velocità di trasferimento attuale verso l’access point"
+
+#: crates/rigg/src/pages/nettverk.rs:847
+msgid "Sikkerhet"
+msgstr "Sicurezza"
+
+#: crates/rigg/src/pages/nettverk.rs:848
+msgid "Tilgangspunkt (BSSID)"
+msgstr "Access point (BSSID)"
+
+#: crates/rigg/src/pages/nettverk.rs:887
+msgid "Ingen fysiske nettverkskort. Virtuelle grensesnitt står under."
+msgstr "Nessuna scheda di rete fisica. Le interfacce virtuali sono elencate sotto."
+
+#: crates/rigg/src/pages/nettverk.rs:893 crates/rigg/src/pages/nettverk.rs:1171
+msgid "Grensesnitt"
+msgstr "Interfacce"
+
+#: crates/rigg/src/pages/nettverk.rs:914
+msgid "Virtuelle og loopback ({antall})"
+msgstr "Virtuali e loopback ({antall})"
+
+#: crates/rigg/src/pages/nettverk.rs:967
+msgid "Porter som lytter"
+msgstr "Porte in ascolto"
+
+#: crates/rigg/src/pages/nettverk.rs:973
+msgid "Ingen porter lytter."
+msgstr "Nessuna porta in ascolto."
+
+#: crates/rigg/src/pages/nettverk.rs:980
+msgid "Protokoll"
+msgstr "Protocollo"
+
+#: crates/rigg/src/pages/nettverk.rs:980
+msgid "Adresse"
+msgstr "Indirizzo"
+
+#: crates/rigg/src/pages/nettverk.rs:980
+msgid "Port"
+msgstr "Porta"
+
+#: crates/rigg/src/pages/nettverk.rs:980
+msgid "Prosess"
+msgstr "Processo"
+
+#: crates/rigg/src/pages/nettverk.rs:980
+msgid "Bruker"
+msgstr "Utente"
+
+#: crates/rigg/src/pages/nettverk.rs:1009
+msgid "Lytter på alle adresser: kan nås fra nettverket hvis brannmuren slipper gjennom"
+msgstr "In ascolto su tutti gli indirizzi: raggiungibile dalla rete se il firewall lo consente"
+
+#: crates/rigg/src/pages/nettverk.rs:1010
+msgid "Bare fra denne maskinen"
+msgstr "Solo da questo computer"
+
+#: crates/rigg/src/pages/nettverk.rs:1011
+msgid "Lytter på én adresse"
+msgstr "In ascolto su un solo indirizzo"
+
+#: crates/rigg/src/pages/nettverk.rs:1024
+msgid "Prosessen eies av en annen bruker og kan bare leses av root."
+msgstr "Il processo appartiene a un altro utente e può essere letto solo da root."
+
+#: crates/rigg/src/pages/nettverk.rs:1032
+msgid "Vis færre"
+msgstr "Mostra meno"
+
+#: crates/rigg/src/pages/nettverk.rs:1032
+msgid "Vis alle {antall}"
+msgstr "Mostra tutte le {antall}"
+
+#: crates/rigg/src/pages/nettverk.rs:1082 crates/rigg/src/pages/nettverk.rs:1083
+msgid "totalt {mengde}"
+msgstr "totale {mengde}"
+
+#: crates/rigg/src/pages/nettverk.rs:1087
+msgid "Wi-Fi · {ssid}"
+msgstr "Wi-Fi · {ssid}"
+
+#: crates/rigg/src/pages/nettverk.rs:1104
+msgid "Frakoblet"
+msgstr "Disconnesso"
+
+#: crates/rigg/src/pages/nettverk.rs:1105
+msgid "ingen standardrute"
+msgstr "nessuna route predefinita"
+
+#: crates/rigg/src/pages/nettverk.rs:1111
+msgid "{lytter} lytter · {udp} UDP"
+msgstr "{lytter} in ascolto · {udp} UDP"
+
+#: crates/rigg/src/pages/nettverk.rs:1146
+msgid "Nå"
+msgstr "Adesso"
+
+#: crates/rigg/src/pages/nettverk.rs:1152
+msgid "Aktiv tilkobling"
+msgstr "Connessione attiva"
+
+#: crates/rigg/src/pages/nettverk.rs:1152
+msgid "Grensesnittet standardruten går via, med lenkehastighet og IPv4-adresse."
+msgstr "L’interfaccia della route predefinita, con velocità di collegamento e indirizzo IPv4."
+
+#: crates/rigg/src/pages/nettverk.rs:1153
+msgid "Mottatt nå over de fysiske kortene. Under: alt som er mottatt siden kortene kom opp (vanligvis siden oppstart)."
+msgstr "Ricevuto ora dalle schede fisiche. Sotto: tutto il ricevuto da quando sono attive (di solito dall’avvio)."
+
+#: crates/rigg/src/pages/nettverk.rs:1154
+msgid "Sendt nå over de fysiske kortene. Under: alt som er sendt siden kortene kom opp (vanligvis siden oppstart)."
+msgstr "Inviato ora dalle schede fisiche. Sotto: tutto l’inviato da quando sono attive (di solito dall’avvio)."
+
+#: crates/rigg/src/pages/nettverk.rs:1155
+msgid "TCP-tilkoblinger"
+msgstr "Connessioni TCP"
+
+#: crates/rigg/src/pages/nettverk.rs:1155
+msgid "Åpne TCP-tilkoblinger (ESTABLISHED) i /proc/net/tcp og tcp6, porter som lytter og UDP-socketer."
+msgstr "Connessioni TCP aperte (ESTABLISHED) in /proc/net/tcp e tcp6, porte in ascolto e socket UDP."
+
+#: crates/rigg/src/pages/nettverk.rs:1179
+msgid "Docker, veth, broer, tunneler og loopback"
+msgstr "Docker, veth, bridge, tunnel e loopback"
+
+#: crates/rigg/src/pages/nettverk.rs:1208
+msgid "Lest fra /sys/class/net, /proc/net og NetworkManager over D-Bus, uten root. Siden endrer ikke nettverksoppsettet og sender ingenting ut på nettet. Prosessen bak en port vises bare for dine egne prosesser."
+msgstr "Letto da /sys/class/net, /proc/net e NetworkManager tramite D-Bus, senza root. La pagina non modifica la configurazione di rete e non invia nulla in rete. Il processo dietro una porta è mostrato solo per i tuoi processi."
+
+#: crates/rigg/src/pages/nettverk.rs:1218
+msgid "Tidsvindu for grafene på Nettverk"
+msgstr "Intervallo di tempo dei grafici di Rete"
+
+#: crates/rigg/src/pages/nettverk.rs:1224 crates/rigg/src/pages/nettverk.rs:1225
+msgid "Les nettverket på nytt"
+msgstr "Rileggi la rete"

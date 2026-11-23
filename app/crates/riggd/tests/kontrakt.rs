@@ -1311,3 +1311,50 @@ fn cpu_hotplug_oppdaterer_get_system_og_telemetri_i_samme_okt() {
     assert!(sys2["cpu"]["coreOf"][1].is_null());
     assert_eq!(sys2["cpu"]["coreOf"][8], 4);
 }
+
+/// `get_network` (Nettverk-siden): med sim de simulerte grensesnittene, og
+/// prøvene har de samme navnene, så grafene og lista stemmer. Med en
+/// fixture-rot leses `/sys/class/net` og `/proc/net` i en egen tråd.
+#[test]
+fn nettverket_simulert_og_fra_fixtures() {
+    let poll = |c: &mut Conn| {
+        let t0 = Instant::now();
+        loop {
+            let v = c.ok("get_network", json!({}));
+            if v["pending"] == false {
+                break v;
+            }
+            assert!(t0.elapsed() < Duration::from_secs(8), "nettlista kom ikke: {v}");
+            std::thread::sleep(Duration::from_millis(100));
+        }
+    };
+    let d = Daemon::start("sim");
+    let mut c = d.connect();
+    let h = c.hello();
+    assert!(h["capabilities"]["ops"].as_array().unwrap().iter().any(|o| o == "get_network"));
+    let v = poll(&mut c);
+    assert_eq!(v["source"], "sim");
+    assert_eq!(v["ifaces"][0]["name"], "enp5s0");
+    assert_eq!(v["ifaces"][0]["defaultRoute"], true);
+    assert_eq!(v["routes"]["gateway4"]["addr"], "192.0.2.1");
+    c.ok("subscribe", json!({"topics": ["telemetry"]}));
+    let t = c.wait_event("telemetry", Duration::from_secs(5)).unwrap();
+    let net = t["data"]["sys"]["net"].as_object().unwrap();
+    assert!(net.contains_key("enp5s0") && net.contains_key("wlp4s0"), "simulerte rater: {net:?}");
+    assert!(net["enp5s0"]["rx"].as_f64().is_some());
+    drop(c);
+    drop(d);
+
+    let dir = tmpdir("nett");
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../rigg-hw/tests/fixtures/nett");
+    let d = Daemon::start_with_root_uten_disker(&dir, "ingen", &root);
+    let mut c = d.connect();
+    c.hello();
+    let v = poll(&mut c);
+    assert_eq!(v["source"], "sysfs");
+    assert_eq!(v["hostname"], "rigg-test");
+    let names: Vec<&str> = v["ifaces"].as_array().unwrap().iter().map(|i| i["name"].as_str().unwrap()).collect();
+    assert_eq!(names, ["wlo1", "enp24s0", "docker0", "lo"]);
+    assert_eq!(v["dns"]["servers"], json!(["192.0.2.1"]));
+    assert_eq!(v["sockets"]["tcpListen"], 2);
+}

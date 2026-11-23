@@ -96,6 +96,8 @@ pub struct Daemon {
     pub disks_asked: i64,
     /// Diskvarselet er på (sendt til prøvetråden).
     pub disk_alarm: bool,
+    /// Nettverk-siden (`get_network`): lista og lesetråden.
+    pub nett: crate::nett::NetCache,
     /// Viftesløyfen og varmemodellen for det simulerte kortet (runde 7B).
     pub vifter: rigg_hw::gpu::sim_vifter::SimVifter,
     /// Klienten mot root-hjelperen (runde 7A, `hjelper.rs`).
@@ -124,6 +126,7 @@ impl Daemon {
         }
         let hjelper = crate::hjelper::Hjelper::new(opts.hjelper.clone());
         let (rgb, rgb_results) = crate::rgb_hjelper::RgbClient::start(opts.rgb_paths());
+        let nett = crate::nett::NetCache::new(opts.root.clone(), &opts.backend, now);
         let d = Rc::new(RefCell::new(Daemon {
             me: Weak::new(),
             opts,
@@ -164,6 +167,7 @@ impl Daemon {
             disks: None,
             disks_asked: 0,
             disk_alarm: false,
+            nett,
             vifter: Default::default(),
             hjelper,
             rgb,
@@ -573,6 +577,7 @@ impl Daemon {
         if self.opts.backend == "sim" {
             self.overlay_sim(&mut gpus, now);
         }
+        self.nett.overlay(&mut sys.net, now);
         if self.opts.hete {
             overlay_hete(&mut gpus, &mut sys, (now - self.started_at) as f64 / 1000.0);
         }
