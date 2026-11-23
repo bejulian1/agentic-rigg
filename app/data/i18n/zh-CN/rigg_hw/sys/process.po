@@ -8,94 +8,94 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg-hw/src/sys/process.rs:104
+#: crates/rigg-hw/src/sys/process.rs:143
 msgid "For stor /proc-fil"
 msgstr "/proc 文件过大"
 
-#: crates/rigg-hw/src/sys/process.rs:114
+#: crates/rigg-hw/src/sys/process.rs:153
 msgid "Ugyldig prosessinformasjon"
 msgstr "进程信息无效"
 
-#: crates/rigg-hw/src/sys/process.rs:187
+#: crates/rigg-hw/src/sys/process.rs:226
 msgid "Ugyldig foreldrekjede for appen eller en tilkoblet klient"
 msgstr "应用或已连接客户端的父进程链无效"
 
-#: crates/rigg-hw/src/sys/process.rs:196
+#: crates/rigg-hw/src/sys/process.rs:235
 msgid "Kunne ikke kontrollere foreldreprosesser for appen eller en tilkoblet klient"
 msgstr "无法验证应用或已连接客户端的父进程"
 
-#: crates/rigg-hw/src/sys/process.rs:202
+#: crates/rigg-hw/src/sys/process.rs:241
 msgid "Foreldrekjeden er for lang"
 msgstr "父进程链过长"
 
-#: crates/rigg-hw/src/sys/process.rs:220
+#: crates/rigg-hw/src/sys/process.rs:259
 msgid "Systemets init-prosess er beskyttet"
 msgstr "系统 init 进程受保护"
 
-#: crates/rigg-hw/src/sys/process.rs:222
+#: crates/rigg-hw/src/sys/process.rs:261
 msgid "Appen eller en foreldreprosess er beskyttet"
 msgstr "应用或其父进程受保护"
 
-#: crates/rigg-hw/src/sys/process.rs:224
+#: crates/rigg-hw/src/sys/process.rs:263
 msgid "Viktig system- eller øktprosess er beskyttet"
 msgstr "关键系统或会话进程受保护"
 
-#: crates/rigg-hw/src/sys/process.rs:226
+#: crates/rigg-hw/src/sys/process.rs:265
 msgid "Prosessen er allerede avsluttet"
 msgstr "进程已结束"
 
-#: crates/rigg-hw/src/sys/process.rs:228
+#: crates/rigg-hw/src/sys/process.rs:267
 msgid "Kjerneprosesser er beskyttet"
 msgstr "内核进程受保护"
 
-#: crates/rigg-hw/src/sys/process.rs:230 crates/rigg-hw/src/sys/process.rs:431
+#: crates/rigg-hw/src/sys/process.rs:269 crates/rigg-hw/src/sys/process.rs:618
 msgid "Avslutning krever en vanlig brukerøkt"
 msgstr "结束进程需要普通用户会话"
 
-#: crates/rigg-hw/src/sys/process.rs:233
+#: crates/rigg-hw/src/sys/process.rs:272
 msgid "Root-prosesser er beskyttet"
 msgstr "root 进程受保护"
 
-#: crates/rigg-hw/src/sys/process.rs:235
+#: crates/rigg-hw/src/sys/process.rs:274
 msgid "Prosessen tilhører en annen bruker eller har andre rettigheter"
 msgstr "进程属于其他用户，或具有不同权限"
 
-#: crates/rigg-hw/src/sys/process.rs:237
+#: crates/rigg-hw/src/sys/process.rs:276
 msgid "Prosessen har særskilte systemrettigheter"
 msgstr "进程具有特殊系统权限"
 
-#: crates/rigg-hw/src/sys/process.rs:242
+#: crates/rigg-hw/src/sys/process.rs:281
 msgid "Kan ikke kontrollere prosessens brukerrettigheter"
 msgstr "无法验证进程的用户权限"
 
-#: crates/rigg-hw/src/sys/process.rs:327
+#: crates/rigg-hw/src/sys/process.rs:366
 msgid "Prosesslisten er utilgjengelig"
 msgstr "进程列表不可用"
 
-#: crates/rigg-hw/src/sys/process.rs:423
-msgid "Avslutning er sperret for testdata"
-msgstr "测试数据禁止终止进程"
-
-#: crates/rigg-hw/src/sys/process.rs:426
-msgid "Ugyldig eller beskyttet prosess"
-msgstr "无效或受保护的进程"
-
-#: crates/rigg-hw/src/sys/process.rs:437
-msgid "Kan ikke åpne sikker prosessreferanse: {feil}"
-msgstr "无法打开安全的进程句柄：{feil}"
-
-#: crates/rigg-hw/src/sys/process.rs:445
+#: crates/rigg-hw/src/sys/process.rs:486 crates/rigg-hw/src/sys/process.rs:632
 msgid "Prosessen finnes ikke lenger eller kan ikke leses"
 msgstr "进程已不存在或无法读取"
 
-#: crates/rigg-hw/src/sys/process.rs:447
+#: crates/rigg-hw/src/sys/process.rs:489 crates/rigg-hw/src/sys/process.rs:634
 msgid "Prosessen er erstattet. Oppdater listen og velg på nytt"
 msgstr "进程已被替换。请刷新列表后重新选择"
 
-#: crates/rigg-hw/src/sys/process.rs:456
+#: crates/rigg-hw/src/sys/process.rs:591 crates/rigg-hw/src/sys/process.rs:643
 msgid "Prosessen er erstattet eller avsluttet"
 msgstr "进程已被替换或已退出"
 
-#: crates/rigg-hw/src/sys/process.rs:468
+#: crates/rigg-hw/src/sys/process.rs:610
+msgid "Avslutning er sperret for testdata"
+msgstr "测试数据禁止终止进程"
+
+#: crates/rigg-hw/src/sys/process.rs:613
+msgid "Ugyldig eller beskyttet prosess"
+msgstr "无效或受保护的进程"
+
+#: crates/rigg-hw/src/sys/process.rs:624
+msgid "Kan ikke åpne sikker prosessreferanse: {feil}"
+msgstr "无法打开安全的进程句柄：{feil}"
+
+#: crates/rigg-hw/src/sys/process.rs:655
 msgid "Kunne ikke sende SIGTERM: {feil}"
 msgstr "无法发送 SIGTERM：{feil}"

@@ -80,34 +80,34 @@ msgstr "Om"
 msgid "Versjon, hjelp og feilsøking"
 msgstr "Version, hjälp och felsökning"
 
-#: crates/rigg/src/settings/mod.rs:308
+#: crates/rigg/src/settings/mod.rs:307
 msgid "Innstillinger"
 msgstr "Inställningar"
 
-#: crates/rigg/src/settings/mod.rs:319 crates/rigg/src/settings/mod.rs:321 crates/rigg/src/settings/mod.rs:627
+#: crates/rigg/src/settings/mod.rs:318 crates/rigg/src/settings/mod.rs:320 crates/rigg/src/settings/mod.rs:635
 msgid "Søk i innstillinger"
 msgstr "Sök i inställningarna"
 
-#: crates/rigg/src/settings/mod.rs:320
+#: crates/rigg/src/settings/mod.rs:319
 msgid "Søk i alle innstillingene. Ctrl+F eller / søker, Esc avslutter søket."
 msgstr "Sök i alla inställningar. Ctrl+F eller / söker, Esc avslutar sökningen."
 
-#: crates/rigg/src/settings/mod.rs:339
+#: crates/rigg/src/settings/mod.rs:338
 msgid "Deler av innstillingene"
 msgstr "Avsnitt i inställningarna"
 
-#: crates/rigg/src/settings/mod.rs:366
+#: crates/rigg/src/settings/mod.rs:374
 msgid "Endringer lagres straks."
 msgstr "Ändringar sparas direkt."
 
-#: crates/rigg/src/settings/mod.rs:372
+#: crates/rigg/src/settings/mod.rs:380
 msgid "Versjonslogg"
 msgstr "Versionslogg"
 
-#: crates/rigg/src/settings/mod.rs:597
+#: crates/rigg/src/settings/mod.rs:605
 msgid "Tilbake til {side}"
 msgstr "Tillbaka till {side}"
 
-#: crates/rigg/src/settings/mod.rs:627
+#: crates/rigg/src/settings/mod.rs:635
 msgid "Søk"
 msgstr "Sök"

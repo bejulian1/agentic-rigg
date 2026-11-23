@@ -3,7 +3,7 @@
 
 use rigg_core::{tr, trf};
 use crate::daemon::Daemon;
-use rigg_core::process::{MAX_PAGE_ROWS, ProcessIdentity, ProcessQuery, ProcessSnapshot};
+use rigg_core::process::{MAX_EXPANDED, MAX_GROUP_KEY, MAX_PAGE_ROWS, ProcessIdentity, ProcessQuery, ProcessSnapshot};
 use rigg_core::proto::{ErrorCode, OpResult, ProtoError};
 use serde_json::{Value, json};
 use std::rc::Rc;
@@ -82,6 +82,9 @@ impl Daemon {
         if query.filter.chars().count() > 128 || query.limit == 0 || query.limit > MAX_PAGE_ROWS || query.offset > 1_000_000 {
             return Err(invalid(tr!("Høyst 128 tegn i søket og 1–100 oppgaver per side.")));
         }
+        if query.expanded.len() > MAX_EXPANDED || query.expanded.iter().any(|key| key.is_empty() || key.chars().count() > MAX_GROUP_KEY) {
+            return Err(invalid(tr!("For mange eller ugyldige utvidede grupper.")));
+        }
         let snapshot_arg = |key| match args.get(key) {
             None | Some(Value::Null) => Ok(None),
             Some(value) => value.as_u64().map(Some).ok_or_else(|| {
@@ -147,7 +150,9 @@ impl Daemon {
         // Klientlisten kan ha endret seg etter prøven. Beskytt alle tilkoblede
         // app-/CLI-prosesser også i knappenes tilgjengelighetsstatus.
         let protected = rigg_hw::sys::process::protected_ancestors(&self.opts.root, &self.task_protected_pids());
-        for row in &mut page.rows {
+        // Grupperader har lederens identitet, men kan aldri avsluttes samlet;
+        // de beholder sin egen forklaring.
+        for row in page.rows.iter_mut().filter(|row| row.group_count == 0) {
             if let Err(ref reason) = protected {
                 row.can_terminate = false;
                 row.protected_reason = Some(reason.clone());
@@ -167,6 +172,30 @@ impl Daemon {
         value["gpuSampledAtMs"] = json!(snapshot.and_then(|s| s.gpu_sampled_at_ms));
         value["gpuSource"] = json!(snapshot.map_or("unavailable", |s| s.gpu_source));
         value["gpuNote"] = json!(snapshot.map_or(tr!("GPU-bruk per prosess er ikke tilgjengelig."), |s| s.gpu_note.as_str()));
+        Ok(value)
+    }
+
+    /// Mer om én prosess (kommando, minne, I/O, start og enhet). Leses bare på
+    /// forespørsel for den valgte raden; GPU-minnet kommer fra siste prosessbilde.
+    pub(crate) fn op_get_task_detail(&mut self, args: &Value) -> OpResult {
+        let pid = args
+            .get("pid")
+            .and_then(Value::as_u64)
+            .filter(|pid| *pid > 0 && *pid <= i32::MAX as u64)
+            .ok_or_else(|| invalid(tr!("Ugyldig prosess-ID.")))? as u32;
+        let start_ticks = args
+            .get("startTicks")
+            .and_then(Value::as_u64)
+            .ok_or_else(|| invalid(tr!("Prosessens starttid må følge med.")))?;
+        let identity = ProcessIdentity { pid, start_ticks };
+        let detail = rigg_hw::sys::process::detail(&self.opts.root, identity, rigg_core::now_ms())
+            .map_err(|message| ProtoError::msg(ErrorCode::Unavailable, message))?;
+        let mut value = serde_json::to_value(detail).map_err(|_| ProtoError::new(ErrorCode::Internal))?;
+        let gpu = self.tasks.as_ref().and_then(|snapshot| {
+            snapshot.processes.rows.iter().find(|row| row.identity == identity).map(|row| row.gpu_vram_bytes)
+        });
+        value["gpuVramBytes"] = json!(gpu.flatten());
+        value["gpuSource"] = json!(self.tasks.as_ref().map_or("unavailable", |s| s.gpu_source));
         Ok(value)
     }
 

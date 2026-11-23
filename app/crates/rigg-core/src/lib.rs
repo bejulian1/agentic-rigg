@@ -13,6 +13,7 @@ pub mod hjelper;
 pub mod history;
 pub mod i18n;
 pub mod model;
+pub mod net;
 pub mod paths;
 pub mod process;
 pub mod proto;

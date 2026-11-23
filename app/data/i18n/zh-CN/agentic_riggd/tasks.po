@@ -24,34 +24,38 @@ msgstr "任务搜索或排序条件无效。"
 msgid "Høyst 128 tegn i søket og 1–100 oppgaver per side."
 msgstr "搜索最多输入 128 个字符，每页显示 1–100 项任务。"
 
-#: crates/riggd/src/tasks.rs:88
+#: crates/riggd/src/tasks.rs:86
+msgid "For mange eller ugyldige utvidede grupper."
+msgstr "展开的组过多或无效。"
+
+#: crates/riggd/src/tasks.rs:91
 msgid "{key} må være et positivt heltall."
 msgstr "{key} 必须为正整数。"
 
-#: crates/riggd/src/tasks.rs:94
+#: crates/riggd/src/tasks.rs:97
 msgid "Velg enten et eksisterende eller et nyere prosessbilde."
 msgstr "请选择现有进程快照，或请求更新的快照。"
 
-#: crates/riggd/src/tasks.rs:156
+#: crates/riggd/src/tasks.rs:159
 msgid "Agentic HW Monitor eller en tilkoblet klient"
 msgstr "Agentic HW Monitor 或已连接的客户端"
 
-#: crates/riggd/src/tasks.rs:169
+#: crates/riggd/src/tasks.rs:172
 msgid "GPU-bruk per prosess er ikke tilgjengelig."
 msgstr "无法获取各进程的 GPU 利用率。"
 
-#: crates/riggd/src/tasks.rs:175
-msgid "Avslutning krever en egen bekreftelse."
-msgstr "结束任务需要单独确认。"
-
-#: crates/riggd/src/tasks.rs:181
+#: crates/riggd/src/tasks.rs:183 crates/riggd/src/tasks.rs:208
 msgid "Ugyldig prosess-ID."
 msgstr "进程 ID 无效。"
 
-#: crates/riggd/src/tasks.rs:186
+#: crates/riggd/src/tasks.rs:187 crates/riggd/src/tasks.rs:213
 msgid "Prosessens starttid må følge med."
 msgstr "必须提供进程启动时间。"
 
-#: crates/riggd/src/tasks.rs:189
+#: crates/riggd/src/tasks.rs:202
+msgid "Avslutning krever en egen bekreftelse."
+msgstr "结束任务需要单独确认。"
+
+#: crates/riggd/src/tasks.rs:216
 msgid "Agentic HW Monitor og tilkoblede klienter er beskyttet."
 msgstr "Agentic HW Monitor 和已连接的客户端受保护。"

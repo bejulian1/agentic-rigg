@@ -5,7 +5,7 @@
 //! Sikker prosessreferanse: https://man7.org/linux/man-pages/man2/pidfd_open.2.html
 //! Kun SIGTERM: https://man7.org/linux/man-pages/man2/pidfd_send_signal.2.html
 use rigg_core::{tr, trf};
-use rigg_core::process::{ProcessIdentity, ProcessRow, ProcessSnapshot};
+use rigg_core::process::{ProcessDetail, ProcessIdentity, ProcessRow, ProcessSnapshot, Restricted};
 use std::collections::{HashMap, HashSet};
 use std::fs::{self, File};
 use std::io::{self, Read};
@@ -25,6 +25,8 @@ struct Stat {
     ticks: u64,
     rss_pages: i64,
     flags: u64,
+    nice: Option<i32>,
+    threads: Option<u32>,
 }
 
 /// `comm` kan selv inneholde mellomrom, parenteser og linjeskift. De faste
@@ -57,7 +59,19 @@ fn parse_stat(text: &str) -> Option<Stat> {
         flags: number(6)?,
         ticks: number(11)?.checked_add(number(12)?)?,
         rss_pages: fields[21].parse().ok()?,
+        nice: fields[16].parse().ok(),
+        threads: fields[17].parse().ok(),
     })
+}
+
+#[derive(Debug, Default)]
+struct Memory {
+    /// `RssAnon`, `RssFile` + `RssShmem` og `VmSwap` i byte. Kjernetråder
+    /// og prosesser som avsluttes, har ikke feltene.
+    private: Option<u64>,
+    shared: Option<u64>,
+    swap: Option<u64>,
+    threads: Option<u32>,
 }
 
 #[derive(Debug)]
@@ -65,6 +79,30 @@ struct Status {
     uids: [u32; 4],
     kernel: bool,
     privileged: bool,
+    memory: Memory,
+}
+
+/// `Felt:   1234 kB` → byte.
+fn status_kb(text: &str, key: &str) -> Option<u64> {
+    let value = text.lines().find_map(|l| l.strip_prefix(key)?.strip_prefix(':'))?;
+    let mut parts = value.split_whitespace();
+    let n = parts.next()?.parse::<u64>().ok()?;
+    (parts.next() == Some("kB")).then_some(())?;
+    n.checked_mul(1024)
+}
+
+fn parse_memory(text: &str) -> Memory {
+    let file = status_kb(text, "RssFile");
+    let shmem = status_kb(text, "RssShmem");
+    Memory {
+        private: status_kb(text, "RssAnon"),
+        shared: file.zip(shmem).and_then(|(f, s)| f.checked_add(s)),
+        swap: status_kb(text, "VmSwap"),
+        threads: text
+            .lines()
+            .find_map(|l| l.strip_prefix("Threads:"))
+            .and_then(|v| v.trim().parse().ok()),
+    }
 }
 
 fn parse_status(text: &str) -> Option<Status> {
@@ -90,6 +128,7 @@ fn parse_status(text: &str) -> Option<Status> {
         uids,
         kernel,
         privileged,
+        memory: parse_memory(text),
     })
 }
 
@@ -382,6 +421,8 @@ impl ProcessReader {
             );
             previous.insert(stat.identity, (stat.ticks, now));
             let real_uid = status.as_ref().map(|s| s.uids[0]);
+            let kernel = stat.flags & PF_KTHREAD != 0 || status.as_ref().is_some_and(|s| s.kernel);
+            let memory = status.as_ref().map(|s| &s.memory);
             result.rows.push(ProcessRow {
                 identity: stat.identity,
                 ppid: stat.ppid,
@@ -397,13 +438,159 @@ impl ProcessReader {
                 gpu_vram_bytes: None,
                 can_terminate: reason.is_none(),
                 protected_reason: reason,
-                depth: 0,
+                private_bytes: memory.and_then(|m| m.private),
+                shared_bytes: memory.and_then(|m| m.shared),
+                swap_bytes: memory.and_then(|m| m.swap),
+                threads: memory.and_then(|m| m.threads).or(stat.threads),
+                kernel,
+                ..Default::default()
             });
         }
         self.previous = previous;
         result.rows.sort_by_key(|r| r.identity.pid);
         result
     }
+}
+
+/// Leser en liten fil i `/proc/PID`. `Err(true)` når kjernen nekter tilgang
+/// (prosessen tilhører en annen bruker eller root), `Err(false)` ellers.
+fn read_restricted(path: &Path) -> Result<String, bool> {
+    read_small(path).map_err(|e| e.kind() == io::ErrorKind::PermissionDenied)
+}
+
+fn sum_kb(text: &str, keys: &[&str]) -> Option<u64> {
+    keys.iter().try_fold(0u64, |acc, key| acc.checked_add(status_kb(text, key)?))
+}
+
+/// `0::/user.slice/…/app-gnome-firefox-123.scope` → `app-gnome-firefox-123.scope`.
+fn cgroup_unit(text: &str) -> Option<String> {
+    let path = text.lines().find_map(|l| l.strip_prefix("0::"))?;
+    let leaf = path.rsplit('/').find(|p| !p.is_empty())?;
+    let decoded = leaf.replace("\\x2d", "-");
+    Some(decoded.chars().filter(|c| !c.is_control()).take(160).collect())
+}
+
+fn boot_time_s(root: &Path) -> Option<i64> {
+    read_small(&root.join("proc/stat"))
+        .ok()?
+        .lines()
+        .find_map(|l| l.strip_prefix("btime "))
+        .and_then(|v| v.trim().parse().ok())
+}
+
+/// Mer om én prosess for detaljfeltet. Felt som krever samme bruker eller
+/// root (exe, smaps_rollup og io), står som `None` og i `restricted` når
+/// kjernen nekter. Identiteten kontrolleres før og etter lesingen, så tallene
+/// aldri blandes med en ny prosess som har fått samme PID.
+pub fn detail(root: &Path, identity: ProcessIdentity, now_ms: i64) -> Result<ProcessDetail, String> {
+    let gone = || tr!("Prosessen finnes ikke lenger eller kan ikke leses").to_string();
+    let stat = read_stat(root, identity.pid).map_err(|_| gone())?;
+    if stat.identity != identity {
+        return Err(tr!("Prosessen er erstattet. Oppdater listen og velg på nytt").into());
+    }
+    let dir = root.join(format!("proc/{}", identity.pid));
+    let status = read_small(&dir.join("status")).ok().and_then(|s| parse_status(&s));
+    let kernel = stat.flags & PF_KTHREAD != 0 || status.as_ref().is_some_and(|s| s.kernel);
+    let mut restricted = Vec::new();
+    let cmdline = read_small(&dir.join("cmdline")).ok().and_then(|raw| {
+        let text: String = raw
+            .split('\0')
+            .filter(|part| !part.is_empty())
+            .collect::<Vec<_>>()
+            .join(" ")
+            .chars()
+            .map(|c| if c.is_control() { ' ' } else { c })
+            .take(2048)
+            .collect();
+        (!text.trim().is_empty()).then_some(text)
+    });
+    let exe = if kernel {
+        None
+    } else {
+        match fs::read_link(dir.join("exe")) {
+            Ok(path) => Some(path.to_string_lossy().chars().take(512).collect()),
+            Err(e) => {
+                if e.kind() == io::ErrorKind::PermissionDenied {
+                    restricted.push(Restricted::Exe);
+                }
+                None
+            }
+        }
+    };
+    let (mut pss, mut uss) = (None, None);
+    if !kernel {
+        match read_restricted(&dir.join("smaps_rollup")) {
+            Ok(text) => {
+                pss = status_kb(&text, "Pss");
+                uss = sum_kb(&text, &["Private_Clean", "Private_Dirty"]);
+            }
+            Err(true) => restricted.push(Restricted::Smaps),
+            Err(false) => {}
+        }
+    }
+    let (mut read, mut written) = (None, None);
+    match read_restricted(&dir.join("io")) {
+        Ok(text) => {
+            let field = |key: &str| {
+                text.lines()
+                    .find_map(|l| l.strip_prefix(key)?.strip_prefix(':'))
+                    .and_then(|v| v.trim().parse::<u64>().ok())
+            };
+            read = field("read_bytes");
+            written = field("write_bytes");
+        }
+        Err(true) => restricted.push(Restricted::Io),
+        Err(false) => {}
+    }
+    let unit = read_small(&dir.join("cgroup")).ok().and_then(|t| cgroup_unit(&t));
+    // SAFETY: sysconf har ingen pekarargument eller sideeffekter.
+    let hz = u64::try_from(unsafe { libc::sysconf(libc::_SC_CLK_TCK) }).ok().filter(|n| *n > 0);
+    let page = u64::try_from(unsafe { libc::sysconf(libc::_SC_PAGESIZE) }).ok().filter(|n| *n > 0);
+    let started_at_ms = hz.zip(boot_time_s(root)).and_then(|(hz, boot)| {
+        let since_boot_ms = identity.start_ticks.checked_mul(1000)? / hz;
+        boot.checked_mul(1000)?.checked_add(i64::try_from(since_boot_ms).ok()?)
+    });
+    let uid = status.as_ref().map(|s| s.uids[0]);
+    let user = uid.and_then(|uid| {
+        read_small(&root.join("etc/passwd")).ok()?.lines().find_map(|line| {
+            let mut f = line.split(':');
+            let (name, _, id) = (f.next()?, f.next()?, f.next()?);
+            (id.parse::<u32>().ok()? == uid).then(|| name.chars().filter(|c| !c.is_control()).take(64).collect())
+        })
+    });
+    let parent_name = (stat.ppid > 0).then(|| read_stat(root, stat.ppid).ok()).flatten().map(|p| p.name);
+    let memory = status.as_ref().map(|s| &s.memory);
+    let detail = ProcessDetail {
+        identity,
+        sampled_at_ms: now_ms,
+        name: stat.name,
+        cmdline,
+        exe,
+        ppid: stat.ppid,
+        parent_name,
+        uid,
+        user,
+        state: stat.state,
+        threads: memory.and_then(|m| m.threads).or(stat.threads),
+        nice: stat.nice,
+        started_at_ms,
+        cpu_time_s: hz.map(|hz| stat.ticks as f64 / hz as f64),
+        rss_bytes: u64::try_from(stat.rss_pages).ok().zip(page).and_then(|(n, p)| n.checked_mul(p)),
+        private_bytes: memory.and_then(|m| m.private),
+        shared_bytes: memory.and_then(|m| m.shared),
+        swap_bytes: memory.and_then(|m| m.swap),
+        pss_bytes: pss,
+        uss_bytes: uss,
+        io_read_bytes: read,
+        io_write_bytes: written,
+        unit,
+        kernel,
+        restricted,
+    };
+    if read_identity(root, identity.pid) != Some(identity) {
+        return Err(tr!("Prosessen er erstattet eller avsluttet").into());
+    }
+    Ok(detail)
 }
 
 /// Sender én vanlig SIGTERM. Resultatet betyr «signal sendt», ikke at
@@ -742,5 +929,68 @@ mod tests {
             std::thread::sleep(Duration::from_millis(10));
         }
         panic!("isolated test child did not exit on SIGTERM");
+    }
+
+    #[test]
+    fn status_gir_privat_delt_swap_og_trader() {
+        let text = "Name:\tchrome\nUid:\t1000\t1000\t1000\t1000\nVmRSS:\t  900 kB\nRssAnon:\t  600 kB\nRssFile:\t  250 kB\nRssShmem:\t   50 kB\nVmSwap:\t   12 kB\nThreads:\t17\nCapEff:\t0000000000000000\nCapPrm:\t0000000000000000\nCapAmb:\t0000000000000000\n";
+        let status = parse_status(text).unwrap();
+        assert_eq!(status.memory.private, Some(600 * 1024));
+        assert_eq!(status.memory.shared, Some(300 * 1024));
+        assert_eq!(status.memory.swap, Some(12 * 1024));
+        assert_eq!(status.memory.threads, Some(17));
+        // Kjernetråder har ingen minnefelt: ukjent, ikke null.
+        let kthread = parse_status("Uid:\t0\t0\t0\t0\nKthread:\t1\nThreads:\t1\n").unwrap();
+        assert!(kthread.kernel);
+        assert_eq!((kthread.memory.private, kthread.memory.swap), (None, None));
+        assert_eq!(status_kb("RssAnon:\t12 MB\n", "RssAnon"), None, "bare kB godtas");
+        assert_eq!(status_kb("RssAnonX:\t12 kB\n", "RssAnon"), None);
+    }
+    #[test]
+    fn detaljer_leser_kommando_minne_io_og_enhet_for_riktig_identitet() {
+        let fixture = Fixture::new();
+        fixture.write(42, 10, 20, 30);
+        let dir = fixture.0.join("proc/42");
+        fs::write(dir.join("status"), "Uid:\t1000\t1000\t1000\t1000\nKthread:\t0\nRssAnon:\t 600 kB\nRssFile:\t 250 kB\nRssShmem:\t 50 kB\nVmSwap:\t 12 kB\nThreads:\t3\nCapEff:\t0\nCapPrm:\t0\nCapAmb:\t0\n").unwrap();
+        fs::write(dir.join("cmdline"), b"/usr/bin/arbeid\0--flagg\0verdi\0").unwrap();
+        fs::write(dir.join("smaps_rollup"), "Rss:  900 kB\nPss:  700 kB\nPrivate_Clean:  100 kB\nPrivate_Dirty:  500 kB\n").unwrap();
+        fs::write(dir.join("io"), "rchar: 5\nwchar: 6\nread_bytes: 4096\nwrite_bytes: 8192\n").unwrap();
+        fs::write(dir.join("cgroup"), "0::/user.slice/user-1000.slice/user@1000.service/app.slice/app-gnome-google\\x2dchrome-9000.scope\n").unwrap();
+        fs::write(fixture.0.join("proc/stat"), "cpu  1 2 3\nbtime 1700000000\n").unwrap();
+        let identity = ProcessIdentity { pid: 42, start_ticks: 10 };
+        let d = detail(&fixture.0, identity, 5).unwrap();
+        assert_eq!(d.cmdline.as_deref(), Some("/usr/bin/arbeid --flagg verdi"));
+        assert_eq!((d.private_bytes, d.shared_bytes, d.swap_bytes), (Some(600 * 1024), Some(300 * 1024), Some(12 * 1024)));
+        assert_eq!((d.pss_bytes, d.uss_bytes), (Some(700 * 1024), Some(600 * 1024)));
+        assert_eq!((d.io_read_bytes, d.io_write_bytes), (Some(4096), Some(8192)));
+        assert_eq!(d.unit.as_deref(), Some("app-gnome-google-chrome-9000.scope"));
+        assert_eq!(d.user.as_deref(), Some("julian"));
+        assert_eq!(d.threads, Some(3));
+        let hz = unsafe { libc::sysconf(libc::_SC_CLK_TCK) } as i64;
+        assert_eq!(d.started_at_ms, Some(1_700_000_000_000 + 10 * 1000 / hz));
+        assert!(d.restricted.is_empty());
+        // En ny prosess med samme PID gir aldri den gamle prosessens detaljer.
+        assert!(detail(&fixture.0, ProcessIdentity { pid: 42, start_ticks: 11 }, 5).is_err());
+        assert!(detail(&fixture.0, ProcessIdentity { pid: 43, start_ticks: 10 }, 5).is_err());
+    }
+    #[test]
+    fn detaljer_merker_felt_kjernen_nekter() {
+        if unsafe { libc::getuid() } == 0 {
+            return;
+        }
+        use std::os::unix::fs::PermissionsExt;
+        let fixture = Fixture::new();
+        fixture.write(42, 10, 20, 30);
+        let dir = fixture.0.join("proc/42");
+        for name in ["smaps_rollup", "io"] {
+            fs::write(dir.join(name), "Pss: 1 kB\n").unwrap();
+            fs::set_permissions(dir.join(name), fs::Permissions::from_mode(0o000)).unwrap();
+        }
+        let d = detail(&fixture.0, ProcessIdentity { pid: 42, start_ticks: 10 }, 5).unwrap();
+        for name in ["smaps_rollup", "io"] {
+            fs::set_permissions(dir.join(name), fs::Permissions::from_mode(0o600)).unwrap();
+        }
+        assert_eq!((d.pss_bytes, d.io_read_bytes), (None, None));
+        assert!(d.restricted.contains(&Restricted::Smaps) && d.restricted.contains(&Restricted::Io));
     }
 }

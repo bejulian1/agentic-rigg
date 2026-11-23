@@ -13,6 +13,7 @@ pub mod grafer;
 pub mod grafikkort;
 pub mod kontroller;
 pub mod lys;
+pub mod nettverk;
 pub(crate) mod lys_kort;
 pub mod oversikt;
 pub mod oppgaver;
@@ -81,7 +82,7 @@ impl PageDef {
     }
 }
 
-pub const PAGES: [PageDef; 11] = [
+pub const PAGES: [PageDef; 12] = [
     PageDef { id: "oversikt", title: || tr!("Oversikt"), icon: "layout-dashboard", section: Section::Monitor, build: oversikt::build },
     PageDef { id: "sensorer", title: || tr!("Sensorer"), icon: "thermometer", section: Section::Monitor, build: sensorer::build },
     PageDef { id: "grafer", title: || tr!("Grafer"), icon: "chart-line", section: Section::Monitor, build: grafer::build },
@@ -93,6 +94,9 @@ pub const PAGES: [PageDef; 11] = [
     PageDef { id: "viftekurve", title: || tr!("Vifter"), icon: "fan", section: Section::Control, build: viftekurve::build },
     PageDef { id: "lys", title: || tr!("RGB-lys"), icon: "palette", section: Section::Control, build: lys::build },
     PageDef { id: "oppgaver", title: || tr!("Oppgaver"), icon: "activity", section: Section::Monitor, build: oppgaver::build },
+    // Etter Oppgaver, så tastene 1–9 og 0 beholder sidene sine. Sidefeltet
+    // ordner etter seksjon, så Nettverk står sist under Maskinvare.
+    PageDef { id: "nettverk", title: || tr!("Nettverk"), icon: "network", section: Section::Hardware, build: nettverk::build },
 ];
 
 pub fn def(id: &str) -> Option<&'static PageDef> {

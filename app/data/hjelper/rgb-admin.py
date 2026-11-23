@@ -595,7 +595,11 @@ def system_lock(path=SYSTEM_LOCK):
 def main():
     # Polkit-skriptene peker alltid hit med fast absolutt sti. Den installerte
     # inngangen registrerer aldri testflagg eller leser klientstyrte filer.
-    fixture = Path(__file__).absolute() != Path("/") / SCRIPTS / "rgb-admin.py"
+    here = Path(__file__).absolute()
+    # Kopien i GPU-mappa er bare et bibliotek for nvml-admin.py.
+    if here == Path("/usr/local/libexec/agentic-rigg/rgb-admin.py"):
+        fail("Denne kopien er bare et bibliotek for GPU-hjelperen. Bruk RGB-skriptene.")
+    fixture = here != Path("/") / SCRIPTS / "rgb-admin.py"
     args = parse(fixture)
     admin = Admin(args, fixture)
     with nullcontext() if fixture else system_lock(), admin.lock("admin.lock"):

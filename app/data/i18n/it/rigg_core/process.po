@@ -1,0 +1,21 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic HW Monitor\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg-core/src/process.rs:277
+msgid "Kjernetråder"
+msgstr "Thread del kernel"
+
+#: crates/rigg-core/src/process.rs:280
+msgid "flere"
+msgstr "più utenti"
+
+#: crates/rigg-core/src/process.rs:286
+msgid "En gruppe med {antall} prosesser. Fold ut gruppen og velg én prosess for å avslutte den."
+msgstr "Un gruppo di {antall} processi. Espandi il gruppo e seleziona un processo per terminarlo."

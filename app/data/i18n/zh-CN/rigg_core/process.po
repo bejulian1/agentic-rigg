@@ -1,0 +1,21 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic HW Monitor\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg-core/src/process.rs:277
+msgid "Kjernetråder"
+msgstr "内核线程"
+
+#: crates/rigg-core/src/process.rs:280
+msgid "flere"
+msgstr "多个"
+
+#: crates/rigg-core/src/process.rs:286
+msgid "En gruppe med {antall} prosesser. Fold ut gruppen og velg én prosess for å avslutte den."
+msgstr "包含 {antall} 个进程的组。展开该组并选择一个进程即可结束它。"

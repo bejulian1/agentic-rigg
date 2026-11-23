@@ -121,58 +121,58 @@ msgstr "Fönstret är smalt, så sidofältet är en ikonlist nu. Valet gäller i
 msgid "Ikonlista viser bare ikoner og korte tall. Også Ctrl+B og knappen nederst i sidefeltet."
 msgstr "Ikonlisten visar bara ikoner och korta tal. Även Ctrl+B och knappen längst ned i sidofältet."
 
-#: crates/rigg/src/settings/sidefelt.rs:264
+#: crates/rigg/src/settings/sidefelt.rs:265
 msgid "Minst én side må vises"
 msgstr "Minst en sida måste visas"
 
-#: crates/rigg/src/settings/sidefelt.rs:279
+#: crates/rigg/src/settings/sidefelt.rs:280
 msgid "Visning"
 msgstr "Visning"
 
-#: crates/rigg/src/settings/sidefelt.rs:282
+#: crates/rigg/src/settings/sidefelt.rs:283
 msgid "Bredde"
 msgstr "Bredd"
 
-#: crates/rigg/src/settings/sidefelt.rs:282
+#: crates/rigg/src/settings/sidefelt.rs:283
 msgctxt "søkeord"
 msgid "ikonlist legg sammen utvid smal"
 msgstr "ikonlist fäll ihop fäll ut smal bredd"
 
-#: crates/rigg/src/settings/sidefelt.rs:283
+#: crates/rigg/src/settings/sidefelt.rs:284
 msgid "Sparklinjer"
 msgstr "Minigrafer"
 
-#: crates/rigg/src/settings/sidefelt.rs:283
+#: crates/rigg/src/settings/sidefelt.rs:284
 msgid "Liten graf for siste minutt ved hver verdi i statusblokken."
 msgstr "Liten graf över den senaste minuten vid varje värde i statuspanelen."
 
-#: crates/rigg/src/settings/sidefelt.rs:283
+#: crates/rigg/src/settings/sidefelt.rs:284
 msgctxt "søkeord"
 msgid "statusblokk graf"
 msgstr "statuspanel graf minigraf"
 
-#: crates/rigg/src/settings/sidefelt.rs:289
+#: crates/rigg/src/settings/sidefelt.rs:290
 msgid "Sider"
 msgstr "Sidor"
 
-#: crates/rigg/src/settings/sidefelt.rs:290
+#: crates/rigg/src/settings/sidefelt.rs:291
 msgid "Sidene i sidefeltet. Skjulte sider kan fortsatt åpnes med hurtigtasten."
 msgstr "Sidorna i sidofältet. Dolda sidor kan fortfarande öppnas med kortkommandot."
 
-#: crates/rigg/src/settings/sidefelt.rs:290
+#: crates/rigg/src/settings/sidefelt.rs:291
 msgctxt "søkeord"
 msgid "skjul vis navigasjon"
 msgstr "dölj visa navigering sidor"
 
-#: crates/rigg/src/settings/sidefelt.rs:293
+#: crates/rigg/src/settings/sidefelt.rs:294
 msgid "Vis hurtigtaster"
 msgstr "Visa kortkommandon"
 
-#: crates/rigg/src/settings/sidefelt.rs:293
+#: crates/rigg/src/settings/sidefelt.rs:294
 msgid "Tallene 1–8 ved sidene. Ellers står de i verktøytipset og under Tastatursnarveier."
 msgstr "Siffrorna 1–8 vid sidorna. Annars står de i verktygstipset och under Kortkommandon."
 
-#: crates/rigg/src/settings/sidefelt.rs:293
+#: crates/rigg/src/settings/sidefelt.rs:294
 msgctxt "søkeord"
 msgid "taster tall snarvei"
 msgstr "tangenter siffror kortkommando genväg"

@@ -1,0 +1,22 @@
+/* nettverk.css · Nettverk-siden. Flisene øverst er de samme som på Prosessor
+ * (pr-tile i prosessor.css), og radene, panelene og tabellene er de samme som
+ * på Disker (dk-* i disker.css). Her står bare det som er eget for nettverket.
+ * Fargene kommer fra tokens.css. */
+
+.nw-page .pr-v.na { color: var(--muted); }
+.nw-section-title { padding: var(--sp-2) 2px 0; color: var(--muted); }
+.nw-rate { min-width: 5.6em; }
+.nw-state { min-width: 96px; }
+.nw-signal { border-spacing: 8px; }
+.nw-holder > .group { margin: 0; }
+window.rigg button.nw-virt-toggle {
+  min-height: var(--h-md);
+  padding: 0 var(--sp-2);
+  color: var(--muted);
+  font-weight: 400;
+}
+window.rigg button.nw-virt-toggle:hover { color: var(--text); background-color: var(--hover); }
+.nw-none { padding: var(--sp-2) 2px; }
+.nw-ports .dk-table > .td.muted { color: var(--muted); }
+window.rigg button.nw-more { margin-top: var(--sp-1); color: var(--muted); font-weight: 400; }
+window.rigg button.nw-more:hover { color: var(--text); }

@@ -12,14 +12,14 @@ msgstr ""
 msgid "standard {verdi}"
 msgstr "standard {verdi}"
 
-#: crates/rigg/src/widgets/oc.rs:703 crates/rigg/src/widgets/oc.rs:704
+#: crates/rigg/src/widgets/oc.rs:724 crates/rigg/src/widgets/oc.rs:725
 msgid "Mer om {what}"
 msgstr "Mer om {what}"
 
-#: crates/rigg/src/widgets/oc.rs:804
+#: crates/rigg/src/widgets/oc.rs:825
 msgid "Tilbakestill"
 msgstr "Återställ"
 
-#: crates/rigg/src/widgets/oc.rs:808
+#: crates/rigg/src/widgets/oc.rs:829
 msgid "Tilbakestill {verdi} til standard"
 msgstr "Återställ {verdi} till standard"

@@ -59,8 +59,8 @@ msgid "synkron tidspunkt sikte"
 msgstr "synkron tidpunkt hårkors markör"
 
 #: crates/rigg/src/settings/grafer.rs:98
-msgid "Tilpass følger dataene i vinduet. Fast beholder normalområdet, men begge utvider aksen når verdiene går utenfor. Last og minne i prosent har skala 0–100; vifter kan gå over 100 %."
-msgstr "Anpassa följer data i fönstret. Fast behåller normalområdet, men båda utökar axeln när värdena går utanför. Belastning och minne i procent har skalan 0–100; fläktar kan gå över 100 %."
+msgid "Tilpass følger dataene i vinduet. Fast beholder normalområdet, men begge utvider aksen når verdiene går utenfor. Temperaturgrafer går alltid til minst 100 °C. Last og minne i prosent har skala 0–100; vifter kan gå over 100 %."
+msgstr "Anpassa följer data i fönstret. Fast behåller normalområdet, men båda utökar axeln när värdena går utanför. Temperaturgrafer går alltid till minst 100 °C. Belastning och minne i procent har skalan 0–100; fläktar kan gå över 100 %."
 
 #: crates/rigg/src/settings/grafer.rs:100
 msgctxt "søkeord"

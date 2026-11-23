@@ -64,6 +64,7 @@ Første melding må være `hello {"protocol": [1], "client": "agentic-rigg/1.0.0
 | `get_stats` | `keys?` | `{since, avgSince, stats: {key: {min, max, avg, n}}}` |
 | `reset_stats` | `keys?` (alle når utelatt) | som `get_stats`. Sender også `stats` |
 | `get_disks` | – | **Runde 6A.** `DiskList` (`rigg-core/src/disk.rs`): `{t, source: "udisks"\|"sysfs"\|"sim", note, disks: [Disk], pending}`. Lista lages av prøvetråden hvert 60. s mens et vindu som synes abonnerer (eller loggen går), hvert 10. min i bakgrunnen når diskvarselet er på, og ellers bare når noen spør. Er den eldre enn 65 s, bes det om en ny (høyst hvert 5. s) og den forrige gis; før første liste er svaret `{disks: [], pending: true}`. Se kap. 10 |
+| `get_network` | – | **Etter 1.6.0.** `NetInfo` (`rigg-core/src/net.rs`) til Nettverk-siden: grensesnittene, rutene, DNS og socketene. Forrige liste gis straks, og en ny leses i en egen tråd når den er eldre enn 2,5 s; før første liste er svaret `{ifaces: [], pending: true}`. Se kap. 14 |
 | `get_processes` | `gpu?` | `{gpu, processes: {t, list: [{pid, name, vramMiB, kind}], error}, live}`. Prøvetråden leser lista hvert 5. s i 15 s etter siste forespørsel (Grafikkort spør mens siden vises). Før første lesing: øyeblikksbildet fra de faste dataene og `live: false` (runde 3A) |
 | `log_start` / `log_stop` / `log_status` | `keys?`, `intervalMs?`, `dir?`, `format?` | `{active, file, rows, bytes, startedAt}`. **2B** lager loggen (`riggd/src/logg.rs`); i runde 1 svarer `log_start` `not_implemented` |
 | `get_settings` | – | Hele `tjeneste.json` pluss `paths: {config, state, socket}` |
@@ -211,9 +212,9 @@ Hjelperen setter kortet til standard (viftene på Auto) når forbindelsen som sk
 
 ## 13. Oppgaver · feature/task-manager (ikke utgitt)
 
-`get_tasks` annonseres blant leseoperasjonene. `terminate_task` annonseres separat fra GPU-skriveoperasjonene, også uten GPU/backend. Ingen av dem bruker root-hjelperen. Eldre tjenester uten disse operasjonene må oppdateres før Oppgaver kan brukes.
+`get_tasks` og `get_task_detail` annonseres blant leseoperasjonene. `terminate_task` annonseres separat fra GPU-skriveoperasjonene, også uten GPU/backend. Ingen av dem bruker root-hjelperen. Eldre tjenester uten disse operasjonene må oppdateres før Oppgaver kan brukes.
 
-`get_tasks` tar `filter` (maksimalt 128 tegn), `sort` (`name`, `pid`, `user`, `cpu`, `memory`, `gpuMemory`, `state`), `descending`, `tree`, `offset` og `limit` (1–100). `snapshotId` kan utelates eller være null for nyeste prøve; et tidligere ID kan brukes for sammenhengende sidevisning. Tjenesten beholder nåværende og to tidligere prøver mens innsamlingen pågår. I tillegg beholder hver tilkobling de to siste bildene den har fått, også når innsamlingen er stoppet. Lesing fra et lagret bilde forlenger ikke innsamlingen. Hvis bildet mangler, gjelder `snapshotChanged: true` og tjenesten går til første side. `newerThan` venter på en prøve med høyere ID og kan brukes i stedet for `snapshotId`, for eksempel ved F5.
+`get_tasks` tar `filter` (maksimalt 128 tegn), `sort` (`name`, `pid`, `user`, `cpu`, `memory`, `swap`, `gpuMemory`, `state`), `descending`, `tree`, `group`, `expanded` (høyst 32 gruppenøkler à 80 tegn), `offset` og `limit` (1–100). `memory` sorterer etter privat minne (`privateBytes`, `RssAnon`). Hver rad har også `rssBytes`, `sharedBytes`, `swapBytes`, `threads` og `kernel`. Med `group: true` samles prosesser med samme navn (nøkkel `name:NAVN`) og alle kjernetråder (`kernel`) i grupperader med `groupCount` > 0, summerte tall og `canTerminate: false`; nøklene i `expanded` foldes ut med medlemmene (`depth: 1`) under gruppen. Svaret har `totals` over hele bildet (`processes`, `kernelThreads`, `threads`, `privateBytes`, `swapBytes`, `memoryUnknown`). `snapshotId` kan utelates eller være null for nyeste prøve; et tidligere ID kan brukes for sammenhengende sidevisning. Tjenesten beholder nåværende og to tidligere prøver mens innsamlingen pågår. I tillegg beholder hver tilkobling de to siste bildene den har fått, også når innsamlingen er stoppet. Lesing fra et lagret bilde forlenger ikke innsamlingen. Hvis bildet mangler, gjelder `snapshotChanged: true` og tjenesten går til første side. `newerThan` venter på en prøve med høyere ID og kan brukes i stedet for `snapshotId`, for eksempel ved F5.
 
 Svaret inneholder `rows`, `total`, `matched`, `offset`, `nextOffset`, `sampledAtMs`, `snapshotId`, `snapshotChanged`, `ageMs`, `loading`, `stale`, `intervalMs`, `unreadable` og `error`. GPU-dekning forklares med `gpuSource`, `gpuSampledAtMs` og `gpuNote`. Prosessidene begrenses til 48 KiB før små statusmetadata/protokollkonvolutten legges til, innen dagens grense på 64 KiB.
 
@@ -221,4 +222,32 @@ Hver rad har `pid`, `startTicks`, `ppid`, `name`, `state`, `uid`, `user`, `effec
 
 Forespørslene holder behovet aktivt i fem sekunder. Prøvetråden samler høyst hvert andre sekund, og nullstiller CPU-baseline etter opphold. Første forespørsel kan gi `loading: true`; klienten må hente igjen for å motta prøven. Et prøvetidspunkt gjør ikke `/proc`-gjennomlesingen atomisk.
 
+`get_task_detail` tar `pid` og `startTicks` og leser mer om én prosess på forespørsel: `cmdline`, `exe`, `user`, `startedAtMs`, `cpuTimeS`, `threads`, `nice`, `rssBytes`, `privateBytes`, `sharedBytes`, `swapBytes`, `pssBytes`, `ussBytes`, `ioReadBytes`, `ioWriteBytes`, `unit` (systemd-enhet fra cgroup), `parentName` og `gpuVramBytes` fra siste prosessbilde. Felt kjernen nekter, står som null og i `restricted` (`exe`, `smaps`, `io`). Feil starttid gir `unavailable`, så en ny prosess med samme PID aldri får den gamle prosessens detaljer.
+
 `terminate_task` tar `pid`, `expectedStartTicks` og `confirmed: true`. Alle verdier kontrolleres på nytt før et pidfd-bundet SIGTERM til én prosess. Ugyldige argumenter avvises; utilstrekkelige rettigheter, beskyttede mål og utgått identitet gir norsk forklaring. `sent: true` og `signal: "SIGTERM"` bekrefter signalutsending, ikke at prosessen allerede er avsluttet. Ingen SIGKILL, gruppeavslutning, administratoropptrapping eller automatisk avslutning finnes.
+
+## 14. Nettverket (etter 1.6.0, Nettverk-siden)
+
+`get_network` står blant leseoperasjonene og tar ingen argumenter. Operasjonen er ny, og ingen eksisterende operasjon, hendelse eller sensornøkkel er endret, så eldre vinduer påvirkes ikke. Et nytt vindu mot en eldre tjeneste får `unknown_op` og viser «Venter på tjenesten».
+
+Tjenesten leser ingenting før et vindu spør. Svaret er forrige liste med `pending: false`. Er lista eldre enn 2,5 s, starter tjenesten en ny lesing i en kortlivet tråd (`riggd/src/nett.rs`), så verken hovedløkka eller prøvetråden venter på systembussen. Siden spør hvert 3. s mens den vises og stopper når den skjules eller vinduet minimeres.
+
+Kildene (`rigg-hw/src/sys/netinfo.rs`, `nm.rs`), alle uten root:
+
+| Felt | Kilde |
+|---|---|
+| `ifaces[].kind`, `operstate`, `carrier`, `mac`, `mtu`, `speedMbps`, `duplex`, `stats` | `/sys/class/net/<kort>/` (`type`, `uevent`, `wireless`, `bridge`, `statistics/*`). `speed` og `duplex` leses bare når kortet er oppe |
+| `driver`, `bus`, `busAddr`, `ids`, `vendor`, `model` | `device`-lenken (PCI eller USB) og `pci.ids`. Navnene huskes, og fila slippes etter lesingen |
+| `ipv4` | `getifaddrs` (bare med rot `/`) |
+| `ipv6` | `/proc/net/if_inet6`, med omfang og midlertidig-flagg |
+| `routes.gateway4`, `gateway6` | `/proc/net/route` og `/proc/net/ipv6_route`, standardruten med lavest metrikk. `defaultRoute` er satt på kortet den går via |
+| `wifi.signalDbm` | `/proc/net/wireless` |
+| `wifi.ssid`, `bssid`, `freqMhz`, `bitrateMbps`, `security`, `signalPct`; `connection`, `firmware` | NetworkManager (`Properties.GetAll` på enhet, tilgangspunkt og aktiv tilkobling). Uten NetworkManager er `nm: false`, og feltene er `null` |
+| `dns.servers`, `domains`, `source` | NetworkManager (`IP4Config.NameserverData`, `IP6Config.Nameservers`), ellers `/run/systemd/resolve/resolv.conf`, ellers `/etc/resolv.conf`. `stub` er en lokal mellomtjener (127.0.0.53) i `/etc/resolv.conf` |
+| `sockets` | `/proc/net/{tcp,tcp6,udp,udp6}`. `listeners` er TCP LISTEN og UDP uten motpart utenfor det flyktige portområdet (`ip_local_port_range`). `pid` og `process` finnes bare når `/proc/<pid>/fd` kan leses, altså for brukerens egne prosesser |
+
+`kind` er `ethernet`, `wifi`, `mobile`, `loopback`, `bridge`, `vpn`, `virtual` eller `other`, og `security` er `open`, `wep`, `wpa`, `wpa2`, `wpa3`, `wpa2-enterprise`, `wpa3-enterprise` eller `owe`. Vinduet oversetter dem ved visning.
+
+Med `--backend sim` er nettet simulert (`rigg-hw/src/sys/net_sim.rs`): dokumentasjonsadresser og lokalt administrerte MAC-adresser. Prøvenes `sys.net` får da de samme kortene, så grafene stemmer med lista. `RIGG_NETT=ekte` gir det ekte nettet med sim, og `RIGG_NETT=sim` gir det simulerte med andre backender.
+
+Ingenting her endrer nettverksoppsettet eller sender noe ut på nettet. Grafene bruker de eksisterende sensornøklene `net/<kort>/rx` og `net/<kort>/tx` og historikken som før.

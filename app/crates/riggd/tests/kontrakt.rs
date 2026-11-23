@@ -990,6 +990,72 @@ fn oppgaver_sidebytte_beholder_cpu_rekkefolgen_fra_vist_bilde() {
     assert_eq!(missing["rows"][0]["pid"], 101);
 }
 
+/// Gruppevisning (alle med samme navn samlet) og detaljer for valgt prosess,
+/// mot en privat /proc-fixture. Grupperader kan aldri avsluttes samlet.
+#[test]
+fn oppgaver_grupperes_og_gir_detaljer_for_valgt_prosess() {
+    let dir = tmpdir("oppgaver-gruppe");
+    let root = dir.join("fixture");
+    let write = |pid: u32, name: &str, anon_kb: u64| {
+        let proc = root.join(format!("proc/{pid}"));
+        std::fs::create_dir_all(&proc).unwrap();
+        let mut fields = ["0"; 22];
+        fields[0] = "S";
+        fields[1] = "1";
+        fields[17] = "3";
+        fields[19] = "42";
+        std::fs::write(proc.join("stat"), format!("{pid} ({name}) {}", fields.join(" "))).unwrap();
+        std::fs::write(proc.join("status"), format!(
+            "Uid:\t1000\t1000\t1000\t1000\nRssAnon:\t{anon_kb} kB\nRssFile:\t10 kB\nRssShmem:\t0 kB\nVmSwap:\t5 kB\nThreads:\t3\nCapEff:\t0\nCapPrm:\t0\nCapAmb:\t0\n"
+        )).unwrap();
+        std::fs::write(proc.join("cmdline"), format!("/usr/bin/{name}\0--fixture\0")).unwrap();
+    };
+    write(101, "chrome", 1000);
+    write(102, "chrome", 2000);
+    write(103, "bash", 50);
+    let d = Daemon::start_with_root(&dir, "ingen", 60_000, &root);
+    let mut c = d.connect();
+    let h = c.hello();
+    assert!(h["capabilities"]["ops"].as_array().unwrap().iter().any(|op| op == "get_task_detail"));
+    let wait = |c: &mut Conn, args: Value| {
+        let start = Instant::now();
+        loop {
+            let page = c.ok("get_tasks", args.clone());
+            if page["loading"] == false {
+                break page;
+            }
+            assert!(start.elapsed() < Duration::from_secs(8), "oppgavelista kom ikke");
+            std::thread::sleep(Duration::from_millis(100));
+        }
+    };
+    let page = wait(&mut c, json!({"group": true, "sort": "memory"}));
+    let rows = page["rows"].as_array().unwrap();
+    assert_eq!(rows.len(), 2);
+    assert_eq!((rows[0]["name"].as_str(), rows[0]["groupCount"].as_u64()), (Some("chrome"), Some(2)));
+    assert_eq!(rows[0]["privateBytes"], 3000 * 1024);
+    assert_eq!(rows[0]["canTerminate"], false);
+    assert_eq!(rows[0]["groupKey"], "name:chrome");
+    assert_eq!(page["totals"]["processes"], 3);
+    assert_eq!(page["totals"]["privateBytes"], 3050 * 1024);
+    let open = c.ok("get_tasks", json!({"group": true, "sort": "memory", "expanded": ["name:chrome"], "snapshotId": page["snapshotId"]}));
+    let pids: Vec<_> = open["rows"].as_array().unwrap().iter().map(|r| (r["pid"].as_u64().unwrap(), r["depth"].as_u64().unwrap())).collect();
+    assert_eq!(pids, [(101, 0), (102, 1), (101, 1), (103, 0)]);
+    let many: Vec<String> = (0..40).map(|i| format!("name:{i}")).collect();
+    assert_eq!(c.err("get_tasks", json!({"group": true, "expanded": many})), "invalid_argument");
+    assert_eq!(c.err("get_tasks", json!({"group": true, "expanded": ["x".repeat(81)]})), "invalid_argument");
+    let detail = c.ok("get_task_detail", json!({"pid": 102, "startTicks": 42}));
+    assert_eq!(detail["cmdline"], "/usr/bin/chrome --fixture");
+    assert_eq!(detail["privateBytes"], 2000 * 1024);
+    assert_eq!(detail["sharedBytes"], 10 * 1024);
+    assert_eq!(detail["swapBytes"], 5 * 1024);
+    assert_eq!(detail["threads"], 3);
+    assert!(detail["gpuVramBytes"].is_null());
+    // Feil starttid (gjenbrukt PID) eller ugyldige argumenter gir aldri detaljer.
+    assert_eq!(c.err("get_task_detail", json!({"pid": 102, "startTicks": 43})), "unavailable");
+    assert_eq!(c.err("get_task_detail", json!({"pid": 0, "startTicks": 42})), "invalid_argument");
+    assert_eq!(c.err("get_task_detail", json!({"pid": 102})), "invalid_argument");
+}
+
 /// Bare vår egen sovende barneprosess er signalmål. PID-gjenbruk og
 /// manglende bekreftelse må feile før SIGTERM sendes.
 #[test]
@@ -1244,4 +1310,51 @@ fn cpu_hotplug_oppdaterer_get_system_og_telemetri_i_samme_okt() {
     assert_eq!(sys2["cpu"]["coreOf"].as_array().unwrap().len(), 9);
     assert!(sys2["cpu"]["coreOf"][1].is_null());
     assert_eq!(sys2["cpu"]["coreOf"][8], 4);
+}
+
+/// `get_network` (Nettverk-siden): med sim de simulerte grensesnittene, og
+/// prøvene har de samme navnene, så grafene og lista stemmer. Med en
+/// fixture-rot leses `/sys/class/net` og `/proc/net` i en egen tråd.
+#[test]
+fn nettverket_simulert_og_fra_fixtures() {
+    let poll = |c: &mut Conn| {
+        let t0 = Instant::now();
+        loop {
+            let v = c.ok("get_network", json!({}));
+            if v["pending"] == false {
+                break v;
+            }
+            assert!(t0.elapsed() < Duration::from_secs(8), "nettlista kom ikke: {v}");
+            std::thread::sleep(Duration::from_millis(100));
+        }
+    };
+    let d = Daemon::start("sim");
+    let mut c = d.connect();
+    let h = c.hello();
+    assert!(h["capabilities"]["ops"].as_array().unwrap().iter().any(|o| o == "get_network"));
+    let v = poll(&mut c);
+    assert_eq!(v["source"], "sim");
+    assert_eq!(v["ifaces"][0]["name"], "enp5s0");
+    assert_eq!(v["ifaces"][0]["defaultRoute"], true);
+    assert_eq!(v["routes"]["gateway4"]["addr"], "192.0.2.1");
+    c.ok("subscribe", json!({"topics": ["telemetry"]}));
+    let t = c.wait_event("telemetry", Duration::from_secs(5)).unwrap();
+    let net = t["data"]["sys"]["net"].as_object().unwrap();
+    assert!(net.contains_key("enp5s0") && net.contains_key("wlp4s0"), "simulerte rater: {net:?}");
+    assert!(net["enp5s0"]["rx"].as_f64().is_some());
+    drop(c);
+    drop(d);
+
+    let dir = tmpdir("nett");
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../rigg-hw/tests/fixtures/nett");
+    let d = Daemon::start_with_root_uten_disker(&dir, "ingen", &root);
+    let mut c = d.connect();
+    c.hello();
+    let v = poll(&mut c);
+    assert_eq!(v["source"], "sysfs");
+    assert_eq!(v["hostname"], "rigg-test");
+    let names: Vec<&str> = v["ifaces"].as_array().unwrap().iter().map(|i| i["name"].as_str().unwrap()).collect();
+    assert_eq!(names, ["wlo1", "enp24s0", "docker0", "lo"]);
+    assert_eq!(v["dns"]["servers"], json!(["192.0.2.1"]));
+    assert_eq!(v["sockets"]["tcpListen"], 2);
 }

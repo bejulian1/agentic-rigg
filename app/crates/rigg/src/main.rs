@@ -38,8 +38,9 @@ fn help() -> &'static str {
     tr!("Bruk: agentic-rigg [--side SIDE] [--innstillinger DEL] [--hint] [--version]
 
   --side SIDE           åpne en side: oversikt, sensorer, grafer, grafikkort,
-                        oppgaver, prosessor, disker, system, kontroller (Klokker og
-                        effekt), viftekurve (Vifter) eller lys (RGB-lys)
+                        oppgaver, prosessor, disker, system, nettverk,
+                        kontroller (Klokker og effekt), viftekurve (Vifter)
+                        eller lys (RGB-lys)
   --innstillinger DEL   åpne Innstillinger (generelt, utseende, format,
                         sidefelt, grafer, logging, styring, data eller om)
   --hint                et hint om en liten overraskelse du ikke har funnet

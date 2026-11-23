@@ -24,34 +24,38 @@ msgstr "Ricerca o ordinamento delle attività non valido."
 msgid "Høyst 128 tegn i søket og 1–100 oppgaver per side."
 msgstr "Usa al massimo 128 caratteri nella ricerca e da 1 a 100 attività per pagina."
 
-#: crates/riggd/src/tasks.rs:88
+#: crates/riggd/src/tasks.rs:86
+msgid "For mange eller ugyldige utvidede grupper."
+msgstr "Troppi gruppi espansi o gruppi non validi."
+
+#: crates/riggd/src/tasks.rs:91
 msgid "{key} må være et positivt heltall."
 msgstr "{key} deve essere un numero intero positivo."
 
-#: crates/riggd/src/tasks.rs:94
+#: crates/riggd/src/tasks.rs:97
 msgid "Velg enten et eksisterende eller et nyere prosessbilde."
 msgstr "Scegli un’istantanea dei processi esistente o richiedine una più recente."
 
-#: crates/riggd/src/tasks.rs:156
+#: crates/riggd/src/tasks.rs:159
 msgid "Agentic HW Monitor eller en tilkoblet klient"
 msgstr "Agentic HW Monitor o un client connesso"
 
-#: crates/riggd/src/tasks.rs:169
+#: crates/riggd/src/tasks.rs:172
 msgid "GPU-bruk per prosess er ikke tilgjengelig."
 msgstr "L’utilizzo della GPU per processo non è disponibile."
 
-#: crates/riggd/src/tasks.rs:175
-msgid "Avslutning krever en egen bekreftelse."
-msgstr "Per terminare un’attività serve una conferma separata."
-
-#: crates/riggd/src/tasks.rs:181
+#: crates/riggd/src/tasks.rs:183 crates/riggd/src/tasks.rs:208
 msgid "Ugyldig prosess-ID."
 msgstr "ID del processo non valido."
 
-#: crates/riggd/src/tasks.rs:186
+#: crates/riggd/src/tasks.rs:187 crates/riggd/src/tasks.rs:213
 msgid "Prosessens starttid må følge med."
 msgstr "È necessario indicare l’ora di avvio del processo."
 
-#: crates/riggd/src/tasks.rs:189
+#: crates/riggd/src/tasks.rs:202
+msgid "Avslutning krever en egen bekreftelse."
+msgstr "Per terminare un’attività serve una conferma separata."
+
+#: crates/riggd/src/tasks.rs:216
 msgid "Agentic HW Monitor og tilkoblede klienter er beskyttet."
 msgstr "Agentic HW Monitor e i client connessi sono protetti."

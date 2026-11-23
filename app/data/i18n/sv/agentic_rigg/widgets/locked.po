@@ -204,58 +204,58 @@ msgstr "Varje ändring måste behållas inom tidsgränsen. Du kan alltid välja 
 msgid "Åpne Innstillinger › Skjermkortstyring"
 msgstr "Öppna Inställningar › Grafikkortsstyrning"
 
-#: crates/rigg/src/widgets/locked.rs:944
+#: crates/rigg/src/widgets/locked.rs:954
 msgid "Rull tilbake"
 msgstr "Rulla tillbaka"
 
-#: crates/rigg/src/widgets/locked.rs:945
+#: crates/rigg/src/widgets/locked.rs:955
 msgid "Behold"
 msgstr "Behåll"
 
-#: crates/rigg/src/widgets/locked.rs:965
+#: crates/rigg/src/widgets/locked.rs:975
 msgid "Tilbakestilling kunne ikke bekreftes. Kortets tilstand er usikker. Prøv Rull tilbake, og se status i Innstillinger › Skjermkortstyring."
 msgstr "Tillbakarullningen kunde inte bekräftas. Kortets tillstånd är osäkert. Prova Rulla tillbaka och se status i Inställningar › Grafikkortsstyrning."
 
-#: crates/rigg/src/widgets/locked.rs:969 crates/rigg/src/widgets/locked.rs:1057 crates/rigg/src/widgets/locked.rs:1111
+#: crates/rigg/src/widgets/locked.rs:979 crates/rigg/src/widgets/locked.rs:1067 crates/rigg/src/widgets/locked.rs:1121
 msgid "Endringene er rullet tilbake"
 msgstr "Ändringarna har rullats tillbaka"
 
-#: crates/rigg/src/widgets/locked.rs:1029
+#: crates/rigg/src/widgets/locked.rs:1039
 msgid "Behold ({sek})"
 msgstr "Behåll ({sek})"
 
-#: crates/rigg/src/widgets/locked.rs:1030
+#: crates/rigg/src/widgets/locked.rs:1040
 msgid "Kortet er byttet. Venter på bekreftet tilbakestilling på det opprinnelige kortet …"
 msgstr "Kortet har bytts. Väntar på bekräftad tillbakarullning på det ursprungliga kortet…"
 
-#: crates/rigg/src/widgets/locked.rs:1031
+#: crates/rigg/src/widgets/locked.rs:1041
 msgid "Fristen er ute. Venter på bekreftet tilbakestilling fra tjenesten …"
 msgstr "Tidsgränsen har gått ut. Väntar på bekräftad tillbakarullning från tjänsten…"
 
-#: crates/rigg/src/widgets/locked.rs:1032
+#: crates/rigg/src/widgets/locked.rs:1042
 msgid "Behold endringene? Uten svar rulles de tilbake om {tid}."
 msgstr "Behålla ändringarna? Utan svar rullas de tillbaka om {tid}."
 
-#: crates/rigg/src/widgets/locked.rs:1050
+#: crates/rigg/src/widgets/locked.rs:1060
 msgid "Tjenesten kan ikke bekrefte kortets tilstand eller tilbakestilling. Prøv Rull tilbake, og se status i Innstillinger › Skjermkortstyring."
 msgstr "Tjänsten kan inte bekräfta kortets tillstånd eller tillbakarullningen. Prova Rulla tillbaka och se status i Inställningar › Grafikkortsstyrning."
 
-#: crates/rigg/src/widgets/locked.rs:1062
+#: crates/rigg/src/widgets/locked.rs:1072
 msgid "Kortets tilstand er bekreftet"
 msgstr "Kortets tillstånd är bekräftat"
 
-#: crates/rigg/src/widgets/locked.rs:1062
+#: crates/rigg/src/widgets/locked.rs:1072
 msgid "Ingen ubekreftet endring venter."
 msgstr "Ingen obekräftad ändring väntar."
 
-#: crates/rigg/src/widgets/locked.rs:1111
+#: crates/rigg/src/widgets/locked.rs:1121
 msgid "Endringene er beholdt"
 msgstr "Ändringarna har behållits"
 
-#: crates/rigg/src/widgets/locked.rs:1115
+#: crates/rigg/src/widgets/locked.rs:1125
 msgid "Tjenesten kan ikke bekrefte tilbakestillingen. Kortets tilstand er usikker. Prøv Rull tilbake."
 msgstr "Tjänsten kan inte bekräfta tillbakarullningen. Kortets tillstånd är osäkert. Prova Rulla tillbaka."
 
-#: crates/rigg/src/widgets/locked.rs:1116
+#: crates/rigg/src/widgets/locked.rs:1126
 msgid "Kunne ikke bekrefte svaret: {feil}. Prøv Rull tilbake. Endringen regnes ikke som tilbakestilt før tjenesten bekrefter det."
 msgstr "Det gick inte att bekräfta svaret: {feil}. Prova Rulla tillbaka. Ändringen räknas inte som tillbakarullad förrän tjänsten bekräftar det."

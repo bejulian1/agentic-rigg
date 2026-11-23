@@ -1580,20 +1580,8 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     stats[3].meter.set_visible(false);
     stats[4].meter.set_visible(false);
     stats[2].meter.set_visible(false);
-    // Like mange fliser per rad også rett etter at vinduet har endret
-    // bredde (ellers ved neste oppdatering, innen ett sekund).
-    {
-        let st2 = st.clone();
-        st.root.connect_realize(move |w| {
-            if let Some(win) = w.root().and_downcast::<gtk::Window>() {
-                let st3 = st2.clone();
-                win.connect_default_width_notify(move |_| {
-                    let st4 = st3.clone();
-                    glib::timeout_add_local_once(std::time::Duration::from_millis(80), move || st4.balance(6));
-                });
-            }
-        });
-    }
+    // Like mange fliser per rad også rett etter at vinduet har endret bredde.
+    st.balance_on_resize(6);
     let live = vbox(0, &["group", "oc-live"]);
     live.append(&st.root);
     root.append(&live);

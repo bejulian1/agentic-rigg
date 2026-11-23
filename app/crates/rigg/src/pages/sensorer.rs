@@ -143,11 +143,30 @@ const NUM_W: i32 = 84;
 /// (x, bredde) for de seks kolonnene. Under 760 px faller sparklinja bort,
 /// under 520 px også Min og Snitt (Sensor, Nå og Maks står igjen).
 fn columns(w: i32, sparks: bool) -> [(i32, i32); 6] {
-    let spark = if sparks && w >= 760 { (w as f32 * 0.3) as i32 } else { 0 };
+    columns_at(w, sparks, crate::theme::font_scale())
+}
+
+/// Navnekolonnen skal ha minst så mye (px ved 100 % skrift) før sparklinja får plass.
+const NAME_MIN_W: f64 = 200.0;
+/// En sparklinje smalere enn dette sier ingenting; da faller kolonnen bort.
+const SPARK_MIN_W: i32 = 96;
+
+fn columns_at(w: i32, sparks: bool, font_scale: f64) -> [(i32, i32); 6] {
     let narrow = w < 520;
     let nums = if narrow { 2 } else { 4 };
     // Tallkolonnene vokser med skriften, så «10,93 MB/s» får plass med «Stor».
-    let num_w = (NUM_W as f64 * crate::theme::font_scale().max(1.0)).round() as i32;
+    let scale = font_scale.max(1.0);
+    let num_w = (NUM_W as f64 * scale).round() as i32;
+    // Sparklinja får 30 % av bredden, men aldri på bekostning av navnet:
+    // med 1024 px vindu og større skrift sto det «Temperatur (…» to ganger
+    // (Tdie og Tctl) ved siden av en bred sparklinje.
+    let mut spark = if sparks && w >= 760 { (w as f32 * 0.3) as i32 } else { 0 };
+    if spark > 0 {
+        spark = spark.min(w - num_w * nums - (NAME_MIN_W * scale).round() as i32);
+        if spark < SPARK_MIN_W {
+            spark = 0;
+        }
+    }
     let name = (w - spark - num_w * nums).max(60);
     let mut x = name;
     let mut col = |show: bool| {
@@ -1296,6 +1315,9 @@ impl Inner {
         name.update_property(&[gtk::accessible::Property::Label(&d.label), gtk::accessible::Property::Description(&tip_text)]);
         name_box.append(&name);
         let extra = label(d.extra.as_deref().unwrap_or(""), &["x"]);
+        // Tillegget («ikke tilkoblet») kan kuttes; ellers stakk det ut av
+        // navnekolonnen i smale vinduer og med større skrift.
+        extra.set_ellipsize(pango::EllipsizeMode::End);
         extra.set_visible(d.extra.is_some() || d.thread.is_some());
         name_box.append(&extra);
         let num = |c: &str| {
@@ -1928,15 +1950,19 @@ impl Inner {
             if let Some(f) = fixed {
                 return f;
             }
+            if temp_row {
+                return crate::widgets::chart::temp_range();
+            }
             let hi = wself.upgrade().and_then(|s| s.detail.borrow().as_ref().map(|d| d.panel.view.clone())).map(|v| {
                 let data = v.data.borrow();
                 data.s.first().map(|c| c.hi.iter().chain(c.avg.iter()).flatten().fold(0.0f64, |a, b| a.max(*b))).unwrap_or(0.0)
             });
             let st = wself.upgrade().and_then(|s| s.stat(&key2).1).unwrap_or(0.0);
             let top = hi.unwrap_or(0.0).max(st);
-            let conv = if temp_row { F::temp_out(Some(top)).unwrap_or(top) } else { top / div };
-            (0.0, (conv * 1.3).max(1.0))
+            (0.0, (top / div * 1.3).max(1.0))
         });
+        // Temperaturrader følger den felles akseregelen (minst til 100 °C).
+        opts.temp = temp_row;
         let fixed_scale = d.fixed.is_some();
         opts.auto = Rc::new(move || !fixed_scale);
         let ms = d.min_span;
@@ -2214,5 +2240,50 @@ impl Inner {
                 adj.set_value(if a == "bunn" { adj.upper() } else { 0.0 });
             }
         });
+    }
+}
+
+#[cfg(test)]
+mod kolonne_tester {
+    use super::{NUM_W, columns_at};
+
+    fn name_and_spark(w: i32, scale: f64) -> (i32, i32) {
+        let c = columns_at(w, true, scale);
+        (c[0].1, c[5].1)
+    }
+
+    #[test]
+    fn kolonnene_fyller_bredden_uten_å_overlappe() {
+        for (w, scale) in [(1600, 1.0), (1000, 1.0), (760, 1.0), (760, 1.16), (600, 1.0), (400, 1.16)] {
+            let c = columns_at(w, true, scale);
+            let mut x = 0;
+            for (cx, cw) in c.iter().filter(|c| c.1 > 0) {
+                assert_eq!(*cx, x, "kolonnene står kant i kant ved {w} px: {c:?}");
+                x += cw;
+            }
+            // Summen er bredden, unntatt når navnet står på sitt minste (60 px).
+            assert!(x == w || (c[0].1 == 60 && x > w), "{w} px: {c:?}");
+        }
+    }
+
+    #[test]
+    fn navnet_går_foran_sparklinja() {
+        // Bredt vindu: sparklinja får 30 %.
+        assert_eq!(name_and_spark(1600, 1.0), (1600 - 480 - 4 * NUM_W, 480));
+        // 1024 px vindu (760 px tabell): før fikk navnet 196 px, og 142 px med
+        // «Større» skrift. Nå krymper sparklinja først.
+        assert_eq!(name_and_spark(760, 1.0), (200, 224));
+        let (name, spark) = name_and_spark(760, 1.16);
+        assert_eq!(name, 232, "navnet får 200 px ganger skriften");
+        assert_eq!(spark, 760 - 232 - 4 * 97);
+        // For trangt til en lesbar sparklinje: kolonnen faller bort, navnet får resten.
+        let (name, spark) = name_and_spark(800, 1.5);
+        assert_eq!(spark, 0);
+        assert_eq!(name, 800 - 4 * 126);
+        // Uten sparklinjer og i smale vinduer som før.
+        assert_eq!(columns_at(1600, false, 1.0)[5].1, 0);
+        assert_eq!(columns_at(700, true, 1.0)[5].1, 0);
+        let narrow = columns_at(500, true, 1.0);
+        assert_eq!((narrow[2].1, narrow[4].1), (0, 0), "Min og Snitt faller bort under 520 px");
     }
 }

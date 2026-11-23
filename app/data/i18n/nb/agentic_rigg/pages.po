@@ -7,62 +7,66 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: crates/rigg/src/pages/mod.rs:85
+#: crates/rigg/src/pages/mod.rs:86
 msgid "Oversikt"
 msgstr "Oversikt"
 
-#: crates/rigg/src/pages/mod.rs:86
+#: crates/rigg/src/pages/mod.rs:87
 msgid "Sensorer"
 msgstr "Sensorer"
 
-#: crates/rigg/src/pages/mod.rs:87
+#: crates/rigg/src/pages/mod.rs:88
 msgid "Grafer"
 msgstr "Grafer"
 
-#: crates/rigg/src/pages/mod.rs:88
+#: crates/rigg/src/pages/mod.rs:89
 msgid "Grafikkort"
 msgstr "Grafikkort"
 
-#: crates/rigg/src/pages/mod.rs:89
+#: crates/rigg/src/pages/mod.rs:90
 msgid "Prosessor"
 msgstr "Prosessor"
 
-#: crates/rigg/src/pages/mod.rs:90
+#: crates/rigg/src/pages/mod.rs:91
 msgid "Disker"
 msgstr "Disker"
 
-#: crates/rigg/src/pages/mod.rs:91
+#: crates/rigg/src/pages/mod.rs:92
 msgid "System"
 msgstr "System"
 
-#: crates/rigg/src/pages/mod.rs:92
+#: crates/rigg/src/pages/mod.rs:93
 msgid "Klokker og effekt"
 msgstr "Klokker og effekt"
 
-#: crates/rigg/src/pages/mod.rs:93
+#: crates/rigg/src/pages/mod.rs:94
 msgid "Vifter"
 msgstr "Vifter"
 
-#: crates/rigg/src/pages/mod.rs:94
+#: crates/rigg/src/pages/mod.rs:95
 msgid "RGB-lys"
 msgstr "RGB-lys"
 
-#: crates/rigg/src/pages/mod.rs:95
+#: crates/rigg/src/pages/mod.rs:96
 msgid "Oppgaver"
 msgstr "Oppgaver"
 
-#: crates/rigg/src/pages/mod.rs:104
+#: crates/rigg/src/pages/mod.rs:99
+msgid "Nettverk"
+msgstr "Nettverk"
+
+#: crates/rigg/src/pages/mod.rs:108
 msgid "Overvåking"
 msgstr "Overvåking"
 
-#: crates/rigg/src/pages/mod.rs:105
+#: crates/rigg/src/pages/mod.rs:109
 msgid "Maskinvare"
 msgstr "Maskinvare"
 
-#: crates/rigg/src/pages/mod.rs:106
+#: crates/rigg/src/pages/mod.rs:110
 msgid "Skjermkortstyring"
 msgstr "Skjermkortstyring"
 
-#: crates/rigg/src/pages/mod.rs:113
+#: crates/rigg/src/pages/mod.rs:117
 msgid "Skjermkort"
 msgstr "Skjermkort"

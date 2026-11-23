@@ -358,10 +358,20 @@ impl CardLight {
     pub fn new(app: &Rc<App>) -> Rc<Self> {
         let panel = Panel::new(tr!("Lys på kortet"));
         panel.root.add_css_class("rgb-card-control");
+        // Én linje: et merke som kan brytes, ble brutt i to («Ikke / aktivert»)
+        // så snart panelhodet var høyt nok, fordi GTK da spør om bredden for
+        // den høyden. Er det for trangt, kuttes teksten med «…».
         let badge = label(tr!("Ikke aktivert"), &["tag", "quiet"]);
-        badge.set_wrap(true);
-        badge.set_wrap_mode(gtk::pango::WrapMode::WordChar);
-        badge.set_max_width_chars(24);
+        badge.set_ellipsize(gtk::pango::EllipsizeMode::End);
+        badge.set_max_width_chars(48);
+        badge.set_has_tooltip(true);
+        badge.connect_query_tooltip(|l, _, _, _, tip| {
+            let cut = l.layout().is_ellipsized();
+            if cut {
+                tip.set_text(Some(&l.text()));
+            }
+            cut
+        });
         panel.aside.append(&badge);
         let summary = paragraph("", &["muted"]);
         panel.body.append(&summary);
@@ -467,12 +477,14 @@ impl CardLight {
         )]);
         let slider = gtk::Scale::new(gtk::Orientation::Horizontal, Some(&brightness.adjustment()));
         slider.set_draw_value(false);
-        slider.set_size_request(260, -1);
+        // Ønsker 260 px, men kan krympe: en fast bredde holdt vinduet bredere
+        // enn 640 px med luftig tetthet.
+        slider.set_size_request(120, -1);
         slider.update_property(&[gtk::accessible::Property::Label(
             tr!("Kortlysets lysstyrke i prosent"),
         )]);
         let brightness_box = hbox(8, &[]);
-        brightness_box.append(&slider);
+        brightness_box.append(&crate::widgets::fixed::Preferred::new(&slider, 260));
         brightness_box.append(&brightness);
         brightness_box.append(&label("%", &["muted"]));
         controls.attach(&heading(tr!("Lysstyrke")), 0, 2, 1, 1);

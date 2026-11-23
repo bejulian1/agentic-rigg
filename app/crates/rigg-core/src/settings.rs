@@ -33,7 +33,7 @@ fn err<T>(m: impl Into<String>) -> Result<T, ValidationError> {
 /// Oppgaver åpnes med Ctrl+Shift+Esc og grupperes under Overvåking.
 /// Prosessor og Disker kom i 1.1.0 (runde 6A), og Styring-sidene fikk nye
 /// navn i runde 6B (`id` er den samme).
-pub const PAGES: [(&str, &str); 11] = [
+pub const PAGES: [(&str, &str); 12] = [
     ("oversikt", "Oversikt"),
     ("sensorer", "Sensorer"),
     ("grafer", "Grafer"),
@@ -45,6 +45,7 @@ pub const PAGES: [(&str, &str); 11] = [
     ("viftekurve", "Skjermkort › Vifter"),
     ("lys", "Skjermkort › RGB-lys"),
     ("oppgaver", "Oppgaver"),
+    ("nettverk", "Nettverk"),
 ];
 
 /// Lokalisert navn for en side-ID (brukes i Innstillinger).
@@ -61,6 +62,7 @@ pub fn page_name(id: &str) -> &'static str {
         "viftekurve" => tr!("Skjermkort › Vifter"),
         "lys" => tr!("Skjermkort › RGB-lys"),
         "oppgaver" => tr!("Oppgaver"),
+        "nettverk" => tr!("Nettverk"),
         _ => "",
     }
 }
@@ -73,7 +75,7 @@ pub const DENSITIES: [&str; 3] = ["compact", "standard", "comfortable"];
 pub const FONT_SCALES: [u32; 4] = [92, 100, 108, 116];
 pub const MOTIONS: [&str; 4] = ["system", "full", "reduced", "off"];
 pub const CHART_WINDOWS: [u32; 7] = [60, 300, 900, 3600, 21600, 86400, 172800];
-pub const WINDOW_PAGES: [&str; 3] = ["oversikt", "kontroller", "sensorer"];
+pub const WINDOW_PAGES: [&str; 4] = ["oversikt", "kontroller", "sensorer", "nettverk"];
 pub const STATUS_ITEMS: [&str; 10] = ["gpuTemp", "gpuLoad", "gpuPower", "vram", "gpuFan", "cpuTemp", "cpuLoad", "mem", "netDown", "netUp"];
 pub const STATUS_MAX: usize = 8;
 pub const CHARTS: [&str; 13] = ["gpuTemp", "gpuLoad", "coreClock", "memClock", "power", "fan", "vram", "cpuLoad", "cpuTemp", "mem", "net", "diskTemp", "diskIo"];
@@ -134,11 +136,18 @@ pub struct Windows {
     pub oversikt: u32,
     pub kontroller: u32,
     pub sensorer: u32,
+    /// Nettverk-siden (kom etter 1.6.0; eldre `ui.json` mangler den).
+    #[serde(default = "default_nettverk_window")]
+    pub nettverk: u32,
+}
+
+fn default_nettverk_window() -> u32 {
+    300
 }
 
 impl Default for Windows {
     fn default() -> Self {
-        Windows { oversikt: 60, kontroller: 60, sensorer: 300 }
+        Windows { oversikt: 60, kontroller: 60, sensorer: 300, nettverk: default_nettverk_window() }
     }
 }
 
@@ -404,6 +413,7 @@ pub fn merge(base: &Settings, patch: &Value) -> Result<Settings, ValidationError
                         "oversikt" => o.windows.oversikt = n,
                         "kontroller" => o.windows.kontroller = n,
                         "sensorer" => o.windows.sensorer = n,
+                        "nettverk" => o.windows.nettverk = n,
                         other => return err(trf!("Ukjent side i windows: {side}", side = other.chars().take(20).collect::<String>())),
                     }
                 }

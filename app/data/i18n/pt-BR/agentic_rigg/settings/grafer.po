@@ -59,8 +59,8 @@ msgid "synkron tidspunkt sikte"
 msgstr "sincronizar cursor horário"
 
 #: crates/rigg/src/settings/grafer.rs:98
-msgid "Tilpass følger dataene i vinduet. Fast beholder normalområdet, men begge utvider aksen når verdiene går utenfor. Last og minne i prosent har skala 0–100; vifter kan gå over 100 %."
-msgstr "Auto acompanha os dados visíveis. Fixo mantém a faixa normal, mas ambos expandem se necessário. Carga e memória em % usam 0–100; ventoinhas podem passar de 100 %."
+msgid "Tilpass følger dataene i vinduet. Fast beholder normalområdet, men begge utvider aksen når verdiene går utenfor. Temperaturgrafer går alltid til minst 100 °C. Last og minne i prosent har skala 0–100; vifter kan gå over 100 %."
+msgstr "Auto acompanha os dados visíveis. Fixo mantém a faixa normal, mas ambos expandem se necessário. Os gráficos de temperatura sempre vão até pelo menos 100 °C. Carga e memória em % usam 0–100; ventoinhas podem passar de 100 %."
 
 #: crates/rigg/src/settings/grafer.rs:100
 msgctxt "søkeord"

@@ -8,94 +8,94 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg-hw/src/sys/process.rs:104
+#: crates/rigg-hw/src/sys/process.rs:143
 msgid "For stor /proc-fil"
 msgstr "O arquivo de /proc é grande demais"
 
-#: crates/rigg-hw/src/sys/process.rs:114
+#: crates/rigg-hw/src/sys/process.rs:153
 msgid "Ugyldig prosessinformasjon"
 msgstr "Informações de processo inválidas"
 
-#: crates/rigg-hw/src/sys/process.rs:187
+#: crates/rigg-hw/src/sys/process.rs:226
 msgid "Ugyldig foreldrekjede for appen eller en tilkoblet klient"
 msgstr "Cadeia de processos pais inválida para o aplicativo ou um cliente conectado"
 
-#: crates/rigg-hw/src/sys/process.rs:196
+#: crates/rigg-hw/src/sys/process.rs:235
 msgid "Kunne ikke kontrollere foreldreprosesser for appen eller en tilkoblet klient"
 msgstr "Não foi possível verificar os processos pais do aplicativo ou de um cliente conectado"
 
-#: crates/rigg-hw/src/sys/process.rs:202
+#: crates/rigg-hw/src/sys/process.rs:241
 msgid "Foreldrekjeden er for lang"
 msgstr "A cadeia de processos pais é longa demais"
 
-#: crates/rigg-hw/src/sys/process.rs:220
+#: crates/rigg-hw/src/sys/process.rs:259
 msgid "Systemets init-prosess er beskyttet"
 msgstr "O processo init do sistema está protegido"
 
-#: crates/rigg-hw/src/sys/process.rs:222
+#: crates/rigg-hw/src/sys/process.rs:261
 msgid "Appen eller en foreldreprosess er beskyttet"
 msgstr "O aplicativo ou um processo pai está protegido"
 
-#: crates/rigg-hw/src/sys/process.rs:224
+#: crates/rigg-hw/src/sys/process.rs:263
 msgid "Viktig system- eller øktprosess er beskyttet"
 msgstr "Um processo essencial do sistema ou da sessão está protegido"
 
-#: crates/rigg-hw/src/sys/process.rs:226
+#: crates/rigg-hw/src/sys/process.rs:265
 msgid "Prosessen er allerede avsluttet"
 msgstr "O processo já foi encerrado"
 
-#: crates/rigg-hw/src/sys/process.rs:228
+#: crates/rigg-hw/src/sys/process.rs:267
 msgid "Kjerneprosesser er beskyttet"
 msgstr "Os processos do kernel estão protegidos"
 
-#: crates/rigg-hw/src/sys/process.rs:230 crates/rigg-hw/src/sys/process.rs:431
+#: crates/rigg-hw/src/sys/process.rs:269 crates/rigg-hw/src/sys/process.rs:618
 msgid "Avslutning krever en vanlig brukerøkt"
 msgstr "É preciso uma sessão de usuário comum para encerrar o processo"
 
-#: crates/rigg-hw/src/sys/process.rs:233
+#: crates/rigg-hw/src/sys/process.rs:272
 msgid "Root-prosesser er beskyttet"
 msgstr "Os processos de root estão protegidos"
 
-#: crates/rigg-hw/src/sys/process.rs:235
+#: crates/rigg-hw/src/sys/process.rs:274
 msgid "Prosessen tilhører en annen bruker eller har andre rettigheter"
 msgstr "O processo pertence a outro usuário ou tem permissões diferentes"
 
-#: crates/rigg-hw/src/sys/process.rs:237
+#: crates/rigg-hw/src/sys/process.rs:276
 msgid "Prosessen har særskilte systemrettigheter"
 msgstr "O processo tem privilégios especiais de sistema"
 
-#: crates/rigg-hw/src/sys/process.rs:242
+#: crates/rigg-hw/src/sys/process.rs:281
 msgid "Kan ikke kontrollere prosessens brukerrettigheter"
 msgstr "Não é possível verificar as permissões de usuário do processo"
 
-#: crates/rigg-hw/src/sys/process.rs:327
+#: crates/rigg-hw/src/sys/process.rs:366
 msgid "Prosesslisten er utilgjengelig"
 msgstr "A lista de processos não está disponível"
 
-#: crates/rigg-hw/src/sys/process.rs:423
-msgid "Avslutning er sperret for testdata"
-msgstr "O encerramento está bloqueado para dados de teste"
-
-#: crates/rigg-hw/src/sys/process.rs:426
-msgid "Ugyldig eller beskyttet prosess"
-msgstr "Processo inválido ou protegido"
-
-#: crates/rigg-hw/src/sys/process.rs:437
-msgid "Kan ikke åpne sikker prosessreferanse: {feil}"
-msgstr "Não foi possível abrir uma referência segura do processo: {feil}"
-
-#: crates/rigg-hw/src/sys/process.rs:445
+#: crates/rigg-hw/src/sys/process.rs:486 crates/rigg-hw/src/sys/process.rs:632
 msgid "Prosessen finnes ikke lenger eller kan ikke leses"
 msgstr "O processo não existe mais ou não pode ser lido"
 
-#: crates/rigg-hw/src/sys/process.rs:447
+#: crates/rigg-hw/src/sys/process.rs:489 crates/rigg-hw/src/sys/process.rs:634
 msgid "Prosessen er erstattet. Oppdater listen og velg på nytt"
 msgstr "O processo foi substituído. Atualize a lista e selecione novamente"
 
-#: crates/rigg-hw/src/sys/process.rs:456
+#: crates/rigg-hw/src/sys/process.rs:591 crates/rigg-hw/src/sys/process.rs:643
 msgid "Prosessen er erstattet eller avsluttet"
 msgstr "O processo foi substituído ou já foi encerrado"
 
-#: crates/rigg-hw/src/sys/process.rs:468
+#: crates/rigg-hw/src/sys/process.rs:610
+msgid "Avslutning er sperret for testdata"
+msgstr "O encerramento está bloqueado para dados de teste"
+
+#: crates/rigg-hw/src/sys/process.rs:613
+msgid "Ugyldig eller beskyttet prosess"
+msgstr "Processo inválido ou protegido"
+
+#: crates/rigg-hw/src/sys/process.rs:624
+msgid "Kan ikke åpne sikker prosessreferanse: {feil}"
+msgstr "Não foi possível abrir uma referência segura do processo: {feil}"
+
+#: crates/rigg-hw/src/sys/process.rs:655
 msgid "Kunne ikke sende SIGTERM: {feil}"
 msgstr "Não foi possível enviar SIGTERM: {feil}"

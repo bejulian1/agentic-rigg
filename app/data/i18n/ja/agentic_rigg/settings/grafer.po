@@ -59,8 +59,8 @@ msgid "synkron tidspunkt sikte"
 msgstr "同期 カーソル 時刻 クロスヘア"
 
 #: crates/rigg/src/settings/grafer.rs:98
-msgid "Tilpass følger dataene i vinduet. Fast beholder normalområdet, men begge utvider aksen når verdiene går utenfor. Last og minne i prosent har skala 0–100; vifter kan gå over 100 %."
-msgstr "自動は表示データに合わせます。固定は標準範囲を保ち、範囲外ではどちらも自動拡張します。負荷とメモリ % は 0–100、ファンは 100 % を超える場合があります。"
+msgid "Tilpass følger dataene i vinduet. Fast beholder normalområdet, men begge utvider aksen når verdiene går utenfor. Temperaturgrafer går alltid til minst 100 °C. Last og minne i prosent har skala 0–100; vifter kan gå over 100 %."
+msgstr "自動は表示データに合わせます。固定は標準範囲を保ち、範囲外ではどちらも自動拡張します。温度グラフは常に 100 °C 以上まで表示します。負荷とメモリ % は 0–100、ファンは 100 % を超える場合があります。"
 
 #: crates/rigg/src/settings/grafer.rs:100
 msgctxt "søkeord"

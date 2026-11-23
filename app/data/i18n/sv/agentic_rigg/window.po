@@ -8,10 +8,10 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg/src/window.rs:375
+#: crates/rigg/src/window.rs:380
 msgid "Oversikt"
 msgstr "Översikt"
 
-#: crates/rigg/src/window.rs:380
+#: crates/rigg/src/window.rs:385
 msgid "Innstillinger · {verdi}"
 msgstr "Inställningar · {verdi}"

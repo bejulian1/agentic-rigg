@@ -245,12 +245,13 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     } else {
         tr!("Ikonlista viser bare ikoner og korte tall. Også Ctrl+B og knappen nederst i sidefeltet.")
     };
-    let checks = gtk::Grid::new();
+    // Tre like spalter som går ned til to og én når sidenavnene ikke får
+    // plass («Skjermkort › Klokker og effekt» stakk ut av en fast tredel).
+    let checks = crate::widgets::chart::Cols::new(&[1.0; 3], 16, 0);
+    checks.set_row_gap(0);
     checks.add_css_class("check-list");
-    checks.set_column_spacing(16);
-    checks.set_column_homogeneous(true);
     let hidden = s.hidden_pages.clone();
-    for (i, (id, _)) in PAGES.iter().enumerate() {
+    for (id, _) in PAGES.iter() {
         let a = app.clone();
         let cb = crate::widgets::switchrow::check(page_name(id), !hidden.iter().any(|h| h == id), move |cb| {
             let mut next: Vec<String> = a.settings().hidden_pages.clone();
@@ -267,7 +268,7 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
             let ordered: Vec<&str> = PAGES.iter().map(|p| p.0).filter(|p| next.iter().any(|n| n == p)).collect();
             save(&a, json!({"hiddenPages": ordered}));
         });
-        checks.attach(&cb, (i % 3) as i32, (i / 3) as i32, 1, 1);
+        checks.append(&cb);
     }
     let pages_row = vbox(0, &["set-row", "wrap"]);
     pages_row.append(&checks);

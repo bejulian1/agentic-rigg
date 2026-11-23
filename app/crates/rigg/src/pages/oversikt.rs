@@ -603,9 +603,7 @@ fn temp_chart(app: &Rc<App>, gpu: bool, disks: &[(String, String)], win: i64, sy
     for (i, (k, n)) in disks.iter().take(2).enumerate() {
         series.push(SeriesDef::new(k, n, DISK[i % DISK.len()]).map(temp));
     }
-    let mut o = ChartOpts::new(app, chart::temp_range);
-    o.unit = Rc::new(|| F::temp_label().into());
-    o.min_span = Rc::new(chart::temp_span);
+    let mut o = ChartOpts::temp(app, chart::temp_range);
     if gpu {
         let wa = Rc::downgrade(app);
         o.limits = Rc::new(move || wa.upgrade().map(|a| chart::gpu_temp_limits(&a, "GPU-")).unwrap_or_default());

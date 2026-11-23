@@ -40,86 +40,86 @@ msgstr "48 h"
 msgid "{verdi} min"
 msgstr "{verdi} min"
 
-#: crates/rigg/src/widgets/chart/math.rs:340 crates/rigg/src/widgets/chart/math.rs:762
+#: crates/rigg/src/widgets/chart/math.rs:357 crates/rigg/src/widgets/chart/math.rs:779
 msgid "nå"
 msgstr "nu"
 
-#: crates/rigg/src/widgets/chart/math.rs:409
+#: crates/rigg/src/widgets/chart/math.rs:426
 msgid "i dag {hm}"
 msgstr "i dag {hm}"
 
-#: crates/rigg/src/widgets/chart/math.rs:411
+#: crates/rigg/src/widgets/chart/math.rs:428
 msgid "i går {hm}"
 msgstr "i går {hm}"
 
-#: crates/rigg/src/widgets/chart/math.rs:762
+#: crates/rigg/src/widgets/chart/math.rs:779
 msgid "for {s}{verdi}s siden"
 msgstr "för {s}{verdi}s sedan"
 
-#: crates/rigg/src/widgets/chart/math.rs:768
+#: crates/rigg/src/widgets/chart/math.rs:785
 msgid "{head} · snitt over {over}"
 msgstr "{head} · medel över {over}"
 
-#: crates/rigg/src/widgets/chart/math.rs:809
+#: crates/rigg/src/widgets/chart/math.rs:826
 msgid "{now} · maks {extra}"
 msgstr "{now} · max {extra}"
 
-#: crates/rigg/src/widgets/chart/math.rs:818
+#: crates/rigg/src/widgets/chart/math.rs:835
 msgid "{verdi1} = {r}{verdi2}GT/s per lane"
 msgstr "{verdi1} = {r}{verdi2}GT/s per lane"
 
-#: crates/rigg/src/widgets/chart/math.rs:823
+#: crates/rigg/src/widgets/chart/math.rs:840
 msgid "Lenken går på {aktiv} nå fordi kortet sparer strøm i tomgang, og går opp til {maks} under last. {aktiv_hastighet}, {maks_hastighet}."
 msgstr "Länken kör med {aktiv} nu eftersom kortet sparar ström i tomgång, och går upp till {maks} under belastning. {aktiv_hastighet}, {maks_hastighet}."
 
-#: crates/rigg/src/widgets/chart/math.rs:825
+#: crates/rigg/src/widgets/chart/math.rs:842
 msgid "Lenken går på full hastighet. {verdi}."
 msgstr "Länken kör med full hastighet. {verdi}."
 
-#: crates/rigg/src/widgets/chart/math.rs:833
+#: crates/rigg/src/widgets/chart/math.rs:850
 msgid "Tomgang"
 msgstr "Tomgång"
 
-#: crates/rigg/src/widgets/chart/math.rs:834
+#: crates/rigg/src/widgets/chart/math.rs:851
 msgid "App-klokker"
 msgstr "Appklockor"
 
-#: crates/rigg/src/widgets/chart/math.rs:835
+#: crates/rigg/src/widgets/chart/math.rs:852
 msgid "Effektgrense"
 msgstr "Effektgräns"
 
-#: crates/rigg/src/widgets/chart/math.rs:836
+#: crates/rigg/src/widgets/chart/math.rs:853
 msgid "HW-nedklokking"
 msgstr "HW-nedklockning"
 
-#: crates/rigg/src/widgets/chart/math.rs:837
+#: crates/rigg/src/widgets/chart/math.rs:854
 msgid "Sync boost"
 msgstr "Sync boost"
 
-#: crates/rigg/src/widgets/chart/math.rs:838
+#: crates/rigg/src/widgets/chart/math.rs:855
 msgid "Termisk (SW)"
 msgstr "Termisk (SW)"
 
-#: crates/rigg/src/widgets/chart/math.rs:839
+#: crates/rigg/src/widgets/chart/math.rs:856
 msgid "Termisk (HW)"
 msgstr "Termisk (HW)"
 
-#: crates/rigg/src/widgets/chart/math.rs:840
+#: crates/rigg/src/widgets/chart/math.rs:857
 msgid "Strømbrems (HW)"
 msgstr "Effektbroms (HW)"
 
-#: crates/rigg/src/widgets/chart/math.rs:841
+#: crates/rigg/src/widgets/chart/math.rs:858
 msgid "Skjermklokke"
 msgstr "Skärmklocka"
 
-#: crates/rigg/src/widgets/chart/math.rs:859
+#: crates/rigg/src/widgets/chart/math.rs:876
 msgid "Ingen"
 msgstr "Ingen"
 
-#: crates/rigg/src/widgets/chart/math.rs:886
+#: crates/rigg/src/widgets/chart/math.rs:903
 msgid "Over rød varselgrense (Innstillinger › Grafer og sensorer)."
 msgstr "Över röd varningsgräns (Inställningar › Grafer och sensorer)."
 
-#: crates/rigg/src/widgets/chart/math.rs:887
+#: crates/rigg/src/widgets/chart/math.rs:904
 msgid "Over gul varselgrense (Innstillinger › Grafer og sensorer)."
 msgstr "Över gul varningsgräns (Inställningar › Grafer och sensorer)."

@@ -57,8 +57,15 @@
 #   rgb-ui            fysisk RGB-panel med merkede simulerte visningstilstander;
 #                     alle administratorhandlinger og RGB-RPC-er er blokkert
 #   rgb-flow          vanlig RGB-flyt mot en privat, merket fake-arbeider
+#   revisjon          sim: hver side og innstillingsdel i 640/1024/1280/1920 px,
+#                     kompakt/standard/luftig og skrift «Større». Skriver
+#                     funn.txt (overløp og overlapp i widgettreet). Se
+#                     skjermbilder_revisjon.rs for RIGG_REVISJON_*-valgene.
 #   oppgaver          ekte /proc uten GPU: søk/sortering/tre, pause, sideskifte,
 #                     lyst/mørkt og 640 px. Ingen signalprøve som standard.
+#   nettverk          sim: Nettverk med simulerte grensesnitt (dokumentasjons-
+#                     adresser) i 1920, 1280 og 1024 px, lyst/mørkt, virtuelle
+#   nettverk-ekte     samme plan mot maskinens egne nettdata uten NetworkManager
 #
 # Binærene: $RIGG_BIN, ellers $CARGO_TARGET_DIR/release (eller debug). Planene
 # fra runde 2 finnes bare i debug-bygget (unntatt 2c), så 2a* og 2b* tar
@@ -211,7 +218,12 @@ for plan in "${plans[@]}"; do
         ;;
     # Hete-syklusen: 125 s, så 5 min-vinduet har kaldt, 95 °C og 110 °C nå.
     8a-hete) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=8a-hete") backend=sim:hete warm=${RIGG_OPPVARMING:-125} ;;
-    oppgaver) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=oppgaver") backend=ingen warm=${RIGG_OPPVARMING:-1} ;;
+    # Layoutrevisjon: alle sider og innstillingsdeler × bredder × tetthet/skrift.
+    revisjon) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=revisjon") backend=sim warm=${RIGG_OPPVARMING:-12} ;;
+    # RIGG_OPPGAVER_BACKEND=sim viser GPU-kortet med simulerte data (merk bildene).
+    oppgaver) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=oppgaver") backend=${RIGG_OPPGAVER_BACKEND:-ingen} warm=${RIGG_OPPVARMING:-1} ;;
+    nettverk) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=nettverk") backend=sim warm=${RIGG_OPPVARMING:-20} ;;
+    nettverk-ekte) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=nettverk" "RIGG_NETT=ekte") backend=ingen warm=${RIGG_OPPVARMING:-8} ;;
     7b-ekte) vars=("RIGG_BILDER_2C=$dir" "RIGG_6C_PLAN=7b-ekte") wargs="--side kontroller" ;;
     # Fem minutter spill-last i historikken til «Siste 5 minutter».
     7b-sim) vars=("RIGG_BILDER_2C=$dir" "RIGG_6C_PLAN=7b-sim") backend=sim:spill wargs="--side kontroller" warm=${RIGG_OPPVARMING:-320} ;;

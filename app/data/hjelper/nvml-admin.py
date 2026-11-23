@@ -23,8 +23,11 @@ DROPIN = Path('etc/systemd/system') / (UNIT + '.d/gpu.conf')
 # Det opprinnelige og de fire nyeste tidligere grunnopptakene beholdes.
 KEEP_PREVIOUS = 5
 FIXTURE = Path(__file__).absolute() != Path('/') / SCRIPTS / 'nvml-admin.py'
-common = runpy.run_path(str(Path(__file__).with_name('rgb-admin.py') if FIXTURE else
-                            Path('/usr/local/libexec/agentic-rigg-rgb-v2/rgb-admin.py')))
+# Den felles administrasjonskoden ligger som egen kopi ved siden av dette
+# skriptet, fra samme utgivelse. GPU-oppdateringen kan la en aktiv eller
+# uavklart RGB-del stå urørt (`system-install --keep-rgb`), og da kan RGB-mappas
+# rgb-admin.py være fra et eldre bygg (uten arvet systemlås).
+common = runpy.run_path(str(Path(__file__).with_name('rgb-admin.py')))
 fail = common['fail']
 
 

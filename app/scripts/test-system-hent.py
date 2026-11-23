@@ -93,6 +93,7 @@ class HentTest(unittest.TestCase):
         self.mod['LOCK'] = str(self.lock)
         self.answer = None
         self.asked = []
+        self.kept_rgb = None
         self.mod['confirmation'] = self.confirm
         uid = patch.dict(os.environ, {'PKEXEC_UID': '1000'})
         uid.start()
@@ -132,6 +133,10 @@ class HentTest(unittest.TestCase):
 
     def fake_run(self, argv, **kwargs):
         self.runs.append(argv)
+        if argv[:3] == ['/usr/bin/python3', '-I', '-S']:
+            # `--keep-rgb` står rett etter installasjonsprogrammet.
+            self.kept_rgb = '--keep-rgb' in argv
+            argv = [a for a in argv if a != '--keep-rgb']
         old_scripts = argv[0].endswith(('rgb-gjenopprett.sh', 'rgb-avklar.sh', 'rgb-deaktiver.sh'))
         if argv[0].startswith('/usr/local/libexec/') and old_scripts:
             # De gamle, installerte RGB-skriptene tar låsen selv: den er ledig.
@@ -219,18 +224,25 @@ class HentTest(unittest.TestCase):
         self.assertEqual(self.runs[1][:3], ['/usr/bin/python3', '-I', '-S'])
         self.assertEqual(self.runs[2], ['/usr/local/libexec/agentic-rigg/aktiver.sh', '--pci', '0000:01:00.0', '--uuid', other])
         self.assertEqual(self.runs[3][0], '/usr/local/libexec/agentic-rigg-rgb-v2/rgb-aktiver.sh')
-        # Ber brukeren selv om GPU-styring, aktiveres den bare én gang.
+        self.assertFalse(self.kept_rgb)
+        # Ber brukeren selv om GPU-styring, aktiveres den bare én gang, og en
+        # aktiv RGB-tilgang blir stående urørt (bare NVML-delen byttes).
         self.runs.clear()
         self.permission('rgb', mode=0o600)
-        self.assertEqual(self.main('nvml', '0000:1c:00.0', uuid), 0)
-        self.assertEqual([r[0] for r in self.runs], ['/usr/local/libexec/agentic-rigg-rgb-v2/rgb-deaktiver.sh', '/usr/bin/python3',
-                                                     '/usr/local/libexec/agentic-rigg/aktiver.sh'])
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(self.main('nvml', '0000:1c:00.0', uuid), 0)
+        self.assertEqual([r[0] for r in self.runs], ['/usr/bin/python3', '/usr/local/libexec/agentic-rigg/aktiver.sh'])
+        self.assertTrue(self.kept_rgb)
         self.assertEqual(self.runs[-1][2], '0000:1c:00.0')
+        self.assertTrue(Path(self.mod['CONFIG']['rgb']).exists())
+        [line] = [l for l in out.getvalue().splitlines() if l.startswith(self.mod['RGB_KEPT_PREFIX'])]
+        self.assertEqual(json.loads(line.split(' ', 1)[1]), {'pci': '0000:1c:00.0', 'unsettled': False})
 
-    def test_uavklart_rgb_stopper_for_installasjonen(self):
+    def test_rgb_som_ikke_slaas_av_stopper_for_installasjonen(self):
         self.permission('rgb', mode=0o600)
         self.deactivate_code = 1
-        self.assertEqual(self.main(), 1)
+        self.assertEqual(self.main('rgb', '0000:1c:00.0', UUID), 1)
         self.assertEqual(len(self.runs), 1)
         self.assertEqual(list(self.staging.iterdir()), [])
 
@@ -338,16 +350,103 @@ class HentTest(unittest.TestCase):
             self.main('rgb', '0000:1c:00.0', 'GPU-12345678-abcd-ef01-2345-6789abcdef01')
         self.assertEqual(self.runs, [])
 
-    def test_uavklart_okt_uten_bekreftelse_stopper_for_nettet(self):
-        uuid = 'GPU-12345678-abcd-ef01-2345-6789abcdef01'
+    def test_uavklart_okt_for_annet_rgb_kort_stopper_for_nettet(self):
         other = 'GPU-87654321-abcd-ef01-2345-6789abcdef01'
         self.permission('rgb', mode=0o600)
         self.journal.write_text('{}')
-        # GPU-styring, ingen aktivering, eller et annet kort enn RGB-tillatelsen.
-        for extra in (['nvml', '0000:1c:00.0', uuid], [], ['rgb', '0000:1c:00.0', other]):
-            with self.assertRaisesRegex(SystemExit, 'kortet 0000:1c:00.0 .*åpne RGB-lys'):
-                self.main(*extra)
+        with self.assertRaisesRegex(SystemExit, 'kortet 0000:1c:00.0 .*åpne RGB-lys'):
+            self.main('rgb', '0000:1c:00.0', other)
         self.assertEqual(self.urls, [])
+        self.assertEqual(self.runs, [])
+
+    # --- GPU-styring med en uavklart RGB-økt (1.6.0-feilen) ---
+
+    def test_gpu_styring_aktiveres_selv_med_uavklart_rgb_okt(self):
+        """Nøyaktig brukerens tilstand etter 1.6.0: GPU-tillatelse fra bygg 31,
+        aktiv RGB v2-tillatelse og en uavklart RGB-journal for samme kort.
+        Brukeren slår på GPU-styring: NVML-delen oppdateres og aktiveres med
+        ett passord, og RGB-tillatelsen og journalen blir stående urørt."""
+        pci = '0000:1c:00.0'
+        self.permission('nvml', pci=pci)
+        self.permission('rgb', pci=pci, mode=0o600)
+        nvml = Path(self.mod['CONFIG']['nvml'])
+        data = json.loads(nvml.read_text())
+        data['bygg'] = 31
+        nvml.write_text(json.dumps(data))
+        self.journal.write_text('{"uavklart": true}')
+        self.marker.write_text('2:26\n')
+        self.marker.chmod(0o644)
+        rgb_before = Path(self.mod['CONFIG']['rgb']).read_bytes()
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(self.main('nvml', pci, UUID), 0)
+        # Ingen RGB-skript, ingen avklaring: installasjon med `--keep-rgb`, så aktivering.
+        self.assertEqual([Path(r[0]).name for r in self.runs], ['python3', 'aktiver.sh'])
+        self.assertTrue(self.kept_rgb)
+        self.assertEqual(self.runs[-1], ['/usr/local/libexec/agentic-rigg/aktiver.sh', '--pci', pci, '--uuid', UUID])
+        self.assertEqual(self.asked, [])
+        self.assertNotIn('AGENTIC-RIGG-RGB-AVKLAR', out.getvalue())
+        # RGB-journalen er aldri slettet eller bekreftet, og tillatelsen er den samme.
+        self.assertEqual(self.journal.read_text(), '{"uavklart": true}')
+        self.assertEqual(Path(self.mod['CONFIG']['rgb']).read_bytes(), rgb_before)
+        [line] = [l for l in out.getvalue().splitlines() if l.startswith('AGENTIC-RIGG-RGB-BEHOLDT ')]
+        self.assertEqual(json.loads(line.split(' ', 1)[1]), {'pci': pci, 'unsettled': True})
+        self.assertFalse(self.lock_held())
+        self.assertEqual(list(self.staging.iterdir()), [])
+
+    def test_oppdatering_uten_aktivering_beholder_uavklart_rgb(self):
+        self.permission('rgb', mode=0o600)
+        self.journal.write_text('{}')
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(self.main(), 0)
+        self.assertEqual([Path(r[0]).name for r in self.runs], ['python3'])
+        self.assertTrue(self.kept_rgb)
+        self.assertTrue(self.journal.exists())
+        # Bare en journal (uten aktiv tillatelse) beholdes også.
+        Path(self.mod['CONFIG']['rgb']).unlink()
+        self.runs.clear()
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(self.main('nvml', '0000:1c:00.0', UUID), 0)
+        self.assertEqual([Path(r[0]).name for r in self.runs], ['python3', 'aktiver.sh'])
+        self.assertTrue(self.kept_rgb and self.journal.exists())
+
+    def test_uten_rgb_installeres_alt_som_for(self):
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            self.assertEqual(self.main('nvml', '0000:1c:00.0', UUID), 0)
+        self.assertFalse(self.kept_rgb)
+        self.assertNotIn('AGENTIC-RIGG-RGB-BEHOLDT', out.getvalue())
+
+    def test_beholdt_rgb_som_endres_for_laasen_stopper_installasjonen(self):
+        self.permission('rgb', mode=0o600)
+        self.journal.write_text('{}')
+        lock = self.mod['SystemLock']
+        journal = self.journal
+
+        class Changed(lock):
+            def acquire(self):
+                journal.unlink()  # Avklart av noen andre rett før låsen tas.
+                return super().acquire()
+
+        self.mod['SystemLock'] = Changed
+        with self.assertRaisesRegex(SystemExit, 'Tillatelsene endret seg'):
+            self.main('nvml', '0000:1c:00.0', UUID)
+        self.assertEqual(self.runs, [])
+        self.assertFalse(self.lock_held())
+        self.assertEqual(list(self.staging.iterdir()), [])
+
+    def test_beholdt_rgb_som_endres_under_nedlasting_stopper(self):
+        self.permission('rgb', mode=0o600)
+        self.journal.write_text('{}')
+
+        def settled_during_download(request, hosts):
+            response = self.open_url(request, hosts)
+            if request.full_url.startswith('https://github.com/'):
+                self.journal.unlink()
+            return response
+
+        self.mod['open_url'] = settled_during_download
+        with self.assertRaisesRegex(SystemExit, 'Tillatelsene endret seg'):
+            self.main('nvml', '0000:1c:00.0', UUID)
         self.assertEqual(self.runs, [])
 
     def test_ugyldig_avklaringsmal_beholder_journalen(self):
@@ -534,7 +633,7 @@ class HentTest(unittest.TestCase):
 
         self.mod['subprocess'] = type('S', (), {'run': reactivated, 'DEVNULL': -3, 'PIPE': -1})
         with self.assertRaisesRegex(SystemExit, 'Tillatelsene endret seg'):
-            self.main()
+            self.main('rgb', '0000:1c:00.0', UUID)
         self.assertEqual(len(self.runs), 1)
 
     def test_laasen_holdes_fra_kontroll_til_siste_aktivering(self):

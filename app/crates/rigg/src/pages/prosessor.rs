@@ -12,9 +12,10 @@ use super::{Key, Page};
 use crate::rapport_ui::Sections;
 use crate::state::App;
 use crate::widgets::spark::SparkOpts;
+use crate::widgets::chart::Cols;
 use crate::widgets::trader::{GroupDef, ThreadGrid};
+use crate::widgets::wrap::Wrap;
 use crate::widgets::{Icon, Panel, Spark, class, hbox, label, set_text, vbox};
-use gtk::glib;
 use gtk::prelude::*;
 use rigg_core::fmt as F;
 use rigg_core::report::{self, ReportFormat, Section};
@@ -22,117 +23,6 @@ use rigg_core::{tr, trf, trn};
 use serde_json::{Value, json};
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
-
-// ---------------------------------------------------------------- Brikker som brytes
-
-/// Brikker i naturlig bredde som brytes til neste linje (CSS `flex-wrap`).
-/// `GtkFlowBox` legger barna i like spalter, som gir ujevne mellomrom.
-mod wrap_imp {
-    use gtk::glib;
-    use gtk::prelude::*;
-    use gtk::subclass::prelude::*;
-
-    #[derive(Default)]
-    pub struct Wrap;
-
-    #[glib::object_subclass]
-    impl ObjectSubclass for Wrap {
-        const NAME: &'static str = "RiggWrap";
-        type Type = super::Wrap;
-        type ParentType = gtk::Widget;
-        fn class_init(klass: &mut Self::Class) {
-            klass.set_css_name("wrap");
-        }
-    }
-
-    impl ObjectImpl for Wrap {
-        fn dispose(&self) {
-            while let Some(c) = self.obj().first_child() {
-                c.unparent();
-            }
-        }
-    }
-
-    pub const GAP: i32 = 4;
-
-    impl Wrap {
-        /// (barn, x, y, bredde, høyde) og total høyde for en bredde.
-        pub fn layout(&self, width: i32) -> crate::widgets::Placed {
-            let mut out = Vec::new();
-            let (mut x, mut y, mut line_h) = (0, 0, 0);
-            let mut c = self.obj().first_child();
-            while let Some(w) = c {
-                c = w.next_sibling();
-                if !w.is_visible() {
-                    continue;
-                }
-                let cw = w.measure(gtk::Orientation::Horizontal, -1).1.min(width.max(1));
-                let ch = w.measure(gtk::Orientation::Vertical, cw).1;
-                if x > 0 && x + cw > width {
-                    x = 0;
-                    y += line_h + GAP;
-                    line_h = 0;
-                }
-                out.push((w, x, y, cw, ch));
-                x += cw + GAP;
-                line_h = line_h.max(ch);
-            }
-            (out, if line_h > 0 { y + line_h } else { 0 })
-        }
-    }
-
-    impl WidgetImpl for Wrap {
-        fn request_mode(&self) -> gtk::SizeRequestMode {
-            gtk::SizeRequestMode::HeightForWidth
-        }
-        fn measure(&self, o: gtk::Orientation, for_size: i32) -> (i32, i32, i32, i32) {
-            match o {
-                gtk::Orientation::Horizontal => {
-                    let mut min = 0;
-                    let mut c = self.obj().first_child();
-                    while let Some(w) = c {
-                        min = min.max(w.measure(gtk::Orientation::Horizontal, -1).0);
-                        c = w.next_sibling();
-                    }
-                    (min, min.max(200), -1, -1)
-                }
-                _ => {
-                    let (_, h) = self.layout(if for_size > 0 { for_size } else { 400 });
-                    (h, h, -1, -1)
-                }
-            }
-        }
-        fn size_allocate(&self, width: i32, _h: i32, _b: i32) {
-            for (w, x, y, cw, ch) in self.layout(width).0 {
-                w.size_allocate(&gtk::Allocation::new(x, y, cw, ch), -1);
-            }
-        }
-    }
-}
-
-glib::wrapper! {
-    pub struct Wrap(ObjectSubclass<wrap_imp::Wrap>) @extends gtk::Widget, @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget;
-}
-
-impl Default for Wrap {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl Wrap {
-    pub fn new() -> Wrap {
-        glib::Object::new()
-    }
-    pub fn append(&self, w: &impl IsA<gtk::Widget>) {
-        w.set_parent(self);
-    }
-    pub fn clear(&self) {
-        while let Some(c) = self.first_child() {
-            c.unparent();
-        }
-    }
-}
 
 // ---------------------------------------------------------------- Trådene
 
@@ -218,7 +108,7 @@ struct Tile {
     spark: Option<Spark>,
 }
 
-fn tile(parent: &gtk::Grid, name: &str, tip: &str, serie: Option<&str>) -> Tile {
+fn tile(parent: &Cols, name: &str, tip: &str, serie: Option<&str>) -> Tile {
     let b = vbox(2, &["pr-tile"]);
     b.set_hexpand(true);
     let k = label(name, &["pr-k"]);
@@ -238,8 +128,7 @@ fn tile(parent: &gtk::Grid, name: &str, tip: &str, serie: Option<&str>) -> Tile 
     sub.set_ellipsize(gtk::pango::EllipsizeMode::End);
     b.append(&sub);
     b.set_tooltip_text(Some(tip));
-    let n = parent.observe_children().n_items() as i32;
-    parent.attach(&b, n, 0, 1, 1);
+    parent.append(&b);
     Tile { value, sub, spark }
 }
 
@@ -252,9 +141,6 @@ struct Live {
 
 struct State {
     app: Rc<App>,
-    /// Flisene i Nå: fire på rad, eller to og to i smale vinduer.
-    tiles: gtk::Grid,
-    tiles_cols: Cell<i32>,
     visible: Cell<bool>,
     system: RefCell<Value>,
     loading: Cell<bool>,
@@ -385,18 +271,6 @@ impl State {
     }
 
     fn render_live(&self) {
-        // Fire fliser på rad, eller to og to når vinduet er smalt (aldri tre og én).
-        let per = if self.app.window().is_some_and(|w| w.width() > 0 && w.width() < 1000) { 2 } else { 4 };
-        if self.tiles_cols.get() != per {
-            self.tiles_cols.set(per);
-            let kids: Vec<gtk::Widget> = std::iter::successors(self.tiles.first_child(), |w| w.next_sibling()).collect();
-            for k in &kids {
-                self.tiles.remove(k);
-            }
-            for (i, k) in kids.iter().enumerate() {
-                self.tiles.attach(k, i as i32 % per, i as i32 / per, 1, 1);
-            }
-        }
         let sys = self.app.sys().unwrap_or_default();
         let thread_ids = report::system::cpu_thread_ids(&self.system.borrow()["cpu"]);
         let now = self.app.telemetry().map(|t| t.t).unwrap_or_else(rigg_core::now_ms);
@@ -608,10 +482,13 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     // ---- Nå: de levende tallene ----
     let now_panel = Panel::new(tr!("Nå"));
     now_panel.root.add_css_class("pr-now");
-    // Fire fliser på rad, to og to i smale vinduer (render_live).
-    let tiles = gtk::Grid::new();
+    // Fire like fliser på rad, to og to når de ikke får plass (aldri tre og
+    // én). Før var det et fast rutenett som byttet ved 1000 px vindusbredde:
+    // med større skrift krevde de fire flisene 803 px og tvang vinduet til
+    // minst 1065 px.
+    let tiles = Cols::new(&[1.0; 4], 0, 0);
+    tiles.set_whole_rows();
     tiles.add_css_class("pr-tiles");
-    tiles.set_column_homogeneous(true);
     let live = Live {
         temp: tile(&tiles, tr!("CPU-temperatur"), tr!("Temperatur fra CPU-sensoren. Sensorens navn står under verdien når det er tilgjengelig; det kan for eksempel være Tdie, Tctl eller Package id 0."), Some("temp")),
         load: tile(&tiles, tr!("Last"), tr!("Total last fra /proc/stat, siste minutt i linja."), Some("load")),
@@ -643,8 +520,6 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
 
     let st = Rc::new(State {
         app: app.clone(),
-        tiles: tiles.clone(),
-        tiles_cols: Cell::new(4),
         visible: Cell::new(false),
         system: RefCell::new(Value::Null),
         loading: Cell::new(false),

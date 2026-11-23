@@ -8,222 +8,222 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg/src/widgets/chart.rs:601
+#: crates/rigg/src/widgets/chart.rs:618
 msgid "Kortet svarer ikke siden {verdi}"
 msgstr "Kortet svarar inte sedan {verdi}"
 
-#: crates/rigg/src/widgets/chart.rs:609
+#: crates/rigg/src/widgets/chart.rs:626
 msgid "Tjenesten tok ikke opp her (maskinen var av eller sov)."
 msgstr "Tjänsten spelade inte in här (datorn var av eller i vila)."
 
-#: crates/rigg/src/widgets/chart.rs:611
+#: crates/rigg/src/widgets/chart.rs:628
 msgid "Hull i grafen: appen var lukket. Slå på «Fortsett i bakgrunnen» under Innstillinger › Generelt for å ta opp også da."
 msgstr "Lucka i grafen: appen var stängd. Slå på ”Fortsätt i bakgrunden” under Inställningar › Allmänt för att spela in även då."
 
-#: crates/rigg/src/widgets/chart.rs:1079
+#: crates/rigg/src/widgets/chart.rs:1097
 msgid "pauset {verdi}"
 msgstr "pausad {verdi}"
 
-#: crates/rigg/src/widgets/chart.rs:1081
+#: crates/rigg/src/widgets/chart.rs:1099
 msgid "nå"
 msgstr "nu"
 
-#: crates/rigg/src/widgets/chart.rs:1128
+#: crates/rigg/src/widgets/chart.rs:1146
 msgid "Henter historikk …"
 msgstr "Hämtar historik…"
 
-#: crates/rigg/src/widgets/chart.rs:1131
+#: crates/rigg/src/widgets/chart.rs:1149
 msgid "Kunne ikke hente historikken"
 msgstr "Det gick inte att hämta historiken"
 
-#: crates/rigg/src/widgets/chart.rs:1133 crates/rigg/src/widgets/chart.rs:1222
+#: crates/rigg/src/widgets/chart.rs:1151 crates/rigg/src/widgets/chart.rs:1240
 msgid "Ingen data ennå"
 msgstr "Inga data ännu"
 
-#: crates/rigg/src/widgets/chart.rs:1136 crates/rigg/src/widgets/chart.rs:1137
+#: crates/rigg/src/widgets/chart.rs:1154 crates/rigg/src/widgets/chart.rs:1155
 msgid "Data fra {verdi}"
 msgstr "Data från {verdi}"
 
-#: crates/rigg/src/widgets/chart.rs:1138
+#: crates/rigg/src/widgets/chart.rs:1156
 msgid "Samler data …"
 msgstr "Samlar in data…"
 
-#: crates/rigg/src/widgets/chart.rs:1139 crates/rigg/src/widgets/chart.rs:1140 crates/rigg/src/widgets/chart.rs:1218 crates/rigg/src/widgets/chart.rs:1219
+#: crates/rigg/src/widgets/chart.rs:1157 crates/rigg/src/widgets/chart.rs:1158 crates/rigg/src/widgets/chart.rs:1236 crates/rigg/src/widgets/chart.rs:1237
 msgid "Ingen data"
 msgstr "Inga data"
 
-#: crates/rigg/src/widgets/chart.rs:1145
+#: crates/rigg/src/widgets/chart.rs:1163
 msgid "Svarer ikke"
 msgstr "Svarar inte"
 
-#: crates/rigg/src/widgets/chart.rs:1221
+#: crates/rigg/src/widgets/chart.rs:1239
 msgid "Historikken begynner {verdi}"
 msgstr "Historiken börjar {verdi}"
 
-#: crates/rigg/src/widgets/chart.rs:1517 crates/rigg/src/widgets/chart.rs:1604
+#: crates/rigg/src/widgets/chart.rs:1535 crates/rigg/src/widgets/chart.rs:1622
 msgid "Skjul {verdi}"
 msgstr "Dölj {verdi}"
 
-#: crates/rigg/src/widgets/chart.rs:1557 crates/rigg/src/widgets/chart.rs:1691
+#: crates/rigg/src/widgets/chart.rs:1575 crates/rigg/src/widgets/chart.rs:1709
 msgid "Fortsett"
 msgstr "Fortsätt"
 
-#: crates/rigg/src/widgets/chart.rs:1562 crates/rigg/src/widgets/chart.rs:1563 crates/rigg/src/widgets/chart.rs:1690 crates/rigg/src/widgets/chart.rs:1691
+#: crates/rigg/src/widgets/chart.rs:1580 crates/rigg/src/widgets/chart.rs:1581 crates/rigg/src/widgets/chart.rs:1708 crates/rigg/src/widgets/chart.rs:1709
 msgid "Pause"
 msgstr "Pausa"
 
-#: crates/rigg/src/widgets/chart.rs:1562 crates/rigg/src/widgets/chart.rs:1690
+#: crates/rigg/src/widgets/chart.rs:1580 crates/rigg/src/widgets/chart.rs:1708
 msgid "Mellomrom"
 msgstr "Mellanslag"
 
-#: crates/rigg/src/widgets/chart.rs:1604
+#: crates/rigg/src/widgets/chart.rs:1622
 msgid "Vis {verdi}"
 msgstr "Visa {verdi}"
 
-#: crates/rigg/src/widgets/chart.rs:1646
+#: crates/rigg/src/widgets/chart.rs:1664
 msgid "Graf: {navn}, {status}. Mellomrom setter på pause."
 msgstr "Graf: {navn}, {status}. Mellanslag pausar."
 
-#: crates/rigg/src/widgets/chart.rs:1690
+#: crates/rigg/src/widgets/chart.rs:1708
 msgid "Fortsett og hopp til nå"
 msgstr "Fortsätt och hoppa till nu"
 
-#: crates/rigg/src/widgets/chart.rs:1695
+#: crates/rigg/src/widgets/chart.rs:1713
 msgid "På pause · {verdi}"
 msgstr "Pausad · {verdi}"
 
-#: crates/rigg/src/widgets/chart.rs:1741
+#: crates/rigg/src/widgets/chart.rs:1759
 msgid "min {min} · maks {maks}"
 msgstr "min {min} · max {maks}"
 
-#: crates/rigg/src/widgets/chart.rs:1902
+#: crates/rigg/src/widgets/chart.rs:1920
 msgid "GPU-temperatur"
 msgstr "GPU-temperatur"
 
-#: crates/rigg/src/widgets/chart.rs:1903
+#: crates/rigg/src/widgets/chart.rs:1921
 msgid "GPU-last"
 msgstr "GPU-belastning"
 
-#: crates/rigg/src/widgets/chart.rs:1904
+#: crates/rigg/src/widgets/chart.rs:1922
 msgid "Kjerneklokke"
 msgstr "Kärnklocka"
 
-#: crates/rigg/src/widgets/chart.rs:1905
+#: crates/rigg/src/widgets/chart.rs:1923
 msgid "Minneklokke"
 msgstr "Minnesklocka"
 
-#: crates/rigg/src/widgets/chart.rs:1906
+#: crates/rigg/src/widgets/chart.rs:1924
 msgid "GPU-effekt"
 msgstr "GPU-effekt"
 
-#: crates/rigg/src/widgets/chart.rs:1907
+#: crates/rigg/src/widgets/chart.rs:1925
 msgid "GPU-vifte"
 msgstr "GPU-fläkt"
 
-#: crates/rigg/src/widgets/chart.rs:1908
+#: crates/rigg/src/widgets/chart.rs:1926
 msgid "Videominne"
 msgstr "Videominne"
 
-#: crates/rigg/src/widgets/chart.rs:1909
+#: crates/rigg/src/widgets/chart.rs:1927
 msgid "CPU-last"
 msgstr "CPU-belastning"
 
-#: crates/rigg/src/widgets/chart.rs:1910
+#: crates/rigg/src/widgets/chart.rs:1928
 msgid "CPU-temperatur"
 msgstr "CPU-temperatur"
 
-#: crates/rigg/src/widgets/chart.rs:1911
+#: crates/rigg/src/widgets/chart.rs:1929
 msgid "Minne brukt"
 msgstr "Använt minne"
 
-#: crates/rigg/src/widgets/chart.rs:1912
+#: crates/rigg/src/widgets/chart.rs:1930
 msgid "Nett"
 msgstr "Nätverk"
 
-#: crates/rigg/src/widgets/chart.rs:1913
+#: crates/rigg/src/widgets/chart.rs:1931
 msgid "Disktemperatur"
 msgstr "Disktemperatur"
 
-#: crates/rigg/src/widgets/chart.rs:1914
+#: crates/rigg/src/widgets/chart.rs:1932
 msgid "Disk-I/O"
 msgstr "Disk-I/O"
 
-#: crates/rigg/src/widgets/chart.rs:1964
+#: crates/rigg/src/widgets/chart.rs:1982
 msgid "Graf"
 msgstr "Graf"
 
-#: crates/rigg/src/widgets/chart.rs:2006
+#: crates/rigg/src/widgets/chart.rs:2021
 msgid "GPU-nedklokking"
 msgstr "GPU-nedklockning"
 
-#: crates/rigg/src/widgets/chart.rs:2006
+#: crates/rigg/src/widgets/chart.rs:2021
 msgid "GPU-avstenging"
 msgstr "GPU-avstängning"
 
-#: crates/rigg/src/widgets/chart.rs:2008 crates/rigg/src/widgets/chart.rs:2010
+#: crates/rigg/src/widgets/chart.rs:2023 crates/rigg/src/widgets/chart.rs:2025
 msgid "Nedklokking"
 msgstr "Nedklockning"
 
-#: crates/rigg/src/widgets/chart.rs:2008 crates/rigg/src/widgets/chart.rs:2010
+#: crates/rigg/src/widgets/chart.rs:2023 crates/rigg/src/widgets/chart.rs:2025
 msgid "Avstenging"
 msgstr "Avstängning"
 
-#: crates/rigg/src/widgets/chart.rs:2042
+#: crates/rigg/src/widgets/chart.rs:2057
 msgid "Temperatur"
 msgstr "Temperatur"
 
-#: crates/rigg/src/widgets/chart.rs:2044
+#: crates/rigg/src/widgets/chart.rs:2059
 msgid "Minnekontroller"
 msgstr "Minnesstyrenhet"
 
-#: crates/rigg/src/widgets/chart.rs:2051
+#: crates/rigg/src/widgets/chart.rs:2066
 msgid "Kjerne"
 msgstr "Kärna"
 
-#: crates/rigg/src/widgets/chart.rs:2055
+#: crates/rigg/src/widgets/chart.rs:2070
 msgid "Minne"
 msgstr "Minne"
 
-#: crates/rigg/src/widgets/chart.rs:2060
+#: crates/rigg/src/widgets/chart.rs:2075
 msgid "Trekk"
 msgstr "Uttag"
 
-#: crates/rigg/src/widgets/chart.rs:2060
+#: crates/rigg/src/widgets/chart.rs:2075
 msgid "Grense"
 msgstr "Gräns"
 
-#: crates/rigg/src/widgets/chart.rs:2066
+#: crates/rigg/src/widgets/chart.rs:2081
 msgid "Vifte"
 msgstr "Fläkt"
 
-#: crates/rigg/src/widgets/chart.rs:2070 crates/rigg/src/widgets/chart.rs:2078
+#: crates/rigg/src/widgets/chart.rs:2085 crates/rigg/src/widgets/chart.rs:2093
 msgid "Brukt"
 msgstr "Använt"
 
-#: crates/rigg/src/widgets/chart.rs:2076
+#: crates/rigg/src/widgets/chart.rs:2091
 msgid "Total"
 msgstr "Totalt"
 
-#: crates/rigg/src/widgets/chart.rs:2077
+#: crates/rigg/src/widgets/chart.rs:2092
 msgid "Temperatur (Tdie)"
 msgstr "Temperatur (Tdie)"
 
-#: crates/rigg/src/widgets/chart.rs:2082
+#: crates/rigg/src/widgets/chart.rs:2097
 msgid "Ingen disk med temperatur"
 msgstr "Ingen disk med temperatur"
 
-#: crates/rigg/src/widgets/chart.rs:2089
+#: crates/rigg/src/widgets/chart.rs:2104
 msgid "Lesing"
 msgstr "Läsning"
 
-#: crates/rigg/src/widgets/chart.rs:2089
+#: crates/rigg/src/widgets/chart.rs:2104
 msgid "Skriving"
 msgstr "Skrivning"
 
-#: crates/rigg/src/widgets/chart.rs:2098
+#: crates/rigg/src/widgets/chart.rs:2113
 msgid "Mottatt"
 msgstr "Mottaget"
 
-#: crates/rigg/src/widgets/chart.rs:2098
+#: crates/rigg/src/widgets/chart.rs:2113
 msgid "Sendt"
 msgstr "Skickat"

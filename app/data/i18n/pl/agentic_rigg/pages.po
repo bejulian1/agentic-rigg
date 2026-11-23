@@ -5,65 +5,69 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Rigg-Status: complete\n"
 "Plural-Forms: nplurals=3; plural=(n == 1 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : 2);\n"
+"X-Rigg-Status: complete\n"
 
-#: crates/rigg/src/pages/mod.rs:85
+#: crates/rigg/src/pages/mod.rs:86
 msgid "Oversikt"
 msgstr "Przegląd"
 
-#: crates/rigg/src/pages/mod.rs:86
+#: crates/rigg/src/pages/mod.rs:87
 msgid "Sensorer"
 msgstr "Czujniki"
 
-#: crates/rigg/src/pages/mod.rs:87
+#: crates/rigg/src/pages/mod.rs:88
 msgid "Grafer"
 msgstr "Wykresy"
 
-#: crates/rigg/src/pages/mod.rs:88
+#: crates/rigg/src/pages/mod.rs:89
 msgid "Grafikkort"
 msgstr "Karta graficzna"
 
-#: crates/rigg/src/pages/mod.rs:89
+#: crates/rigg/src/pages/mod.rs:90
 msgid "Prosessor"
 msgstr "Procesor"
 
-#: crates/rigg/src/pages/mod.rs:90
+#: crates/rigg/src/pages/mod.rs:91
 msgid "Disker"
 msgstr "Dyski"
 
-#: crates/rigg/src/pages/mod.rs:91
+#: crates/rigg/src/pages/mod.rs:92
 msgid "System"
 msgstr "System"
 
-#: crates/rigg/src/pages/mod.rs:92
+#: crates/rigg/src/pages/mod.rs:93
 msgid "Klokker og effekt"
 msgstr "Taktowanie i moc"
 
-#: crates/rigg/src/pages/mod.rs:93
+#: crates/rigg/src/pages/mod.rs:94
 msgid "Vifter"
 msgstr "Wentylatory"
 
-#: crates/rigg/src/pages/mod.rs:94
+#: crates/rigg/src/pages/mod.rs:95
 msgid "RGB-lys"
 msgstr "Podświetlenie RGB"
 
-#: crates/rigg/src/pages/mod.rs:95
+#: crates/rigg/src/pages/mod.rs:96
 msgid "Oppgaver"
 msgstr "Procesy"
 
-#: crates/rigg/src/pages/mod.rs:104
+#: crates/rigg/src/pages/mod.rs:99
+msgid "Nettverk"
+msgstr "Sieć"
+
+#: crates/rigg/src/pages/mod.rs:108
 msgid "Overvåking"
 msgstr "Monitorowanie"
 
-#: crates/rigg/src/pages/mod.rs:105
+#: crates/rigg/src/pages/mod.rs:109
 msgid "Maskinvare"
 msgstr "Sprzęt"
 
-#: crates/rigg/src/pages/mod.rs:106
+#: crates/rigg/src/pages/mod.rs:110
 msgid "Skjermkortstyring"
 msgstr "Sterowanie GPU"
 
-#: crates/rigg/src/pages/mod.rs:113
+#: crates/rigg/src/pages/mod.rs:117
 msgid "Skjermkort"
 msgstr "GPU"
