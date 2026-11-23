@@ -8,50 +8,54 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg/src/system_install.rs:108
+#: crates/rigg/src/system_install.rs:145
 msgid "Kjør kommandoen i en administratorterminal. Oppgi arkivstien og SHA-256 fra utgivelsessiden."
 msgstr "Run the command in an administrator terminal. Provide the archive path and SHA-256 from the release page."
 
-#: crates/rigg/src/system_install.rs:115
+#: crates/rigg/src/system_install.rs:152
 msgid "Kopier installasjonskommando"
 msgstr "Copy installation command"
 
-#: crates/rigg/src/system_install.rs:121
+#: crates/rigg/src/system_install.rs:158
 msgid "Uten nett: bruk terminal"
 msgstr "Offline: use a terminal"
 
-#: crates/rigg/src/system_install.rs:136
+#: crates/rigg/src/system_install.rs:200
+msgid "Summene fra utgivelsesarkivet appen ble installert fra, er ugyldige eller hører til en annen versjon. Installer appen på nytt fra utgivelsesarkivet, eller bruk terminalkommandoen."
+msgstr "The checksums from the release archive this app was installed from are invalid or belong to another version. Reinstall the app from the release archive, or use the terminal command."
+
+#: crates/rigg/src/system_install.rs:256
 msgid "Passordet ble ikke gitt. Ingenting er endret."
 msgstr "No password was entered. Nothing changed."
 
-#: crates/rigg/src/system_install.rs:137
+#: crates/rigg/src/system_install.rs:257
 msgid "Fant ikke pkexec, eller ingen kan spørre om passordet (polkit)."
 msgstr "pkexec is unavailable or polkit cannot prompt for a password."
 
-#: crates/rigg/src/system_install.rs:139
+#: crates/rigg/src/system_install.rs:259
 msgid "Fikk ikke kontakt med GitHub. Sjekk nettet, eller bruk terminalkommandoen."
 msgstr "Could not reach GitHub. Check your connection, or use the terminal command."
 
-#: crates/rigg/src/system_install.rs:140
+#: crates/rigg/src/system_install.rs:260
 msgid "Fant ikke utgivelsen for denne versjonen på GitHub."
 msgstr "The release for this version was not found on GitHub."
 
-#: crates/rigg/src/system_install.rs:142
+#: crates/rigg/src/system_install.rs:262
 msgid "Nedlastingen stemmer ikke med summen GitHub oppgir. Ingen systemfiler er endret."
 msgstr "The download does not match the checksum GitHub publishes. No system files were changed."
 
-#: crates/rigg/src/system_install.rs:143
+#: crates/rigg/src/system_install.rs:263
 msgid "Installasjonen feilet. Ingen nye tilganger er gitt."
 msgstr "Installation failed. No new access was granted."
 
-#: crates/rigg/src/system_install.rs:144
+#: crates/rigg/src/system_install.rs:264
 msgid "Installasjonen feilet: {feil}"
 msgstr "Installation failed: {feil}"
 
-#: crates/rigg/src/system_install.rs:158
+#: crates/rigg/src/system_install.rs:278
 msgid "Vent til den andre administratorhandlingen er ferdig"
 msgstr "Wait for the other administrator action to finish"
 
-#: crates/rigg/src/system_install.rs:180 crates/rigg/src/system_install.rs:195
+#: crates/rigg/src/system_install.rs:286 crates/rigg/src/system_install.rs:312 crates/rigg/src/system_install.rs:357
 msgid "Installasjonen ble ikke fullført"
 msgstr "Installation not completed"

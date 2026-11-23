@@ -1291,10 +1291,10 @@ impl CardLight {
                 tr!("Jeg ser kortet og bekrefter at det viser én fast farge."),
             ),
         };
-        // Oppdateringen avslutter en eventuell gammel RGB-økt med denne
-        // bekreftelsen (system-hent.py), så det må stå her.
+        // En eventuell gammel RGB-økt avklares under oppdateringen, men først
+        // etter at brukeren har sett det gjenopprettede lyset (system-hent.py).
         let text = if install {
-            format!("{text}\n\n{}", tr!("Har en tidligere RGB-økt ikke blitt avsluttet, settes kortet først tilbake til det lagrede, faste lyset i samme godkjenning. Bekreft bare hvis kortet viser én fast farge nå og ikke styres av et annet RGB-program."))
+            format!("{text}\n\n{}", tr!("Har en tidligere RGB-økt ikke blitt avsluttet, settes kortet først tilbake til det lagrede lyset i samme godkjenning. Deretter ber appen deg se på kortet og bekrefte det gjenopprettede lyset før økten avsluttes og oppdateringen fortsetter."))
         } else {
             text.to_owned()
         };
@@ -1318,18 +1318,31 @@ impl CardLight {
 
     fn confirm_offline(self: &Rc<Self>, identity: (String, String), expected: &Value, id: String) {
         let weak = Rc::downgrade(self);
-        confirm(
+        self.confirm_restored(identity.clone(), expected, tr!("Fortsett til administratorgodkjenning"), move |ok| {
+            if let Some(p) = weak.upgrade().filter(|_| ok) {
+                p.run_admin(AdminAction::Resolve, Some(identity), Some(id), false);
+            }
+        });
+    }
+
+    /// Brukeren ser på kortet og bekrefter det gjenopprettede, lagrede lyset.
+    /// `done(true)` bare når kortet fortsatt er valgt og brukeren bekreftet.
+    fn confirm_restored(
+        self: &Rc<Self>,
+        identity: (String, String),
+        expected: &Value,
+        action: &str,
+        done: impl FnOnce(bool) + 'static,
+    ) {
+        let weak = Rc::downgrade(self);
+        confirm_or_cancel(
             &self.app,
             tr!("Avklar tidligere RGB-økt"),
             &trf!("Lagret lys for {kort}: {lys}.\n\nSe på kortet. Fortsett bare hvis lyset viser dette utgangspunktet som én fast farge.", kort = identity.0, lys = request_text(expected)),
             tr!("Jeg ser at kortlyset viser det lagrede, faste utgangspunktet."),
-            tr!("Fortsett til administratorgodkjenning"),
-            move || {
-                if let Some(p) = weak.upgrade()
-                    && selected_identity(&p.app).as_ref() == Some(&identity)
-                {
-                    p.run_admin(AdminAction::Resolve, Some(identity), Some(id), false);
-                }
+            action,
+            move |ok| {
+                done(ok && weak.upgrade().is_some_and(|p| selected_identity(&p.app).as_ref() == Some(&identity)));
             },
         );
     }
@@ -1346,10 +1359,25 @@ impl CardLight {
             return;
         }
         self.message.borrow_mut().take();
+        // En gammel økt er gjenopprettet: avklares bare når brukeren har sett
+        // nøyaktig det lagrede lyset på det samme, fortsatt valgte kortet.
+        let weak = Rc::downgrade(self);
+        let confirm: crate::system_install::ConfirmRecovery = Box::new(move |recovery, reply| {
+            let identity = (recovery.pci, recovery.uuid);
+            match weak.upgrade() {
+                Some(p)
+                    if selected_identity(&p.app).as_ref() == Some(&identity)
+                        && serde_json::from_value::<Request>(recovery.expected.clone()).is_ok() =>
+                {
+                    p.confirm_restored(identity, &recovery.expected, tr!("Bekreft og fortsett oppdateringen"), reply);
+                }
+                _ => reply(false),
+            }
+        });
         let weak = Rc::downgrade(self);
         // `run` avviser selv samtidige administratorhandlinger (også denne
         // sidens), så `busy` settes først når installasjonen faktisk er i gang.
-        crate::system_install::run(&self.app, crate::system_install::Activate::Rgb(pci, uuid), move |ok| {
+        crate::system_install::run(&self.app, crate::system_install::Activate::Rgb(pci, uuid, confirm), move |ok| {
             let Some(p) = weak.upgrade() else { return };
             p.busy.set(false);
             p.queued.set(p.queued.get() && ok);
@@ -1551,7 +1579,27 @@ fn confirm(
     action: &str,
     done: impl FnOnce() + 'static,
 ) {
+    confirm_or_cancel(app, title, text, check, action, move |ok| {
+        if ok {
+            done();
+        }
+    });
+}
+
+type Answer = Box<dyn FnOnce(bool)>;
+
+/// Som [`confirm`], men `done(false)` når dialogen lukkes uten bekreftelse
+/// (eller ikke kan vises), så en ventende administratorhandling kan avbrytes.
+fn confirm_or_cancel(
+    app: &Rc<App>,
+    title: &str,
+    text: &str,
+    check: &str,
+    action: &str,
+    done: impl FnOnce(bool) + 'static,
+) {
     let Some((window, root)) = crate::shortcuts::dialog(app, title, 500, 320) else {
+        done(false);
         return;
     };
     let content = vbox(12, &["rgb-card-dialog"]);
@@ -1578,15 +1626,24 @@ fn confirm(
     checked.connect_toggled(move |c| b.set_sensitive(c.is_active()));
     let w = window.clone();
     cancel.connect_clicked(move |_| w.close());
-    let once = RefCell::new(Some(done));
+    let once: Rc<RefCell<Option<Answer>>> = Rc::new(RefCell::new(Some(Box::new(done))));
+    let pending = once.clone();
+    window.connect_close_request(move |_| {
+        let done = pending.borrow_mut().take();
+        if let Some(done) = done {
+            done(false);
+        }
+        glib::Propagation::Proceed
+    });
     let w = window.clone();
     accept.connect_clicked(move |_| {
         if !checked.is_active() {
             return;
         }
+        let done = once.borrow_mut().take();
         w.close();
-        if let Some(done) = once.borrow_mut().take() {
-            done();
+        if let Some(done) = done {
+            done(true);
         }
     });
     window.present();

@@ -43,7 +43,7 @@ fn receive(reader: &mut BufReader<UnixStream>) -> Value {
 
 #[test]
 fn ventende_rgb_rpc_sperrer_ikke_daemonens_ping_eller_hello_gate() {
-    let root = std::env::temp_dir().join(format!("riggd-rgb-isolert-{}", std::process::id()));
+    let root = rigg_core::paths::short_tmp().join(format!("riggd-rgb-isolert-{}", std::process::id()));
     std::fs::create_dir(&root).unwrap();
     std::fs::set_permissions(&root, std::fs::Permissions::from_mode(0o700)).unwrap();
     let mut fixture = Fixture {

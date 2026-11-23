@@ -637,7 +637,8 @@ mod tests {
     struct Fixture(PathBuf);
     impl Fixture {
         fn new(tag: &str) -> Fixture {
-            let dir = std::env::temp_dir().join(format!(
+            // Kort rot: socketstien må holde seg under SUN_LEN også med lang TMPDIR.
+            let dir = rigg_core::paths::short_tmp().join(format!(
                 "rigg-helper-server-{tag}-{}-{}",
                 std::process::id(),
                 NEXT.fetch_add(1, Ordering::SeqCst)

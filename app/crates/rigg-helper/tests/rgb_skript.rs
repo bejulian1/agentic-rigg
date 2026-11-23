@@ -36,7 +36,8 @@ fn app() -> PathBuf {
 
 impl Fixture {
     fn new() -> Self {
-        let base = std::env::temp_dir().join(format!(
+        // Adminskriptet godtar bare testrøtter under /tmp, uansett TMPDIR.
+        let base = Path::new("/tmp").join(format!(
             "rigg-rgb-admin-{}-{}",
             std::process::id(),
             NEXT.fetch_add(1, Ordering::Relaxed)

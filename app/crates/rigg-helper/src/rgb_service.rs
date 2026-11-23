@@ -519,7 +519,7 @@ mod tests {
     struct Fixture(PathBuf);
     impl Fixture {
         fn new() -> Self {
-            let path = std::env::temp_dir().join(format!(
+            let path = rigg_core::paths::short_tmp().join(format!(
                 "rigg-rgb-socket-{}-{}",
                 std::process::id(),
                 NEXT.fetch_add(1, Ordering::SeqCst)

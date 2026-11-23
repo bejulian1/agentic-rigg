@@ -14,7 +14,8 @@ fn app_dir() -> PathBuf {
 fn tmpdir(tag: &str) -> PathBuf {
     use std::sync::atomic::{AtomicU32, Ordering};
     static N: AtomicU32 = AtomicU32::new(0);
-    let d = std::env::temp_dir().join(format!(
+    // Adminskriptene godtar bare testrøtter under /tmp, uansett TMPDIR.
+    let d = Path::new("/tmp").join(format!(
         "hjelper-skript-{tag}-{}-{}",
         std::process::id(),
         N.fetch_add(1, Ordering::Relaxed)
@@ -153,6 +154,114 @@ fn uavklart_nvml_beholdes_og_ren_aktivering_arkiverer_grunnverdiene() {
     );
     assert_eq!(std::fs::read_to_string(archive.path()).unwrap(), "opptak");
     std::fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
+fn gjentatte_aktiveringer_begrenser_tidligere_grunnopptak() {
+    use std::time::{Duration, UNIX_EPOCH};
+    let root = fixture("rotasjon");
+    let state = root.join("var/lib/agentic-rigg");
+    std::fs::DirBuilder::new().recursive(true).mode(0o700).create(&state).unwrap();
+    std::fs::set_permissions(&state, std::fs::Permissions::from_mode(0o700)).unwrap();
+    let args = ["--pci", PCI, "--uuid", UUID];
+    // Som hjelperen: et ferskt opptak etter hver aktivering, med stigende tid.
+    let capture = |n: u64, text: &str| {
+        let path = state.join("baseline.json");
+        std::fs::write(&path, text).unwrap();
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o600)).unwrap();
+        let file = std::fs::File::options().write(true).open(&path).unwrap();
+        file.set_modified(UNIX_EPOCH + Duration::from_secs(1_000_000 + n)).unwrap();
+    };
+    let previous = || {
+        let mut found: Vec<String> = std::fs::read_dir(&state)
+            .unwrap()
+            .map(|e| e.unwrap().path())
+            .filter(|p| p.file_name().unwrap().to_string_lossy().starts_with("baseline-forrige-") && !p.is_symlink())
+            .map(|p| std::fs::read_to_string(p).unwrap())
+            .collect();
+        found.sort();
+        found
+    };
+    let activate = || {
+        let out = admin(&root, "activate", "1000", &args);
+        assert!(out.status.success(), "{}", String::from_utf8_lossy(&out.stderr));
+    };
+    for n in 0..8 {
+        capture(n, &format!("opptak-{n}"));
+        activate();
+    }
+    // Det opprinnelige og de fire nyeste beholdes, ikke ett per oppdatering.
+    assert_eq!(previous(), ["opptak-0", "opptak-4", "opptak-5", "opptak-6", "opptak-7"]);
+    assert!(!state.join("baseline.json").exists());
+    // Et opptak som allerede er bevart, legges ikke til igjen.
+    capture(9, "opptak-7");
+    activate();
+    assert_eq!(previous(), ["opptak-0", "opptak-4", "opptak-5", "opptak-6", "opptak-7"]);
+    assert!(!state.join("baseline.json").exists());
+    // En lenke med samme navnemønster telles ikke og røres aldri.
+    let link = state.join("baseline-forrige-lenke.json");
+    std::os::unix::fs::symlink("/etc/passwd", &link).unwrap();
+    capture(10, "opptak-10");
+    activate();
+    assert_eq!(previous(), ["opptak-0", "opptak-10", "opptak-5", "opptak-6", "opptak-7"]);
+    assert!(link.is_symlink());
+    std::fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
+fn install_legger_utgivelsens_systemsummer_hos_brukeren() {
+    let dir = tmpdir("manifest");
+    let home = dir.join("home");
+    let bin = dir.join("bin");
+    std::fs::create_dir_all(&bin).unwrap();
+    for b in ["agentic-rigg", "agentic-riggd", "agentic-rigg-helper"] {
+        std::fs::write(bin.join(b), "#!/bin/sh\nexit 0\n").unwrap();
+        std::fs::set_permissions(bin.join(b), std::fs::Permissions::from_mode(0o755)).unwrap();
+    }
+    // Et utpakket utgivelsesarkiv: install.sh, data og SYSTEMFILER.sha256.
+    let package = dir.join("pakke");
+    std::fs::create_dir_all(&package).unwrap();
+    std::fs::copy(app_dir().join("install.sh"), package.join("install.sh")).unwrap();
+    std::fs::copy(app_dir().join("uninstall.sh"), package.join("uninstall.sh")).unwrap();
+    std::os::unix::fs::symlink(app_dir().join("data").canonicalize().unwrap(), package.join("data")).unwrap();
+    let sums = format!("{}  version.json\n", "a".repeat(64));
+    std::fs::write(package.join("SYSTEMFILER.sha256"), &sums).unwrap();
+    let run = |script: &Path| {
+        let mut c = Command::new("bash");
+        c.arg(script).arg("--bin-dir").arg(&bin);
+        if script.ends_with("uninstall.sh") {
+            c = Command::new("bash");
+            c.arg(script).env("RIGG_HJELPER_ROT", dir.join("rot"));
+        }
+        let out = c
+            .env("HOME", &home)
+            .env_remove("XDG_DATA_HOME")
+            .env_remove("XDG_CONFIG_HOME")
+            .env_remove("XDG_STATE_HOME")
+            .env("RIGG_INSTALL_NO_SYSTEMD", "1")
+            .output()
+            .unwrap();
+        assert!(out.status.success(), "{}", String::from_utf8_lossy(&out.stderr));
+    };
+    let manifest = home.join(".local/share/agentic-rigg/SYSTEMFILER.sha256");
+    run(&package.join("install.sh"));
+    assert_eq!(std::fs::read_to_string(&manifest).unwrap(), sums);
+    assert_eq!(std::fs::metadata(&manifest).unwrap().permissions().mode() & 0o777, 0o644);
+    // Et kildebygg har ingen summer: en gammel fil fjernes.
+    run(&app_dir().join("install.sh"));
+    assert!(!manifest.exists());
+    // En lenke i pakken godtas ikke som summer.
+    std::fs::remove_file(package.join("SYSTEMFILER.sha256")).unwrap();
+    std::os::unix::fs::symlink("/etc/passwd", package.join("SYSTEMFILER.sha256")).unwrap();
+    run(&package.join("install.sh"));
+    assert!(!manifest.exists());
+    std::fs::remove_file(package.join("SYSTEMFILER.sha256")).unwrap();
+    std::fs::write(package.join("SYSTEMFILER.sha256"), &sums).unwrap();
+    run(&package.join("install.sh"));
+    assert!(manifest.exists());
+    run(&package.join("uninstall.sh"));
+    assert!(!manifest.exists());
+    let _ = std::fs::remove_dir_all(&dir);
 }
 
 #[test]

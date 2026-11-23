@@ -67,6 +67,7 @@ fi
 rm -f -- "$HOME/.local/bin/agentic-rigg" "$HOME/.local/bin/agentic-riggd" "$desktop"
 rm -rf -- "$data_dir/doc/agentic-rigg"
 rm -rf -- "$data_dir/agentic-rigg/hjelper"
+rm -f -- "$data_dir/agentic-rigg/SYSTEMFILER.sha256"
 rmdir --ignore-fail-on-non-empty -- "$data_dir/agentic-rigg" 2>/dev/null || true
 if [ -d "$hicolor" ]; then
     find "$hicolor" -path '*/apps/*' -name "$app_id*.svg" -delete

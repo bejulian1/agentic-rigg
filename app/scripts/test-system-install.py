@@ -405,5 +405,72 @@ class SystemTest(unittest.TestCase):
         self.assertFalse(list((self.root / 'run').iterdir()))
 
 
+    # --- Den felles låsen kan arves fra system-hent.py (#18) ---
+
+    def lock_functions(self):
+        rgb = runpy.run_path(str(DATA / 'rgb-admin.py'), run_name='test')
+        return {'system-install': self.mod['system_lock'], 'rgb-admin.py': rgb['system_lock']}
+
+    def test_arvet_laas_godtas_bare_for_samme_holdte_laasefil(self):
+        lock = self.root / 'system.lock'
+        other = self.root / 'annen.lock'
+        other.write_bytes(b'')
+        for name, system_lock in self.lock_functions().items():
+            errors = (ValueError, RuntimeError)
+            holder = os.open(lock, os.O_WRONLY | os.O_CREAT, 0o600)
+            try:
+                fcntl.flock(holder, fcntl.LOCK_EX)
+                # Uten arv: en annen administratorhandling holder låsen.
+                with patch.dict(os.environ, {}, clear=False):
+                    os.environ.pop('AGENTIC_RIGG_SYSTEM_LOCK_FD', None)
+                    with self.assertRaisesRegex(errors, 'annen administratorhandling'), system_lock(lock):
+                        pass
+                # Arvet: samme åpne fil, så handlingen kjører under låsen.
+                ran = []
+                with patch.dict(os.environ, {'AGENTIC_RIGG_SYSTEM_LOCK_FD': str(holder)}), system_lock(lock):
+                    ran.append(name)
+                self.assertEqual(ran, [name])
+                # Låsen er fortsatt forelderens etterpå (ingen LOCK_UN).
+                probe = os.open(lock, os.O_WRONLY)
+                with self.assertRaises(BlockingIOError):
+                    fcntl.flock(probe, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                # Et eget filhåndtak til låsefila mens en annen holder den.
+                with patch.dict(os.environ, {'AGENTIC_RIGG_SYSTEM_LOCK_FD': str(probe)}):
+                    with self.assertRaisesRegex(errors, 'annen administratorhandling'), system_lock(lock):
+                        pass
+                os.close(probe)
+                # En annen fil eller et ugyldig tall gir aldri låsen.
+                wrong = os.open(other, os.O_RDONLY)
+                for value in (str(wrong), '0', '2', '-3', 'x', '99999999'):
+                    with patch.dict(os.environ, {'AGENTIC_RIGG_SYSTEM_LOCK_FD': value}):
+                        with self.assertRaises((*errors, OSError)), system_lock(lock):
+                            self.fail(f'{name} godtok {value}')
+                os.close(wrong)
+            finally:
+                os.close(holder)
+
+    def test_barneprosess_arver_laasen_bare_med_filhandtaket(self):
+        lock = self.root / 'system.lock'
+        child = ('import runpy, sys\n'
+                 'lock = runpy.run_path(sys.argv[1], run_name="test")["system_lock"]\n'
+                 'with lock(sys.argv[2]):\n    print("UNDER LÅS")\n')
+        holder = os.open(lock, os.O_WRONLY | os.O_CREAT, 0o600)
+        try:
+            fcntl.flock(holder, fcntl.LOCK_EX)
+            for script in ('rgb-admin.py', 'system-install'):
+                env = {'PATH': '/usr/bin:/bin', 'AGENTIC_RIGG_SYSTEM_LOCK_FD': str(holder)}
+                inherited = subprocess.run([sys.executable, '-I', '-S', '-c', child, str(DATA / script), str(lock)],
+                                           env=env, pass_fds=(holder,), capture_output=True, text=True, timeout=10)
+                self.assertEqual(inherited.stdout, 'UNDER LÅS\n', inherited.stderr)
+                # Uten det arvede håndtaket (som de gamle skriptene) avvises handlingen.
+                alone = subprocess.run([sys.executable, '-I', '-S', '-c', child, str(DATA / script), str(lock)],
+                                       env={'PATH': '/usr/bin:/bin'}, capture_output=True, text=True, timeout=10)
+                self.assertNotEqual(alone.returncode, 0)
+                self.assertIn('annen administratorhandling', alone.stderr)
+                self.assertEqual(alone.stdout, '')
+        finally:
+            os.close(holder)
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -139,6 +139,16 @@ if [ -z "${RIGG_INSTALL_NO_SYSTEMD:-}" ] && command -v systemctl >/dev/null && s
     systemctl --user try-restart "$unit" || true
 fi
 
+# Summene for systemfilene i dette utgivelsesarkivet. Ett-klikks
+# systeminstallasjon godtar da bare en nedlasting med nøyaktig de filene.
+# Et kildebygg har ingen slik fil, og en gammel fjernes.
+manifest=$data_dir/agentic-rigg/SYSTEMFILER.sha256
+if [ -f "$here/SYSTEMFILER.sha256" ] && [ ! -L "$here/SYSTEMFILER.sha256" ]; then
+    install -Dm644 "$here/SYSTEMFILER.sha256" "$manifest"
+else
+    rm -f -- "$manifest"
+fi
+
 # Fjern de kjente, utdaterte brukerkopiene. Ingen systemhandling her.
 for f in aktiver.sh deaktiver.sh trinn.sh agentic-rigg-helper agentic-rigg-helper.service io.github.AgenticRigg.helper.policy; do
     rm -f -- "$hjelper_dir/$f"

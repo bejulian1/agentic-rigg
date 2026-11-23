@@ -543,11 +543,52 @@ class Admin:
             os.close(fd)
 
 
+SYSTEM_LOCK = '/run/agentic-rigg-system.lock'
+# system-hent.py holder den felles låsen gjennom en hel oppdatering og gir
+# den videre til de nyinstallerte skriptene som et arvet filhåndtak.
+LOCK_FD_ENV = 'AGENTIC_RIGG_SYSTEM_LOCK_FD'
+
+
+def inherited_lock(path=SYSTEM_LOCK):
+    """Filhåndtaket til en arvet, holdt systemlås, eller None uten arv.
+
+    Håndtaket må være nøyaktig låsefila (samme enhet og inode). flock på
+    den samme åpne fila lykkes bare når forelderen holder låsen, eller
+    ingen gjør det; holder en annen prosess den, avvises handlingen.
+    """
+    raw = os.environ.get(LOCK_FD_ENV)
+    if raw is None:
+        return None
+    if not re.fullmatch(r"[3-9]|[1-9][0-9]{1,4}", raw, re.ASCII):
+        fail("Ugyldig arvet systemlås.")
+    fd = int(raw)
+    try:
+        held = os.fstat(fd)
+        named = os.lstat(path)
+    except OSError:
+        fail("Den arvede systemlåsen finnes ikke.")
+    if (not stat.S_ISREG(held.st_mode) or held.st_uid != os.geteuid()
+            or (held.st_dev, held.st_ino) != (named.st_dev, named.st_ino)):
+        fail("Det arvede filhåndtaket er ikke systemlåsen.")
+    try:
+        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        fail("En annen administratorhandling pågår. Vent og prøv igjen.")
+    return fd
+
+
 @contextmanager
-def system_lock():
-    fd = os.open('/run/agentic-rigg-system.lock', os.O_WRONLY | os.O_CREAT | os.O_NOFOLLOW, 0o600)
+def system_lock(path=SYSTEM_LOCK):
+    if inherited_lock(path) is not None:
+        # Aldri LOCK_UN: låsen tilhører den som ga den videre.
+        yield
+        return
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600)
     with os.fdopen(fd, 'wb') as lock:
-        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            fail("En annen administratorhandling pågår. Vent og prøv igjen.")
         yield
 
 
