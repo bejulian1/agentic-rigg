@@ -144,6 +144,67 @@ impl Preferred {
     }
 }
 
+// ---------------------------------------------------------------- Bredde uavhengig av høyden
+
+mod steady_imp {
+    use super::*;
+
+    #[derive(Default)]
+    pub struct Steady;
+
+    #[glib::object_subclass]
+    impl ObjectSubclass for Steady {
+        const NAME: &'static str = "RiggSteady";
+        type Type = super::Steady;
+        type ParentType = gtk::Widget;
+    }
+
+    impl ObjectImpl for Steady {
+        fn dispose(&self) {
+            while let Some(c) = self.obj().first_child() {
+                c.unparent();
+            }
+        }
+    }
+
+    impl WidgetImpl for Steady {
+        fn request_mode(&self) -> gtk::SizeRequestMode {
+            gtk::SizeRequestMode::HeightForWidth
+        }
+
+        fn measure(&self, o: gtk::Orientation, for_size: i32) -> (i32, i32, i32, i32) {
+            let Some(c) = self.obj().first_child() else { return (0, 0, -1, -1) };
+            // Bredden spørres aldri «for en høyde».
+            let (min, nat, _, _) = c.measure(o, if o == gtk::Orientation::Horizontal { -1 } else { for_size });
+            (min, nat, -1, -1)
+        }
+
+        fn size_allocate(&self, w: i32, h: i32, _b: i32) {
+            if let Some(c) = self.obj().first_child() {
+                c.size_allocate(&gtk::Allocation::new(0, 0, w, h), -1);
+            }
+        }
+    }
+}
+
+glib::wrapper! {
+    /// En etikett som kan brytes, i en vannrett rad: raden spør etiketten om
+    /// bredden *for radens høyde*. Er raden høy nok til to linjer (tetthet
+    /// «Luftig», større skrift), svarer etiketten med bredden til to linjer,
+    /// og «GeForce» ble til «GeF-/orce» selv om det var god plass. Her får
+    /// barnet alltid spørsmålet uten høyde, så det brytes bare når bredden
+    /// faktisk er for liten.
+    pub struct Steady(ObjectSubclass<steady_imp::Steady>) @extends gtk::Widget, @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget;
+}
+
+impl Steady {
+    pub fn new(child: &impl IsA<gtk::Widget>) -> Steady {
+        let f: Steady = glib::Object::new();
+        child.set_parent(&f);
+        f
+    }
+}
+
 // ---------------------------------------------------------------- Helt eller ikke
 
 mod all_imp {

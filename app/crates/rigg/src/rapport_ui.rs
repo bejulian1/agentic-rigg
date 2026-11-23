@@ -133,7 +133,8 @@ impl SectionPanel {
                     vl.set_wrap(true);
                     vl.set_wrap_mode(gtk::pango::WrapMode::WordChar);
                     vl.set_xalign(0.0);
-                    vb.append(&vl);
+                    // Brytes bare når bredden er for liten, ikke fordi raden er høy (fixed.rs).
+                    vb.append(&crate::widgets::fixed::Steady::new(&vl));
                     let info = Icon::new("info", 12);
                     info.add_css_class("info-mark");
                     info.set_valign(gtk::Align::Center);

@@ -203,14 +203,16 @@ pub fn findings(w: &gtk::Widget, out: &mut Vec<String>) {
         let used: f32 = kids.iter().map(|(_, b)| b.width()).sum();
         let free = w.width() as f32 - used - bx.spacing() as f32 * kids.len().saturating_sub(1) as f32;
         for (k, b) in &kids {
-            if let Some(l) = k.downcast_ref::<gtk::Label>()
+            // Etiketten selv, eller etiketten alene i en beholder (Steady).
+            let only = k.first_child().filter(|c| c.next_sibling().is_none());
+            if let Some(l) = k.downcast_ref::<gtk::Label>().or_else(|| only.as_ref().and_then(|c| c.downcast_ref::<gtk::Label>()))
                 && l.wraps()
                 && l.layout().line_count() > 1
                 && !l.text().contains('\n')
             {
                 let nat = l.measure(gtk::Orientation::Horizontal, -1).1 as f32;
                 if nat <= b.width() + free + 0.5 && l.text().chars().count() <= 40 {
-                    out.push(format!("BRUTT {} står på {} linjer, men får plass på én ({:.0} px ledig) i {}", describe(k), l.layout().line_count(), free, describe(w)));
+                    out.push(format!("BRUTT {} står på {} linjer, men får plass på én ({:.0} px ledig) i {}", describe(l.upcast_ref()), l.layout().line_count(), free, describe(w)));
                 }
             }
         }
