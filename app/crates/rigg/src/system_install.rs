@@ -417,13 +417,19 @@ mod tests {
             assert!(!compatible_revision(old, Need::Rgb));
             assert!(compatible_revision(old, Need::Cleanup));
         }
-        // RGB-protokoll 3 (bygg 29) gjør bare RGB-delen utdatert.
-        for nvml_only in ["2:25\n", "2:28\n"] {
-            assert!(compatible_revision(nvml_only, Need::Nvml));
-            assert!(!compatible_revision(nvml_only, Need::Rgb));
+        // NVML-sikkerhetsrettingene i 1.6.0 (bygg 32) gjør 25–31 utdatert for
+        // GPU-styring; RGB-protokoll 3 (bygg 29) gjelder bare RGB-delen.
+        for old_nvml in ["2:25\n", "2:28\n"] {
+            assert!(!compatible_revision(old_nvml, Need::Nvml));
+            assert!(!compatible_revision(old_nvml, Need::Rgb));
+            assert!(compatible_revision(old_nvml, Need::Cleanup));
         }
-        assert!(compatible_revision("2:29\n", Need::Rgb));
-        assert!(compatible_revision("2:29\n", Need::Nvml));
+        for rgb_only in ["2:29\n", "2:31\n"] {
+            assert!(compatible_revision(rgb_only, Need::Rgb));
+            assert!(!compatible_revision(rgb_only, Need::Nvml));
+        }
+        assert!(compatible_revision("2:32\n", Need::Rgb));
+        assert!(compatible_revision("2:32\n", Need::Nvml));
         for unknown in ["", "3:25\n", "2:0\n", "2:4294967295\n"] {
             assert!(!compatible_revision(unknown, Need::Cleanup));
         }

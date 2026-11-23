@@ -1,5 +1,19 @@
 [
   {
+    "version": "1.6.0",
+    "build": 32,
+    "date": "2026-11-23",
+    "title": "Sikrere GPU-hjelper og installasjon",
+    "changes": [
+      "GPU-hjelperen er sikrere: fristene tåler hvile og klokkeendringer, nødregelen godtar aldri lav vifte som gjenoppretting, og gjenopprettingen etter et avbrudd kan ikke lenger gå tapt.",
+      "Har en gjenoppretting feilet, følger hjelperen fortsatt temperaturen og prøver å sette kortet tilbake til grunnverdiene med Auto-vifter når det blir for varmt.",
+      "GPU-hjelperen må oppdateres én gang: slå på «Tillat endring av skjermkortet» og skriv administratorpassordet.",
+      "En uavklart RGB-økt avklares under oppdateringen først etter at du har sett det gjenopprettede lyset.",
+      "Oppdatering fra appen godtar bare systemfilene som hører til den installerte versjonen, og stopper hvis tillatelsene endres underveis.",
+      "Stopp av bakgrunnsopptak fra systemfeltet beholder holdte GPU- og RGB-verdier."
+    ]
+  },
+  {
     "version": "1.5.6",
     "build": 31,
     "date": "2026-11-21",

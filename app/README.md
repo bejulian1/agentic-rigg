@@ -12,11 +12,17 @@ Agentic Rigg er et overvåkingsverktøy for skjermkort og maskin på Ubuntu, skr
 
 En allerede åpen app følger nå `--innstillinger DEL`. Hjelperstatus sjekkes også mens styring er låst, slik at ny administratoraktivering oppdages uten å starte vinduet på nytt.
 
-Sidefeltet har et maskinhode med skjermkortet og prosessoren, og tastene 1–9 og 0 går til de ti sidene. Klikk på skjermkortet øverst åpner Grafikkort direkte. Kortet under Skjermkortstyring åpner en smal detaljmeny i sidefeltets bredde, med kortvalg når det finnes flere kort. Ikonene står sentrert også når sidefeltet er lagt sammen. Versjon og byggnummer står i Innstillinger › Om, sammen med signaturen Code Pro. Grafene kutter aldri en verdi: aksen utvides når temperaturen går over 100 °C eller under 20 °C, og krymper først når kurven har roet seg. Denne fila gjelder 1.5.6 · bygg 31. Sensorfilteret slipper fokus ved klikk utenfor og ved sideskifte; Esc tømmer/avslutter søket. Nedtrekksmenyene har tydelige tilstander for valgt rad og tastaturfokus.
+Sidefeltet har et maskinhode med skjermkortet og prosessoren, og tastene 1–9 og 0 går til de ti sidene. Klikk på skjermkortet øverst åpner Grafikkort direkte. Kortet under Skjermkortstyring åpner en smal detaljmeny i sidefeltets bredde, med kortvalg når det finnes flere kort. Ikonene står sentrert også når sidefeltet er lagt sammen. Versjon og byggnummer står i Innstillinger › Om, sammen med signaturen Code Pro. Grafene kutter aldri en verdi: aksen utvides når temperaturen går over 100 °C eller under 20 °C, og krymper først når kurven har roet seg. Denne fila gjelder 1.6.0 · bygg 32. Sensorfilteret slipper fokus ved klikk utenfor og ved sideskifte; Esc tømmer/avslutter søket. Nedtrekksmenyene har tydelige tilstander for valgt rad og tastaturfokus.
 
 Prosessor viser også lanseringsdato når den konkrete modellen er i det lokale oppslaget. Ryzen 7 2700X viser 19. april 2018, med AMD som kilde. Ukjente modeller får ingen antatt dato. Gjennomgangen av øvrige spesifikasjoner og mangler står i `docs/produksjon/spesifikasjoner-revisjon-2026-11-14.md`.
 
 Måleaksene utvides også for 110 °C og klokker over kortets oppgitte maksimum. Ferske topper i langtidsvinduer og viftekurvens målte punkter tas med; lovlige redigeringsgrenser og 0–100 % for last og brukt minne beholdes.
+
+## Nytt i 1.6.0
+
+- GPU-hjelperen er sikrere: fristene følger en monoton klokke som tåler hvile, nødregelen godtar aldri lav manuell vifte som gjenoppretting, og gjenopprettingsmerkøren slettes aldri når den ikke kan bekreftes. I feiltilstand leses temperaturen fortsatt, og ved 85 °C eller ukjent temperatur forsøker hjelperen å sette kortet tilbake til grunnverdiene med Auto-vifter. Hjelperen må oppdateres én gang med administratorpassordet.
+- En uavklart RGB-økt avklares under oppdateringen først etter at du har sett det gjenopprettede lyset. Installasjonen holder én felles systemlås, kontrollerer tillatelsene på nytt etter nedlastingen og godtar bare systemfilene som hører til den installerte appen.
+- Stopp av bakgrunnsopptak fra systemfeltet beholder holdte GPU- og RGB-verdier. Systeminstallasjonen avviser nedgradering og tilbys ikke over et nyere installert bygg.
 
 ## Nytt i 1.5.6
 
@@ -67,7 +73,7 @@ Vifter har Enkel/Avansert visning: Auto og Manuell står først, mens kurve og f
 
 Rapportert maksimum og referanseverdier er separate fra klokken som måles nå. Boost, temperatur og effekt påvirker den faktiske hastigheten; appen beregner ingen fremtidig sluttklokke fra maksimum pluss justering. Minnejusteringen er et offset, ikke en fast minnefrekvens eller en båndbredde i Gb/s. Hjelp følger faktisk styringsstatus; endret forklaring i hjelp endrer ikke NVML-omregningen.
 
-Den allerede autoriserte GPU-hjelperen fra bygg 23 kan brukes videre av app/daemon bygg 24 med protokoll 2. Minimumsbygget er eksplisitt; eldre bygg, ukjent nyere hjelper og annen protokoll avvises. Dette endrer ikke HW-sikkerhetsmotoren og krever ingen ny aktivering bare for UI-oppdateringen. Ved senere sikkerhetsretting økes minimumsbygget og ved behov protokollen.
+Minimumsbygget for GPU-hjelperen er eksplisitt; eldre bygg, ukjent nyere hjelper og annen protokoll avvises. Rene UI-utgaver kan beholde en allerede autorisert hjelper (som bygg 23 med app/daemon bygg 24). Ved sikkerhetsrettinger økes minimumsbygget og ved behov protokollen. 1.6.0 (bygg 32) retter sikkerhetsmotoren i hjelperen, så minimumsbygget er 32 med uendret protokoll 2: en installert hjelper fra bygg 25–31 vises som utdatert og oppdateres én gang med administratorpassordet fra Innstillinger › Skjermkortstyring.
 
 **Viftestopp / Zero RPM:** På det undersøkte kortet rapporterer driveren 35–100 % som manuelt innstillingsområde. Det vises som «Minst 35 % (driver)». Dette avgjør ikke om automatisk styring kan stoppe viftene: NVML-funksjonen beskriver grensene brukeren kan sette. Automatisk Zero RPM er fortsatt ubekreftet, og appen har ikke fått en slik funksjon eller prøvd 0 %. Grenser og backend er uendret. Se [NVIDIAs NVML-referanse](https://docs.nvidia.com/deploy/nvml-api/latest/api/group__nvmlDeviceQueries.html). [Forumtråden om minimumshastighet](https://forums.developer.nvidia.com/t/any-workaround-to-the-30-fan-speed-limitation-on-newer-nvidia-gpus/291486) inneholder brukererfaringer med forskjellige kort/drivere; disse er ikke bevis for dette kortets støtte.
 
