@@ -24,7 +24,7 @@ class SystemTest(unittest.TestCase):
         self.root = Path(self.tmp.name)
         self.mod = runpy.run_path(str(DATA / 'system-install'))['install'].__globals__
         self.assets = {self.root / path.relative_to('/'): spec for path, spec in self.mod['ASSETS'].items()}
-        for key in ('LIB', 'SYSTEM', 'NV', 'RGB', 'POL', 'ETC', 'UNITS', 'RUN', 'STATE', 'MARK', 'GPU_INFO'):
+        for key in ('LIB', 'SYSTEM', 'NV', 'RGB', 'POL', 'ETC', 'UNITS', 'RUN', 'STATE', 'MARK', 'RGB_MARK', 'GPU_INFO'):
             self.mod[key] = self.root / self.mod[key].relative_to('/')
         self.calls = []
         self.mod.update(ASSETS=self.assets, ctl=lambda *args: self.calls.append(args),
@@ -166,6 +166,105 @@ class SystemTest(unittest.TestCase):
         self.mod['uninstall']()
         self.assertFalse(any(path.exists() for path in self.assets))
         self.assertEqual(next(self.root.rglob('baseline.json')).read_text(), 'opptak')
+
+    def rgb_part(self):
+        """En installert, aktiv RGB-del fra et eldre bygg med uavklart journal."""
+        rgb = {path: b'gammel ' + path.name.encode() for path in self.assets if self.mod['rgb_asset'](path)}
+        for path, data in rgb.items():
+            self.directory(path.parent)
+            path.write_bytes(data)
+            path.chmod(0o644)
+        config, journal, unit, dropin = self.mod['active_files']('rgb')
+        active = {config: b'{"tillatelse": 1}', journal: b'{"uavklart": true}', unit: b'[Unit]\n', dropin: b'[Service]\n'}
+        for path, data in active.items():
+            self.directory(path.parent)
+            path.write_bytes(data)
+        return {**rgb, **active}
+
+    def test_keep_rgb_bytter_bare_nvml_delen(self):
+        # 1.6.0-feilen: GPU-oppdateringen skal ikke kreve at RGB-økten avklares.
+        kept = self.rgb_part()
+        self.directory(self.mod['MARK'].parent)
+        self.mod['MARK'].write_text('2:24\n')
+        nvml_config, _, nvml_unit, _ = self.mod['active_files']('nvml')
+        for path in (nvml_config, nvml_unit):
+            self.directory(path.parent)
+            path.write_text('{}')
+        with self.assertRaisesRegex(ValueError, 'Avklar og slå av eksisterende RGB-tilgang'):
+            self.mod['install'](self.files)
+        self.mod['install'](self.files, keep_rgb=True)
+        for path, data in kept.items():
+            self.assertEqual(path.read_bytes(), data, path)
+        self.assertEqual(self.mod['MARK'].read_text(), '2:25\n')
+        self.assertEqual(self.mod['RGB_MARK'].read_text(), '2:24\n')
+        self.assertFalse(nvml_config.exists() or nvml_unit.exists())
+        for path, (key, mode) in self.assets.items():
+            if not self.mod['rgb_asset'](path):
+                self.assertEqual(path.read_bytes(), self.files[key])
+                self.assertEqual(path.stat().st_mode & 0o777, mode)
+        # nvml-admin.py laster den felles koden fra sin egen, nye kopi, ikke
+        # fra den beholdte (eldre) RGB-mappa.
+        nv_common = self.mod['NV'] / 'rgb-admin.py'
+        self.assertEqual(nv_common.read_bytes(), self.files['data/hjelper/rgb-admin.py'])
+        self.assertNotEqual((self.mod['RGB'] / 'rgb-admin.py').read_bytes(), nv_common.read_bytes())
+        self.assertIn("with_name('rgb-admin.py')", (DATA / 'nvml-admin.py').read_text())
+        self.assertNotIn('agentic-rigg-rgb-v2', (DATA / 'nvml-admin.py').read_text())
+        self.assertNotIn(('stop', 'agentic-rigg-rgb.service'), self.calls)
+        # En ny GPU-oppdatering beholder RGB-delens eget bygg.
+        self.files['version.json'] = b'{"build":26}'
+        self.mod['install'](self.files, keep_rgb=True)
+        self.assertEqual((self.mod['MARK'].read_text(), self.mod['RGB_MARK'].read_text()), ('2:26\n', '2:24\n'))
+        # Full installasjon (etter avklaring og deaktivering) gir én felles revisjon.
+        for path in (self.mod['ETC'] / 'rgb.json', self.mod['active_files']('rgb')[1]):
+            path.unlink()
+        self.mod['install'](self.files)
+        self.assertEqual((self.mod['MARK'].read_text(), self.mod['RGB_MARK'].read_text()), ('2:26\n', '2:26\n'))
+        for path, (key, _) in self.assets.items():
+            self.assertEqual(path.read_bytes(), self.files[key])
+        self.mod['uninstall']()
+        self.assertFalse(self.mod['RGB_MARK'].exists() or self.mod['MARK'].exists())
+
+    def test_keep_rgb_krever_hel_rgb_del_med_kjent_bygg(self):
+        nvml_config = self.mod['active_files']('nvml')[0]
+        for broken in ('mangler', 'ukjent bygg', 'nyere bygg'):
+            with self.subTest(broken=broken):
+                kept = self.rgb_part()
+                self.directory(self.mod['MARK'].parent)
+                self.mod['MARK'].write_text({'ukjent bygg': '1\n', 'nyere bygg': '2:25\n'}.get(broken, '2:24\n'))
+                if broken == 'nyere bygg':
+                    self.mod['RGB_MARK'].write_text('2:99\n')
+                if broken == 'mangler':
+                    next(path for path in kept if path.name == 'rgb-admin.py').unlink()
+                self.directory(nvml_config.parent)
+                nvml_config.write_text('{}')
+                with self.assertRaisesRegex(ValueError, 'RGB-delen'):
+                    self.mod['install'](self.files, keep_rgb=True)
+                # Ingenting er byttet: GPU-tillatelsen og RGB-filene står.
+                self.assertTrue(nvml_config.exists())
+                for path, data in kept.items():
+                    if path.exists():
+                        self.assertEqual(path.read_bytes(), data)
+                self.mod['RGB_MARK'].unlink(missing_ok=True)
+
+    def test_keep_rgb_argumentet_fra_hentingen(self):
+        """system-hent.py kjører `installer --keep-rgb ARKIV SUM`; bare installasjon godtar flagget."""
+        import contextlib
+        seen = []
+        self.mod.update(system_lock=contextlib.nullcontext, approved_files=lambda *values: values,
+                        install=lambda files, keep_rgb=False: seen.append((files, keep_rgb)))
+        with patch('os.geteuid', return_value=0), patch('os.umask'):
+            for argv, expected in ((['--keep-rgb', 'arkiv', 'sum'], (('arkiv', 'sum'), True)),
+                                   (['arkiv', 'sum'], (('arkiv', 'sum'), False))):
+                with patch.object(sys, 'argv', ['system-install', *argv]):
+                    self.mod['main']()
+                self.assertEqual(seen.pop(), expected)
+            for argv in (['--keep-rgb', '--uninstall'], ['--keep-rgb', '--revoke', 'rgb'], ['--keep-rgb']):
+                with patch.object(sys, 'argv', ['system-install', *argv]), \
+                        patch('sys.stderr', io.StringIO()), self.assertRaises(SystemExit):
+                    self.mod['main']()
+        self.assertEqual(seen, [])
+        hent = (DATA / 'system-hent.py').read_text()
+        self.assertIn("[*INSTALLER, installer, *keep, archive, digest]", hent)
 
     def test_failed_stop_retries_once_in_bound_sandbox_before_migration(self):
         config, journal, unit, _ = self.mod['active_files']('nvml')
@@ -404,6 +503,95 @@ class SystemTest(unittest.TestCase):
         self.assertEqual(admin.path(other).read_bytes(), b'NVML')
         self.assertFalse(list((self.root / 'run').iterdir()))
 
+
+    # --- Brukerens tilstand etter 1.6.0: GPU-oppdatering med uavklart RGB ---
+
+    def test_kjede_hent_installer_og_nvml_laster_ny_felles_kode(self):
+        """system-hent.py (ekte main) → system-install (ekte install i en
+        privat rot) → nvml-admin.py, for en bruker med GPU-tillatelse fra bygg
+        31, aktiv RGB v2 og en uavklart RGB-journal. Ingen nett, root eller
+        systemd: nedlasting, pkexec-UID og tjenestekontroll er falske."""
+        import contextlib
+        # Den eldre RGB-delen som skal stå: tillatelse, journal og gamle skript.
+        old = {path: b'# gammel 1.5.6\n' + path.name.encode() for path in self.assets if self.mod['rgb_asset'](path)}
+        for path, data in old.items():
+            self.directory(path.parent)
+            path.write_bytes(data)
+            path.chmod(0o644)
+        rgb_config, rgb_journal, rgb_unit, _ = self.mod['active_files']('rgb')
+        nvml_config = self.mod['active_files']('nvml')[0]
+        card = {'pci': '0000:1c:00.0', 'uuid': 'GPU-12345678-abcd-ef01-2345-6789abcdef01'}
+        for path, data in ((rgb_config, {'version': 1, 'uid': 1000, 'enabled': True, 'binding': card, 'build': 31}),
+                           (nvml_config, {'versjon': 2, 'uid': 1000, 'enabled': True, **card, 'bygg': 31}),
+                           (rgb_journal, {'uavklart': True})):
+            self.directory(path.parent)
+            path.write_text(json.dumps(data))
+        rgb_config.chmod(0o600)
+        nvml_config.chmod(0o644)
+        self.directory(self.mod['MARK'].parent)
+        self.mod['MARK'].write_text('2:31\n')
+        self.mod['MARK'].chmod(0o644)
+        # Pakken: alle systemfiler fra denne kildekoden, bygg 33.
+        files = dict(self.files)
+        files['version.json'] = json.dumps({'name': 'Agentic Rigg', 'version': '1.6.1', 'channel': 'stable', 'build': 33}).encode()
+        archive, digest = self.archive(files.items())
+        hent = runpy.run_path(str(DATA / 'system-hent.py'), run_name='test')['main'].__globals__
+        hent.update(STAGING=str(self.root), MARK=str(self.mod['MARK']), RGB_JOURNAL=str(rgb_journal),
+                    CONFIG={'nvml': str(nvml_config), 'rgb': str(rgb_config)}, OWNER=os.getuid(),
+                    LOCK=str(self.root / 'system.lock'), published_digest=lambda *_: digest,
+                    verified_installer=lambda *_: (DATA / 'system-install').read_bytes(),
+                    confirmation=lambda *_: self.fail('Ingen RGB-avklaring skal spørres om'))
+
+        def fetch(url, limit, out=None, hosts=()):
+            out.write(archive.read_bytes())
+            return digest
+
+        ran = []
+
+        def run(argv, **kwargs):
+            ran.append([Path(a).name if a.startswith('/') else a for a in argv])
+            if argv[:3] == ['/usr/bin/python3', '-I', '-S']:
+                # Installasjonsprogrammet med nøyaktig argumentene fra hentingen.
+                args = argv[4:]
+                keep = '--keep-rgb' in args
+                values = [a for a in args if a != '--keep-rgb']
+                self.mod['install'](self.mod['approved_files'](*values, staging=str(self.root)), keep_rgb=keep)
+            elif argv[0].endswith('/aktiver.sh'):
+                # aktiver.sh → nvml-admin.py: den felles koden skal være den nye kopien.
+                admin = self.mod['NV'] / 'nvml-admin.py'
+                common = admin.with_name('rgb-admin.py')
+                self.assertEqual(common.read_bytes(), self.files['data/hjelper/rgb-admin.py'])
+                lock = runpy.run_path(str(common), run_name='test')['system_lock']
+                with patch.dict(os.environ, {'AGENTIC_RIGG_SYSTEM_LOCK_FD': kwargs['env']['AGENTIC_RIGG_SYSTEM_LOCK_FD']}):
+                    with lock(str(self.root / 'system.lock')):
+                        ran.append('aktivert under arvet lås')
+            else:
+                self.fail(f'Uventet kommando: {argv}')
+            return type('R', (), {'returncode': 0})()
+
+        class RootOs:
+            """Bare hentingen tror den kjører som root; installasjonens egne
+            eierskapskontroller ser den ekte brukeren som eier testroten."""
+            def __getattr__(self, name):
+                return getattr(os, name)
+
+            def geteuid(self):
+                return 0
+
+        hent.update(fetch=fetch, os=RootOs(), subprocess=type('S', (), {'run': run, 'DEVNULL': -3, 'PIPE': -1}))
+        out = io.StringIO()
+        with patch.dict(os.environ, {'PKEXEC_UID': '1000'}), contextlib.redirect_stdout(out):
+            self.assertEqual(hent['main'](['1.6.1', '33', '-', 'nvml', card['pci'], card['uuid']]), 0)
+        self.assertEqual([r[0] if isinstance(r, list) else r for r in ran], ['python3', 'aktiver.sh', 'aktivert under arvet lås'])
+        self.assertIn('--keep-rgb', ran[0])
+        # RGB-delen er urørt: samme filer, tillatelse og journal; ingen RGB-tjeneste stoppet.
+        for path, data in old.items():
+            self.assertEqual(path.read_bytes(), data, path)
+        self.assertEqual(json.loads(rgb_journal.read_text()), {'uavklart': True})
+        self.assertTrue(rgb_config.exists())
+        self.assertEqual((self.mod['MARK'].read_text(), self.mod['RGB_MARK'].read_text()), ('2:33\n', '2:31\n'))
+        self.assertIn('AGENTIC-RIGG-RGB-BEHOLDT {"pci":"0000:1c:00.0","unsettled":true}', out.getvalue())
+        self.assertNotIn(('stop', 'agentic-rigg-rgb.service'), self.calls)
 
     # --- Den felles låsen kan arves fra system-hent.py (#18) ---
 

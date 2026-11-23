@@ -37,16 +37,24 @@ annen administratorhandling kommer imellom og en tilbakekalt tillatelse
 aldri gis tilbake.
 
 Installasjonen bytter hjelperne og fjerner derfor aktive tillatelser.
-En eksisterende RGB-tilgang slås av med det installerte
-`rgb-deaktiver.sh` (lyset og utgangspunktet beholdes), og en
-GPU-tillatelse for samme bruker aktiveres igjen for samme kort etterpå.
+En GPU-tillatelse for samme bruker aktiveres igjen for samme kort etterpå.
 
-Har den gamle RGB-hjelperen en uavklart økt (journal), skrives det
-lagrede utgangspunktet tilbake først. Så sender skriptet avklaringsmålet
-til appen (én linje på stdout) og venter på at brukeren ser på kortet og
-bekrefter nøyaktig den gjenopprettingsidentiteten (én linje på stdin).
-Først da avklares journalen. Uten den bekreftelsen beholdes journalen og
-ingenting byttes.
+GPU-styring (og en oppdatering uten aktivering) rører aldri en aktiv
+RGB-del eller en RGB-journal: da installeres bare NVML-delen og
+systeminstallasjonen (`--keep-rgb`), og RGB-hjelperen, tillatelsen,
+lyset og en eventuell uavklart økt blir stående som før. Appen får én
+linje på stdout (`RGB_KEPT_PREFIX`) og viser at RGB-avklaringen gjøres
+separat på siden RGB-lys. En uavklart RGB-økt kan dermed aldri stenge
+brukeren ute fra GPU-styring.
+
+Ber brukeren om RGB, slås en eksisterende RGB-tilgang av med det
+installerte `rgb-deaktiver.sh` (lyset og utgangspunktet beholdes). Har den
+gamle RGB-hjelperen en uavklart økt (journal), skrives det lagrede
+utgangspunktet tilbake først. Så sender skriptet avklaringsmålet til appen
+(én linje på stdout) og venter på at brukeren ser på kortet og bekrefter
+nøyaktig den gjenopprettingsidentiteten (én linje på stdin). Først da
+avklares journalen. Uten den bekreftelsen beholdes journalen og ingenting
+byttes.
 
 Uten nett finnes terminalkommandoen (`system-bootstrap.command`) med
 arkiv og sum oppgitt for hånd.
@@ -95,6 +103,8 @@ LOCK_FD_ENV = 'AGENTIC_RIGG_SYSTEM_LOCK_FD'
 # Linjen appen ser etter på stdout, og hvor lenge brukeren har på seg.
 CONFIRM_PREFIX = 'AGENTIC-RIGG-RGB-AVKLAR '
 CONFIRM_TIMEOUT = 900
+# Linjen appen får når RGB-delen ble stående urørt (se `--keep-rgb`).
+RGB_KEPT_PREFIX = 'AGENTIC-RIGG-RGB-BEHOLDT '
 # Medlemmene som installeres eller kjøres som root (og appens binærer).
 SYSTEM_PATH = r'bin/[A-Za-z0-9._-]{1,64}|version\.json|data/hjelper/[A-Za-z0-9._-]{1,64}'
 MAX_PINS = 64
@@ -458,7 +468,9 @@ def main(argv):
     nvml, rgb, journal = before
     # Brukeren valgte RGB for dette kortet (bare RGB-aktivering).
     chosen = (argv[4].lower(), argv[5]) if then and argv[3] == 'rgb' else None
-    unsettled = rgb is not None and journal
+    # GPU-styring rører ikke en aktiv eller uavklart RGB-del (se over).
+    keep_rgb = chosen is None and (rgb is not None or journal)
+    unsettled = rgb is not None and journal and not keep_rgb
     if unsettled and chosen != card(rgb):
         fail(f'En tidligere RGB-økt for kortet {card(rgb)[0]} er ikke avsluttet. Velg det kortet, åpne RGB-lys og trykk «Bruk».')
     name = ASSET.format(version=version, build=build)
@@ -491,7 +503,7 @@ def main(argv):
             # før noe er byttet. De gamle skriptene tar den felles låsen selv.
             if unsettled and not settle_rgb(card(rgb), uid):
                 return 1
-            if rgb is not None and run([*RGB_DEACTIVATE, '--pci', card(rgb)[0], '--uuid', card(rgb)[1]], uid):
+            if not keep_rgb and rgb is not None and run([*RGB_DEACTIVATE, '--pci', card(rgb)[0], '--uuid', card(rgb)[1]], uid):
                 if unsettled:
                     print('RGB: Økten er avsluttet, men den gamle RGB-tilgangen ble ikke slått av. Trykk «Bruk» igjen.', file=sys.stderr)
                 return 1
@@ -499,15 +511,24 @@ def main(argv):
             fd = lock.acquire()
             reject_downgrade(build)
             nvml_now, rgb_now, journal_now = snapshot(uid)
-            if nvml_now != nvml or rgb_now is not None or journal_now:
+            if keep_rgb:
+                # RGB-delen skal være nøyaktig som før: samme tillatelse og journal.
+                if (nvml_now, rgb_now, journal_now) != before:
+                    fail(CHANGED)
+            elif nvml_now != nvml or rgb_now is not None or journal_now:
                 fail(CHANGED + (' RGB-tilgangen er slått av; trykk «Bruk» for å slå den på igjen.' if rgb else ''))
-            result = subprocess.run([*INSTALLER, installer, archive, digest], stdin=subprocess.DEVNULL,
+            keep = ['--keep-rgb'] if keep_rgb else []
+            result = subprocess.run([*INSTALLER, installer, *keep, archive, digest], stdin=subprocess.DEVNULL,
                                     env={'PATH': '/usr/bin:/bin', 'LC_ALL': 'C', LOCK_FD_ENV: str(fd)},
                                     pass_fds=(fd,), check=False)
             if result.returncode:
                 return result.returncode
         finally:
             shutil.rmtree(temp, ignore_errors=True)
+        if keep_rgb:
+            # RGB-lyset, tillatelsen og en eventuell journal er urørt.
+            kept = {'pci': card(rgb)[0] if rgb else None, 'unsettled': journal}
+            print(RGB_KEPT_PREFIX + json.dumps(kept, separators=(',', ':')), flush=True)
         # Installasjonen fjernet GPU-tillatelsen. Gi den tilbake for samme kort,
         # med mindre brukeren nettopp ba om GPU-styring (da gjør `then` det).
         if nvml is not None and not (then and then[0] == ACTIVATE['nvml'][0]):

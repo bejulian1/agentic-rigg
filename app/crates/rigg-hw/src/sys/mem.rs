@@ -31,6 +31,10 @@ pub fn parse(text: &str) -> MemSample {
         sreclaimable_kb: get("SReclaimable"),
         swap_total_kb: swap_t,
         swap_used_kb: swap_t.zip(swap_f).map(|(t, f)| t - f),
+        anon_kb: get("AnonPages"),
+        kernel_kb: get("SUnreclaim").zip(get("KernelStack")).zip(get("PageTables")).map(|((a, b), c)| {
+            a + b + c + get("Percpu").unwrap_or(0.0) + get("SecPageTables").unwrap_or(0.0)
+        }),
     }
 }
 

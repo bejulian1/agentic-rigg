@@ -213,7 +213,8 @@ for plan in "${plans[@]}"; do
     8a-hete) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=8a-hete") backend=sim:hete warm=${RIGG_OPPVARMING:-125} ;;
     # Layoutrevisjon: alle sider og innstillingsdeler × bredder × tetthet/skrift.
     revisjon) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=revisjon") backend=sim warm=${RIGG_OPPVARMING:-12} ;;
-    oppgaver) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=oppgaver") backend=ingen warm=${RIGG_OPPVARMING:-1} ;;
+    # RIGG_OPPGAVER_BACKEND=sim viser GPU-kortet med simulerte data (merk bildene).
+    oppgaver) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=oppgaver") backend=${RIGG_OPPGAVER_BACKEND:-ingen} warm=${RIGG_OPPVARMING:-1} ;;
     7b-ekte) vars=("RIGG_BILDER_2C=$dir" "RIGG_6C_PLAN=7b-ekte") wargs="--side kontroller" ;;
     # Fem minutter spill-last i historikken til «Siste 5 minutter».
     7b-sim) vars=("RIGG_BILDER_2C=$dir" "RIGG_6C_PLAN=7b-sim") backend=sim:spill wargs="--side kontroller" warm=${RIGG_OPPVARMING:-320} ;;
