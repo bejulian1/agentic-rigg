@@ -950,6 +950,14 @@ Ikke prøvd: polkit-dialogen og systemfeltet på et ekte skrivebord, installasjo
 
 Etter at PR #34 (layoutrevisjonen), #37 (aktivering og Oppgaver) og #38 (Nettverk) var merget, er `main` tatt inn i grenen. De 221 nye og endrede tekstene derfra er oversatt til svensk, så alle elleve språk står på 3266 av 3266. Appnavnet i de nye katalogene (`tasks.po`, `nettverk.po`, `process.po`) er det nye, og hjelpeteksten for `--side` nevner `nettverk` i alle språk.
 
+## 23. november 2026 – Claude Code: README, skjermbilder og bidragsytere før 1.7.0 (ingen utgivelse)
+
+README.md er skrevet om med det nye navnet: hva appen er og for hvem, funksjonstabell med Nettverk, den nye Oppgaver-siden og elleve språk, egne avsnitt for installasjon og oppgradering (hjelpere fra før bygg 32 krever én ny administratoraktivering), en kort sikkerhetsmodell for GPU-styring og en innholdsliste. Påstandene er kontrollert mot koden (verdier utenfor kortets grenser avvises, de klemmes ikke; nødregelen ved 85 °C; nedgraderingsvernet).
+
+Nye README-bilder i engelsk brukerflate, 1440 × 1000 px, fra private økter: `overview`, `overview-dark`, `fans`, `clocks-power`, `rgb-lighting`, `network` og `tasks` i `docs/images/`. Ny plan `readme` i `bilder.sh` (`skjermbilder_readme.rs`) kjører mot `sim:spill` og venter til den simulerte spill-lasten har vart over ett minutt, så Oversikt viser last. `readme-oppgaver` starter `scripts/readme-prosesser.py`, som lager en falsk rot under `~/.cache/rigg-build` (testfixturen `maskin` pluss oppdiktede prosesser, brukere, `/proc/stat` og `/proc/cpuinfo`, med CPU-tider som øker hvert sekund), og tjenesten leser den med `--root`. Maskinens egen prosessliste brukes ikke. RGB-fixturen har fått varianten `pending_effects` (prøve med effektene synlige). PNG-ene er kvantisert med libimagequant (64–86 KiB); fargene på hurtigvalgene er kontrollert mot originalen.
+
+`vifter.png`, `klokker.png` og `rgb.png` er erstattet. `oppgaver-feature.png` viste maskinens egne prosesser og brukernavnet og er fjernet; `oppgavebehandling.md` viser nå `tasks.png`. Bildet finnes fortsatt i git-historikken. `CONTRIBUTORS.md` har fått rollene før 1.7.0. Repo-beskrivelse og topics er oppdatert med `gh repo edit`. Ingen GPU-, RGB- eller I2C-skriving, ingen sudo og ingen versjonsendring.
+
 ## 24. november 2026 – Claude Code (Fable 5.2): layoutfunn fra den uavhengige kontrollen før 1.7.0
 
 Seks funn fra kontrollen av 1c94566 er rettet uten versjonsbump. Alle er sett i et kjørende vindu med `bilder.sh --plan revisjon` på bokmål, engelsk, tysk og svensk.

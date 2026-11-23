@@ -1,62 +1,95 @@
 # Agentic HW Monitor
 
-A lightweight Linux hardware monitor with opt-in NVIDIA GPU control, written in Rust and GTK 4. Inspired by MSI Afterburner, HWiNFO, GPU-Z, CPU-Z, CrystalDiskInfo and the Windows Task Manager, Agentic HW Monitor brings sensors, long-term graphs, processes, CPU/GPU specifications, SMART disk health, card-bound GPU tuning and GPU RGB lighting together in one native app with no Electron overhead.
+Agentic HW Monitor is a native hardware monitor for Linux desktops, written in Rust and GTK 4. It shows sensors, load and temperature graphs, running tasks, network connections, CPU and GPU specifications and disk health in one window. On NVIDIA cards it can also adjust the power limit, clock offsets and fan curve, and on one supported Palit card it controls the RGB lighting. Monitoring needs no privileges; GPU and lighting control are opt-in and run through a small card-bound helper.
+
+It is meant for people who use Linux on a desktop PC and want what tools like MSI Afterburner, HWiNFO, GPU-Z and the Windows Task Manager offer on Windows: gamers checking temperatures and clocks under load, people building or tuning a PC, and anyone who wants to know what their machine is doing without opening several terminal tools.
 
 [Latest release](https://github.com/bejulian1/agentic-rigg/releases/latest) · [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Contributors](CONTRIBUTORS.md)
 
-> **Renamed:** The app was called *Agentic Rigg* up to and including 1.6.0. Only the display name changed. The repository, the `agentic-rigg` commands, the app ID `io.github.AgenticRigg` and every path keep their names, so settings, history, logs and an already authorized GPU helper carry over unchanged.
+<a href="docs/images/overview.png"><img src="docs/images/overview.png" alt="Overview page: tiles for processor, GPU, memory, VRAM, drives and network, a drive warning, and one-minute graphs for usage, temperatures, GPU power, memory, disk I/O and network (simulated data)" width="880"></a>
 
-> **Languages:** The interface is available in 11 languages: Norwegian Bokmål, English, German, French, Spanish, Portuguese (Brazil), Italian, Polish, Swedish, Simplified Chinese and Japanese. By default it follows your system language; you can change it under `Settings › General › Language`. Issues and pull requests are welcome in English or Norwegian.
+> **Renamed:** Up to and including 1.6.0 the app was called *Agentic Rigg*. Only the display name changed. The repository, the `agentic-rigg` commands, the app ID `io.github.AgenticRigg` and all paths are unchanged, so settings, history, logs and an authorized GPU helper carry over.
 
-<table>
-  <tr><th>Fans</th><th>Clocks &amp; Power</th><th>RGB lighting</th></tr>
-  <tr>
-    <td><a href="docs/images/vifter.png"><img src="docs/images/vifter.png" alt="Fans page with Simple and Advanced views" width="320"></a></td>
-    <td><a href="docs/images/klokker.png"><img src="docs/images/klokker.png" alt="Clocks and Power page with live readings and GPU tuning" width="320"></a></td>
-    <td><a href="docs/images/rgb.png"><img src="docs/images/rgb.png" alt="Card lighting with the 2D card preview, mode, colour and brightness controls, Keep and Roll back (simulated data)" width="320"></a></td>
-  </tr>
-</table>
+## Contents
 
-*Real GTK 4 screenshots from private test sessions with simulated hardware data. Click an image for full size.*
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [Requirements](#requirements)
+- [Install](#install)
+- [Upgrade](#upgrade)
+- [GPU control and RGB lighting](#gpu-control-and-rgb-lighting)
+- [Safety model for GPU control](#safety-model-for-gpu-control)
+- [Architecture](#architecture)
+- [Privacy](#privacy)
+- [Status and roadmap](#status-and-roadmap)
+- [Contributing, security and license](#contributing-security-and-license)
 
 ## Features
 
 | Page | What it shows |
 |---|---|
-| Overview | CPU, GPU, RAM, VRAM, disk and network tiles, a status bar for notable events, and graphs from 1 minute to 48 hours |
+| Overview | CPU, GPU, RAM, VRAM, drive and network tiles, a status bar for warnings, and graphs from 1 minute to 48 hours |
 | Sensors | Live sensor table with min, max and average, sparklines and CSV logging |
-| Graphs | Synchronized cursor, pause, CSV export and adaptive axes |
-| Tasks | Linux processes with CPU, memory (RSS) and GPU memory, search, sorting, a process tree and confirmed termination (`Ctrl+Shift+Esc`) |
-| Graphics card | NVML data: clocks, power, PCIe link, VBIOS, fans, limits and GPU processes, plus a clearly separated reference table |
+| Charts | Synchronized cursor, pause, CSV export, and temperature axes that always reach at least 100 °C |
+| Tasks | Processes grouped by app or as a list or tree, with CPU, private memory, swap and GPU memory; a detail panel with command line, start time, CPU time, PSS/USS, disk I/O and systemd unit; a RAM breakdown; confirmed termination (`Ctrl+Shift+Esc`) |
+| Graphics card | NVML data: clocks, power, PCIe link, VBIOS, fans, limits and GPU processes, with reference data kept separate |
 | Processor | Per-thread clock and load, cache topology, instruction sets, vulnerabilities and launch dates for known models; follows CPU hotplug |
-| Disks | SMART/NVMe health via UDisks2, temperature, power-on time, wear, I/O and partitions |
+| Drives | SMART/NVMe health via UDisks2, temperature, power-on time, wear, I/O and partitions |
+| Network | Active connection, current and total traffic, routing and DNS, Wi-Fi signal, frequency and security, one expandable row per interface with addresses, hardware, counters and a graph, and listening ports |
 | System | Motherboard, BIOS, memory, operating system and controllers |
-| Clocks & Power, Fans | Opt-in NVML control of power limit, core/memory clock offset, temperature target and fans (Simple/Advanced views, curves, drafts and profiles) |
-| RGB lighting | Card-bound lighting control for the Palit GeForce RTX 2080 Super JetStream: static colour, off, brightness, breathing, rainbow and colour cycle, with a 2D or 3D card that previews the chosen light |
+| Clocks & Power, Fans | Opt-in NVML control of power limit, core and memory clock offsets, temperature target and fans: Basic and Advanced views, fan curves with hysteresis, drafts and profiles |
+| RGB lighting | Card-bound lighting control for the Palit GeForce RTX 2080 Super JetStream: static colour, off, brightness, breathing, rainbow and colour cycle, with a 2D or 3D card that previews the choice |
 
-Readings come from `/proc`, sysfs/DMI, hwmon, UDisks2 and NVIDIA NVML. Available fields depend on your hardware and drivers; anything missing or unsupported is shown as unknown rather than made up. Reference data is kept separate from live measurements.
+Readings come from `/proc`, sysfs/DMI, hwmon, UDisks2, NetworkManager and NVIDIA NVML. What is available depends on your hardware and drivers. Missing or unsupported values are shown as unknown, never estimated.
 
-## Requirements and verified platform support
+**Languages:** the interface is available in 11 languages: Norwegian Bokmål, English, German, French, Spanish, Portuguese (Brazil), Italian, Polish, Swedish, Simplified Chinese and Japanese. It follows the system language by default; change it under `Settings › General › Language`.
 
-- **Prebuilt release:** Ubuntu 26.04 (`amd64`), GTK ≥ 4.22, glibc ≥ 2.39. Older releases are not verified.
-- **GPU:** NVIDIA GPUs via NVML (`libnvidia-ml.so.1`, part of the NVIDIA driver). **AMD and Intel GPU backends are not implemented.** Without an NVIDIA driver, the CPU, memory, disk and system views still work.
-- **RGB lighting:** only the Palit GeForce RTX 2080 Super JetStream (Palit 100 controller) is supported. Other cards show an empty state; the app never scans for or writes to unknown I2C devices.
-- **Desktop:** developed on Ubuntu / GNOME / Wayland. The optional tray icon needs GNOME's AppIndicator extension (enabled by default on Ubuntu).
+## Screenshots
+
+All screenshots are real GTK 4 windows from private test sessions with **simulated data**: a simulated RTX 2080 under game load, simulated drives and network interfaces (documentation addresses), and an invented process list. Click an image for full size.
+
+<table>
+  <tr><th>Tasks</th><th>Network</th></tr>
+  <tr>
+    <td><a href="docs/images/tasks.png"><img src="docs/images/tasks.png" alt="Tasks page with processes grouped by app, an expanded rustc group and the detail panel for one process (simulated data)" width="430"></a></td>
+    <td><a href="docs/images/network.png"><img src="docs/images/network.png" alt="Network page with the active Ethernet connection, routing and DNS, Wi-Fi details and an expanded interface row (simulated data)" width="430"></a></td>
+  </tr>
+  <tr><th>Fans</th><th>Clocks &amp; Power</th></tr>
+  <tr>
+    <td><a href="docs/images/fans.png"><img src="docs/images/fans.png" alt="Fans page in the Advanced view with a draft fan curve, control points and the current reading (simulated GPU)" width="430"></a></td>
+    <td><a href="docs/images/clocks-power.png"><img src="docs/images/clocks-power.png" alt="Clocks and Power page with live readings and a draft that raises the power limit and both clock offsets (simulated GPU)" width="430"></a></td>
+  </tr>
+  <tr><th>RGB lighting</th><th>Overview, dark theme</th></tr>
+  <tr>
+    <td><a href="docs/images/rgb-lighting.png"><img src="docs/images/rgb-lighting.png" alt="RGB lighting page with the 2D card preview, mode, colour and brightness controls, and a pending test with Keep and Roll back (simulated RGB data)" width="430"></a></td>
+    <td><a href="docs/images/overview-dark.png"><img src="docs/images/overview-dark.png" alt="Overview page in the dark theme (simulated data)" width="430"></a></td>
+  </tr>
+</table>
+
+## Requirements
+
+- **Prebuilt release:** Ubuntu 26.04 (`amd64`) with GTK ≥ 4.22 and glibc ≥ 2.39. Other distributions and older Ubuntu releases are not verified.
+- **GPU:** NVIDIA GPUs through NVML (`libnvidia-ml.so.1`, part of the NVIDIA driver). **AMD and Intel GPU backends are not implemented.** Without an NVIDIA driver, the CPU, memory, drive, network and system pages still work.
+- **RGB lighting:** only the Palit GeForce RTX 2080 Super JetStream (Palit 100 controller). Other cards show an empty state; the app never scans or writes to unknown I2C devices.
+- **Desktop:** developed on Ubuntu with GNOME on Wayland. The optional tray icon needs GNOME's AppIndicator extension, which Ubuntu enables by default.
 - **Building from source:** Rust ≥ 1.92 (edition 2024), `cargo`, `pkgconf`, `libglib2.0-dev-bin`, `libgtk-4-dev` (`gtk4 >= 4.22`) and Python ≥ 3.11 (used at build time to embed the translation catalogs). The NVIDIA driver is not needed to build.
 
-## Installation
+## Install
+
+The normal install is per user and needs no `sudo`. It gives you all the monitoring pages. GPU control and RGB lighting are added later, from inside the app, if you want them (see [GPU control and RGB lighting](#gpu-control-and-rgb-lighting)).
 
 ### From a GitHub release
 
-Download the archive and `SHA256SUMS` from the [latest release](https://github.com/bejulian1/agentic-rigg/releases/latest), then:
+Download the `.tar.gz` archive and `SHA256SUMS` from the [latest release](https://github.com/bejulian1/agentic-rigg/releases/latest), then run:
 
 ```bash
 sha256sum --check SHA256SUMS
 tar -xzf agentic-rigg-*.tar.gz
 cd agentic-rigg-*/
 ./install.sh --bin-dir "$PWD/bin"
-~/.local/bin/agentic-rigg
 ```
+
+Start the app from the application menu (*Agentic HW Monitor*) or with `~/.local/bin/agentic-rigg`.
 
 ### From source
 
@@ -70,45 +103,52 @@ cd agentic-rigg
 
 ### What the user install does
 
-- **No `sudo`:** everything goes under `~/.local` (binaries, icons, the menu entry and the user service `agentic-riggd.service`). Existing settings and history are kept.
-- **Nothing starts at login by default.** The window starts the background service on demand; background recording and autostart can be enabled under `Settings › General`.
-- **No GPU or RGB access.** Monitoring needs no privileges. Hardware control requires the separate system installation below.
-- **Updating:** close the app and run `./install.sh` again from a new archive or after `git pull`.
-- **Uninstalling:** turn off GPU control and card lighting in the app first, then run `./uninstall.sh`. It keeps your settings (`~/.config/agentic-rigg/`) and history (`~/.local/state/agentic-rigg/`), and refuses to continue while a root helper is still active.
+- Everything goes under `~/.local`: the binaries, icons, the menu entry and the user service `agentic-riggd.service`.
+- **Nothing starts at login by default.** The window starts the background service when it needs it. Background recording and autostart can be turned on under `Settings › General`.
+- **No GPU or RGB access.** Monitoring needs no privileges.
 
-### Optional: system components for GPU control and RGB lighting
+### Uninstall
 
-GPU control and RGB lighting run in small root helpers. Like MSI Afterburner's driver on Windows, they are installed with one administrator approval. Turn on **Allow GPU tuning** under `Settings › GPU control`, or press **Enable card lighting…** on the RGB lighting page, and enter the administrator password once. If the helpers are missing or outdated, the installer, running as root:
+Turn off GPU control and card lighting in the app first, then run `./uninstall.sh` from the release folder or the source checkout. It keeps your settings (`~/.config/agentic-rigg/`) and history (`~/.local/state/agentic-rigg/`), and refuses to continue while a root helper is still active. To remove the system components as well, run `sudo /usr/local/libexec/agentic-rigg-system/system-install --uninstall` after turning both helpers off.
 
-1. downloads the release matching the app's own version from GitHub into a new root-owned directory,
-2. verifies it against the SHA-256 checksum GitHub publishes for that exact file (the one shown on the release page),
-3. only then runs the installer from that verified copy, and enables the access you asked for in the same step.
+## Upgrade
 
-Nothing from your home directory is executed as root. Without a network connection, the same steps are available as a terminal command under *Offline: use a terminal*, where you give the archive path and the SHA-256 yourself.
+1. Close the app (and quit it from the tray icon if background recording is on).
+2. Download and verify the new release as above, then run `./install.sh --bin-dir "$PWD/bin"` from the new folder. From source: `git pull` and `./install.sh`.
+3. Start the app again. Settings, history, logs and profiles are kept.
 
-Each enable/disable action asks for the administrator password through polkit; the authorization is not remembered. To remove everything later: turn off both helpers in the app, then run `sudo /usr/local/libexec/agentic-rigg-system/system-install --uninstall` and `./uninstall.sh`.
+**GPU helper after upgrading:** the root helper is checked against the app on every start. A helper from **before build 32** (releases up to 1.5.6) is shown as outdated, because 1.6.0 (build 32) contains security fixes in the helper. Turn on **Allow GPU tuning** under `Settings › GPU control` and enter the administrator password once. The app downloads the matching release, verifies it and updates the system components. A helper from build 32 or newer keeps working without a new password, as long as the release notes do not say otherwise. The RGB helper has its own minimum build (29); if it is outdated, the RGB lighting page offers the update the same way.
 
-Building the system components from source and the trust model are described in [docs/produksjon/rgb-hjelper.md](docs/produksjon/rgb-hjelper.md) and [docs/produksjon/hjelper-sikkerhet.md](docs/produksjon/hjelper-sikkerhet.md) (Norwegian).
+The app never installs a system component older than the one already installed.
 
-## Safety model for GPU control and RGB
+## GPU control and RGB lighting
 
-- **Card-bound helpers.** Each helper is bound to the selected GPU by PCI address and NVML UUID and checks that identity before every write. It accepts only a fixed set of operations from your own user (checked with `SO_PEERCRED`) over a private socket. Requests with duplicate or unknown fields are rejected.
-- **Apply, then Keep.** Edits are drafts until you press **Apply**. Unless you press **Keep** within the deadline (15 s), the helper rolls back automatically. Lost heartbeats, a closed app, sleep gaps and stopping the service also trigger a rollback.
-- **Saved starting point.** Before the first change, the helper records the card's own settings (GPU) or a static colour you confirmed by looking at the card (RGB). **Restore** returns to that starting point. Failed or unverifiable restores lock further changes and are reported as they are.
-- **RGB specifics.** The RGB helper identifies the Palit controller by its PCI device, NVIDIA I2C port, sysfs path and controller signature, never by bus number. Its systemd sandbox can open only that one I2C device. Effects are computed in the helper and sent as plain colour writes; an external colour change stops an animation. Because the effect mode cannot be read back, the final restore asks you to confirm what you see.
-- **Not changed by the app:** CPU, motherboard fans, kernel modules and system packages.
+GPU control and RGB lighting run in small root helpers, installed with one administrator approval, much like MSI Afterburner's driver on Windows. To turn them on, enable **Allow GPU tuning** under `Settings › GPU control`, or press **Apply** on the RGB lighting page, and enter the administrator password in the polkit dialog. If the helpers are missing or outdated, the installer runs as root and:
 
-### What has been verified on hardware
+1. downloads the release that matches the app's own version from GitHub into a new root-owned directory,
+2. verifies it against the SHA-256 checksum GitHub publishes for that file,
+3. only then runs the installer from that verified copy and enables the access you asked for.
 
-- **GPU control (RTX 2080, NVML):** these writes were verified with fresh readback and restore:
-  - power limit 245 → 240 W
-  - both fans to 50 %
-  - core offset −15 MHz and memory offset −10 MHz
-  - a flat 50 % fan curve
-  - temperature target 83 → 82 °C
-  - Keep, reset and the 10 s timeout rollback through the daemon
-- **RGB (Palit RTX 2080 Super JetStream):** a static blue at 100 % brightness was applied and automatically restored to the original green. The user confirmed both visually.
-- **Not verified:** extreme limits, positive overclocking, stress tests, driver crashes, power loss, automatic Zero RPM, other NVIDIA models, and other RGB controllers.
+Nothing from your home directory is executed as root. Without a network connection, the same steps are available as a terminal command under *Offline: use a terminal*, where you give the archive path and the SHA-256 yourself. Each enable or disable action asks for the password through polkit; the authorization is not remembered.
+
+Building the system components from source and the full trust model are described in [docs/produksjon/rgb-hjelper.md](docs/produksjon/rgb-hjelper.md) and [docs/produksjon/hjelper-sikkerhet.md](docs/produksjon/hjelper-sikkerhet.md) (Norwegian).
+
+## Safety model for GPU control
+
+Changing clocks, power and fans can make a card unstable, so every write goes through the same rules:
+
+- **Card-bound helper.** The helper is bound to one GPU by PCI address and NVML UUID and checks that identity before every write. It accepts a fixed set of operations, only from your own user (checked with `SO_PEERCRED`) over a private socket, and rejects requests with duplicate or unknown fields. Values outside the limits the card reports are rejected.
+- **Draft, Apply, Keep.** Changes are drafts until you press **Apply**. Unless you press **Keep** within 15 seconds, the helper rolls back on its own. Lost heartbeats, a closed app, a sleep gap or a stopped service also roll back. Deadlines follow a monotonic clock, so changing the system time does not affect them.
+- **Saved starting point.** Before the first change the helper records the card's own settings. **Restore original settings** returns to them. A restore that fails or cannot be verified locks further changes and is reported as it is.
+- **Thermal protection.** Above 85 °C the fans go to 100 %, and the curve cannot turn this off. If a restore has failed, the helper keeps reading the temperature and retries the card's defaults with automatic fans.
+- **RGB.** The RGB helper is a separate service with its own permission. It finds the Palit controller by PCI device, NVIDIA I2C port, sysfs path and controller signature, never by bus number, and its systemd sandbox can open only that one I2C device. Because the effect mode cannot be read back, the final restore asks you to confirm what you see on the card.
+- **Out of scope:** the app does not change the CPU, motherboard fans, kernel modules or system packages.
+
+### Verified on hardware
+
+- **GPU control (RTX 2080, NVML):** power limit 245 → 240 W, both fans to 50 %, core offset −15 MHz and memory offset −10 MHz, a flat 50 % fan curve, temperature target 83 → 82 °C, and Keep, reset and the timeout rollback through the daemon. Each write was verified by reading it back and restoring.
+- **RGB (Palit RTX 2080 Super JetStream):** a static blue at 100 % brightness was applied and automatically restored to the original green, confirmed visually by the user.
+- **Not verified:** extreme limits, positive overclocking, stress tests, driver crashes, power loss, automatic Zero RPM, other NVIDIA models and other RGB controllers. The safety fixes in 1.6.0 have been tested against simulated cards only.
 
 ## Architecture
 
@@ -117,7 +157,7 @@ The Rust workspace is in [`app/`](app/):
 | Crate | Binary | Responsibility |
 |---|---|---|
 | [`rigg`](app/crates/rigg) | `agentic-rigg` | GTK 4 user interface. Never loads NVML and never talks to the root helpers directly. |
-| [`riggd`](app/crates/riggd) | `agentic-riggd` | Unprivileged user daemon: NVML, `/proc`, `/sys`, hwmon, UDisks2, processes, 48 h history, CSV logging, alerts, the tray icon and the per-user socket. |
+| [`riggd`](app/crates/riggd) | `agentic-riggd` | Unprivileged user daemon: NVML, `/proc`, `/sys`, hwmon, UDisks2, NetworkManager, processes, 48 h history, CSV logging, alerts, the tray icon and the per-user socket. |
 | [`rigg-helper`](app/crates/rigg-helper) | `agentic-rigg-helper` | Optional, card-bound root helper for NVML writes and, as a separate service, Palit RGB. Minimal dependencies. |
 | [`rigg-core`](app/crates/rigg-core) | — | Data model, IPC protocol, history, settings, formatting, translations (`i18n`) and helper compatibility checks. |
 | [`rigg-hw`](app/crates/rigg-hw) | — | Hardware readers and writers, plus a simulated backend used only by isolated tests. |
@@ -126,26 +166,23 @@ Translations are gettext `.po` catalogs under [`app/data/i18n/`](app/data/i18n/)
 
 ## Privacy
 
-Everything runs locally. The app sends no telemetry or crash reports and never connects to the network on its own. The only network access is when you press **Install system components**: the administrator installer then downloads that release from GitHub. CSV logs and reports are written only where you choose. Hardware serial numbers and UUIDs are hidden in exported reports unless you opt in.
+Everything runs locally. The app sends no telemetry or crash reports and does not connect to the network on its own. The only network access is when you enable GPU control or card lighting and the helpers need to be installed or updated: the administrator installer then downloads that release from GitHub. CSV logs and reports are written only where you choose. Hardware serial numbers and UUIDs are hidden in exported reports unless you opt in.
 
 ## Status and roadmap
 
-See [CHANGELOG.md](CHANGELOG.md) for the release history. Known limits and ideas:
+See [CHANGELOG.md](CHANGELOG.md) for the release history (in Norwegian) and the [Releases](https://github.com/bejulian1/agentic-rigg/releases) page for downloads and release notes. Known limits and ideas:
 
 - AMD and Intel GPU backends.
 - More RGB controllers. Each needs its own controller identification and an explicit hardware test.
 - Per-process GPU utilisation in Tasks (GPU memory is shown today).
-- RAM module (SPD), display and network adapter details. Motherboard sensor kernel modules (`nct6775` etc.) are not loaded by the app.
+- RAM module (SPD) and display details. Motherboard sensor kernel modules (`nct6775` and others) are not loaded by the app.
+- Signed `SHA256SUMS` for releases (issue #19).
 
-## Contributing
+## Contributing, security and license
 
-Contributions are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) covers build setup, test isolation, hardware-safety rules, translations and the pull request checklist. Participation follows the [Code of Conduct](CODE_OF_CONDUCT.md).
+Contributions are welcome, in English or Norwegian. [CONTRIBUTING.md](CONTRIBUTING.md) covers build setup, test isolation, hardware-safety rules, translations and the pull request checklist. Participation follows the [Code of Conduct](CODE_OF_CONDUCT.md).
 
-## Security
-
-Please report vulnerabilities privately via [GitHub Security Advisories](https://github.com/bejulian1/agentic-rigg/security/advisories/new). See [SECURITY.md](SECURITY.md).
-
-## License
+Please report vulnerabilities privately through [GitHub Security Advisories](https://github.com/bejulian1/agentic-rigg/security/advisories/new). See [SECURITY.md](SECURITY.md).
 
 [MIT](LICENSE). UI icons are from [Lucide](https://lucide.dev) (ISC) with some [Feather](https://feathericons.com) icons (MIT). Third-party notices are in [app/data/LISENSER.md](app/data/LISENSER.md) and ship with the release packages.
 
