@@ -138,7 +138,7 @@ msgstr "Äldre mätning · {verdi} s"
 
 #: crates/rigg/src/pages/oppgaver.rs:510
 msgid "Oppdateres hvert 2. sekund · prøve {verdi} s gammel"
-msgstr "Uppdateras varannan sekund · mätningen är {verdi} s gammal"
+msgstr "Uppdateras varannan sekund · mätning {verdi} s gammal"
 
 #: crates/rigg/src/pages/oppgaver.rs:517
 msgid " · {unreadable} utilgjengelige"
@@ -270,7 +270,7 @@ msgstr "Medelklocka över alla trådar: {snitt}. Högsta: {maks}. Temperatur (Td
 
 #: crates/rigg/src/pages/oppgaver.rs:825
 msgid "Last {verdier}"
-msgstr "Belastning {verdier}"
+msgstr "Last {verdier}"
 
 #: crates/rigg/src/pages/oppgaver.rs:826
 msgid "Gjennomsnittlig belastning (load average) siste 1, 5 og 15 minutter: prosesser som kjører eller venter. 16 tilsvarer full last på 16 tråder."

@@ -142,7 +142,7 @@ msgstr "Kort {i} av {gpus}"
 
 #: crates/rigg/src/sidebar.rs:976
 msgid "driver {d}"
-msgstr "drivrutin {d}"
+msgstr "drivare {d}"
 
 #: crates/rigg/src/sidebar.rs:981
 msgid "Tjenesten svarer ikke"
