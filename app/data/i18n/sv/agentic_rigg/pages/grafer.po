@@ -76,20 +76,20 @@ msgstr "Exportera historik som CSV"
 msgid "Eksporter"
 msgstr "Exportera"
 
-#: crates/rigg/src/pages/grafer.rs:472
+#: crates/rigg/src/pages/grafer.rs:473
 msgid "Historikken er eksportert"
 msgstr "Historiken har exporterats"
 
-#: crates/rigg/src/pages/grafer.rs:473
+#: crates/rigg/src/pages/grafer.rs:474
 msgid "{fname} · {antall} rader, {periode}"
 msgid_plural "{fname} · {antall} rader, {periode}"
 msgstr[0] "{fname} · {antall} rad, {periode}"
 msgstr[1] "{fname} · {antall} rader, {periode}"
 
-#: crates/rigg/src/pages/grafer.rs:475
+#: crates/rigg/src/pages/grafer.rs:476
 msgid "Vis i Filer"
 msgstr "Visa i Filer"
 
-#: crates/rigg/src/pages/grafer.rs:480
+#: crates/rigg/src/pages/grafer.rs:481
 msgid "Kunne ikke lagre fila"
 msgstr "Det gick inte att spara filen"

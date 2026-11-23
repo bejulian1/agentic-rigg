@@ -132,7 +132,7 @@ msgstr "Bibliotek"
 
 #: crates/rigg-core/src/easter.rs:289
 msgid "Alle punktene står på 35 %, så lavt kortet tillater. Hysj."
-msgstr "Alla punkter står på 35 %, så lågt som kortet tillåter. Hyss."
+msgstr "Alla punkter står på 35 %, så lågt som kortet tillåter. Schh."
 
 #: crates/rigg-core/src/easter.rs:297
 msgid "{navn} {versjon} · bygg {bygg}\nHei, nysgjerrige utvikler. Alt her leser bare; ingenting sendes til skjermkortet.\nDet finnes {antall} små overraskelser – agentic-rigg --hint gir et hint."

@@ -154,7 +154,7 @@ msgstr "Nödparkeringar"
 
 #: crates/rigg-core/src/disk.rs:244
 msgid "Lastesykluser"
-msgstr "Laddningscykler"
+msgstr "Parkeringscykler"
 
 #: crates/rigg-core/src/disk.rs:245
 msgid "Temperatur"

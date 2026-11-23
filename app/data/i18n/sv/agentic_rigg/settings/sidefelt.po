@@ -103,7 +103,7 @@ msgstr "Inget värde heter ”{sok}”"
 
 #: crates/rigg/src/settings/sidefelt.rs:235
 msgid "Full"
-msgstr "Full"
+msgstr "Hel"
 
 #: crates/rigg/src/settings/sidefelt.rs:235
 msgid "Ikonlist"
