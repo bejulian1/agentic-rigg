@@ -12,6 +12,7 @@ use crate::widgets::icon::Icon;
 use crate::widgets::seg::Seg;
 use crate::widgets::spark::SparkOpts;
 use crate::widgets::{Spark, class, hbox, label, set_text, vbox};
+use gtk::subclass::prelude::ObjectSubclassIsExt;
 use gtk::{glib, prelude::*};
 use rigg_core::fmt as F;
 use rigg_core::process::{ProcessDetail, ProcessIdentity, ProcessRow, ProcessTotals, Restricted};
@@ -126,6 +127,7 @@ struct State {
     mem_bar: gtk::DrawingArea,
     mem_split: Rc<Cell<MemSplit>>,
     detail_scroll: gtk::ScrolledWindow,
+    detail_note: gtk::Label,
     detail_items: Vec<DetailItem>,
     detail: RefCell<Option<ProcessDetail>>,
     detail_gpu: Cell<Option<u64>>,
@@ -647,6 +649,7 @@ impl State {
         for item in &self.detail_items {
             show_item(&item.item, false);
         }
+        self.detail_note.set_visible(row.is_some_and(|r| r.group_count == 0 && !r.kernel));
         let Some(row) = row else {
             self.detail_scroll.set_visible(false);
             return;
@@ -691,9 +694,12 @@ impl State {
         self.set_item("nice", &d.and_then(|d| d.nice).map_or_else(|| "–".to_string(), |n| n.to_string()), Some(tr!("Nice-verdi: −20 er høyest prioritet, 19 lavest.")));
         self.set_item("private", &bytes(d.and_then(|d| d.private_bytes).or(row.private_bytes)), Some(tr!("Privat minne i RAM (RssAnon): heap, stakk og andre anonyme sider. Dette er kolonnen Minne.")));
         let pss_tip = if restricted(Restricted::Smaps) { restricted_tip } else { tr!("PSS: privat minne pluss en rettferdig andel av delte sider. Summen over alle prosesser gir brukt minne uten dobbeltelling.") };
-        self.set_item("pss", &or_denied(bytes(d.and_then(|d| d.pss_bytes)), Restricted::Smaps), Some(pss_tip));
         let uss_tip = if restricted(Restricted::Smaps) { restricted_tip } else { tr!("USS: sider bare denne prosessen bruker. Frigjøres når prosessen avsluttes.") };
-        self.set_item("uss", &or_denied(bytes(d.and_then(|d| d.uss_bytes)), Restricted::Smaps), Some(uss_tip));
+        // PSS og USS leses i bakgrunnen og kommer med neste svar.
+        let pending_smaps = d.is_some() && !restricted(Restricted::Smaps) && d.is_some_and(|d| d.pss_bytes.is_none());
+        let smaps_text = |v: Option<u64>| if pending_smaps { tr!("leser …").to_string() } else { or_denied(bytes(v), Restricted::Smaps) };
+        self.set_item("pss", &smaps_text(d.and_then(|d| d.pss_bytes)), Some(pss_tip));
+        self.set_item("uss", &smaps_text(d.and_then(|d| d.uss_bytes)), Some(uss_tip));
         self.set_item("shared", &bytes(d.and_then(|d| d.shared_bytes).or(row.shared_bytes)), Some(tr!("Delte sider i RAM: biblioteker, filer og delt minne. Telles hos alle prosessene som bruker dem.")));
         self.set_item("rss", &bytes(d.and_then(|d| d.rss_bytes).or(row.rss_bytes)), Some(tr!("RSS: privat minne pluss delte sider. Kan ikke summeres over prosesser.")));
         self.set_item("swap", &bytes(d.and_then(|d| d.swap_bytes).or(row.swap_bytes)), None);
@@ -932,6 +938,160 @@ fn state_name(state: &str) -> &str {
         other => other,
     }
 }
+// ---------------------------------------------------------------- Raden som layout
+
+/// Navnekolonnen viser minst så mye før en kolonne skjules.
+const NAME_MIN: i32 = 140;
+/// Plass til pilen foran navnet i gruppevisning, når kolonner skjules.
+const LEAD_RESERVE: i32 = 24;
+/// Under dette krymper navnet ikke mer (vinduets minste bredde).
+const NAME_FLOOR: i32 = 64;
+/// Kolonnene som skjules først når bredden ikke strekker til: GPU-minne,
+/// Swap og Bruker. PID, CPU, Minne og Status står alltid.
+const HIDE_ORDER: [usize; 3] = [6, 5, 2];
+
+/// Kolonnene i en rad: `lead` er pilen foran navnet (0 når den ikke vises),
+/// `fixed[i]` er kolonnenes faste bredde (kolonne 0, navnet, får resten).
+/// `None` er en skjult kolonne. Samme regel for overskriften og radene, så
+/// kolonnene står likt uansett innhold (lange brukernavn flytter ingenting).
+fn task_layout(width: i32, lead: i32, fixed: &[i32]) -> Vec<Option<(i32, i32)>> {
+    let mut hidden = [false; 8];
+    let columns = |hidden: &[bool; 8]| fixed.iter().enumerate().skip(1).filter(|(i, _)| !hidden[*i]).map(|(_, w)| w).sum::<i32>();
+    // Hvilke kolonner som skjules, avhenger bare av bredden, ikke av pilen
+    // foran navnet (den finnes bare i radene). Ellers kunne overskriften og
+    // radene skjule ulike kolonner og bli forskjøvet.
+    for column in HIDE_ORDER {
+        if width - LEAD_RESERVE - columns(&hidden) >= NAME_MIN {
+            break;
+        }
+        hidden[column] = true;
+    }
+    let name = (width - lead - columns(&hidden)).max(NAME_FLOOR);
+    let mut x = lead + name;
+    let mut out = vec![Some((lead, name))];
+    for (i, w) in fixed.iter().enumerate().skip(1) {
+        if hidden[i] {
+            out.push(None);
+        } else {
+            out.push(Some((x, *w)));
+            x += w;
+        }
+    }
+    out
+}
+
+mod row_imp {
+    use gtk::{glib, prelude::*, subclass::prelude::*};
+    use std::cell::Cell;
+
+    #[derive(Default)]
+    pub struct TaskRow {
+        /// Første barn er pilen foran navnet (radene, ikke overskriften).
+        pub lead: Cell<bool>,
+    }
+
+    #[glib::object_subclass]
+    impl ObjectSubclass for TaskRow {
+        const NAME: &'static str = "RiggTaskRow";
+        type Type = super::TaskRow;
+        type ParentType = gtk::Widget;
+
+        fn class_init(klass: &mut Self::Class) {
+            klass.set_css_name("taskrow");
+        }
+    }
+
+    impl ObjectImpl for TaskRow {
+        fn dispose(&self) {
+            while let Some(c) = self.obj().first_child() {
+                c.unparent();
+            }
+        }
+    }
+
+    impl TaskRow {
+        fn kids(&self) -> Vec<gtk::Widget> {
+            let mut v = Vec::new();
+            let mut c = self.obj().first_child();
+            while let Some(x) = c {
+                v.push(x.clone());
+                c = x.next_sibling();
+            }
+            v
+        }
+
+        /// (pilen, cellene): pilens bredde (0 når skjult) og cellenes minste
+        /// bredde. Cellene klipper med «…», så minstebredden avhenger bare av
+        /// skriften og kolonnens tegnbredde, ikke av teksten.
+        fn widths(&self, kids: &[gtk::Widget]) -> (i32, Vec<i32>) {
+            let (lead, cells) = if self.lead.get() { (kids.first(), &kids[1.min(kids.len())..]) } else { (None, kids) };
+            let lead = lead.filter(|w| w.is_visible()).map_or(0, |w| w.measure(gtk::Orientation::Horizontal, -1).0);
+            (lead, cells.iter().map(|w| w.measure(gtk::Orientation::Horizontal, -1).0).collect())
+        }
+    }
+
+    impl WidgetImpl for TaskRow {
+        fn measure(&self, o: gtk::Orientation, _f: i32) -> (i32, i32, i32, i32) {
+            let kids = self.kids();
+            if o == gtk::Orientation::Vertical {
+                let (mut min, mut nat) = (0, 0);
+                for w in kids.iter().filter(|w| w.is_visible()) {
+                    let (a, b, _, _) = w.measure(o, -1);
+                    min = min.max(a);
+                    nat = nat.max(b);
+                }
+                return (min, nat, -1, -1);
+            }
+            let (lead, cells) = self.widths(&kids);
+            let always: i32 = cells.iter().enumerate().skip(1).filter(|(i, _)| !super::HIDE_ORDER.contains(i)).map(|(_, w)| w).sum();
+            let all: i32 = cells.iter().skip(1).sum();
+            (lead + super::NAME_FLOOR + always, lead + super::NAME_MIN + 40 + all, -1, -1)
+        }
+
+        fn size_allocate(&self, width: i32, height: i32, _b: i32) {
+            let kids = self.kids();
+            let (lead, cells) = self.widths(&kids);
+            let layout = super::task_layout(width, lead, &cells);
+            let offset = usize::from(self.lead.get());
+            if self.lead.get()
+                && let Some(arrow) = kids.first()
+            {
+                arrow.size_allocate(&gtk::Allocation::new(0, 0, lead.max(arrow.measure(gtk::Orientation::Horizontal, -1).0), height), -1);
+            }
+            for (i, cell) in kids.iter().skip(offset).enumerate() {
+                match layout.get(i).copied().flatten() {
+                    Some((x, w)) => cell.size_allocate(&gtk::Allocation::new(x, 0, w, height), -1),
+                    // Skjult kolonne: utenfor raden (raden klipper).
+                    None => cell.size_allocate(&gtk::Allocation::new(width + 50, 0, cells[i].max(1), height), -1),
+                }
+            }
+        }
+    }
+}
+
+glib::wrapper! {
+    /// En rad i oppgavetabellen (og overskriften): kolonnene regnes ut fra
+    /// bredden, likt i alle radene.
+    pub struct TaskRow(ObjectSubclass<row_imp::TaskRow>) @extends gtk::Widget, @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget;
+}
+
+impl TaskRow {
+    fn new(lead: bool, classes: &[&str]) -> TaskRow {
+        let r: TaskRow = glib::Object::new();
+        r.imp().lead.set(lead);
+        r.set_overflow(gtk::Overflow::Hidden);
+        r.set_hexpand(true);
+        for c in classes {
+            r.add_css_class(c);
+        }
+        r
+    }
+
+    fn add(&self, child: &impl IsA<gtk::Widget>) {
+        child.set_parent(self);
+    }
+}
+
 fn cell(text: &str, width: i32, first: bool) -> gtk::Label {
     let l = label(text, &["task-cell", "num"]);
     l.set_width_request(width);
@@ -1072,7 +1232,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     root.append(&controls);
     let table = vbox(0, &["task-table"]);
     table.set_vexpand(true);
-    let heads = hbox(0, &["task-header"]);
+    let heads = TaskRow::new(false, &["task-header"]);
     let mut headers = Vec::new();
     let columns = columns();
     // Minste bredde i tegn per kolonne, så den følger skriftstørrelsen: den
@@ -1089,14 +1249,14 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     for (i, (_, title, width)) in columns.iter().enumerate() {
         let b = gtk::Button::new();
         b.add_css_class("task-sort");
-        let l = cell(title, *width, i == 0);
+        let l = cell(title, if i == 0 { -1 } else { *width }, i == 0);
         l.set_width_chars(min_chars[i]);
         b.set_child(Some(&l));
-        b.set_hexpand(i == 0);
-        heads.append(&b);
+        heads.add(&b);
         headers.push(b);
     }
-    // Hele tabellen deler én horisontal rulleflate, så kolonnene følger overskriftene.
+    // Kolonnene regnes ut fra bredden (TaskRow); smale vinduer skjuler
+    // GPU-minne, Swap og Bruker i stedet for å rulle sidelengs.
     let list = gtk::ListBox::new();
     list.add_css_class("task-rows");
     list.set_selection_mode(gtk::SelectionMode::Single);
@@ -1104,24 +1264,22 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     for _ in 0..LIMIT {
         let row = gtk::ListBoxRow::new();
         row.add_css_class("task-row");
-        let line = hbox(0, &[]);
+        let line = TaskRow::new(true, &[]);
         let arrow = Icon::new("chevron-right", 14);
         let expander = gtk::Button::new();
         expander.set_child(Some(&arrow));
         expander.add_css_class("task-expander");
         expander.set_valign(gtk::Align::Center);
         expander.set_visible(false);
-        line.append(&expander);
+        line.add(&expander);
         let mut cells = Vec::new();
         for (i, (_, _, width)) in columns.iter().enumerate() {
-            let l = cell("", *width, i == 0);
+            let l = cell("", if i == 0 { -1 } else { *width }, i == 0);
             l.set_width_chars(min_chars[i]);
             if i == 0 {
                 l.add_css_class("task-name");
-                // Pilen tar plass fra navnekolonnen, så de andre kolonnene står likt.
-                l.set_width_request(*width - 24);
             }
-            line.append(&l);
+            line.add(&l);
             cells.push(l);
         }
         row.set_child(Some(&line));
@@ -1139,13 +1297,9 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     inner.append(&heads);
     inner.append(&vertical);
     inner.set_vexpand(true);
-    let horizontal = gtk::ScrolledWindow::new();
-    horizontal.set_vexpand(true);
-    horizontal.set_vscrollbar_policy(gtk::PolicyType::Never);
-    horizontal.set_child(Some(&inner));
     let overlay = gtk::Overlay::new();
     overlay.set_vexpand(true);
-    overlay.set_child(Some(&horizontal));
+    overlay.set_child(Some(&inner));
     let empty = label(tr!("Leser oppgaver …"), &["muted", "task-empty"]);
     empty.set_halign(gtk::Align::Center);
     empty.set_valign(gtk::Align::Center);
@@ -1258,6 +1412,16 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     detail_scroll.set_child(Some(&detail_flow));
     detail_scroll.set_visible(false);
     footer.append(&detail_scroll);
+    // De tre minnetallene forklart der de står, ikke bare i verktøytips.
+    let detail_note = label(
+        tr!("Privat minne: prosessens anonyme sider i RAM (kolonnen Minne). USS: alle sider bare denne prosessen bruker, også egne filsider. PSS: USS pluss en andel av delte sider."),
+        &["muted", "sm", "task-detail-note"],
+    );
+    detail_note.set_xalign(0.0);
+    detail_note.set_wrap(true);
+    detail_note.set_wrap_mode(gtk::pango::WrapMode::WordChar);
+    detail_note.set_visible(false);
+    footer.append(&detail_note);
     root.append(&footer);
     let bottom = hbox(12, &["task-bottom"]);
     let note = label(
@@ -1319,6 +1483,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         mem_bar,
         mem_split,
         detail_scroll,
+        detail_note,
         detail_items,
         detail: RefCell::new(None),
         detail_gpu: Cell::new(None),
@@ -1492,3 +1657,43 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     }
     Box::new(Oppgaver { root, st })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const FIXED: [i32; 8] = [0, 70, 100, 70, 90, 80, 90, 90];
+
+    #[test]
+    fn kolonnene_star_likt_og_skjules_i_fast_rekkefolge() {
+        // Bredt nok: alt vises, og pilen tar plass fra navnet, ikke fra kolonnene.
+        let wide = task_layout(1200, 0, &FIXED);
+        let row = task_layout(1200, 24, &FIXED);
+        assert!(wide.iter().all(Option::is_some));
+        assert_eq!(wide[1..], row[1..], "overskrift og rad har samme kolonner");
+        assert_eq!(row[0], Some((24, 1200 - 24 - 590)));
+        assert_eq!(wide[7], Some((1200 - 90, 90)), "Status står helt til høyre");
+        // Smalere: GPU-minne skjules først, så Swap, så Bruker; Status står.
+        let hidden = |w: i32| task_layout(w, 0, &FIXED).iter().enumerate().filter(|(_, c)| c.is_none()).map(|(i, _)| i).collect::<Vec<_>>();
+        let edge = 590 + NAME_MIN + LEAD_RESERVE;
+        assert_eq!(hidden(edge), Vec::<usize>::new());
+        assert_eq!(hidden(edge - 1), [6]);
+        assert_eq!(hidden(edge - 91), [5, 6]);
+        assert_eq!(hidden(edge - 171), [2, 5, 6]);
+        // Overskriften (uten pil) og radene (med pil) skjuler alltid de samme kolonnene.
+        // Fra radens minste bredde (pil + navnets gulv + PID, CPU, Minne og Status).
+        for w in (24 + NAME_FLOOR + 320..1300).step_by(7) {
+            let head: Vec<bool> = task_layout(w, 0, &FIXED).iter().map(Option::is_some).collect();
+            let row: Vec<bool> = task_layout(w, 24, &FIXED).iter().map(Option::is_some).collect();
+            assert_eq!(head, row, "ved {w} px");
+            assert_eq!(task_layout(w, 0, &FIXED)[1..], task_layout(w, 24, &FIXED)[1..], "kolonnene står likt ved {w} px");
+        }
+        // Ned til minstebredden (navnets gulv + PID, CPU, Minne og Status)
+        // står Status innenfor raden.
+        for w in [NAME_FLOOR + 320, 520, 700, 1024] {
+            let status = task_layout(w, 0, &FIXED)[7].unwrap();
+            assert!(status.0 + status.1 <= w, "Status havner aldri utenfor ved {w} px");
+        }
+    }
+}
+

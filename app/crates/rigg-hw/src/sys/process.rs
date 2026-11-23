@@ -478,6 +478,21 @@ fn boot_time_s(root: &Path) -> Option<i64> {
         .and_then(|v| v.trim().parse().ok())
 }
 
+/// PSS og USS fra `smaps_rollup` for én prosess. Kjernen går gjennom hele
+/// adresserommet (titalls ms for store prosesser), så tjenesten leser dette
+/// utenfor hovedløkka. `Err(true)`: kjernen nekter (annen bruker eller root).
+/// Identiteten kontrolleres før og etter.
+pub fn smaps(root: &Path, identity: ProcessIdentity) -> Result<(Option<u64>, Option<u64>), bool> {
+    if read_identity(root, identity.pid) != Some(identity) {
+        return Err(false);
+    }
+    let text = read_restricted(&root.join(format!("proc/{}/smaps_rollup", identity.pid)))?;
+    if read_identity(root, identity.pid) != Some(identity) {
+        return Err(false);
+    }
+    Ok((status_kb(&text, "Pss"), sum_kb(&text, &["Private_Clean", "Private_Dirty"])))
+}
+
 /// Mer om én prosess for detaljfeltet. Felt som krever samme bruker eller
 /// root (exe, smaps_rollup og io), står som `None` og i `restricted` når
 /// kjernen nekter. Identiteten kontrolleres før og etter lesingen, så tallene
@@ -517,17 +532,6 @@ pub fn detail(root: &Path, identity: ProcessIdentity, now_ms: i64) -> Result<Pro
             }
         }
     };
-    let (mut pss, mut uss) = (None, None);
-    if !kernel {
-        match read_restricted(&dir.join("smaps_rollup")) {
-            Ok(text) => {
-                pss = status_kb(&text, "Pss");
-                uss = sum_kb(&text, &["Private_Clean", "Private_Dirty"]);
-            }
-            Err(true) => restricted.push(Restricted::Smaps),
-            Err(false) => {}
-        }
-    }
     let (mut read, mut written) = (None, None);
     match read_restricted(&dir.join("io")) {
         Ok(text) => {
@@ -579,8 +583,9 @@ pub fn detail(root: &Path, identity: ProcessIdentity, now_ms: i64) -> Result<Pro
         private_bytes: memory.and_then(|m| m.private),
         shared_bytes: memory.and_then(|m| m.shared),
         swap_bytes: memory.and_then(|m| m.swap),
-        pss_bytes: pss,
-        uss_bytes: uss,
+        // Fylles av tjenesten fra [`smaps`] i en egen tråd.
+        pss_bytes: None,
+        uss_bytes: None,
         io_read_bytes: read,
         io_write_bytes: written,
         unit,
@@ -959,9 +964,10 @@ mod tests {
         fs::write(fixture.0.join("proc/stat"), "cpu  1 2 3\nbtime 1700000000\n").unwrap();
         let identity = ProcessIdentity { pid: 42, start_ticks: 10 };
         let d = detail(&fixture.0, identity, 5).unwrap();
+        assert_eq!(smaps(&fixture.0, identity), Ok((Some(700 * 1024), Some(600 * 1024))));
+        assert_eq!(smaps(&fixture.0, ProcessIdentity { pid: 42, start_ticks: 11 }), Err(false));
         assert_eq!(d.cmdline.as_deref(), Some("/usr/bin/arbeid --flagg verdi"));
         assert_eq!((d.private_bytes, d.shared_bytes, d.swap_bytes), (Some(600 * 1024), Some(300 * 1024), Some(12 * 1024)));
-        assert_eq!((d.pss_bytes, d.uss_bytes), (Some(700 * 1024), Some(600 * 1024)));
         assert_eq!((d.io_read_bytes, d.io_write_bytes), (Some(4096), Some(8192)));
         assert_eq!(d.unit.as_deref(), Some("app-gnome-google-chrome-9000.scope"));
         assert_eq!(d.user.as_deref(), Some("julian"));
@@ -987,10 +993,12 @@ mod tests {
             fs::set_permissions(dir.join(name), fs::Permissions::from_mode(0o000)).unwrap();
         }
         let d = detail(&fixture.0, ProcessIdentity { pid: 42, start_ticks: 10 }, 5).unwrap();
+        let denied = smaps(&fixture.0, ProcessIdentity { pid: 42, start_ticks: 10 });
         for name in ["smaps_rollup", "io"] {
             fs::set_permissions(dir.join(name), fs::Permissions::from_mode(0o600)).unwrap();
         }
-        assert_eq!((d.pss_bytes, d.io_read_bytes), (None, None));
-        assert!(d.restricted.contains(&Restricted::Smaps) && d.restricted.contains(&Restricted::Io));
+        assert_eq!(denied, Err(true));
+        assert_eq!(d.io_read_bytes, None);
+        assert!(d.restricted.contains(&Restricted::Io));
     }
 }

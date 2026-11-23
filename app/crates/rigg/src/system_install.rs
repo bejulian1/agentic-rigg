@@ -43,6 +43,8 @@ const MAX_MANIFEST: u64 = 16 * 1024;
 thread_local! {
     /// Installasjonen pågår (passordvinduet, nedlastingen eller installasjonen).
     static BUSY: Cell<bool> = const { Cell::new(false) };
+    /// Kortet en GPU-oppdatering rapporterte en uavklart RGB-økt for.
+    static UNSETTLED: RefCell<Option<String>> = const { RefCell::new(None) };
     /// Sider som vil vite når systemkomponentene er installert.
     static LISTENERS: RefCell<Vec<Box<dyn Fn() -> bool>>> = const { RefCell::new(Vec::new()) };
 }
@@ -81,17 +83,75 @@ pub fn ready(need: Need) -> bool {
     .iter()
     .all(|path| trusted(Path::new(path)))
         && std::fs::read_to_string(MARK).is_ok_and(|value| compatible_revision(&value, need))
-        && (need != Need::Rgb || rgb_part_ready())
+        && (need != Need::Rgb || rgb_activates_directly(rgb_part_build(), rigg_core::version::build()))
 }
 
-/// RGB-delen er fra et RGB-kompatibelt bygg. Uten egen RGB-revisjon (eldre
-/// installasjoner) gjelder den felles revisjonen alene.
-fn rgb_part_ready() -> bool {
+/// Bygget RGB-delen faktisk kom fra: egen RGB-revisjon, ellers den felles
+/// (eldre installasjoner). `Some(0)` er en ukjent eller ufullstendig RGB-del.
+pub fn rgb_part_build() -> Option<u32> {
     let path = Path::new(RGB_MARK);
     match std::fs::symlink_metadata(path) {
-        Err(error) if error.kind() == std::io::ErrorKind::NotFound => true,
-        _ => trusted(path) && std::fs::read_to_string(path).is_ok_and(|value| compatible_revision(&value, Need::Rgb)),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => installed_build(),
+        _ if trusted(path) => std::fs::read_to_string(path).ok().map(|v| revision_build(&v).unwrap_or(0)),
+        _ => Some(0),
     }
+}
+
+/// Aktivering med de installerte RGB-skriptene bare når RGB-delen er fra
+/// nøyaktig appens bygg. En eldre RGB-del (også en som GPU-oppdateringen lot
+/// stå med en uavklart økt) oppdateres i stedet med ett passord: gjenopprett,
+/// én bekreftelse i appen, avklar, installer og aktiver (`system-hent.py`).
+fn rgb_activates_directly(rgb: Option<u32>, app: u32) -> bool {
+    rgb.is_some_and(|build| build == app && rigg_core::rgb_auth::compatible_build(build))
+}
+
+/// RGB-delen er eldre enn systemrevisjonen (GPU-oppdateringen lot den stå).
+/// En kjørende RGB-hjelper derfra regnes da som «må oppdateres», ikke som klar.
+fn rgb_behind_system(rgb: Option<u32>, system: Option<u32>) -> bool {
+    matches!((rgb, system), (Some(rgb), Some(system)) if rgb < system)
+}
+
+pub fn rgb_older_than_system() -> bool {
+    rgb_behind_system(rgb_part_build(), installed_build())
+}
+
+/// GPU-delen er fra nøyaktig appens bygg, så en RGB-oppdatering lar
+/// GPU-hjelperen gå (`--keep-nvml`) og beholdte GPU-verdier står.
+pub fn gpu_part_current() -> bool {
+    installed_build() == Some(rigg_core::version::build())
+}
+
+/// Kortet GPU-oppdateringen sist rapporterte en uavklart RGB-økt for (bare
+/// i denne kjøringen av appen; RGB-siden viser det til økten er avklart).
+pub fn unsettled_rgb_reported() -> Option<String> {
+    UNSETTLED.with(|u| u.borrow().clone())
+}
+
+/// Fra dette bygget har GPU-mappa sin egen kopi av den felles
+/// administrasjonskoden (`rgb-admin.py`, se `nvml-admin.py`).
+pub const NVML_COMMON_COPY_BUILD: u32 = 33;
+
+/// Systemrevisjonens bygg (`2:BYGG`), når filen er betrodd.
+pub fn installed_build() -> Option<u32> {
+    trusted(Path::new(MARK)).then(|| std::fs::read_to_string(MARK).ok().and_then(|v| revision_build(&v))).flatten()
+}
+
+/// Filene GPU-bryteren krever i GPU-mappa `dir`. Kopien av den felles koden
+/// kom med bygg 33; en installasjon fra bygg 32 har den ikke, og skal fortsatt
+/// kunne slås av (og på) med sine egne skript.
+pub fn nvml_admin_files(dir: &Path, revision: Option<u32>) -> Vec<PathBuf> {
+    let mut files = vec![
+        PathBuf::from("/usr/local/libexec/agentic-rigg-helper"),
+        dir.join("agentic-rigg-helper.service"),
+        dir.join("aktiver.sh"),
+        dir.join("deaktiver.sh"),
+        dir.join("nvml-admin.py"),
+        PathBuf::from("/usr/share/polkit-1/actions/io.github.AgenticRigg.helper.policy"),
+    ];
+    if revision.is_some_and(|build| build >= NVML_COMMON_COPY_BUILD) {
+        files.push(dir.join("rgb-admin.py"));
+    }
+    files
 }
 
 /// NVML og RGB har hver sin kompatibilitetsgrense, så en ny RGB-protokoll
@@ -130,6 +190,14 @@ fn python() -> Option<PathBuf> {
 /// Kan appen selv starte installasjonen? Krever betrodd pkexec og python, uten nedgradering.
 pub fn can_install() -> bool {
     !newer_installed() && trusted(Path::new(PKEXEC)) && python().is_some()
+}
+
+/// Bare private skjermbildeplaner (utviklerprofil): vis «Installerer …».
+pub(crate) fn debug_busy(app: &App, on: bool) {
+    if app.profile.is_dev() && std::env::var_os("RIGG_SKJERMBILDER").is_some() {
+        BUSY.with(|b| b.set(on));
+        crate::settings::request_render();
+    }
 }
 
 /// Installasjonen pågår.
@@ -412,6 +480,12 @@ pub fn run(app: &Rc<App>, activate: Activate, done: impl FnOnce(bool) + 'static)
             done(false);
             return;
         }
+        match &kept {
+            Some(k) if k.unsettled => UNSETTLED.with(|u| *u.borrow_mut() = Some(k.pci.clone().unwrap_or_default())),
+            // RGB-delen er installert på nytt: en eventuell økt er avklart.
+            _ if domain == "rgb" => UNSETTLED.with(|u| *u.borrow_mut() = None),
+            _ => {}
+        }
         installed();
         crate::widgets::locked::refresh_helper(&a, crate::settings::request_render);
         if let Some(toast) = kept.as_ref().and_then(rgb_kept_toast) {
@@ -552,6 +626,40 @@ mod tests {
         let pattern = r"bin/[A-Za-z0-9._-]{1,64}|version\.json|data/hjelper/[A-Za-z0-9._-]{1,64}";
         assert!(FETCH.contains(&format!("SYSTEM_PATH = r'{pattern}'")));
         assert!(include_str!("../../../scripts/pakk-utgivelse.py").contains(&format!("re.compile(r\"{pattern}\"")));
+    }
+
+    #[test]
+    fn eldre_rgb_del_oppdateres_ved_aktivering_og_regnes_ikke_som_klar() {
+        let app = rigg_core::version::build();
+        // Direkte aktivering bare med RGB-delen fra appens eget bygg.
+        assert!(rgb_activates_directly(Some(app), app));
+        for older in [None, Some(0), Some(29), Some(31), Some(app - 1)] {
+            assert!(!rgb_activates_directly(older, app), "{older:?}");
+        }
+        // GPU-oppdateringen lot RGB stå på 31: en kjørende RGB-hjelper derfra
+        // regnes som «må oppdateres».
+        assert!(rgb_behind_system(Some(31), Some(33)));
+        assert!(rgb_behind_system(Some(0), Some(33)));
+        assert!(!rgb_behind_system(Some(33), Some(33)));
+        assert!(!rgb_behind_system(Some(31), None));
+        assert!(!rgb_behind_system(None, Some(33)));
+    }
+
+    #[test]
+    fn app_33_slar_av_gpu_styring_med_komponenter_fra_32() {
+        // Bygg 32 har ingen egen kopi av rgb-admin.py i GPU-mappa; av-bryteren
+        // (og aktivering med de installerte skriptene) skal ikke kreve den.
+        let dir = Path::new("/usr/local/libexec/agentic-rigg");
+        let copy = dir.join("rgb-admin.py");
+        for old in [None, Some(25), Some(31), Some(32)] {
+            let files = nvml_admin_files(dir, old);
+            assert!(!files.contains(&copy), "{old:?}");
+            assert!(files.contains(&dir.join("deaktiver.sh")) && files.contains(&dir.join("nvml-admin.py")));
+        }
+        for new in [33, 34] {
+            assert!(nvml_admin_files(dir, Some(new)).contains(&copy));
+        }
+        assert!(include_str!("../../../data/hjelper/nvml-admin.py").contains("with_name('rgb-admin.py')"));
     }
 
     #[test]

@@ -331,6 +331,26 @@ fn bound_status(helper: &Value, selected: Option<&(String, String)>) -> bool {
             .is_some_and(rgb_auth::compatible_build)
 }
 
+/// RGB-delen er eldre enn GPU-delen (GPU-oppdateringen lot den stå, kanskje
+/// med en uavklart økt). Den kjørende RGB-hjelperen regnes da som «må
+/// oppdateres»: «Bruk» oppdaterer og avklarer med ett passord.
+fn rgb_stale(app: &App, helper: &Value) -> bool {
+    if FIXTURE_STALE.with(Cell::get) {
+        return true;
+    }
+    !app.profile.is_dev() && helper["systemAdmin"] == true && crate::system_install::rgb_older_than_system()
+}
+
+thread_local! {
+    /// Bare skjermbildefixturen «stale_unsettled»: RGB-delen må oppdateres.
+    static FIXTURE_STALE: Cell<bool> = const { Cell::new(false) };
+}
+
+/// Bundet og klar til bruk: som [`bound_status`], men ikke når RGB-delen må oppdateres.
+fn usable(app: &App, helper: &Value, selected: Option<&(String, String)>) -> bool {
+    bound_status(helper, selected) && !rgb_stale(app, helper)
+}
+
 fn should_read_clean(helper: &Value, selected: Option<&(String, String)>) -> bool {
     bound_status(helper, selected)
         && helper["busy"] != true
@@ -364,6 +384,8 @@ impl CardLight {
         let badge = label(tr!("Ikke aktivert"), &["tag", "quiet"]);
         badge.set_ellipsize(gtk::pango::EllipsizeMode::End);
         badge.set_max_width_chars(48);
+        // Merket følger teksthøyden, ikke panelhodets høyde (ble en firkantet boks).
+        badge.set_valign(gtk::Align::Center);
         badge.set_has_tooltip(true);
         badge.connect_query_tooltip(|l, _, _, _, tip| {
             let cut = l.layout().is_ellipsized();
@@ -477,6 +499,8 @@ impl CardLight {
         )]);
         let slider = gtk::Scale::new(gtk::Orientation::Horizontal, Some(&brightness.adjustment()));
         slider.set_draw_value(false);
+        // Samme tette glider som resten av styringen (ellers GTKs oransje standard).
+        slider.add_css_class("ctl-scale");
         // Ønsker 260 px, men kan krympe: en fast bredde holdt vinduet bredere
         // enn 640 px med luftig tetthet.
         slider.set_size_request(120, -1);
@@ -800,7 +824,7 @@ impl CardLight {
         if !card_present(&self.app) {
             return;
         }
-        if !bound_status(&self.helper.borrow(), selected_identity(&self.app).as_ref()) {
+        if !usable(&self.app, &self.helper.borrow(), selected_identity(&self.app).as_ref()) {
             // Første «Bruk»: aktiver (og om nødvendig oppdater) kortlyset med
             // ett passord. Valget brukes som en vanlig prøve når hjelperen er
             // klar, med «Behold» og tilbakerulling som før.
@@ -849,7 +873,7 @@ impl CardLight {
             return;
         }
         let selected = selected_identity(&self.app);
-        if !bound_status(&h, selected.as_ref()) || h["busy"] == true {
+        if !usable(&self.app, &h, selected.as_ref()) || h["busy"] == true {
             return;
         }
         let Some((pci, uuid)) = selected else { return };
@@ -907,7 +931,15 @@ impl CardLight {
         let status = &helper["status"];
         let state = &status["state"];
         let selected = selected_identity(&self.app);
-        let bound = bound_status(&helper, selected.as_ref());
+        let stale = rgb_stale(&self.app, &helper);
+        let bound = bound_status(&helper, selected.as_ref()) && !stale;
+        // En uavklart RGB-økt: fra den kjørende hjelperen, eller rapportert av
+        // GPU-oppdateringen (som lot RGB-delen stå).
+        let unsettled = stale
+            && (state["dirty"] == true
+                || state["recovery"].is_string()
+                || crate::system_install::unsettled_rgb_reported()
+                    .is_some_and(|pci| pci.is_empty() || selected.as_ref().is_some_and(|s| s.0 == pci)));
         let connected = self.app.client.is_connected();
         let present = card_present(&self.app);
         let owned = helper["owned"] == true;
@@ -943,7 +975,7 @@ impl CardLight {
             tr!("Kortet er utilgjengelig")
         } else if !bound && (newer_installed || helper["state"] == "error") {
             tr!("Ikke klar")
-        } else if !bound && helper["state"] == "outdated" {
+        } else if !bound && (helper["state"] == "outdated" || stale) {
             tr!("Må oppdateres")
         } else if !bound {
             tr!("Ikke aktivert")
@@ -984,6 +1016,10 @@ impl CardLight {
             tr!("Et annet vindu styrer kortlyset. Her vises bare status.").into()
         } else if bound {
             tr!("Hele kortlyset er én sone. Ingenting sendes før du trykker «Bruk».").into()
+        } else if unsettled {
+            tr!("En tidligere RGB-økt er ikke avsluttet, og RGB-delen må oppdateres. Trykk «Bruk»: kortet settes tilbake til det lagrede lyset, du ser på kortet og bekrefter, og så oppdateres og aktiveres kortlyset med ett passord.").into()
+        } else if stale {
+            tr!("RGB-delen er eldre enn GPU-delen og må oppdateres. Trykk «Bruk» for å oppdatere og aktivere kortlyset med ett passord.").into()
         } else if helper["state"] == "on" {
             tr!("RGB-tillatelsen gjelder ikke kortet som er valgt. Ingen endringer kan sendes her.")
                 .into()
@@ -995,6 +1031,8 @@ impl CardLight {
             tr!("Velg lys og trykk «Bruk». Første gang aktiveres kortlyset med passordet ditt.").into()
         };
         set_text(&self.summary, &message);
+        // Må avklares eller oppdateres: varselfarge, så det ikke forsvinner i resten.
+        class(&self.summary, "warn", stale && self.message.borrow().is_none());
         if newer_installed {
             self.summary.set_tooltip_text(Some(&message));
         } else if self.message.borrow().is_none() {
@@ -1131,7 +1169,7 @@ impl CardLight {
         let apply_ok = if bound {
             available && present && (off || valid_color) && can_apply(status, chosen_id)
         } else {
-            activatable && matches!(helper["state"].as_str(), Some("off" | "outdated")) && (off || valid_color)
+            activatable && (stale || matches!(helper["state"].as_str(), Some("off" | "outdated"))) && (off || valid_color)
         };
         self.apply.set_sensitive(apply_ok);
         let unbound_hint = activation.as_ref().err().filter(|_| !installable).cloned().unwrap_or_default();
@@ -1306,7 +1344,17 @@ impl CardLight {
         // En eventuell gammel RGB-økt avklares under oppdateringen, men først
         // etter at brukeren har sett det gjenopprettede lyset (system-hent.py).
         let text = if install {
-            format!("{text}\n\n{}", tr!("Har en tidligere RGB-økt ikke blitt avsluttet, settes kortet først tilbake til det lagrede lyset i samme godkjenning. Deretter ber appen deg se på kortet og bekrefte det gjenopprettede lyset før økten avsluttes og oppdateringen fortsetter."))
+            // GPU-delen fra samme utgivelse står (`--keep-nvml`). Ellers byttes
+            // den også, og en aktiv GPU-hjelper startes på nytt.
+            let gpu = if crate::system_install::gpu_part_current() {
+                tr!("GPU-styringen røres ikke.")
+            } else if crate::widgets::locked::helper_state(&self.app) == "on" {
+                tr!("GPU-hjelperen oppdateres også og startes på nytt: effekt, vifter og klokker går tilbake til utgangspunktet og må brukes på nytt.")
+            } else {
+                ""
+            };
+            let restore = tr!("Har en tidligere RGB-økt ikke blitt avsluttet, settes kortet først tilbake til det lagrede lyset i samme godkjenning. Deretter ber appen deg se på kortet og bekrefte det gjenopprettede lyset før økten avsluttes og oppdateringen fortsetter.");
+            [text, restore, gpu].iter().filter(|t| !t.is_empty()).copied().collect::<Vec<_>>().join("\n\n")
         } else {
             text.to_owned()
         };
@@ -1892,8 +1940,17 @@ pub(crate) fn debug_fixture(kind: &str) {
                     "state":{"baselineSource":"user_confirmed_static","confirmed":{"mode":"static","color":[58,123,240],"brightness":80},"observed":{"color":[58,123,240],"brightnessRaw":80,"mode":null},"pending":null,"dirty":false,"recovery":null,"recoveryNeedsConfirmation":false,"recoveryConfirmationSource":null,"error":null}
                 }
             });
+            FIXTURE_STALE.with(|s| s.set(kind == "stale_unsettled"));
             match kind {
                 "off" => value = json!({"state":"off","owned":false,"busy":false,"message":"Kortlyset trenger sin egen administratoraktivering.","status":null}),
+                // GPU-oppdateringen lot RGB-delen stå på bygg 31 med en uavklart økt.
+                "stale_unsettled" => {
+                    value["status"]["helper"]["build"] = json!(31);
+                    value["status"]["state"]["dirty"] = json!(true);
+                    value["status"]["state"]["recovery"] = json!("readable_fields_match");
+                    value["status"]["state"]["recoveryNeedsConfirmation"] = json!(true);
+                    value["status"]["recoveryId"] = json!("rgb-visningsfixture-1");
+                }
                 "stored" => value["status"]["observationSource"] = json!("stored_baseline"),
                 "pending" | "pending_effects" => {
                     if kind == "pending_effects" {
@@ -1938,7 +1995,7 @@ pub(crate) fn debug_fixture(kind: &str) {
                 for (id, _) in EFFECTS {
                     assert!(p.mode.button(id).unwrap().is_visible(), "Støttet effekt er skjult");
                 }
-            } else if bound_status(&p.helper.borrow(), selected_identity(&p.app).as_ref()) {
+            } else if usable(&p.app, &p.helper.borrow(), selected_identity(&p.app).as_ref()) {
                 for (id, _) in EFFECTS {
                     assert!(!p.mode.button(id).unwrap().is_visible(), "Ustøttet effekt er synlig");
                 }

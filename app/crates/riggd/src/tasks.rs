@@ -10,6 +10,60 @@ use std::rc::Rc;
 use std::time::{Duration, Instant};
 
 pub const TASK_INTERVAL_MS: u32 = 2_000;
+/// Så lenge en PSS/USS-avlesning gjelder for detaljfeltet.
+const SMAPS_FRESH: Duration = Duration::from_secs(6);
+
+/// (PSS, USS), eller `Err(true)` når kjernen nekter.
+type Smaps = Result<(Option<u64>, Option<u64>), bool>;
+
+/// Siste PSS/USS for én prosess og om en lesetråd går. Lesingen tar titalls
+/// ms for store prosesser, så den skjer aldri i hovedløkka: svaret bruker
+/// siste avlesning, og en ny startes i bakgrunnen (høyst én om gangen).
+#[derive(Default, Clone)]
+pub struct SmapsSlot(std::sync::Arc<std::sync::Mutex<SmapsState>>);
+
+#[derive(Default)]
+struct SmapsState {
+    identity: Option<ProcessIdentity>,
+    at: Option<Instant>,
+    value: Option<Smaps>,
+    running: bool,
+}
+
+impl SmapsSlot {
+    /// Siste avlesning for `identity` (kan være litt gammel), og start en ny
+    /// i bakgrunnen når den mangler eller er eldre enn [`SMAPS_FRESH`].
+    pub fn get(&self, root: &std::path::Path, identity: ProcessIdentity) -> Option<Smaps> {
+        let mut state = self.0.lock().ok()?;
+        let same = state.identity == Some(identity);
+        let fresh = same && state.at.is_some_and(|at| at.elapsed() < SMAPS_FRESH);
+        let value = if same { state.value } else { None };
+        if !fresh && !state.running {
+            state.running = true;
+            state.identity = Some(identity);
+            if !same {
+                state.value = None;
+                state.at = None;
+            }
+            let slot = self.0.clone();
+            let root = root.to_path_buf();
+            let started = std::thread::Builder::new().name("rigg-smaps".into()).spawn(move || {
+                let value = rigg_hw::sys::process::smaps(&root, identity);
+                if let Ok(mut state) = slot.lock() {
+                    state.running = false;
+                    if state.identity == Some(identity) {
+                        state.value = Some(value);
+                        state.at = Some(Instant::now());
+                    }
+                }
+            });
+            if started.is_err() {
+                state.running = false;
+            }
+        }
+        value
+    }
+}
 pub const TASK_KEEP: Duration = Duration::from_secs(5);
 
 #[derive(Debug)]
@@ -190,6 +244,15 @@ impl Daemon {
         let identity = ProcessIdentity { pid, start_ticks };
         let detail = rigg_hw::sys::process::detail(&self.opts.root, identity, rigg_core::now_ms())
             .map_err(|message| ProtoError::msg(ErrorCode::Unavailable, message))?;
+        let mut detail = detail;
+        if !detail.kernel {
+            match self.task_smaps.get(&self.opts.root, identity) {
+                Some(Ok((pss, uss))) => (detail.pss_bytes, detail.uss_bytes) = (pss, uss),
+                Some(Err(true)) => detail.restricted.push(rigg_core::process::Restricted::Smaps),
+                // Leses nå i bakgrunnen; neste svar har tallene.
+                Some(Err(false)) | None => {}
+            }
+        }
         let mut value = serde_json::to_value(detail).map_err(|_| ProtoError::new(ErrorCode::Internal))?;
         let gpu = self.tasks.as_ref().and_then(|snapshot| {
             snapshot.processes.rows.iter().find(|row| row.identity == identity).map(|row| row.gpu_vram_bytes)

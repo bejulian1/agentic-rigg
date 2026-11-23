@@ -1009,6 +1009,7 @@ fn oppgaver_grupperes_og_gir_detaljer_for_valgt_prosess() {
             "Uid:\t1000\t1000\t1000\t1000\nRssAnon:\t{anon_kb} kB\nRssFile:\t10 kB\nRssShmem:\t0 kB\nVmSwap:\t5 kB\nThreads:\t3\nCapEff:\t0\nCapPrm:\t0\nCapAmb:\t0\n"
         )).unwrap();
         std::fs::write(proc.join("cmdline"), format!("/usr/bin/{name}\0--fixture\0")).unwrap();
+        std::fs::write(proc.join("smaps_rollup"), format!("Pss: {} kB\nPrivate_Clean: 1 kB\nPrivate_Dirty: {} kB\n", anon_kb + 5, anon_kb)).unwrap();
     };
     write(101, "chrome", 1000);
     write(102, "chrome", 2000);
@@ -1050,6 +1051,17 @@ fn oppgaver_grupperes_og_gir_detaljer_for_valgt_prosess() {
     assert_eq!(detail["swapBytes"], 5 * 1024);
     assert_eq!(detail["threads"], 3);
     assert!(detail["gpuVramBytes"].is_null());
+    // PSS/USS leses i en egen tråd: første svar kan mangle dem, et senere har dem.
+    let start = Instant::now();
+    let detail = loop {
+        let d = c.ok("get_task_detail", json!({"pid": 102, "startTicks": 42}));
+        if !d["pssBytes"].is_null() {
+            break d;
+        }
+        assert!(start.elapsed() < Duration::from_secs(5), "PSS kom aldri");
+        std::thread::sleep(Duration::from_millis(50));
+    };
+    assert_eq!((detail["pssBytes"].as_u64(), detail["ussBytes"].as_u64()), (Some(2005 * 1024), Some(2001 * 1024)));
     // Feil starttid (gjenbrukt PID) eller ugyldige argumenter gir aldri detaljer.
     assert_eq!(c.err("get_task_detail", json!({"pid": 102, "startTicks": 43})), "unavailable");
     assert_eq!(c.err("get_task_detail", json!({"pid": 0, "startTicks": 42})), "invalid_argument");

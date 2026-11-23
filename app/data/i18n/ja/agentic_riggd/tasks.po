@@ -8,54 +8,54 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/riggd/src/tasks.rs:67
+#: crates/riggd/src/tasks.rs:121
 msgid "GPU-minne fra NVML (avrundet til MiB). GPU-bruk per prosess er ikke tilgjengelig."
 msgstr "GPU メモリは NVML から取得します (MiB に丸めています)。プロセスごとの GPU 使用率は利用できません。"
 
-#: crates/riggd/src/tasks.rs:69
+#: crates/riggd/src/tasks.rs:123
 msgid "GPU-minne og GPU-bruk per prosess er ikke tilgjengelig."
 msgstr "プロセスごとの GPU メモリと GPU 使用率は利用できません。"
 
-#: crates/riggd/src/tasks.rs:81
+#: crates/riggd/src/tasks.rs:135
 msgid "Ugyldig søk eller sortering av oppgaver."
 msgstr "タスクの検索条件または並べ替え順が無効です。"
 
-#: crates/riggd/src/tasks.rs:83
+#: crates/riggd/src/tasks.rs:137
 msgid "Høyst 128 tegn i søket og 1–100 oppgaver per side."
 msgstr "検索は 128 文字以内、1 ページのタスク数は 1～100 にしてください。"
 
-#: crates/riggd/src/tasks.rs:86
+#: crates/riggd/src/tasks.rs:140
 msgid "For mange eller ugyldige utvidede grupper."
 msgstr "展開されたグループが多すぎるか、無効です。"
 
-#: crates/riggd/src/tasks.rs:91
+#: crates/riggd/src/tasks.rs:145
 msgid "{key} må være et positivt heltall."
 msgstr "{key} は正の整数で指定してください。"
 
-#: crates/riggd/src/tasks.rs:97
+#: crates/riggd/src/tasks.rs:151
 msgid "Velg enten et eksisterende eller et nyere prosessbilde."
 msgstr "既存のプロセススナップショットを選ぶか、新しいものを要求してください。"
 
-#: crates/riggd/src/tasks.rs:159
+#: crates/riggd/src/tasks.rs:215
 msgid "Agentic HW Monitor eller en tilkoblet klient"
 msgstr "Agentic HW Monitor または接続中のクライアント"
 
-#: crates/riggd/src/tasks.rs:172
+#: crates/riggd/src/tasks.rs:228
 msgid "GPU-bruk per prosess er ikke tilgjengelig."
 msgstr "プロセスごとの GPU 使用率は利用できません。"
 
-#: crates/riggd/src/tasks.rs:183 crates/riggd/src/tasks.rs:208
+#: crates/riggd/src/tasks.rs:239 crates/riggd/src/tasks.rs:273
 msgid "Ugyldig prosess-ID."
 msgstr "プロセス ID が無効です。"
 
-#: crates/riggd/src/tasks.rs:187 crates/riggd/src/tasks.rs:213
+#: crates/riggd/src/tasks.rs:243 crates/riggd/src/tasks.rs:278
 msgid "Prosessens starttid må følge med."
 msgstr "プロセスの開始時刻を指定してください。"
 
-#: crates/riggd/src/tasks.rs:202
+#: crates/riggd/src/tasks.rs:267
 msgid "Avslutning krever en egen bekreftelse."
 msgstr "タスクを終了するには別途確認が必要です。"
 
-#: crates/riggd/src/tasks.rs:216
+#: crates/riggd/src/tasks.rs:281
 msgid "Agentic HW Monitor og tilkoblede klienter er beskyttet."
 msgstr "Agentic HW Monitor と接続中のクライアントは保護されています。"

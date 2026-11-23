@@ -48,7 +48,7 @@ msgstr "El proceso ya ha finalizado"
 msgid "Kjerneprosesser er beskyttet"
 msgstr "Los procesos del núcleo están protegidos"
 
-#: crates/rigg-hw/src/sys/process.rs:269 crates/rigg-hw/src/sys/process.rs:618
+#: crates/rigg-hw/src/sys/process.rs:269 crates/rigg-hw/src/sys/process.rs:623
 msgid "Avslutning krever en vanlig brukerøkt"
 msgstr "Para finalizar un proceso se requiere una sesión de usuario normal"
 
@@ -72,30 +72,30 @@ msgstr "No se pueden comprobar los permisos de usuario del proceso"
 msgid "Prosesslisten er utilgjengelig"
 msgstr "La lista de procesos no está disponible"
 
-#: crates/rigg-hw/src/sys/process.rs:486 crates/rigg-hw/src/sys/process.rs:632
+#: crates/rigg-hw/src/sys/process.rs:501 crates/rigg-hw/src/sys/process.rs:637
 msgid "Prosessen finnes ikke lenger eller kan ikke leses"
 msgstr "El proceso ya no existe o no se puede leer"
 
-#: crates/rigg-hw/src/sys/process.rs:489 crates/rigg-hw/src/sys/process.rs:634
+#: crates/rigg-hw/src/sys/process.rs:504 crates/rigg-hw/src/sys/process.rs:639
 msgid "Prosessen er erstattet. Oppdater listen og velg på nytt"
 msgstr "El proceso fue reemplazado. Actualiza la lista y vuelve a seleccionarlo"
 
-#: crates/rigg-hw/src/sys/process.rs:591 crates/rigg-hw/src/sys/process.rs:643
+#: crates/rigg-hw/src/sys/process.rs:596 crates/rigg-hw/src/sys/process.rs:648
 msgid "Prosessen er erstattet eller avsluttet"
 msgstr "El proceso fue reemplazado o ya finalizó"
 
-#: crates/rigg-hw/src/sys/process.rs:610
+#: crates/rigg-hw/src/sys/process.rs:615
 msgid "Avslutning er sperret for testdata"
 msgstr "La finalización está bloqueada para datos de prueba"
 
-#: crates/rigg-hw/src/sys/process.rs:613
+#: crates/rigg-hw/src/sys/process.rs:618
 msgid "Ugyldig eller beskyttet prosess"
 msgstr "Proceso no válido o protegido"
 
-#: crates/rigg-hw/src/sys/process.rs:624
+#: crates/rigg-hw/src/sys/process.rs:629
 msgid "Kan ikke åpne sikker prosessreferanse: {feil}"
 msgstr "No se puede abrir una referencia segura del proceso: {feil}"
 
-#: crates/rigg-hw/src/sys/process.rs:655
+#: crates/rigg-hw/src/sys/process.rs:660
 msgid "Kunne ikke sende SIGTERM: {feil}"
 msgstr "No se pudo enviar SIGTERM: {feil}"

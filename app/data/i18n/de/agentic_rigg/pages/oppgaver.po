@@ -8,518 +8,526 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg/src/pages/oppgaver.rs:29
+#: crates/rigg/src/pages/oppgaver.rs:30
 msgid "Navn"
 msgstr "Name"
 
-#: crates/rigg/src/pages/oppgaver.rs:31 crates/rigg/src/pages/oppgaver.rs:1209
+#: crates/rigg/src/pages/oppgaver.rs:32 crates/rigg/src/pages/oppgaver.rs:1358
 msgid "Bruker"
 msgstr "Benutzer"
 
-#: crates/rigg/src/pages/oppgaver.rs:33
+#: crates/rigg/src/pages/oppgaver.rs:34
 msgid "Minne"
 msgstr "Speicher"
 
-#: crates/rigg/src/pages/oppgaver.rs:35 crates/rigg/src/pages/oppgaver.rs:1221
+#: crates/rigg/src/pages/oppgaver.rs:36 crates/rigg/src/pages/oppgaver.rs:1370
 msgid "GPU-minne"
 msgstr "GPU-Speicher"
 
-#: crates/rigg/src/pages/oppgaver.rs:36
+#: crates/rigg/src/pages/oppgaver.rs:37
 msgid "Status"
 msgstr "Status"
 
-#: crates/rigg/src/pages/oppgaver.rs:298 crates/rigg/src/pages/oppgaver.rs:504
+#: crates/rigg/src/pages/oppgaver.rs:300 crates/rigg/src/pages/oppgaver.rs:506
 msgid "Henter ny prøve …"
 msgstr "Neue Stichprobe wird abgerufen …"
 
-#: crates/rigg/src/pages/oppgaver.rs:305
+#: crates/rigg/src/pages/oppgaver.rs:307
 msgid "Tjenesten bruker lengre tid. Prøv igjen med F5."
 msgstr "Der Dienst braucht länger als erwartet. Drücken Sie F5 für einen neuen Versuch."
 
-#: crates/rigg/src/pages/oppgaver.rs:326
+#: crates/rigg/src/pages/oppgaver.rs:328
 msgid "Prosessbildet er ikke lenger tilgjengelig"
 msgstr "Die Prozessmomentaufnahme ist nicht mehr verfügbar"
 
-#: crates/rigg/src/pages/oppgaver.rs:327
+#: crates/rigg/src/pages/oppgaver.rs:329
 msgid "Viser første side i et nytt prosessbilde."
 msgstr "Die erste Seite einer neuen Prozessmomentaufnahme wird angezeigt."
 
-#: crates/rigg/src/pages/oppgaver.rs:340
+#: crates/rigg/src/pages/oppgaver.rs:342
 msgid "Oppgavebehandling støttes ikke av denne tjenesteversjonen."
 msgstr "Diese Dienstversion unterstützt keine Taskverwaltung."
 
-#: crates/rigg/src/pages/oppgaver.rs:344
+#: crates/rigg/src/pages/oppgaver.rs:346
 msgid "Oppdater tjenesten for å vise oppgaver. Prøv igjen med F5."
 msgstr "Aktualisieren Sie den Dienst, um Tasks anzuzeigen. Drücken Sie F5 für einen neuen Versuch."
 
-#: crates/rigg/src/pages/oppgaver.rs:352
+#: crates/rigg/src/pages/oppgaver.rs:354
 msgid "Kunne ikke hente oppgaver · {verdi}"
 msgstr "Tasks konnten nicht abgerufen werden · {verdi}"
 
-#: crates/rigg/src/pages/oppgaver.rs:357
+#: crates/rigg/src/pages/oppgaver.rs:359
 msgid "Oppgaver er ikke tilgjengelige. Prøv igjen med F5."
 msgstr "Tasks sind nicht verfügbar. Drücken Sie F5 für einen neuen Versuch."
 
-#: crates/rigg/src/pages/oppgaver.rs:372
+#: crates/rigg/src/pages/oppgaver.rs:374
 msgid "Tjenesten returnerte ugyldige oppgavedata. Prøv igjen med F5."
 msgstr "Der Dienst hat ungültige Taskdaten geliefert. Drücken Sie F5 für einen neuen Versuch."
 
-#: crates/rigg/src/pages/oppgaver.rs:406
+#: crates/rigg/src/pages/oppgaver.rs:408
 msgid "Fold sammen gruppen"
 msgstr "Gruppe zuklappen"
 
-#: crates/rigg/src/pages/oppgaver.rs:406
+#: crates/rigg/src/pages/oppgaver.rs:408
 msgid "Fold ut gruppen"
 msgstr "Gruppe aufklappen"
 
-#: crates/rigg/src/pages/oppgaver.rs:407
+#: crates/rigg/src/pages/oppgaver.rs:409
 msgid "{navn}: {antall} prosesser"
 msgstr "{navn}: {antall} Prozesse"
 
-#: crates/rigg/src/pages/oppgaver.rs:446
+#: crates/rigg/src/pages/oppgaver.rs:448
 msgid "{navn}: {antall} prosesser. Tallene er summen for gruppen."
 msgstr "{navn}: {antall} Prozesse. Die Werte sind die Summe der Gruppe."
 
-#: crates/rigg/src/pages/oppgaver.rs:448
+#: crates/rigg/src/pages/oppgaver.rs:450
 msgid "{navn}\nKjernetråd · PID {pid}"
 msgstr "{navn}\nKernel-Thread · PID {pid}"
 
-#: crates/rigg/src/pages/oppgaver.rs:450
+#: crates/rigg/src/pages/oppgaver.rs:452
 msgid "{navn}\nPID {pid} · forelder {forelder}"
 msgstr "{navn}\nPID {pid} · Elternprozess {forelder}"
 
-#: crates/rigg/src/pages/oppgaver.rs:453
+#: crates/rigg/src/pages/oppgaver.rs:455
 msgid "100 % tilsvarer én logisk CPU. Flertrådede oppgaver kan overstige 100 %. Første prøve vises som –."
 msgstr "100 % entsprechen einer logischen CPU. Tasks mit mehreren Threads können 100 % überschreiten. Der erste Messwert wird als – angezeigt."
 
-#: crates/rigg/src/pages/oppgaver.rs:455
+#: crates/rigg/src/pages/oppgaver.rs:457
 msgid "Kjernetråder har ikke eget minne i brukerrommet."
 msgstr "Kernel-Threads haben keinen eigenen Speicher im Userspace."
 
-#: crates/rigg/src/pages/oppgaver.rs:457
+#: crates/rigg/src/pages/oppgaver.rs:459
 msgid "Privat minne i RAM (uten delte sider). RSS med delte sider: {rss}."
 msgstr "Privater Speicher im RAM (ohne gemeinsame Seiten). RSS mit gemeinsamen Seiten: {rss}."
 
-#: crates/rigg/src/pages/oppgaver.rs:459
+#: crates/rigg/src/pages/oppgaver.rs:461
 msgid "Minne prosessen har fått flyttet til swap på disk."
 msgstr "Speicher des Prozesses, der in den Swap auf dem Datenträger ausgelagert wurde."
 
-#: crates/rigg/src/pages/oppgaver.rs:460 crates/rigg/src/pages/oppgaver.rs:700
+#: crates/rigg/src/pages/oppgaver.rs:462 crates/rigg/src/pages/oppgaver.rs:706
 msgid "Videominne rapportert per prosess av NVIDIA-driveren. – betyr at målingen ikke er tilgjengelig, ikke null."
 msgstr "Grafikspeicher pro Prozess laut NVIDIA-Treiber. Ein Strich (–) bedeutet nicht verfügbar, nicht null."
 
-#: crates/rigg/src/pages/oppgaver.rs:489
+#: crates/rigg/src/pages/oppgaver.rs:491
 msgid "{range} av {matched} rader · {total} oppgaver"
 msgid_plural "{range} av {matched} rader · {total} oppgaver"
 msgstr[0] "{range} von {matched} Zeilen · {total} Task"
 msgstr[1] "{range} von {matched} Zeilen · {total} Tasks"
 
-#: crates/rigg/src/pages/oppgaver.rs:491
+#: crates/rigg/src/pages/oppgaver.rs:493
 msgid "{range} av {matched} · {total} oppgaver"
 msgid_plural "{range} av {matched} · {total} oppgaver"
 msgstr[0] "{range} von {matched} · {total} Task"
 msgstr[1] "{range} von {matched} · {total} Tasks"
 
-#: crates/rigg/src/pages/oppgaver.rs:498
+#: crates/rigg/src/pages/oppgaver.rs:500
 msgid "Leser oppgaver … CPU blir tilgjengelig etter neste prøve."
 msgstr "Tasks werden geladen … Die CPU-Auslastung ist ab der nächsten Messung verfügbar."
 
-#: crates/rigg/src/pages/oppgaver.rs:500
+#: crates/rigg/src/pages/oppgaver.rs:502
 msgid "Ingen oppgaver passer søket."
 msgstr "Keine Tasks entsprechen der Suche."
 
-#: crates/rigg/src/pages/oppgaver.rs:506 crates/rigg/src/pages/oppgaver.rs:1417
+#: crates/rigg/src/pages/oppgaver.rs:508 crates/rigg/src/pages/oppgaver.rs:1577
 msgid "Oppdatering pauset · F5 oppdaterer én gang"
 msgstr "Aktualisierung pausiert · F5 aktualisiert einmal"
 
-#: crates/rigg/src/pages/oppgaver.rs:508
+#: crates/rigg/src/pages/oppgaver.rs:510
 msgid "Eldre prøve · {verdi} s"
 msgstr "Älterer Messwert · {verdi} s"
 
-#: crates/rigg/src/pages/oppgaver.rs:510
+#: crates/rigg/src/pages/oppgaver.rs:512
 msgid "Oppdateres hvert 2. sekund · prøve {verdi} s gammel"
 msgstr "Aktualisierung alle 2 s · letzte Messung vor {verdi} s"
 
-#: crates/rigg/src/pages/oppgaver.rs:517
+#: crates/rigg/src/pages/oppgaver.rs:519
 msgid " · {unreadable} utilgjengelige"
 msgstr " · {unreadable} nicht verfügbar"
 
-#: crates/rigg/src/pages/oppgaver.rs:520
+#: crates/rigg/src/pages/oppgaver.rs:522
 msgid "Sorter etter GPU-minne. {note}"
 msgstr "Nach GPU-Speicher sortieren. {note}"
 
-#: crates/rigg/src/pages/oppgaver.rs:561
+#: crates/rigg/src/pages/oppgaver.rs:563
 msgid "{navn} · {antall} prosesser"
 msgstr "{navn} · {antall} Prozesse"
 
-#: crates/rigg/src/pages/oppgaver.rs:562
+#: crates/rigg/src/pages/oppgaver.rs:564
 msgid "{navn} · PID {pid} · kjernetråd"
 msgstr "{navn} · PID {pid} · Kernel-Thread"
 
-#: crates/rigg/src/pages/oppgaver.rs:564 crates/rigg/src/pages/oppgaver.rs:1176
+#: crates/rigg/src/pages/oppgaver.rs:566 crates/rigg/src/pages/oppgaver.rs:1325
 msgid "Ingen oppgave valgt"
 msgstr "Kein Task ausgewählt"
 
-#: crates/rigg/src/pages/oppgaver.rs:571
+#: crates/rigg/src/pages/oppgaver.rs:573
 msgid "Velg en rad for å se kommando, minne, disk-I/O og starttid. Grupper foldes ut med pilen eller Enter."
 msgstr "Wähle eine Zeile, um Befehl, Speicher, Datenträger-E/A und Startzeit zu sehen. Gruppen klappst du mit dem Pfeil oder der Eingabetaste auf."
 
-#: crates/rigg/src/pages/oppgaver.rs:573
+#: crates/rigg/src/pages/oppgaver.rs:575
 msgid "Oppdater oppgavelisten før du avslutter en oppgave."
 msgstr "Aktualisieren Sie die Taskliste, bevor Sie einen Task beenden."
 
-#: crates/rigg/src/pages/oppgaver.rs:575
+#: crates/rigg/src/pages/oppgaver.rs:577
 msgid "Kan ikke avsluttes: {grunn}"
 msgstr "Kann nicht beendet werden: {grunn}"
 
-#: crates/rigg/src/pages/oppgaver.rs:576
+#: crates/rigg/src/pages/oppgaver.rs:578
 msgid "Avslutt sender en vanlig forespørsel om å avslutte (SIGTERM)."
 msgstr "Beenden sendet eine normale Aufforderung zum Beenden (SIGTERM)."
 
-#: crates/rigg/src/pages/oppgaver.rs:641 crates/rigg/src/pages/oppgaver.rs:671
+#: crates/rigg/src/pages/oppgaver.rs:643 crates/rigg/src/pages/oppgaver.rs:674
 msgid "ingen tilgang"
 msgstr "kein Zugriff"
 
-#: crates/rigg/src/pages/oppgaver.rs:655
+#: crates/rigg/src/pages/oppgaver.rs:658
 msgid "Ikke tilgjengelig for denne prosessen."
 msgstr "Für diesen Prozess nicht verfügbar."
 
-#: crates/rigg/src/pages/oppgaver.rs:656
+#: crates/rigg/src/pages/oppgaver.rs:659
 msgid "Krever at prosessen tilhører deg, eller root. Kjernen gir ikke andre brukere tilgang."
 msgstr "Erfordert, dass der Prozess dir gehört, oder root. Der Kernel gewährt anderen Benutzern keinen Zugriff."
 
-#: crates/rigg/src/pages/oppgaver.rs:662
+#: crates/rigg/src/pages/oppgaver.rs:665
 msgid "Summen av gruppens private minne i RAM."
 msgstr "Die Summe des privaten Speichers der Gruppe im RAM."
 
-#: crates/rigg/src/pages/oppgaver.rs:676
+#: crates/rigg/src/pages/oppgaver.rs:679
 msgid "Kjernetråd uten kommandolinje"
 msgstr "Kernel-Thread ohne Befehlszeile"
 
-#: crates/rigg/src/pages/oppgaver.rs:689
+#: crates/rigg/src/pages/oppgaver.rs:692
 msgid "Samlet CPU-tid siden start (bruker + kjerne)."
 msgstr "Gesamte CPU-Zeit seit dem Start (Benutzer + Kernel)."
 
-#: crates/rigg/src/pages/oppgaver.rs:691
+#: crates/rigg/src/pages/oppgaver.rs:694
 msgid "Nice-verdi: −20 er høyest prioritet, 19 lavest."
 msgstr "Nice-Wert: −20 ist die höchste Priorität, 19 die niedrigste."
 
-#: crates/rigg/src/pages/oppgaver.rs:692
+#: crates/rigg/src/pages/oppgaver.rs:695
 msgid "Privat minne i RAM (RssAnon): heap, stakk og andre anonyme sider. Dette er kolonnen Minne."
 msgstr "Privater Speicher im RAM (RssAnon): Heap, Stack und andere anonyme Seiten. Das ist die Spalte Speicher."
 
-#: crates/rigg/src/pages/oppgaver.rs:693
+#: crates/rigg/src/pages/oppgaver.rs:696
 msgid "PSS: privat minne pluss en rettferdig andel av delte sider. Summen over alle prosesser gir brukt minne uten dobbeltelling."
 msgstr "PSS: privater Speicher plus ein fairer Anteil gemeinsamer Seiten. Die Summe über alle Prozesse ergibt den belegten Speicher ohne Doppelzählung."
 
-#: crates/rigg/src/pages/oppgaver.rs:695
+#: crates/rigg/src/pages/oppgaver.rs:697
 msgid "USS: sider bare denne prosessen bruker. Frigjøres når prosessen avsluttes."
 msgstr "USS: Seiten, die nur dieser Prozess nutzt. Werden beim Beenden des Prozesses freigegeben."
 
-#: crates/rigg/src/pages/oppgaver.rs:697
+#: crates/rigg/src/pages/oppgaver.rs:700
+msgid "leser …"
+msgstr "wird gelesen …"
+
+#: crates/rigg/src/pages/oppgaver.rs:703
 msgid "Delte sider i RAM: biblioteker, filer og delt minne. Telles hos alle prosessene som bruker dem."
 msgstr "Gemeinsam genutzte Seiten im RAM: Bibliotheken, Dateien und gemeinsamer Speicher. Werden bei jedem Prozess gezählt, der sie nutzt."
 
-#: crates/rigg/src/pages/oppgaver.rs:698
+#: crates/rigg/src/pages/oppgaver.rs:704
 msgid "RSS: privat minne pluss delte sider. Kan ikke summeres over prosesser."
 msgstr "RSS: privater Speicher plus gemeinsame Seiten. Lässt sich nicht über Prozesse summieren."
 
-#: crates/rigg/src/pages/oppgaver.rs:707
+#: crates/rigg/src/pages/oppgaver.rs:713
 msgid "Lest fra og skrevet til lagringsenheter siden start, og raten siden forrige prøve."
 msgstr "Seit dem Start von Datenträgern gelesen und darauf geschrieben, und die Rate seit der letzten Messung."
 
-#: crates/rigg/src/pages/oppgaver.rs:715
+#: crates/rigg/src/pages/oppgaver.rs:721
 msgid "Systemd-enheten prosessen kjører i (cgroup)."
 msgstr "Die systemd-Unit, in der der Prozess läuft (cgroup)."
 
-#: crates/rigg/src/pages/oppgaver.rs:730
+#: crates/rigg/src/pages/oppgaver.rs:736
 msgid "Avslutt oppgave?"
 msgstr "Task beenden?"
 
-#: crates/rigg/src/pages/oppgaver.rs:742
+#: crates/rigg/src/pages/oppgaver.rs:748
 msgid "Oppgaven får en vanlig forespørsel om å avslutte (SIGTERM). Ulagret arbeid kan gå tapt."
 msgstr "Der Task erhält eine normale Beendigungsanfrage (SIGTERM). Nicht gespeicherte Änderungen können verloren gehen."
 
-#: crates/rigg/src/pages/oppgaver.rs:750
+#: crates/rigg/src/pages/oppgaver.rs:756
 msgid "Avbryt"
 msgstr "Abbrechen"
 
-#: crates/rigg/src/pages/oppgaver.rs:751
+#: crates/rigg/src/pages/oppgaver.rs:757
 msgid "Avslutt oppgave"
 msgstr "Task beenden"
 
-#: crates/rigg/src/pages/oppgaver.rs:766
+#: crates/rigg/src/pages/oppgaver.rs:772
 msgid "Avslutning sendt"
 msgstr "Beendigungsanfrage gesendet"
 
-#: crates/rigg/src/pages/oppgaver.rs:766
+#: crates/rigg/src/pages/oppgaver.rs:772
 msgid "Oppgaven har mottatt SIGTERM. Den kan bruke litt tid på å avslutte."
 msgstr "Der Task hat SIGTERM erhalten. Das Beenden kann einen Moment dauern."
 
-#: crates/rigg/src/pages/oppgaver.rs:767
+#: crates/rigg/src/pages/oppgaver.rs:773
 msgid "Oppgaven ble ikke avsluttet"
 msgstr "Der Task wurde nicht beendet"
 
-#: crates/rigg/src/pages/oppgaver.rs:821
+#: crates/rigg/src/pages/oppgaver.rs:827
 msgid "{klokke} · {temperatur}"
 msgstr "{klokke} · {temperatur}"
 
-#: crates/rigg/src/pages/oppgaver.rs:822
+#: crates/rigg/src/pages/oppgaver.rs:828
 msgid "Snittklokke over alle tråder: {snitt}. Høyeste: {maks}. Temperatur (Tdie): {temperatur}."
 msgstr "Durchschnittstakt über alle Threads: {snitt}. Höchster: {maks}. Temperatur (Tdie): {temperatur}."
 
-#: crates/rigg/src/pages/oppgaver.rs:825
+#: crates/rigg/src/pages/oppgaver.rs:831
 msgid "Last {verdier}"
 msgstr "Last {verdier}"
 
-#: crates/rigg/src/pages/oppgaver.rs:826
+#: crates/rigg/src/pages/oppgaver.rs:832
 msgid "Gjennomsnittlig belastning (load average) siste 1, 5 og 15 minutter: prosesser som kjører eller venter. 16 tilsvarer full last på 16 tråder."
 msgstr "Durchschnittliche Last (load average) der letzten 1, 5 und 15 Minuten: laufende oder wartende Prozesse. 16 entspricht Volllast auf 16 Threads."
 
-#: crates/rigg/src/pages/oppgaver.rs:832
+#: crates/rigg/src/pages/oppgaver.rs:838
 msgid "{prosesser} prosesser · {traader} tråder"
 msgstr "{prosesser} Prozesse · {traader} Threads"
 
-#: crates/rigg/src/pages/oppgaver.rs:834
+#: crates/rigg/src/pages/oppgaver.rs:840
 msgid "{prosesser} prosesser og {kjerne} kjernetråder. Trådene er summen for prosessene som kan leses, pluss kjernetrådene."
 msgstr "{prosesser} Prozesse und {kjerne} Kernel-Threads. Die Threads sind die Summe der lesbaren Prozesse plus die Kernel-Threads."
 
-#: crates/rigg/src/pages/oppgaver.rs:853
+#: crates/rigg/src/pages/oppgaver.rs:859
 msgid "Swap brukt: {brukt} av {totalt}. Prosessene har {prosesser} i swap (kolonnen Swap); resten er for det meste delt minne og tmpfs som er flyttet ut."
 msgstr "Swap belegt: {brukt} von {totalt}. Die Prozesse haben {prosesser} im Swap (Spalte Swap); der Rest ist meist ausgelagerter gemeinsamer Speicher und tmpfs."
 
-#: crates/rigg/src/pages/oppgaver.rs:859
+#: crates/rigg/src/pages/oppgaver.rs:865
 msgid "{brukt} av {totalt} · {ledig} tilgjengelig"
 msgstr "{brukt} von {totalt} · {ledig} verfügbar"
 
-#: crates/rigg/src/pages/oppgaver.rs:860
+#: crates/rigg/src/pages/oppgaver.rs:866
 msgid "Brukt = totalt − tilgjengelig (MemAvailable), som free og GNOME Ressurser."
 msgstr "Belegt = gesamt − verfügbar (MemAvailable), wie bei free und GNOME Ressourcen."
 
-#: crates/rigg/src/pages/oppgaver.rs:863
+#: crates/rigg/src/pages/oppgaver.rs:869
 msgid "Prosesser {prosesser} · Delt/tmpfs {delt} · Kjerne {kjerne}"
 msgstr "Prozesse {prosesser} · Gemeinsam/tmpfs {delt} · Kernel {kjerne}"
 
-#: crates/rigg/src/pages/oppgaver.rs:864
+#: crates/rigg/src/pages/oppgaver.rs:870
 msgid "Prosesser: anonymt minne (AnonPages), omtrent summen av kolonnen Minne. Delt/tmpfs (Shmem): filer i tmpfs som /tmp og /dev/shm, delt minne og grafikkbuffere; tilhører ingen enkelt prosess. Kjerne: slab som ikke kan frigjøres, kjernestakker og sidetabeller. Annet brukt: {annet} (blant annet reserver kjernen holder av)."
 msgstr "Prozesse: anonymer Speicher (AnonPages), etwa die Summe der Spalte Speicher. Gemeinsam/tmpfs (Shmem): Dateien in tmpfs wie /tmp und /dev/shm, gemeinsamer Speicher und Grafikpuffer; gehört keinem einzelnen Prozess. Kernel: nicht freigebbarer Slab, Kernel-Stacks und Seitentabellen. Sonstiger belegter Speicher: {annet} (u. a. vom Kernel gehaltene Reserven)."
 
-#: crates/rigg/src/pages/oppgaver.rs:870
+#: crates/rigg/src/pages/oppgaver.rs:876
 msgid "Cache {cache} · Swap {brukt} av {totalt}"
 msgstr "Cache {cache} · Swap {brukt} von {totalt}"
 
-#: crates/rigg/src/pages/oppgaver.rs:871
+#: crates/rigg/src/pages/oppgaver.rs:877
 msgid "Buffer og cache (uten Shmem) kan frigjøres ved behov og regnes som tilgjengelig."
 msgstr "Puffer und Cache (ohne Shmem) können bei Bedarf freigegeben werden und gelten als verfügbar."
 
-#: crates/rigg/src/pages/oppgaver.rs:877
+#: crates/rigg/src/pages/oppgaver.rs:883
 msgid "Ingen skjermkort valgt"
 msgstr "Keine Grafikkarte ausgewählt"
 
-#: crates/rigg/src/pages/oppgaver.rs:885
+#: crates/rigg/src/pages/oppgaver.rs:891
 msgid "VRAM {brukt} av {totalt}"
 msgstr "VRAM {brukt} von {totalt}"
 
-#: crates/rigg/src/pages/oppgaver.rs:887
+#: crates/rigg/src/pages/oppgaver.rs:893
 msgid "Videominne i bruk på kortet, fra driveren."
 msgstr "Belegter Grafikspeicher der Karte, laut Treiber."
 
-#: crates/rigg/src/pages/oppgaver.rs:890
+#: crates/rigg/src/pages/oppgaver.rs:896
 msgid "{temperatur} · {effekt}"
 msgstr "{temperatur} · {effekt}"
 
-#: crates/rigg/src/pages/oppgaver.rs:891
+#: crates/rigg/src/pages/oppgaver.rs:897
 msgid "Kortets temperatur og effektforbruk."
 msgstr "Temperatur und Leistungsaufnahme der Karte."
 
-#: crates/rigg/src/pages/oppgaver.rs:909
+#: crates/rigg/src/pages/oppgaver.rs:915
 msgid "{sekunder} s"
 msgstr "{sekunder} s"
 
-#: crates/rigg/src/pages/oppgaver.rs:914
+#: crates/rigg/src/pages/oppgaver.rs:920
 msgid "{timer} t {minutter} min"
 msgstr "{timer} h {minutter} min"
 
-#: crates/rigg/src/pages/oppgaver.rs:916
+#: crates/rigg/src/pages/oppgaver.rs:922
 msgid "{minutter} min {sekunder} s"
 msgstr "{minutter} min {sekunder} s"
 
-#: crates/rigg/src/pages/oppgaver.rs:926
+#: crates/rigg/src/pages/oppgaver.rs:932
 msgid "Kjører"
 msgstr "Läuft"
 
-#: crates/rigg/src/pages/oppgaver.rs:927
+#: crates/rigg/src/pages/oppgaver.rs:933
 msgid "Sover"
 msgstr "Schlafend"
 
-#: crates/rigg/src/pages/oppgaver.rs:928
+#: crates/rigg/src/pages/oppgaver.rs:934
 msgid "Venter"
 msgstr "Wartend"
 
-#: crates/rigg/src/pages/oppgaver.rs:929
+#: crates/rigg/src/pages/oppgaver.rs:935
 msgid "Stoppet"
 msgstr "Angehalten"
 
-#: crates/rigg/src/pages/oppgaver.rs:931
+#: crates/rigg/src/pages/oppgaver.rs:937
 msgid "Inaktiv"
 msgstr "Inaktiv"
 
-#: crates/rigg/src/pages/oppgaver.rs:989
+#: crates/rigg/src/pages/oppgaver.rs:1144
 msgid "Fra venstre: prosesser, delt minne/tmpfs, kjerne, annet brukt og buffer/cache. Resten av stolpen er ledig minne."
 msgstr "Von links: Prozesse, gemeinsamer Speicher/tmpfs, Kernel, sonstiger belegter Speicher und Puffer/Cache. Der Rest des Balkens ist freier Speicher."
 
-#: crates/rigg/src/pages/oppgaver.rs:992
+#: crates/rigg/src/pages/oppgaver.rs:1147
 msgid "CPU · hele systemet"
 msgstr "CPU · gesamtes System"
 
-#: crates/rigg/src/pages/oppgaver.rs:995
+#: crates/rigg/src/pages/oppgaver.rs:1150
 msgid "Samlet CPU-last, 0–100 %. Oppgavenes CPU-prosent bruker én logisk CPU som 100 %."
 msgstr "Gesamte CPU-Auslastung, 0–100 %. Pro Task entspricht eine logische CPU 100 %."
 
-#: crates/rigg/src/pages/oppgaver.rs:999
+#: crates/rigg/src/pages/oppgaver.rs:1154
 msgid "RAM · hele systemet"
 msgstr "RAM · gesamtes System"
 
-#: crates/rigg/src/pages/oppgaver.rs:1002
+#: crates/rigg/src/pages/oppgaver.rs:1157
 msgid "Systemets brukte minne, fordelt på prosesser, delt minne/tmpfs og kjernen. Pek på en linje for forklaring."
 msgstr "Belegter Systemspeicher, aufgeteilt auf Prozesse, gemeinsamen Speicher/tmpfs und den Kernel. Zeige auf eine Zeile für eine Erklärung."
 
-#: crates/rigg/src/pages/oppgaver.rs:1006
+#: crates/rigg/src/pages/oppgaver.rs:1161
 msgid "GPU · valgt kort"
 msgstr "GPU · ausgewählte Karte"
 
-#: crates/rigg/src/pages/oppgaver.rs:1009
+#: crates/rigg/src/pages/oppgaver.rs:1164
 msgid "Samlet GPU-last for kortet valgt i sidefeltet. Per-prosess GPU-prosent er ikke tilgjengelig."
 msgstr "Gesamte GPU-Auslastung der in der Seitenleiste ausgewählten Karte. GPU-Auslastung je Prozess ist nicht verfügbar."
 
-#: crates/rigg/src/pages/oppgaver.rs:1044
+#: crates/rigg/src/pages/oppgaver.rs:1199
 msgid "Søk etter navn, PID eller bruker"
 msgstr "Nach Name, PID oder Benutzer suchen"
 
-#: crates/rigg/src/pages/oppgaver.rs:1047
+#: crates/rigg/src/pages/oppgaver.rs:1202
 msgid "Søk i oppgaver"
 msgstr "Tasks durchsuchen"
 
-#: crates/rigg/src/pages/oppgaver.rs:1049
+#: crates/rigg/src/pages/oppgaver.rs:1204
 msgid "Gruppert"
 msgstr "Gruppiert"
 
-#: crates/rigg/src/pages/oppgaver.rs:1049
+#: crates/rigg/src/pages/oppgaver.rs:1204
 msgid "Liste"
 msgstr "Liste"
 
-#: crates/rigg/src/pages/oppgaver.rs:1049
+#: crates/rigg/src/pages/oppgaver.rs:1204
 msgid "Tre"
 msgstr "Baum"
 
-#: crates/rigg/src/pages/oppgaver.rs:1051
+#: crates/rigg/src/pages/oppgaver.rs:1206
 msgid "Visning av oppgavene"
 msgstr "Ansicht der Tasks"
 
-#: crates/rigg/src/pages/oppgaver.rs:1055
+#: crates/rigg/src/pages/oppgaver.rs:1210
 msgid "Samle prosesser med samme navn (alle chrome-prosessene i én rad) og alle kjernetråder. Tallene er summen; fold ut for å se hver prosess."
 msgstr "Prozesse mit gleichem Namen (alle chrome-Prozesse in einer Zeile) und alle Kernel-Threads zusammenfassen. Die Werte sind die Summe; aufklappen, um jeden Prozess zu sehen."
 
-#: crates/rigg/src/pages/oppgaver.rs:1056
+#: crates/rigg/src/pages/oppgaver.rs:1211
 msgid "Alle prosesser og kjernetråder hver for seg."
 msgstr "Alle Prozesse und Kernel-Threads einzeln."
 
-#: crates/rigg/src/pages/oppgaver.rs:1057
+#: crates/rigg/src/pages/oppgaver.rs:1212
 msgid "Vis foreldre og barn. Sortering gjelder innen hver familie; ingen summering av barna."
 msgstr "Eltern- und Kindprozesse anzeigen. Die Sortierung erfolgt innerhalb jeder Familie. Werte der Kindprozesse werden nicht addiert."
 
-#: crates/rigg/src/pages/oppgaver.rs:1064 crates/rigg/src/pages/oppgaver.rs:1414
+#: crates/rigg/src/pages/oppgaver.rs:1219 crates/rigg/src/pages/oppgaver.rs:1574
 msgid "Pause"
 msgstr "Pause"
 
-#: crates/rigg/src/pages/oppgaver.rs:1067
+#: crates/rigg/src/pages/oppgaver.rs:1222
 msgid "Pause oppgavelisten. Systemgrafene fortsetter å vise felles målinger."
 msgstr "Taskliste pausieren. Die Systemdiagramme zeigen weiterhin die systemweiten Messwerte an."
 
-#: crates/rigg/src/pages/oppgaver.rs:1149 crates/rigg/src/pages/oppgaver.rs:1158
+#: crates/rigg/src/pages/oppgaver.rs:1298 crates/rigg/src/pages/oppgaver.rs:1307
 msgid "Leser oppgaver …"
 msgstr "Tasks werden geladen …"
 
-#: crates/rigg/src/pages/oppgaver.rs:1162
+#: crates/rigg/src/pages/oppgaver.rs:1311
 msgid "Forrige"
 msgstr "Zurück"
 
-#: crates/rigg/src/pages/oppgaver.rs:1163
+#: crates/rigg/src/pages/oppgaver.rs:1312
 msgid "Neste"
 msgstr "Weiter"
 
-#: crates/rigg/src/pages/oppgaver.rs:1188
+#: crates/rigg/src/pages/oppgaver.rs:1337
 msgid "Avslutt oppgave …"
 msgstr "Task beenden …"
 
-#: crates/rigg/src/pages/oppgaver.rs:1207
+#: crates/rigg/src/pages/oppgaver.rs:1356
 msgid "Kommando"
 msgstr "Befehl"
 
-#: crates/rigg/src/pages/oppgaver.rs:1208
+#: crates/rigg/src/pages/oppgaver.rs:1357
 msgid "Prosesser"
 msgstr "Prozesse"
 
-#: crates/rigg/src/pages/oppgaver.rs:1210
+#: crates/rigg/src/pages/oppgaver.rs:1359
 msgid "Startet"
 msgstr "Gestartet"
 
-#: crates/rigg/src/pages/oppgaver.rs:1212
+#: crates/rigg/src/pages/oppgaver.rs:1361
 msgid "CPU-tid"
 msgstr "CPU-Zeit"
 
-#: crates/rigg/src/pages/oppgaver.rs:1213
+#: crates/rigg/src/pages/oppgaver.rs:1362
 msgid "Tråder"
 msgstr "Threads"
 
-#: crates/rigg/src/pages/oppgaver.rs:1214
+#: crates/rigg/src/pages/oppgaver.rs:1363
 msgid "Prioritet"
 msgstr "Priorität"
 
-#: crates/rigg/src/pages/oppgaver.rs:1215
+#: crates/rigg/src/pages/oppgaver.rs:1364
 msgid "Privat minne"
 msgstr "Privater Speicher"
 
-#: crates/rigg/src/pages/oppgaver.rs:1218
+#: crates/rigg/src/pages/oppgaver.rs:1367
 msgid "Delt"
 msgstr "Gemeinsam"
 
-#: crates/rigg/src/pages/oppgaver.rs:1222
+#: crates/rigg/src/pages/oppgaver.rs:1371
 msgid "Disk lest"
 msgstr "Datenträger gelesen"
 
-#: crates/rigg/src/pages/oppgaver.rs:1223
+#: crates/rigg/src/pages/oppgaver.rs:1372
 msgid "Disk skrevet"
 msgstr "Datenträger geschrieben"
 
-#: crates/rigg/src/pages/oppgaver.rs:1224
+#: crates/rigg/src/pages/oppgaver.rs:1373
 msgid "Forelder"
 msgstr "Übergeordnet"
 
-#: crates/rigg/src/pages/oppgaver.rs:1225
+#: crates/rigg/src/pages/oppgaver.rs:1374
 msgid "Enhet"
 msgstr "Unit"
 
-#: crates/rigg/src/pages/oppgaver.rs:1264
+#: crates/rigg/src/pages/oppgaver.rs:1412
+msgid "Privat minne: prosessens anonyme sider i RAM (kolonnen Minne). USS: alle sider bare denne prosessen bruker, også egne filsider. PSS: USS pluss en andel av delte sider."
+msgstr "Privater Speicher: die anonymen Seiten des Prozesses im RAM (Spalte Speicher). USS: alle Seiten, die nur dieser Prozess nutzt, auch eigene Dateiseiten. PSS: USS plus ein Anteil gemeinsamer Seiten."
+
+#: crates/rigg/src/pages/oppgaver.rs:1423
 msgid "CPU: 100 % = én logisk CPU · Minne: privat minne i RAM, uten delte sider · – = ikke tilgjengelig"
 msgstr "CPU: 100 % = eine logische CPU · Speicher: privater Speicher im RAM, ohne gemeinsame Seiten · – = nicht verfügbar"
 
-#: crates/rigg/src/pages/oppgaver.rs:1270
+#: crates/rigg/src/pages/oppgaver.rs:1429
 msgid "CPU kan overstige 100 %. Minne er privat minne i RAM (RssAnon) og kan summeres; RSS med delte sider står i detaljene. Gruppene summerer prosessene med samme navn. GPU-prosent per oppgave er ikke tilgjengelig; GPU-minne vises bare når driveren leverer det. Felt som krever at prosessen tilhører deg, vises som –."
 msgstr "CPU kann 100 % übersteigen. Speicher ist privater Speicher im RAM (RssAnon) und lässt sich summieren; RSS mit gemeinsam genutzten Seiten steht in den Details. Gruppen summieren Prozesse mit gleichem Namen. GPU-Prozent pro Task ist nicht verfügbar; GPU-Speicher wird nur angezeigt, wenn der Treiber ihn liefert. Felder, für die der Prozess dir gehören muss, werden als – angezeigt."
 
-#: crates/rigg/src/pages/oppgaver.rs:1272
+#: crates/rigg/src/pages/oppgaver.rs:1431
 msgid "Kobler til oppgavetjenesten …"
 msgstr "Verbindung zum Taskdienst wird hergestellt …"
 
-#: crates/rigg/src/pages/oppgaver.rs:1336
+#: crates/rigg/src/pages/oppgaver.rs:1496
 msgid "Sorter etter {title}"
 msgstr "Sortieren nach {title}"
 
-#: crates/rigg/src/pages/oppgaver.rs:1370
+#: crates/rigg/src/pages/oppgaver.rs:1530
 msgid "Sorter etter privat minne i RAM (uten delte sider)."
 msgstr "Nach privatem Speicher im RAM sortieren (ohne gemeinsame Seiten)."
 
-#: crates/rigg/src/pages/oppgaver.rs:1414
+#: crates/rigg/src/pages/oppgaver.rs:1574
 msgid "Fortsett"
 msgstr "Fortsetzen"

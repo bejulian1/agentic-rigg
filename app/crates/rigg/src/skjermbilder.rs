@@ -88,6 +88,7 @@ fn plan() -> Vec<Step> {
         Ok("sprak") => plan_sprak(),
         Ok("1.4.0-ui") => ui140::plan(),
         Ok("rgb-ui") => plan_rgb(),
+        Ok("forste-mote") => plan_forste_mote(),
         Ok("rgb-flow") => plan_rgb_flow(),
         Ok("oppgaver") => oppgaver::plan(),
         Ok("nettverk") => nettverk::plan(),
@@ -125,6 +126,33 @@ fn plan_rgb_flow() -> Vec<Step> {
         Eval(|_| flow("stale_ack")), Wait(1000), Eval(|_| flow("stale_rejected")), Shot("rgb-flow-gammel-bekreftelse-avvist-sim"),
         Eval(|_| flow("ack")), Wait(1000), Eval(|_| flow("acknowledged")), Shot("rgb-flow-brukerbekreftet-sim"),
     ]
+}
+
+/// Det brukeren møter først etter en oppdatering, ved 1024 og 1280 px: en
+/// falsk GPU-hjelper fra bygg 31 gir «Oppdater hjelper»; «Installerer …» og
+/// «Venter» er visningstilstander uten handling; RGB-lys viser en merket
+/// fixture der RGB-delen må oppdateres og en tidligere økt er uavklart.
+fn plan_forste_mote() -> Vec<Step> {
+    use Step::*;
+    let mut v = vec![Set(base())];
+    for (w, h) in [(1280, 820), (1024, 760)] {
+        v.extend([
+            Size(w, h), Wait(500), Size(w, h), Settings("styring"), Wait(2500),
+            Eval(|a| assert_eq!(crate::widgets::locked::helper_state(a), "outdated", "Den falske hjelperen fra bygg 31 skal gi «Oppdater hjelper»")),
+            Shot(name(format!("styring-oppdater-hjelper-{w}"))),
+            Eval(|a| crate::system_install::debug_busy(a, true)), Wait(400), Shot(name(format!("styring-installerer-{w}"))),
+            Eval(|a| crate::system_install::debug_busy(a, false)),
+            Eval(|a| crate::settings::styring::debug_waiting(a, true)), Wait(400), Shot(name(format!("styring-venter-{w}"))),
+            Eval(|a| crate::settings::styring::debug_waiting(a, false)), Wait(300),
+            Go("lys"), Wait(1200),
+            Eval(|_| crate::pages::lys::debug_mode("2d")),
+            Eval(|_| crate::pages::lys_kort::debug_fixture("stale_unsettled")), Wait(600),
+            Shot(name(format!("rgb-uavklart-ma-oppdateres-{w}-sim"))),
+            Scroll(1.0), Wait(300), ShotScrolled(name(format!("rgb-uavklart-ma-oppdateres-{w}-sim-bunn"))), Scroll(0.0),
+            Eval(|_| crate::pages::lys_kort::debug_fixture("stored")),
+        ]);
+    }
+    v
 }
 
 /// Privat visningskontroll. All fysisk RGB-status er tydelig merket fixture;

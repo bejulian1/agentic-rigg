@@ -154,6 +154,8 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     let prev = Panel::new(tr!("Skjermkort"));
     prev.root.add_css_class("rgb-preview");
     let mode_tag = label(tr!("Ikke aktivert"), &["tag", "quiet"]);
+    // Merket følger teksthøyden, ikke panelhodets høyde.
+    mode_tag.set_valign(gtk::Align::Center);
     prev.head.insert_child_after(&mode_tag, Some(&prev.title));
     let mode_seg = Seg::new(&[("3d", tr!("3D")), ("2d", tr!("2D"))], "2d", tr!("Visning")).small();
     prev.aside.append(&mode_seg.root);

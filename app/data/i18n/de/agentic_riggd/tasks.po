@@ -8,54 +8,54 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/riggd/src/tasks.rs:67
+#: crates/riggd/src/tasks.rs:121
 msgid "GPU-minne fra NVML (avrundet til MiB). GPU-bruk per prosess er ikke tilgjengelig."
 msgstr "GPU-Speicher laut NVML (auf MiB gerundet). Die GPU-Auslastung je Prozess ist nicht verfügbar."
 
-#: crates/riggd/src/tasks.rs:69
+#: crates/riggd/src/tasks.rs:123
 msgid "GPU-minne og GPU-bruk per prosess er ikke tilgjengelig."
 msgstr "GPU-Speicher und GPU-Auslastung je Prozess sind nicht verfügbar."
 
-#: crates/riggd/src/tasks.rs:81
+#: crates/riggd/src/tasks.rs:135
 msgid "Ugyldig søk eller sortering av oppgaver."
 msgstr "Ungültige Suche oder Sortierung für Tasks."
 
-#: crates/riggd/src/tasks.rs:83
+#: crates/riggd/src/tasks.rs:137
 msgid "Høyst 128 tegn i søket og 1–100 oppgaver per side."
 msgstr "Höchstens 128 Zeichen pro Suche und 1–100 Tasks pro Seite."
 
-#: crates/riggd/src/tasks.rs:86
+#: crates/riggd/src/tasks.rs:140
 msgid "For mange eller ugyldige utvidede grupper."
 msgstr "Zu viele oder ungültige aufgeklappte Gruppen."
 
-#: crates/riggd/src/tasks.rs:91
+#: crates/riggd/src/tasks.rs:145
 msgid "{key} må være et positivt heltall."
 msgstr "{key} muss eine positive Ganzzahl sein."
 
-#: crates/riggd/src/tasks.rs:97
+#: crates/riggd/src/tasks.rs:151
 msgid "Velg enten et eksisterende eller et nyere prosessbilde."
 msgstr "Wählen Sie eine vorhandene oder eine neuere Prozessmomentaufnahme."
 
-#: crates/riggd/src/tasks.rs:159
+#: crates/riggd/src/tasks.rs:215
 msgid "Agentic HW Monitor eller en tilkoblet klient"
 msgstr "Agentic HW Monitor oder ein verbundener Client"
 
-#: crates/riggd/src/tasks.rs:172
+#: crates/riggd/src/tasks.rs:228
 msgid "GPU-bruk per prosess er ikke tilgjengelig."
 msgstr "Die GPU-Auslastung je Prozess ist nicht verfügbar."
 
-#: crates/riggd/src/tasks.rs:183 crates/riggd/src/tasks.rs:208
+#: crates/riggd/src/tasks.rs:239 crates/riggd/src/tasks.rs:273
 msgid "Ugyldig prosess-ID."
 msgstr "Ungültige Prozess-ID."
 
-#: crates/riggd/src/tasks.rs:187 crates/riggd/src/tasks.rs:213
+#: crates/riggd/src/tasks.rs:243 crates/riggd/src/tasks.rs:278
 msgid "Prosessens starttid må følge med."
 msgstr "Die Startzeit des Prozesses muss angegeben werden."
 
-#: crates/riggd/src/tasks.rs:202
+#: crates/riggd/src/tasks.rs:267
 msgid "Avslutning krever en egen bekreftelse."
 msgstr "Zum Beenden eines Tasks ist eine separate Bestätigung erforderlich."
 
-#: crates/riggd/src/tasks.rs:216
+#: crates/riggd/src/tasks.rs:281
 msgid "Agentic HW Monitor og tilkoblede klienter er beskyttet."
 msgstr "Agentic HW Monitor und verbundene Clients sind geschützt."

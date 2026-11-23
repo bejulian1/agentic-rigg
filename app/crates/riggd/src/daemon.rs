@@ -88,6 +88,8 @@ pub struct Daemon {
     pub tasks: Option<Rc<crate::tasks::TaskSnapshot>>,
     pub tasks_previous: std::collections::VecDeque<(u64, Rc<crate::tasks::TaskSnapshot>)>,
     pub tasks_until: Option<Instant>,
+    /// PSS/USS for den valgte prosessen, lest i en egen tråd (`get_task_detail`).
+    pub task_smaps: crate::tasks::SmapsSlot,
     pub tasks_generation: u64,
     pub tasks_snapshot_id: u64,
     /// Disklista fra prøvetråden (`get_disks`, runde 6A).
@@ -162,6 +164,7 @@ impl Daemon {
             tasks: None,
             tasks_previous: Default::default(),
             tasks_until: None,
+            task_smaps: Default::default(),
             tasks_generation: 0,
             tasks_snapshot_id: 0,
             disks: None,

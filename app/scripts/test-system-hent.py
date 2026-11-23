@@ -136,7 +136,7 @@ class HentTest(unittest.TestCase):
         if argv[:3] == ['/usr/bin/python3', '-I', '-S']:
             # `--keep-rgb` står rett etter installasjonsprogrammet.
             self.kept_rgb = '--keep-rgb' in argv
-            argv = [a for a in argv if a != '--keep-rgb']
+            argv = [a for a in argv if a not in ('--keep-rgb', '--keep-nvml')]
         old_scripts = argv[0].endswith(('rgb-gjenopprett.sh', 'rgb-avklar.sh', 'rgb-deaktiver.sh'))
         if argv[0].startswith('/usr/local/libexec/') and old_scripts:
             # De gamle, installerte RGB-skriptene tar låsen selv: den er ledig.
@@ -409,6 +409,30 @@ class HentTest(unittest.TestCase):
             self.assertEqual(self.main('nvml', '0000:1c:00.0', UUID), 0)
         self.assertEqual([Path(r[0]).name for r in self.runs], ['python3', 'aktiver.sh'])
         self.assertTrue(self.kept_rgb and self.journal.exists())
+
+    def test_rgb_med_gpu_fra_samme_bygg_lar_gpu_hjelperen_ga(self):
+        """«Bruk» på RGB-lys når GPU-delen er fra nøyaktig denne utgivelsen og
+        aktiv: bare RGB-delen installeres (`--keep-nvml`), og GPU-tillatelsen
+        aktiveres ikke på nytt (hjelperen stoppes aldri)."""
+        self.permission('nvml')
+        self.marker.write_text('2:27\n')
+        self.marker.chmod(0o644)
+        self.assertEqual(self.main('rgb', '0000:1c:00.0', UUID), 0)
+        self.assertEqual([Path(r[0]).name for r in self.runs], ['python3', 'rgb-aktiver.sh'])
+        self.assertIn('--keep-nvml', self.runs[0])
+        # Fra et eldre bygg byttes GPU-delen også, og tillatelsen gis tilbake.
+        self.runs.clear()
+        self.marker.write_text('2:26\n')
+        self.assertEqual(self.main('rgb', '0000:1c:00.0', UUID), 0)
+        self.assertEqual([Path(r[0]).name for r in self.runs], ['python3', 'aktiver.sh', 'rgb-aktiver.sh'])
+        self.assertNotIn('--keep-nvml', self.runs[0])
+
+    def test_journal_uten_rgb_tillatelse_gir_tydelig_melding_for_nettet(self):
+        self.journal.write_text('{}')
+        with self.assertRaisesRegex(SystemExit, 'RGB-journal uten RGB-tillatelse'):
+            self.main('rgb', '0000:1c:00.0', UUID)
+        self.assertEqual((self.urls, self.runs), ([], []))
+        self.assertTrue(self.journal.exists())
 
     def test_uten_rgb_installeres_alt_som_for(self):
         with contextlib.redirect_stdout(io.StringIO()) as out:

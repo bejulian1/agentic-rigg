@@ -48,7 +48,7 @@ msgstr "プロセスはすでに終了しています"
 msgid "Kjerneprosesser er beskyttet"
 msgstr "カーネルプロセスは保護されています"
 
-#: crates/rigg-hw/src/sys/process.rs:269 crates/rigg-hw/src/sys/process.rs:618
+#: crates/rigg-hw/src/sys/process.rs:269 crates/rigg-hw/src/sys/process.rs:623
 msgid "Avslutning krever en vanlig brukerøkt"
 msgstr "プロセスを終了するには通常のユーザーセッションが必要です"
 
@@ -72,30 +72,30 @@ msgstr "プロセスのユーザー権限を確認できません"
 msgid "Prosesslisten er utilgjengelig"
 msgstr "プロセス一覧を利用できません"
 
-#: crates/rigg-hw/src/sys/process.rs:486 crates/rigg-hw/src/sys/process.rs:632
+#: crates/rigg-hw/src/sys/process.rs:501 crates/rigg-hw/src/sys/process.rs:637
 msgid "Prosessen finnes ikke lenger eller kan ikke leses"
 msgstr "プロセスはもう存在しないか読み取れません"
 
-#: crates/rigg-hw/src/sys/process.rs:489 crates/rigg-hw/src/sys/process.rs:634
+#: crates/rigg-hw/src/sys/process.rs:504 crates/rigg-hw/src/sys/process.rs:639
 msgid "Prosessen er erstattet. Oppdater listen og velg på nytt"
 msgstr "プロセスが置き換わりました。一覧を更新して再選択してください"
 
-#: crates/rigg-hw/src/sys/process.rs:591 crates/rigg-hw/src/sys/process.rs:643
+#: crates/rigg-hw/src/sys/process.rs:596 crates/rigg-hw/src/sys/process.rs:648
 msgid "Prosessen er erstattet eller avsluttet"
 msgstr "プロセスが置き換わったか終了しました"
 
-#: crates/rigg-hw/src/sys/process.rs:610
+#: crates/rigg-hw/src/sys/process.rs:615
 msgid "Avslutning er sperret for testdata"
 msgstr "テストデータでは終了できません"
 
-#: crates/rigg-hw/src/sys/process.rs:613
+#: crates/rigg-hw/src/sys/process.rs:618
 msgid "Ugyldig eller beskyttet prosess"
 msgstr "無効または保護されたプロセスです"
 
-#: crates/rigg-hw/src/sys/process.rs:624
+#: crates/rigg-hw/src/sys/process.rs:629
 msgid "Kan ikke åpne sikker prosessreferanse: {feil}"
 msgstr "安全なプロセス参照を開けません: {feil}"
 
-#: crates/rigg-hw/src/sys/process.rs:655
+#: crates/rigg-hw/src/sys/process.rs:660
 msgid "Kunne ikke sende SIGTERM: {feil}"
 msgstr "SIGTERM を送信できませんでした: {feil}"
