@@ -1,0 +1,29 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic HW Monitor\n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/widgets/trader.rs:139
+msgid "Klokke og last per tråd"
+msgstr "Klocka och belastning per tråd"
+
+#: crates/rigg/src/widgets/trader.rs:148
+msgid "Tråd {t}: {m}, {l} last\nKlokke er snittet fra APERF/MPERF (cpufreq)."
+msgstr "Tråd {t}: {m}, {l} belastning\nKlockan är medelvärdet från APERF/MPERF (cpufreq)."
+
+#: crates/rigg/src/widgets/trader.rs:150
+msgid "{threads} deler kjerne (SMT)"
+msgstr "{threads} delar kärna (SMT)"
+
+#: crates/rigg/src/widgets/trader.rs:150
+msgid " og "
+msgstr " och "
+
+#: crates/rigg/src/widgets/trader.rs:271
+msgid "snitt {snitt} · last {last}"
+msgstr "medel {snitt} · belastning {last}"

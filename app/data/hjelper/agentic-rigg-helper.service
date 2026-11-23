@@ -1,4 +1,4 @@
-# Agentic Rigg · kortbundet root-hjelper for GPU-styring.
+# Agentic HW Monitor · kortbundet root-hjelper for GPU-styring.
 # Legges i /etc/systemd/system/ av aktiver.sh (bryteren i Innstillinger ›
 # Styring, via pkexec) og fjernes av deaktiver.sh. Se
 # docs/produksjon/hjelper-sikkerhet.md.
@@ -9,7 +9,7 @@
 # ExecStopPost å gjenopprette de fangede grunnverdiene og krever tilbakelesing.
 
 [Unit]
-Description=Agentic Rigg – hjelper for endring av skjermkortet
+Description=Agentic HW Monitor – hjelper for endring av skjermkortet
 ConditionPathExists=/etc/agentic-rigg/helper.json
 
 [Service]

@@ -1,6 +1,6 @@
 # RGB er separat fra NVML-hjelperen. Ingen automatisk enable/ExecStopPost.
 [Unit]
-Description=Agentic Rigg – separat kortbundet RGB-hjelper
+Description=Agentic HW Monitor – separat kortbundet RGB-hjelper
 ConditionPathExists=/etc/agentic-rigg/rgb.json
 
 [Service]

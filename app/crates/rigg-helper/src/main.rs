@@ -44,7 +44,7 @@ const HELP: &str =
       agentic-rigg-helper --rgb-gjenopprett --pci PCI --uuid UUID --uid UID --restore-original
       agentic-rigg-helper --rgb-adapter --pci PCI --uuid UUID --uid UID
 
-Root-hjelperen til Agentic Rigg. Startes av systemd etter at du har slått på
+Root-hjelperen til Agentic HW Monitor. Startes av systemd etter at du har slått på
 «Tillat endring av skjermkortet» i Innstillinger › Styring, og fjernes når du
 slår den av. Tar bare imot faste operasjoner fra tjenesten din, og bare for
 trinnene du har godkjent.
@@ -76,7 +76,7 @@ fn parse_args() -> Result<Args, String> {
         match arg.as_str() {
             "--version" | "-V" => {
                 println!(
-                    "Agentic Rigg-hjelperen {} · bygg {}",
+                    "Agentic HW Monitor-hjelperen {} · bygg {}",
                     rigg_core::version::VERSION,
                     rigg_core::version::BUILD_STR
                 );

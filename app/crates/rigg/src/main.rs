@@ -1,4 +1,4 @@
-//! `agentic-rigg`: vinduet til Agentic Rigg (GTK4, uten libadwaita).
+//! `agentic-rigg`: vinduet til Agentic HW Monitor (GTK4, uten libadwaita).
 //!
 //! ```text
 //! agentic-rigg [--side SIDE] [--innstillinger DEL] [--hint] [--version]

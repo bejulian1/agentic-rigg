@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Bygger og installerer Agentic Rigg for denne brukeren under ~/.local, rett
+# Bygger og installerer Agentic HW Monitor for denne brukeren under ~/.local, rett
 # fra en klone av repoet. Bruker ikke sudo, og slår ingenting på ved
 # innlogging. Valgfrie systemhjelpere installeres separat fra et verifisert arkiv.
 #
@@ -48,7 +48,7 @@ if [ "$build" = 1 ]; then
         missing+=(libgtk-4-dev)
     fi
     if [ ${#missing[@]} -gt 0 ]; then
-        echo "Disse pakkene mangler for å bygge Agentic Rigg:" >&2
+        echo "Disse pakkene mangler for å bygge Agentic HW Monitor:" >&2
         echo >&2
         echo "  sudo apt install ${missing[*]}" >&2
         echo >&2
@@ -58,10 +58,10 @@ if [ "$build" = 1 ]; then
     # Rust 1.92 eller nyere (edition 2024).
     rv=$(rustc --version | awk '{print $2}')
     if [ "$(printf '%s\n1.92.0\n' "$rv" | sort -V | head -1)" != "1.92.0" ]; then
-        echo "Rust $rv er for gammel. Agentic Rigg trenger 1.92 eller nyere (rustup update)." >&2
+        echo "Rust $rv er for gammel. Agentic HW Monitor trenger 1.92 eller nyere (rustup update)." >&2
         exit 1
     fi
-    echo "Bygger Agentic Rigg. Første gang tar det noen minutter ..."
+    echo "Bygger Agentic HW Monitor. Første gang tar det noen minutter ..."
     (cd "$here/app" && CARGO_TARGET_DIR=$target_dir cargo build --release --locked --workspace)
 fi
 
@@ -75,5 +75,5 @@ fi
 
 if [ "$start" = 1 ] && [ -n "${WAYLAND_DISPLAY:-}${DISPLAY:-}" ]; then
     setsid "$HOME/.local/bin/agentic-rigg" >/dev/null 2>&1 < /dev/null &
-    echo "Agentic Rigg er startet. Den ligger også i «Vis programmer»."
+    echo "Agentic HW Monitor er startet. Den ligger også i «Vis programmer»."
 fi

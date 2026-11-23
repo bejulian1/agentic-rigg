@@ -1,6 +1,6 @@
 [package]
 name = "rigg-core"
-description = "Ren Rust for Agentic Rigg: datamodell, protokoll, historikk, innstillinger, formatering"
+description = "Ren Rust for Agentic HW Monitor: datamodell, protokoll, historikk, innstillinger, formatering"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

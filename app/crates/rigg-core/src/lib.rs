@@ -1,4 +1,4 @@
-//! Agentic Rigg · felles kjerne uten GTK og uten NVML.
+//! Agentic HW Monitor · felles kjerne uten GTK og uten NVML.
 //!
 //! Brukes av tjenesten (`riggd`) og vinduet (`rigg`). Alt her er ren Rust og
 //! kan testes på under ett sekund (`cargo test -p rigg-core`).
@@ -43,7 +43,7 @@ pub mod version {
         BUILD_STR.parse().unwrap_or(0)
     }
 
-    /// «Agentic Rigg 1.2.0 · bygg 18», som `--version` og Om skriver.
+    /// «Agentic HW Monitor 1.2.0 · bygg 18», som `--version` og Om skriver.
     pub fn long() -> String {
         format!("{NAME} {VERSION} · bygg {BUILD_STR}")
     }
@@ -80,8 +80,8 @@ mod tests {
     #[test]
     fn versjonen_er_lik_i_cargo_og_version_json() {
         assert_eq!(env!("CARGO_PKG_VERSION"), super::version::VERSION);
-        assert_eq!(super::version::NAME, "Agentic Rigg");
+        assert_eq!(super::version::NAME, "Agentic HW Monitor");
         assert!(super::version::build() >= 16);
-        assert_eq!(super::version::long(), format!("Agentic Rigg {} · bygg {}", super::version::VERSION, super::version::BUILD_STR));
+        assert_eq!(super::version::long(), format!("Agentic HW Monitor {} · bygg {}", super::version::VERSION, super::version::BUILD_STR));
     }
 }

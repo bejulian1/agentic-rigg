@@ -448,7 +448,7 @@ mod tests {
         let good = manifest(VERSION_JSON);
         assert_eq!(checked_manifest(&good, VERSION_JSON).as_deref(), Ok(good.as_str()));
         // En annen versjon, manglende systemfiler, feil format eller farlige stier.
-        let other = manifest(b"{\"name\":\"Agentic Rigg\",\"version\":\"0.0.1\",\"build\":1}");
+        let other = manifest(b"{\"name\":\"Agentic HW Monitor\",\"version\":\"0.0.1\",\"build\":1}");
         let missing = good.replace("data/hjelper/system-install", "data/hjelper/aktiver.sh");
         let doubled = format!("{good}{}", good.lines().next().unwrap().to_owned() + "\n");
         let upper = good.replacen(&"a".repeat(64), &"A".repeat(64), 1);

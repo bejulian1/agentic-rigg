@@ -69,6 +69,13 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+# Visningsnavnet i arkivets `version.json`. Appen het «Agentic Rigg» til og
+# med 1.6.0 (bygg 32), så utgivelser fra den tiden godtas med det gamle
+# navnet. Senere bygg må oppgi det nye. Repo, arkivnavn, stier og enheter er
+# tekniske identifikatorer og er uendret.
+NAME = 'Agentic HW Monitor'
+OLD_NAME = 'Agentic Rigg'
+OLD_NAME_LAST_BUILD = 32
 REPO = 'bejulian1/agentic-rigg'
 API = 'https://api.github.com/repos/' + REPO + '/releases/tags/v{version}'
 DOWNLOAD = 'https://github.com/' + REPO + '/releases/download/v{version}/{name}'
@@ -196,11 +203,17 @@ def pinned(text):
     return pins
 
 
+def known_name(name, build):
+    """Er `name` appens visningsnavn for en utgivelse med dette bygget?"""
+    return name == NAME or (name == OLD_NAME and build <= OLD_NAME_LAST_BUILD)
+
+
 def verified_installer(archive, version, build, pins):
     """Installasjonsprogrammet fra et arkiv med riktig identitet.
 
     Arkivet må ha én rotmappe `agentic-rigg-VERSJON` med bare vanlige filer,
-    og `version.json` må oppgi nøyaktig samme versjon og bygg. Med `pins`
+    og `version.json` må oppgi appens navn og nøyaktig samme versjon og bygg
+    (se `known_name` for navnet før og etter navnebyttet). Med `pins`
     må de systemrelevante medlemmene være nøyaktig de festede filene.
     """
     root = f'agentic-rigg-{version}'
@@ -235,10 +248,10 @@ def verified_installer(archive, version, build, pins):
         identity = json.loads(kept.get('version.json', b''))
     except ValueError:
         identity = None
-    if (not isinstance(identity, dict) or identity.get('name') != 'Agentic Rigg'
+    if (not isinstance(identity, dict) or not known_name(identity.get('name'), int(build))
             or identity.get('version') != version or type(identity.get('build')) is not int
             or identity['build'] != int(build)):
-        fail(f'Arkivet er ikke Agentic Rigg {version} bygg {build}. Ingen systemfiler endret.')
+        fail(f'Arkivet er ikke {NAME} {version} bygg {build}. Ingen systemfiler endret.')
     installer = kept.get('data/hjelper/system-install')
     if installer is None:
         fail('Arkivet har ikke ett gyldig installasjonsprogram.')

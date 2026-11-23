@@ -260,7 +260,7 @@ impl Notifier {
         hints.insert("urgency".into(), 1u8.to_variant());
         hints.insert("category".into(), "device".to_variant());
         let actions = vec!["default".to_string(), tr!("Åpne").to_string()];
-        let params = ("Agentic Rigg", replaces, app_id.as_str(), title, body, actions, hints, -1i32).to_variant();
+        let params = (rigg_core::version::NAME, replaces, app_id.as_str(), title, body, actions, hints, -1i32).to_variant();
         self.ensure_watch();
         let me = self.clone();
         let (key, page) = (key.to_string(), page.to_string());

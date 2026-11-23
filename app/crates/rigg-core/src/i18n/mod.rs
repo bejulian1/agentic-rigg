@@ -17,12 +17,15 @@ pub enum Language {
     Pl,
     ZhCn,
     Ja,
+    Sv,
 }
 
 impl Language {
-    pub const ALL: [Self; 10] = [
+    /// Rekkefølgen i nedtrekkslista: bokmål og engelsk først, deretter
+    /// latinsk skrift og til slutt østasiatisk.
+    pub const ALL: [Self; 11] = [
         Self::Nb, Self::En, Self::De, Self::Fr, Self::Es, Self::PtBr, Self::It,
-        Self::Pl, Self::ZhCn, Self::Ja,
+        Self::Pl, Self::Sv, Self::ZhCn, Self::Ja,
     ];
 
     pub const fn code(self) -> &'static str {
@@ -37,6 +40,7 @@ impl Language {
             Self::Pl => "pl",
             Self::ZhCn => "zh-CN",
             Self::Ja => "ja",
+            Self::Sv => "sv",
         }
     }
 
@@ -52,6 +56,7 @@ impl Language {
             Self::Pl => "Polski",
             Self::ZhCn => "简体中文",
             Self::Ja => "日本語",
+            Self::Sv => "Svenska",
         }
     }
 
@@ -71,6 +76,8 @@ impl Language {
         }
     }
 
+    /// Samme regel som `Plural-Forms` i språkets kataloger. Testen
+    /// `flertallsregler_følger_katalogene` sammenligner de to for hvert språk.
     fn plural_index(self, count: u128) -> usize {
         match self {
             Self::ZhCn | Self::Ja => 0,
@@ -78,7 +85,7 @@ impl Language {
             Self::Pl if count == 1 => 0,
             Self::Pl if matches!(count % 10, 2..=4) && !matches!(count % 100, 12..=14) => 1,
             Self::Pl => 2,
-            _ => usize::from(count != 1),
+            Self::Nb | Self::En | Self::De | Self::Es | Self::It | Self::Sv => usize::from(count != 1),
         }
     }
 }
@@ -250,6 +257,34 @@ mod tests {
         assert_eq!(detect(None, Some("zh_TW")), Language::En);
         assert_eq!(detect(None, Some("C.UTF-8")), Language::En);
         assert_eq!(detect(None, None), Language::En);
+        // Svensk velges fra systemet, også finlandssvensk og med LANGUAGE-liste.
+        for locale in ["sv_SE.UTF-8", "sv_FI", "sv", "sv_SE@euro"] {
+            assert_eq!(detect(None, Some(locale)), Language::Sv, "{locale}");
+            assert_eq!(detect(Some(locale), Some("nb_NO")), Language::Sv, "LANGUAGE={locale}");
+        }
+        assert_eq!(detect(Some("fi_FI:sv_FI:en"), Some("fi_FI.UTF-8")), Language::Sv);
+        // Nabospråk uten egen oversettelse får engelsk, ikke svensk eller bokmål.
+        for locale in ["da_DK.UTF-8", "fi_FI.UTF-8", "is_IS", "nl_NL.UTF-8", "ru_RU.UTF-8"] {
+            assert_eq!(detect(None, Some(locale)), Language::En, "{locale}");
+        }
+    }
+
+    #[test]
+    fn hvert_språk_har_entydig_kode_og_navn() {
+        let mut codes: Vec<_> = Language::ALL.map(Language::code).to_vec();
+        let mut names: Vec<_> = Language::ALL.map(Language::native_name).to_vec();
+        codes.sort_unstable();
+        codes.dedup();
+        names.sort_unstable();
+        names.dedup();
+        assert_eq!((codes.len(), names.len()), (Language::ALL.len(), Language::ALL.len()));
+        for lang in Language::ALL {
+            assert_eq!(Language::from_code(lang.code()), Some(lang));
+            assert!(!lang.native_name().trim().is_empty());
+            // «Følg systemet» finner språket fra sin egen kode i POSIX-skrivemåte.
+            assert_eq!(detect(None, Some(&format!("{}.UTF-8", lang.code().replace('-', "_")))), lang);
+        }
+        assert_eq!(Language::from_code("system"), None);
     }
 
     #[test]
@@ -260,6 +295,35 @@ mod tests {
         assert_eq!(Language::Ja.plural_index(9), 0);
         assert_eq!(Language::Fr.plural_index(0), 0);
         assert_eq!(Language::PtBr.plural_index(2), 1);
+        assert_eq!([0, 1, 2, 11, 21].map(|n| Language::Sv.plural_index(n)), [1, 0, 1, 1, 1]);
+    }
+
+    /// `PLURAL_TABLE` er regnet ut av byggskriptet fra `Plural-Forms` i
+    /// katalogene. Et språk der Rust-regelen og katalogregelen spriker,
+    /// ville ellers vist feil flertallsform uten at bygget merket det.
+    #[test]
+    fn flertallsregler_følger_katalogene() {
+        assert_eq!(PLURAL_TABLE.len(), Language::ALL.len());
+        for lang in Language::ALL {
+            let (_, forms, table) = PLURAL_TABLE.iter().find(|(code, ..)| *code == lang.code())
+                .unwrap_or_else(|| panic!("ingen flertallsregel for {}", lang.code()));
+            assert_eq!(table.len(), 1000);
+            for (n, expected) in table.iter().enumerate() {
+                assert_eq!(lang.plural_index(n as u128), usize::from(*expected), "{} n={n}", lang.code());
+            }
+            assert_eq!(table.iter().copied().max().map(usize::from), Some(forms - 1), "{}", lang.code());
+        }
+    }
+
+    /// Hvert språk i nedtrekkslista har en innebygd katalog med oversettelser.
+    #[test]
+    fn hvert_språk_har_katalog() {
+        let reference = catalog(Language::En).len();
+        assert!(reference > 1000);
+        assert!(catalog(Language::Nb).is_empty(), "bokmål går rett til kildeteksten");
+        for lang in Language::ALL.into_iter().filter(|lang| *lang != Language::Nb) {
+            assert_eq!(catalog(lang).len(), reference, "{} mangler oversettelser", lang.code());
+        }
     }
 
     #[test]

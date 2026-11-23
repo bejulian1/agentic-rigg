@@ -1,10 +1,12 @@
-# Agentic Rigg
+# Agentic HW Monitor
 
-A lightweight Linux hardware monitor with opt-in NVIDIA GPU control, written in Rust and GTK 4. Inspired by MSI Afterburner, HWiNFO, GPU-Z, CPU-Z, CrystalDiskInfo and the Windows Task Manager, Agentic Rigg brings sensors, long-term graphs, processes, CPU/GPU specifications, SMART disk health, card-bound GPU tuning and GPU RGB lighting together in one native app with no Electron overhead.
+A lightweight Linux hardware monitor with opt-in NVIDIA GPU control, written in Rust and GTK 4. Inspired by MSI Afterburner, HWiNFO, GPU-Z, CPU-Z, CrystalDiskInfo and the Windows Task Manager, Agentic HW Monitor brings sensors, long-term graphs, processes, CPU/GPU specifications, SMART disk health, card-bound GPU tuning and GPU RGB lighting together in one native app with no Electron overhead.
 
 [Latest release](https://github.com/bejulian1/agentic-rigg/releases/latest) · [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Contributors](CONTRIBUTORS.md)
 
-> **Languages:** The interface is available in 10 languages: Norwegian Bokmål, English, German, French, Spanish, Portuguese (Brazil), Italian, Polish, Simplified Chinese and Japanese. By default it follows your system language; you can change it under `Settings › General › Language`. Issues and pull requests are welcome in English or Norwegian.
+> **Renamed:** The app was called *Agentic Rigg* up to and including 1.6.0. Only the display name changed. The repository, the `agentic-rigg` commands, the app ID `io.github.AgenticRigg` and every path keep their names, so settings, history, logs and an already authorized GPU helper carry over unchanged.
+
+> **Languages:** The interface is available in 11 languages: Norwegian Bokmål, English, German, French, Spanish, Portuguese (Brazil), Italian, Polish, Swedish, Simplified Chinese and Japanese. By default it follows your system language; you can change it under `Settings › General › Language`. Issues and pull requests are welcome in English or Norwegian.
 
 <table>
   <tr><th>Fans</th><th>Clocks &amp; Power</th><th>RGB lighting</th></tr>

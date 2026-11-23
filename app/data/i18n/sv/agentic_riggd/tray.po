@@ -1,0 +1,75 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic HW Monitor\n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/riggd/src/tray.rs:104
+msgid "Ingen tall fra skjermkortet"
+msgstr "Inga värden från grafikkortet"
+
+#: crates/riggd/src/tray.rs:106
+msgid "GPU {temperatur} · {effekt} · {last} last"
+msgstr "GPU {temperatur} · {effekt} · {last} belastning"
+
+#: crates/riggd/src/tray.rs:109
+msgid " · Logger"
+msgstr " · Loggar"
+
+#: crates/riggd/src/tray.rs:120
+msgid "Logger til fil · {antall} rader"
+msgid_plural "Logger til fil · {antall} rader"
+msgstr[0] "Loggar till fil · {antall} rad"
+msgstr[1] "Loggar till fil · {antall} rader"
+
+#: crates/riggd/src/tray.rs:121
+msgid "Logger til fil"
+msgstr "Loggar till fil"
+
+#: crates/riggd/src/tray.rs:124
+msgid "Tar opp historikk i bakgrunnen"
+msgstr "Spelar in historik i bakgrunden"
+
+#: crates/riggd/src/tray.rs:169
+msgid "Åpne Agentic HW Monitor"
+msgstr "Öppna Agentic HW Monitor"
+
+#: crates/riggd/src/tray.rs:170
+msgid "Stopp logging"
+msgstr "Stoppa loggningen"
+
+#: crates/riggd/src/tray.rs:170
+msgid "Start logging"
+msgstr "Starta loggningen"
+
+#: crates/riggd/src/tray.rs:172
+msgid "Stopp bakgrunnsopptak"
+msgstr "Stoppa bakgrundsinspelningen"
+
+#: crates/riggd/src/tray.rs:558
+msgid "Systemfeltet: verten tok ikke imot ikonet: {e}"
+msgstr "Systemfältet: värden tog inte emot ikonen: {e}"
+
+#: crates/riggd/src/tray.rs:668
+msgid "Systemfeltet kunne ikke lages: {e}"
+msgstr "Systemfältsikonen kunde inte skapas: {e}"
+
+#: crates/riggd/src/tray.rs:678
+msgid "Kunne ikke starte loggen fra systemfeltet: {verdi}"
+msgstr "Det gick inte att starta loggen från systemfältet: {verdi}"
+
+#: crates/riggd/src/tray.rs:686
+msgid "Stopper bakgrunnsopptaket fra systemfeltet."
+msgstr "Stoppar bakgrundsinspelningen från systemfältet."
+
+#: crates/riggd/src/tray.rs:711
+msgid "Kunne ikke åpne Agentic HW Monitor: {e}"
+msgstr "Det gick inte att öppna Agentic HW Monitor: {e}"
+
+#: crates/riggd/src/tray.rs:714
+msgid "Fant ikke Agentic HW Monitor ({desktop})."
+msgstr "Hittade inte Agentic HW Monitor ({desktop})."

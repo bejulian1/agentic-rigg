@@ -1,4 +1,4 @@
-# Agentic Rigg 1.2 · arbeidsområdet (docs/produksjon/arkitektur.md kap. 9).
+# Agentic HW Monitor 1.2 · arbeidsområdet (docs/produksjon/arkitektur.md kap. 9).
 # Versjonen står også i version.json; en test i rigg-core sjekker at de er like.
 [workspace]
 members = ["crates/rigg-core", "crates/rigg-hw", "crates/riggd", "crates/rigg", "crates/rigg-helper"]

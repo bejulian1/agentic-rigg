@@ -31,7 +31,7 @@ if [ -e "$hjelper_rot/etc/agentic-rigg/rgb.json" ] ||
    { [ -d "$hjelper_rot/var/lib/agentic-rigg-rgb" ] &&
      [ ! -f "$hjelper_rot/var/lib/agentic-rigg-rgb.inactive" ]; }; then
     cat >&2 <<'EOF'
-Slå av RGB-tilgangen før du avinstallerer Agentic Rigg.
+Slå av RGB-tilgangen før du avinstallerer Agentic HW Monitor.
 Åpne Lys › Lys på kortet. Gjenopprett og bekreft lyset visuelt
 hvis en endring venter. Hvis arbeideren er stoppet eller utdatert, bruk
 «Gjenopprett lagret lys» ved behov, deretter «Avklar tidligere økt».
@@ -77,7 +77,7 @@ if [ -d "$data_dir/applications" ] && command -v update-desktop-database >/dev/n
     update-desktop-database --quiet "$data_dir/applications" || true
 fi
 
-echo "Agentic Rigg er fjernet."
+echo "Agentic HW Monitor er fjernet."
 echo "Innstillingene og historikken er ikke rørt:"
 printf '  %s\n' "$config_dir/agentic-rigg/" "$state_dir/agentic-rigg/"
 echo "Slett dem selv med:"

@@ -1,10 +1,10 @@
-# Regler for produksjonsbygget av Agentic Rigg
+# Regler for produksjonsbygget av Agentic HW Monitor
 
 Disse reglene gjelder alle agenter som jobber på den ekte desktop-appen. Les dem før du gjør noe.
 
 ## Mål
 
-Agentic Rigg skal bli en ekte Ubuntu-desktop-app, skrevet i Rust med GTK4, ikke Electron. Den skal fungere som MSI Afterburner, HWiNFO, GPU-Z og CPU-Z, ikke som en demo.
+Agentic HW Monitor (til og med 1.6.0: «Agentic Rigg», se [Navn](#navn)) skal bli en ekte Ubuntu-desktop-app, skrevet i Rust med GTK4, ikke Electron. Den skal fungere som MSI Afterburner, HWiNFO, GPU-Z og CPU-Z, ikke som en demo.
 
 - Appen skal åpne og lukke seg øyeblikkelig og bruke lite RAM.
 - Den skal ligge i appmenyen («Vis programmer»).
@@ -40,10 +40,24 @@ Disse reglene kan ikke brytes.
 5. **Ikke fyll disken.** Transcend-disken har bare cirka 28 GB ledig, så byggeutdata skal ligge i `~/.cache/rigg-build`, ikke i prosjektmappa.
 6. **Lesing er trygt.** `nvidia-smi` med spørreflagg, NVML-get-kall, `/sys`, `/proc` og `lspci`/`lscpu`/`dmidecode` uten root er greit. Det samme gjelder `sensors`, hvis det finnes.
 
+## Navn
+
+Visningsnavnet er **Agentic HW Monitor** fra og med utgaven etter 1.6.0 (bygg 32). Det står ett sted for appen, i `app/version.json` (`name`), og hentes derfra til vindustittelen, sidefeltet, Om, rapportene, systemfeltet, varslene og `--version`. Skrivebordsfilen, polkit-meldingene, systemd-beskrivelsene, språkkatalogene og dokumentasjonen bruker samme navn.
+
+Tekniske identifikatorer er **ikke** endret og skal ikke endres uten en egen migrering, fordi brukeren ellers mister innstillinger og historikk og må aktivere hjelperen på nytt:
+
+- app-ID `io.github.AgenticRigg` (også ikonnavn, GResource-sti og polkit-handlinger)
+- binærene `agentic-rigg`, `agentic-riggd` og `agentic-rigg-helper`, og crate-navnene
+- `~/.config/agentic-rigg`, `~/.local/state/agentic-rigg`, `~/.local/share/agentic-rigg`, `/usr/local/libexec/agentic-rigg*`, `/etc/agentic-rigg`, `/run/agentic-rigg*`, `/var/lib/agentic-rigg*`, socketene og systemd-enhetene
+- standardmappa for logger, `~/Dokumenter/Agentic Rigg/`, så eksisterende CSV-logger blir liggende der brukeren finner dem
+- repoet `bejulian1/agentic-rigg` og arkivnavnet `agentic-rigg-VERSJON-buildBYGG-ubuntu26.04-amd64.tar.gz`, som systeminstallasjonen laster ned
+
+`system-hent.py` kontrollerer navnet i arkivets `version.json`. Utgivelser til og med bygg 32 godtas med det gamle navnet, senere bygg må oppgi det nye (`known_name`). `i18n-revisjon.py --check` feiler hvis en oversettelse endrer appnavnet eller bruker det gamle utenfor loggmappestien. Eldre utgivelsesnotater, PATCHLOG, CHANGELOG og LOGG beskriver historikken og skrives ikke om.
+
 ## Struktur
 
 - Rust-arbeidsområdet ligger i `agentic-rigg/app/` (Cargo-workspace). Den lokale demoen ligger der den ligger, utenfor git.
-- App-ID er `io.github.AgenticRigg`.
+- App-ID er `io.github.AgenticRigg` (uendret ved navnebyttet, se [Navn](#navn)).
 - All tekst i brukerflaten og interne produksjonsdokumenter er på norsk bokmål. Etter at repoet ble åpen kildekode 20. november 2026 er de offentlige inngangsdokumentene på engelsk: `README.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `CONTRIBUTORS.md` og malene under `.github/`. Applikasjonen skal ikke inneholde demo-, forhåndsvisnings- eller plassholderfunksjoner; simulering er bare for isolerte tester.
 - Dokumenter for produksjonsarbeidet ligger i `agentic-rigg/docs/produksjon/`.
 - Hver agent oppdaterer `docs/produksjon/LOGG.md` med en kort oppføring om hva den har gjort.

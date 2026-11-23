@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Agentic Rigg\n"
+"Project-Id-Version: Agentic HW Monitor\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -62,7 +62,7 @@ msgstr "Computer asleep"
 
 #: crates/rigg/src/pages/grafikkort.rs:107
 msgid "Prøvene står stille og starter igjen 2 s etter at maskinen våkner."
-msgstr "Sampling is paused and resumes 2 s after the computer wakes."
+msgstr "Sampling is paused and resumes 2 s after the computer wakes."
 
 #: crates/rigg/src/pages/grafikkort.rs:110 crates/rigg/src/pages/grafikkort.rs:193
 msgid "Fant ingen NVIDIA-driver"

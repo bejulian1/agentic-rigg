@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Agentic Rigg\n"
+"Project-Id-Version: Agentic HW Monitor\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -442,7 +442,7 @@ msgstr "Current clock limit."
 
 #: crates/rigg/src/pages/sensorer.rs:1671
 msgid "Klokkebegrensning akkurat nå. I P8 leses den ikke (kallet koster 25 ms)."
-msgstr "Current clock limit. Not read in P8 (the call takes 25 ms)."
+msgstr "Current clock limit. Not read in P8 (the call takes 25 ms)."
 
 #: crates/rigg/src/pages/sensorer.rs:1672
 msgid "Klokkebegrensning akkurat nå: {arsaker}."
@@ -450,7 +450,7 @@ msgstr "Current clock limit: {arsaker}."
 
 #: crates/rigg/src/pages/sensorer.rs:1673
 msgid "Klokkebegrensning akkurat nå: {arsaker}. I P8 leses den ikke (kallet koster 25 ms)."
-msgstr "Current clock limit: {arsaker}. Not read in P8 (the call takes 25 ms)."
+msgstr "Current clock limit: {arsaker}. Not read in P8 (the call takes 25 ms)."
 
 #: crates/rigg/src/pages/sensorer.rs:1691
 msgid "Løsne «{navn}» fra statusblokken"

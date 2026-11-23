@@ -1,4 +1,4 @@
-//! Agentic Rigg · maskinvare. Bare lesing.
+//! Agentic HW Monitor · maskinvare. Bare lesing.
 //!
 //! - [`gpu`]: skjermkortet. `Nvml` (bare `nvmlDeviceGet*`/`nvmlSystemGet*`,
 //!   lastet med `dlopen`) og `Sim` (scenarier for tester og skjermbilder).

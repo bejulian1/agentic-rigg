@@ -1,0 +1,17 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic HW Monitor\n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/state.rs:272
+msgid "Kunne ikke lagre innstillingen"
+msgstr "Det gick inte att spara inställningen"
+
+#: crates/rigg/src/state.rs:330
+msgid "Tjenesten tok ikke imot endringen"
+msgstr "Tjänsten tog inte emot ändringen"

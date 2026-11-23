@@ -173,7 +173,7 @@ pub(super) fn plan() -> Vec<Step> {
             Eval(|_| {
                 let win = dialog();
                 let path = std::path::PathBuf::from(std::env::var_os("RIGG_SKJERMBILDER").unwrap()).join("oppgaver-avslutt-bekreftelse.png");
-                super::shot(win.upcast_ref(), &path);
+                let _ = super::shot(win.upcast_ref(), &path);
                 click_dialog("Avbryt");
                 assert!(std::path::Path::new(&format!("/proc/{}", own_pid())).exists(), "Avbryt skal ikke sende signal");
             }),

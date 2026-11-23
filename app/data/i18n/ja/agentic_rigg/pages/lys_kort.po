@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Agentic Rigg\n"
+"Project-Id-Version: Agentic HW Monitor\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -157,8 +157,8 @@ msgid "Farge og lysstyrke kan leses tilbake. Effektmodusen kan ikke leses; en vi
 msgstr "色と明るさは読み戻せますが、エフェクトモードは読み戻せません。目視確認はご自身の観察に基づきます。"
 
 #: crates/rigg/src/pages/lys_kort.rs:527
-msgid "Agentic Rigg støtter Palit GeForce RTX 2080 Super JetStream via den separate RGB-hjelperen."
-msgstr "Agentic Rigg は別の RGB 補助プログラムを通じて Palit GeForce RTX 2080 Super JetStream に対応しています。"
+msgid "Agentic HW Monitor støtter Palit GeForce RTX 2080 Super JetStream via den separate RGB-hjelperen."
+msgstr "Agentic HW Monitor は別の RGB 補助プログラムを通じて Palit GeForce RTX 2080 Super JetStream に対応しています。"
 
 #: crates/rigg/src/pages/lys_kort.rs:534
 msgid "Sjekk igjen"

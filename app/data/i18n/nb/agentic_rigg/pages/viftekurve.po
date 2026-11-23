@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Agentic Rigg\n"
+"Project-Id-Version: Agentic HW Monitor\n"
 "Language: nb\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -110,8 +110,8 @@ msgid "Kurve"
 msgstr "Kurve"
 
 #: crates/rigg/src/pages/viftekurve.rs:1228
-msgid "Agentic Rigg setter farten etter viftekurven hvert sekund."
-msgstr "Agentic Rigg setter farten etter viftekurven hvert sekund."
+msgid "Agentic HW Monitor setter farten etter viftekurven hvert sekund."
+msgstr "Agentic HW Monitor setter farten etter viftekurven hvert sekund."
 
 #: crates/rigg/src/pages/viftekurve.rs:1229 crates/rigg/src/pages/viftekurve.rs:2606
 msgid "Manuell"
@@ -788,8 +788,8 @@ msgid "tjenesten styrer"
 msgstr "tjenesten styrer"
 
 #: crates/rigg/src/pages/viftekurve.rs:2663
-msgid "fast fart fra Agentic Rigg"
-msgstr "fast fart fra Agentic Rigg"
+msgid "fast fart fra Agentic HW Monitor"
+msgstr "fast fart fra Agentic HW Monitor"
 
 #: crates/rigg/src/pages/viftekurve.rs:2663
 msgid "satt utenfor appen"
@@ -916,8 +916,8 @@ msgid "Stiplet: standardkurven. Den brukes bare i modus Kurve; nå styrer driver
 msgstr "Stiplet: standardkurven. Den brukes bare i modus Kurve; nå styrer driveren. Dra et punkt for å lage et utkast."
 
 #: crates/rigg/src/pages/viftekurve.rs:2794
-msgid "Hver endring må beholdes innen {tid}, ellers rulles den tilbake. Lukkes Agentic Rigg helt, går viftene tilbake til Auto."
-msgstr "Hver endring må beholdes innen {tid}, ellers rulles den tilbake. Lukkes Agentic Rigg helt, går viftene tilbake til Auto."
+msgid "Hver endring må beholdes innen {tid}, ellers rulles den tilbake. Lukkes Agentic HW Monitor helt, går viftene tilbake til Auto."
+msgstr "Hver endring må beholdes innen {tid}, ellers rulles den tilbake. Lukkes Agentic HW Monitor helt, går viftene tilbake til Auto."
 
 #: crates/rigg/src/pages/viftekurve.rs:2808
 msgid "Ingen endringer"

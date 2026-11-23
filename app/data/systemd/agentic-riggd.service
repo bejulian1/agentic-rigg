@@ -1,5 +1,5 @@
 [Unit]
-Description=Agentic Rigg – sensorer og historikk
+Description=Agentic HW Monitor – sensorer og historikk
 Documentation=file://%h/.local/share/doc/agentic-rigg/README.md
 
 [Service]

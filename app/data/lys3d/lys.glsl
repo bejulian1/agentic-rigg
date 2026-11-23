@@ -1,4 +1,4 @@
-// Agentic Rigg, 3D-kortet paa Lys. Port av web/js/lys3d/gl/renderer.js (WebGL 2),
+// Agentic HW Monitor, 3D-kortet paa Lys. Port av web/js/lys3d/gl/renderer.js (WebGL 2),
 // uendret bortsett fra at renderer.rs setter inn lys.glsl ved include-linjen.
 // Bare ASCII, uten apostrofer: noen GLSL-kompilatorer avviser andre tegn.
 uniform vec3 u_barA;

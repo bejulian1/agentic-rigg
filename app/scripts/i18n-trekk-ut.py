@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Trekk ut, kontroller og bygg inn Agentic Riggs gettext-kataloger."""
+"""Trekk ut, kontroller og bygg inn gettext-katalogene til Agentic HW Monitor."""
 
 import argparse
 import ast
@@ -14,7 +14,7 @@ import tomllib
 APP = Path(__file__).resolve().parents[1]
 ROOT = APP / "data/i18n"
 RULES = dict.fromkeys(
-    ("nb", "en", "de", "es", "it"), "nplurals=2; plural=(n != 1);"
+    ("nb", "en", "de", "es", "it", "sv"), "nplurals=2; plural=(n != 1);"
 ) | dict.fromkeys(
     ("fr", "pt-BR"), "nplurals=2; plural=(n > 1);"
 ) | dict.fromkeys(
@@ -22,7 +22,9 @@ RULES = dict.fromkeys(
 ) | {
     "pl": "nplurals=3; plural=(n == 1 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : 2);"
 }
-LANGS = ("nb", "en", "de", "fr", "es", "pt-BR", "it", "pl", "zh-CN", "ja")
+# Samme rekkefølge som `Language::ALL` i rigg_core::i18n (nedtrekkslista).
+LANGS = ("nb", "en", "de", "fr", "es", "pt-BR", "it", "pl", "sv", "zh-CN", "ja")
+PLURAL_TOKEN = re.compile(r'\s*(\d+|n|\|\||&&|[=!<>]=|[()?:%<>])')
 TOKEN = re.compile(
     r'//[^\n]*|/\*|(?P<raw>r(?P<hash>\#*)"(?s:.*?)"(?P=hash))'
     r'|(?P<string>"(?:[^"\\]|\\.)*")|\'(?:[^\'\\\n]|\\[^\n]+?)\''
@@ -202,10 +204,79 @@ def nplurals(lang):
     return int(RULES[lang][9])
 
 
+def plural_form(lang, n):
+    """Regner ut `plural=`-uttrykket i språkets Plural-Forms for antallet `n`."""
+    expression = RULES[lang].partition("plural=")[2].rstrip(";")
+    parts = PLURAL_TOKEN.findall(expression)
+    if "".join(parts) != "".join(expression.split()):
+        raise Invalid(f"{lang}: ukjent tegn i Plural-Forms")
+    position = 0
+
+    def peek():
+        return parts[position] if position < len(parts) else None
+
+    def take(expected=None):
+        nonlocal position
+        token = peek()
+        if token is None or (expected is not None and token != expected):
+            raise Invalid(f"{lang}: ugyldig Plural-Forms")
+        position += 1
+        return token
+
+    def primary():
+        token = take()
+        if token == "(":
+            value = ternary()
+            take(")")
+            return value
+        if token == "n":
+            return n
+        if token.isdigit():
+            return int(token)
+        raise Invalid(f"{lang}: ugyldig Plural-Forms")
+
+    def binary(operators, operand):
+        value = operand()
+        while peek() in operators:
+            value = int(operators[take()](value, operand()))
+        return value
+
+    def modulo():
+        return binary({"%": lambda a, b: a % b}, primary)
+
+    def relation():
+        return binary({"<": lambda a, b: a < b, ">": lambda a, b: a > b,
+                       "<=": lambda a, b: a <= b, ">=": lambda a, b: a >= b}, modulo)
+
+    def equality():
+        return binary({"==": lambda a, b: a == b, "!=": lambda a, b: a != b}, relation)
+
+    def conjunction():
+        return binary({"&&": lambda a, b: bool(a) and bool(b)}, equality)
+
+    def disjunction():
+        return binary({"||": lambda a, b: bool(a) or bool(b)}, conjunction)
+
+    def ternary():
+        condition = disjunction()
+        if peek() != "?":
+            return condition
+        take("?")
+        yes = ternary()
+        take(":")
+        no = ternary()
+        return yes if condition else no
+
+    value = ternary()
+    if position != len(parts) or not 0 <= value < nplurals(lang):
+        raise Invalid(f"{lang}: Plural-Forms gir form {value} for n={n}")
+    return value
+
+
 def header(lang, previous=""):
     lines = previous.splitlines()
     new_fields = {
-        "Project-Id-Version": "Agentic Rigg",
+        "Project-Id-Version": "Agentic HW Monitor",
         "Language": lang.replace("-", "_"),
         "MIME-Version": "1.0",
         "Content-Type": "text/plain; charset=UTF-8",
@@ -357,6 +428,13 @@ def build(dest, modules, index):
     for lang in LANGS[1:]:
         lines.extend([f'        "{lang}" => &[', *by_lang[lang], "        ],"])
     lines.extend(["        _ => &[],", "    }", "}"])
+    # Fasit for rigg_core::i18n::Language::plural_index, regnet ut fra
+    # Plural-Forms i katalogene: (språk, antall former, form for n = 0..999).
+    lines.extend(["#[cfg(test)]", "const PLURAL_TABLE: &[(&str, usize, &[u8])] = &["])
+    for lang in LANGS:
+        table = ", ".join(str(plural_form(lang, n)) for n in range(1000))
+        lines.append(f'    ("{lang}", {nplurals(lang)}, &[{table}]),')
+    lines.append("];")
     dest.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 

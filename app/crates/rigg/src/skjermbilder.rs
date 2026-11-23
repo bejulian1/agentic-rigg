@@ -69,6 +69,7 @@ fn plan() -> Vec<Step> {
         Ok("kortmeny") => plan_kortmeny(),
         Ok("innstillinger-sok") => plan_innstillinger_sok(),
         Ok("adaptive-akser") => plan_adaptive_akser(),
+        Ok("sprak") => plan_sprak(),
         Ok("1.4.0-ui") => ui140::plan(),
         Ok("rgb-ui") => plan_rgb(),
         Ok("rgb-flow") => plan_rgb_flow(),
@@ -161,6 +162,60 @@ fn inject_extremes(app: &Rc<App>) {
         disk.temp = Some(90.0);
     }
     app.ingest(tel);
+}
+
+/// Navn og språk: appnavnet i sidefeltet, vindustittelen og Om, språkvalget i
+/// Generelt, og de tekstrike sidene i tre bredder. Kjøres én gang per språk med
+/// `RIGG_BILDER_SPRAK=sv scripts/bilder.sh --plan sprak`; «Følg systemet» velger
+/// da språket fra miljøet, slik det gjør hos brukeren. Bare simulerte data.
+fn plan_sprak() -> Vec<Step> {
+    use Step::*;
+    let mut v = vec![Size(1440, 900), Set(base()), Set(json!({"theme": "light", "sideCollapsed": false}))];
+    for p in PAGES {
+        v.push(Go(p));
+        v.push(Wait(if p == "lys" { 1500 } else { 800 }));
+        v.push(Shot(name(format!("side-{p}-1440"))));
+    }
+    for part in ["generelt", "utseende", "format", "sidefelt", "grafer", "logging", "styring", "data", "om"] {
+        v.push(Settings(part));
+        v.push(Wait(800));
+        v.push(Shot(name(format!("innstillinger-{part}-1440"))));
+        if matches!(part, "generelt" | "styring" | "logging") {
+            v.push(Scroll(1.0));
+            v.push(Wait(400));
+            v.push(Shot(name(format!("innstillinger-{part}-1440-bunn"))));
+        }
+    }
+    v.push(Keys("tastatursnarveier"));
+    v.push(CloseSettings);
+    // Smalere vinduer: her viser lange ord og setninger seg først.
+    for (w, h) in [(1100, 700), (640, 760)] {
+        v.push(Size(w, h));
+        v.push(Wait(800));
+        v.push(Size(w, h));
+        v.push(Wait(800));
+        for p in ["oversikt", "sensorer", "grafikkort", "disker", "kontroller", "viftekurve", "oppgaver"] {
+            v.push(Go(p));
+            v.push(Wait(800));
+            v.push(Shot(name(format!("side-{p}-{w}"))));
+        }
+        for part in ["generelt", "styring", "om"] {
+            v.push(Settings(part));
+            v.push(Wait(800));
+            v.push(Shot(name(format!("innstillinger-{part}-{w}"))));
+        }
+        v.push(CloseSettings);
+    }
+    v.push(Size(1440, 900));
+    v.push(Set(json!({"theme": "dark"})));
+    v.push(Go("oversikt"));
+    v.push(Wait(800));
+    v.push(Shot("side-oversikt-1440-mork"));
+    v.push(Settings("om"));
+    v.push(Wait(800));
+    v.push(Shot("innstillinger-om-1440-mork"));
+    v.push(CloseSettings);
+    v
 }
 
 fn plan_adaptive_akser() -> Vec<Step> {
@@ -1132,7 +1187,7 @@ fn run(app: Rc<App>, steps: Rc<Vec<Step>>, i: usize, dir: PathBuf) {
                     if let Ok(w) = w.downcast::<gtk::Window>()
                         && w.has_css_class("dialog")
                     {
-                        shot(w.upcast_ref(), &dir.join(format!("{name}.png")));
+                        let _ = shot(w.upcast_ref(), &dir.join(format!("{name}.png")));
                         w.close();
                     }
                 }
@@ -1141,9 +1196,20 @@ fn run(app: Rc<App>, steps: Rc<Vec<Step>>, i: usize, dir: PathBuf) {
             wait = 1200;
         }
         Step::Shot(name) => {
-            if let Some(win) = app.window() {
-                shot(win.upcast_ref(), &dir.join(format!("{name}.png")));
+            // Vinduet har av og til ikke tegnet neste bilde ennå (ingen
+            // tegnenode). Vent litt og prøv samme steg igjen, høyst fem ganger.
+            thread_local!(static RETRIES: std::cell::Cell<u8> = const { std::cell::Cell::new(0) });
+            let saved = app.window().is_some_and(|win| shot(win.upcast_ref(), &dir.join(format!("{name}.png"))));
+            let tries = RETRIES.get();
+            if !saved && tries < 5 {
+                RETRIES.set(tries + 1);
+                gtk::glib::timeout_add_local_once(Duration::from_millis(300), move || run(app, steps, i, dir));
+                return;
             }
+            if !saved {
+                eprintln!("RIGG_SKJERMBILDE mangler {name}.png: vinduet ga ikke noe bilde");
+            }
+            RETRIES.set(0);
         }
         Step::DeviceShot(name) => {
             let win = app.window().unwrap();
@@ -1165,7 +1231,7 @@ fn run(app: Rc<App>, steps: Rc<Vec<Step>>, i: usize, dir: PathBuf) {
             texture.save_to_png(dir.join(format!("{name}.png"))).unwrap();
             // Vindu og popover er separate native flater. Helheten tas av
             // Shell ved pekerprøven; ikke gjett popupens plassering i et montasjebilde.
-            shot(win.upcast_ref(), &dir.join(format!("{name}-vindu.png")));
+            let _ = shot(win.upcast_ref(), &dir.join(format!("{name}-vindu.png")));
             assert!(card_width <= row_width, "kortmenyen er bredere enn raden i sidefeltet");
         }
     }
@@ -1257,10 +1323,17 @@ fn cut_labels(w: &gtk::Widget, out: &mut Vec<String>) {
     }
 }
 
-fn shot(win: &gtk::Window, path: &std::path::Path) {
+/// Lagrer et bilde av vinduet. `false` når vinduet ikke har noe å tegne ennå.
+fn shot(win: &gtk::Window, path: &std::path::Path) -> bool {
     if std::env::var_os("RIGG_BREDDE").is_some() {
         wide(win.upcast_ref(), 0);
     }
+    let (w, h) = (win.width(), win.height());
+    let paintable = gtk::WidgetPaintable::new(Some(win));
+    let snap = gtk::Snapshot::new();
+    paintable.snapshot(&snap, w as f64, h as f64);
+    let Some(node) = snap.to_node() else { return false };
+    let Some(renderer) = win.renderer() else { return false };
     let mut cut = Vec::new();
     cut_labels(win.upcast_ref(), &mut cut);
     if !cut.is_empty() {
@@ -1273,17 +1346,12 @@ fn shot(win: &gtk::Window, path: &std::path::Path) {
             }
         }
     }
-    let (w, h) = (win.width(), win.height());
-    let paintable = gtk::WidgetPaintable::new(Some(win));
-    let snap = gtk::Snapshot::new();
-    paintable.snapshot(&snap, w as f64, h as f64);
-    let Some(node) = snap.to_node() else { return };
-    let Some(renderer) = win.renderer() else { return };
     let tex = renderer.render_texture(&node, Some(&gtk::graphene::Rect::new(0.0, 0.0, w as f32, h as f32)));
     match tex.save_to_png(path) {
         Ok(()) => eprintln!("RIGG_SKJERMBILDE {} {w}×{h}", path.display()),
         Err(e) => eprintln!("Kunne ikke lagre {}: {e}", path.display()),
     }
+    true
 }
 
 #[cfg(test)]

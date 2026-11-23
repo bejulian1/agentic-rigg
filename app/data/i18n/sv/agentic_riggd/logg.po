@@ -1,0 +1,61 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic HW Monitor\n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/riggd/src/logg.rs:107
+msgid "keys må være en liste"
+msgstr "keys måste vara en lista"
+
+#: crates/riggd/src/logg.rs:110
+msgid "Ugyldig sensornøkkel"
+msgstr "Ogiltig sensornyckel"
+
+#: crates/riggd/src/logg.rs:116
+msgid "Velg minst én sensor å logge."
+msgstr "Välj minst en sensor att logga."
+
+#: crates/riggd/src/logg.rs:122
+msgid "Ingen sensorer er valgt for loggen. Velg dem i Innstillinger › Logging og varsler, eller logg alle."
+msgstr "Inga sensorer är valda för loggen. Välj dem i Inställningar › Loggning och aviseringar, eller logga alla."
+
+#: crates/riggd/src/logg.rs:129
+msgid "Loggintervallet må være 0,5, 1, 2, 5 eller 10 s"
+msgstr "Loggintervallet måste vara 0,5, 1, 2, 5 eller 10 s"
+
+#: crates/riggd/src/logg.rs:135
+msgid "Formatet må være standard eller norsk"
+msgstr "Formatet måste vara standard eller norsk"
+
+#: crates/riggd/src/logg.rs:140
+msgid "Loggmappa må være en full sti"
+msgstr "Loggmappen måste vara en fullständig sökväg"
+
+#: crates/riggd/src/logg.rs:146
+msgid "Kunne ikke lage mappa {verdi}: {e}"
+msgstr "Det gick inte att skapa mappen {verdi}: {e}"
+
+#: crates/riggd/src/logg.rs:149
+msgid "Det er under 500 MB ledig på disken. Loggen er ikke startet."
+msgstr "Det finns mindre än 500 MB ledigt på disken. Loggen har inte startats."
+
+#: crates/riggd/src/logg.rs:152
+msgid "Kunne ikke lage loggfila: {e}"
+msgstr "Det gick inte att skapa loggfilen: {e}"
+
+#: crates/riggd/src/logg.rs:184 crates/riggd/src/logg.rs:247 crates/riggd/src/logg.rs:259 crates/riggd/src/logg.rs:282
+msgid "Kunne ikke skrive til loggfila: {e}"
+msgstr "Det gick inte att skriva till loggfilen: {e}"
+
+#: crates/riggd/src/logg.rs:268
+msgid "Kunne ikke lage neste loggfil: {e}"
+msgstr "Det gick inte att skapa nästa loggfil: {e}"
+
+#: crates/riggd/src/logg.rs:289
+msgid "Loggen er stoppet: det er under 500 MB ledig på disken."
+msgstr "Loggen har stoppats: det finns mindre än 500 MB ledigt på disken."

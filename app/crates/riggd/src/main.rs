@@ -34,7 +34,7 @@ use std::path::PathBuf;
 
 const HELP: &str = "Bruk: agentic-riggd [--socket STI] [--version]
 
-Tjenesten til Agentic Rigg. Leser skjermkortet (NVML) og maskinen (/proc og
+Tjenesten til Agentic HW Monitor. Leser skjermkortet (NVML) og maskinen (/proc og
 /sys), holder historikken i 48 timer og serverer dataene over en Unix-socket.
 Den startes av appen eller av systemd --user, og skriver aldri til kortet.";
 

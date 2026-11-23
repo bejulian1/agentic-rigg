@@ -1,4 +1,4 @@
-/* Agentic Rigg · Lys (2D/3D-kortvisning + fysisk kortlys).
+/* Agentic HW Monitor · Lys (2D/3D-kortvisning + fysisk kortlys).
  * Scenen er mørk i alle temaer: lysdioder synes ikke mot lyst. Tonen følger
  * temaet (--stage), og merkene over scenen bruker --stage-text og
  * --stage-chip, som kontrasttesten sjekker. */

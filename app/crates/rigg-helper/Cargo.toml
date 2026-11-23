@@ -1,6 +1,6 @@
 [package]
 name = "rigg-helper"
-description = "Agentic Rigg: kortbundet administratorhjelper for GPU-effekt, vifter og klokker"
+description = "Agentic HW Monitor: kortbundet administratorhjelper for GPU-effekt, vifter og klokker"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

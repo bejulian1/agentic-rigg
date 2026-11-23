@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Agentic Rigg\n"
+"Project-Id-Version: Agentic HW Monitor\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -194,8 +194,8 @@ msgid "Tillat endring av skjermkortet"
 msgstr "GPU-Einstellungen ändern"
 
 #: crates/rigg/src/settings/styring.rs:262
-msgid "Gir Agentic Rigg tilgang til støttede GPU-funksjoner via en administratorhjelper. Du blir spurt om passord. Ingen verdier endres før du trykker Bruk på en styringsside."
-msgstr "Erlaubt Agentic Rigg über einen Hilfsdienst mit Administratorrechten den Zugriff auf unterstützte GPU-Funktionen. Du wirst nach dem Passwort gefragt. Werte ändern sich erst mit „Anwenden“ auf einer Steuerungsseite."
+msgid "Gir Agentic HW Monitor tilgang til støttede GPU-funksjoner via en administratorhjelper. Du blir spurt om passord. Ingen verdier endres før du trykker Bruk på en styringsside."
+msgstr "Erlaubt Agentic HW Monitor über einen Hilfsdienst mit Administratorrechten den Zugriff auf unterstützte GPU-Funktionen. Du wirst nach dem Passwort gefragt. Werte ändern sich erst mit „Anwenden“ auf einer Steuerungsseite."
 
 #: crates/rigg/src/settings/styring.rs:264
 msgctxt "søkeord"

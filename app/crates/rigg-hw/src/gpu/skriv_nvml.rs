@@ -461,7 +461,7 @@ impl NvmlSkriver {
             }
         };
         caps["rgb"] = unavailable("not_implemented: ingen RGB-backend".into());
-        // Dette er gjenopprettingspunktet før Agentic Rigg endret noe, ikke
+        // Dette er gjenopprettingspunktet før Agentic HW Monitor endret noe, ikke
         // antatte fabrikkverdier. Bevar også eksternt satt effekt og offset.
         l.default.power_w = current.power_limit_w;
         l.default.temp_target_c = current.temp_target_c;

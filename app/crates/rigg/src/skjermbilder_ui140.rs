@@ -208,7 +208,7 @@ fn assert_version_log(app: &Rc<App>, bottom: bool) {
 
 fn version_log_shot(app: &Rc<App>, name: &str) {
     let path = PathBuf::from(std::env::var_os("RIGG_SKJERMBILDER").unwrap()).join(format!("{name}.png"));
-    super::shot(&version_log_window(app), &path);
+    let _ = super::shot(&version_log_window(app), &path);
 }
 
 fn mock_status(app: &Rc<App>, ready: bool) {

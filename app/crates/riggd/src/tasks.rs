@@ -153,7 +153,7 @@ impl Daemon {
                 row.protected_reason = Some(reason.clone());
             } else if protected.as_ref().is_ok_and(|pids| pids.contains(&row.identity.pid)) {
                 row.can_terminate = false;
-                row.protected_reason = Some(tr!("Agentic Rigg eller en tilkoblet klient").into());
+                row.protected_reason = Some(tr!("Agentic HW Monitor eller en tilkoblet klient").into());
             }
         }
         let age = snapshot.map(|s| now.saturating_duration_since(s.collected_at).as_millis() as u64);
@@ -186,7 +186,7 @@ impl Daemon {
             .ok_or_else(|| invalid(tr!("Prosessens starttid må følge med.")))?;
         let protected = self.task_protected_pids();
         if protected.contains(&pid) {
-            return Err(ProtoError::msg(ErrorCode::PermissionDenied, tr!("Agentic Rigg og tilkoblede klienter er beskyttet.")));
+            return Err(ProtoError::msg(ErrorCode::PermissionDenied, tr!("Agentic HW Monitor og tilkoblede klienter er beskyttet.")));
         }
         rigg_hw::sys::process::terminate_with_protected(&self.opts.root, ProcessIdentity { pid, start_ticks }, &protected).map_err(|message| ProtoError::msg(ErrorCode::PermissionDenied, message))?;
         Ok(json!({"pid": pid, "signal": "SIGTERM", "sent": true}))

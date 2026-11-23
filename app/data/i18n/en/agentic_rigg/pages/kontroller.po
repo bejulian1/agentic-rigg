@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Agentic Rigg\n"
+"Project-Id-Version: Agentic HW Monitor\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -336,7 +336,7 @@ msgstr "The app applies the offset to every point of the voltage/frequency curve
 
 #: crates/rigg/src/pages/kontroller.rs:405
 msgid "For høy offset gir krasj, feil i bildet eller at driveren starter på nytt. Prøv i steg på 15–25 MHz og test under last."
-msgstr "Excessive offsets can cause crashes, artifacts, or driver resets. Try 15–25 MHz steps and test under load."
+msgstr "Excessive offsets can cause crashes, artifacts, or driver resets. Try 15–25 MHz steps and test under load."
 
 #: crates/rigg/src/pages/kontroller.rs:411
 msgid "Justering av minneklokken. 0 MHz betyr ingen justering, ikke at minnet står stille."
@@ -819,8 +819,8 @@ msgid "Driveren styrer viftene etter temperaturen, som uten appen."
 msgstr "The driver adjusts fan speed by temperature, as it would without the app."
 
 #: crates/rigg/src/pages/kontroller.rs:1187
-msgid "Agentic Rigg setter farten etter viftekurven hvert sekund."
-msgstr "Agentic Rigg updates the fan speed from the curve every second."
+msgid "Agentic HW Monitor setter farten etter viftekurven hvert sekund."
+msgstr "Agentic HW Monitor updates the fan speed from the curve every second."
 
 #: crates/rigg/src/pages/kontroller.rs:1188
 msgid "Viftene går med fast fart, uansett temperatur."

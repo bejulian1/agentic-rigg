@@ -1,0 +1,17 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic HW Monitor\n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/riggd/src/sampler.rs:112
+msgid "Prøvetråden fikk panikk. Starter den på nytt om 1 s."
+msgstr "Mättråden fick panik. Startar om den om 1 s."
+
+#: crates/riggd/src/sampler.rs:118
+msgid "kunne ikke starte prøvetråden"
+msgstr "det gick inte att starta mättråden"

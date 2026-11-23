@@ -449,6 +449,7 @@ impl Inner {
         d.set_accept_label(Some(tr!("Eksporter")));
         let home = glib::home_dir();
         let docs = glib::user_special_dir(glib::UserDirectory::Documents).unwrap_or(home.clone());
+        // Samme mappe som loggene (riggd::logg::default_dir): navnet fra før navnebyttet.
         let dir = docs.join("Agentic Rigg");
         let folder = if dir.is_dir() { dir } else { docs };
         d.set_initial_folder(Some(&gio::File::for_path(&folder)));

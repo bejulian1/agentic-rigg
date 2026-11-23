@@ -54,6 +54,8 @@ pub fn free_bytes(path: &Path) -> Option<u64> {
 }
 
 /// `~/Dokumenter/Agentic Rigg/` (XDG-mappa for dokumenter, med det navnet systemet bruker).
+/// Mappa beholder appens navn fra før navnebyttet til Agentic HW Monitor, så
+/// loggene brukeren allerede har, blir liggende sammen med de nye.
 pub fn default_dir() -> PathBuf {
     let docs = glib::user_special_dir(glib::UserDirectory::Documents).unwrap_or_else(|| glib::home_dir().join("Dokumenter"));
     docs.join("Agentic Rigg")

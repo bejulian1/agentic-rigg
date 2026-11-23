@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-Only the **latest release** of Agentic Rigg receives security updates.
+Only the **latest release** of Agentic HW Monitor receives security updates.
 
 | Version | Supported |
 |---|---|
@@ -34,7 +34,7 @@ Security reports are especially welcome for privileged and IPC boundaries, inclu
 
 ## What to Expect
 
-Agentic Rigg is maintained as a personal open-source project. Reports are handled on a best-effort basis:
+Agentic HW Monitor is maintained as a personal open-source project. Reports are handled on a best-effort basis:
 
 1. **Acknowledgement:** The maintainer will review your advisory and acknowledge receipt as soon as practical.
 2. **Investigation & fix:** Validated issues will be investigated and fixed privately. If a security fix affects the root helper, the minimum compatible helper build (`MIN_COMPATIBLE_BUILD`)—and protocol version when needed—will be bumped so older helpers cannot be reused.

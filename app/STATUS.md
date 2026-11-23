@@ -1,4 +1,4 @@
-# Status · Agentic Rigg
+# Status · Agentic HW Monitor
 
 **1.5.0 · bygg 25.** RGB-lys viser fysisk kortstyring for Palit GeForce RTX 2080 Super JetStream når den separate RGB-hjelperen er aktivert. Oppgaver gir behovsstyrt Linux-prosessoversikt og bekreftet SIGTERM; se [måledefinisjoner og begrensninger](../docs/produksjon/oppgavebehandling.md).
 

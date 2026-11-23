@@ -51,6 +51,9 @@
 #                     simulerte verdier i testvinduet; fast/tilpass, °F og 48 t
 #   1.4.0-ui          sim/falsk pkexec: filter/fokus, tidsmeny, globalaktivering,
 #                     eksplisitt simulert klar-status
+#   sprak             sim: appnavnet og språket. Alle sidene og Innstillinger i
+#                     1440 px, de tekstrike sidene i 1100 og 640 px. Kjør én
+#                     gang per språk med RIGG_BILDER_SPRAK=sv (de, ja …)
 #   rgb-ui            fysisk RGB-panel med merkede simulerte visningstilstander;
 #                     alle administratorhandlinger og RGB-RPC-er er blokkert
 #   rgb-flow          vanlig RGB-flyt mot en privat, merket fake-arbeider
@@ -190,6 +193,7 @@ for plan in "${plans[@]}"; do
     kortmeny) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=kortmeny") backend=${RIGG_KORTMENY_BACKEND:-sim} warm=${RIGG_OPPVARMING:-8} ;;
     innstillinger-sok) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=innstillinger-sok") backend=sim warm=${RIGG_OPPVARMING:-4} ;;
     adaptive-akser) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=adaptive-akser") backend=sim warm=${RIGG_OPPVARMING:-4} ;;
+    sprak) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=sprak") backend=sim dargs=--syntetisk-historikk warm=${RIGG_OPPVARMING:-8} ;;
     rgb-ui | rgb-flow)
         fake=$(mktemp -d /tmp/rigg-rgb-ui-root.XXXXXX)
         hdata=$(mktemp -d /tmp/rigg-rgb-ui-data.XXXXXX)

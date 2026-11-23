@@ -1225,7 +1225,7 @@ impl Preview {
 fn mode_options() -> [(FanMode, &'static str, &'static str); 3] {
     [
         (FanMode::Auto, tr!("Auto (driveren)"), tr!("Driveren styrer viftene etter temperaturen, som uten appen. Standard.")),
-        (FanMode::Curve, tr!("Kurve"), tr!("Agentic Rigg setter farten etter viftekurven hvert sekund.")),
+        (FanMode::Curve, tr!("Kurve"), tr!("Agentic HW Monitor setter farten etter viftekurven hvert sekund.")),
         (FanMode::Manual, tr!("Manuell"), tr!("Fast fart, uansett temperatur. Pass på temperaturen under last.")),
     ]
 }
@@ -2660,7 +2660,7 @@ impl Viftekurve {
             Some(mode) => mode_name(mode),
             None => F::DASH,
         };
-        s[4].set(mode_now, "", &if !has_fans { tr!("vifteantall mangler eller er null").into() } else if editing && shown.fan_mode != card_mode { trf!("utkast: {modus}", modus = mode_name(shown.fan_mode)) } else if mode_read == Some(FanMode::Auto) { tr!("driveren styrer").into() } else if mode_read == Some(FanMode::Curve) { tr!("tjenesten styrer").into() } else if card_mode == FanMode::Manual && (locked::control_values(&self.app).is_some() || locked::gate(&self.app) == Gate::Sim) { tr!("fast fart fra Agentic Rigg").into() } else if r.fan_policy.is_some() { tr!("satt utenfor appen").into() } else { String::new() });
+        s[4].set(mode_now, "", &if !has_fans { tr!("vifteantall mangler eller er null").into() } else if editing && shown.fan_mode != card_mode { trf!("utkast: {modus}", modus = mode_name(shown.fan_mode)) } else if mode_read == Some(FanMode::Auto) { tr!("driveren styrer").into() } else if mode_read == Some(FanMode::Curve) { tr!("tjenesten styrer").into() } else if card_mode == FanMode::Manual && (locked::control_values(&self.app).is_some() || locked::gate(&self.app) == Gate::Sim) { tr!("fast fart fra Agentic HW Monitor").into() } else if r.fan_policy.is_some() { tr!("satt utenfor appen").into() } else { String::new() });
         s[4].set_tip(tr!("Fra nvmlDeviceGetFanControlPolicy_v2. Policy 0 betyr at driveren styrer viftene."));
         // Det kurven ville gitt nå: stille flate, minste fart og per vifte (uten rampe og hysterese).
         let o = vifte::Oppsett::fra_values(&shown, n_fans, floor);
@@ -2791,7 +2791,7 @@ impl Viftekurve {
             self.manual_spin.set_value(shown.fan_percent);
         }
         self.quiet.set(false);
-        set_text(&self.rules, &trf!("Hver endring må beholdes innen {tid}, ellers rulles den tilbake. Lukkes Agentic Rigg helt, går viftene tilbake til Auto.", tid = format!("{}{}s", self.app.settings().confirm_sec, F::NNBSP)));
+        set_text(&self.rules, &trf!("Hver endring må beholdes innen {tid}, ellers rulles den tilbake. Lukkes Agentic HW Monitor helt, går viftene tilbake til Auto.", tid = format!("{}{}s", self.app.settings().confirm_sec, F::NNBSP)));
 
         // ---- Utkastet i toppfeltet ----
         let Some(d) = draft else {

@@ -1,6 +1,6 @@
 [package]
 name = "rigg-hw"
-description = "Agentic Rigg: lesing av NVML, /proc og /sys, og en simulert backend for tester"
+description = "Agentic HW Monitor: lesing av NVML, /proc og /sys, og en simulert backend for tester"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
