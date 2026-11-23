@@ -2,9 +2,9 @@
 
 Denne modulen utvikles og gjennomgås på `feature/task-manager`, med `main` som mål for en Draft PR. Den stabile utgaven er fortsatt 1.4.1 · bygg 24. Appversjon, nedlastingspakke og ny Release fastsettes ved en senere utgivelse; denne oppgaven autoriserer ingen merge eller installasjon på brukerens PC.
 
-![Oppgaver i GTK-appen](../images/oppgaver-feature.png)
+![Oppgaver i GTK-appen (simulerte prosesser og brukere)](../images/tasks.png)
 
-Faktisk appbilde fra en privat GTK-økt med reelle Linux-prosesser og GPU-backenden deaktivert. Bare dette ene utvalgte bildet følger forslaget; råbildeserien og kjørelogger beholdes lokalt.
+Faktisk appbilde (engelsk brukerflate) fra en privat GTK-økt mot en falsk `/proc` med oppdiktede prosesser og brukere (`app/scripts/bilder.sh --plan readme-oppgaver`). Det tidligere bildet viste maskinens egne prosesser og brukernavn og er fjernet.
 
 ## Målinger og avgrensing
 

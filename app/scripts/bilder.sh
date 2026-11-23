@@ -69,6 +69,10 @@
 #   nettverk          sim: Nettverk med simulerte grensesnitt (dokumentasjons-
 #                     adresser) i 1920, 1280 og 1024 px, lyst/mørkt, virtuelle
 #   nettverk-ekte     samme plan mot maskinens egne nettdata uten NetworkManager
+#   readme            bildene til README.md: engelsk brukerflate (standard
+#                     RIGG_BILDER_SPRAK=en), sim:spill, 1440 × 1000 px
+#   readme-oppgaver   Oppgaver til README mot en falsk --root med simulerte
+#                     prosesser og brukere (scripts/readme-prosesser.py)
 #
 # Binærene: $RIGG_BIN, ellers $CARGO_TARGET_DIR/release (eller debug). Planene
 # fra runde 2 finnes bare i debug-bygget (unntatt 2c), så 2a* og 2b* tar
@@ -244,6 +248,16 @@ for plan in "${plans[@]}"; do
     # RIGG_OPPGAVER_BACKEND=sim viser GPU-kortet med simulerte data (merk bildene).
     oppgaver) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=oppgaver") backend=${RIGG_OPPGAVER_BACKEND:-ingen} warm=${RIGG_OPPVARMING:-1} ;;
     nettverk) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=nettverk") backend=sim warm=${RIGG_OPPVARMING:-20} ;;
+    readme) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=readme" "RIGG_BILDER_SPRAK=${RIGG_BILDER_SPRAK:-en}") backend=sim:spill warm=${RIGG_OPPVARMING:-300} ;;
+    readme-oppgaver)
+        # Aldri maskinens egen prosessliste: tjenesten leser en falsk rot.
+        prosrot=$(mktemp -d "$target/readme-rot.XXXXXX")
+        /usr/bin/python3 -I "$here/scripts/readme-prosesser.py" --root "$prosrot/rot" &
+        prospid=$!
+        for _ in $(seq 1 50); do [ -f "$prosrot/rot/.klar" ] && break; sleep 0.1; done
+        [ -f "$prosrot/rot/.klar" ] || { kill "$prospid" 2>/dev/null; echo "Den simulerte prosesslista startet ikke." >&2; exit 2; }
+        vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=readme" "RIGG_README_DEL=oppgaver" "RIGG_BILDER_SPRAK=${RIGG_BILDER_SPRAK:-en}") backend=sim dargs="--root $prosrot/rot" warm=${RIGG_OPPVARMING:-4}
+        ;;
     nettverk-ekte) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=nettverk" "RIGG_NETT=ekte") backend=ingen warm=${RIGG_OPPVARMING:-8} ;;
     7b-ekte) vars=("RIGG_BILDER_2C=$dir" "RIGG_6C_PLAN=7b-ekte") wargs="--side kontroller" ;;
     # Fem minutter spill-last i historikken til «Siste 5 minutter».
@@ -277,6 +291,11 @@ for plan in "${plans[@]}"; do
         rm -rf -- "$fake" "$hdata"
         ;;
     esac
+    if [ "$plan" = readme-oppgaver ]; then
+        kill "$prospid" 2>/dev/null || true
+        wait "$prospid" 2>/dev/null || true
+        rm -rf -- "$prosrot"
+    fi
     [ $rc -eq 0 ] || { echo "Planen $plan feilet ($rc)" >&2; rc_all=$rc; }
 done
 echo "Skjermbildene ligger i $out"
