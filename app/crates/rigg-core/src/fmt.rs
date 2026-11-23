@@ -73,7 +73,7 @@ fn localized_num(v: Option<f64>, d: usize, lang: Language) -> String {
         Language::De | Language::PtBr | Language::It => (',', '.', 4),
         Language::Es => (',', '.', 5),
         Language::Pl => (',', NNBSP, 5),
-        Language::Fr | Language::Nb => (',', NNBSP, 4),
+        Language::Fr | Language::Nb | Language::Sv => (',', NNBSP, 4),
     };
     let mut out = String::with_capacity(s.len());
     if neg {
@@ -331,6 +331,9 @@ fn date_parts(lang: Language, year: Option<i32>, month: u32, day: u32, short: bo
         (Language::ZhCn | Language::Ja, None) => format!("{month}月{day}日"),
         (Language::De | Language::Pl, Some(y)) => format!("{day:02}.{month:02}.{y}"),
         (Language::De | Language::Pl, None) => format!("{day:02}.{month:02}."),
+        // Svensk skriver hele datoen som ISO 8601 og dag/måned uten år.
+        (Language::Sv, Some(y)) => format!("{y}-{month:02}-{day:02}"),
+        (Language::Sv, None) => format!("{day}/{month}"),
         (Language::Es, Some(y)) => format!("{day}/{month}/{y}"),
         (Language::Es, None) => format!("{day}/{month}"),
         (_, Some(y)) => format!("{day:02}/{month:02}/{y}"),
@@ -410,7 +413,9 @@ mod tests {
             (Language::Pl, "12 345,6"),
             (Language::ZhCn, "12,345.6"),
             (Language::Ja, "12,345.6"),
+            (Language::Sv, "12\u{202F}345,6"),
         ];
+        assert_eq!(tests.len(), Language::ALL.len(), "hvert språk har et talleksempel");
         for (lang, value) in tests {
             assert_eq!(localized_num(Some(12345.6), 1, lang), value);
         }
@@ -421,6 +426,14 @@ mod tests {
         assert_eq!(localized_time(t, false, Language::En, true), "2:05 PM");
         assert_eq!(localized_time(t, true, Language::ZhCn, true), "下午2:05:01");
         assert_eq!(localized_time(t, false, Language::Nb, true), "02:05 p.m.");
+        // Svensk: 24-timers klokke som standard, ISO-dato og d/m uten år.
+        assert_eq!(localized_time(t, true, Language::Sv, false), "14:05:01");
+        assert_eq!(localized_time(t, false, Language::Sv, true), "2:05 PM");
+        assert_eq!(date_parts(Language::Sv, Some(2026), 11, 7, true), "2026-11-07");
+        assert_eq!(date_parts(Language::Sv, Some(2026), 1, 31, false), "2026-01-31");
+        assert_eq!(date_parts(Language::Sv, None, 11, 7, true), "7/11");
+        assert_eq!(localized_num(Some(1234.0), 0, Language::Sv), "1\u{202F}234");
+        assert_eq!(localized_num(Some(-0.5), 1, Language::Sv), "\u{2212}0,5");
     }
 
     #[test]

@@ -1189,7 +1189,7 @@ impl Kontroller {
         row.set_reset_tip(tr!("Tilbake til standard (Auto)"));
         set_text(&row.desc, match mode {
             FanMode::Auto => tr!("Driveren styrer viftene etter temperaturen, som uten appen."),
-            FanMode::Curve => tr!("Agentic Rigg setter farten etter viftekurven hvert sekund."),
+            FanMode::Curve => tr!("Agentic HW Monitor setter farten etter viftekurven hvert sekund."),
             FanMode::Manual => tr!("Viftene går med fast fart, uansett temperatur."),
         });
         set_text(&row.now, &if r.fans.is_empty() { F::DASH.to_string() } else { r.fans_line() });

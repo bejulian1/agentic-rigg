@@ -260,7 +260,8 @@ fn filter_kind(filter: &str, language: Language) -> Option<FilterQuip> {
         | (Language::It, "caffè")
         | (Language::Pl, "kawa")
         | (Language::ZhCn, "咖啡")
-        | (Language::Ja, "コーヒー") => Some(Coffee),
+        | (Language::Ja, "コーヒー")
+        | (Language::Sv, "kaffet") => Some(Coffee),
         (_, "hei" | "hallo" | "heisann" | "hei hei" | "hoi")
         | (Language::En, "hello")
         | (Language::Fr, "bonjour" | "salut")
@@ -269,7 +270,8 @@ fn filter_kind(filter: &str, language: Language) -> Option<FilterQuip> {
         | (Language::It, "ciao")
         | (Language::Pl, "cześć")
         | (Language::ZhCn, "你好")
-        | (Language::Ja, "こんにちは") => Some(Greeting),
+        | (Language::Ja, "こんにちは")
+        | (Language::Sv, "hej" | "hejsan" | "tjena") => Some(Greeting),
         _ => None,
     }
 }

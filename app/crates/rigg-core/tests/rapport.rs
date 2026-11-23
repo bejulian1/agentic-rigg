@@ -119,7 +119,7 @@ fn input(serials: bool) -> ReportInput {
 fn rapporten_har_alt_spesifikasjonen_krever() {
     let t = report::render(&input(false), ReportFormat::Text);
     for want in [
-        "Agentic Rigg · rapport",
+        "Agentic HW Monitor · rapport",
         "Laget: 7. nov. 2026 14:32",
         "agentic-riggd 1.0.0 · bygg 16 · NVML, bare lesing",
         "Operativsystem: Ubuntu 26.04.1 LTS",
@@ -208,7 +208,7 @@ fn serienumre_uuid_og_vertsnavn_er_ikke_med_som_standard() {
 #[test]
 fn markdown_har_overskrifter_og_tabeller() {
     let m = report::render(&input(false), ReportFormat::Markdown);
-    assert!(m.starts_with("# Agentic Rigg · rapport\n\n| Felt | Verdi |\n|---|---|\n| App | Agentic Rigg "));
+    assert!(m.starts_with("# Agentic HW Monitor · rapport\n\n| Felt | Verdi |\n|---|---|\n| App | Agentic HW Monitor "));
     assert!(m.contains("\n## Skjermkort · RTX 2080\n"));
     assert!(m.contains("\n### Klokker (MHz)\n"));
     assert!(m.contains("\n### Spesifikasjon (referanse, ikke målt)\n"));
@@ -249,8 +249,8 @@ fn sidene_og_rapporten_bruker_samme_seksjoner() {
     let f = &secs[5];
     assert_eq!(f.find("vifte-2").unwrap().text(), "35\u{202F}% · 798\u{202F}o/min · mål 35\u{202F}%");
     assert!(f.find("antall").unwrap().info.as_deref().unwrap().contains("GPU, minne, strømforsyning"));
-    let page = report::render_page("Agentic Rigg – Grafikkort", &secs, ReportFormat::Text);
-    assert!(page.starts_with("Agentic Rigg – Grafikkort\n\n[Fra driveren]\nNavn: NVIDIA GeForce RTX 2080\n"));
+    let page = report::render_page("Agentic HW Monitor – Grafikkort", &secs, ReportFormat::Text);
+    assert!(page.starts_with("Agentic HW Monitor – Grafikkort\n\n[Fra driveren]\nNavn: NVIDIA GeForce RTX 2080\n"));
 }
 
 #[test]

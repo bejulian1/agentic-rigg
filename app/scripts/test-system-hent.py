@@ -18,7 +18,7 @@ DATA = Path(__file__).resolve().parents[1] / 'data/hjelper'
 NAME = 'agentic-rigg-1.5.2-build27-ubuntu26.04-amd64.tar.gz'
 UUID = 'GPU-12345678-abcd-ef01-2345-6789abcdef01'
 LIB = '/usr/local/libexec/agentic-rigg-rgb-v2/'
-IDENTITY = json.dumps({'name': 'Agentic Rigg', 'version': '1.5.2', 'channel': 'stable', 'build': 27}).encode()
+IDENTITY = json.dumps({'name': 'Agentic HW Monitor', 'version': '1.5.2', 'channel': 'stable', 'build': 27}).encode()
 FILES = {'version.json': IDENTITY, 'bin/agentic-rigg-helper': b'hjelper', 'data/hjelper/system-install': b'print("installert")\n',
          'data/hjelper/aktiver.sh': b'#!/bin/sh\n', 'README.md': b'les meg', 'data/icons/x.svg': b'<svg/>'}
 
@@ -671,14 +671,14 @@ class HentTest(unittest.TestCase):
     def test_feil_identitet_eller_struktur_kjorer_ingenting(self):
         older = dict(FILES, **{'version.json': IDENTITY.replace(b'27', b'26')})
         other = dict(FILES, **{'version.json': IDENTITY.replace(b'1.5.2', b'1.5.1')})
-        renamed = dict(FILES, **{'version.json': IDENTITY.replace(b'Agentic Rigg', b'Annet')})
+        renamed = dict(FILES, **{'version.json': IDENTITY.replace(b'Agentic HW Monitor', b'Annet')})
         no_version = {k: v for k, v in FILES.items() if k != 'version.json'}
         link = tarfile.TarInfo('agentic-rigg-1.5.2/data/hjelper/rgb-admin.py')
         link.type, link.linkname = tarfile.SYMTYPE, '/etc/shadow'
-        for data, error in ((archive(files=older), 'ikke Agentic Rigg 1.5.2 bygg 27'),
-                            (archive(files=other), 'ikke Agentic Rigg 1.5.2 bygg 27'),
-                            (archive(files=renamed), 'ikke Agentic Rigg'),
-                            (archive(files=no_version), 'ikke Agentic Rigg'),
+        for data, error in ((archive(files=older), 'ikke Agentic HW Monitor 1.5.2 bygg 27'),
+                            (archive(files=other), 'ikke Agentic HW Monitor 1.5.2 bygg 27'),
+                            (archive(files=renamed), 'ikke Agentic HW Monitor'),
+                            (archive(files=no_version), 'ikke Agentic HW Monitor'),
                             (archive(root='agentic-rigg-1.5.1'), 'uventet struktur'),
                             (archive(extra=(('annen/README', b'x'),)), 'uventet struktur'),
                             (archive(extra=(('agentic-rigg-1.5.2/../x', b'x'),)), 'uventet struktur'),
@@ -701,6 +701,37 @@ class HentTest(unittest.TestCase):
         self.assertEqual(self.runs, [])
         self.assertEqual(list(self.staging.iterdir()), [])
 
+    def test_gammelt_appnavn_godtas_bare_for_utgivelser_for_navnebyttet(self):
+        # Til og med bygg 32 het appen «Agentic Rigg». De utgivelsene skal
+        # fortsatt kunne installeres, men et senere bygg må bruke det nye navnet.
+        self.assertEqual((self.mod['NAME'], self.mod['OLD_NAME'], self.mod['OLD_NAME_LAST_BUILD']),
+                         ('Agentic HW Monitor', 'Agentic Rigg', 32))
+        known = self.mod['known_name']
+        for name, build, ok in (('Agentic HW Monitor', 27, True), ('Agentic HW Monitor', 33, True),
+                                ('Agentic Rigg', 27, True), ('Agentic Rigg', 32, True),
+                                ('Agentic Rigg', 33, False), ('Agentic Rigg', 99, False),
+                                ('agentic rigg', 27, False), ('Annet', 27, False), ('', 27, False),
+                                (None, 27, False), (['Agentic Rigg'], 27, False)):
+            self.assertEqual(known(name, build), ok, (name, build))
+
+        def packed(name, version, build):
+            identity = json.dumps({'name': name, 'version': version, 'channel': 'stable', 'build': build}).encode()
+            path = self.staging / 'arkiv.tar.gz'
+            path.write_bytes(archive(files=dict(FILES, **{'version.json': identity}), root=f'agentic-rigg-{version}'))
+            return path
+
+        verified = self.mod['verified_installer']
+        for name, version, build in (('Agentic Rigg', '1.5.2', '27'), ('Agentic Rigg', '1.6.0', '32'),
+                                     ('Agentic HW Monitor', '1.6.0', '32'), ('Agentic HW Monitor', '1.7.0', '33')):
+            self.assertEqual(verified(packed(name, version, int(build)), version, build, None), b'print("installert")\n')
+        with self.assertRaisesRegex(SystemExit, 'ikke Agentic HW Monitor 1.7.0 bygg 33'):
+            verified(packed('Agentic Rigg', '1.7.0', 33), '1.7.0', '33', None)
+        # Hele flyten: en utgivelse fra før navnebyttet installeres som før.
+        old = dict(FILES, **{'version.json': IDENTITY.replace(b'Agentic HW Monitor', b'Agentic Rigg')})
+        self.use(archive(files=old))
+        self.assertEqual(self.main(), 0)
+        self.assertEqual(len(self.runs), 1)
+
     def test_utpakket_storrelse_og_store_systemfiler_er_avgrenset(self):
         self.mod['MAX_UNPACKED'] = 100
         with self.assertRaisesRegex(SystemExit, 'utpakket'):
@@ -708,7 +739,7 @@ class HentTest(unittest.TestCase):
         self.mod['MAX_UNPACKED'] = 256 << 20
         big = dict(FILES, **{'version.json': IDENTITY + b' ' * 5000})
         for data, error in ((archive(installer=b'#' * ((1 << 20) + 1)), 'ett gyldig installasjonsprogram'),
-                            (archive(files=big), 'ikke Agentic Rigg')):
+                            (archive(files=big), 'ikke Agentic HW Monitor')):
             self.use(data)
             with self.assertRaisesRegex(SystemExit, error):
                 self.main()

@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Agentic Rigg\n"
+"Project-Id-Version: Agentic HW Monitor\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -335,7 +335,7 @@ msgstr "应用会将偏移量应用到电压/频率曲线上的每个点。GPU �
 
 #: crates/rigg/src/pages/kontroller.rs:405
 msgid "For høy offset gir krasj, feil i bildet eller at driveren starter på nytt. Prøv i steg på 15–25 MHz og test under last."
-msgstr "偏移过大可能导致崩溃、花屏或驱动程序重置。建议每次调整 15–25 MHz，并在负载下测试。"
+msgstr "偏移过大可能导致崩溃、花屏或驱动程序重置。建议每次调整 15–25 MHz，并在负载下测试。"
 
 #: crates/rigg/src/pages/kontroller.rs:411
 msgid "Justering av minneklokken. 0 MHz betyr ingen justering, ikke at minnet står stille."
@@ -818,8 +818,8 @@ msgid "Driveren styrer viftene etter temperaturen, som uten appen."
 msgstr "驱动程序按温度调节风扇转速，与不使用本应用时相同。"
 
 #: crates/rigg/src/pages/kontroller.rs:1187
-msgid "Agentic Rigg setter farten etter viftekurven hvert sekund."
-msgstr "Agentic Rigg 每秒按风扇曲线更新转速。"
+msgid "Agentic HW Monitor setter farten etter viftekurven hvert sekund."
+msgstr "Agentic HW Monitor 每秒按风扇曲线更新转速。"
 
 #: crates/rigg/src/pages/kontroller.rs:1188
 msgid "Viftene går med fast fart, uansett temperatur."

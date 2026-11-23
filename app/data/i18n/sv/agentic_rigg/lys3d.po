@@ -1,0 +1,136 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic HW Monitor\n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: crates/rigg/src/lys3d/mod.rs:38
+msgid "Forfra"
+msgstr "Framifrån"
+
+#: crates/rigg/src/lys3d/mod.rs:39
+msgid "Skrått"
+msgstr "Snett"
+
+#: crates/rigg/src/lys3d/mod.rs:40
+msgid "Ovenfra"
+msgstr "Ovanifrån"
+
+#: crates/rigg/src/lys3d/mod.rs:41
+msgid "Bakfra"
+msgstr "Bakifrån"
+
+#: crates/rigg/src/lys3d/mod.rs:44
+msgid "Hel"
+msgstr "Hel"
+
+#: crates/rigg/src/lys3d/mod.rs:45
+msgid "Uten deksel"
+msgstr "Utan kåpa"
+
+#: crates/rigg/src/lys3d/mod.rs:46
+msgid "Uten kjøler"
+msgstr "Utan kylare"
+
+#: crates/rigg/src/lys3d/mod.rs:47
+msgid "Bare kretskort"
+msgstr "Endast kretskort"
+
+#: crates/rigg/src/lys3d/mod.rs:50
+msgid "Alle deler er på: deksel med vifter og lys, kjøler, kretskort, brakett og bakplate."
+msgstr "Alla delar sitter på: kåpa med fläktar och belysning, kylare, kretskort, fäste och bakplatta."
+
+#: crates/rigg/src/lys3d/mod.rs:51
+msgid "Dekselet og viftene er tatt av, så kjøleribben og varmerørene synes."
+msgstr "Kåpan och fläktarna är borttagna, så att kylflänsarna och värmerören syns."
+
+#: crates/rigg/src/lys3d/mod.rs:52
+msgid "Kjøleren er også tatt av. Kretskortet synes med brakett og bakplate."
+msgstr "Kylaren är också borttagen. Kretskortet syns med fäste och bakplatta."
+
+#: crates/rigg/src/lys3d/mod.rs:53
+msgid "Bare kretskortet: GPU-brikken, åtte minnebrikker, strømfaser, kontakter og utganger."
+msgstr "Endast kretskortet: GPU-kretsen, åtta minneskretsar, strömfaser, kontakter och utgångar."
+
+#: crates/rigg/src/lys3d/mod.rs:624
+msgid "fra venstre"
+msgstr "från vänster"
+
+#: crates/rigg/src/lys3d/mod.rs:624
+msgid "fra høyre"
+msgstr "från höger"
+
+#: crates/rigg/src/lys3d/mod.rs:627
+msgid "ovenfra, med lyslisten mot deg"
+msgstr "ovanifrån, med ljuslisten mot dig"
+
+#: crates/rigg/src/lys3d/mod.rs:629
+msgid "nedenfra"
+msgstr "underifrån"
+
+#: crates/rigg/src/lys3d/mod.rs:631
+msgid "rett forfra"
+msgstr "rakt framifrån"
+
+#: crates/rigg/src/lys3d/mod.rs:633
+msgid "skrått forfra {side}"
+msgstr "snett framifrån {side}"
+
+#: crates/rigg/src/lys3d/mod.rs:636
+msgid "fra siden med braketten og utgangene"
+msgstr "från sidan med fästet och utgångarna"
+
+#: crates/rigg/src/lys3d/mod.rs:638
+msgid "fra enden"
+msgstr "från änden"
+
+#: crates/rigg/src/lys3d/mod.rs:641
+msgid "skrått bakfra {side}"
+msgstr "snett bakifrån {side}"
+
+#: crates/rigg/src/lys3d/mod.rs:643
+msgid "rett bakfra, mot bakplaten"
+msgstr "rakt bakifrån, mot bakplattan"
+
+#: crates/rigg/src/lys3d/mod.rs:646
+msgid "Lagene er skilt fra hverandre ({prosent})."
+msgstr "Lagren är isärdragna ({prosent})."
+
+#: crates/rigg/src/lys3d/mod.rs:653
+msgid "Viftene går på {fart}."
+msgstr "Fläktarna går på {fart}."
+
+#: crates/rigg/src/lys3d/mod.rs:655
+msgid "Viftene står stille."
+msgstr "Fläktarna står stilla."
+
+#: crates/rigg/src/lys3d/mod.rs:657
+msgid "Skjermkort i 3D, sett {vinkel}. {lag}"
+msgstr "Grafikkort i 3D, sett {vinkel}. {lag}"
+
+#: crates/rigg/src/lys3d/mod.rs:755
+msgid "Skjermkortet i 3D"
+msgstr "Grafikkortet i 3D"
+
+#: crates/rigg/src/lys3d/mod.rs:756
+msgid "3D-visning"
+msgstr "3D-vy"
+
+#: crates/rigg/src/lys3d/mod.rs:835
+msgid "GL kunne ikke startes: {feil}"
+msgstr "Det gick inte att starta GL: {feil}"
+
+#: crates/rigg/src/lys3d/mod.rs:898
+msgid "GL-feil i GLArea"
+msgstr "GL-fel i GLArea"
+
+#: crates/rigg/src/lys3d/mod.rs:917
+msgid "3D-kortet kunne ikke startes: {feil}"
+msgstr "Det gick inte att starta 3D-kortet: {feil}"
+
+#: crates/rigg/src/lys3d/mod.rs:1134
+msgid "Bygger 3D-kortet …"
+msgstr "Bygger 3D-kortet…"

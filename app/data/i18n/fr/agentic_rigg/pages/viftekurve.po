@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Agentic Rigg\n"
+"Project-Id-Version: Agentic HW Monitor\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -111,8 +111,8 @@ msgid "Kurve"
 msgstr "Courbe"
 
 #: crates/rigg/src/pages/viftekurve.rs:1228
-msgid "Agentic Rigg setter farten etter viftekurven hvert sekund."
-msgstr "Agentic Rigg ajuste la vitesse des ventilateurs chaque seconde selon la courbe."
+msgid "Agentic HW Monitor setter farten etter viftekurven hvert sekund."
+msgstr "Agentic HW Monitor ajuste la vitesse des ventilateurs chaque seconde selon la courbe."
 
 #: crates/rigg/src/pages/viftekurve.rs:1229 crates/rigg/src/pages/viftekurve.rs:2606
 msgid "Manuell"
@@ -789,8 +789,8 @@ msgid "tjenesten styrer"
 msgstr "géré par le service"
 
 #: crates/rigg/src/pages/viftekurve.rs:2663
-msgid "fast fart fra Agentic Rigg"
-msgstr "vitesse fixe définie par Agentic Rigg"
+msgid "fast fart fra Agentic HW Monitor"
+msgstr "vitesse fixe définie par Agentic HW Monitor"
 
 #: crates/rigg/src/pages/viftekurve.rs:2663
 msgid "satt utenfor appen"
@@ -917,8 +917,8 @@ msgid "Stiplet: standardkurven. Den brukes bare i modus Kurve; nå styrer driver
 msgstr "En pointillé : courbe par défaut. La courbe ne s’applique qu’en mode Courbe. Le pilote gère actuellement les ventilateurs. Déplacez un point pour créer un brouillon."
 
 #: crates/rigg/src/pages/viftekurve.rs:2794
-msgid "Hver endring må beholdes innen {tid}, ellers rulles den tilbake. Lukkes Agentic Rigg helt, går viftene tilbake til Auto."
-msgstr "Cliquez sur Conserver dans le délai de {tid}, sinon les modifications seront annulées. Quitter complètement Agentic Rigg remet les ventilateurs en mode Auto."
+msgid "Hver endring må beholdes innen {tid}, ellers rulles den tilbake. Lukkes Agentic HW Monitor helt, går viftene tilbake til Auto."
+msgstr "Cliquez sur Conserver dans le délai de {tid}, sinon les modifications seront annulées. Quitter complètement Agentic HW Monitor remet les ventilateurs en mode Auto."
 
 #: crates/rigg/src/pages/viftekurve.rs:2808
 msgid "Ingen endringer"

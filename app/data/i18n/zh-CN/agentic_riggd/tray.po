@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Agentic Rigg\n"
+"Project-Id-Version: Agentic HW Monitor\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -34,8 +34,8 @@ msgid "Tar opp historikk i bakgrunnen"
 msgstr "正在后台记录历史数据"
 
 #: crates/riggd/src/tray.rs:169
-msgid "Åpne Agentic Rigg"
-msgstr "打开 Agentic Rigg"
+msgid "Åpne Agentic HW Monitor"
+msgstr "打开 Agentic HW Monitor"
 
 #: crates/riggd/src/tray.rs:170
 msgid "Stopp logging"
@@ -66,9 +66,9 @@ msgid "Stopper bakgrunnsopptaket fra systemfeltet."
 msgstr "正在从系统托盘停止后台记录。"
 
 #: crates/riggd/src/tray.rs:713
-msgid "Kunne ikke åpne Agentic Rigg: {e}"
-msgstr "无法打开 Agentic Rigg：{e}"
+msgid "Kunne ikke åpne Agentic HW Monitor: {e}"
+msgstr "无法打开 Agentic HW Monitor：{e}"
 
 #: crates/riggd/src/tray.rs:716
-msgid "Fant ikke Agentic Rigg ({desktop})."
-msgstr "找不到 Agentic Rigg（{desktop}）。"
+msgid "Fant ikke Agentic HW Monitor ({desktop})."
+msgstr "找不到 Agentic HW Monitor（{desktop}）。"

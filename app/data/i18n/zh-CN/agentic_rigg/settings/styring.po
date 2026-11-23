@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Agentic Rigg\n"
+"Project-Id-Version: Agentic HW Monitor\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -194,8 +194,8 @@ msgid "Tillat endring av skjermkortet"
 msgstr "允许调校显卡"
 
 #: crates/rigg/src/settings/styring.rs:262
-msgid "Gir Agentic Rigg tilgang til støttede GPU-funksjoner via en administratorhjelper. Du blir spurt om passord. Ingen verdier endres før du trykker Bruk på en styringsside."
-msgstr "通过管理员辅助程序，允许 Agentic Rigg 访问受支持的显卡功能。系统会要求输入密码。在调校页面点击“应用”前，不会更改任何值。"
+msgid "Gir Agentic HW Monitor tilgang til støttede GPU-funksjoner via en administratorhjelper. Du blir spurt om passord. Ingen verdier endres før du trykker Bruk på en styringsside."
+msgstr "通过管理员辅助程序，允许 Agentic HW Monitor 访问受支持的显卡功能。系统会要求输入密码。在调校页面点击“应用”前，不会更改任何值。"
 
 #: crates/rigg/src/settings/styring.rs:264
 msgctxt "søkeord"

@@ -1,5 +1,5 @@
 name: Feature Request
-description: Suggest an improvement or new feature for Agentic Rigg
+description: Suggest an improvement or new feature for Agentic HW Monitor
 labels: ["enhancement"]
 body:
   - type: markdown

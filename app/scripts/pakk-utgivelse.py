@@ -34,7 +34,7 @@ def fail(message):
 
 def version_metadata():
     data = json.loads((APP / "version.json").read_text(encoding="utf-8"))
-    if data.get("name") != "Agentic Rigg":
+    if data.get("name") != "Agentic HW Monitor":
         fail("Uventet appnavn i app/version.json.")
     if not isinstance(data.get("version"), str) or not re.fullmatch(
         r"\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?", data["version"]
@@ -56,7 +56,7 @@ def check_binary(path, name, metadata):
     kind, machine = struct.unpack_from("<HH", header, 16)
     if machine != 62 or kind not in (2, 3):
         fail(f"Binæren er ikke en x86-64 ELF-kjørbar fil: {path}")
-    title = "Agentic Rigg-hjelperen" if name == "agentic-rigg-helper" else metadata["name"]
+    title = "Agentic HW Monitor-hjelperen" if name == "agentic-rigg-helper" else metadata["name"]
     expected = f"{title} {metadata['version']} · bygg {metadata['build']}"
     result = subprocess.run(
         [str(path), "--version"], capture_output=True, text=True,
@@ -109,7 +109,7 @@ def file_list(bin_dir):
 
 
 def readme(metadata):
-    return f"""# Agentic Rigg {metadata['version']} · bygg {metadata['build']}
+    return f"""# Agentic HW Monitor {metadata['version']} · bygg {metadata['build']}
 
 Ferdigbygd desktop-app for Ubuntu 26.04 på amd64 (x86-64).
 Krever GTK 4.22 eller nyere og glibc 2.39 eller nyere. Dette er ikke en
@@ -129,7 +129,7 @@ Pakk ut arkivet og åpne en terminal i denne mappa. Kjør som vanlig bruker:
 
 Installereren trenger bash, standard GNU-verktøy og python3. Den legger
 appen under ~/.local, med ikon i programmenyen. Den bygger ingenting.
-En allerede kjørende Agentic Rigg-brukertjeneste kan startes på nytt.
+En allerede kjørende Agentic HW Monitor-brukertjeneste kan startes på nytt.
 Root-komponentene følger med. Installer dem separat fra det verifiserte arkivet
 med kommandoen i RGB-HJELPER.md. Brukerinstallasjonen aktiverer ingen hjelpere.
 install.sh legger SYSTEMFILER.sha256 hos brukeren. Installerer appen senere
@@ -143,7 +143,7 @@ RGB-HJELPER.md, og deretter en egen aktivering for et støttet kort.
 Fast blått og tilbakeføring til grønt er prøvd på Palit GeForce RTX 2080 Super JetStream.
 Se PATCHLOG.md for prøveresultat og omfang.
 
-Start «Agentic Rigg» fra programmenyen, eller ~/.local/bin/agentic-rigg.
+Start «Agentic HW Monitor» fra programmenyen, eller ~/.local/bin/agentic-rigg.
 Versjon og bygg står i Innstillinger › Om og i binærenes --version.
 
 ## Avinstallere

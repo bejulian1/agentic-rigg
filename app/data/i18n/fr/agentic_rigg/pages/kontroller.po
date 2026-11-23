@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Agentic Rigg\n"
+"Project-Id-Version: Agentic HW Monitor\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -819,8 +819,8 @@ msgid "Driveren styrer viftene etter temperaturen, som uten appen."
 msgstr "Le pilote ajuste la vitesse des ventilateurs selon la température, comme sans l’application."
 
 #: crates/rigg/src/pages/kontroller.rs:1187
-msgid "Agentic Rigg setter farten etter viftekurven hvert sekund."
-msgstr "Agentic Rigg ajuste la vitesse des ventilateurs chaque seconde selon la courbe."
+msgid "Agentic HW Monitor setter farten etter viftekurven hvert sekund."
+msgstr "Agentic HW Monitor ajuste la vitesse des ventilateurs chaque seconde selon la courbe."
 
 #: crates/rigg/src/pages/kontroller.rs:1188
 msgid "Viftene går med fast fart, uansett temperatur."

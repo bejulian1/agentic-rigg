@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Lager ikonvariantene til Agentic Rigg fra én mal per størrelse.
+"""Lager ikonvariantene til Agentic HW Monitor fra én mal per størrelse.
 
 Malene ligger i varianter/maler/ (128.svg er hovedikonet, 48/32/24/16.svg er
 tegnet på pikselrutenettet). Hver variant er bare et sett farger. Skriptet

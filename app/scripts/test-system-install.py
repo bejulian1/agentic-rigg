@@ -533,7 +533,7 @@ class SystemTest(unittest.TestCase):
         self.mod['MARK'].chmod(0o644)
         # Pakken: alle systemfiler fra denne kildekoden, bygg 33.
         files = dict(self.files)
-        files['version.json'] = json.dumps({'name': 'Agentic Rigg', 'version': '1.6.1', 'channel': 'stable', 'build': 33}).encode()
+        files['version.json'] = json.dumps({'name': 'Agentic HW Monitor', 'version': '1.6.1', 'channel': 'stable', 'build': 33}).encode()
         archive, digest = self.archive(files.items())
         hent = runpy.run_path(str(DATA / 'system-hent.py'), run_name='test')['main'].__globals__
         hent.update(STAGING=str(self.root), MARK=str(self.mod['MARK']), RGB_JOURNAL=str(rgb_journal),

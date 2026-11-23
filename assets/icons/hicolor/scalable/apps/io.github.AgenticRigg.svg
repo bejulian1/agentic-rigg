@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-  <title>Agentic Rigg</title>
+  <title>Agentic HW Monitor</title>
   <!-- Appikon (v0.0.6): et skjermkort sett forfra, med én vifte og PCIe-kontakten under. Adwaita-farger. -->
   <defs>
     <linearGradient id="face" x1="64" y1="12" x2="64" y2="108" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#5e5c64"/><stop offset="1" stop-color="#3d3846"/></linearGradient>

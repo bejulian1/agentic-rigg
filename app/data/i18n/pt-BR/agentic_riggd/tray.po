@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Agentic Rigg\n"
+"Project-Id-Version: Agentic HW Monitor\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -35,8 +35,8 @@ msgid "Tar opp historikk i bakgrunnen"
 msgstr "Registrando o histórico em segundo plano"
 
 #: crates/riggd/src/tray.rs:169
-msgid "Åpne Agentic Rigg"
-msgstr "Abrir Agentic Rigg"
+msgid "Åpne Agentic HW Monitor"
+msgstr "Abrir Agentic HW Monitor"
 
 #: crates/riggd/src/tray.rs:170
 msgid "Stopp logging"
@@ -67,9 +67,9 @@ msgid "Stopper bakgrunnsopptaket fra systemfeltet."
 msgstr "Parando o registro em segundo plano pela bandeja do sistema."
 
 #: crates/riggd/src/tray.rs:713
-msgid "Kunne ikke åpne Agentic Rigg: {e}"
-msgstr "Não foi possível abrir o Agentic Rigg: {e}"
+msgid "Kunne ikke åpne Agentic HW Monitor: {e}"
+msgstr "Não foi possível abrir o Agentic HW Monitor: {e}"
 
 #: crates/riggd/src/tray.rs:716
-msgid "Fant ikke Agentic Rigg ({desktop})."
-msgstr "O Agentic Rigg ({desktop}) não foi encontrado."
+msgid "Fant ikke Agentic HW Monitor ({desktop})."
+msgstr "O Agentic HW Monitor ({desktop}) não foi encontrado."

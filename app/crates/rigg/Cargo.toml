@@ -1,6 +1,6 @@
 [package]
 name = "rigg"
-description = "Agentic Rigg: vinduet (GTK4, uten libadwaita)"
+description = "Agentic HW Monitor: vinduet (GTK4, uten libadwaita)"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

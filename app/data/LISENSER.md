@@ -1,6 +1,6 @@
-# Lisenser i Agentic Rigg
+# Lisenser i Agentic HW Monitor
 
-Agentic Rigg 1.0 er to programmer: vinduet (`agentic-rigg`) og tjenesten (`agentic-riggd`). Begge er skrevet i Rust og lisensiert under MIT (teksten står nederst). Programmene laster ikke ned noe og sender ingenting ut av maskinen.
+Agentic HW Monitor 1.0 er to programmer: vinduet (`agentic-rigg`) og tjenesten (`agentic-riggd`). Begge er skrevet i Rust og lisensiert under MIT (teksten står nederst). Programmene laster ikke ned noe og sender ingenting ut av maskinen.
 
 Denne fila følger med i programmet (Innstillinger › Om › Lisenser) og installeres til `~/.local/share/doc/agentic-rigg/LISENSER.md`.
 
@@ -56,7 +56,7 @@ SOFTWARE.
 
 ## Rust-biblioteker som er bygget inn
 
-Alle er lisensiert under MIT, eller under MIT og Apache 2.0 etter eget valg. Agentic Rigg bruker dem under MIT. glow kan også brukes under Zlib, og memchr under Unlicense. unicode-ident har i tillegg Unicode-3.0 for tabellene.
+Alle er lisensiert under MIT, eller under MIT og Apache 2.0 etter eget valg. Agentic HW Monitor bruker dem under MIT. glow kan også brukes under Zlib, og memchr under Unlicense. unicode-ident har i tillegg Unicode-3.0 for tabellene.
 
 | Bibliotek | Versjon | Lisens |
 |---|---|---|
@@ -122,19 +122,19 @@ Alle er lisensiert under MIT, eller under MIT og Apache 2.0 etter eget valg. Age
 
 ## Systembiblioteker
 
-Disse følger med Ubuntu og lastes ved kjøring. De er ikke en del av Agentic Rigg:
+Disse følger med Ubuntu og lastes ved kjøring. De er ikke en del av Agentic HW Monitor:
 
 - GTK 4, GLib, Pango, cairo, graphene, GdkPixbuf og HarfBuzz (LGPL 2.1 eller nyere, og MPL 1.1 eller LGPL 2.1 for cairo).
 - `libnvidia-ml.so.1` (NVML) følger med NVIDIA-driveren og brukes bare av tjenesten.
 
 ## MIT-lisensen
 
-Gjelder Agentic Rigg og Rust-bibliotekene over. Opphavsretten til hvert bibliotek tilhører forfatterne som er oppført i biblioteket.
+Gjelder Agentic HW Monitor og Rust-bibliotekene over. Opphavsretten til hvert bibliotek tilhører forfatterne som er oppført i biblioteket.
 
 ```
 The MIT License (MIT)
 
-Copyright (c) 2026 Agentic Rigg-prosjektet
+Copyright (c) 2026 Agentic HW Monitor-prosjektet
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

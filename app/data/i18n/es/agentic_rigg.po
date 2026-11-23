@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Agentic Rigg\n"
+"Project-Id-Version: Agentic HW Monitor\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -9,5 +9,5 @@ msgstr ""
 "X-Rigg-Status: complete\n"
 
 #: crates/rigg/src/main.rs:37
-msgid "Bruk: agentic-rigg [--side SIDE] [--innstillinger DEL] [--hint] [--version]\n\n  --side SIDE           åpne en side: oversikt, sensorer, grafer, grafikkort,\n                        oppgaver, prosessor, disker, system, kontroller (Klokker og\n                        effekt), viftekurve (Vifter) eller lys (RGB-lys)\n  --innstillinger DEL   åpne Innstillinger (generelt, utseende, format,\n                        sidefelt, grafer, logging, styring, data eller om)\n  --hint                et hint om en liten overraskelse du ikke har funnet\n  --version             skriv versjonen"
-msgstr "Uso: agentic-rigg [--side SIDE] [--innstillinger DEL] [--hint] [--version]\n\n  --side SIDE           abrir una página: oversikt, sensorer, grafer, grafikkort,\n                        oppgaver, prosessor, disker, system, kontroller (Frecuencias y\n                        potencia), viftekurve (Ventiladores) o lys (Iluminación RGB)\n  --innstillinger DEL   abrir Configuración (generelt, utseende, format,\n                        sidefelt, grafer, logging, styring, data u om)\n  --hint                mostrar una pista sobre una sorpresa sin descubrir\n  --version             mostrar la versión"
+msgid "Bruk: agentic-rigg [--side SIDE] [--innstillinger DEL] [--hint] [--version]\n\n  --side SIDE           åpne en side: oversikt, sensorer, grafer, grafikkort,\n                        oppgaver, prosessor, disker, system, nettverk,\n                        kontroller (Klokker og effekt), viftekurve (Vifter)\n                        eller lys (RGB-lys)\n  --innstillinger DEL   åpne Innstillinger (generelt, utseende, format,\n                        sidefelt, grafer, logging, styring, data eller om)\n  --hint                et hint om en liten overraskelse du ikke har funnet\n  --version             skriv versjonen"
+msgstr "Uso: agentic-rigg [--side SIDE] [--innstillinger DEL] [--hint] [--version]\n\n  --side SIDE           abrir una página: oversikt, sensorer, grafer, grafikkort,\n                        oppgaver, prosessor, disker, system, nettverk,\n                        kontroller (Frecuencias y potencia),\n                        viftekurve (Ventiladores) o lys (Iluminación RGB)\n  --innstillinger DEL   abrir Configuración (generelt, utseende, format,\n                        sidefelt, grafer, logging, styring, data u om)\n  --hint                mostrar una pista sobre una sorpresa sin descubrir\n  --version             mostrar la versión"

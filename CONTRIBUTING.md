@@ -1,6 +1,6 @@
-# Contributing to Agentic Rigg
+# Contributing to Agentic HW Monitor
 
-Thank you for your interest in contributing to Agentic Rigg! Please review these guidelines before opening an issue or pull request.
+Thank you for your interest in contributing to Agentic HW Monitor! Please review these guidelines before opening an issue or pull request.
 
 Participation in this project is governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
 
@@ -11,11 +11,11 @@ Participation in this project is governed by the [Code of Conduct](CODE_OF_CONDU
 
 ## Translations
 
-Wrap new UI text in `tr!`, `trf!` or `trn!`. Run `app/scripts/i18n-trekk-ut.py <rust-file>` to update the UTF-8 gettext catalogs for that module under `app/data/i18n`. Keep placeholder names, technical units and product names intact. Run `app/scripts/i18n-trekk-ut.py --check` to validate catalogs and list missing translations. See the [translation guide](docs/produksjon/i18n.md) for the module layout and conversion workflow.
+The app ships in 11 languages (`nb` source plus `en`, `de`, `fr`, `es`, `pt-BR`, `it`, `pl`, `sv`, `zh-CN`, `ja`). Wrap new UI text in `tr!`, `trf!` or `trn!`. Run `app/scripts/i18n-trekk-ut.py <rust-file>` to update the UTF-8 gettext catalogs for that module under `app/data/i18n`. Keep placeholder names, technical units and product names intact. Run `app/scripts/i18n-trekk-ut.py --check` to validate catalogs and list missing translations. Every new string must be translated into all languages before merging: `app/scripts/i18n-revisjon.py --check` (also run by `cargo test`) must report zero findings, and `python3 app/scripts/test-i18n.py` must pass. The app name “Agentic HW Monitor” is never translated. See the [translation guide](docs/produksjon/i18n.md) for the module layout and conversion workflow.
 
 ## Development Setup
 
-Agentic Rigg is a Rust + GTK 4 workspace located in [`app/`](app/).
+Agentic HW Monitor is a Rust + GTK 4 workspace located in [`app/`](app/).
 
 ### System Packages
 
@@ -54,7 +54,7 @@ The desktop installer is unprivileged. Never use `sudo ./install.sh` or run a wr
 
 ## Test Isolation Rules
 
-Automated tests and private GTK screenshot sessions **must be completely isolated** from any live Agentic Rigg installation on the host:
+Automated tests and private GTK screenshot sessions **must be completely isolated** from any live Agentic HW Monitor installation on the host:
 
 - Always use temporary, private directories for helper root, configuration, socket, and baseline files (e.g., `--socket`, `--config`, `--baseline`, and `RIGG_HJELPER_ROT` / temporary `HOME` / `XDG_*` paths).
 - **Never** fall back to host paths (`/run/agentic-rigg/helper.sock`, `/etc/agentic-rigg/helper.json`, or `/var/lib/agentic-rigg`) in any test fixture.
@@ -64,7 +64,7 @@ Automated tests and private GTK screenshot sessions **must be completely isolate
 
 ## Hardware-Safety Rules
 
-Agentic Rigg interacts with real hardware telemetry and—when explicitly enabled by a user—NVIDIA GPU power, fan, and clock controls. Contributors must follow strict safety boundaries:
+Agentic HW Monitor interacts with real hardware telemetry and—when explicitly enabled by a user—NVIDIA GPU power, fan, and clock controls. Contributors must follow strict safety boundaries:
 
 1. **No real hardware writes in automated tests:** Automated tests must never invoke NVML set calls, `nvidia-smi` write flags, or I2C writes. Use the simulated backend (`rigg-hw`'s simulated backend / `agentic-rigg-helper --backend sim`).
 2. **Never open `/dev/i2c-*`:** Linux I2C bus numbers shift between reboots and can point to critical devices such as USB-C controllers (`ccgx-ucsi`) or memory SPD EEPROMs (`ee1004`). Reading bus names under `/sys/bus/i2c/devices/*/name` is safe; opening `/dev/i2c-*` is prohibited unless explicitly approved and bound by sysfs identity.

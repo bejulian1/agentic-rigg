@@ -1,4 +1,4 @@
-# Prosjektinstrukser for Agentic Rigg
+# Prosjektinstrukser for Agentic HW Monitor
 
 Les `docs/produksjon/REGLER.md` før arbeid på appen. Gjeldende brukerbeskjeder har forrang. Bevar lokale endringer og brukerens innstillinger/historikk.
 

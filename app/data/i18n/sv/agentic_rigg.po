@@ -1,0 +1,13 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic HW Monitor\n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/main.rs:38
+msgid "Bruk: agentic-rigg [--side SIDE] [--innstillinger DEL] [--hint] [--version]\n\n  --side SIDE           åpne en side: oversikt, sensorer, grafer, grafikkort,\n                        oppgaver, prosessor, disker, system, nettverk,\n                        kontroller (Klokker og effekt), viftekurve (Vifter)\n                        eller lys (RGB-lys)\n  --innstillinger DEL   åpne Innstillinger (generelt, utseende, format,\n                        sidefelt, grafer, logging, styring, data eller om)\n  --hint                et hint om en liten overraskelse du ikke har funnet\n  --version             skriv versjonen"
+msgstr "Användning: agentic-rigg [--side SIDE] [--innstillinger DEL] [--hint] [--version]\n\n  --side SIDE           öppna en sida: oversikt, sensorer, grafer, grafikkort,\n                        oppgaver, prosessor, disker, system, nettverk,\n                        kontroller (Klockor och effekt), viftekurve (Fläktar)\n                        eller lys (RGB-belysning)\n  --innstillinger DEL   öppna Inställningar (generelt, utseende, format,\n                        sidefelt, grafer, logging, styring, data eller om)\n  --hint                en ledtråd om en liten överraskning du inte har hittat\n  --version             skriv ut versionen"

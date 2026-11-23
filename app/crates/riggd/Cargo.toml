@@ -1,6 +1,6 @@
 [package]
 name = "riggd"
-description = "Agentic Rigg: tjenesten som leser skjermkortet og maskinen og holder historikken"
+description = "Agentic HW Monitor: tjenesten som leser skjermkortet og maskinen og holder historikken"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

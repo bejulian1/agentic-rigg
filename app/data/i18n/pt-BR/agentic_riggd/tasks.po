@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Agentic Rigg\n"
+"Project-Id-Version: Agentic HW Monitor\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -37,8 +37,8 @@ msgid "Velg enten et eksisterende eller et nyere prosessbilde."
 msgstr "Escolha um instantâneo de processos existente ou solicite um mais recente."
 
 #: crates/riggd/src/tasks.rs:159
-msgid "Agentic Rigg eller en tilkoblet klient"
-msgstr "Agentic Rigg ou um cliente conectado"
+msgid "Agentic HW Monitor eller en tilkoblet klient"
+msgstr "Agentic HW Monitor ou um cliente conectado"
 
 #: crates/riggd/src/tasks.rs:172
 msgid "GPU-bruk per prosess er ikke tilgjengelig."
@@ -57,5 +57,5 @@ msgid "Avslutning krever en egen bekreftelse."
 msgstr "É preciso confirmar separadamente para finalizar a tarefa."
 
 #: crates/riggd/src/tasks.rs:216
-msgid "Agentic Rigg og tilkoblede klienter er beskyttet."
-msgstr "O Agentic Rigg e os clientes conectados estão protegidos."
+msgid "Agentic HW Monitor og tilkoblede klienter er beskyttet."
+msgstr "O Agentic HW Monitor e os clientes conectados estão protegidos."

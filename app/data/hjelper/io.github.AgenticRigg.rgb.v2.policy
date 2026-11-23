@@ -2,10 +2,10 @@
 <!DOCTYPE policyconfig PUBLIC "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
  "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
 <policyconfig>
-  <vendor>Agentic Rigg</vendor>
+  <vendor>Agentic HW Monitor</vendor>
   <icon_name>io.github.AgenticRigg</icon_name>
   <action id="io.github.AgenticRigg.rgb.v2.aktiver">
-    <description>Gi Agentic Rigg tilgang til kortets RGB-lys</description>
+    <description>Gi Agentic HW Monitor tilgang til kortets RGB-lys</description>
     <message>Identifiser det valgte kortets lyskontroller og aktiver en separat RGB-hjelper. Utgangspunktet må være fast lys som du selv har bekreftet.</message>
     <defaults><allow_any>no</allow_any><allow_inactive>no</allow_inactive><allow_active>auth_admin</allow_active></defaults>
     <annotate key="org.freedesktop.policykit.exec.path">/usr/local/libexec/agentic-rigg-rgb-v2/rgb-aktiver.sh</annotate>

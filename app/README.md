@@ -1,8 +1,10 @@
-# Agentic Rigg
+# Agentic HW Monitor
+
+Appen het «Agentic Rigg» til og med 1.6.0. Bare visningsnavnet er nytt. Kommandoene (`agentic-rigg`, `agentic-riggd`, `agentic-rigg-helper`), app-ID-en `io.github.AgenticRigg`, repoet `bejulian1/agentic-rigg` og alle mapper og systemstier heter det samme som før, så innstillinger, historikk, logger (`~/Dokumenter/Agentic Rigg/`) og en allerede aktivert GPU-hjelper følger med uten nytt passord. Se [REGLER.md](../docs/produksjon/REGLER.md#navn).
 
 Appen har også **Oppgaver** under Overvåking (Ctrl+Shift+Esc), med prosess-CPU, RSS-minne, tilgjengelig GPU-minne, prosesstre, søk, sortering og bekreftet SIGTERM. Systemgrafene deler eksisterende telemetri. GPU-prosent per prosess er ikke implementert. Se [måledefinisjoner og begrensninger](../docs/produksjon/oppgavebehandling.md).
 
-Agentic Rigg er et overvåkingsverktøy for skjermkort og maskin på Ubuntu, skrevet i Rust med GTK 4. Det samler det du ellers bruker MSI Afterburner, HWiNFO, GPU-Z og CPU-Z til på Windows:
+Agentic HW Monitor er et overvåkingsverktøy for skjermkort og maskin på Ubuntu, skrevet i Rust med GTK 4. Det samler det du ellers bruker MSI Afterburner, HWiNFO, GPU-Z og CPU-Z til på Windows:
 
 - **Oversikt** over hele maskinen, i stil med GNOME Resources: fliser for prosessor, skjermkort, minne, VRAM, disker og nettverk, en tilstand-linje når noe er verdt å se (nedklokking, varm GPU, disk med advarsel, kortet borte), grafer for last, temperaturer, effekt, minne, disk og nett fra siste minutt til 48 timer, og skjermkortets målere nederst.
 - **Sensorer**: alle verdier i én tabell, med min, maks og snitt, sparklinjer og logging til CSV.
@@ -153,7 +155,7 @@ Appen er to prosesser, og en tredje bare hvis du slår på endring:
 Hva som skjer når vinduet er lukket, bestemmer du i Innstillinger › Generelt › Bakgrunn:
 
 - **«Fortsett i bakgrunnen» av** (standard): ingenting kjører når appen er lukket. Tjenesten stopper 60 s etter siste vindu, og grafene får et hull for den tiden.
-- **På:** historikk, min og maks og varsler fortsetter til du logger ut, med «Takt i bakgrunnen» 1, 2 eller 5 s. Med 2 s koster det ca. 21–28 MB minne og 0,85 % av én kjerne. Et ikon i systemfeltet viser at tjenesten går, med «Åpne Agentic Rigg», «Start logging» / «Stopp logging» og «Stopp bakgrunnsopptak».
+- **På:** historikk, min og maks og varsler fortsetter til du logger ut, med «Takt i bakgrunnen» 1, 2 eller 5 s. Med 2 s koster det ca. 21–28 MB minne og 0,85 % av én kjerne. Et ikon i systemfeltet viser at tjenesten går, med «Åpne Agentic HW Monitor», «Start logging» / «Stopp logging» og «Stopp bakgrunnsopptak».
 - En logg til fil holder alltid tjenesten i gang til loggen stoppes.
 - **«Stopp tjenesten nå»** stopper loggen og opptaket; tjenesten avslutter når vinduet lukkes.
 
@@ -165,7 +167,7 @@ Alt blir på maskinen. Appen sender ingenting noe sted: ikke tall, ikke rapporte
 
 ## Endring av skjermkortet
 
-Agentic Rigg overvåker uten administratorrettigheter. I 1.4.0 er NVML-styring implementert for effektgrense, kjerne-/minneoffset og GPU-vifter, med egen støttekontroll for temperaturmål. **Ekte polkit-aktivering og begrenset fysisk skriving gjennom hjelperen er nå verifisert på RTX 2080.** Installasjon og oppdagelse prøver ingen endringer automatisk.
+Agentic HW Monitor overvåker uten administratorrettigheter. I 1.4.0 er NVML-styring implementert for effektgrense, kjerne-/minneoffset og GPU-vifter, med egen støttekontroll for temperaturmål. **Ekte polkit-aktivering og begrenset fysisk skriving gjennom hjelperen er nå verifisert på RTX 2080.** Installasjon og oppdagelse prøver ingen endringer automatisk.
 
 **Hvilket kort styres?** Skjermkortstyring i sidefeltet viser kortet under tittelen. «Styrer»-linja viser navn, produsent, PCI-adresse, VBIOS og driver. Hjelperen bindes til det valgte kortets PCI-adresse og NVML-UUID; hvert skrivekall kontrollerer samme identitet. Den åpner aldri ubundet kortindeks 0. Et annet valgt kort får ikke bruke bindingen. Et produsentnavn du setter selv er bare en etikett og påvirker ikke bindingen eller funksjonsstøtten.
 
@@ -214,4 +216,4 @@ GUI og daemon åpner ikke `/dev/i2c-*` eller `/dev/sd*`. Den separate RGB-root-h
 
 ## Lisens
 
-Agentic Rigg er lisensiert under MIT. Ikonene er fra Lucide (ISC). Lisensene for ikonene og Rust-bibliotekene står i `data/LISENSER.md`, i Innstillinger › Om › Lisenser og i `~/.local/share/doc/agentic-rigg/LISENSER.md` etter installasjon.
+Agentic HW Monitor er lisensiert under MIT. Ikonene er fra Lucide (ISC). Lisensene for ikonene og Rust-bibliotekene står i `data/LISENSER.md`, i Innstillinger › Om › Lisenser og i `~/.local/share/doc/agentic-rigg/LISENSER.md` etter installasjon.

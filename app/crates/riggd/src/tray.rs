@@ -4,7 +4,7 @@
 //! bakgrunnen» er på eller en logg går, og ingen vinduer er koblet til.
 //! Verktøytipset har GPU-temperatur, effekt og last, og «Logger» når loggen
 //! går. Menyen (produktspesifikasjonen 3.1): statuslinja (ikke klikkbar),
-//! «Åpne Agentic Rigg», «Start logging» eller «Stopp logging» (alltid synlig)
+//! «Åpne Agentic HW Monitor», «Start logging» eller «Stopp logging» (alltid synlig)
 //! og «Stopp bakgrunnsopptak», som slår av «Fortsett i bakgrunnen» og stopper
 //! tjenesten hvis ingen logg går. Dobbeltklikk på ikonet åpner appen (`Activate`).
 //!
@@ -123,7 +123,7 @@ pub fn tooltip(s: &Snapshot) -> (String, String) {
     } else {
         body.push_str(tr!("Tar opp historikk i bakgrunnen"));
     }
-    ("Agentic Rigg".to_string(), body)
+    (rigg_core::version::NAME.to_string(), body)
 }
 
 /// Skal verten få beskjed om nytt verktøytips? Straks når loggen starter
@@ -166,7 +166,7 @@ pub fn menu(s: &Snapshot) -> Vec<MenuItem> {
     vec![
         it(ID_STATUS, &status_line(s), false, true, None),
         sep(2, true),
-        it(ID_OPEN, tr!("Åpne Agentic Rigg"), true, true, Some(Action::Open)),
+        it(ID_OPEN, tr!("Åpne Agentic HW Monitor"), true, true, Some(Action::Open)),
         if s.logging { it(ID_LOG, tr!("Stopp logging"), true, true, Some(Action::StopLog)) } else { it(ID_LOG, tr!("Start logging"), true, true, Some(Action::StartLog)) },
         sep(5, true),
         it(ID_STOP_BG, tr!("Stopp bakgrunnsopptak"), true, true, Some(Action::StopBackground)),
@@ -454,7 +454,7 @@ fn sni_property(st: &ItemState, prop: &str) -> Variant {
     match prop {
         "Category" => "Hardware".to_variant(),
         "Id" => rigg_core::paths::Profile::current().app_id().to_variant(),
-        "Title" => "Agentic Rigg".to_variant(),
+        "Title" => rigg_core::version::NAME.to_variant(),
         "Status" => "Active".to_variant(),
         "WindowId" => 0i32.to_variant(),
         "Menu" => ObjectPath::try_from(MENU_PATH).map(|p| p.to_variant()).unwrap_or_else(|_| "/".to_variant()),
@@ -703,15 +703,15 @@ fn open_app() {
         if !exe.exists() {
             return None;
         }
-        gio::AppInfo::create_from_commandline(glib::shell_quote(&exe), Some("Agentic Rigg"), gio::AppInfoCreateFlags::NONE).ok()
+        gio::AppInfo::create_from_commandline(glib::shell_quote(&exe), Some(rigg_core::version::NAME), gio::AppInfoCreateFlags::NONE).ok()
     });
     match info {
         Some(i) => {
             if let Err(e) = i.launch(&[], None::<&gio::AppLaunchContext>) {
-                eprintln!("{}", trf!("Kunne ikke åpne Agentic Rigg: {e}", e = e));
+                eprintln!("{}", trf!("Kunne ikke åpne Agentic HW Monitor: {e}", e = e));
             }
         }
-        None => eprintln!("{}", trf!("Fant ikke Agentic Rigg ({desktop}).", desktop = desktop)),
+        None => eprintln!("{}", trf!("Fant ikke Agentic HW Monitor ({desktop}).", desktop = desktop)),
     }
 }
 
@@ -806,7 +806,7 @@ mod tests {
         let s = snap();
         let m = menu(&s);
         let shown: Vec<&str> = m.iter().filter(|i| i.visible && !i.separator).map(|i| i.label.as_str()).collect();
-        assert_eq!(shown, ["GPU 52\u{202f}°C · 12\u{202f}W · 8\u{202f}% last", "Åpne Agentic Rigg", "Start logging", "Stopp bakgrunnsopptak"]);
+        assert_eq!(shown, ["GPU 52\u{202f}°C · 12\u{202f}W · 8\u{202f}% last", "Åpne Agentic HW Monitor", "Start logging", "Stopp bakgrunnsopptak"]);
         assert!(!m[0].enabled, "statuslinja kan ikke klikkes");
         assert_eq!(action_for(&s, ID_OPEN), Some(Action::Open));
         assert_eq!(action_for(&s, ID_STOP_BG), Some(Action::StopBackground));
@@ -816,7 +816,7 @@ mod tests {
 
         let l = Snapshot { logging: true, log_rows: Some(1234), ..s };
         let shown: Vec<String> = menu(&l).into_iter().filter(|i| i.visible && !i.separator).map(|i| i.label).collect();
-        assert_eq!(shown, ["GPU 52\u{202f}°C · 12\u{202f}W · 8\u{202f}% last · Logger", "Åpne Agentic Rigg", "Stopp logging", "Stopp bakgrunnsopptak"]);
+        assert_eq!(shown, ["GPU 52\u{202f}°C · 12\u{202f}W · 8\u{202f}% last · Logger", "Åpne Agentic HW Monitor", "Stopp logging", "Stopp bakgrunnsopptak"]);
         assert_eq!(action_for(&l, ID_LOG), Some(Action::StopLog));
         assert_eq!(item_changes(&s, &l), [(ID_LOG, true, "Stopp logging".to_string())]);
         assert_eq!(item_changes(&l, &s), [(ID_LOG, true, "Start logging".to_string())]);
@@ -829,7 +829,7 @@ mod tests {
     #[test]
     fn verktøytipset() {
         let (title, body) = tooltip(&snap());
-        assert_eq!(title, "Agentic Rigg");
+        assert_eq!(title, "Agentic HW Monitor");
         assert_eq!(body, "GPU 52\u{202f}°C · 12\u{202f}W · 8\u{202f}% last\nTar opp historikk i bakgrunnen");
         let (_, body) = tooltip(&Snapshot { logging: true, log_rows: Some(1234), ..snap() });
         assert_eq!(body, "GPU 52\u{202f}°C · 12\u{202f}W · 8\u{202f}% last · Logger\nLogger til fil · 1\u{202f}234 rader");
@@ -1031,7 +1031,7 @@ mod tests {
             client.join().expect("klienten");
             let (icon, labels, tip) = got.take().expect("svar");
             assert_eq!(icon, ICON);
-            assert_eq!(labels, ["GPU 52\u{202f}°C · 12\u{202f}W · 8\u{202f}% last", "Åpne Agentic Rigg", "Start logging", "Stopp bakgrunnsopptak"]);
+            assert_eq!(labels, ["GPU 52\u{202f}°C · 12\u{202f}W · 8\u{202f}% last", "Åpne Agentic HW Monitor", "Start logging", "Stopp bakgrunnsopptak"]);
             assert!(tip.contains("Tar opp historikk i bakgrunnen"));
             // «hovered» er ikke et klikk.
             assert!(spin(&ctx, || actions.borrow().len() >= 3));

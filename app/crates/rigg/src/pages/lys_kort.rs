@@ -536,7 +536,7 @@ impl CardLight {
         );
         let confirmed = paragraph("", &["muted", "sm"]);
         let readback_note = paragraph(tr!("Farge og lysstyrke kan leses tilbake. Effektmodusen kan ikke leses; en visuell bekreftelse er din observasjon."), &["muted", "sm"]);
-        let support = paragraph(tr!("Agentic Rigg støtter Palit GeForce RTX 2080 Super JetStream via den separate RGB-hjelperen."), &["muted", "sm"]);
+        let support = paragraph(tr!("Agentic HW Monitor støtter Palit GeForce RTX 2080 Super JetStream via den separate RGB-hjelperen."), &["muted", "sm"]);
         for l in [&identity, &observation, &confirmed, &readback_note, &support] {
             details_box.append(l);
         }

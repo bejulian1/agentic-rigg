@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Agentic Rigg\n"
+"Project-Id-Version: Agentic HW Monitor\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -110,8 +110,8 @@ msgid "Kurve"
 msgstr "曲线"
 
 #: crates/rigg/src/pages/viftekurve.rs:1228
-msgid "Agentic Rigg setter farten etter viftekurven hvert sekund."
-msgstr "Agentic Rigg 每秒按风扇曲线更新转速。"
+msgid "Agentic HW Monitor setter farten etter viftekurven hvert sekund."
+msgstr "Agentic HW Monitor 每秒按风扇曲线更新转速。"
 
 #: crates/rigg/src/pages/viftekurve.rs:1229 crates/rigg/src/pages/viftekurve.rs:2606
 msgid "Manuell"
@@ -787,8 +787,8 @@ msgid "tjenesten styrer"
 msgstr "由服务控制"
 
 #: crates/rigg/src/pages/viftekurve.rs:2663
-msgid "fast fart fra Agentic Rigg"
-msgstr "由 Agentic Rigg 设置的固定转速"
+msgid "fast fart fra Agentic HW Monitor"
+msgstr "由 Agentic HW Monitor 设置的固定转速"
 
 #: crates/rigg/src/pages/viftekurve.rs:2663
 msgid "satt utenfor appen"
@@ -915,8 +915,8 @@ msgid "Stiplet: standardkurven. Den brukes bare i modus Kurve; nå styrer driver
 msgstr "虚线表示默认曲线。曲线仅在“曲线”模式下生效；当前由驱动程序控制。拖动控制点可创建草稿。"
 
 #: crates/rigg/src/pages/viftekurve.rs:2794
-msgid "Hver endring må beholdes innen {tid}, ellers rulles den tilbake. Lukkes Agentic Rigg helt, går viftene tilbake til Auto."
-msgstr "请在 {tid} 内点击“保留”，否则此次更改将撤销。完全退出 Agentic Rigg 后，风扇将恢复为“自动”模式。"
+msgid "Hver endring må beholdes innen {tid}, ellers rulles den tilbake. Lukkes Agentic HW Monitor helt, går viftene tilbake til Auto."
+msgstr "请在 {tid} 内点击“保留”，否则此次更改将撤销。完全退出 Agentic HW Monitor 后，风扇将恢复为“自动”模式。"
 
 #: crates/rigg/src/pages/viftekurve.rs:2808
 msgid "Ingen endringer"

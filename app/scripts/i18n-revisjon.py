@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Finn sannsynlig synlige norske eller uoversatte tekststrenger utenfor tr!/trf!/trn!.
+"""Finn sannsynlig synlige norske eller uoversatte tekststrenger utenfor tr!/trf!/trn!,
+og kontroller at hvert språk i nedtrekkslista er fullstendig og konsekvent oversatt.
 
 Bruk:
   python3 app/scripts/i18n-revisjon.py                  # vis uavklarte funn og returner feil ved funn
@@ -7,10 +8,17 @@ Bruk:
   python3 app/scripts/i18n-revisjon.py --all            # vis også dokumenterte unntak
   python3 app/scripts/i18n-revisjon.py --include-other  # ta også med filer eid av andre grener
   python3 app/scripts/i18n-revisjon.py <fil...>         # skann bestemte kildefiler
+
+Uten filnavn kontrolleres også katalogene for alle språk (se `catalog_findings`):
+samme språkliste i Rust, uttrekksverktøyet, katalogmappene og skrivebordsfilen,
+ingen hull, ingen tegn fra et annet språk, samme mellomrom og linjeskift som
+kilden, og appnavnet uendret.
 """
 
 import argparse
 from dataclasses import dataclass
+import importlib.util
+import json
 from pathlib import Path
 import re
 import sys
@@ -530,6 +538,177 @@ def navigation_mismatches() -> list[str]:
     return out
 
 
+# --- Katalogkontroll for alle språk -------------------------------------------------
+
+# Tegn som ikke hører hjemme i språket. Bokmålets æ, ø og å i en oversettelse betyr
+# nesten alltid at et norsk ord har blitt stående; svensk har å, men ikke æ og ø.
+_OTHER_SCRIPTS = "\u0400-\u04FF\uAC00-\uD7A3"
+_CJK = "\u3040-\u30FF\u4E00-\u9FFF"
+FOREIGN_CHARS: dict[str, str] = {
+    "en": f"[æøåÆØÅ{_OTHER_SCRIPTS}{_CJK}]",
+    "de": f"[æøåÆØÅ{_OTHER_SCRIPTS}{_CJK}]",
+    "fr": f"[øåØÅ{_OTHER_SCRIPTS}{_CJK}]",
+    "es": f"[æøåÆØÅ{_OTHER_SCRIPTS}{_CJK}]",
+    "pt-BR": f"[æøåÆØÅ{_OTHER_SCRIPTS}{_CJK}]",
+    "it": f"[æøåÆØÅ{_OTHER_SCRIPTS}{_CJK}]",
+    "pl": f"[æøåÆØÅ{_OTHER_SCRIPTS}{_CJK}]",
+    "sv": f"[æøÆØ{_OTHER_SCRIPTS}{_CJK}]",
+    "zh-CN": f"[æøåÆØÅ{_OTHER_SCRIPTS}\u3040-\u30FF]",
+    "ja": f"[æøåÆØÅ{_OTHER_SCRIPTS}]",
+}
+# Språk med eget skriftsystem: en oversatt setning skal inneholde det. De skriver uten
+# mellomrom mellom ord og har egne skilletegn, så mellomrom i start og slutt kan falle bort.
+OWN_SCRIPT: dict[str, str] = {"zh-CN": "[\u4E00-\u9FFF]", "ja": "[\u3040-\u30FF\u4E00-\u9FFF]"}
+# «Ø» som frittstående tegn er diameter («Ø 6 mm») eller gjennomsnitt (tysk «Takt (Ø)»),
+# ikke en norsk bokstav.
+SYMBOL = re.compile(r"(?<![^\W\d_])Ø(?![^\W\d_])")
+# Kilden skriver tall og enhet med smalt, hardt mellomrom (U+202F), slik at «25 ms» ikke
+# deles over to linjer. Et vanlig mellomrom mellom tall og enhet er da en feil.
+NNBSP = "\u202f"
+PLAIN_UNIT_SPACE = re.compile(r"[\d}] (?:%|°C|°F|ms|s|min|h|MB|GB|kB|MHz|W)(?!\w)")
+# Loggmappa beholder det gamle appnavnet, slik at eksisterende logger blir funnet.
+OLD_NAME = "Agentic Rigg"
+OLD_NAME_PATH = "~/Dokumenter/Agentic Rigg"
+DESKTOP_KEYS = ("Name", "GenericName", "Comment", "Keywords")
+
+
+def extractor():
+    """Uttrekksverktøyet (i18n-trekk-ut.py) som modul: språkliste, PO-leser og nøkler."""
+    spec = importlib.util.spec_from_file_location("i18n_trekk_ut", APP / "scripts/i18n-trekk-ut.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def rust_languages(source: str) -> list[str]:
+    """Kodene i `Language::ALL`, i nedtrekkslistas rekkefølge."""
+    codes = dict(re.findall(r'Self::(\w+) => "([A-Za-z-]+)",', source[source.index("pub const fn code") : source.index("pub const fn native_name")]))
+    order = re.search(r'pub const ALL: \[Self; (\d+)\] = \[(.*?)\];', source, re.S)
+    variants = re.findall(r'Self::(\w+)', order[2])
+    if int(order[1]) != len(variants) or set(variants) != set(codes):
+        raise ValueError("Language::ALL og Language::code() har ulike språk")
+    return [codes[variant] for variant in variants]
+
+
+def whitespace_shape(text: str, spaces: bool = True) -> tuple[int, int, int]:
+    edges = (len(text) - len(text.lstrip()), len(text) - len(text.rstrip())) if spaces else (0, 0)
+    return *edges, text.count("\n")
+
+
+def text_findings(lang: str, source: str, form: str, name: str, english: str = "") -> list[str]:
+    """Avvik i én oversatt form. `source` er bokmålsformen den gjengir, og `english`
+    den engelske, som viser om en fagterm bevisst står uoversatt («Sync Boost»)."""
+    out = []
+    own = OWN_SCRIPT.get(lang)
+    if whitespace_shape(form, own is None) != whitespace_shape(source, own is None):
+        out.append("mellomrom eller linjeskift i start/slutt avviker fra kilden")
+    foreign = re.search(FOREIGN_CHARS[lang], SYMBOL.sub("", form))
+    if foreign:
+        out.append(f"tegnet {foreign[0]!r} hører ikke til {lang}")
+    if NNBSP in source and PLAIN_UNIT_SPACE.search(form):
+        out.append("vanlig mellomrom mellom tall og enhet, bruk U+202F som i kilden")
+    sentence = re.search(r"[a-zæøå]{4,} [a-zæøå]{4,}", source.lower())
+    if own and sentence and form.casefold() not in (source.casefold(), english.casefold()) and not re.search(own, form):
+        out.append(f"setningen mangler skriftsystemet til {lang}")
+    if form.count(name) != source.count(name):
+        out.append(f"appnavnet «{name}» skal stå uendret")
+    if form.replace(OLD_NAME_PATH, "").count(OLD_NAME) or form.count(OLD_NAME_PATH) != source.count(OLD_NAME_PATH):
+        out.append(f"«{OLD_NAME}» skal bare stå i stien {OLD_NAME_PATH}")
+    return out
+
+
+def desktop_findings(text: str, langs, name: str) -> list[str]:
+    """Skrivebordsfilen skal ha navn, beskrivelse og søkeord på hvert språk."""
+    out = []
+    section = None
+    seen: dict[str, set[str]] = {}
+    for line in text.splitlines():
+        if line.startswith("["):
+            section = line.strip("[]")
+            continue
+        match = re.fullmatch(r"(\w+)(?:\[([\w@]+)\])?=(.*)", line)
+        if not match or section is None:
+            continue
+        key, locale, value = match.groups()
+        if locale is not None:
+            seen.setdefault(f"{section}/{key}", set()).add(locale)
+            if not value.strip():
+                out.append(f"{section}: {key}[{locale}] er tom")
+        if section == "Desktop Entry" and key == "Name" and value != name:
+            out.append(f"Name{'[' + locale + ']' if locale else ''} skal være «{name}», ikke «{value}»")
+    wanted = {lang.replace("-", "_") for lang in langs}
+    keys = [f"Desktop Entry/{key}" for key in DESKTOP_KEYS] + [key for key in seen if not key.startswith("Desktop Entry/")]
+    for key in keys:
+        have = seen.get(key, set())
+        for locale in sorted(wanted - have):
+            out.append(f"{key}[{locale}] mangler")
+        for locale in sorted(have - wanted):
+            out.append(f"{key}[{locale}] er et språk appen ikke har")
+    return out
+
+
+def catalog_findings() -> list[str]:
+    """Kontrollerer hvert språk like strengt: språkliste, dekning, tegn og appnavn."""
+    tool = extractor()
+    langs = list(tool.LANGS)
+    name = json.loads((APP / "version.json").read_text(encoding="utf-8"))["name"]
+    out = []
+    rust = rust_languages((APP / "crates/rigg-core/src/i18n/mod.rs").read_text(encoding="utf-8"))
+    if rust != langs:
+        out.append(f"Language::ALL {rust} er ikke lik LANGS i i18n-trekk-ut.py {langs}")
+    folders = sorted(path.name for path in (APP / "data/i18n").iterdir() if path.is_dir())
+    if folders != sorted(langs):
+        out.append(f"katalogmappene {folders} er ikke lik språklista {sorted(langs)}")
+    for lang in langs:
+        if lang != "nb" and lang not in FOREIGN_CHARS:
+            out.append(f"{lang} mangler tegnregel i FOREIGN_CHARS")
+    out.extend(f"data/io.github.AgenticRigg.desktop.in: {line}" for line in desktop_findings(
+        (APP / "data/io.github.AgenticRigg.desktop.in").read_text(encoding="utf-8"), langs, name))
+
+    index = tool.sources()
+    for module in sorted(tool.catalog_modules()):
+        entries = tool.entries_from_source(index[module])
+        english_path = tool.po_path("en", module)
+        english = tool.read_po(english_path) if english_path.exists() else {}
+        status = {}
+        for lang in langs:
+            path = tool.po_path(lang, module)
+            rel = path.relative_to(APP).as_posix()
+            if not path.exists():
+                out.append(f"{rel} mangler")
+                continue
+            try:
+                _, missing = tool.check(lang, module, entries)
+            except tool.Invalid as error:
+                out.append(str(error))
+                continue
+            records = tool.read_po(path)
+            head = records.pop(("", ""), tool.Entry()).translations.get(0, "")
+            status[lang] = "X-Rigg-Status: complete" in head.splitlines()
+            if lang == "nb":
+                continue
+            for context, source in sorted(missing):
+                out.append(f"{rel} [mangler] {context + ' · ' if context else ''}{source!r}")
+            if lang not in FOREIGN_CHARS:
+                continue
+            for key, record in records.items():
+                entry = entries.get(key)
+                if entry is None or record.fuzzy:
+                    continue
+                for i, form in sorted(record.translations.items()):
+                    if not form:
+                        continue
+                    source = entry.source if i == 0 or entry.plural is None else entry.plural
+                    reference = english.get(key, tool.Entry()).translations
+                    for why in text_findings(lang, source, form, name, reference.get(min(i, len(reference) - 1), "")):
+                        out.append(f"{rel} [{why}] {source!r} → {form!r}")
+        translated = {lang: done for lang, done in status.items() if lang != "nb"}
+        if len(set(translated.values())) > 1:
+            behind = sorted(lang for lang, done in translated.items() if not done)
+            out.append(f"{module}: X-Rigg-Status: complete mangler for {', '.join(behind)}")
+    return out
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--all", action="store_true", help="vis også oppføringer i unntakslista")
@@ -565,9 +744,12 @@ def main() -> int:
                 unallowed.append(f)
 
     mismatches = [] if args.files else navigation_mismatches()
+    catalogs = [] if args.files else catalog_findings()
     for f in unallowed:
         print(f"{f.rel}:{f.line} [{f.reason}] {f.text!r}")
     for line in mismatches:
+        print(line)
+    for line in catalogs:
         print(line)
     for f in other:
         print(f"{f.rel}:{f.line} [{f.reason}] {f.text!r}  # rel/demo-rgb")
@@ -576,8 +758,8 @@ def main() -> int:
         for f, why in allowed:
             print(f"{f.rel}:{f.line} [{f.reason}] {f.text!r}  # {why}")
 
-    print(f"\nOppsummering: {len(unallowed)} uavklarte, {len(mismatches)} avvikende sidenavn, {len(allowed)} i unntakslista, {len(other)} på rel/demo-rgb.", file=sys.stderr)
-    return int(bool(unallowed or mismatches))
+    print(f"\nOppsummering: {len(unallowed)} uavklarte, {len(mismatches)} avvikende sidenavn, {len(catalogs)} katalogfunn, {len(allowed)} i unntakslista, {len(other)} på rel/demo-rgb.", file=sys.stderr)
+    return int(bool(unallowed or mismatches or catalogs))
 
 
 if __name__ == "__main__":

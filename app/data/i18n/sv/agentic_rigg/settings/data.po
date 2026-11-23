@@ -1,0 +1,226 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic HW Monitor\n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/settings/data.rs:21
+msgid "Kunne ikke åpne mappa"
+msgstr "Det gick inte att öppna mappen"
+
+#: crates/rigg/src/settings/data.rs:28
+msgid "Stien er kopiert"
+msgstr "Sökvägen har kopierats"
+
+#: crates/rigg/src/settings/data.rs:42 crates/rigg/src/settings/data.rs:43
+msgid "Kopier stien"
+msgstr "Kopiera sökvägen"
+
+#: crates/rigg/src/settings/data.rs:49
+msgid "Vis i Filer"
+msgstr "Visa i Filer"
+
+#: crates/rigg/src/settings/data.rs:66
+msgid "Eksporter innstillinger"
+msgstr "Exportera inställningar"
+
+#: crates/rigg/src/settings/data.rs:78
+msgid "Innstillingene er eksportert"
+msgstr "Inställningarna har exporterats"
+
+#: crates/rigg/src/settings/data.rs:79
+msgid "Kunne ikke lagre fila"
+msgstr "Det gick inte att spara filen"
+
+#: crates/rigg/src/settings/data.rs:93
+msgid "Importer innstillinger"
+msgstr "Importera inställningar"
+
+#: crates/rigg/src/settings/data.rs:105
+msgid "Fila er for stor"
+msgstr "Filen är för stor"
+
+#: crates/rigg/src/settings/data.rs:105
+msgid "En innstillingsfil er bare noen få kB."
+msgstr "En inställningsfil är bara några få kB."
+
+#: crates/rigg/src/settings/data.rs:109 crates/rigg/src/settings/data.rs:113
+msgid "Kunne ikke lese fila"
+msgstr "Det gick inte att läsa filen"
+
+#: crates/rigg/src/settings/data.rs:113
+msgid "Den er ikke gyldig JSON."
+msgstr "Den är inte giltig JSON."
+
+#: crates/rigg/src/settings/data.rs:124
+msgid "Innstillinger importert"
+msgstr "Inställningarna har importerats"
+
+#: crates/rigg/src/settings/data.rs:124 crates/rigg/src/settings/data.rs:163 crates/rigg/src/settings/data.rs:192
+msgid "Angre"
+msgstr "Ångra"
+
+#: crates/rigg/src/settings/data.rs:126
+msgid "Importen ble avvist"
+msgstr "Importen avvisades"
+
+#: crates/rigg/src/settings/data.rs:133
+msgid "Eksporter …"
+msgstr "Exportera…"
+
+#: crates/rigg/src/settings/data.rs:138
+msgid "Importer …"
+msgstr "Importera…"
+
+#: crates/rigg/src/settings/data.rs:144
+msgid "Vis igjen"
+msgstr "Visa igen"
+
+#: crates/rigg/src/settings/data.rs:147
+msgid "Ingen meldinger er skjult"
+msgstr "Inga meddelanden är dolda"
+
+#: crates/rigg/src/settings/data.rs:156 crates/rigg/src/settings/data.rs:222
+msgid "Slett historikken"
+msgstr "Radera historiken"
+
+#: crates/rigg/src/settings/data.rs:163
+msgid "Historikken slettes"
+msgstr "Historiken raderas"
+
+#: crates/rigg/src/settings/data.rs:163
+msgid "Grafene begynner på nytt om 5 s."
+msgstr "Graferna börjar om om 5 s."
+
+#: crates/rigg/src/settings/data.rs:172
+msgid "Historikken er slettet"
+msgstr "Historiken har raderats"
+
+#: crates/rigg/src/settings/data.rs:174
+msgid "Kunne ikke slette historikken"
+msgstr "Det gick inte att radera historiken"
+
+#: crates/rigg/src/settings/data.rs:174
+msgid "Tjenesten svarer ikke."
+msgstr "Tjänsten svarar inte."
+
+#: crates/rigg/src/settings/data.rs:180
+msgid "Tilbakestill"
+msgstr "Återställ"
+
+#: crates/rigg/src/settings/data.rs:192
+msgid "Innstillingene er tilbakestilt"
+msgstr "Inställningarna har återställts"
+
+#: crates/rigg/src/settings/data.rs:196
+msgid "{antall} infomelding er skjult."
+msgid_plural "{antall} infomeldinger er skjult."
+msgstr[0] "{antall} infomeddelande är dolt."
+msgstr[1] "{antall} infomeddelanden är dolda."
+
+#: crates/rigg/src/settings/data.rs:198
+msgid "Ingen infomeldinger er skjult."
+msgstr "Inga infomeddelanden är dolda."
+
+#: crates/rigg/src/settings/data.rs:202
+msgid "Lagring"
+msgstr "Lagring"
+
+#: crates/rigg/src/settings/data.rs:203
+msgid "Ingenting her leses eller sendes ut av maskinen."
+msgstr "Ingenting här läses eller skickas ut från datorn."
+
+#: crates/rigg/src/settings/data.rs:205
+msgid "Innstillinger"
+msgstr "Inställningar"
+
+#: crates/rigg/src/settings/data.rs:205
+msgid "ui.json (vinduet) og tjeneste.json (tjenesten)."
+msgstr "ui.json (fönstret) och tjeneste.json (tjänsten)."
+
+#: crates/rigg/src/settings/data.rs:205
+msgctxt "søkeord"
+msgid "mappe sti lagring config"
+msgstr "mapp sökväg lagring config konfiguration"
+
+#: crates/rigg/src/settings/data.rs:206
+msgid "Historikk og min/maks"
+msgstr "Historik och min/max"
+
+#: crates/rigg/src/settings/data.rs:206
+msgid "48 timer med historikk for grafene, og min og maks."
+msgstr "48 timmar historik för graferna, samt min och max."
+
+#: crates/rigg/src/settings/data.rs:206
+msgctxt "søkeord"
+msgid "mappe sti historikk state"
+msgstr "mapp sökväg historik state"
+
+#: crates/rigg/src/settings/data.rs:210
+msgid "Innstillinger som fil"
+msgstr "Inställningar som fil"
+
+#: crates/rigg/src/settings/data.rs:213
+msgid "Eksporter"
+msgstr "Exportera"
+
+#: crates/rigg/src/settings/data.rs:213
+msgid "Lagrer innstillingene som JSON, for sikkerhetskopi eller en annen maskin."
+msgstr "Sparar inställningarna som JSON, som säkerhetskopia eller för en annan dator."
+
+#: crates/rigg/src/settings/data.rs:213
+msgctxt "søkeord"
+msgid "lagre fil json sikkerhetskopi"
+msgstr "spara fil json säkerhetskopia export"
+
+#: crates/rigg/src/settings/data.rs:214
+msgid "Importer"
+msgstr "Importera"
+
+#: crates/rigg/src/settings/data.rs:214
+msgid "Leser en eksportert fil. Er noe ugyldig, endres ingenting."
+msgstr "Läser en exporterad fil. Om något är ogiltigt ändras ingenting."
+
+#: crates/rigg/src/settings/data.rs:214
+msgctxt "søkeord"
+msgid "åpne fil json"
+msgstr "öppna fil json import"
+
+#: crates/rigg/src/settings/data.rs:218
+msgid "Tilbakestilling"
+msgstr "Återställning"
+
+#: crates/rigg/src/settings/data.rs:221
+msgid "Skjulte meldinger"
+msgstr "Dolda meddelanden"
+
+#: crates/rigg/src/settings/data.rs:221
+msgctxt "søkeord"
+msgid "infolinje melding"
+msgstr "inforad meddelande"
+
+#: crates/rigg/src/settings/data.rs:222
+msgid "Grafene og 48 timer med historikk begynner på nytt. Min og maks blir. Kan angres i noen sekunder."
+msgstr "Graferna och 48 timmar historik börjar om. Min och max finns kvar. Kan ångras i några sekunder."
+
+#: crates/rigg/src/settings/data.rs:222
+msgctxt "søkeord"
+msgid "historikk graf slett"
+msgstr "historik graf radera"
+
+#: crates/rigg/src/settings/data.rs:223
+msgid "Tilbakestill alle innstillinger"
+msgstr "Återställ alla inställningar"
+
+#: crates/rigg/src/settings/data.rs:223
+msgid "Alt i Innstillinger går tilbake til standard. Profilene beholdes. Kan angres i noen sekunder."
+msgstr "Allt i Inställningar återgår till standard. Profilerna behålls. Kan ångras i några sekunder."
+
+#: crates/rigg/src/settings/data.rs:223
+msgctxt "søkeord"
+msgid "standard nullstill fabrikk"
+msgstr "standard nollställ fabrik återställ"

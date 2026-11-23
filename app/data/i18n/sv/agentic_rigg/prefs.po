@@ -1,0 +1,17 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic HW Monitor\n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/prefs.rs:35
+msgid "ui.json kunne ikke leses. Kopien heter {fil}. Standardverdiene brukes."
+msgstr "ui.json kunde inte läsas. Kopian heter {fil}. Standardvärdena används."
+
+#: crates/rigg/src/prefs.rs:46
+msgid "Kunne ikke lagre ui.json: {feil}"
+msgstr "Det gick inte att spara ui.json: {feil}"

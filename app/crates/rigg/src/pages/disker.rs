@@ -457,7 +457,7 @@ fn smart_panel(d: &Disk, now: i64) -> gtk::Widget {
     let p = panel("SMART");
     if !s.source.is_empty() && s.supported {
         let src = label(if s.source == "sim" { tr!("simulert") } else { "UDisks2" }, &[]);
-        src.set_tooltip_text(Some(tr!("UDisks2 leser SMART selv omtrent hvert 10. minutt og vekker ikke disker i hvile. Agentic Rigg leser bare det UDisks2 alt har, og sender aldri kommandoer til disken.")));
+        src.set_tooltip_text(Some(tr!("UDisks2 leser SMART selv omtrent hvert 10. minutt og vekker ikke disker i hvile. Agentic HW Monitor leser bare det UDisks2 alt har, og sender aldri kommandoer til disken.")));
         p.aside.append(&src);
     }
     let kv = KvList::new();

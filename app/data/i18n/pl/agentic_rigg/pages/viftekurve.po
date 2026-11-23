@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Agentic Rigg\n"
+"Project-Id-Version: Agentic HW Monitor\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -112,8 +112,8 @@ msgid "Kurve"
 msgstr "Krzywa"
 
 #: crates/rigg/src/pages/viftekurve.rs:1228
-msgid "Agentic Rigg setter farten etter viftekurven hvert sekund."
-msgstr "Agentic Rigg co sekundę ustawia obroty według krzywej."
+msgid "Agentic HW Monitor setter farten etter viftekurven hvert sekund."
+msgstr "Agentic HW Monitor co sekundę ustawia obroty według krzywej."
 
 #: crates/rigg/src/pages/viftekurve.rs:1229 crates/rigg/src/pages/viftekurve.rs:2606
 msgid "Manuell"
@@ -791,8 +791,8 @@ msgid "tjenesten styrer"
 msgstr "steruje usługa"
 
 #: crates/rigg/src/pages/viftekurve.rs:2663
-msgid "fast fart fra Agentic Rigg"
-msgstr "stałe obroty ustawione przez Agentic Rigg"
+msgid "fast fart fra Agentic HW Monitor"
+msgstr "stałe obroty ustawione przez Agentic HW Monitor"
 
 #: crates/rigg/src/pages/viftekurve.rs:2663
 msgid "satt utenfor appen"
@@ -919,8 +919,8 @@ msgid "Stiplet: standardkurven. Den brukes bare i modus Kurve; nå styrer driver
 msgstr "Linia kropkowana oznacza krzywą domyślną. Działa ona tylko w trybie „Krzywa”; teraz steruje sterownik. Przeciągnij punkt, aby utworzyć szkic."
 
 #: crates/rigg/src/pages/viftekurve.rs:2794
-msgid "Hver endring må beholdes innen {tid}, ellers rulles den tilbake. Lukkes Agentic Rigg helt, går viftene tilbake til Auto."
-msgstr "Kliknij „Zachowaj” w ciągu {tid}, inaczej wszystkie zmiany zostaną cofnięte. Całkowite zamknięcie Agentic Rigg przywraca tryb Auto."
+msgid "Hver endring må beholdes innen {tid}, ellers rulles den tilbake. Lukkes Agentic HW Monitor helt, går viftene tilbake til Auto."
+msgstr "Kliknij „Zachowaj” w ciągu {tid}, inaczej wszystkie zmiany zostaną cofnięte. Całkowite zamknięcie Agentic HW Monitor przywraca tryb Auto."
 
 #: crates/rigg/src/pages/viftekurve.rs:2808
 msgid "Ingen endringer"

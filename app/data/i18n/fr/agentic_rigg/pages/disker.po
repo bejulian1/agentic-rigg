@@ -220,8 +220,8 @@ msgid "simulert"
 msgstr "simulé"
 
 #: crates/rigg/src/pages/disker.rs:460
-msgid "UDisks2 leser SMART selv omtrent hvert 10. minutt og vekker ikke disker i hvile. Agentic Rigg leser bare det UDisks2 alt har, og sender aldri kommandoer til disken."
-msgstr "UDisks2 lit les données SMART environ toutes les 10 minutes sans réveiller les disques en veille. Agentic Rigg utilise les données déjà disponibles dans UDisks2 et n’envoie aucune commande au disque."
+msgid "UDisks2 leser SMART selv omtrent hvert 10. minutt og vekker ikke disker i hvile. Agentic HW Monitor leser bare det UDisks2 alt har, og sender aldri kommandoer til disken."
+msgstr "UDisks2 lit les données SMART environ toutes les 10 minutes sans réveiller les disques en veille. Agentic HW Monitor utilise les données déjà disponibles dans UDisks2 et n’envoie aucune commande au disque."
 
 #: crates/rigg/src/pages/disker.rs:471
 msgid "Ingen feil"

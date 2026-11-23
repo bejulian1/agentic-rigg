@@ -259,7 +259,7 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     }
     let main_row = row(
         tr!("Tillat endring av skjermkortet"),
-        Some(tr!("Gir Agentic Rigg tilgang til støttede GPU-funksjoner via en administratorhjelper. Du blir spurt om passord. Ingen verdier endres før du trykker Bruk på en styringsside.")),
+        Some(tr!("Gir Agentic HW Monitor tilgang til støttede GPU-funksjoner via en administratorhjelper. Du blir spurt om passord. Ingen verdier endres før du trykker Bruk på en styringsside.")),
         &sw,
         &kw("root polkit pkexec hjelper skriving endre overklokking", tr!("søkeord", "root polkit pkexec hjelper skriving endre overklokking")),
     );

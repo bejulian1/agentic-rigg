@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Installerer Agentic Rigg for denne brukeren under ~/.local: begge binærene,
+# Installerer Agentic HW Monitor for denne brukeren under ~/.local: begge binærene,
 # ikonene (alle variantene), .desktop-fila, systemd --user-enheten,
 # lisenser og dokumentasjon. Systemkomponentene installeres separat.
 # Skriptet bygger ingenting, bruker ikke sudo og slår ingenting på ved
@@ -165,7 +165,7 @@ if command -v update-desktop-database >/dev/null; then
     update-desktop-database --quiet "$(dirname -- "$desktop")" || true
 fi
 
-echo "Agentic Rigg er installert:"
+echo "Agentic HW Monitor er installert:"
 echo "  $bin_dir/agentic-rigg"
 echo "  $bin_dir/agentic-riggd"
 echo "  $desktop (Icon=$icon)"

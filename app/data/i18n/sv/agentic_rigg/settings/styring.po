@@ -1,0 +1,315 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic HW Monitor\n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/settings/styring.rs:45
+msgid "Venter på administratorgodkjenning …"
+msgstr "Väntar på administratörsgodkännande…"
+
+#: crates/rigg/src/settings/styring.rs:46
+msgid "Installerer systemkomponentene …"
+msgstr "Installerar systemkomponenterna…"
+
+#: crates/rigg/src/settings/styring.rs:47
+msgid "Tjenesten svarer ikke. Endringer er låst."
+msgstr "Tjänsten svarar inte. Ändringar är låsta."
+
+#: crates/rigg/src/settings/styring.rs:50
+msgid "Styring er klar for det valgte skjermkortet. Endringer brukes først når du trykker Bruk."
+msgstr "Styrningen är klar för det valda grafikkortet. Ändringar verkställs först när du trycker på Verkställ."
+
+#: crates/rigg/src/settings/styring.rs:51
+msgid "Simulert styring. Det ekte skjermkortet endres ikke."
+msgstr "Simulerad styrning. Det riktiga grafikkortet ändras inte."
+
+#: crates/rigg/src/settings/styring.rs:52
+msgid "Hjelperen må oppdateres. Slå på bryteren for å oppdatere den og aktivere styring."
+msgstr "Hjälparen måste uppdateras. Slå på reglaget för att uppdatera den och aktivera styrningen."
+
+#: crates/rigg/src/settings/styring.rs:53
+msgid "Hjelperen er ikke klar for kortet som vises. Se funksjonsstøtten under, eller trykk Sjekk igjen."
+msgstr "Hjälparen är inte klar för det kort som visas. Se funktionsstödet nedan, eller tryck på Kontrollera igen."
+
+#: crates/rigg/src/settings/styring.rs:54
+msgid "Systemkomponentene mangler. Slå på bryteren for å installere dem og aktivere styring."
+msgstr "Systemkomponenterna saknas. Slå på reglaget för att installera dem och aktivera styrningen."
+
+#: crates/rigg/src/settings/styring.rs:55
+msgid "Systemkomponentene mangler eller må oppdateres."
+msgstr "Systemkomponenterna saknas eller måste uppdateras."
+
+#: crates/rigg/src/settings/styring.rs:56
+msgid "Bare visning. Endring av skjermkortet er slått av."
+msgstr "Endast visning. Ändring av grafikkortet är avstängd."
+
+#: crates/rigg/src/settings/styring.rs:65
+msgid "agentic-rigg-helper {versjon} · bygg {bygg}"
+msgstr "agentic-rigg-helper {versjon} · bygge {bygg}"
+
+#: crates/rigg/src/settings/styring.rs:68
+msgid "Simulert kort"
+msgstr "Simulerat kort"
+
+#: crates/rigg/src/settings/styring.rs:68
+msgid "Det ekte kortet (NVML)"
+msgstr "Det riktiga kortet (NVML)"
+
+#: crates/rigg/src/settings/styring.rs:104
+msgid "Avbrutt"
+msgstr "Avbrutet"
+
+#: crates/rigg/src/settings/styring.rs:104
+msgid "Passordet ble ikke gitt. Ingenting er endret."
+msgstr "Inget lösenord angavs. Ingenting har ändrats."
+
+#: crates/rigg/src/settings/styring.rs:105
+msgid "Fant ikke pkexec, eller ingen kan spørre om passordet (polkit)."
+msgstr "Hittade inte pkexec, eller så kan ingen fråga efter lösenordet (polkit)."
+
+#: crates/rigg/src/settings/styring.rs:106
+msgid "Skriptet feilet."
+msgstr "Skriptet misslyckades."
+
+#: crates/rigg/src/settings/styring.rs:125
+msgid "Skjermkortstyring er aktivert"
+msgstr "Grafikkortsstyrningen är aktiverad"
+
+#: crates/rigg/src/settings/styring.rs:125
+msgid "Velg endringer og trykk Bruk. Behold dem innen fristen, ellers rulles de tilbake."
+msgstr "Välj ändringar och tryck på Verkställ. Behåll dem inom tidsgränsen, annars rullas de tillbaka."
+
+#: crates/rigg/src/settings/styring.rs:127
+msgid "Hjelperen er installert, men styring er ikke klar"
+msgstr "Hjälparen är installerad, men styrningen är inte klar"
+
+#: crates/rigg/src/settings/styring.rs:139
+msgid "Ingen skjermkort valgt"
+msgstr "Inget grafikkort valt"
+
+#: crates/rigg/src/settings/styring.rs:143
+msgid "Kortidentiteten er ikke klar"
+msgstr "Kortets identitet är inte klar"
+
+#: crates/rigg/src/settings/styring.rs:143
+msgid "Vent til driveren har lest UUID, og prøv igjen."
+msgstr "Vänta tills drivrutinen har läst UUID och försök igen."
+
+#: crates/rigg/src/settings/styring.rs:163
+msgid "Kunne ikke aktivere styring"
+msgstr "Det gick inte att aktivera styrningen"
+
+#: crates/rigg/src/settings/styring.rs:163
+msgid "Kunne ikke slå av styring"
+msgstr "Det gick inte att stänga av styrningen"
+
+#: crates/rigg/src/settings/styring.rs:173
+msgid "Skjermkortstyring er slått av"
+msgstr "Grafikkortsstyrningen är avstängd"
+
+#: crates/rigg/src/settings/styring.rs:173
+msgid "Hjelperen har gjenopprettet utgangspunktet og tillatelsen er fjernet."
+msgstr "Hjälparen har återställt utgångsläget och behörigheten har tagits bort."
+
+#: crates/rigg/src/settings/styring.rs:182
+msgid "Én aktivering"
+msgstr "En aktivering"
+
+#: crates/rigg/src/settings/styring.rs:182
+msgid "Bruk Tillat endring av skjermkortet. Funksjonsstøtten bestemmes av kortet og driveren."
+msgstr "Använd Tillåt ändring av grafikkortet. Funktionsstödet bestäms av kortet och drivrutinen."
+
+#: crates/rigg/src/settings/styring.rs:192
+msgid "Effektgrense"
+msgstr "Effektgräns"
+
+#: crates/rigg/src/settings/styring.rs:192
+msgid "Manuell viftefart og Auto"
+msgstr "Manuell fläkthastighet och Auto"
+
+#: crates/rigg/src/settings/styring.rs:192
+msgid "Viftekurve"
+msgstr "Fläktkurva"
+
+#: crates/rigg/src/settings/styring.rs:192
+msgid "Kjerneklokke"
+msgstr "Kärnklocka"
+
+#: crates/rigg/src/settings/styring.rs:192
+msgid "Minneklokke"
+msgstr "Minnesklocka"
+
+#: crates/rigg/src/settings/styring.rs:192
+msgid "Temperaturmål"
+msgstr "Temperaturmål"
+
+#: crates/rigg/src/settings/styring.rs:194
+msgid "Tilgjengelig"
+msgstr "Tillgängligt"
+
+#: crates/rigg/src/settings/styring.rs:194
+msgid "Ikke undersøkt"
+msgstr "Inte undersökt"
+
+#: crates/rigg/src/settings/styring.rs:194
+msgid "Utilgjengelig"
+msgstr "Inte tillgänglig"
+
+#: crates/rigg/src/settings/styring.rs:197
+msgid "Leses når administratorhjelperen aktiveres for dette kortet."
+msgstr "Läses när administratörshjälparen aktiveras för det här kortet."
+
+#: crates/rigg/src/settings/styring.rs:207
+msgid "Kortets rapporterte område: {omraade}."
+msgstr "Kortets rapporterade intervall: {omraade}."
+
+#: crates/rigg/src/settings/styring.rs:209
+msgid "Støttes av den tilkoblede hjelperen."
+msgstr "Stöds av den anslutna hjälparen."
+
+#: crates/rigg/src/settings/styring.rs:214
+msgid "Tilgjengelige funksjoner"
+msgstr "Tillgängliga funktioner"
+
+#: crates/rigg/src/settings/styring.rs:215
+msgid "Én administratoraktivering gjelder støttede funksjoner på det valgte kortet. Listen er status, ikke ekstra godkjenninger."
+msgstr "En administratörsaktivering gäller de funktioner som stöds på det valda kortet. Listan visar status, inte extra godkännanden."
+
+#: crates/rigg/src/settings/styring.rs:216
+msgid "Funksjoner uten støtte kan ikke brukes på kortet. RGB har egen tillatelse på siden RGB-lys."
+msgstr "Funktioner utan stöd kan inte användas på kortet. RGB har en egen behörighet på sidan RGB-belysning."
+
+#: crates/rigg/src/settings/styring.rs:217
+msgctxt "søkeord"
+msgid "funksjoner støtte effekt vifter klokker temperatur"
+msgstr "funktioner stöd effekt fläktar klockor temperatur"
+
+#: crates/rigg/src/settings/styring.rs:246 crates/rigg/src/settings/styring.rs:261
+msgid "Tillat endring av skjermkortet"
+msgstr "Tillåt ändring av grafikkortet"
+
+#: crates/rigg/src/settings/styring.rs:262
+msgid "Gir Agentic HW Monitor tilgang til støttede GPU-funksjoner via en administratorhjelper. Du blir spurt om passord. Ingen verdier endres før du trykker Bruk på en styringsside."
+msgstr "Ger Agentic HW Monitor åtkomst till de GPU-funktioner som stöds via en administratörshjälpare. Du blir tillfrågad om lösenord. Inga värden ändras förrän du trycker på Verkställ på en styrningssida."
+
+#: crates/rigg/src/settings/styring.rs:264
+msgctxt "søkeord"
+msgid "root polkit pkexec hjelper skriving endre overklokking"
+msgstr "root polkit pkexec hjälpare skrivning ändra överklockning"
+
+#: crates/rigg/src/settings/styring.rs:279
+msgid "Venter"
+msgstr "Väntar"
+
+#: crates/rigg/src/settings/styring.rs:280
+msgid "Klar"
+msgstr "Klar"
+
+#: crates/rigg/src/settings/styring.rs:281
+msgid "Simulert"
+msgstr "Simulerad"
+
+#: crates/rigg/src/settings/styring.rs:282
+msgid "Ikke klar"
+msgstr "Inte klar"
+
+#: crates/rigg/src/settings/styring.rs:283
+msgid "Feil"
+msgstr "Fel"
+
+#: crates/rigg/src/settings/styring.rs:284
+msgid "Oppdater hjelper"
+msgstr "Uppdatera hjälparen"
+
+#: crates/rigg/src/settings/styring.rs:285
+msgid "Av"
+msgstr "Av"
+
+#: crates/rigg/src/settings/styring.rs:297
+msgid "Åpne styring"
+msgstr "Öppna styrningen"
+
+#: crates/rigg/src/settings/styring.rs:303
+msgid "Sjekk igjen"
+msgstr "Kontrollera igen"
+
+#: crates/rigg/src/settings/styring.rs:315
+msgctxt "søkeord"
+msgid "systemkomponenter installasjon terminal"
+msgstr "systemkomponenter installation terminal utan nät"
+
+#: crates/rigg/src/settings/styring.rs:318
+msgid "Endring av skjermkortet"
+msgstr "Ändring av grafikkortet"
+
+#: crates/rigg/src/settings/styring.rs:320
+msgid "Slår du bryteren av, gjenopprettes det lagrede utgangspunktet før tillatelsen fjernes. En feil vises hvis gjenopprettingen ikke kan bekreftes. Slå av styring før avinstallasjon."
+msgstr "Om du stänger av reglaget återställs det sparade utgångsläget innan behörigheten tas bort. Ett fel visas om återställningen inte kan bekräftas. Stäng av styrningen före avinstallation."
+
+#: crates/rigg/src/settings/styring.rs:321
+msgctxt "søkeord"
+msgid "bryter av på status"
+msgstr "reglage av på status"
+
+#: crates/rigg/src/settings/styring.rs:330
+msgid "Hjelperen"
+msgstr "Hjälparen"
+
+#: crates/rigg/src/settings/styring.rs:330
+msgid "Et lite program som kjører i bakgrunnen med administratorrettigheter. Det kan bare endre effekt, vifter og klokker, innenfor det kortet selv tillater"
+msgstr "Ett litet program som körs i bakgrunden med administratörsrättigheter. Det kan bara ändra effekt, fläktar och klockor, inom det som kortet självt tillåter"
+
+#: crates/rigg/src/settings/styring.rs:331
+msgid "Passord"
+msgstr "Lösenord"
+
+#: crates/rigg/src/settings/styring.rs:331
+msgid "Én administratorgodkjenning ved aktivering. Vanlige endringer bruker Bruk og Behold"
+msgstr "Ett administratörsgodkännande vid aktiveringen. Vanliga ändringar använder Verkställ och Behåll"
+
+#: crates/rigg/src/settings/styring.rs:332
+msgid "Hvem"
+msgstr "Vem"
+
+#: crates/rigg/src/settings/styring.rs:332
+msgid "Bare brukeren din. Andre brukere på maskinen slipper ikke til"
+msgstr "Bara din användare. Andra användare på datorn kommer inte åt den"
+
+#: crates/rigg/src/settings/styring.rs:333
+msgid "Vern"
+msgstr "Skydd"
+
+#: crates/rigg/src/settings/styring.rs:333
+msgid "Endringer rulles tilbake uten Behold innen fristen. Viftekurven har nødregel ved høy temperatur. Frakobling og stopp gjenoppretter utgangspunktet; eventuelle feil rapporteres"
+msgstr "Ändringar rullas tillbaka utan Behåll inom tidsgränsen. Fläktkurvan har en nödregel vid hög temperatur. Frånkoppling och stopp återställer utgångsläget; eventuella fel rapporteras"
+
+#: crates/rigg/src/settings/styring.rs:334
+msgid "Filene"
+msgstr "Filerna"
+
+#: crates/rigg/src/settings/styring.rs:334
+msgid "{hjelper}\n{konfigurasjon} (bruker, kort og aktivering)"
+msgstr "{hjelper}\n{konfigurasjon} (användare, kort och aktivering)"
+
+#: crates/rigg/src/settings/styring.rs:336
+msgid "Skriptene"
+msgstr "Skripten"
+
+#: crates/rigg/src/settings/styring.rs:338
+msgid "Hva bryteren gjør"
+msgstr "Vad reglaget gör"
+
+#: crates/rigg/src/settings/styring.rs:338
+msgctxt "søkeord"
+msgid "hjelper root polkit systemd sikkerhet passord"
+msgstr "hjälpare root polkit systemd säkerhet lösenord"
+
+#: crates/rigg/src/settings/styring.rs:340
+msgctxt "søkeord"
+msgid "hjelper root polkit systemd passord vern frist nødregel"
+msgstr "hjälpare root polkit systemd lösenord skydd tidsgräns nödregel"

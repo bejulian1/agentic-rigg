@@ -1,0 +1,106 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic HW Monitor\n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/settings/format.rs:15
+msgid "Enheter"
+msgstr "Enheter"
+
+#: crates/rigg/src/settings/format.rs:19
+msgid "Temperatur"
+msgstr "Temperatur"
+
+#: crates/rigg/src/settings/format.rs:20
+msgid "Alle sider, grafer, temperaturmålet og viftekurven."
+msgstr "Alla sidor, grafer, temperaturmålet och fläktkurvan."
+
+#: crates/rigg/src/settings/format.rs:21
+msgid "Temperaturenhet"
+msgstr "Temperaturenhet"
+
+#: crates/rigg/src/settings/format.rs:22
+msgctxt "søkeord"
+msgid "celsius fahrenheit"
+msgstr "celsius fahrenheit"
+
+#: crates/rigg/src/settings/format.rs:25
+msgid "Minne"
+msgstr "Minne"
+
+#: crates/rigg/src/settings/format.rs:26
+msgid "GiB som Linux-verktøy, eller GB som produsentene."
+msgstr "GiB som Linux-verktyg, eller GB som tillverkarna."
+
+#: crates/rigg/src/settings/format.rs:27
+msgid "Minneenhet"
+msgstr "Minnesenhet"
+
+#: crates/rigg/src/settings/format.rs:28
+msgctxt "søkeord"
+msgid "binær desimal gigabyte"
+msgstr "binär decimal gigabyte gibibyte"
+
+#: crates/rigg/src/settings/format.rs:31 crates/rigg/src/settings/format.rs:33
+msgid "Nettrate"
+msgstr "Nätverkshastighet"
+
+#: crates/rigg/src/settings/format.rs:32
+msgid "Byte per sekund eller bit per sekund."
+msgstr "Byte per sekund eller bit per sekund."
+
+#: crates/rigg/src/settings/format.rs:34
+msgctxt "søkeord"
+msgid "nett hastighet"
+msgstr "nätverk hastighet bandbredd"
+
+#: crates/rigg/src/settings/format.rs:39
+msgid "Visning"
+msgstr "Visning"
+
+#: crates/rigg/src/settings/format.rs:43 crates/rigg/src/settings/format.rs:45
+msgid "Desimaler"
+msgstr "Decimaler"
+
+#: crates/rigg/src/settings/format.rs:44
+msgid "Temperatur, effekt og prosent i tabeller og sidefeltet. Automatisk velger etter stedet."
+msgstr "Temperatur, effekt och procent i tabeller och sidofältet. Automatiskt väljer efter sammanhanget."
+
+#: crates/rigg/src/settings/format.rs:45
+msgid "Automatisk"
+msgstr "Automatiskt"
+
+#: crates/rigg/src/settings/format.rs:46
+msgctxt "søkeord"
+msgid "desimal komma"
+msgstr "decimal komma precision"
+
+#: crates/rigg/src/settings/format.rs:49 crates/rigg/src/settings/format.rs:51
+msgid "Klokkeslett"
+msgstr "Klockslag"
+
+#: crates/rigg/src/settings/format.rs:50
+msgid "Min/maks på Sensorer, profiler og grafer. Nå: {na}."
+msgstr "Min/max på Sensorer, profiler och grafer. Nu: {na}."
+
+#: crates/rigg/src/settings/format.rs:51
+msgid "System"
+msgstr "System"
+
+#: crates/rigg/src/settings/format.rs:51
+msgid "24 t"
+msgstr "24 h"
+
+#: crates/rigg/src/settings/format.rs:51
+msgid "12 t"
+msgstr "12 h"
+
+#: crates/rigg/src/settings/format.rs:52
+msgctxt "søkeord"
+msgid "tid klokke am pm"
+msgstr "tid klocka am pm 24h 12h"
