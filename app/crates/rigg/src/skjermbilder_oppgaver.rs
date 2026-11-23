@@ -85,6 +85,44 @@ fn assert_owned_test_process() {
     assert_eq!(name, "sleep", "Bare runnerens sleep-kommando kan brukes i signalprøven");
 }
 
+fn view(app: &App, value: &str) {
+    widget(app, &format!("task-view-{value}")).downcast::<gtk::ToggleButton>().unwrap().set_active(true);
+}
+
+fn label_text(app: &App, class: &str) -> String {
+    widget(app, class).downcast::<gtk::Label>().unwrap().text().to_string()
+}
+
+/// Første grupperad (Gruppert er standardvisningen).
+fn first_group(app: &App) -> gtk::ListBoxRow {
+    rows(app).into_iter().find(|r| r.has_css_class("task-group")).expect("Minst én gruppe med flere prosesser")
+}
+
+thread_local! {
+    /// Radnavnet til gruppen planen foldet ut.
+    static GROUP: std::cell::RefCell<String> = const { std::cell::RefCell::new(String::new()) };
+}
+
+fn opened_group(app: &App) -> gtk::ListBoxRow {
+    let name = GROUP.with(|g| g.borrow().clone());
+    rows(app).into_iter().find(|r| r.widget_name() == name).expect("Den utfoldede gruppen")
+}
+
+/// Pilen i en rad (første barn i radens linje).
+fn expander(row: &gtk::ListBoxRow) -> gtk::Button {
+    row.child().unwrap().first_child().unwrap().downcast().unwrap()
+}
+
+fn assert_detail_fits(app: &Rc<App>) {
+    let win = app.window().unwrap();
+    let detail = widget(app, "task-detail");
+    let r = detail.compute_bounds(&win).unwrap();
+    assert!(r.y() + r.height() <= win.height() as f32 + 1.0, "Detaljfeltet skal ikke skyves ut av vinduet");
+    let table = widget(app, "task-table").compute_bounds(&win).unwrap();
+    assert!(table.y() + table.height() <= r.y() + 1.0, "Tabellen og detaljfeltet skal ikke overlappe");
+    assert!(widget(app, "task-table").height() > 100, "Tabellen må få tilgjengelig høyde også med detaljer");
+}
+
 pub(super) fn plan() -> Vec<Step> {
     use Step::*;
     let mut steps = vec![
@@ -93,8 +131,51 @@ pub(super) fn plan() -> Vec<Step> {
         Go("oppgaver"),
         Wait(7000),
         Eval(assert_layout),
+        Eval(|a| {
+            // Standard er Gruppert: grupper med flere prosesser og kjernetrådene samlet.
+            assert!(rows(a).iter().any(|r| r.has_css_class("task-group")), "Gruppert visning skal ha grupper");
+            assert_eq!(label_text(a, "task-detail-title"), "Ingen oppgave valgt");
+            assert!(!button(a, "task-stop").is_sensitive());
+        }),
         Shot("oppgaver-lys-1440"),
-        Eval(|a| widget(a, "task-tree").downcast::<gtk::ToggleButton>().unwrap().set_active(true)),
+        Eval(|a| {
+            let group = first_group(a);
+            assert!(expander(&group).is_visible() && expander(&group).opacity() > 0.5);
+            // Gruppen kan flytte seg når CPU-tallene endres; den finnes igjen etter navnet.
+            GROUP.with(|g| *g.borrow_mut() = group.widget_name().to_string());
+            expander(&group).emit_clicked();
+        }),
+        Wait(900),
+        Eval(|a| {
+            let group = opened_group(a);
+            let index = group.index();
+            let next = rows(a).into_iter().find(|r| r.index() == index + 1).expect("Utfoldet gruppe har medlemmer under seg");
+            assert!(!next.has_css_class("task-group"), "Medlemmene vises under gruppen");
+            list(a).select_row(Some(&group));
+        }),
+        Wait(600),
+        Eval(|a| {
+            assert!(label_text(a, "task-detail-title").contains("prosesser"), "Gruppen viser antall prosesser");
+            assert!(!button(a, "task-stop").is_sensitive(), "En gruppe kan ikke avsluttes samlet");
+            assert!(!label_text(a, "task-detail-reason").is_empty(), "Grunnen står synlig");
+            assert_detail_fits(a);
+        }),
+        Shot("oppgaver-gruppe-utfoldet"),
+        Eval(|a| {
+            let index = opened_group(a).index();
+            let member = rows(a).into_iter().find(|r| r.index() == index + 1).unwrap();
+            list(a).select_row(Some(&member));
+        }),
+        Wait(2600),
+        Eval(|a| {
+            assert!(label_text(a, "task-detail-title").contains("PID"), "En prosess viser PID");
+            assert_detail_fits(a);
+        }),
+        Shot("oppgaver-prosessdetaljer"),
+        Eval(|a| view(a, "list")),
+        Wait(900),
+        Shot("oppgaver-liste"),
+        Eval(|a| view(a, "tree")),
         Wait(600),
         Shot("oppgaver-prosesstre"),
         Eval(|a| super::find_button(a.window().unwrap().upcast_ref(), "PID").unwrap().emit_clicked()),
@@ -109,7 +190,7 @@ pub(super) fn plan() -> Vec<Step> {
         Shot("oppgaver-ingen-treff"),
         Eval(|a| {
             search(a, "");
-            widget(a, "task-tree").downcast::<gtk::ToggleButton>().unwrap().set_active(false);
+            view(a, "group");
         }),
         Wait(700),
         Set(json!({"theme":"dark"})),
@@ -125,11 +206,23 @@ pub(super) fn plan() -> Vec<Step> {
             assert_layout(a);
         }),
         Shot("oppgaver-mork-640"),
+        Eval(|a| {
+            let first = rows(a).into_iter().find(|r| !r.has_css_class("task-group")).unwrap();
+            list(a).select_row(Some(&first));
+        }),
+        Wait(2600),
+        Eval(assert_detail_fits),
+        Shot("oppgaver-mork-640-detaljer"),
         Set(json!({"theme":"light","fontScale":116})),
         Wait(700),
         Eval(assert_layout),
+        Eval(assert_detail_fits),
         Shot("oppgaver-lys-640-stor-skrift"),
         Set(super::base()),
+        Size(1920, 1080),
+        Wait(900),
+        Eval(assert_layout),
+        Shot("oppgaver-lys-1920"),
         Size(1440, 900),
         Wait(700),
         Eval(|a| widget(a, "task-pause").downcast::<gtk::ToggleButton>().unwrap().set_active(true)),

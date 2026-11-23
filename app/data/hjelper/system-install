@@ -26,6 +26,10 @@ STATE = Path('/var/lib')
 GPU_INFO = Path('/proc/driver/nvidia/gpus')
 GPU_UUID = r'GPU-[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}'
 MARK = SYSTEM / 'revision'
+# Bygget RGB-delen (RGB-mappa og RGB-policyen) faktisk ble installert fra.
+# Skrives ved full installasjon. `--keep-rgb` lar RGB-delen og denne stå,
+# så appen vurderer RGB etter de filene som faktisk kjører.
+RGB_MARK = SYSTEM / 'rgb-revision'
 SYSTEM_LOCK = '/run/agentic-rigg-system.lock'
 LOCK_FD_ENV = 'AGENTIC_RIGG_SYSTEM_LOCK_FD'
 MAX_ARCHIVE = 64 * 1024**2
@@ -33,7 +37,7 @@ DOMAINS = {'nvml': ('agentic-rigg-helper.service', 'helper.json', 'agentic-rigg'
            'rgb': ('agentic-rigg-rgb.service', 'rgb.json', 'agentic-rigg-rgb', 'journal.json')}
 ASSETS = {LIB / 'agentic-rigg-helper': ('bin/agentic-rigg-helper', 0o755),
           RGB / 'agentic-rigg-helper': ('bin/agentic-rigg-helper', 0o755)}
-for directory, names in ((SYSTEM, ['system-install']), (NV, ['aktiver.sh', 'deaktiver.sh', 'nvml-admin.py', 'agentic-rigg-helper.service']),
+for directory, names in ((SYSTEM, ['system-install']), (NV, ['aktiver.sh', 'deaktiver.sh', 'nvml-admin.py', 'rgb-admin.py', 'agentic-rigg-helper.service']),
                          (RGB, ['rgb-admin.py', 'rgb-aktiver.sh', 'rgb-deaktiver.sh', 'rgb-avklar.sh',
                                 'rgb-gjenopprett.sh', 'agentic-rigg-rgb.service']),
                          (POL, ['io.github.AgenticRigg.helper.policy', 'io.github.AgenticRigg.rgb.v2.policy'])):
@@ -264,7 +268,15 @@ def restore_nvml(template):
                          f'Sandkassekommando: {" ".join(command)}. {error}') from error
 
 
-def install(files):
+def rgb_asset(path):
+    """Hører filen til RGB-delen (RGB-mappa eller RGB-policyen)?"""
+    return path.parent == RGB or path == POL / 'io.github.AgenticRigg.rgb.v2.policy'
+
+
+def install(files, keep_rgb=False):
+    """Installer systemkomponentene. Med `keep_rgb` byttes bare NVML-delen og
+    systeminstallasjonen: RGB-filene, tillatelsen, tjenesten og en eventuell
+    uavklart journal blir stående nøyaktig som før."""
     build = json.loads(files['version.json'])['build']
     if type(build) is not int or not 0 < build <= 0xffffffff:
         raise ValueError('Ugyldig pakkebygg.')
@@ -281,7 +293,20 @@ def install(files):
     # rent administrative arkivveien uten å bytte en aktiv arbeider.
     recovery = SYSTEM / 'system-install'
     put(recovery, files[ASSETS[recovery][0]], 0o755)
-    if (ETC / 'rgb.json').exists() or not stopped(DOMAINS['rgb'][0]) or os.path.lexists(active_files('rgb')[1]):
+    if keep_rgb:
+        # RGB-delen som blir stående, må være en hel, betrodd v2-installasjon
+        # fra et kjent bygg (den nåværende revisjonen eller en egen RGB-revisjon).
+        try:
+            for path in ASSETS:
+                if rgb_asset(path):
+                    trusted_file(path)
+            rgb_revision = RGB_MARK.read_text() if RGB_MARK.exists() else revision
+        except (OSError, ValueError) as error:
+            raise ValueError(f'RGB-delen som skal beholdes, er ufullstendig. Avklar og slå av RGB-tilgangen først. {error}') from error
+        rgb_build = re.fullmatch(r'2:([0-9]+)', rgb_revision.rstrip())
+        if not rgb_build or not 0 < int(rgb_build[1]) <= build:
+            raise ValueError('Ukjent bygg for RGB-delen som skal beholdes. Avklar og slå av RGB-tilgangen først.')
+    elif (ETC / 'rgb.json').exists() or not stopped(DOMAINS['rgb'][0]) or os.path.lexists(active_files('rgb')[1]):
         raise ValueError('Avklar og slå av eksisterende RGB-tilgang før installasjon.')
     config, journal, unit, _ = active_files('nvml')
     if not stopped(unit.name):
@@ -296,14 +321,24 @@ def install(files):
         restore_nvml(files['data/hjelper/agentic-rigg-helper.service'])
     if not stopped(unit.name) or os.path.lexists(journal):
         raise ValueError('NVML-gjenoppretting er uavklart; tillatelse og opptak beholdes.')
+    if keep_rgb:
+        # Før den felles revisjonen endres: RGB-delen beholder sitt bygg.
+        put(RGB_MARK, f'2:{int(rgb_build[1])}\n'.encode(), 0o644)
     MARK.unlink(missing_ok=True)
     remove_active('nvml')
-    remove_active('rgb')
+    if not keep_rgb:
+        remove_active('rgb')
     legacy()
     for path, (key, mode) in ASSETS.items():
-        put(path, files[key], mode)
+        if not (keep_rgb and rgb_asset(path)):
+            put(path, files[key], mode)
+    if not keep_rgb:
+        put(RGB_MARK, f'2:{build}\n'.encode(), 0o644)
     put(MARK, f'2:{build}\n'.encode(), 0o644)
-    print('Systemkomponentene er installert. Aktiver ønsket tilgang separat i appen.')
+    if keep_rgb:
+        print('GPU-delen er installert. RGB-delen er urørt; avklar den på siden RGB-lys.')
+    else:
+        print('Systemkomponentene er installert. Aktiver ønsket tilgang separat i appen.')
 
 
 def uninstall():
@@ -314,7 +349,7 @@ def uninstall():
     for domain in DOMAINS:
         archive_state(domain)
     legacy()
-    for path in (MARK, *ASSETS, STATE / 'agentic-rigg-rgb.inactive'):
+    for path in (MARK, RGB_MARK, *ASSETS, STATE / 'agentic-rigg-rgb.inactive'):
         if path.parent.exists():
             directory(path.parent)
             path.unlink(missing_ok=True)
@@ -360,11 +395,14 @@ def main():
     action.add_argument('--uninstall', action='store_true')
     action.add_argument('--archive-removed-card', choices=DOMAINS)
     action.add_argument('--revoke', choices=DOMAINS)
+    parser.add_argument('--keep-rgb', action='store_true')
     parser.add_argument('values', nargs='*')
     args = parser.parse_args()
     if os.geteuid() != 0:
         parser.error('Systeminstallasjon krever administrator.')
     os.umask(0o022)
+    if args.keep_rgb and (args.uninstall or args.archive_removed_card or args.revoke):
+        parser.error('--keep-rgb gjelder bare installasjon.')
     with system_lock():
         if args.uninstall and not args.values:
             uninstall()
@@ -373,9 +411,9 @@ def main():
         elif args.revoke and not args.values:
             archive_state(args.revoke, revoke=True)
         elif not (args.uninstall or args.archive_removed_card or args.revoke) and len(args.values) == 2:
-            install(approved_files(*args.values))
+            install(approved_files(*args.values), keep_rgb=args.keep_rgb)
         else:
-            parser.error('Forventet ARKIV SHA256, --uninstall, --revoke DOMENE eller --archive-removed-card DOMENE UUID.')
+            parser.error('Forventet [--keep-rgb] ARKIV SHA256, --uninstall, --revoke DOMENE eller --archive-removed-card DOMENE UUID.')
 
 
 if __name__ == '__main__':

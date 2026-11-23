@@ -123,6 +123,11 @@ mod tests {
         assert_eq!(b.cpu.load, Some(0.0), "samme fil to ganger gir 0 % last");
         assert!(b.mem.total_kb.unwrap() > 40_000_000.0);
         assert!(b.mem.shmem_kb.is_some(), "Shmem skilles ut");
+        // Fordelingen av brukt minne: prosesser, delt, kjerne og cache.
+        let m = &b.mem;
+        let (anon, kernel, cache) = (m.anon_kb.unwrap(), m.kernel_kb.unwrap(), m.cache_kb().unwrap());
+        assert!(anon > 0.0 && kernel > 0.0 && cache > 0.0);
+        assert!(anon + m.shmem_kb.unwrap() + kernel <= m.used_kb.unwrap() + cache, "delene forklarer brukt minne");
         let tdie = b.cpu.temp.unwrap();
         let tctl = b.cpu.tctl.unwrap();
         assert!((tctl - tdie - 10.0).abs() < 0.01, "Tdie er hovedverdien, Tctl 10 °C over ({tdie} / {tctl})");

@@ -15,8 +15,19 @@ window.rigg button.task-sort.sorted { color: var(--accent); }
 .task-row:selected { background: var(--selected); color: var(--text); }
 .task-row:selected:focus { outline-offset: -2px; }
 .task-empty { padding: 20px; }
-.task-footer { border-top: 1px solid var(--border); padding-top: 8px; }
+.task-summary-line { color: var(--muted); }
+.task-mem-bar { min-height: 6px; margin: 1px 0 2px; }
+/* Detaljfeltet for valgt oppgave: samme kortflate som tabellen. */
+.task-detail { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 8px 12px; }
+.task-detail-item { min-height: 20px; }
+.task-detail-grid flowboxchild { padding: 0; }
 .task-status { min-height: 16px; }
 window.rigg button.task-stop { color: var(--danger); }
+/* Deaktivert skal se deaktivert ut, ikke som en rød handling. */
+window.rigg button.task-stop:disabled { color: var(--muted); }
+window.rigg button.task-expander { min-height: 22px; min-width: 24px; padding: 0; margin: 0; border: none; background: transparent; color: var(--muted); }
+window.rigg button.task-expander:hover { background: var(--hover); color: var(--text); }
+.task-row.task-group .task-name { font-weight: 600; }
+.task-row.task-kernel .task-cell { color: var(--muted); }
 .tett-kompakt .task-row { min-height: 27px; }
 .tett-luftig .task-row { min-height: 35px; }

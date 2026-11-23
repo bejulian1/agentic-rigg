@@ -149,4 +149,4 @@ Please report vulnerabilities privately via [GitHub Security Advisories](https:/
 
 ## Credits
 
-Created by [Julian / bejulian1](https://github.com/bejulian1), with AI assistance from Anthropic Claude (Claude Code), OpenAI GPT (Codex) and Google Gemini. See [CONTRIBUTORS.md](CONTRIBUTORS.md) for who did what.
+Created by [Julian / bejulian1](https://github.com/bejulian1), with AI assistance from Anthropic Claude (Claude Code), OpenAI GPT (Codex) and Google Gemini (Antigravity). See [CONTRIBUTORS.md](CONTRIBUTORS.md) for who did what.

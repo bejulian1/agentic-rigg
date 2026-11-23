@@ -66,6 +66,7 @@ impl Daemon {
             "reset_stats" => self.op_reset_stats(a),
             "get_processes" => self.op_get_processes(a),
             "get_tasks" => self.op_get_tasks(sid, a),
+            "get_task_detail" => self.op_get_task_detail(a),
             "terminate_task" => self.op_terminate_task(a),
             "get_disks" => Ok(self.op_get_disks()),
             "get_network" => Ok(self.nett.get(rigg_core::now_ms())),
