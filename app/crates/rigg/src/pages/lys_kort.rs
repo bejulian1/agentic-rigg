@@ -1895,7 +1895,10 @@ pub(crate) fn debug_fixture(kind: &str) {
             match kind {
                 "off" => value = json!({"state":"off","owned":false,"busy":false,"message":"Kortlyset trenger sin egen administratoraktivering.","status":null}),
                 "stored" => value["status"]["observationSource"] = json!("stored_baseline"),
-                "pending" => {
+                "pending" | "pending_effects" => {
+                    if kind == "pending_effects" {
+                        value["status"]["softwareEffects"] = json!(["breathing","rainbow","cycle"]);
+                    }
                     value["owned"] = json!(true);
                     value["status"]["state"]["dirty"] = json!(true);
                     value["status"]["state"]["pending"] = json!({"txn":7,"owner":12,"deadlineMs":boottime_ms().unwrap_or(0)+15_000,"requested":{"mode":"static","color":[58,123,240],"brightness":80}});
@@ -1930,6 +1933,10 @@ pub(crate) fn debug_fixture(kind: &str) {
                 assert!(p.controls.is_visible() && p.apply.is_visible(), "Lysvalgene er skjult før aktivering");
                 for (id, _) in EFFECTS {
                     assert!(p.mode.button(id).unwrap().is_visible(), "Effekter er skjult før aktivering");
+                }
+            } else if kind == "pending_effects" {
+                for (id, _) in EFFECTS {
+                    assert!(p.mode.button(id).unwrap().is_visible(), "Støttet effekt er skjult");
                 }
             } else if bound_status(&p.helper.borrow(), selected_identity(&p.app).as_ref()) {
                 for (id, _) in EFFECTS {
