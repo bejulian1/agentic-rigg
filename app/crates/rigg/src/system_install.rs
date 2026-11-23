@@ -25,6 +25,9 @@ use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
 const MARK: &str = "/usr/local/libexec/agentic-rigg-system/revision";
+/// Bygget RGB-delen faktisk kom fra. GPU-oppdateringen lar en aktiv eller
+/// uavklart RGB-del stå urørt (`--keep-rgb`), så den kan være eldre enn `MARK`.
+const RGB_MARK: &str = "/usr/local/libexec/agentic-rigg-system/rgb-revision";
 const COMMAND: &str = include_str!("../../../data/hjelper/system-bootstrap.command");
 const FETCH: &str = include_str!("../../../data/hjelper/system-hent.py");
 const VERSION_JSON: &[u8] = include_bytes!("../../../version.json");
@@ -32,6 +35,9 @@ const PKEXEC: &str = "/usr/bin/pkexec";
 /// Linjen system-hent.py skriver når en gammel RGB-økt er gjenopprettet og
 /// brukeren må se på kortet (samme som `CONFIRM_PREFIX` i skriptet).
 const RECOVERY_PREFIX: &str = "AGENTIC-RIGG-RGB-AVKLAR ";
+/// Linjen system-hent.py skriver når RGB-delen ble stående urørt under en
+/// GPU-oppdatering (samme som `RGB_KEPT_PREFIX` i skriptet).
+const RGB_KEPT_PREFIX: &str = "AGENTIC-RIGG-RGB-BEHOLDT ";
 const MAX_MANIFEST: u64 = 16 * 1024;
 
 thread_local! {
@@ -75,6 +81,17 @@ pub fn ready(need: Need) -> bool {
     .iter()
     .all(|path| trusted(Path::new(path)))
         && std::fs::read_to_string(MARK).is_ok_and(|value| compatible_revision(&value, need))
+        && (need != Need::Rgb || rgb_part_ready())
+}
+
+/// RGB-delen er fra et RGB-kompatibelt bygg. Uten egen RGB-revisjon (eldre
+/// installasjoner) gjelder den felles revisjonen alene.
+fn rgb_part_ready() -> bool {
+    let path = Path::new(RGB_MARK);
+    match std::fs::symlink_metadata(path) {
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => true,
+        _ => trusted(path) && std::fs::read_to_string(path).is_ok_and(|value| compatible_revision(&value, Need::Rgb)),
+    }
 }
 
 /// NVML og RGB har hver sin kompatibilitetsgrense, så en ny RGB-protokoll
@@ -238,6 +255,36 @@ fn pinned_manifest() -> Result<String, String> {
     checked_manifest(&text, VERSION_JSON)
 }
 
+/// RGB-delen ble stående urørt under GPU-oppdateringen: kortet den gjelder
+/// (hvis kjent) og om en tidligere RGB-økt fortsatt må avklares.
+#[derive(Debug, PartialEq, Eq)]
+struct RgbKept {
+    pci: Option<String>,
+    unsettled: bool,
+}
+
+fn rgb_kept(line: &str) -> Option<RgbKept> {
+    let value: serde_json::Value = serde_json::from_str(line.strip_prefix(RGB_KEPT_PREFIX)?).ok()?;
+    let pci = match &value["pci"] {
+        serde_json::Value::Null => None,
+        serde_json::Value::String(pci) if pci.len() == 12 && pci.bytes().all(|b| b.is_ascii_hexdigit() || matches!(b, b':' | b'.')) => Some(pci.clone()),
+        _ => return None,
+    };
+    Some(RgbKept { pci, unsettled: value["unsettled"].as_bool()? })
+}
+
+/// Meldingen etter en GPU-oppdatering som lot RGB-delen stå.
+fn rgb_kept_toast(kept: &RgbKept) -> Option<Toast> {
+    if !kept.unsettled {
+        return None;
+    }
+    let body = match &kept.pci {
+        Some(pci) => trf!("GPU-styringen er oppdatert uten å røre kortlyset. En tidligere RGB-økt for kortet {kort} er fortsatt ikke avsluttet. Velg det kortet og åpne RGB-lys for å avklare den.", kort = pci),
+        None => tr!("GPU-styringen er oppdatert uten å røre kortlyset. En tidligere RGB-økt er fortsatt ikke avsluttet. Åpne RGB-lys for å avklare den.").to_string(),
+    };
+    Some(Toast::new(tr!("RGB-økten må avklares separat")).body(&body).ms(9000))
+}
+
 /// Avklaringsmålet fra en linje på stdout, bare for kortet som oppdateres.
 fn recovery_request(line: &str, (pci, uuid): (&str, &str)) -> Option<Recovery> {
     let value: serde_json::Value = serde_json::from_str(line.strip_prefix(RECOVERY_PREFIX)?).ok()?;
@@ -322,10 +369,15 @@ pub fn run(app: &Rc<App>, activate: Activate, done: impl FnOnce(bool) + 'static)
     glib::MainContext::default().spawn_local(async move {
         let mut stdin = proc.stdin_pipe();
         let mut confirm = confirm;
+        let mut kept = None;
         if let Some(stdout) = proc.stdout_pipe() {
             let lines = gio::DataInputStream::new(&stdout);
             while let Ok(Some(line)) = lines.read_line_future(glib::Priority::DEFAULT).await {
                 let line = String::from_utf8_lossy(&line);
+                if line.starts_with(RGB_KEPT_PREFIX) {
+                    kept = rgb_kept(line.trim_end());
+                    continue;
+                }
                 if !line.starts_with(RECOVERY_PREFIX) {
                     continue;
                 }
@@ -362,6 +414,13 @@ pub fn run(app: &Rc<App>, activate: Activate, done: impl FnOnce(bool) + 'static)
         }
         installed();
         crate::widgets::locked::refresh_helper(&a, crate::settings::request_render);
+        if let Some(toast) = kept.as_ref().and_then(rgb_kept_toast) {
+            let b = a.clone();
+            a.toast(toast.action(tr!("Åpne RGB-lys"), move || {
+                b.shell().close_settings();
+                b.go("lys");
+            }));
+        }
         done(true);
     });
 }
@@ -489,9 +548,27 @@ mod tests {
         }
         // Samme prefiks og samme stimønster som skriptet og pakkeskriptet.
         assert!(FETCH.contains(&format!("CONFIRM_PREFIX = '{RECOVERY_PREFIX}'")));
+        assert!(FETCH.contains(&format!("RGB_KEPT_PREFIX = '{RGB_KEPT_PREFIX}'")));
         let pattern = r"bin/[A-Za-z0-9._-]{1,64}|version\.json|data/hjelper/[A-Za-z0-9._-]{1,64}";
         assert!(FETCH.contains(&format!("SYSTEM_PATH = r'{pattern}'")));
         assert!(include_str!("../../../scripts/pakk-utgivelse.py").contains(&format!("re.compile(r\"{pattern}\"")));
+    }
+
+    #[test]
+    fn beholdt_rgb_del_gir_egen_avklaringsmelding() {
+        let line = |json: &str| format!("{RGB_KEPT_PREFIX}{json}");
+        assert_eq!(
+            rgb_kept(&line(r#"{"pci":"0000:1c:00.0","unsettled":true}"#)),
+            Some(RgbKept { pci: Some("0000:1c:00.0".into()), unsettled: true })
+        );
+        assert_eq!(rgb_kept(&line(r#"{"pci":null,"unsettled":false}"#)), Some(RgbKept { pci: None, unsettled: false }));
+        for bad in [r#"{"pci":"../x","unsettled":true}"#, r#"{"pci":"0000:1c:00.0"}"#, "[]", "ikke json"] {
+            assert!(rgb_kept(&line(bad)).is_none(), "{bad}");
+        }
+        assert!(rgb_kept(r#"{"pci":null,"unsettled":true}"#).is_none());
+        // Bare en uavklart økt gir egen melding; en avklart RGB-del er bare urørt.
+        assert!(rgb_kept_toast(&RgbKept { pci: None, unsettled: false }).is_none());
+        assert!(rgb_kept_toast(&RgbKept { pci: Some("0000:1c:00.0".into()), unsettled: true }).is_some());
     }
 
     /// Argumentene appen sender passer skriptets strenge kontroll helt frem

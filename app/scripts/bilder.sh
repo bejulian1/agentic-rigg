@@ -207,7 +207,8 @@ for plan in "${plans[@]}"; do
         ;;
     # Hete-syklusen: 125 s, så 5 min-vinduet har kaldt, 95 °C og 110 °C nå.
     8a-hete) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=8a-hete") backend=sim:hete warm=${RIGG_OPPVARMING:-125} ;;
-    oppgaver) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=oppgaver") backend=ingen warm=${RIGG_OPPVARMING:-1} ;;
+    # RIGG_OPPGAVER_BACKEND=sim viser GPU-kortet med simulerte data (merk bildene).
+    oppgaver) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=oppgaver") backend=${RIGG_OPPGAVER_BACKEND:-ingen} warm=${RIGG_OPPVARMING:-1} ;;
     7b-ekte) vars=("RIGG_BILDER_2C=$dir" "RIGG_6C_PLAN=7b-ekte") wargs="--side kontroller" ;;
     # Fem minutter spill-last i historikken til «Siste 5 minutter».
     7b-sim) vars=("RIGG_BILDER_2C=$dir" "RIGG_6C_PLAN=7b-sim") backend=sim:spill wargs="--side kontroller" warm=${RIGG_OPPVARMING:-320} ;;

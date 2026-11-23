@@ -123,6 +123,21 @@ pub struct MemSample {
     pub swap_total_kb: Option<f64>,
     #[serde(rename = "swapUsedKB")]
     pub swap_used_kb: Option<f64>,
+    /// `AnonPages`: prosessenes anonyme minne (heap, stakk), talt én gang.
+    #[serde(rename = "anonKB", skip_serializing_if = "Option::is_none")]
+    pub anon_kb: Option<f64>,
+    /// Kjernens eget minne som ikke kan frigjøres: `SUnreclaim` +
+    /// `KernelStack` + `PageTables` + `Percpu` (+ `SecPageTables`).
+    #[serde(rename = "kernelKB", skip_serializing_if = "Option::is_none")]
+    pub kernel_kb: Option<f64>,
+}
+
+impl MemSample {
+    /// Buffer og cache som kan frigjøres: `Buffers` + `Cached` − `Shmem` + `SReclaimable`.
+    pub fn cache_kb(&self) -> Option<f64> {
+        let cache = self.buffers_kb? + self.cached_kb? - self.shmem_kb.unwrap_or(0.0) + self.sreclaimable_kb.unwrap_or(0.0);
+        Some(cache.max(0.0))
+    }
 }
 
 /// Ett nettverkskort: rater i byte/s.
