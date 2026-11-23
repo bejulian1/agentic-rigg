@@ -177,8 +177,33 @@ I tillegg: `fan.curve` (punkter og temperaturområde), `fan.startStopGapC` (3), 
 | `get_telemetry` | `gpu` | `{gpu, sample}` |
 | `subscribe` | `topics: ["telemetry","state","txn","safety"]` | `{topics}` |
 | `unsubscribe` | `topics` | `{topics}` |
+| `get_network` | – | `NetInfo` (se under). Lagt til etter 1.6.0 for Nettverk-siden |
 
 `shutdown` sendes alltid, også uten abonnement.
+
+#### `get_network` (Nettverk-siden)
+
+Lesing uten root, og bare når et vindu spør. Tjenesten svarer med forrige liste og starter en ny lesing i en egen kortlivet tråd når lista er eldre enn 2,5 s. Før første liste er svaret `{t: 0, source: "", ifaces: [], pending: true}`. Den fullstendige beskrivelsen står i `docs/produksjon/protokoll.md` kap. 14.
+
+```json
+{"t": 1763928000000, "source": "sysfs", "nm": true, "hostname": "rigg", "pending": false,
+ "ifaces": [{"name": "enp5s0", "kind": "ethernet", "operstate": "up", "carrier": true,
+             "mac": "02:00:5E:10:00:2A", "mtu": 1500, "speedMbps": 1000, "duplex": "full",
+             "ipv4": [{"addr": "192.0.2.42", "prefix": 24, "scope": "global", "temporary": false}],
+             "ipv6": [], "driver": "igb", "bus": "PCI", "busAddr": "0000:05:00.0", "ids": "8086:1539",
+             "vendor": "Intel", "model": "I211 Gigabit Network Connection", "connection": "LAN",
+             "firmware": "0.6-1", "defaultRoute": true,
+             "stats": {"rxBytes": 1, "txBytes": 1, "rxPackets": 1, "txPackets": 1, "rxErrors": 0,
+                       "txErrors": 0, "rxDropped": 0, "txDropped": 0, "multicast": 0, "collisions": 0},
+             "wifi": null}],
+ "routes": {"gateway4": {"addr": "192.0.2.1", "iface": "enp5s0", "metric": 100}, "gateway6": null},
+ "dns": {"servers": ["192.0.2.1"], "domains": [], "source": "networkmanager", "stub": "127.0.0.53"},
+ "sockets": {"tcpEstablished": 23, "tcpListen": 6, "tcpOther": 4, "udp": 9,
+             "listeners": [{"proto": "tcp", "family": 4, "addr": "0.0.0.0", "port": 22,
+                            "uid": 0, "user": "root", "pid": null, "process": null}]}}
+```
+
+Ratene for grafene kommer ikke herfra, men fra prøvene som før (`sys.net`, sensornøklene `net/<kort>/rx` og `net/<kort>/tx`). Ingen eksisterende operasjon, hendelse eller sensornøkkel er endret.
 
 ### Skrive
 

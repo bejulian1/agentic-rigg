@@ -27,6 +27,9 @@ mod ui140;
 #[path = "skjermbilder_oppgaver.rs"]
 mod oppgaver;
 
+#[path = "skjermbilder_nettverk.rs"]
+mod nettverk;
+
 enum Step {
     Set(Value),
     Size(i32, i32),
@@ -73,6 +76,7 @@ fn plan() -> Vec<Step> {
         Ok("rgb-ui") => plan_rgb(),
         Ok("rgb-flow") => plan_rgb_flow(),
         Ok("oppgaver") => oppgaver::plan(),
+        Ok("nettverk") => nettverk::plan(),
         _ => plan_grunnmur(),
     }
 }
@@ -526,7 +530,7 @@ fn plan_3a_borte() -> Vec<Step> {
 }
 
 /// Alle ti sidene i rekkefølgen i sidefeltet (tastene 1–9 og 0).
-const PAGES: [&str; 11] = ["oversikt", "sensorer", "grafer", "grafikkort", "prosessor", "disker", "system", "kontroller", "viftekurve", "lys", "oppgaver"];
+const PAGES: [&str; 12] = ["oversikt", "sensorer", "grafer", "grafikkort", "prosessor", "disker", "system", "kontroller", "viftekurve", "lys", "oppgaver", "nettverk"];
 
 /// Navn til et bilde som lages i løkka (planen kjører én gang per prosess).
 fn name(s: String) -> &'static str {
