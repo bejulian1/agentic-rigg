@@ -67,6 +67,8 @@ class HentTest(unittest.TestCase):
         self.addCleanup(shutil.rmtree, self.etc)
         self.mod['CONFIG'] = {'nvml': str(self.etc / 'helper.json'), 'rgb': str(self.etc / 'rgb.json')}
         self.mod['OWNER'] = os.getuid()
+        self.marker = self.etc / 'revision'
+        self.mod['MARK'] = str(self.marker)
         self.journal = self.etc / 'journal.json'
         self.mod['RGB_JOURNAL'] = str(self.journal)
         uid = patch.dict(os.environ, {'PKEXEC_UID': '1000'})
@@ -163,6 +165,39 @@ class HentTest(unittest.TestCase):
         self.assertEqual(len(self.runs), 1)
         self.assertEqual(list(self.staging.iterdir()), [])
 
+    def test_nedgradering_stopper_for_nedlasting_og_rgb_endringer(self):
+        uuid = 'GPU-12345678-abcd-ef01-2345-6789abcdef01'
+        self.permission('rgb', mode=0o600)
+        self.journal.write_text('{}')
+        self.marker.write_text('2:28\n')
+        self.marker.chmod(0o644)
+        with self.assertRaisesRegex(SystemExit, 'nedgradere.*28.*27'):
+            self.mod['main'](['1.5.2', '27', 'rgb', '0000:1c:00.0', uuid])
+        self.assertEqual(self.urls, [])
+        self.assertEqual(self.runs, [])
+        self.assertTrue(self.journal.exists())
+
+    def test_nyere_revisjon_under_nedlasting_stopper_rgb_endringer(self):
+        uuid = 'GPU-12345678-abcd-ef01-2345-6789abcdef01'
+        self.permission('rgb', mode=0o600)
+        self.journal.write_text('{}')
+        self.marker.write_text('2:27\n')
+        self.marker.chmod(0o644)
+
+        def upgraded_during_download(request, hosts):
+            response = self.open_url(request, hosts)
+            if request.full_url.startswith('https://github.com/'):
+                self.marker.write_text('2:28\n')
+            return response
+
+        self.mod['open_url'] = upgraded_during_download
+        with self.assertRaisesRegex(SystemExit, 'nedgradere.*28.*27'):
+            self.mod['main'](['1.5.2', '27', 'rgb', '0000:1c:00.0', uuid])
+        self.assertEqual(len(self.urls), 2)
+        self.assertEqual(self.runs, [])
+        self.assertTrue(self.journal.exists())
+        self.assertEqual(list(self.staging.iterdir()), [])
+
     def test_uavklart_okt_avsluttes_med_brukerens_bekreftelse(self):
         uuid = 'GPU-12345678-abcd-ef01-2345-6789abcdef01'
         self.permission('rgb', mode=0o600)
@@ -242,6 +277,15 @@ class HentTest(unittest.TestCase):
         self.assertEqual(self.urls, [])
         self.assertEqual(self.runs, [])
 
+    def test_eldre_tillatelse_for_samme_bruker_faar_egen_melding(self):
+        path = self.etc / 'helper.json'
+        path.write_text(json.dumps({'versjon': 1, 'uid': 1000}))
+        path.chmod(0o600)
+        with self.assertRaisesRegex(SystemExit, 'eldre oppsett'):
+            self.mod['main'](['1.5.2', '27'])
+        self.assertEqual(self.urls, [])
+        self.assertEqual(self.runs, [])
+
     def test_aktivering_bare_etter_vellykket_installasjon(self):
         def failing(argv, **kwargs):
             self.runs.append(argv)
@@ -290,7 +334,9 @@ class HentTest(unittest.TestCase):
     def test_manglende_utgivelse_og_nettbrudd(self):
         import urllib.error, http.client
         def missing(request, hosts):
-            raise urllib.error.HTTPError(request.full_url, 404, 'Not Found', {}, None)
+            error = urllib.error.HTTPError(request.full_url, 404, 'Not Found', {}, None)
+            self.addCleanup(error.close)
+            raise error
         self.mod['open_url'] = missing
         with self.assertRaisesRegex(SystemExit, 'finnes ikke på GitHub'):
             self.mod['main'](['1.5.2', '27'])

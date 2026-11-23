@@ -339,6 +339,11 @@ impl RgbClient {
         self.control.owner.load(Ordering::SeqCst) != 0
     }
 
+    #[cfg(test)]
+    pub(crate) fn set_test_owner(&self, owner: u64) {
+        self.control.owner.store(owner, Ordering::SeqCst);
+    }
+
     /// `None` betyr at svaret kommer i completion-køen. Kalleren har allerede
     /// kontrollert at UI-økta finnes, har sagt hello og ikke stopper.
     pub fn enqueue(&mut self, sid: u64, request: &Request) -> Result<Option<Value>, ProtoError> {

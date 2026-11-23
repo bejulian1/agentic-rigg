@@ -682,12 +682,10 @@ impl Tray {
                 let _ = d.borrow_mut().op_log_stop();
             }
             Action::StopBackground => {
-                // Slår av valget (lagres i tjeneste.json). Uten logg og uten
-                // vindu stopper tjenesten etter fristen, som etter et lukket vindu.
                 let mut d = d.borrow_mut();
                 eprintln!("{}", tr!("Stopper bakgrunnsopptaket fra systemfeltet."));
                 let _ = d.op_set_settings(&serde_json::json!({"background": false}));
-                if !d.logger.active() && d.sessions.is_empty() {
+                if !d.keep_alive() && d.sessions.is_empty() {
                     d.stop("idle");
                 }
             }
@@ -728,6 +726,59 @@ mod tests {
 
     fn snap() -> Snapshot {
         Snapshot { background: true, temp: Some(52.4), power: Some(12.3), load: Some(8.0), ..Default::default() }
+    }
+
+    #[test]
+    fn stopp_bakgrunn_beholder_tjenesten_naar_en_hjelper_holder_verdier() {
+        use crate::daemon::Options;
+        use crate::sampler::{BackendKind, Sampler};
+        use crate::server::Server;
+        use crate::store::Store;
+        use serde_json::json;
+
+        let root = glib::mkdtemp(std::env::temp_dir().join("rigg-tray-XXXXXX")).unwrap();
+        let socket = root.join("riggd.sock");
+        let listener = std::os::unix::net::UnixListener::bind(&socket).unwrap();
+        let context = glib::MainContext::new();
+        context.with_thread_default(|| {
+            let opts = Options {
+                backend: "sim".into(),
+                profile: rigg_core::paths::Profile::Dev,
+                root: root.clone(),
+                grace_ms: 0,
+                hjelper: rigg_core::hjelper::Paths::new(root.clone()),
+                hete: false,
+            };
+            let (samples, _rx) = async_channel::unbounded();
+            let sampler = Sampler::start(BackendKind::Sim(rigg_hw::gpu::sim::Scenario::Normal), root.clone(), 1000, samples);
+            let store = Store::new(root.clone(), root.clone());
+            let daemon = Daemon::new(opts, store, Server::new(socket, listener), sampler, 1000,
+                glib::MainLoop::new(Some(&context), false), rigg_core::now_ms());
+            let tray = Tray {
+                d: Rc::downgrade(&daemon),
+                me: Weak::new(),
+                unwatch: RefCell::new(None),
+                item: RefCell::new(None),
+                no_bus_until: Cell::new(0),
+            };
+            for nvml in [true, false] {
+                {
+                    let mut daemon = daemon.borrow_mut();
+                    daemon.settings.background = true;
+                    daemon.hjelper.state = crate::hjelper::State::On;
+                    daemon.hjelper.status = json!({"holding": nvml});
+                    daemon.rgb.set_test_owner(if nvml { 0 } else { 1 });
+                    assert_eq!(daemon.hjelper.holds_values(), nvml);
+                    assert_eq!(daemon.rgb.holds_values(), !nvml);
+                }
+                tray.act(Action::StopBackground);
+                let daemon = daemon.borrow();
+                assert!(!daemon.settings.background);
+                assert!(!daemon.stopping);
+            }
+            daemon.borrow_mut().sampler.stop();
+        }).unwrap();
+        std::fs::remove_dir_all(root).unwrap();
     }
 
     #[test]
