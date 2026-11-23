@@ -118,6 +118,10 @@ pub trait Skriver {
     fn fan_count(&self) -> usize {
         2
     }
+    /// Gjenoppretting etter stopp/krasj: så mange vifter kunne styres da
+    /// endringene startet (`dirty.json`). Finner kortet færre nå, kan Auto
+    /// ikke bekreftes, og `reset`/`snapshot` skal ikke melde standard.
+    fn require_fan_count(&mut self, _n: usize) {}
     /// Farten viftene har nå (%), én per vifte. Viftemotoren starter der
     /// når Kurve slås på (`Motor::med_start`), så rampen ikke hopper. Tom:
     /// ukjent (motoren går da rett til kurven).

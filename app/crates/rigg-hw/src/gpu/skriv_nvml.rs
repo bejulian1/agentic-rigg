@@ -319,6 +319,8 @@ pub struct NvmlSkriver {
     baseline_ready: bool,
     observed: Value,
     fans: usize,
+    /// Vifter som kan ha blitt endret av en tidligere økt (recovery).
+    required_fans: usize,
     fan_now: Option<f64>,
     faults: Vec<String>,
     offsets_verified: [bool; 2],
@@ -479,6 +481,7 @@ impl NvmlSkriver {
             baseline_ready: false,
             observed,
             fans,
+            required_fans: 0,
             fan_now: None,
             faults: vec![],
             offsets_verified: [true, true],
@@ -601,6 +604,14 @@ impl NvmlSkriver {
         // Gjenoppretting skriver også felt der setter feilet før cachen kunne
         // oppdateres. Forsøk resten selv om én vifte eller ett felt feiler.
         let mut errors = vec![];
+        if self.required_fans > self.fans {
+            // Viftesøket fant færre vifter enn en tidligere økt kunne endre.
+            // Da kan Auto verken skrives eller bekreftes for de manglende.
+            errors.push(format!(
+                "fan_unverified: {} av {} vifter ble funnet; Auto kan ikke bekreftes",
+                self.fans, self.required_fans
+            ));
+        }
         if self.fans > 0 {
             let r = match v.fan_mode {
                 FanMode::Auto => self.fans_auto(),
@@ -650,7 +661,7 @@ impl NvmlSkriver {
         }
     }
     fn is_stock(&self) -> Option<bool> {
-        if !self.faults.is_empty() {
+        if !self.faults.is_empty() || self.required_fans > self.fans {
             return None;
         }
         let same = (!self.available("power")
@@ -916,6 +927,9 @@ impl Skriver for NvmlSkriver {
     fn fan_count(&self) -> usize {
         self.fans
     }
+    fn require_fan_count(&mut self, n: usize) {
+        self.required_fans = n;
+    }
     fn fan_percents(&mut self) -> Vec<f64> {
         (0..self.fans)
             .map(|i| self.api.fan_speed(i))
@@ -959,6 +973,7 @@ mod tests {
         offset_read_errors: bool,
         unsupported_setters: Vec<String>,
         frozen_offsets: Option<[f64; 2]>,
+        fan_read_errors: bool,
     }
     impl Default for State {
         fn default() -> Self {
@@ -977,6 +992,7 @@ mod tests {
                 offset_read_errors: false,
                 unsupported_setters: vec![],
                 frozen_offsets: None,
+                fan_read_errors: false,
             }
         }
     }
@@ -1049,6 +1065,9 @@ mod tests {
             Ok(45.0)
         }
         fn fan_policy(&mut self, i: usize) -> Result<u32, String> {
+            if self.0.borrow().fan_read_errors {
+                return Err("unknown: viftepolicy kunne ikke leses".into());
+            }
             Ok(self.0.borrow().policies[i])
         }
         fn fan_target(&mut self, i: usize) -> Result<f64, String> {
@@ -1247,6 +1266,55 @@ mod tests {
         );
         h.reset().unwrap();
         assert_eq!(h.snapshot()["stock"], true);
+    }
+
+    #[test]
+    fn recovery_uten_gjenfunne_vifter_er_ikke_standard() {
+        // Økt 1: manuell vifte, og merkøren registrerer to styrbare vifter.
+        let (mut first, _) = backend(State::default());
+        ready(&mut first);
+        first
+            .apply(&Values {
+                fan_mode: FanMode::Manual,
+                fan_percent: 70.0,
+                ..first.current_values()
+            })
+            .unwrap();
+        let baseline = first.baseline();
+        let recorded = first.fan_count();
+        assert_eq!(recorded, 2);
+        // Økt 2 (ExecStopPost etter krasj): viftene står fortsatt manuelt,
+        // men viftepolicyen kan ikke leses, så oppdagelsen finner 0 vifter.
+        let lost = || State {
+            policies: [1, 1],
+            targets: [70.0; 2],
+            fan_read_errors: true,
+            ..Default::default()
+        };
+        let (mut recovery, state) = backend(lost());
+        assert_eq!(recovery.fan_count(), 0);
+        recovery.load_baseline(&baseline).unwrap();
+        recovery.require_fan_count(recorded);
+        let e = recovery.reset().unwrap_err();
+        assert!(e.contains("fan_unverified"), "{e}");
+        assert_ne!(recovery.snapshot()["stock"], true);
+        assert_eq!(state.borrow().policies, [1, 1], "viftene er fortsatt manuelle");
+        // Uten kravet ville samme kort feilaktig blitt meldt som standard.
+        let (mut naive, _) = backend(lost());
+        naive.load_baseline(&baseline).unwrap();
+        naive.reset().unwrap();
+        assert_eq!(naive.snapshot()["stock"], true);
+        // Når viftene er tilbake, gjenopprettes og bekreftes Auto.
+        let (mut again, state) = backend(State {
+            policies: [1, 1],
+            targets: [70.0; 2],
+            ..Default::default()
+        });
+        again.load_baseline(&baseline).unwrap();
+        again.require_fan_count(recorded);
+        again.reset().unwrap();
+        assert_eq!(state.borrow().policies, [0, 0]);
+        assert_eq!(again.snapshot()["stock"], true);
     }
 
     #[test]
