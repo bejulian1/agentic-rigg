@@ -61,6 +61,9 @@
 #                     kompakt/standard/luftig og skrift «Større». Skriver
 #                     funn.txt (overløp og overlapp i widgettreet). Se
 #                     skjermbilder_revisjon.rs for RIGG_REVISJON_*-valgene.
+#   forste-mote       sim + falsk GPU-hjelper fra bygg 31: Skjermkortstyring
+#                     («Oppdater hjelper», «Installerer …», «Venter») og RGB-lys
+#                     med uavklart økt (merket fixture), 1024 og 1280 px
 #   oppgaver          ekte /proc uten GPU: søk/sortering/tre, pause, sideskifte,
 #                     lyst/mørkt og 640 px. Ingen signalprøve som standard.
 #   nettverk          sim: Nettverk med simulerte grensesnitt (dokumentasjons-
@@ -111,6 +114,16 @@ export RIGG_HJELPER_ROT="${RIGG_HJELPER_ROT:-$OKT_BASE/hjelper-rot}"
 [ "$RIGG_HJELPER_ROT" != / ] || { echo "Skjermbildeprøver kan ikke bruke vertens GPU-hjelper." >&2; exit 2; }
 mkdir -p "$RIGG_HJELPER_ROT"
 rgb_fake_pid=
+old_helper_pid=
+if [ "${RIGG_PLAN:-}" = forste-mote ]; then
+    # Privat GPU-hjelper fra et eldre bygg (bare status), så tjenesten melder «Oppdater hjelper».
+    /usr/bin/python3 -I "$RIGG_GAMMEL_HJELPER" --root "$RIGG_HJELPER_ROT" --build "${RIGG_GAMMELT_BYGG:-31}" >"$OKT_BASE/gammel-hjelper.log" 2>&1 &
+    old_helper_pid=$!
+    for _ in $(seq 1 50); do
+        [ -S "$RIGG_HJELPER_ROT/run/agentic-rigg/helper.sock" ] && break
+        sleep 0.05
+    done
+fi
 if [ "${RIGG_PLAN:-}" = rgb-flow ]; then
     /usr/bin/python3 -I "$RIGG_RGB_FAKE_SCRIPT" --root "$RIGG_HJELPER_ROT" --build "$RIGG_RGB_FAKE_BUILD" >"$OKT_BASE/rgb-fake.log" 2>&1 &
     rgb_fake_pid=$!
@@ -136,6 +149,10 @@ timeout "${RIGG_PLAN_FRIST:-900}" "$RIGG_BIN/agentic-rigg" $RIGG_VINDU_ARGS 2>"$
 rc=$?
 kill -TERM "$d" 2>/dev/null
 wait "$d" 2>/dev/null
+if [ -n "$old_helper_pid" ]; then
+    kill -TERM "$old_helper_pid" 2>/dev/null || true
+    wait "$old_helper_pid" 2>/dev/null || true
+fi
 if [ -n "$rgb_fake_pid" ]; then
     kill -TERM "$rgb_fake_pid" 2>/dev/null || true
     wait "$rgb_fake_pid" 2>/dev/null || true
@@ -218,6 +235,10 @@ for plan in "${plans[@]}"; do
         ;;
     # Hete-syklusen: 125 s, så 5 min-vinduet har kaldt, 95 °C og 110 °C nå.
     8a-hete) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=8a-hete") backend=sim:hete warm=${RIGG_OPPVARMING:-125} ;;
+    # Det brukeren møter først etter en oppdatering: «Oppdater hjelper» (falsk
+    # GPU-hjelper fra bygg 31), «Installerer …», «Venter» og RGB-lys med en
+    # uavklart økt som må oppdateres (merket visningsfixture), ved 1024 og 1280.
+    forste-mote) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=forste-mote" "RIGG_GAMMEL_HJELPER=$here/scripts/falsk-gammel-hjelper.py") backend=sim warm=${RIGG_OPPVARMING:-6} ;;
     # Layoutrevisjon: alle sider og innstillingsdeler × bredder × tetthet/skrift.
     revisjon) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=revisjon") backend=sim warm=${RIGG_OPPVARMING:-12} ;;
     # RIGG_OPPGAVER_BACKEND=sim viser GPU-kortet med simulerte data (merk bildene).

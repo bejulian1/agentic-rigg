@@ -8,70 +8,70 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg/src/system_install.rs:162
+#: crates/rigg/src/system_install.rs:230
 msgid "Kjør kommandoen i en administratorterminal. Oppgi arkivstien og SHA-256 fra utgivelsessiden."
 msgstr "管理者の端末でコマンドを実行してください。アーカイブのパスとリリースページの SHA-256 を入力してください。"
 
-#: crates/rigg/src/system_install.rs:169
+#: crates/rigg/src/system_install.rs:237
 msgid "Kopier installasjonskommando"
 msgstr "インストールコマンドをコピー"
 
-#: crates/rigg/src/system_install.rs:175
+#: crates/rigg/src/system_install.rs:243
 msgid "Uten nett: bruk terminal"
 msgstr "オフライン: 端末を使う"
 
-#: crates/rigg/src/system_install.rs:217
+#: crates/rigg/src/system_install.rs:285
 msgid "Summene fra utgivelsesarkivet appen ble installert fra, er ugyldige eller hører til en annen versjon. Installer appen på nytt fra utgivelsesarkivet, eller bruk terminalkommandoen."
 msgstr "このアプリをインストールしたリリースアーカイブのチェックサムが無効か、別のバージョンのものです。リリースアーカイブからアプリを再インストールするか、端末コマンドを使ってください。"
 
-#: crates/rigg/src/system_install.rs:282
+#: crates/rigg/src/system_install.rs:350
 msgid "GPU-styringen er oppdatert uten å røre kortlyset. En tidligere RGB-økt for kortet {kort} er fortsatt ikke avsluttet. Velg det kortet og åpne RGB-lys for å avklare den."
 msgstr "カードのライティングには触れずに GPU 制御を更新しました。カード {kort} の以前の RGB セッションがまだ終了していません。そのカードを選択し、「RGBライティング」を開いて解決してください。"
 
-#: crates/rigg/src/system_install.rs:283
+#: crates/rigg/src/system_install.rs:351
 msgid "GPU-styringen er oppdatert uten å røre kortlyset. En tidligere RGB-økt er fortsatt ikke avsluttet. Åpne RGB-lys for å avklare den."
 msgstr "カードのライティングには触れずに GPU 制御を更新しました。以前の RGB セッションがまだ終了していません。「RGBライティング」を開いて解決してください。"
 
-#: crates/rigg/src/system_install.rs:285
+#: crates/rigg/src/system_install.rs:353
 msgid "RGB-økten må avklares separat"
 msgstr "RGB セッションは別途解決する必要があります"
 
-#: crates/rigg/src/system_install.rs:303
+#: crates/rigg/src/system_install.rs:371
 msgid "Passordet ble ikke gitt. Ingenting er endret."
 msgstr "パスワードが入力されなかったため、変更はありません。"
 
-#: crates/rigg/src/system_install.rs:304
+#: crates/rigg/src/system_install.rs:372
 msgid "Fant ikke pkexec, eller ingen kan spørre om passordet (polkit)."
 msgstr "pkexecが見つからないか、polkitでパスワードを要求できません。"
 
-#: crates/rigg/src/system_install.rs:306
+#: crates/rigg/src/system_install.rs:374
 msgid "Fikk ikke kontakt med GitHub. Sjekk nettet, eller bruk terminalkommandoen."
 msgstr "GitHub に接続できません。ネットワークを確認するか、端末のコマンドを使用してください。"
 
-#: crates/rigg/src/system_install.rs:307
+#: crates/rigg/src/system_install.rs:375
 msgid "Fant ikke utgivelsen for denne versjonen på GitHub."
 msgstr "このバージョンのリリースが GitHub に見つかりません。"
 
-#: crates/rigg/src/system_install.rs:309
+#: crates/rigg/src/system_install.rs:377
 msgid "Nedlastingen stemmer ikke med summen GitHub oppgir. Ingen systemfiler er endret."
 msgstr "ダウンロードしたファイルが GitHub の公開チェックサムと一致しません。システムファイルは変更されていません。"
 
-#: crates/rigg/src/system_install.rs:310
+#: crates/rigg/src/system_install.rs:378
 msgid "Installasjonen feilet. Ingen nye tilganger er gitt."
 msgstr "インストールに失敗しました。新しい権限は付与されていません。"
 
-#: crates/rigg/src/system_install.rs:311
+#: crates/rigg/src/system_install.rs:379
 msgid "Installasjonen feilet: {feil}"
 msgstr "インストールに失敗しました: {feil}"
 
-#: crates/rigg/src/system_install.rs:325
+#: crates/rigg/src/system_install.rs:393
 msgid "Vent til den andre administratorhandlingen er ferdig"
 msgstr "別の管理者操作が終わるまでお待ちください"
 
-#: crates/rigg/src/system_install.rs:333 crates/rigg/src/system_install.rs:359 crates/rigg/src/system_install.rs:409
+#: crates/rigg/src/system_install.rs:401 crates/rigg/src/system_install.rs:427 crates/rigg/src/system_install.rs:477
 msgid "Installasjonen ble ikke fullført"
 msgstr "インストールは完了しませんでした"
 
-#: crates/rigg/src/system_install.rs:419
+#: crates/rigg/src/system_install.rs:493
 msgid "Åpne RGB-lys"
 msgstr "RGBライティングを開く"

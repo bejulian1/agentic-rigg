@@ -47,6 +47,10 @@ linje på stdout (`RGB_KEPT_PREFIX`) og viser at RGB-avklaringen gjøres
 separat på siden RGB-lys. En uavklart RGB-økt kan dermed aldri stenge
 brukeren ute fra GPU-styring.
 
+Ber brukeren om RGB og er GPU-delen fra nøyaktig denne utgivelsen og aktiv,
+installeres bare RGB-delen (`--keep-nvml`): GPU-hjelperen stoppes ikke, så
+beholdte GPU-verdier står. Ellers gis GPU-tillatelsen tilbake etterpå.
+
 Ber brukeren om RGB, slås en eksisterende RGB-tilgang av med det
 installerte `rgb-deaktiver.sh` (lyset og utgangspunktet beholdes). Har den
 gamle RGB-hjelperen en uavklart økt (journal), skrives det lagrede
@@ -300,6 +304,20 @@ def activation(argv):
     return [*ACTIVATE[domain], '--pci', pci, '--uuid', uuid, *ACTIVATE_FLAGS[domain]]
 
 
+def installed_build():
+    """Bygget i den betrodde systemrevisjonen (`2:BYGG`), eller None."""
+    try:
+        fd = os.open(MARK, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    except FileNotFoundError:
+        return None
+    with os.fdopen(fd, 'rb') as stream:
+        info = os.fstat(stream.fileno())
+        if not stat.S_ISREG(info.st_mode) or info.st_uid != OWNER or info.st_mode & 0o022:
+            return None
+        found = re.fullmatch(rb'2:([0-9]{1,10})', stream.read(65).rstrip())
+    return int(found[1]) if found else None
+
+
 def reject_downgrade(build):
     try:
         fd = os.open(MARK, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
@@ -483,7 +501,13 @@ def main(argv):
     chosen = (argv[4].lower(), argv[5]) if then and argv[3] == 'rgb' else None
     # GPU-styring rører ikke en aktiv eller uavklart RGB-del (se over).
     keep_rgb = chosen is None and (rgb is not None or journal)
+    # RGB-lys rører ikke en aktiv GPU-hjelper fra nøyaktig denne utgivelsen:
+    # da byttes bare RGB-delen, og GPU-verdier brukeren har beholdt, står.
+    keep_nvml = chosen is not None and nvml is not None and installed_build() == int(build)
     unsettled = rgb is not None and journal and not keep_rgb
+    if chosen is not None and journal and rgb is None:
+        fail('Det finnes en RGB-journal uten RGB-tillatelse. Den kan ikke avklares herfra. '
+             'Bruk terminalkommandoen eller kontakt utvikleren; ingen systemfiler er endret.')
     if unsettled and chosen != card(rgb):
         fail(f'En tidligere RGB-økt for kortet {card(rgb)[0]} er ikke avsluttet. Velg det kortet, åpne RGB-lys og trykk «Bruk».')
     name = ASSET.format(version=version, build=build)
@@ -530,7 +554,7 @@ def main(argv):
                     fail(CHANGED)
             elif nvml_now != nvml or rgb_now is not None or journal_now:
                 fail(CHANGED + (' RGB-tilgangen er slått av; trykk «Bruk» for å slå den på igjen.' if rgb else ''))
-            keep = ['--keep-rgb'] if keep_rgb else []
+            keep = ['--keep-rgb'] if keep_rgb else ['--keep-nvml'] if keep_nvml else []
             result = subprocess.run([*INSTALLER, installer, *keep, archive, digest], stdin=subprocess.DEVNULL,
                                     env={'PATH': '/usr/bin:/bin', 'LC_ALL': 'C', LOCK_FD_ENV: str(fd)},
                                     pass_fds=(fd,), check=False)
@@ -543,8 +567,9 @@ def main(argv):
             kept = {'pci': card(rgb)[0] if rgb else None, 'unsettled': journal}
             print(RGB_KEPT_PREFIX + json.dumps(kept, separators=(',', ':')), flush=True)
         # Installasjonen fjernet GPU-tillatelsen. Gi den tilbake for samme kort,
-        # med mindre brukeren nettopp ba om GPU-styring (da gjør `then` det).
-        if nvml is not None and not (then and then[0] == ACTIVATE['nvml'][0]):
+        # med mindre brukeren nettopp ba om GPU-styring (da gjør `then` det)
+        # eller GPU-delen ble stående (`keep_nvml`).
+        if nvml is not None and not keep_nvml and not (then and then[0] == ACTIVATE['nvml'][0]):
             if run([*ACTIVATE['nvml'], '--pci', card(nvml)[0], '--uuid', card(nvml)[1]], uid, fd):
                 print('GPU-styringen ble ikke slått på igjen. Slå på bryteren i appen.', file=sys.stderr)
         if then is None:

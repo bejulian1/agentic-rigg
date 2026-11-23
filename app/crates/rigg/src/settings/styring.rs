@@ -34,8 +34,7 @@ fn admin(app: &App, activate: bool) -> Option<PathBuf> {
     }
     let dir = data_dir(app);
     (!app.data.borrow().backend.starts_with("sim") && crate::system_install::ready(if activate { crate::system_install::Need::Nvml } else { crate::system_install::Need::Cleanup })
-        && [PathBuf::from("/usr/local/libexec/agentic-rigg-helper"), dir.join("agentic-rigg-helper.service"), dir.join("aktiver.sh"), dir.join("deaktiver.sh"), dir.join("nvml-admin.py"), dir.join("rgb-admin.py"),
-            PathBuf::from("/usr/share/polkit-1/actions/io.github.AgenticRigg.helper.policy")]
+        && crate::system_install::nvml_admin_files(&dir, crate::system_install::installed_build())
             .iter().all(|path| crate::system_install::trusted(path))).then(|| "/usr/bin/pkexec".into())
 }
 
@@ -112,6 +111,15 @@ fn failure(code: i32, err: &str, title: &str) -> Option<Toast> {
 fn installable(app: &App) -> bool {
     !app.profile.is_dev() && app.data.borrow().backend == "nvml" && crate::system_install::can_install()
         && (admin(app, true).is_none() || locked::helper_state(app) == "outdated")
+}
+
+/// Bare private skjermbildeplaner (utviklerprofil): vis «Venter på
+/// administratorgodkjenning …» uten å starte noe.
+pub(crate) fn debug_waiting(app: &App, on: bool) {
+    if app.profile.is_dev() && std::env::var_os("RIGG_SKJERMBILDER").is_some() {
+        BUSY.with(|b| b.set(on));
+        request_render();
+    }
 }
 
 /// Aktivering eller deaktivering pågår (installasjonen venter da).
