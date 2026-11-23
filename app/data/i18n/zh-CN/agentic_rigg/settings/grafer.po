@@ -59,8 +59,8 @@ msgid "synkron tidspunkt sikte"
 msgstr "同步 准星 时间点"
 
 #: crates/rigg/src/settings/grafer.rs:98
-msgid "Tilpass følger dataene i vinduet. Fast beholder normalområdet, men begge utvider aksen når verdiene går utenfor. Last og minne i prosent har skala 0–100; vifter kan gå over 100 %."
-msgstr "自动：匹配当前数据。固定：保留常用范围。数据超出范围时，两种模式都会扩展坐标轴。负载和内存占用为 0–100%，风扇可超过 100%。"
+msgid "Tilpass følger dataene i vinduet. Fast beholder normalområdet, men begge utvider aksen når verdiene går utenfor. Temperaturgrafer går alltid til minst 100 °C. Last og minne i prosent har skala 0–100; vifter kan gå over 100 %."
+msgstr "自动：匹配当前数据。固定：保留常用范围。数据超出范围时，两种模式都会扩展坐标轴。温度图表始终至少显示到 100 °C。负载和内存占用为 0–100%，风扇可超过 100%。"
 
 #: crates/rigg/src/settings/grafer.rs:100
 msgctxt "søkeord"

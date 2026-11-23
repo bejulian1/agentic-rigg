@@ -20,6 +20,11 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 
+/// Vinduets minste størrelse. Ingen side skal kreve mer enn dette; da blir
+/// vinduet bredere enn brukeren ba om, eller innholdet klippes.
+pub const MIN_WIDTH: i32 = 640;
+pub const MIN_HEIGHT: i32 = 480;
+
 // ---------------------------------------------------------------- Rot som ser størrelsen
 
 mod root_imp {
@@ -115,7 +120,7 @@ impl Shell {
         let empty = gtk::Box::new(gtk::Orientation::Horizontal, 0);
         empty.set_visible(false);
         window.set_titlebar(Some(&empty));
-        window.set_size_request(640, 480);
+        window.set_size_request(MIN_WIDTH, MIN_HEIGHT);
         let geom = app.settings().window.clone();
         window.set_default_size(geom.width, geom.height);
         if geom.maximized {

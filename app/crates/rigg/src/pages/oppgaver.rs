@@ -449,6 +449,7 @@ impl State {
             } else {
                 trf!("{navn}\nPID {pid} · forelder {forelder}", navn = row.name, pid = row.identity.pid, forelder = row.ppid)
             }));
+            view_row.cells[2].set_tooltip_text(Some(&view_row.cells[2].text()));
             view_row.cells[3].set_tooltip_text(Some(tr!("100 % tilsvarer én logisk CPU. Flertrådede oppgaver kan overstige 100 %. Første prøve vises som –.")));
             view_row.cells[4].set_tooltip_text(Some(&if row.kernel {
                 tr!("Kjernetråder har ikke eget minne i brukerrommet.").to_string()
@@ -1074,10 +1075,22 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     let heads = hbox(0, &["task-header"]);
     let mut headers = Vec::new();
     let columns = columns();
+    // Minste bredde i tegn per kolonne, så den følger skriftstørrelsen: den
+    // oversatte overskriften med sorteringspil («GPU-Speicher ↓»), sjusifrede
+    // PID-er, «1.012 KiB» og den lengste statusen («Schlafend»).
+    let state_chars = ["R", "S", "D", "T", "Z", "I"].into_iter().map(|s| state_name(s).chars().count()).max().unwrap_or(6);
+    let content_chars = [0, 8, 11, 7, 9, 9, 9, state_chars];
+    let min_chars: Vec<i32> = columns
+        .iter()
+        .zip(content_chars)
+        .enumerate()
+        .map(|(i, ((_, title, _), content))| if i == 0 { -1 } else { (title.chars().count() + 2).max(content) as i32 })
+        .collect();
     for (i, (_, title, width)) in columns.iter().enumerate() {
         let b = gtk::Button::new();
         b.add_css_class("task-sort");
         let l = cell(title, *width, i == 0);
+        l.set_width_chars(min_chars[i]);
         b.set_child(Some(&l));
         b.set_hexpand(i == 0);
         heads.append(&b);
@@ -1102,6 +1115,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         let mut cells = Vec::new();
         for (i, (_, _, width)) in columns.iter().enumerate() {
             let l = cell("", *width, i == 0);
+            l.set_width_chars(min_chars[i]);
             if i == 0 {
                 l.add_css_class("task-name");
                 // Pilen tar plass fra navnekolonnen, så de andre kolonnene står likt.
@@ -1164,6 +1178,10 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     selection.set_ellipsize(gtk::pango::EllipsizeMode::End);
     let reason = label("", &["muted", "sm", "task-detail-reason"]);
     reason.set_xalign(0.0);
+    // Høyst to linjer (lengre oversettelser), deretter …
+    reason.set_wrap(true);
+    reason.set_wrap_mode(gtk::pango::WrapMode::WordChar);
+    reason.set_lines(2);
     reason.set_ellipsize(gtk::pango::EllipsizeMode::End);
     titles.append(&selection);
     titles.append(&reason);

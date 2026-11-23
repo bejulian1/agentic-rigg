@@ -114,20 +114,19 @@ fn text_box(title: &str, subtitle: Option<&str>) -> (gtk::Box, gtk::Label) {
 }
 
 fn make_row(title: &str, subtitle: Option<&str>, ctrl: &gtk::Widget, k: &str, wrap: bool) -> Row {
-    let r = gtk::Box::new(if wrap { gtk::Orientation::Vertical } else { gtk::Orientation::Horizontal }, if wrap { 0 } else { 16 });
-    r.add_css_class("set-row");
-    if wrap {
-        r.add_css_class("wrap");
-    }
     let (t, tl) = text_box(title, subtitle);
-    r.append(&t);
     let c = hbox(8, &["ctrl"]);
     c.set_valign(gtk::Align::Center);
     if wrap {
         c.set_halign(gtk::Align::Fill);
     }
     c.append(ctrl);
-    r.append(&c);
+    // Kontrollen legger seg under teksten når raden blir for trang (setrow.rs).
+    let r = crate::widgets::setrow::SetRow::new(&t, &c, wrap);
+    r.add_css_class("set-row");
+    if wrap {
+        r.add_css_class("wrap");
+    }
     // Forklaringen kobles til kontrollen for skjermlesere.
     ctrl.update_property(&[gtk::accessible::Property::Description(subtitle.unwrap_or(""))]);
     let mut tx = vec![title.to_string(), subtitle.unwrap_or("").to_string(), k.to_string()];
@@ -347,6 +346,15 @@ impl SettingsView {
             let nm = label((s.name)(), &["nm"]);
             nm.set_hexpand(true);
             nm.set_ellipsize(gtk::pango::EllipsizeMode::End);
+            // Et kuttet navn («Protokoll und Benachrichtigungen») står helt i verktøytipset.
+            nm.set_has_tooltip(true);
+            nm.connect_query_tooltip(|l, _, _, _, tip| {
+                let cut = l.layout().is_ellipsized();
+                if cut {
+                    tip.set_text(Some(&l.text()));
+                }
+                cut
+            });
             bx.append(&nm);
             let n = label("", &["set-n", "num"]);
             n.set_xalign(1.0);

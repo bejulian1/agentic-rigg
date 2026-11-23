@@ -54,6 +54,10 @@
 #   rgb-ui            fysisk RGB-panel med merkede simulerte visningstilstander;
 #                     alle administratorhandlinger og RGB-RPC-er er blokkert
 #   rgb-flow          vanlig RGB-flyt mot en privat, merket fake-arbeider
+#   revisjon          sim: hver side og innstillingsdel i 640/1024/1280/1920 px,
+#                     kompakt/standard/luftig og skrift «Større». Skriver
+#                     funn.txt (overløp og overlapp i widgettreet). Se
+#                     skjermbilder_revisjon.rs for RIGG_REVISJON_*-valgene.
 #   oppgaver          ekte /proc uten GPU: søk/sortering/tre, pause, sideskifte,
 #                     lyst/mørkt og 640 px. Ingen signalprøve som standard.
 #
@@ -207,6 +211,8 @@ for plan in "${plans[@]}"; do
         ;;
     # Hete-syklusen: 125 s, så 5 min-vinduet har kaldt, 95 °C og 110 °C nå.
     8a-hete) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=8a-hete") backend=sim:hete warm=${RIGG_OPPVARMING:-125} ;;
+    # Layoutrevisjon: alle sider og innstillingsdeler × bredder × tetthet/skrift.
+    revisjon) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=revisjon") backend=sim warm=${RIGG_OPPVARMING:-12} ;;
     # RIGG_OPPGAVER_BACKEND=sim viser GPU-kortet med simulerte data (merk bildene).
     oppgaver) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=oppgaver") backend=${RIGG_OPPGAVER_BACKEND:-ingen} warm=${RIGG_OPPVARMING:-1} ;;
     7b-ekte) vars=("RIGG_BILDER_2C=$dir" "RIGG_6C_PLAN=7b-ekte") wargs="--side kontroller" ;;

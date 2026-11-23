@@ -12,7 +12,7 @@ msgstr ""
 msgid "Navn"
 msgstr "名称"
 
-#: crates/rigg/src/pages/oppgaver.rs:31 crates/rigg/src/pages/oppgaver.rs:1191
+#: crates/rigg/src/pages/oppgaver.rs:31 crates/rigg/src/pages/oppgaver.rs:1209
 msgid "Bruker"
 msgstr "用户"
 
@@ -20,7 +20,7 @@ msgstr "用户"
 msgid "Minne"
 msgstr "内存"
 
-#: crates/rigg/src/pages/oppgaver.rs:35 crates/rigg/src/pages/oppgaver.rs:1203
+#: crates/rigg/src/pages/oppgaver.rs:35 crates/rigg/src/pages/oppgaver.rs:1221
 msgid "GPU-minne"
 msgstr "GPU 内存"
 
@@ -28,7 +28,7 @@ msgstr "GPU 内存"
 msgid "Status"
 msgstr "状态"
 
-#: crates/rigg/src/pages/oppgaver.rs:298 crates/rigg/src/pages/oppgaver.rs:503
+#: crates/rigg/src/pages/oppgaver.rs:298 crates/rigg/src/pages/oppgaver.rs:504
 msgid "Henter ny prøve …"
 msgstr "正在获取新样本…"
 
@@ -88,436 +88,436 @@ msgstr "{navn}\n内核线程 · PID {pid}"
 msgid "{navn}\nPID {pid} · forelder {forelder}"
 msgstr "{navn}\nPID {pid} · 父进程 {forelder}"
 
-#: crates/rigg/src/pages/oppgaver.rs:452
+#: crates/rigg/src/pages/oppgaver.rs:453
 msgid "100 % tilsvarer én logisk CPU. Flertrådede oppgaver kan overstige 100 %. Første prøve vises som –."
 msgstr "100% 对应一个逻辑 CPU。多线程任务的使用率可以超过 100%。首个样本显示为“–”。"
 
-#: crates/rigg/src/pages/oppgaver.rs:454
+#: crates/rigg/src/pages/oppgaver.rs:455
 msgid "Kjernetråder har ikke eget minne i brukerrommet."
 msgstr "内核线程没有自己的用户空间内存。"
 
-#: crates/rigg/src/pages/oppgaver.rs:456
+#: crates/rigg/src/pages/oppgaver.rs:457
 msgid "Privat minne i RAM (uten delte sider). RSS med delte sider: {rss}."
 msgstr "RAM 中的私有内存（不含共享页）。含共享页的 RSS：{rss}。"
 
-#: crates/rigg/src/pages/oppgaver.rs:458
+#: crates/rigg/src/pages/oppgaver.rs:459
 msgid "Minne prosessen har fått flyttet til swap på disk."
 msgstr "该进程被移至磁盘交换空间的内存。"
 
-#: crates/rigg/src/pages/oppgaver.rs:459 crates/rigg/src/pages/oppgaver.rs:699
+#: crates/rigg/src/pages/oppgaver.rs:460 crates/rigg/src/pages/oppgaver.rs:700
 msgid "Videominne rapportert per prosess av NVIDIA-driveren. – betyr at målingen ikke er tilgjengelig, ikke null."
 msgstr "由 NVIDIA 驱动报告的各进程显存用量。“–”表示无读数，而非零。"
 
-#: crates/rigg/src/pages/oppgaver.rs:488
+#: crates/rigg/src/pages/oppgaver.rs:489
 msgid "{range} av {matched} rader · {total} oppgaver"
 msgid_plural "{range} av {matched} rader · {total} oppgaver"
 msgstr[0] "{range} / {matched} 行 · {total} 个任务"
 
-#: crates/rigg/src/pages/oppgaver.rs:490
+#: crates/rigg/src/pages/oppgaver.rs:491
 msgid "{range} av {matched} · {total} oppgaver"
 msgid_plural "{range} av {matched} · {total} oppgaver"
 msgstr[0] "{range} / {matched} · {total} 项任务"
 
-#: crates/rigg/src/pages/oppgaver.rs:497
+#: crates/rigg/src/pages/oppgaver.rs:498
 msgid "Leser oppgaver … CPU blir tilgjengelig etter neste prøve."
 msgstr "正在读取任务…下次采样后将显示 CPU 利用率。"
 
-#: crates/rigg/src/pages/oppgaver.rs:499
+#: crates/rigg/src/pages/oppgaver.rs:500
 msgid "Ingen oppgaver passer søket."
 msgstr "没有符合搜索条件的任务。"
 
-#: crates/rigg/src/pages/oppgaver.rs:505 crates/rigg/src/pages/oppgaver.rs:1399
+#: crates/rigg/src/pages/oppgaver.rs:506 crates/rigg/src/pages/oppgaver.rs:1417
 msgid "Oppdatering pauset · F5 oppdaterer én gang"
 msgstr "已暂停更新 · 按 F5 刷新一次"
 
-#: crates/rigg/src/pages/oppgaver.rs:507
+#: crates/rigg/src/pages/oppgaver.rs:508
 msgid "Eldre prøve · {verdi} s"
 msgstr "旧样本 · {verdi} s"
 
-#: crates/rigg/src/pages/oppgaver.rs:509
+#: crates/rigg/src/pages/oppgaver.rs:510
 msgid "Oppdateres hvert 2. sekund · prøve {verdi} s gammel"
 msgstr "每 2 s 更新 · 样本采集于 {verdi} s 前"
 
-#: crates/rigg/src/pages/oppgaver.rs:516
+#: crates/rigg/src/pages/oppgaver.rs:517
 msgid " · {unreadable} utilgjengelige"
 msgstr " · {unreadable} 项不可用"
 
-#: crates/rigg/src/pages/oppgaver.rs:519
+#: crates/rigg/src/pages/oppgaver.rs:520
 msgid "Sorter etter GPU-minne. {note}"
 msgstr "按 GPU 内存排序。{note}"
 
-#: crates/rigg/src/pages/oppgaver.rs:560
+#: crates/rigg/src/pages/oppgaver.rs:561
 msgid "{navn} · {antall} prosesser"
 msgstr "{navn} · {antall} 个进程"
 
-#: crates/rigg/src/pages/oppgaver.rs:561
+#: crates/rigg/src/pages/oppgaver.rs:562
 msgid "{navn} · PID {pid} · kjernetråd"
 msgstr "{navn} · PID {pid} · 内核线程"
 
-#: crates/rigg/src/pages/oppgaver.rs:563 crates/rigg/src/pages/oppgaver.rs:1162
+#: crates/rigg/src/pages/oppgaver.rs:564 crates/rigg/src/pages/oppgaver.rs:1176
 msgid "Ingen oppgave valgt"
 msgstr "未选择任务"
 
-#: crates/rigg/src/pages/oppgaver.rs:570
+#: crates/rigg/src/pages/oppgaver.rs:571
 msgid "Velg en rad for å se kommando, minne, disk-I/O og starttid. Grupper foldes ut med pilen eller Enter."
 msgstr "选择一行可查看命令、内存、磁盘 I/O 和启动时间。用箭头或 Enter 展开分组。"
 
-#: crates/rigg/src/pages/oppgaver.rs:572
+#: crates/rigg/src/pages/oppgaver.rs:573
 msgid "Oppdater oppgavelisten før du avslutter en oppgave."
 msgstr "请先刷新列表，再结束任务。"
 
-#: crates/rigg/src/pages/oppgaver.rs:574
+#: crates/rigg/src/pages/oppgaver.rs:575
 msgid "Kan ikke avsluttes: {grunn}"
 msgstr "无法结束：{grunn}"
 
-#: crates/rigg/src/pages/oppgaver.rs:575
+#: crates/rigg/src/pages/oppgaver.rs:576
 msgid "Avslutt sender en vanlig forespørsel om å avslutte (SIGTERM)."
 msgstr "“结束”会发送普通的退出请求（SIGTERM）。"
 
-#: crates/rigg/src/pages/oppgaver.rs:640 crates/rigg/src/pages/oppgaver.rs:670
+#: crates/rigg/src/pages/oppgaver.rs:641 crates/rigg/src/pages/oppgaver.rs:671
 msgid "ingen tilgang"
 msgstr "无权访问"
 
-#: crates/rigg/src/pages/oppgaver.rs:654
+#: crates/rigg/src/pages/oppgaver.rs:655
 msgid "Ikke tilgjengelig for denne prosessen."
 msgstr "此进程不可用。"
 
-#: crates/rigg/src/pages/oppgaver.rs:655
+#: crates/rigg/src/pages/oppgaver.rs:656
 msgid "Krever at prosessen tilhører deg, eller root. Kjernen gir ikke andre brukere tilgang."
 msgstr "需要进程属于您，或使用 root。内核不允许其他用户访问。"
 
-#: crates/rigg/src/pages/oppgaver.rs:661
+#: crates/rigg/src/pages/oppgaver.rs:662
 msgid "Summen av gruppens private minne i RAM."
 msgstr "该组在 RAM 中私有内存的总和。"
 
-#: crates/rigg/src/pages/oppgaver.rs:675
+#: crates/rigg/src/pages/oppgaver.rs:676
 msgid "Kjernetråd uten kommandolinje"
 msgstr "无命令行的内核线程"
 
-#: crates/rigg/src/pages/oppgaver.rs:688
+#: crates/rigg/src/pages/oppgaver.rs:689
 msgid "Samlet CPU-tid siden start (bruker + kjerne)."
 msgstr "自启动以来的 CPU 总时间（用户 + 内核）。"
 
-#: crates/rigg/src/pages/oppgaver.rs:690
+#: crates/rigg/src/pages/oppgaver.rs:691
 msgid "Nice-verdi: −20 er høyest prioritet, 19 lavest."
 msgstr "Nice 值：−20 为最高优先级，19 为最低。"
 
-#: crates/rigg/src/pages/oppgaver.rs:691
+#: crates/rigg/src/pages/oppgaver.rs:692
 msgid "Privat minne i RAM (RssAnon): heap, stakk og andre anonyme sider. Dette er kolonnen Minne."
 msgstr "RAM 中的私有内存（RssAnon）：堆、栈和其他匿名页。即“内存”列。"
 
-#: crates/rigg/src/pages/oppgaver.rs:692
+#: crates/rigg/src/pages/oppgaver.rs:693
 msgid "PSS: privat minne pluss en rettferdig andel av delte sider. Summen over alle prosesser gir brukt minne uten dobbeltelling."
 msgstr "PSS：私有内存加上共享页的公平分摊。所有进程的总和即为不重复计算的已用内存。"
 
-#: crates/rigg/src/pages/oppgaver.rs:694
+#: crates/rigg/src/pages/oppgaver.rs:695
 msgid "USS: sider bare denne prosessen bruker. Frigjøres når prosessen avsluttes."
 msgstr "USS：仅此进程使用的页。进程结束时释放。"
 
-#: crates/rigg/src/pages/oppgaver.rs:696
+#: crates/rigg/src/pages/oppgaver.rs:697
 msgid "Delte sider i RAM: biblioteker, filer og delt minne. Telles hos alle prosessene som bruker dem."
 msgstr "RAM 中的共享页：库、文件和共享内存。每个使用它们的进程都会计入。"
 
-#: crates/rigg/src/pages/oppgaver.rs:697
+#: crates/rigg/src/pages/oppgaver.rs:698
 msgid "RSS: privat minne pluss delte sider. Kan ikke summeres over prosesser."
 msgstr "RSS：私有内存加共享页。不能跨进程相加。"
 
-#: crates/rigg/src/pages/oppgaver.rs:706
+#: crates/rigg/src/pages/oppgaver.rs:707
 msgid "Lest fra og skrevet til lagringsenheter siden start, og raten siden forrige prøve."
 msgstr "自启动以来从存储读取和写入的数据量，以及自上次采样以来的速率。"
 
-#: crates/rigg/src/pages/oppgaver.rs:714
+#: crates/rigg/src/pages/oppgaver.rs:715
 msgid "Systemd-enheten prosessen kjører i (cgroup)."
 msgstr "进程所在的 systemd 单元（cgroup）。"
 
-#: crates/rigg/src/pages/oppgaver.rs:729
+#: crates/rigg/src/pages/oppgaver.rs:730
 msgid "Avslutt oppgave?"
 msgstr "要结束任务吗？"
 
-#: crates/rigg/src/pages/oppgaver.rs:741
+#: crates/rigg/src/pages/oppgaver.rs:742
 msgid "Oppgaven får en vanlig forespørsel om å avslutte (SIGTERM). Ulagret arbeid kan gå tapt."
 msgstr "将向任务发送正常终止请求（SIGTERM）。未保存的工作可能会丢失。"
 
-#: crates/rigg/src/pages/oppgaver.rs:749
+#: crates/rigg/src/pages/oppgaver.rs:750
 msgid "Avbryt"
 msgstr "取消"
 
-#: crates/rigg/src/pages/oppgaver.rs:750
+#: crates/rigg/src/pages/oppgaver.rs:751
 msgid "Avslutt oppgave"
 msgstr "结束任务"
 
-#: crates/rigg/src/pages/oppgaver.rs:765
+#: crates/rigg/src/pages/oppgaver.rs:766
 msgid "Avslutning sendt"
 msgstr "已发送终止请求"
 
-#: crates/rigg/src/pages/oppgaver.rs:765
+#: crates/rigg/src/pages/oppgaver.rs:766
 msgid "Oppgaven har mottatt SIGTERM. Den kan bruke litt tid på å avslutte."
 msgstr "任务已收到 SIGTERM，可能需要一点时间才能退出。"
 
-#: crates/rigg/src/pages/oppgaver.rs:766
+#: crates/rigg/src/pages/oppgaver.rs:767
 msgid "Oppgaven ble ikke avsluttet"
 msgstr "任务未结束"
 
-#: crates/rigg/src/pages/oppgaver.rs:820
+#: crates/rigg/src/pages/oppgaver.rs:821
 msgid "{klokke} · {temperatur}"
 msgstr "{klokke} · {temperatur}"
 
-#: crates/rigg/src/pages/oppgaver.rs:821
+#: crates/rigg/src/pages/oppgaver.rs:822
 msgid "Snittklokke over alle tråder: {snitt}. Høyeste: {maks}. Temperatur (Tdie): {temperatur}."
 msgstr "所有线程的平均频率：{snitt}。最高：{maks}。温度（Tdie）：{temperatur}。"
 
-#: crates/rigg/src/pages/oppgaver.rs:824
+#: crates/rigg/src/pages/oppgaver.rs:825
 msgid "Last {verdier}"
 msgstr "负载 {verdier}"
 
-#: crates/rigg/src/pages/oppgaver.rs:825
+#: crates/rigg/src/pages/oppgaver.rs:826
 msgid "Gjennomsnittlig belastning (load average) siste 1, 5 og 15 minutter: prosesser som kjører eller venter. 16 tilsvarer full last på 16 tråder."
 msgstr "过去 1、5 和 15 分钟的平均负载（load average）：正在运行或等待的进程。16 表示 16 个线程满载。"
 
-#: crates/rigg/src/pages/oppgaver.rs:831
+#: crates/rigg/src/pages/oppgaver.rs:832
 msgid "{prosesser} prosesser · {traader} tråder"
 msgstr "{prosesser} 个进程 · {traader} 个线程"
 
-#: crates/rigg/src/pages/oppgaver.rs:833
+#: crates/rigg/src/pages/oppgaver.rs:834
 msgid "{prosesser} prosesser og {kjerne} kjernetråder. Trådene er summen for prosessene som kan leses, pluss kjernetrådene."
 msgstr "{prosesser} 个进程和 {kjerne} 个内核线程。线程数为可读取进程的总和加上内核线程。"
 
-#: crates/rigg/src/pages/oppgaver.rs:852
+#: crates/rigg/src/pages/oppgaver.rs:853
 msgid "Swap brukt: {brukt} av {totalt}. Prosessene har {prosesser} i swap (kolonnen Swap); resten er for det meste delt minne og tmpfs som er flyttet ut."
 msgstr "已用交换：{brukt} / {totalt}。进程占用 {prosesser} 交换空间（“Swap”列）；其余大多是被换出的共享内存和 tmpfs。"
 
-#: crates/rigg/src/pages/oppgaver.rs:858
+#: crates/rigg/src/pages/oppgaver.rs:859
 msgid "{brukt} av {totalt} · {ledig} tilgjengelig"
 msgstr "{brukt} / {totalt} · 可用 {ledig}"
 
-#: crates/rigg/src/pages/oppgaver.rs:859
+#: crates/rigg/src/pages/oppgaver.rs:860
 msgid "Brukt = totalt − tilgjengelig (MemAvailable), som free og GNOME Ressurser."
 msgstr "已用 = 总量 − 可用（MemAvailable），与 free 和 GNOME“资源”一致。"
 
-#: crates/rigg/src/pages/oppgaver.rs:862
+#: crates/rigg/src/pages/oppgaver.rs:863
 msgid "Prosesser {prosesser} · Delt/tmpfs {delt} · Kjerne {kjerne}"
 msgstr "进程 {prosesser} · 共享/tmpfs {delt} · 内核 {kjerne}"
 
-#: crates/rigg/src/pages/oppgaver.rs:863
+#: crates/rigg/src/pages/oppgaver.rs:864
 msgid "Prosesser: anonymt minne (AnonPages), omtrent summen av kolonnen Minne. Delt/tmpfs (Shmem): filer i tmpfs som /tmp og /dev/shm, delt minne og grafikkbuffere; tilhører ingen enkelt prosess. Kjerne: slab som ikke kan frigjøres, kjernestakker og sidetabeller. Annet brukt: {annet} (blant annet reserver kjernen holder av)."
 msgstr "进程：匿名内存（AnonPages），约等于“内存”列之和。共享/tmpfs（Shmem）：/tmp 和 /dev/shm 等 tmpfs 中的文件、共享内存和图形缓冲区；不属于任何单个进程。内核：不可回收的 slab、内核栈和页表。其他已用：{annet}（包括内核保留的储备）。"
 
-#: crates/rigg/src/pages/oppgaver.rs:869
+#: crates/rigg/src/pages/oppgaver.rs:870
 msgid "Cache {cache} · Swap {brukt} av {totalt}"
 msgstr "缓存 {cache} · 交换 {brukt} / {totalt}"
 
-#: crates/rigg/src/pages/oppgaver.rs:870
+#: crates/rigg/src/pages/oppgaver.rs:871
 msgid "Buffer og cache (uten Shmem) kan frigjøres ved behov og regnes som tilgjengelig."
 msgstr "缓冲区和缓存（不含 Shmem）可按需释放，计为可用。"
 
-#: crates/rigg/src/pages/oppgaver.rs:876
+#: crates/rigg/src/pages/oppgaver.rs:877
 msgid "Ingen skjermkort valgt"
 msgstr "未选择显卡"
 
-#: crates/rigg/src/pages/oppgaver.rs:884
+#: crates/rigg/src/pages/oppgaver.rs:885
 msgid "VRAM {brukt} av {totalt}"
 msgstr "显存 {brukt} / {totalt}"
 
-#: crates/rigg/src/pages/oppgaver.rs:886
+#: crates/rigg/src/pages/oppgaver.rs:887
 msgid "Videominne i bruk på kortet, fra driveren."
 msgstr "显卡上正在使用的显存，来自驱动。"
 
-#: crates/rigg/src/pages/oppgaver.rs:889
+#: crates/rigg/src/pages/oppgaver.rs:890
 msgid "{temperatur} · {effekt}"
 msgstr "{temperatur} · {effekt}"
 
-#: crates/rigg/src/pages/oppgaver.rs:890
+#: crates/rigg/src/pages/oppgaver.rs:891
 msgid "Kortets temperatur og effektforbruk."
 msgstr "显卡温度和功耗。"
 
-#: crates/rigg/src/pages/oppgaver.rs:908
+#: crates/rigg/src/pages/oppgaver.rs:909
 msgid "{sekunder} s"
 msgstr "{sekunder} 秒"
 
-#: crates/rigg/src/pages/oppgaver.rs:913
+#: crates/rigg/src/pages/oppgaver.rs:914
 msgid "{timer} t {minutter} min"
 msgstr "{timer} 小时 {minutter} 分"
 
-#: crates/rigg/src/pages/oppgaver.rs:915
+#: crates/rigg/src/pages/oppgaver.rs:916
 msgid "{minutter} min {sekunder} s"
 msgstr "{minutter} 分 {sekunder} 秒"
 
-#: crates/rigg/src/pages/oppgaver.rs:925
+#: crates/rigg/src/pages/oppgaver.rs:926
 msgid "Kjører"
 msgstr "正在运行"
 
-#: crates/rigg/src/pages/oppgaver.rs:926
+#: crates/rigg/src/pages/oppgaver.rs:927
 msgid "Sover"
 msgstr "休眠"
 
-#: crates/rigg/src/pages/oppgaver.rs:927
+#: crates/rigg/src/pages/oppgaver.rs:928
 msgid "Venter"
 msgstr "等待中"
 
-#: crates/rigg/src/pages/oppgaver.rs:928
+#: crates/rigg/src/pages/oppgaver.rs:929
 msgid "Stoppet"
 msgstr "已停止"
 
-#: crates/rigg/src/pages/oppgaver.rs:930
+#: crates/rigg/src/pages/oppgaver.rs:931
 msgid "Inaktiv"
 msgstr "空闲"
 
-#: crates/rigg/src/pages/oppgaver.rs:988
+#: crates/rigg/src/pages/oppgaver.rs:989
 msgid "Fra venstre: prosesser, delt minne/tmpfs, kjerne, annet brukt og buffer/cache. Resten av stolpen er ledig minne."
 msgstr "从左到右：进程、共享内存/tmpfs、内核、其他已用以及缓冲区/缓存。条的其余部分是空闲内存。"
 
-#: crates/rigg/src/pages/oppgaver.rs:991
+#: crates/rigg/src/pages/oppgaver.rs:992
 msgid "CPU · hele systemet"
 msgstr "CPU · 整个系统"
 
-#: crates/rigg/src/pages/oppgaver.rs:994
+#: crates/rigg/src/pages/oppgaver.rs:995
 msgid "Samlet CPU-last, 0–100 %. Oppgavenes CPU-prosent bruker én logisk CPU som 100 %."
 msgstr "CPU 总利用率为 0–100%。单个任务的 CPU 利用率以一个逻辑 CPU 为 100%。"
 
-#: crates/rigg/src/pages/oppgaver.rs:998
+#: crates/rigg/src/pages/oppgaver.rs:999
 msgid "RAM · hele systemet"
 msgstr "RAM · 整个系统"
 
-#: crates/rigg/src/pages/oppgaver.rs:1001
+#: crates/rigg/src/pages/oppgaver.rs:1002
 msgid "Systemets brukte minne, fordelt på prosesser, delt minne/tmpfs og kjernen. Pek på en linje for forklaring."
 msgstr "系统已用内存，分为进程、共享内存/tmpfs 和内核。指向某一行可查看说明。"
 
-#: crates/rigg/src/pages/oppgaver.rs:1005
+#: crates/rigg/src/pages/oppgaver.rs:1006
 msgid "GPU · valgt kort"
 msgstr "GPU · 已选显卡"
 
-#: crates/rigg/src/pages/oppgaver.rs:1008
+#: crates/rigg/src/pages/oppgaver.rs:1009
 msgid "Samlet GPU-last for kortet valgt i sidefeltet. Per-prosess GPU-prosent er ikke tilgjengelig."
 msgstr "侧边栏中所选显卡的 GPU 总利用率。无法获取各进程的 GPU 利用率。"
 
-#: crates/rigg/src/pages/oppgaver.rs:1043
+#: crates/rigg/src/pages/oppgaver.rs:1044
 msgid "Søk etter navn, PID eller bruker"
 msgstr "按名称、PID 或用户搜索"
 
-#: crates/rigg/src/pages/oppgaver.rs:1046
+#: crates/rigg/src/pages/oppgaver.rs:1047
 msgid "Søk i oppgaver"
 msgstr "搜索任务"
 
-#: crates/rigg/src/pages/oppgaver.rs:1048
+#: crates/rigg/src/pages/oppgaver.rs:1049
 msgid "Gruppert"
 msgstr "分组"
 
-#: crates/rigg/src/pages/oppgaver.rs:1048
+#: crates/rigg/src/pages/oppgaver.rs:1049
 msgid "Liste"
 msgstr "列表"
 
-#: crates/rigg/src/pages/oppgaver.rs:1048
+#: crates/rigg/src/pages/oppgaver.rs:1049
 msgid "Tre"
 msgstr "树"
 
-#: crates/rigg/src/pages/oppgaver.rs:1050
+#: crates/rigg/src/pages/oppgaver.rs:1051
 msgid "Visning av oppgavene"
 msgstr "任务视图"
 
-#: crates/rigg/src/pages/oppgaver.rs:1054
+#: crates/rigg/src/pages/oppgaver.rs:1055
 msgid "Samle prosesser med samme navn (alle chrome-prosessene i én rad) og alle kjernetråder. Tallene er summen; fold ut for å se hver prosess."
 msgstr "合并同名进程（所有 chrome 进程显示为一行）以及所有内核线程。数值为总和；展开可查看每个进程。"
 
-#: crates/rigg/src/pages/oppgaver.rs:1055
+#: crates/rigg/src/pages/oppgaver.rs:1056
 msgid "Alle prosesser og kjernetråder hver for seg."
 msgstr "逐个显示所有进程和内核线程。"
 
-#: crates/rigg/src/pages/oppgaver.rs:1056
+#: crates/rigg/src/pages/oppgaver.rs:1057
 msgid "Vis foreldre og barn. Sortering gjelder innen hver familie; ingen summering av barna."
 msgstr "显示父进程和子进程。仅在各进程组内排序，不汇总子进程数据。"
 
-#: crates/rigg/src/pages/oppgaver.rs:1063 crates/rigg/src/pages/oppgaver.rs:1396
+#: crates/rigg/src/pages/oppgaver.rs:1064 crates/rigg/src/pages/oppgaver.rs:1414
 msgid "Pause"
 msgstr "暂停"
 
-#: crates/rigg/src/pages/oppgaver.rs:1066
+#: crates/rigg/src/pages/oppgaver.rs:1067
 msgid "Pause oppgavelisten. Systemgrafene fortsetter å vise felles målinger."
 msgstr "暂停刷新任务列表。系统图表仍会显示系统读数。"
 
-#: crates/rigg/src/pages/oppgaver.rs:1135 crates/rigg/src/pages/oppgaver.rs:1144
+#: crates/rigg/src/pages/oppgaver.rs:1149 crates/rigg/src/pages/oppgaver.rs:1158
 msgid "Leser oppgaver …"
 msgstr "正在读取任务…"
 
-#: crates/rigg/src/pages/oppgaver.rs:1148
+#: crates/rigg/src/pages/oppgaver.rs:1162
 msgid "Forrige"
 msgstr "上一页"
 
-#: crates/rigg/src/pages/oppgaver.rs:1149
+#: crates/rigg/src/pages/oppgaver.rs:1163
 msgid "Neste"
 msgstr "下一页"
 
-#: crates/rigg/src/pages/oppgaver.rs:1170
+#: crates/rigg/src/pages/oppgaver.rs:1188
 msgid "Avslutt oppgave …"
 msgstr "结束任务…"
 
-#: crates/rigg/src/pages/oppgaver.rs:1189
+#: crates/rigg/src/pages/oppgaver.rs:1207
 msgid "Kommando"
 msgstr "命令"
 
-#: crates/rigg/src/pages/oppgaver.rs:1190
+#: crates/rigg/src/pages/oppgaver.rs:1208
 msgid "Prosesser"
 msgstr "进程"
 
-#: crates/rigg/src/pages/oppgaver.rs:1192
+#: crates/rigg/src/pages/oppgaver.rs:1210
 msgid "Startet"
 msgstr "启动时间"
 
-#: crates/rigg/src/pages/oppgaver.rs:1194
+#: crates/rigg/src/pages/oppgaver.rs:1212
 msgid "CPU-tid"
 msgstr "CPU 时间"
 
-#: crates/rigg/src/pages/oppgaver.rs:1195
+#: crates/rigg/src/pages/oppgaver.rs:1213
 msgid "Tråder"
 msgstr "线程"
 
-#: crates/rigg/src/pages/oppgaver.rs:1196
+#: crates/rigg/src/pages/oppgaver.rs:1214
 msgid "Prioritet"
 msgstr "优先级"
 
-#: crates/rigg/src/pages/oppgaver.rs:1197
+#: crates/rigg/src/pages/oppgaver.rs:1215
 msgid "Privat minne"
 msgstr "私有内存"
 
-#: crates/rigg/src/pages/oppgaver.rs:1200
+#: crates/rigg/src/pages/oppgaver.rs:1218
 msgid "Delt"
 msgstr "共享"
 
-#: crates/rigg/src/pages/oppgaver.rs:1204
+#: crates/rigg/src/pages/oppgaver.rs:1222
 msgid "Disk lest"
 msgstr "磁盘读取"
 
-#: crates/rigg/src/pages/oppgaver.rs:1205
+#: crates/rigg/src/pages/oppgaver.rs:1223
 msgid "Disk skrevet"
 msgstr "磁盘写入"
 
-#: crates/rigg/src/pages/oppgaver.rs:1206
+#: crates/rigg/src/pages/oppgaver.rs:1224
 msgid "Forelder"
 msgstr "父进程"
 
-#: crates/rigg/src/pages/oppgaver.rs:1207
+#: crates/rigg/src/pages/oppgaver.rs:1225
 msgid "Enhet"
 msgstr "单元"
 
-#: crates/rigg/src/pages/oppgaver.rs:1246
+#: crates/rigg/src/pages/oppgaver.rs:1264
 msgid "CPU: 100 % = én logisk CPU · Minne: privat minne i RAM, uten delte sider · – = ikke tilgjengelig"
 msgstr "CPU：100 % = 一个逻辑 CPU · 内存：RAM 中的私有内存，不含共享页 · – = 不可用"
 
-#: crates/rigg/src/pages/oppgaver.rs:1252
+#: crates/rigg/src/pages/oppgaver.rs:1270
 msgid "CPU kan overstige 100 %. Minne er privat minne i RAM (RssAnon) og kan summeres; RSS med delte sider står i detaljene. Gruppene summerer prosessene med samme navn. GPU-prosent per oppgave er ikke tilgjengelig; GPU-minne vises bare når driveren leverer det. Felt som krever at prosessen tilhører deg, vises som –."
 msgstr "CPU 可能超过 100 %。“内存”是 RAM 中的私有内存（RssAnon），可以相加；含共享页的 RSS 显示在详情中。分组会汇总同名进程。无法获得每个任务的 GPU 百分比；仅当驱动提供时才显示 GPU 内存。需要进程属于您才能读取的字段显示为 –。"
 
-#: crates/rigg/src/pages/oppgaver.rs:1254
+#: crates/rigg/src/pages/oppgaver.rs:1272
 msgid "Kobler til oppgavetjenesten …"
 msgstr "正在连接任务服务…"
 
-#: crates/rigg/src/pages/oppgaver.rs:1318
+#: crates/rigg/src/pages/oppgaver.rs:1336
 msgid "Sorter etter {title}"
 msgstr "按“{title}”排序"
 
-#: crates/rigg/src/pages/oppgaver.rs:1352
+#: crates/rigg/src/pages/oppgaver.rs:1370
 msgid "Sorter etter privat minne i RAM (uten delte sider)."
 msgstr "按 RAM 中的私有内存排序（不含共享页）。"
 
-#: crates/rigg/src/pages/oppgaver.rs:1396
+#: crates/rigg/src/pages/oppgaver.rs:1414
 msgid "Fortsett"
 msgstr "继续"
