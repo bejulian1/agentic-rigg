@@ -20,6 +20,8 @@ UNIT = 'agentic-rigg-helper.service'
 CONFIG = Path('etc/agentic-rigg/helper.json')
 STATE = Path('var/lib/agentic-rigg')
 DROPIN = Path('etc/systemd/system') / (UNIT + '.d/gpu.conf')
+# Det opprinnelige og de fire nyeste tidligere grunnopptakene beholdes.
+KEEP_PREVIOUS = 5
 FIXTURE = Path(__file__).absolute() != Path('/') / SCRIPTS / 'nvml-admin.py'
 common = runpy.run_path(str(Path(__file__).with_name('rgb-admin.py') if FIXTURE else
                             Path('/usr/local/libexec/agentic-rigg-rgb-v2/rgb-admin.py')))
@@ -111,12 +113,7 @@ class Admin(common['Admin']):
             build = int(match[1])
         self.stop()
         self.clean(auth)
-        old = self.check_file(STATE / 'baseline.json', missing=True)
-        if old is not None:
-            if stat.S_IMODE(old.stat().st_mode) != 0o600 or stat.S_IMODE(old.parent.stat().st_mode) != 0o700:
-                fail('Grunnverdifila og mappa må være private.')
-            with tempfile.NamedTemporaryFile(prefix='baseline-forrige-', suffix='.json', dir=old.parent, delete=False) as dest:
-                old.replace(dest.name)
+        self.archive_baseline()
         self.atomic(self.unit_path, template, 0o644)
         self.atomic(DROPIN, f'[Service]\nDeviceAllow=\nDeviceAllow=/dev/nvidiactl rw\nDeviceAllow=/dev/nvidia{minor} rw\n'.encode(), 0o644)
         self.atomic(CONFIG, json.dumps(dict(versjon=2, uid=self.uid, enabled=True, pci=self.args.pci,
@@ -126,6 +123,48 @@ class Admin(common['Admin']):
         self.systemctl('start', UNIT)
         if self.unit_state() != ('active', False):
             fail('NVML-tjenesten er ikke klar.')
+
+    def previous_baselines(self):
+        """Trygge `baseline-forrige-*.json`, eldste først (opptakstid, navn)."""
+        found = []
+        for entry in os.scandir(self.path(STATE)):
+            if not re.fullmatch(r'baseline-forrige-[A-Za-z0-9_-]{1,80}\.json', entry.name, re.ASCII):
+                continue
+            try:
+                path = self.check_file(STATE / entry.name)
+            except (RuntimeError, OSError):
+                continue  # Rører aldri en fil med feil eier, type eller lenker.
+            found.append((path.lstat().st_mtime_ns, entry.name, path))
+        return [path for *_, path in sorted(found)]
+
+    def archive_baseline(self):
+        """Legg det forrige grunnopptaket til side før hjelperen tar et nytt.
+
+        Hjelperen fanger et ferskt opptak ved hver aktivering (kort, VBIOS og
+        driver kan ha endret seg). Et opptak som allerede er bevart, legges
+        ikke til igjen, og høyst `KEEP_PREVIOUS` beholdes: det eldste
+        (det opprinnelige utgangspunktet) og de nyeste.
+        """
+        old = self.check_file(STATE / 'baseline.json', missing=True)
+        if old is None:
+            return
+        if stat.S_IMODE(old.stat().st_mode) != 0o600 or stat.S_IMODE(old.parent.stat().st_mode) != 0o700:
+            fail('Grunnverdifila og mappa må være private.')
+        current = old.read_bytes()
+        if any(path.read_bytes() == current for path in self.previous_baselines()):
+            self.remove(STATE / 'baseline.json')
+        else:
+            stamp = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ')
+            with tempfile.NamedTemporaryFile(prefix=f'baseline-forrige-{stamp}-', suffix='.json',
+                                             dir=old.parent, delete=False) as dest:
+                old.replace(dest.name)
+        # Opprydding er bare husholdning: en feil her stopper ikke aktiveringen.
+        try:
+            previous = self.previous_baselines()
+            for path in previous[1:max(1, len(previous) - KEEP_PREVIOUS + 1)]:
+                self.remove(path.relative_to(self.root))
+        except (OSError, RuntimeError) as error:
+            print(f'NVML: Eldre grunnopptak ble ikke ryddet: {error}', file=sys.stderr)
 
     def deactivate(self):
         auth = self.authorization()

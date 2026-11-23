@@ -6,7 +6,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
-from contextlib import ExitStack
+from contextlib import ExitStack, contextmanager
 import re
 import stat
 import subprocess
@@ -26,6 +26,8 @@ STATE = Path('/var/lib')
 GPU_INFO = Path('/proc/driver/nvidia/gpus')
 GPU_UUID = r'GPU-[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}'
 MARK = SYSTEM / 'revision'
+SYSTEM_LOCK = '/run/agentic-rigg-system.lock'
+LOCK_FD_ENV = 'AGENTIC_RIGG_SYSTEM_LOCK_FD'
 MAX_ARCHIVE = 64 * 1024**2
 DOMAINS = {'nvml': ('agentic-rigg-helper.service', 'helper.json', 'agentic-rigg', 'dirty.json'),
            'rgb': ('agentic-rigg-rgb.service', 'rgb.json', 'agentic-rigg-rgb', 'journal.json')}
@@ -322,6 +324,36 @@ def uninstall():
     print('Systemkomponentene er fjernet. Eventuelle arkiver er beholdt.')
 
 
+@contextmanager
+def system_lock(path=SYSTEM_LOCK):
+    """Den felles administratorlåsen. system-hent.py holder den gjennom en hel
+    oppdatering og gir den videre som et arvet filhåndtak (`LOCK_FD_ENV`);
+    ellers tas den her."""
+    raw = os.environ.get(LOCK_FD_ENV)
+    if raw is not None:
+        if not re.fullmatch(r'[3-9]|[1-9][0-9]{1,4}', raw, re.ASCII):
+            raise ValueError('Ugyldig arvet systemlås.')
+        fd = int(raw)
+        held, named = os.fstat(fd), os.lstat(path)
+        if (not stat.S_ISREG(held.st_mode) or held.st_uid != os.geteuid()
+                or (held.st_dev, held.st_ino) != (named.st_dev, named.st_ino)):
+            raise ValueError('Det arvede filhåndtaket er ikke systemlåsen.')
+        try:
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            raise ValueError('En annen administratorhandling pågår. Vent og prøv igjen.') from None
+        # Aldri LOCK_UN: låsen tilhører den som ga den videre.
+        yield
+        return
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600)
+    with os.fdopen(fd, 'wb') as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            raise ValueError('En annen administratorhandling pågår. Vent og prøv igjen.') from None
+        yield
+
+
 def main():
     parser = argparse.ArgumentParser(allow_abbrev=False)
     action = parser.add_mutually_exclusive_group()
@@ -333,12 +365,7 @@ def main():
     if os.geteuid() != 0:
         parser.error('Systeminstallasjon krever administrator.')
     os.umask(0o022)
-    fd = os.open('/run/agentic-rigg-system.lock', os.O_WRONLY | os.O_CREAT | os.O_NOFOLLOW, 0o600)
-    with os.fdopen(fd, 'wb') as lock:
-        try:
-            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except BlockingIOError:
-            raise ValueError('En annen administratorhandling pågår. Vent og prøv igjen.') from None
+    with system_lock():
         if args.uninstall and not args.values:
             uninstall()
         elif args.archive_removed_card and len(args.values) == 1:

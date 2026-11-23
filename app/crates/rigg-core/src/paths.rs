@@ -111,6 +111,30 @@ pub fn hicolor_dir() -> PathBuf {
     xdg("XDG_DATA_HOME", ".local/share").join("icons").join("hicolor")
 }
 
+/// `~/.local/share/agentic-rigg/SYSTEMFILER.sha256`: summene for
+/// systemfilene i utgivelsesarkivet brukeren installerte appen fra
+/// (`install.sh` legger den hit, eller fjerner den ved kildebygg).
+pub fn release_manifest() -> PathBuf {
+    xdg("XDG_DATA_HOME", ".local/share").join("agentic-rigg").join("SYSTEMFILER.sha256")
+}
+
+/// Kort rot for Unix-sockets og adminskriptenes testfixturer.
+///
+/// En socketsti har plass til 107 byte (`SUN_LEN`), og adminskriptene godtar
+/// bare testrøtter under `/tmp`. Peker `TMPDIR` et annet sted eller til en
+/// lang sti (sandkasser, Nix, CI), brukes `/tmp` direkte.
+pub fn short_tmp() -> PathBuf {
+    short_tmp_from(env::temp_dir())
+}
+
+fn short_tmp_from(dir: PathBuf) -> PathBuf {
+    if dir.starts_with("/tmp") && dir.as_os_str().len() <= 32 {
+        dir
+    } else {
+        PathBuf::from("/tmp")
+    }
+}
+
 /// `~` foran en sti erstatter hjemmemappa, til visning.
 pub fn tilde(path: &std::path::Path) -> String {
     let h = home();
@@ -118,5 +142,29 @@ pub fn tilde(path: &std::path::Path) -> String {
         Ok(rest) if rest.as_os_str().is_empty() => "~".into(),
         Ok(rest) => format!("~/{}", rest.display()),
         Err(_) => path.display().to_string(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn kort_testrot_holder_socketstier_under_sun_len() {
+        for (tmpdir, expected) in [
+            ("/tmp", "/tmp"),
+            ("/tmp/rigg-1000", "/tmp/rigg-1000"),
+            ("/home/bruker/.cache/sandkasse", "/tmp"),
+            ("/nix/store/build-tmp", "/tmp"),
+            ("/tmpfoo", "/tmp"),
+            ("/tmp/en-veldig-lang-midlertidig-mappe-fra-ci", "/tmp"),
+        ] {
+            assert_eq!(short_tmp_from(PathBuf::from(tmpdir)), PathBuf::from(expected), "{tmpdir}");
+        }
+        // Lengste rot pluss den lengste fixturdelen må ha plass i sun_path.
+        let root = short_tmp();
+        assert!(root.starts_with("/tmp") && root.as_os_str().len() <= 32);
+        let socket = root.join("riggd-kontrakt-4294967295-999/run/agentic-rigg/riggd-dev.sock");
+        assert!(socket.as_os_str().len() < 108, "{}", socket.display());
     }
 }

@@ -736,7 +736,7 @@ mod tests {
         use crate::store::Store;
         use serde_json::json;
 
-        let root = glib::mkdtemp(std::env::temp_dir().join("rigg-tray-XXXXXX")).unwrap();
+        let root = glib::mkdtemp(rigg_core::paths::short_tmp().join("rigg-tray-XXXXXX")).unwrap();
         let socket = root.join("riggd.sock");
         let listener = std::os::unix::net::UnixListener::bind(&socket).unwrap();
         let context = glib::MainContext::new();
@@ -899,7 +899,7 @@ mod tests {
             #[allow(clippy::disallowed_methods)] // bare i testen: en privat buss
             let mut child = std::process::Command::new("dbus-daemon")
                 .args(["--session", "--nofork", "--nopidfile", "--print-address=1"])
-                .arg(format!("--address=unix:tmpdir={}", std::env::temp_dir().display()))
+                .arg(format!("--address=unix:tmpdir={}", rigg_core::paths::short_tmp().display()))
                 .stdout(std::process::Stdio::piped())
                 .stderr(std::process::Stdio::null())
                 .spawn()

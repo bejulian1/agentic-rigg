@@ -20,7 +20,7 @@ struct Daemon {
 fn tmpdir(tag: &str) -> PathBuf {
     use std::sync::atomic::{AtomicU32, Ordering};
     static N: AtomicU32 = AtomicU32::new(0);
-    let d = std::env::temp_dir().join(format!(
+    let d = rigg_core::paths::short_tmp().join(format!(
         "riggd-{tag}-{}-{}",
         std::process::id(),
         N.fetch_add(1, Ordering::Relaxed)

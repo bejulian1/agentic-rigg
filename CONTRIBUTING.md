@@ -59,6 +59,7 @@ Automated tests and private GTK screenshot sessions **must be completely isolate
 - Always use temporary, private directories for helper root, configuration, socket, and baseline files (e.g., `--socket`, `--config`, `--baseline`, and `RIGG_HJELPER_ROT` / temporary `HOME` / `XDG_*` paths).
 - **Never** fall back to host paths (`/run/agentic-rigg/helper.sock`, `/etc/agentic-rigg/helper.json`, or `/var/lib/agentic-rigg`) in any test fixture.
 - Tests must pass even when a real, activated GPU helper is running on the developer's machine.
+- Unix-socket and admin-script fixtures must not depend on `TMPDIR`: use `rigg_core::paths::short_tmp()` (or `/tmp` for the admin scripts, which only accept roots under `/tmp`) so socket paths stay below `SUN_LEN` when `TMPDIR` is long or outside `/tmp`.
 - For concurrent worktrees sharing a Cargo cache, use a distinct Cargo profile and pin its freshly built `agentic-rigg-helper` in a private `0700` directory under `/tmp` with `RIGG_TEST_HJELPER_BIN`. Only the simulated daemon integration test reads this override; it avoids rebuilding or picking another worktree's helper while the suite runs.
 
 ## Hardware-Safety Rules

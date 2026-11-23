@@ -8,50 +8,54 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg/src/system_install.rs:108
+#: crates/rigg/src/system_install.rs:145
 msgid "Kjør kommandoen i en administratorterminal. Oppgi arkivstien og SHA-256 fra utgivelsessiden."
 msgstr "管理者の端末でコマンドを実行してください。アーカイブのパスとリリースページの SHA-256 を入力してください。"
 
-#: crates/rigg/src/system_install.rs:115
+#: crates/rigg/src/system_install.rs:152
 msgid "Kopier installasjonskommando"
 msgstr "インストールコマンドをコピー"
 
-#: crates/rigg/src/system_install.rs:121
+#: crates/rigg/src/system_install.rs:158
 msgid "Uten nett: bruk terminal"
 msgstr "オフライン: 端末を使う"
 
-#: crates/rigg/src/system_install.rs:136
+#: crates/rigg/src/system_install.rs:200
+msgid "Summene fra utgivelsesarkivet appen ble installert fra, er ugyldige eller hører til en annen versjon. Installer appen på nytt fra utgivelsesarkivet, eller bruk terminalkommandoen."
+msgstr "このアプリをインストールしたリリースアーカイブのチェックサムが無効か、別のバージョンのものです。リリースアーカイブからアプリを再インストールするか、端末コマンドを使ってください。"
+
+#: crates/rigg/src/system_install.rs:256
 msgid "Passordet ble ikke gitt. Ingenting er endret."
 msgstr "パスワードが入力されなかったため、変更はありません。"
 
-#: crates/rigg/src/system_install.rs:137
+#: crates/rigg/src/system_install.rs:257
 msgid "Fant ikke pkexec, eller ingen kan spørre om passordet (polkit)."
 msgstr "pkexecが見つからないか、polkitでパスワードを要求できません。"
 
-#: crates/rigg/src/system_install.rs:139
+#: crates/rigg/src/system_install.rs:259
 msgid "Fikk ikke kontakt med GitHub. Sjekk nettet, eller bruk terminalkommandoen."
 msgstr "GitHub に接続できません。ネットワークを確認するか、端末のコマンドを使用してください。"
 
-#: crates/rigg/src/system_install.rs:140
+#: crates/rigg/src/system_install.rs:260
 msgid "Fant ikke utgivelsen for denne versjonen på GitHub."
 msgstr "このバージョンのリリースが GitHub に見つかりません。"
 
-#: crates/rigg/src/system_install.rs:142
+#: crates/rigg/src/system_install.rs:262
 msgid "Nedlastingen stemmer ikke med summen GitHub oppgir. Ingen systemfiler er endret."
 msgstr "ダウンロードしたファイルが GitHub の公開チェックサムと一致しません。システムファイルは変更されていません。"
 
-#: crates/rigg/src/system_install.rs:143
+#: crates/rigg/src/system_install.rs:263
 msgid "Installasjonen feilet. Ingen nye tilganger er gitt."
 msgstr "インストールに失敗しました。新しい権限は付与されていません。"
 
-#: crates/rigg/src/system_install.rs:144
+#: crates/rigg/src/system_install.rs:264
 msgid "Installasjonen feilet: {feil}"
 msgstr "インストールに失敗しました: {feil}"
 
-#: crates/rigg/src/system_install.rs:158
+#: crates/rigg/src/system_install.rs:278
 msgid "Vent til den andre administratorhandlingen er ferdig"
 msgstr "別の管理者操作が終わるまでお待ちください"
 
-#: crates/rigg/src/system_install.rs:180 crates/rigg/src/system_install.rs:195
+#: crates/rigg/src/system_install.rs:286 crates/rigg/src/system_install.rs:312 crates/rigg/src/system_install.rs:357
 msgid "Installasjonen ble ikke fullført"
 msgstr "インストールは完了しませんでした"

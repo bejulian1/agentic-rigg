@@ -132,6 +132,8 @@ appen under ~/.local, med ikon i programmenyen. Den bygger ingenting.
 En allerede kjørende Agentic Rigg-brukertjeneste kan startes på nytt.
 Root-komponentene følger med. Installer dem separat fra det verifiserte arkivet
 med kommandoen i RGB-HJELPER.md. Brukerinstallasjonen aktiverer ingen hjelpere.
+install.sh legger SYSTEMFILER.sha256 hos brukeren. Installerer appen senere
+systemkomponentene selv, godtas bare en nedlasting med nøyaktig de filene.
 Ekte GPU-styring aktiveres separat i Innstillinger › Skjermkortstyring,
 med én administratorgodkjenning. Støttede endringer i effekt, vifter og
 klokkeoffset sendes med Bruk og må beholdes innen fristen. Hjelperen bindes
@@ -154,6 +156,26 @@ LISENSER.md inneholder lisensene. PATCHLOG.md beskriver endringene.
 README-UTVIKLING.md er den utfyllende prosjektveiledningen og inneholder
 også byggeinstruksjoner; de er ikke nødvendige for dette ferdigbygde arkivet.
 """.encode("utf-8")
+
+
+# Samme mønster som SYSTEM_PATH i data/hjelper/system-hent.py.
+SYSTEM_PATH = re.compile(r"bin/[A-Za-z0-9._-]{1,64}|version\.json|data/hjelper/[A-Za-z0-9._-]{1,64}", re.ASCII)
+
+
+def system_manifest(files):
+    """SYSTEMFILER.sha256 (sha256sum-format) for alle systemrelevante filer.
+
+    install.sh legger fila hos brukeren. Ett-klikks systeminstallasjon krever
+    deretter at arkivet den laster ned har nøyaktig disse filene.
+    """
+    lines = []
+    for name, path, _ in sorted(files):
+        if SYSTEM_PATH.fullmatch(name):
+            with path.open("rb") as source:
+                lines.append(f"{hashlib.file_digest(source, 'sha256').hexdigest()}  {name}\n")
+    if not {"version.json", "bin/agentic-rigg-helper", "data/hjelper/system-install"} <= {line[66:-1] for line in lines}:
+        fail("Systemfilene mangler i pakkelisten.")
+    return "".join(lines).encode("ascii")
 
 
 def entry(name, size, executable=False):
@@ -191,7 +213,7 @@ def package(args):
         with temp_archive.open("wb") as raw:
             with gzip.GzipFile(filename="", mode="wb", fileobj=raw, mtime=0) as zipped:
                 with tarfile.open(fileobj=zipped, mode="w", format=tarfile.PAX_FORMAT) as tar:
-                    texts = {"README.md": readme(metadata)}
+                    texts = {"README.md": readme(metadata), "SYSTEMFILER.sha256": system_manifest(files)}
                     if args.commit:
                         texts["SOURCE_COMMIT.txt"] = (args.commit.lower() + "\n").encode("ascii")
                     for name, content in sorted(texts.items()):
