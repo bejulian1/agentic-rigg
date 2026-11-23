@@ -103,6 +103,24 @@ fn aktivering_binder_kort_og_deaktivering_krever_eier_ikke_kort() {
 }
 
 #[test]
+fn gpu_tillatelse_maa_vaere_et_json_objekt() {
+    let root = fixture("ugyldig-tillatelse");
+    let config = root.join("etc/agentic-rigg/helper.json");
+    std::fs::DirBuilder::new().recursive(true).mode(0o755)
+        .create(config.parent().unwrap()).unwrap();
+    for value in ["[]", "null"] {
+        std::fs::write(&config, value).unwrap();
+        std::fs::set_permissions(&config, std::fs::Permissions::from_mode(0o600)).unwrap();
+        let out = admin(&root, "deactivate", "1000", &[]);
+        let error = String::from_utf8_lossy(&out.stderr);
+        assert_eq!(out.status.code(), Some(1));
+        assert!(error.contains("GPU-tillatelsen må være et JSON-objekt."), "{error}");
+        assert!(!error.contains("Traceback"), "{error}");
+    }
+    std::fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
 fn uavklart_nvml_beholdes_og_ren_aktivering_arkiverer_grunnverdiene() {
     let root = fixture("grunnopptak");
     let state = root.join("var/lib/agentic-rigg");

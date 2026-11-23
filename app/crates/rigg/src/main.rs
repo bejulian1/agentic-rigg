@@ -41,7 +41,7 @@ fn help() -> &'static str {
                         oppgaver, prosessor, disker, system, kontroller (Klokker og
                         effekt), viftekurve (Vifter) eller lys (RGB-lys)
   --innstillinger DEL   åpne Innstillinger (generelt, utseende, format,
-                        sidefelt, grafer, logging, data eller om)
+                        sidefelt, grafer, logging, styring, data eller om)
   --hint                et hint om en liten overraskelse du ikke har funnet
   --version             skriv versjonen")
 }

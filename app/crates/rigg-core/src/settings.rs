@@ -79,7 +79,7 @@ pub const STATUS_MAX: usize = 8;
 pub const CHARTS: [&str; 13] = ["gpuTemp", "gpuLoad", "coreClock", "memClock", "power", "fan", "vram", "cpuLoad", "cpuTemp", "mem", "net", "diskTemp", "diskIo"];
 pub const INFOBARS: [&str; 3] = ["kontroller", "viftekurve", "lys"];
 pub const CONFIRM_CHOICES: [u32; 4] = [10, 15, 30, 60];
-pub const SECTIONS: [&str; 8] = ["generelt", "utseende", "format", "sidefelt", "grafer", "logging", "data", "om"];
+pub const SECTIONS: [&str; 9] = ["generelt", "utseende", "format", "sidefelt", "grafer", "logging", "styring", "data", "om"];
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -721,6 +721,14 @@ mod tests {
 
     fn imp(v: Value) -> Result<Settings, ValidationError> {
         merge(&Settings::default(), &v)
+    }
+
+    #[test]
+    fn styring_beholdes_som_innstillingsseksjon() {
+        let loaded = lenient(&json!({"settingsSection": "styring"}));
+        assert_eq!(loaded.settings_section, "styring");
+        let merged = imp(loaded.to_value()).unwrap();
+        assert_eq!(merged.to_value()["settingsSection"], "styring");
     }
 
     #[test]

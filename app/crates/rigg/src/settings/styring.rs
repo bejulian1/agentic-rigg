@@ -49,8 +49,8 @@ fn state_text(app: &App) -> String {
     match locked::helper_state(app).as_str() {
         "on" if locked::control_ready(app) => tr!("Styring er klar for det valgte skjermkortet. Endringer brukes først når du trykker Bruk.").into(),
         "on" if locked::gate(app) == rigg_core::txn::Gate::Sim => tr!("Simulert styring. Det ekte skjermkortet endres ikke.").into(),
-        "on" | "error" => h["message"].as_str().map(display_diagnostic).map(|text| text.into_owned()).unwrap_or_else(|| tr!("Hjelperen er ikke klar for kortet som vises. Se funksjonsstøtten under, eller trykk Sjekk igjen.").into()),
-        "outdated" => tr!("Hjelperen må oppdateres. Slå på bryteren for å oppdatere den og aktivere styring.").into(),
+        "outdated" if app.profile.is_dev() || !crate::system_install::newer_installed() => tr!("Hjelperen må oppdateres. Slå på bryteren for å oppdatere den og aktivere styring.").into(),
+        "on" | "error" | "outdated" => h["message"].as_str().map(display_diagnostic).map(|text| text.into_owned()).unwrap_or_else(|| tr!("Hjelperen er ikke klar for kortet som vises. Se funksjonsstøtten under, eller trykk Sjekk igjen.").into()),
         _ if installable(app) => tr!("Systemkomponentene mangler. Slå på bryteren for å installere dem og aktivere styring.").into(),
         _ if admin(app, true).is_none() => tr!("Systemkomponentene mangler eller må oppdateres.").into(),
         _ => tr!("Bare visning. Endring av skjermkortet er slått av.").into(),
@@ -310,7 +310,8 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     status_row.widget.add_css_class("helper-status-row");
 
     let mut rows = vec![main_row, status_row];
-    if !app.profile.is_dev() && (state == "outdated" || ((active || app.data.borrow().backend == "nvml") && admin(app, true).is_none())) {
+    if !app.profile.is_dev() && !crate::system_install::newer_installed()
+        && (state == "outdated" || ((active || app.data.borrow().backend == "nvml") && admin(app, true).is_none())) {
         rows.push(custom_row(&crate::system_install::offline_fallback(), &kw("systemkomponenter installasjon terminal", tr!("søkeord", "systemkomponenter installasjon terminal"))));
     }
     let toggle_group = group(

@@ -8,7 +8,6 @@ import os
 from pathlib import Path
 from contextlib import ExitStack
 import re
-import shutil
 import stat
 import subprocess
 import sys
@@ -25,7 +24,9 @@ UNITS = Path('/etc/systemd/system')
 RUN = Path('/run/systemd/system')
 STATE = Path('/var/lib')
 GPU_INFO = Path('/proc/driver/nvidia/gpus')
+GPU_UUID = r'GPU-[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}'
 MARK = SYSTEM / 'revision'
+MAX_ARCHIVE = 64 * 1024**2
 DOMAINS = {'nvml': ('agentic-rigg-helper.service', 'helper.json', 'agentic-rigg', 'dirty.json'),
            'rgb': ('agentic-rigg-rgb.service', 'rgb.json', 'agentic-rigg-rgb', 'journal.json')}
 ASSETS = {LIB / 'agentic-rigg-helper': ('bin/agentic-rigg-helper', 0o755),
@@ -99,6 +100,20 @@ def remove_active(domain):
     ctl('daemon-reload')
 
 
+def require_card_absent(uuid):
+    try:
+        for gpu in GPU_INFO.iterdir():
+            info = (gpu / 'information').read_text()
+            fields = re.findall(r'^GPU UUID:([^\r\n]*)', info, re.MULTILINE)
+            found = fields[0].strip() if len(fields) == 1 else ''
+            if not re.fullmatch(GPU_UUID, found):
+                raise ValueError(f'GPU-oversikten har ingen entydig, gyldig UUID for {gpu.name}. Arkivering avbrutt.')
+            if found.lower() == uuid.lower():
+                raise ValueError('Bundet kort finnes fortsatt. Bruk vanlig gjenoppretting.')
+    except (OSError, UnicodeError) as error:
+        raise ValueError(f'Kunne ikke kontrollere NVIDIA-driverens GPU-oversikt. Arkivering avbrutt: {error}') from error
+
+
 def archive_state(domain, removed_uuid=None, *, revoke=False):
     config, journal, unit, _ = active_files(domain)
     if not stopped(unit.name):
@@ -132,14 +147,7 @@ def archive_state(domain, removed_uuid=None, *, revoke=False):
                 raise ValueError(f"Bundet kort: {binding['pci']} {binding['uuid']}")
             if not re.fullmatch(r'[\da-fA-F]{4}:[\da-fA-F]{2}:[\da-fA-F]{2}\.[0-7]', binding['pci']):
                 raise ValueError('Ugyldig arkivbinding.')
-            try:
-                info = (GPU_INFO / binding['pci'] / 'information').read_text()
-            except FileNotFoundError:
-                pass
-            else:
-                fields = dict(line.split(':', 1) for line in info.splitlines() if ':' in line)
-                if fields['GPU UUID'].strip() == removed_uuid:
-                    raise ValueError('Bundet kort finnes fortsatt. Bruk vanlig gjenoppretting.')
+            require_card_absent(removed_uuid)
             if state.exists():
                 put(receipt, raw, 0o600)
         elif os.path.lexists(journal) or (not revoke and config.exists()):
@@ -164,7 +172,20 @@ def approved_files(source, digest, staging='/var/tmp'):
         raise ValueError('Forventet en separat SHA-256 med 64 heksadesimale tegn.')
     with tempfile.TemporaryDirectory(dir=staging) as temp:
         copy = Path(temp) / 'release'
-        shutil.copyfile(source, copy)
+        fd = os.open(source, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+        with os.fdopen(fd, 'rb') as stream:
+            info = os.fstat(stream.fileno())
+            if not stat.S_ISREG(info.st_mode):
+                raise ValueError('Pakkearkivet må være en regulær fil.')
+            if info.st_size > MAX_ARCHIVE:
+                raise ValueError('Pakkearkivet er større enn 64 MiB.')
+            remaining = MAX_ARCHIVE
+            with copy.open('xb') as out:
+                while chunk := stream.read(min(1024**2, remaining + 1)):
+                    remaining -= len(chunk)
+                    if remaining < 0:
+                        raise ValueError('Pakkearkivet er større enn 64 MiB.')
+                    out.write(chunk)
         with copy.open('rb') as stream:
             if hashlib.file_digest(stream, 'sha256').hexdigest() != digest.lower():
                 raise ValueError('Kontrollsummen stemmer ikke. Ingen systemfiler endret.')
@@ -177,7 +198,7 @@ def approved_files(source, digest, staging='/var/tmp'):
                 roots.add(root)
                 if key not in wanted:
                     continue
-                if key in files or not member.isfile() or member.size > 64 * 1024**2:
+                if key in files or not member.isfile() or member.size > MAX_ARCHIVE:
                     raise ValueError('Ugyldig pakkemedlem: ' + key)
                 files[key] = tar.extractfile(member).read()
         if files.keys() != wanted or len(roots) != 1:
@@ -245,6 +266,13 @@ def install(files):
     build = json.loads(files['version.json'])['build']
     if type(build) is not int or not 0 < build <= 0xffffffff:
         raise ValueError('Ugyldig pakkebygg.')
+    try:
+        revision = MARK.read_text()
+    except FileNotFoundError:
+        revision = ''
+    installed = re.fullmatch(r'2:([0-9]+)', revision.rstrip())
+    if installed and int(installed[1]) > build:
+        raise ValueError(f'Kan ikke nedgradere systemkomponentene fra bygg {installed[1]} til {build}.')
     for path in ASSETS:
         directory(path.parent)
     # Også en eldre, uavklart installasjon skal ha den verifiserte,

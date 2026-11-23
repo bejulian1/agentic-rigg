@@ -920,16 +920,19 @@ impl CardLight {
         let chosen_effect = effect_name(&selected_mode);
         let blocked = is_blocked(state);
         let available = connected && bound && !self.busy.get() && helper["busy"] != true;
+        let admin_ui = helper["systemAdmin"] == true;
+        let newer_installed = admin_ui && !self.fixture.get() && !self.app.profile.is_dev()
+            && crate::system_install::newer_installed();
         let badge = if self.busy.get() {
             tr!("Venter …")
         } else if !connected {
             tr!("Frakoblet")
         } else if !present {
             tr!("Kortet er utilgjengelig")
+        } else if !bound && (newer_installed || helper["state"] == "error") {
+            tr!("Ikke klar")
         } else if !bound && helper["state"] == "outdated" {
             tr!("Må oppdateres")
-        } else if !bound && helper["state"] == "error" {
-            tr!("Ikke klar")
         } else if !bound {
             tr!("Ikke aktivert")
         } else if pending {
@@ -972,15 +975,17 @@ impl CardLight {
         } else if helper["state"] == "on" {
             tr!("RGB-tillatelsen gjelder ikke kortet som er valgt. Ingen endringer kan sendes her.")
                 .into()
+        } else if newer_installed || helper["state"] == "error" {
+            tr!("RGB-hjelperen er ikke klar. Se «Detaljer og feilsøking» nedenfor.").into()
         } else if helper["state"] == "outdated" {
             tr!("Velg lys og trykk «Bruk». RGB-hjelperen oppdateres først, og du skriver passordet én gang.").into()
-        } else if helper["state"] == "error" {
-            tr!("RGB-hjelperen er ikke klar. Se «Detaljer og feilsøking» nedenfor.").into()
         } else {
             tr!("Velg lys og trykk «Bruk». Første gang aktiveres kortlyset med passordet ditt.").into()
         };
         set_text(&self.summary, &message);
-        if self.message.borrow().is_none() {
+        if newer_installed {
+            self.summary.set_tooltip_text(Some(&message));
+        } else if self.message.borrow().is_none() {
             self.summary.set_tooltip_text(helper["message"].as_str());
         }
         set_text(
@@ -1101,7 +1106,6 @@ impl CardLight {
         self.brightness_box.set_sensitive(!off && !self.busy.get());
         self.mode.root.set_sensitive(!self.busy.get());
         let chosen_id = chosen_effect.map(|_| selected_mode.as_str());
-        let admin_ui = helper["systemAdmin"] == true;
         let activation = admin_paths(&self.app, &helper, AdminAction::Activate);
         let installable = installable(&self.app, &helper);
         let admin_available = connected
@@ -1144,7 +1148,8 @@ impl CardLight {
         // Mangler systemkomponentene, installerer «Bruk» dem med samme
         // passord. Terminalkommandoen er reserven uten nett.
         self.install_prompt.set_visible(
-            !self.app.profile.is_dev() && helper["systemAdmin"] == true && (helper["state"] == "outdated" || activation.is_err()),
+            !self.app.profile.is_dev() && admin_ui && !newer_installed
+                && (helper["state"] == "outdated" || activation.is_err()),
         );
         let deactivation = admin_paths(&self.app, &helper, AdminAction::Deactivate);
         self.activate.set_sensitive(activatable);
@@ -1265,7 +1270,7 @@ impl CardLight {
             return;
         }
         if action == AdminAction::Inspect {
-            self.run_admin(action, identity, None);
+            self.run_admin(action, identity, None, false);
             return;
         }
         let (title, text, check) = match action {
@@ -1305,7 +1310,7 @@ impl CardLight {
                     && (identity.is_none() || selected_identity(&p.app) == identity)
                 {
                     p.queued.set(then_apply);
-                    p.run_admin(action, identity, None);
+                    p.run_admin(action, identity, None, install);
                 }
             },
         );
@@ -1323,7 +1328,7 @@ impl CardLight {
                 if let Some(p) = weak.upgrade()
                     && selected_identity(&p.app).as_ref() == Some(&identity)
                 {
-                    p.run_admin(AdminAction::Resolve, Some(identity), Some(id));
+                    p.run_admin(AdminAction::Resolve, Some(identity), Some(id), false);
                 }
             },
         );
@@ -1365,16 +1370,28 @@ impl CardLight {
         action: AdminAction,
         identity: Option<(String, String)>,
         recovery_id: Option<String>,
+        confirmed_install: bool,
     ) {
         if self.fixture.get() || (action != AdminAction::Deactivate && !card_present(&self.app)) {
+            self.queued.set(false);
             return;
         }
-        let paths = admin_paths(&self.app, &self.helper.borrow(), action);
-        if paths.is_err() && action == AdminAction::Activate && installable(&self.app, &self.helper.borrow()) {
-            self.install_and_activate(identity);
-            return;
+        if action == AdminAction::Activate {
+            let can_install = installable(&self.app, &self.helper.borrow());
+            if confirmed_install != can_install {
+                self.queued.set(false);
+                self.message.borrow_mut().take();
+                self.app.toast(Toast::new(tr!("RGB-oppsettet er ikke klart")));
+                self.render();
+                self.refresh();
+                return;
+            }
+            if confirmed_install {
+                self.install_and_activate(identity);
+                return;
+            }
         }
-        let Ok((pkexec, script)) = paths else {
+        let Ok((pkexec, script)) = admin_paths(&self.app, &self.helper.borrow(), action) else {
             self.queued.set(false);
             return;
         };
@@ -1480,7 +1497,7 @@ impl CardLight {
 /// dem selv sammen med RGB-aktiveringen.
 fn installable(app: &App, helper: &Value) -> bool {
     !app.profile.is_dev() && helper["systemAdmin"] == true && crate::system_install::can_install()
-        && !crate::system_install::ready(crate::system_install::Need::Rgb)
+        && (helper["state"] == "outdated" || admin_paths(app, helper, AdminAction::Activate).is_err())
 }
 
 /// En RGB-handling pågår (installasjonen venter da).
@@ -1516,7 +1533,12 @@ fn admin_paths(
         .into_iter()
         .any(|path| !crate::system_install::trusted(path))
     {
-        return Err(tr!("Systemkomponentene mangler. Se «Uten nett: bruk terminal» under «Detaljer og feilsøking».").into());
+        let message = if crate::system_install::newer_installed() {
+            tr!("RGB-hjelperen er ikke klar. Se «Detaljer og feilsøking» nedenfor.")
+        } else {
+            tr!("Systemkomponentene mangler. Se «Uten nett: bruk terminal» under «Detaljer og feilsøking».")
+        };
+        return Err(message.into());
     }
     Ok((pkexec, script))
 }
