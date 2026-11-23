@@ -98,7 +98,7 @@ window.rigg .styring-actions button:disabled { opacity: 0.6; }
 /* -- Tallene øverst: like brede fliser med en tynn strek mellom -- */
 .styring .oc-live { padding: 0; }
 .styring .oc-strip { margin-left: -1px; }
-.styring .oc-strip > flowboxchild { padding: 0; border-left: 1px solid var(--border-soft); }
+.styring .oc-strip > .oc-stat { border-left: 1px solid var(--border-soft); }
 .styring .oc-stat { padding: var(--sp-2) var(--pad) calc(var(--sp-2) + 2px); }
 .styring .oc-stat .oc-cap { color: var(--muted); font-size: var(--fs-sm); }
 .styring .oc-stat .oc-num-row { margin-top: 1px; }

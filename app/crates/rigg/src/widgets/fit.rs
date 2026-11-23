@@ -91,9 +91,98 @@ pub fn row_fit(width: i32, gap: i32, text: (i32, i32), ctrl: (i32, i32), comfort
     Some((width - gap - ctrl_w, ctrl_w))
 }
 
+/// Plasseringen i et grafhode (`charthead.rs`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct HeadFit {
+    /// Bredden tittelen får.
+    pub title_w: i32,
+    /// Forklaringen står på tittellinja (ellers på egen linje under).
+    pub legend_inline: bool,
+    /// «min · maks» får plass på tittellinja.
+    pub stats: bool,
+}
+
+/// Hodet på en graf: tittel, forklaring (serienavnene), «min · maks» og
+/// halen (verdien nå og pauseknappen), i den rekkefølgen de får plass.
+///
+/// 1. Halen står alltid. Tittelen får resten opp til sin naturlige bredde,
+///    og kuttes bare når den alene ikke får plass.
+/// 2. Forklaringen står etter tittelen hvis hele får plass. Ellers går den
+///    ned på egen linje. Den forsvinner aldri.
+/// 3. «min · maks» vises hvis hele får plass i det som er igjen.
+///
+/// Før sto alt i én `GtkBox` der valgfrie deler ba om naturlig bredde og
+/// fikk en del av den: plassen ble delt ut til deler som likevel ikke ble
+/// vist, og tittelen ble kuttet («GPU-tempera…») ved siden av et tomrom.
+pub fn head_fit(width: i32, gap: i32, title: (i32, i32), tail_w: i32, legend_w: Option<i32>, stats_w: Option<i32>, stats_gap: i32) -> HeadFit {
+    let (title_min, title_nat) = title;
+    let tail = if tail_w > 0 { tail_w + gap } else { 0 };
+    let title_w = title_nat.min(width - tail).max(title_min).max(0);
+    let mut rest = width - title_w - tail;
+    let legend_inline = legend_w.is_some_and(|lw| rest >= lw + gap);
+    if legend_inline {
+        rest -= legend_w.unwrap_or(0) + gap;
+    }
+    let stats = stats_w.is_some_and(|sw| sw > 0 && rest >= sw + stats_gap);
+    HeadFit { title_w, legend_inline, stats }
+}
+
+/// Den laveste tillatte spalten: det minste antallet fra og med `min_cols`
+/// som `allowed` godtar, høyst `want`.
+pub fn floor_cols(want: usize, min_cols: usize, allowed: impl Fn(usize) -> bool) -> usize {
+    (min_cols.max(1)..=want.max(1)).find(|n| allowed(*n)).unwrap_or(1)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn grafhodet_gir_tittelen_plassen_først() {
+        // Grafer i 1024 px på bokmål (1.6.0): kortet er 351 px, tittelen 104,
+        // halen 104, «min · maks» 118. Før ble tittelen «GPU-tempera…».
+        let f = head_fit(351, 12, (20, 104), 104, None, Some(118), 8);
+        assert_eq!(f, HeadFit { title_w: 104, legend_inline: false, stats: true });
+        // Seks piksler trangere: «min · maks» faller bort, tittelen står hel.
+        let f = head_fit(351 - 6, 12, (20, 104), 104, None, Some(118), 8);
+        assert_eq!(f, HeadFit { title_w: 104, legend_inline: false, stats: false });
+        // Tittelen kuttes først når den alene ikke får plass ved siden av halen.
+        let f = head_fit(180, 12, (20, 104), 104, None, Some(118), 8);
+        assert_eq!(f.title_w, 64);
+        assert!(!f.stats);
+        // Aldri under tittelens minste bredde, og aldri negativ.
+        assert_eq!(head_fit(60, 12, (20, 104), 104, None, None, 8).title_w, 20);
+        assert_eq!(head_fit(0, 12, (0, 104), 104, None, None, 8).title_w, 0);
+    }
+
+    #[test]
+    fn forklaringen_går_ned_på_egen_linje_og_forsvinner_ikke() {
+        // Oversikt › Temperaturer i 1024 px: fire serier (300 px) får ikke
+        // plass etter tittelen i et kort på 351 px. Før forsvant de.
+        let f = head_fit(351, 12, (20, 90), 30, Some(300), None, 8);
+        assert_eq!(f, HeadFit { title_w: 90, legend_inline: false, stats: false });
+        // To serier (120 px) får plass på tittellinja.
+        let f = head_fit(351, 12, (20, 40), 30, Some(120), None, 8);
+        assert!(f.legend_inline);
+        // Forklaringen går foran «min · maks» på tittellinja.
+        let f = head_fit(400, 12, (20, 70), 104, Some(160), Some(118), 8);
+        assert_eq!(f, HeadFit { title_w: 70, legend_inline: true, stats: false });
+        // Med forklaringen på egen linje får «min · maks» plassen den ga fra seg.
+        let f = head_fit(330, 12, (20, 70), 104, Some(160), Some(118), 8);
+        assert_eq!(f, HeadFit { title_w: 70, legend_inline: false, stats: true });
+        // Uten hale (ingen pauseknapp) brukes hele bredden.
+        assert_eq!(head_fit(200, 12, (20, 80), 0, Some(108), None, 8), HeadFit { title_w: 80, legend_inline: true, stats: false });
+    }
+
+    #[test]
+    fn laveste_tillatte_spalte() {
+        // Seks fliser i hele rader, minst tre per rad: 3. Åtte, minst to: 2.
+        assert_eq!(floor_cols(6, 3, whole_rows(6)), 3);
+        assert_eq!(floor_cols(8, 2, whole_rows(8)), 2);
+        assert_eq!(floor_cols(8, 3, whole_rows(8)), 4);
+        assert_eq!(floor_cols(5, 2, whole_rows(5)), 5, "fem går bare opp i fem");
+        assert_eq!(floor_cols(3, 9, |_| true), 1, "ingen tillatt: én spalte");
+    }
 
     #[test]
     fn innstillingsraden_brytes_når_teksten_blir_for_trang() {

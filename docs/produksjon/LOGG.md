@@ -949,3 +949,16 @@ Sett i et ekte vindu: planen `sprak` (ny i `bilder.sh`) er kjørt for svensk, ty
 Ikke prøvd: polkit-dialogen og systemfeltet på et ekte skrivebord, installasjon på brukerens maskin, og de tre README-bildene (de viser fortsatt «Agentic Rigg» i sidefeltet og bør tas på nytt i utgivelsessteget, etter layoutrevisjonen).
 
 Etter at PR #34 (layoutrevisjonen), #37 (aktivering og Oppgaver) og #38 (Nettverk) var merget, er `main` tatt inn i grenen. De 221 nye og endrede tekstene derfra er oversatt til svensk, så alle elleve språk står på 3266 av 3266. Appnavnet i de nye katalogene (`tasks.po`, `nettverk.po`, `process.po`) er det nye, og hjelpeteksten for `--side` nevner `nettverk` i alle språk.
+
+## 24. november 2026 – Claude Code (Fable 5.2): layoutfunn fra den uavhengige kontrollen før 1.7.0
+
+Seks funn fra kontrollen av 1c94566 er rettet uten versjonsbump. Alle er sett i et kjørende vindu med `bilder.sh --plan revisjon` på bokmål, engelsk, tysk og svensk.
+
+1. **Grafhodet.** Titlene ble kuttet ved siden av et tomrom («GPU-tempera…»), og «min · maks» sto på annethvert kort. Hodet var en `GtkBox` der valgfrie deler (`AllOrNothing`) ba om naturlig bredde og fikk en del av den, også når de ikke ble vist. Hodet er nå en egen flate, `widgets/charthead.rs`, som følger `fit::head_fit`: halen står alltid, tittelen får resten, forklaringen står etter tittelen når hele får plass og går ellers ned på egen linje, og «min · maks» vises når hele får plass. Kortene på samme side deler en `HeadGroup` og legges ut likt: tallene vises på alle eller ingen, og må én forklaring ned på egen linje, står alle der, så plottene i samme rad blir like høye. `AllOrNothing` er fjernet.
+2. **Oversikt ved 1024 px.** Temperaturer mistet forklaringen, så fire linjer sto uten navn. Følger av punkt 1: forklaringen forsvinner aldri, den går ned på egen linje.
+3. **Flisene på Vifter** sto 5 + 1 og 4 + 2 når siden ble åpnet rett etter en breddeendring. Raden var en `GtkFlowBox` der antallet per rad ble satt utenfra ved hver oppdatering. `StatStrip` er nå `Cols` med hele rader og naturlig bredde, så antallet regnes ut i selve utleggingen. Gjelder også Klokker og effekt.
+4. **Nettverk.** Radene i «Maskinvare» ble strukket til kortets høyde (46 px ved siden av 31 px). De har nå samme høyde i begge kortene.
+5. **Grenseetikettene** ble strøket over, av linja for nedklokking når avstengingslinja sto øverst, og av selve kurven ved høy temperatur. `math::limit_label_tops` plasserer teksten over sin linje når ingen annen linje går gjennom, ellers under alle linjene som ligger tett nedover, og tekstene tegnes etter kurvene.
+6. **Innstillingsmenyen og sidefeltet.** Delnavn brytes over to linjer før de kuttes («Protokoll und Benachrichtigungen»). Seksjonsoverskriften i sidefeltet får plassen først (`widgets/leadrow.rs`), og merket kutter teksten sin i stedet for å gå ned på egen linje («Grafikkortsstyrning»).
+
+Kjent: på Grafer i tospalters bredde har kort med én serie en tom linje under tittelen når et kort med flere serier har forklaringen sin der. Det er prisen for like høye plott i samme rad.

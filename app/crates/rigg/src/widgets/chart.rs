@@ -637,11 +637,13 @@ pub struct CursorSync {
     pub t: Cell<Option<i64>>,
     pub on: Rc<dyn Fn() -> bool>,
     charts: RefCell<Vec<glib::WeakRef<Chart>>>,
+    /// Hodene på de samme kortene: «min · maks» vises på alle eller ingen.
+    pub heads: Rc<crate::widgets::charthead::HeadGroup>,
 }
 
 impl CursorSync {
     pub fn new(on: impl Fn() -> bool + 'static) -> Rc<CursorSync> {
-        Rc::new(CursorSync { t: Cell::new(None), on: Rc::new(on), charts: RefCell::new(vec![]) })
+        Rc::new(CursorSync { t: Cell::new(None), on: Rc::new(on), charts: RefCell::new(vec![]), heads: crate::widgets::charthead::HeadGroup::new() })
     }
 
     fn add(&self, c: &Chart) {
@@ -1107,7 +1109,7 @@ impl Chart {
             None => {
                 let b = gtk::Snapshot::new();
                 self.draw_background(&b, c, &yr, dec, &ticks, &tick_xs, &now_label, pad_l, pad_t, pw, ph, w, h, &y_of);
-                self.draw_limits(&b, c, &yr, &limits, pad_l, pad_t, pw, ph, &y_of);
+                self.draw_limits(&b, c, &yr, &limits, pad_l, pw, &y_of);
                 let node = b.to_node();
                 if let Some(n) = &node {
                     *imp.bg.borrow_mut() = Some(BgCache { key, node: n.clone() });
@@ -1219,6 +1221,9 @@ impl Chart {
         }
         s.pop();
 
+        // ---- Tekstene til grenselinjene, over kurvene ----
+        self.draw_limit_labels(s, c, &yr, &limits, pad_l, pad_t, pw, ph, &y_of);
+
         // ---- Markøren ----
         let own = imp.hover_x.get().filter(|x| *x >= pad_l && *x <= pad_l + pw);
         let th = match own {
@@ -1318,19 +1323,16 @@ impl Chart {
         }
     }
 
-    /// Kritiske grenser (nedklokking, avstenging) som stiplede streker med
-    /// navnet over til høyre, bare når de er innenfor aksen. En tekst som
-    /// ville truffet en annen, skjules (streken står).
+    /// Kritiske grenser (nedklokking, avstenging) som stiplede streker, bare
+    /// når de er innenfor aksen. Navnene tegnes for seg, over kurvene
+    /// (`draw_limit_labels`).
     #[allow(clippy::too_many_arguments)]
-    fn draw_limits(&self, s: &gtk::Snapshot, c: &Colors, yr: &Scale, limits: &[LimitLine], pad_l: f32, pad_t: f32, pw: f32, ph: f32, y_of: &dyn Fn(f64) -> f32) {
-        if limits.is_empty() {
-            return;
-        }
-        let ys: Vec<Option<f32>> = limits.iter().map(|l| (l.v >= yr.lo && l.v <= yr.hi).then(|| y_of(l.v).round())).collect();
-        let text_h = Self::text_size(&self.layout("0", false)).1;
-        let show = math::limit_labels(&ys, text_h);
-        for (i, l) in limits.iter().enumerate() {
-            let Some(y) = ys[i] else { continue };
+    fn draw_limits(&self, s: &gtk::Snapshot, c: &Colors, yr: &Scale, limits: &[LimitLine], pad_l: f32, pw: f32, y_of: &dyn Fn(f64) -> f32) {
+        for l in limits {
+            if l.v < yr.lo || l.v > yr.hi {
+                continue;
+            }
+            let y = y_of(l.v).round();
             let col = if l.level == "danger" { c.danger } else { c.warn };
             let line = alpha(col, if c.hc { 0.95 } else { 0.7 });
             let mut x = pad_l;
@@ -1338,21 +1340,31 @@ impl Chart {
                 s.append_color(&line, &graphene::Rect::new(x, y, 5.0f32.min(pad_l + pw - x), 1.0));
                 x += 9.0;
             }
-            if !show[i] {
-                continue;
-            }
+        }
+    }
+
+    /// Tekstene til grenselinjene. Tegnes etter seriene, så verken en annen
+    /// grenselinje eller kurven stryker over teksten (`math::limit_label_tops`).
+    #[allow(clippy::too_many_arguments)]
+    fn draw_limit_labels(&self, s: &gtk::Snapshot, c: &Colors, yr: &Scale, limits: &[LimitLine], pad_l: f32, pad_t: f32, pw: f32, ph: f32, y_of: &dyn Fn(f64) -> f32) {
+        if limits.is_empty() {
+            return;
+        }
+        let ys: Vec<Option<f32>> = limits.iter().map(|l| (l.v >= yr.lo && l.v <= yr.hi).then(|| y_of(l.v).round())).collect();
+        let text_h = Self::text_size(&self.layout("0", false)).1;
+        let tops = math::limit_label_tops(&ys, text_h, pad_t, pad_t + ph);
+        for (l, top) in limits.iter().zip(tops) {
+            let Some(top) = top else { continue };
             let t = self.layout(&l.label, false);
             let (tw, th) = Self::text_size(&t);
-            // Over streken, eller under når den står helt øverst.
-            let ty = if y - th - 2.0 < pad_t { y + 2.0 + th / 2.0 } else { y - 1.0 - th / 2.0 };
-            if ty + th / 2.0 > pad_t + ph || tw + 12.0 > pw {
+            if tw + 12.0 > pw {
                 continue;
             }
             let bx = pad_l + pw - tw - 6.0;
             let p = gsk::PathBuilder::new();
-            p.add_rounded_rect(&gsk::RoundedRect::from_rect(graphene::Rect::new(bx - 3.0, (ty - th / 2.0).round(), tw + 6.0, th), 3.0));
-            s.append_fill(&p.to_path(), gsk::FillRule::Winding, &alpha(c.label_bg, 0.85));
-            Self::put(s, &t, pad_l + pw - 6.0, ty, 1.0, if l.level == "danger" { &c.danger_text } else { &c.warn_text });
+            p.add_rounded_rect(&gsk::RoundedRect::from_rect(graphene::Rect::new(bx - 3.0, top.round(), tw + 6.0, th), 3.0));
+            s.append_fill(&p.to_path(), gsk::FillRule::Winding, &alpha(c.label_bg, 0.92));
+            Self::put(s, &t, pad_l + pw - 6.0, top.round() + th / 2.0, 1.0, if l.level == "danger" { &c.danger_text } else { &c.warn_text });
         }
     }
 
@@ -1504,12 +1516,13 @@ impl ChartPanel {
         if o.flat {
             root.add_css_class("flat-chart");
         }
-        let head = hbox(12, &["group-head"]);
         let title = label(&o.title, &["group-title"]);
         title.set_accessible_role(gtk::AccessibleRole::Heading);
         title.set_ellipsize(pango::EllipsizeMode::End);
-        head.append(&title);
-        let legend = hbox(8, &["legend"]);
+        // Serienavnene brytes over flere linjer når de står under tittelen.
+        let legend = crate::widgets::wrap::Wrap::new();
+        legend.set_gap(8);
+        legend.add_css_class("legend");
         let colors = Colors::from_app(app);
         let mut marks = Vec::new();
         let mut toggles: Vec<gtk::ToggleButton> = Vec::new();
@@ -1523,13 +1536,11 @@ impl ChartPanel {
                 let m = LegendMark::new(s.dashed);
                 m.set_color(colors.series(s.color));
                 bx.append(&m);
-                // Med få serier kuttes ikke navnene: hele forklaringen
-                // forsvinner heller når hodet er for smalt (AllOrNothing
-                // under), så tittelen står. Med mange (diskene) kuttes de.
+                // Navnene kuttes bare når ett navn alene er bredere enn
+                // kortet. Får ikke forklaringen plass etter tittelen, går den
+                // ned på egen linje (charthead.rs).
                 let l = gtk::Label::new(Some(&s.label));
-                if o.series.len() > 5 {
-                    l.set_ellipsize(pango::EllipsizeMode::End);
-                }
+                l.set_ellipsize(pango::EllipsizeMode::End);
                 bx.append(&l);
                 b.set_child(Some(&bx));
                 b.set_tooltip_text(Some(&trf!("Skjul {verdi}", verdi = lower_name(&s.label))));
@@ -1538,22 +1549,14 @@ impl ChartPanel {
                 toggles.push(b);
             }
         }
-        if o.series.len() > 5 {
-            head.append(&legend);
-        } else {
-            head.append(&crate::widgets::fixed::AllOrNothing::new(&legend));
-        }
         let aside = hbox(8, &["aside"]);
-        aside.set_hexpand(true);
-        aside.set_halign(gtk::Align::End);
         let paused_tag = label("", &["tag", "paused-tag"]);
         paused_tag.set_visible(false);
         aside.append(&paused_tag);
         // «min · maks» helt eller ikke: i smale grafer forsvinner den i stedet
-        // for å bli «…0,0».
+        // for å bli «…0,0», og da på alle kortene på siden (charthead.rs).
         let stats = label("", &["stats", "num"]);
         stats.set_visible(o.stats);
-        aside.append(&crate::widgets::fixed::AllOrNothing::new(&stats));
         let nowb = hbox(2, &["now"]);
         let now = label("–", &["now-v", "num"]);
         let now_unit = label("", &["unit"]);
@@ -1580,7 +1583,11 @@ impl ChartPanel {
         crate::widgets::tip(&pause_btn, tr!("Pause"), Some(tr!("Mellomrom")));
         pause_btn.update_property(&[gtk::accessible::Property::Label(tr!("Pause"))]);
         aside.append(&pause_btn);
-        head.append(&aside);
+        let head = crate::widgets::charthead::ChartHead::new(&title, &legend, &stats, &aside);
+        head.add_css_class("group-head");
+        if let Some(sync) = &o.sync {
+            head.join(&sync.heads);
+        }
         root.append(&head);
         let body = crate::widgets::vbox(0, &["group-body", "chart-body"]);
         body.set_vexpand(true);
@@ -2221,6 +2228,11 @@ mod cols_imp {
         pub whole_rows: Cell<bool>,
         /// Avstand mellom radene når den er en annen enn mellom spaltene.
         pub row_gap: Cell<Option<i32>>,
+        /// Barna skal ha sin naturlige bredde, ikke bare sin minste, før de
+        /// står side ved side (fliser som ellers kutter teksten med «…»).
+        pub fit_natural: Cell<bool>,
+        /// Aldri færre spalter enn dette (da krymper barna heller).
+        pub min_cols: Cell<usize>,
     }
 
     impl Default for Cols {
@@ -2236,6 +2248,8 @@ mod cols_imp {
                 bleed: Cell::new(false),
                 whole_rows: Cell::new(false),
                 row_gap: Cell::new(None),
+                fit_natural: Cell::new(false),
+                min_cols: Cell::new(1),
             }
         }
     }
@@ -2293,9 +2307,29 @@ mod cols_imp {
             if want == 1 {
                 return 1;
             }
-            let mins: Vec<i32> = kids.iter().map(|w| w.measure(gtk::Orientation::Horizontal, -1).0).collect();
+            let natural = self.fit_natural.get();
+            let mins: Vec<i32> = kids
+                .iter()
+                .map(|w| {
+                    let (min, nat, _, _) = w.measure(gtk::Orientation::Horizontal, -1);
+                    if natural { nat } else { min }
+                })
+                .collect();
             let (whole, whole_rows) = (self.whole_rows.get(), crate::widgets::fit::whole_rows(k));
-            crate::widgets::fit::fit_cols_where(want, &mins, |n| self.columns(width, n), |n| !whole || whole_rows(n))
+            let allowed = |n: usize| !whole || whole_rows(n);
+            let n = crate::widgets::fit::fit_cols_where(want, &mins, |n| self.columns(width, n), allowed);
+            n.max(self.floor_cols(k))
+        }
+
+        /// Det laveste antallet spalter (`min_cols`, i hele rader når det gjelder).
+        fn floor_cols(&self, k: usize) -> usize {
+            let min = self.min_cols.get();
+            if min <= 1 {
+                return 1;
+            }
+            let (whole, whole_rows) = (self.whole_rows.get(), crate::widgets::fit::whole_rows(k));
+            let want = self.max_cols.get().clamp(1, k.max(1));
+            crate::widgets::fit::floor_cols(want, min, |n| !whole || whole_rows(n))
         }
 
         pub fn row_gap(&self) -> i32 {
@@ -2327,7 +2361,10 @@ mod cols_imp {
             let kids = self.kids();
             match o {
                 gtk::Orientation::Horizontal => {
-                    let min = kids.iter().map(|k| k.measure(o, -1).0).max().unwrap_or(0);
+                    let widest = kids.iter().map(|k| k.measure(o, -1).0).max().unwrap_or(0);
+                    // Med et laveste antall spalter trengs plass til så mange.
+                    let n = self.floor_cols(kids.len()) as i32;
+                    let min = if kids.is_empty() { 0 } else { widest * n + self.gap.get() * (n - 1) };
                     (min, min, -1, -1)
                 }
                 _ => {
@@ -2410,6 +2447,14 @@ impl Cols {
     /// Egen avstand mellom radene (standard: som mellom spaltene).
     pub fn set_row_gap(&self, gap: i32) {
         self.imp().row_gap.set(Some(gap));
+        self.queue_resize();
+    }
+
+    /// Barna skal få sin naturlige bredde før de står side ved side, men
+    /// aldri færre enn `min_cols` spalter.
+    pub fn set_fit_natural(&self, min_cols: usize) {
+        self.imp().fit_natural.set(true);
+        self.imp().min_cols.set(min_cols.max(1));
         self.queue_resize();
     }
 

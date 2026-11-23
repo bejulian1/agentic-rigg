@@ -921,8 +921,10 @@ impl Inner {
         crate::widgets::clear(&r.detail);
         let pair = Cols::new(&[1.0, 1.0], 8, 720);
         pair.add_css_class("dk-pair");
+        // Radene har samme høyde i begge kortene. Før ble radene i det korteste
+        // kortet strukket til kortets høyde, så «Maskinvare» sto med 46 px
+        // rader ved siden av 31 px i «Grensesnitt».
         for w in [iface_panel(i, nm), hw_panel(i)] {
-            fill_rows(&w);
             pair.append(&w);
         }
         let col = vbox(8, &["dk-detail-panels"]);

@@ -122,6 +122,20 @@ impl Wrap {
             c.unparent();
         }
     }
+    /// Bredden når alle brikkene står på én linje.
+    pub fn line_width(&self) -> i32 {
+        let gap = self.imp().gap.get();
+        let mut w = 0;
+        let mut c = self.first_child();
+        while let Some(ch) = c {
+            c = ch.next_sibling();
+            if ch.is_visible() {
+                w += ch.measure(gtk::Orientation::Horizontal, -1).1 + if w > 0 { gap } else { 0 };
+            }
+        }
+        w
+    }
+
     /// Avstanden mellom brikkene på samme linje (standard 4 px).
     pub fn set_gap(&self, gap: i32) {
         self.imp().gap.set(gap);

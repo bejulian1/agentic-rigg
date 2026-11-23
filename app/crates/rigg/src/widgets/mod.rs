@@ -18,10 +18,12 @@
 
 pub mod bar;
 pub mod chart;
+pub mod charthead;
 pub mod fit;
 pub mod fixed;
 pub mod gauge;
 pub mod icon;
+pub mod leadrow;
 pub mod ikoner_data;
 pub mod locked;
 pub mod masonry;
