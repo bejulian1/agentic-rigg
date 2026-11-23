@@ -1354,7 +1354,6 @@ pub struct Viftekurve {
     strip: Rc<LockStrip>,
     stats: Vec<Rc<Stat>>,
     /// Flisene øverst: 6, 3 eller 2 per rad, aldri én alene (7C).
-    stat_strip: crate::widgets::oc::StatStrip,
     editor: CurveEdit,
     window: Cell<i64>,
     win_seg: Seg,
@@ -1571,8 +1570,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     outer.append(&scroll);
 
     // ---- Viftene nå ----
-    let st = StatStrip::new(6);
-    st.root.set_min_children_per_line(3);
+    let st = StatStrip::new(6, 3);
     let stats: Vec<Rc<Stat>> = [tr!("Temperatur"), tr!("Viftefart nå"), tr!("Vifter oppdaget"), tr!("Mål-fart"), tr!("Modus"), tr!("Kurven gir")].iter().map(|n| Stat::new(app, n)).collect();
     for s in &stats {
         st.add(s);
@@ -1580,8 +1578,6 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     stats[3].meter.set_visible(false);
     stats[4].meter.set_visible(false);
     stats[2].meter.set_visible(false);
-    // Like mange fliser per rad også rett etter at vinduet har endret bredde.
-    st.balance_on_resize(6);
     let live = vbox(0, &["group", "oc-live"]);
     live.append(&st.root);
     root.append(&live);
@@ -2013,7 +2009,6 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         actions,
         strip,
         stats,
-        stat_strip: st.clone(),
         editor: edit,
         window: Cell::new(172_800),
         win_seg,
@@ -2605,7 +2600,6 @@ impl Viftekurve {
         class(&self.root, "drafting", editing);
 
         // ---- Tallene ----
-        self.stat_strip.balance(6);
         let s = &self.stats;
         s[0].set(&F::temp_num(r.temp, 0), F::temp_label(), &r.temp_target.map(|g| trf!("mål {maal}", maal = F::temp(Some(g), 0))).unwrap_or_default());
         let scale = self.editor.update_scale(r.temp.into_iter().map(|t| (t, 0.0)));

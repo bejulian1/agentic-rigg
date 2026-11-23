@@ -345,8 +345,12 @@ impl SettingsView {
             bx.append(&Icon::new(s.icon, 16));
             let nm = label((s.name)(), &["nm"]);
             nm.set_hexpand(true);
+            // Et langt navn («Protokoll und Benachrichtigungen») brytes over to
+            // linjer. Trengs det enda mer, kuttes det og står helt i verktøytipset.
+            nm.set_wrap(true);
+            nm.set_wrap_mode(gtk::pango::WrapMode::WordChar);
+            nm.set_lines(2);
             nm.set_ellipsize(gtk::pango::EllipsizeMode::End);
-            // Et kuttet navn («Protokoll und Benachrichtigungen») står helt i verktøytipset.
             nm.set_has_tooltip(true);
             nm.connect_query_tooltip(|l, _, _, _, tip| {
                 let cut = l.layout().is_ellipsized();
@@ -355,7 +359,8 @@ impl SettingsView {
                 }
                 cut
             });
-            bx.append(&nm);
+            // Bredden spørres uten høyde: ellers brytes korte navn når raden er høy (fixed.rs).
+            bx.append(&crate::widgets::fixed::Steady::new(&nm));
             let n = label("", &["set-n", "num"]);
             n.set_xalign(1.0);
             n.set_visible(false);

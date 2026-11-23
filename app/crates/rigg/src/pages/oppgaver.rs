@@ -942,6 +942,8 @@ fn state_name(state: &str) -> &str {
 
 /// Navnekolonnen viser minst så mye før en kolonne skjules.
 const NAME_MIN: i32 = 140;
+/// Plass til pilen foran navnet i gruppevisning, når kolonner skjules.
+const LEAD_RESERVE: i32 = 24;
 /// Under dette krymper navnet ikke mer (vinduets minste bredde).
 const NAME_FLOOR: i32 = 64;
 /// Kolonnene som skjules først når bredden ikke strekker til: GPU-minne,
@@ -954,14 +956,17 @@ const HIDE_ORDER: [usize; 3] = [6, 5, 2];
 /// kolonnene står likt uansett innhold (lange brukernavn flytter ingenting).
 fn task_layout(width: i32, lead: i32, fixed: &[i32]) -> Vec<Option<(i32, i32)>> {
     let mut hidden = [false; 8];
-    let name_width = |hidden: &[bool; 8]| width - lead - fixed.iter().enumerate().skip(1).filter(|(i, _)| !hidden[*i]).map(|(_, w)| w).sum::<i32>();
+    let columns = |hidden: &[bool; 8]| fixed.iter().enumerate().skip(1).filter(|(i, _)| !hidden[*i]).map(|(_, w)| w).sum::<i32>();
+    // Hvilke kolonner som skjules, avhenger bare av bredden, ikke av pilen
+    // foran navnet (den finnes bare i radene). Ellers kunne overskriften og
+    // radene skjule ulike kolonner og bli forskjøvet.
     for column in HIDE_ORDER {
-        if name_width(&hidden) >= NAME_MIN {
+        if width - LEAD_RESERVE - columns(&hidden) >= NAME_MIN {
             break;
         }
         hidden[column] = true;
     }
-    let name = name_width(&hidden).max(NAME_FLOOR);
+    let name = (width - lead - columns(&hidden)).max(NAME_FLOOR);
     let mut x = lead + name;
     let mut out = vec![Some((lead, name))];
     for (i, w) in fixed.iter().enumerate().skip(1) {
@@ -1670,10 +1675,19 @@ mod tests {
         assert_eq!(wide[7], Some((1200 - 90, 90)), "Status står helt til høyre");
         // Smalere: GPU-minne skjules først, så Swap, så Bruker; Status står.
         let hidden = |w: i32| task_layout(w, 0, &FIXED).iter().enumerate().filter(|(_, c)| c.is_none()).map(|(i, _)| i).collect::<Vec<_>>();
-        assert_eq!(hidden(590 + NAME_MIN), Vec::<usize>::new());
-        assert_eq!(hidden(590 + NAME_MIN - 1), [6]);
-        assert_eq!(hidden(500 + NAME_MIN - 1), [5, 6]);
-        assert_eq!(hidden(420 + NAME_MIN - 1), [2, 5, 6]);
+        let edge = 590 + NAME_MIN + LEAD_RESERVE;
+        assert_eq!(hidden(edge), Vec::<usize>::new());
+        assert_eq!(hidden(edge - 1), [6]);
+        assert_eq!(hidden(edge - 91), [5, 6]);
+        assert_eq!(hidden(edge - 171), [2, 5, 6]);
+        // Overskriften (uten pil) og radene (med pil) skjuler alltid de samme kolonnene.
+        // Fra radens minste bredde (pil + navnets gulv + PID, CPU, Minne og Status).
+        for w in (24 + NAME_FLOOR + 320..1300).step_by(7) {
+            let head: Vec<bool> = task_layout(w, 0, &FIXED).iter().map(Option::is_some).collect();
+            let row: Vec<bool> = task_layout(w, 24, &FIXED).iter().map(Option::is_some).collect();
+            assert_eq!(head, row, "ved {w} px");
+            assert_eq!(task_layout(w, 0, &FIXED)[1..], task_layout(w, 24, &FIXED)[1..], "kolonnene står likt ved {w} px");
+        }
         // Ned til minstebredden (navnets gulv + PID, CPU, Minne og Status)
         // står Status innenfor raden.
         for w in [NAME_FLOOR + 320, 520, 700, 1024] {

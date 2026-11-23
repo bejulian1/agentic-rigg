@@ -200,8 +200,12 @@ pub fn findings(w: &gtk::Widget, out: &mut Vec<String>) {
     if let Some(bx) = w.downcast_ref::<gtk::Box>()
         && bx.orientation() == gtk::Orientation::Horizontal
     {
-        let used: f32 = kids.iter().map(|(_, b)| b.width()).sum();
-        let free = w.width() as f32 - used - bx.spacing() as f32 * kids.len().saturating_sub(1) as f32;
+        // Ledig plass er det som står ubrukt foran første og etter siste barn.
+        // Avstanden mellom barna regnes ikke ut fra `spacing`: CSS-ens
+        // `border-spacing` kommer i tillegg til den.
+        let left = kids.iter().map(|(_, b)| b.x()).fold(f32::INFINITY, f32::min);
+        let right = kids.iter().map(|(_, b)| b.x() + b.width()).fold(0.0, f32::max);
+        let free = if kids.is_empty() { 0.0 } else { (left.max(0.0) + (w.width() as f32 - right).max(0.0)).max(0.0) };
         for (k, b) in &kids {
             // Etiketten selv, eller etiketten alene i en beholder (Steady).
             let only = k.first_child().filter(|c| c.next_sibling().is_none());
@@ -210,7 +214,11 @@ pub fn findings(w: &gtk::Widget, out: &mut Vec<String>) {
                 && l.layout().line_count() > 1
                 && !l.text().contains('\n')
             {
-                let nat = l.measure(gtk::Orientation::Horizontal, -1).1 as f32;
+                // Bredden på én linje. Etikettens egen naturlige bredde er
+                // mindre når den kan stå på flere linjer (delnavnene i Innstillinger).
+                let one = l.layout().copy();
+                one.set_width(-1);
+                let nat = one.pixel_size().0 as f32;
                 if nat <= b.width() + free + 0.5 && l.text().chars().count() <= 40 {
                     out.push(format!("BRUTT {} står på {} linjer, men får plass på én ({:.0} px ledig) i {}", describe(l.upcast_ref()), l.layout().line_count(), free, describe(w)));
                 }

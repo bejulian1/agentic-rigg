@@ -606,82 +606,33 @@ impl Stat {
     }
 }
 
-/// Raden med fliser: like brede, og to til åtte per linje etter bredden.
+/// Raden med fliser: like brede, i hele rader. Seks fliser står 6, 3 + 3
+/// eller (når ikke annet er satt) 2 per rad, aldri 5 + 1.
+///
+/// Antallet regnes ut i selve utleggingen (`Cols` med hele rader og naturlig
+/// bredde). Før var raden en `GtkFlowBox` der antallet ble satt utenfra ved
+/// hver oppdatering og etter en breddeendring: åpnet man siden rett etter at
+/// vinduet endret bredde, sto det gamle antallet til neste oppdatering, og
+/// flisene ble 5 + 1 eller 4 + 2.
 #[derive(Clone)]
 pub struct StatStrip {
-    pub root: gtk::FlowBox,
+    pub root: crate::widgets::chart::Cols,
 }
 
 impl StatStrip {
-    pub fn new(max_per_line: u32) -> StatStrip {
-        let root = gtk::FlowBox::new();
+    /// `max_per_line` fliser på rad når de får plass, aldri færre enn
+    /// `min_per_line` (da kuttes heller teksten i flisene med «…»).
+    pub fn new(max_per_line: usize, min_per_line: usize) -> StatStrip {
+        let root = crate::widgets::chart::Cols::new(&vec![1.0; max_per_line.max(1)], 0, 0);
         root.add_css_class("oc-strip");
-        root.set_selection_mode(gtk::SelectionMode::None);
-        root.set_homogeneous(true);
-        root.set_min_children_per_line(2);
-        root.set_max_children_per_line(max_per_line);
-        root.set_column_spacing(0);
-        root.set_row_spacing(0);
-        root.set_focusable(false);
+        root.set_whole_rows();
+        root.set_fit_natural(min_per_line);
         root.set_accessible_role(gtk::AccessibleRole::Group);
         StatStrip { root }
     }
 
-    /// Like mange fliser på hver rad: så mange per rad som får plass, men
-    /// bare et tall som går opp i antallet (6 fliser: 6, 3 eller 2 per rad),
-    /// så ingen flis blir stående alene på siste rad. Kalles når siden
-    /// oppdateres; gjør ingenting før flisene har fått bredde.
-    pub fn balance(&self, max: u32) {
-        let mut n = 0u32;
-        // Den naturlige bredden: flisene kan krympe (tekst med «…»), men
-        // FlowBox legger dem ut etter det de vil ha. Flisene er like brede,
-        // så den bredeste avgjør. Før ble bare den første målt: med en lengre
-        // tittel lenger ut («Manuelle Mindestdrehzahl») ble det 5 + 1.
-        let mut min_w = 1;
-        let mut c = self.root.first_child();
-        while let Some(ch) = c {
-            n += 1;
-            min_w = min_w.max(ch.measure(gtk::Orientation::Horizontal, -1).1);
-            c = ch.next_sibling();
-        }
-        let w = self.root.width();
-        if w <= 0 || n == 0 {
-            return;
-        }
-        let fits = ((w / min_w).max(1) as u32).min(max);
-        let low = self.root.min_children_per_line();
-        let per = (1..=n).rev().find(|d| n.is_multiple_of(*d) && *d <= fits).unwrap_or(1).max(low);
-        if self.root.max_children_per_line() != per {
-            self.root.set_max_children_per_line(per);
-        }
-    }
-
-    /// Holder radene like når vinduet endrer bredde (ellers ved neste
-    /// oppdatering, innen ett sekund).
-    pub fn balance_on_resize(&self, max: u32) {
-        self.root.connect_realize(move |root| {
-            if let Some(win) = root.root().and_downcast::<gtk::Window>() {
-                // Svake referanser: vinduet skal ikke holde raden i live.
-                let weak = root.downgrade();
-                win.connect_default_width_notify(move |_| {
-                    let weak = weak.clone();
-                    gtk::glib::timeout_add_local_once(std::time::Duration::from_millis(80), move || {
-                        if let Some(root) = weak.upgrade() {
-                            StatStrip { root }.balance(max);
-                        }
-                    });
-                });
-            }
-        });
-    }
-
     pub fn add(&self, stat: &Stat) {
-        self.root.insert(&stat.root, -1);
-        if let Some(c) = stat.root.parent() {
-            // Flisene er ikke stopp for Tab (tallene leses, de trykkes ikke på).
-            c.set_focusable(false);
-            c.set_can_focus(false);
-        }
+        self.root.append(&stat.root);
     }
 }
 

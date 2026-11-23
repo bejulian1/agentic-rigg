@@ -173,14 +173,15 @@ mod steady_imp {
         }
 
         fn measure(&self, o: gtk::Orientation, for_size: i32) -> (i32, i32, i32, i32) {
-            let Some(c) = self.obj().first_child() else { return (0, 0, -1, -1) };
+            // Et skjult barn tar ingen plass (delnavnene i Innstillinger i smale vinduer).
+            let Some(c) = self.obj().first_child().filter(|c| c.is_visible()) else { return (0, 0, -1, -1) };
             // Bredden spørres aldri «for en høyde».
             let (min, nat, _, _) = c.measure(o, if o == gtk::Orientation::Horizontal { -1 } else { for_size });
             (min, nat, -1, -1)
         }
 
         fn size_allocate(&self, w: i32, h: i32, _b: i32) {
-            if let Some(c) = self.obj().first_child() {
+            if let Some(c) = self.obj().first_child().filter(|c| c.is_visible()) {
                 c.size_allocate(&gtk::Allocation::new(0, 0, w, h), -1);
             }
         }
@@ -200,71 +201,6 @@ glib::wrapper! {
 impl Steady {
     pub fn new(child: &impl IsA<gtk::Widget>) -> Steady {
         let f: Steady = glib::Object::new();
-        child.set_parent(&f);
-        f
-    }
-}
-
-// ---------------------------------------------------------------- Helt eller ikke
-
-mod all_imp {
-    use super::*;
-
-    /// Ber om bredde 0 (naturlig: barnets). Får den mindre enn barnets
-    /// naturlige bredde, tegnes ikke barnet i det hele tatt.
-    #[derive(Default)]
-    pub struct AllOrNothing;
-
-    #[glib::object_subclass]
-    impl ObjectSubclass for AllOrNothing {
-        const NAME: &'static str = "RiggAllOrNothing";
-        type Type = super::AllOrNothing;
-        type ParentType = gtk::Widget;
-    }
-
-    impl ObjectImpl for AllOrNothing {
-        fn dispose(&self) {
-            while let Some(c) = self.obj().first_child() {
-                c.unparent();
-            }
-        }
-    }
-
-    impl WidgetImpl for AllOrNothing {
-        fn measure(&self, o: gtk::Orientation, for_size: i32) -> (i32, i32, i32, i32) {
-            match self.obj().first_child() {
-                Some(c) if c.is_visible() => {
-                    let (min, nat, _, _) = c.measure(o, for_size);
-                    if o == gtk::Orientation::Horizontal { (0, nat, -1, -1) } else { (min, nat, -1, -1) }
-                }
-                _ => (0, 0, -1, -1),
-            }
-        }
-
-        fn size_allocate(&self, w: i32, h: i32, _b: i32) {
-            if let Some(c) = self.obj().first_child() {
-                let nat = c.measure(gtk::Orientation::Horizontal, h).1;
-                let fits = w >= nat;
-                if c.is_child_visible() != fits {
-                    c.set_child_visible(fits);
-                }
-                if fits {
-                    c.size_allocate(&gtk::Allocation::new(0, 0, w, h), -1);
-                }
-            }
-        }
-    }
-}
-
-glib::wrapper! {
-    /// Barnet helt eller ikke i det hele tatt: forklaringen i et grafhode
-    /// forsvinner før tittelen kuttes («Eff… ▬ Tr… ‐‐ G…»).
-    pub struct AllOrNothing(ObjectSubclass<all_imp::AllOrNothing>) @extends gtk::Widget, @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget;
-}
-
-impl AllOrNothing {
-    pub fn new(child: &impl IsA<gtk::Widget>) -> AllOrNothing {
-        let f: AllOrNothing = glib::Object::new();
         child.set_parent(&f);
         f
     }
