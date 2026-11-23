@@ -59,8 +59,8 @@ msgid "synkron tidspunkt sikte"
 msgstr "synchron zeitpunkt fadenkreuz"
 
 #: crates/rigg/src/settings/grafer.rs:98
-msgid "Tilpass følger dataene i vinduet. Fast beholder normalområdet, men begge utvider aksen når verdiene går utenfor. Last og minne i prosent har skala 0–100; vifter kan gå over 100 %."
-msgstr "Anpassen folgt den sichtbaren Daten. Fest behält den Normalbereich, beide erweitern sich bei Bedarf. Last und Speicher in Prozent nutzen 0–100; Lüfter können über 100 % liegen."
+msgid "Tilpass følger dataene i vinduet. Fast beholder normalområdet, men begge utvider aksen når verdiene går utenfor. Temperaturgrafer går alltid til minst 100 °C. Last og minne i prosent har skala 0–100; vifter kan gå over 100 %."
+msgstr "Anpassen folgt den sichtbaren Daten. Fest behält den Normalbereich, beide erweitern sich bei Bedarf. Temperaturdiagramme reichen immer bis mindestens 100 °C. Last und Speicher in Prozent nutzen 0–100; Lüfter können über 100 % liegen."
 
 #: crates/rigg/src/settings/grafer.rs:100
 msgctxt "søkeord"

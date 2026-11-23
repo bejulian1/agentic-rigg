@@ -195,6 +195,23 @@ pub fn y_axis(data: Option<(f64, f64)>, a: &Axis, marks: &[f64]) -> Scale {
     Scale { lo, hi: if hi > lo { hi } else { lo + n.step.max(1e-9) }, step: n.step }
 }
 
+/// Temperaturgrafer viser alltid minst opp til dette (°C).
+pub const TEMP_TOP_C: f64 = 100.0;
+
+/// Akseregelen for temperaturserier, felles for hele appen (GPU, CPU, disk
+/// og kombinerte grafer): aksen går fra grafens nedre grense til **minst
+/// 100 °C** (212 °F), uansett om brukeren har valgt «Tilpass» eller «Fast».
+/// Den følger altså ikke dataene ned til 20–45 °C. Verdier over eller under
+/// rammen utvider aksen som ellers ([`y_axis`]); ingenting kuttes.
+///
+/// `pref` er grafens foretrukne område i enheten som vises.
+pub fn temp_axis(pref: (f64, f64), fahrenheit: bool) -> Axis {
+    let top = if fahrenheit { TEMP_TOP_C * 1.8 + 32.0 } else { TEMP_TOP_C };
+    let lo = if pref.0.is_finite() { pref.0.min(top - 1.0) } else { 0.0 };
+    let hi = if pref.1.is_finite() { pref.1.max(top) } else { top };
+    Axis { pref: (lo, hi), hard: None, min_span: 0.0, auto: false }
+}
+
 /// Så lenge aksen holdes før den krymper (ms).
 pub const AXIS_HOLD_MS: i64 = 15_000;
 
@@ -1127,6 +1144,90 @@ mod akse_tester {
         let p = Axis { pref: (0.0, 288.75), hard: Some((0.0, f64::INFINITY)), min_span: 60.0, auto: false };
         let s = y_axis(Some((20.0, 330.0)), &p, &[]);
         assert_eq!((s.lo, s.hi), (0.0, 400.0));
+    }
+
+    /// Temperaturregelen med GPU/CPU-grafens nedre grense (20 °C).
+    fn regel(lo: f64, hi: f64) -> Axis {
+        temp_axis((lo, hi), false)
+    }
+
+    #[test]
+    fn temperaturaksen_går_alltid_til_minst_hundre() {
+        // I ro på 33–35 °C: før fulgte «Tilpass» dataene til 20–45.
+        let s = y_axis(Some((33.0, 35.0)), &regel(20.0, 100.0), &[]);
+        assert_eq!(s, Scale { lo: 20.0, hi: 100.0, step: 20.0 });
+        // Uten data, og med data helt i bunnen eller toppen av rammen.
+        assert_eq!(y_axis(None, &regel(20.0, 100.0), &[]), Scale { lo: 20.0, hi: 100.0, step: 20.0 });
+        assert_eq!(y_axis(Some((20.0, 20.0)), &regel(20.0, 100.0), &[]), Scale { lo: 20.0, hi: 100.0, step: 20.0 });
+        assert_eq!(y_axis(Some((60.0, 100.0)), &regel(20.0, 100.0), &[]), Scale { lo: 20.0, hi: 100.0, step: 20.0 });
+        // Nedre grense 0 (Sensorer): 0–100 i steg på 25.
+        assert_eq!(y_axis(Some((33.0, 35.0)), &regel(0.0, 100.0), &[]), Scale { lo: 0.0, hi: 100.0, step: 25.0 });
+    }
+
+    #[test]
+    fn temperaturaksen_er_uavhengig_av_tilpass_og_fast() {
+        // Regelen bestemmer selv: den bruker verken minste spenn eller «Tilpass».
+        let a = regel(20.0, 100.0);
+        assert!(!a.auto);
+        assert_eq!(a.hard, None, "en målt temperatur kuttes aldri");
+        for d in [(33.0, 35.0), (40.0, 80.0), (90.0, 95.0)] {
+            let s = y_axis(Some(d), &a, &[]);
+            assert!(s.lo <= 20.0 && s.hi >= 100.0, "{d:?} gir {s:?}");
+        }
+    }
+
+    #[test]
+    fn temperaturaksen_utvides_over_hundre() {
+        let a = regel(20.0, 100.0);
+        let s = y_axis(Some((40.0, 104.0)), &a, &[]);
+        holder(&s, 40.0, 104.0);
+        luft(&s, 104.0);
+        assert_eq!(s.lo, 20.0, "nedre grense står: {s:?}");
+        assert_eq!(s.hi % s.step, 0.0, "øverste merke er et pent tall: {s:?}");
+        let s = y_axis(Some((40.0, 131.0)), &a, &[]);
+        holder(&s, 40.0, 131.0);
+        luft(&s, 131.0);
+        // Også under nedre grense (en kald disk): utvides nedover, toppen står.
+        let s = y_axis(Some((-4.0, 30.0)), &a, &[]);
+        holder(&s, -4.0, 30.0);
+        assert!(s.hi >= 100.0, "{s:?}");
+        // Utvidelsen holdes av AxisHold og krymper tilbake til 20–100, ikke lavere.
+        let mut h = AxisHold::default();
+        let hot = h.apply(y_axis(Some((40.0, 112.0)), &a, &[]), 0);
+        assert!(hot.hi > 112.0);
+        let calm = y_axis(Some((33.0, 35.0)), &a, &[]);
+        assert_eq!(h.apply(calm, 1000), hot, "holdes først");
+        assert_eq!(h.apply(calm, 1000 + AXIS_HOLD_MS), Scale { lo: 20.0, hi: 100.0, step: 20.0 });
+    }
+
+    #[test]
+    fn temperaturaksen_løfter_lavere_tak_og_tar_fahrenheit() {
+        // Disktemperatur hadde 20–60 °C: taket løftes til 100.
+        let s = y_axis(Some((30.0, 41.0)), &regel(20.0, 60.0), &[]);
+        assert_eq!((s.lo, s.hi), (20.0, 100.0));
+        // Et høyere tak beholdes.
+        assert_eq!(regel(0.0, 130.0).pref, (0.0, 130.0));
+        // Fahrenheit: 68–212 °F, og 110 °C = 230 °F kuttes ikke.
+        let f = temp_axis((68.0, 140.0), true);
+        assert_eq!(f.pref, (68.0, 212.0));
+        let s = y_axis(Some((91.0, 95.0)), &f, &[]);
+        assert_eq!((s.lo, s.hi), (68.0, 212.0));
+        let s = y_axis(Some((104.0, 230.0)), &f, &[]);
+        holder(&s, 104.0, 230.0);
+        luft(&s, 230.0);
+        // Et ugyldig område gir fortsatt en akse til 100.
+        let s = y_axis(Some((33.0, 35.0)), &temp_axis((f64::NAN, f64::NAN), false), &[]);
+        assert_eq!((s.lo, s.hi), (0.0, 100.0));
+        let s = y_axis(Some((33.0, 35.0)), &temp_axis((150.0, 90.0), false), &[]);
+        assert!(s.lo <= 33.0 && s.hi >= 100.0, "{s:?}");
+    }
+
+    #[test]
+    fn temperaturaksen_tar_med_grenselinjene_over_hundre() {
+        // Avstenging ved 105 °C ligger like over rammen: tas med, så streken synes.
+        let s = y_axis(Some((33.0, 35.0)), &regel(20.0, 100.0), &[97.0, 105.0]);
+        assert!(s.hi >= 105.0, "{s:?}");
+        assert_eq!(s.lo, 20.0);
     }
 
     #[test]

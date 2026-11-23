@@ -543,6 +543,9 @@ pub struct ChartOpts {
     pub min_span: Rc<dyn Fn() -> f64>,
     /// Følger skalaen dataene («Tilpass»)?
     pub auto: Rc<dyn Fn() -> bool>,
+    /// Temperaturserier: aksen følger [`math::temp_axis`] (alltid minst til
+    /// 100 °C), uansett `auto` og `min_span`. Settes med [`ChartOpts::temp`].
+    pub temp: bool,
     pub fill: Rc<dyn Fn() -> bool>,
     pub unit: Rc<dyn Fn() -> String>,
     pub decimals: usize,
@@ -567,6 +570,7 @@ impl ChartOpts {
             limits: Rc::new(Vec::new),
             min_span: Rc::new(|| 0.0),
             auto: Rc::new(move || a.upgrade().is_some_and(|a| a.settings().chart_scale == "auto")),
+            temp: false,
             fill: Rc::new(move || a2.upgrade().is_none_or(|a| a.settings().chart_fill)),
             unit: Rc::new(String::new),
             decimals: 0,
@@ -578,6 +582,19 @@ impl ChartOpts {
                 Rc::new(move || a.upgrade().map(|a| a.settings().interval_ms as i64 + 150).unwrap_or(1150))
             },
         }
+    }
+}
+
+impl ChartOpts {
+    /// En graf med temperaturserier (GPU, CPU, disk eller flere sammen).
+    /// Alle temperaturgrafene i appen lages her, så de får samme akseregel:
+    /// fra `range` sin nedre grense til minst 100 °C ([`math::temp_axis`]).
+    /// `range` er i enheten som vises (°C eller °F).
+    pub fn temp(app: &Rc<App>, range: impl Fn() -> (f64, f64) + 'static) -> ChartOpts {
+        let mut o = ChartOpts::new(app, range);
+        o.temp = true;
+        o.unit = Rc::new(|| F::temp_label().into());
+        o
     }
 }
 
@@ -1036,8 +1053,9 @@ impl Chart {
                 dr = Some(dr.map_or((v, v), |(lo, hi)| (lo.min(v), hi.max(v))));
             }
         }
-        let auto = (inner.opts.auto)();
-        let axis = math::Axis { pref: fixed, hard: inner.opts.hard, min_span: (inner.opts.min_span)(), auto };
+        // Temperaturgrafene har én felles regel og følger ikke «Tilpass».
+        let axis = if inner.opts.temp { math::temp_axis(fixed, F::fahrenheit()) } else { math::Axis { pref: fixed, hard: inner.opts.hard, min_span: (inner.opts.min_span)(), auto: (inner.opts.auto)() } };
+        let auto = axis.auto;
         let limits = (inner.opts.limits)();
         let limit_vals: Vec<f64> = limits.iter().map(|l| l.v).collect();
         let want = math::y_axis(dr, &axis, &limit_vals);
@@ -1978,13 +1996,10 @@ impl Default for DefOpts {
     }
 }
 
-/// Det foretrukne området for GPU- og CPU-temperatur (20–100 °C).
+/// Området temperaturgrafene viser (20–100 °C). Brukes med
+/// [`ChartOpts::temp`]: taket er et minste, og verdier utenfor utvider aksen.
 pub fn temp_range() -> (f64, f64) {
     if F::fahrenheit() { (68.0, 212.0) } else { (20.0, 100.0) }
-}
-
-pub fn temp_span() -> f64 {
-    if F::fahrenheit() { 36.0 } else { 20.0 }
 }
 
 /// Nett i valgt enhet: MB/s eller Mbit/s.
@@ -2039,7 +2054,7 @@ pub fn def_panel(app: &Rc<App>, id: &str, o: DefOpts) -> Rc<ChartPanel> {
     let st = move |f: fn(&rigg_core::model::GpuStatic) -> Option<f64>| wa.upgrade().and_then(|a| a.with_statics(f)).flatten();
     let temp = |v: f64| F::temp_out(Some(v)).unwrap_or(v);
     let (series, unit, mut opts, fixed_only): (Vec<SeriesDef>, Rc<dyn Fn() -> String>, ChartOpts, bool) = match id {
-        "gpuTemp" => (vec![SeriesDef::new(&gk("temp"), tr!("Temperatur"), "--c-temp").fill().map(temp)], Rc::new(|| F::temp_label().into()), ChartOpts::new(app, temp_range), false),
+        "gpuTemp" => (vec![SeriesDef::new(&gk("temp"), tr!("Temperatur"), "--c-temp").fill().map(temp)], Rc::new(|| F::temp_label().into()), ChartOpts::temp(app, temp_range), false),
         "gpuLoad" => (
             vec![SeriesDef::new(&gk("gpuUtil"), "GPU", "--c-load").fill(), SeriesDef::new(&gk("memUtil"), tr!("Minnekontroller"), "--c-memctl")],
             Rc::new(|| "%".into()),
@@ -2074,7 +2089,7 @@ pub fn def_panel(app: &Rc<App>, id: &str, o: DefOpts) -> Rc<ChartPanel> {
             )
         }
         "cpuLoad" => (vec![SeriesDef::new("cpu/load", tr!("Total"), "--c-load").fill()], Rc::new(|| "%".into()), ChartOpts::new(app, || (0.0, 100.0)), true),
-        "cpuTemp" => (vec![SeriesDef::new("cpu/temp", tr!("Temperatur (Tdie)"), "--c-temp").fill().map(temp)], Rc::new(|| F::temp_label().into()), ChartOpts::new(app, temp_range), false),
+        "cpuTemp" => (vec![SeriesDef::new("cpu/temp", tr!("Temperatur (Tdie)"), "--c-temp").fill().map(temp)], Rc::new(|| F::temp_label().into()), ChartOpts::temp(app, temp_range), false),
         "mem" => (vec![SeriesDef::new("mem/usedPct", tr!("Brukt"), "--c-mem").fill()], Rc::new(|| "%".into()), ChartOpts::new(app, || (0.0, 100.0)), true),
         "diskTemp" => {
             let list = disk_temp_series(app);
@@ -2083,7 +2098,7 @@ pub fn def_panel(app: &Rc<App>, id: &str, o: DefOpts) -> Rc<ChartPanel> {
             } else {
                 list.iter().enumerate().map(|(i, (k, n))| SeriesDef::new(k, n, DISK_COLORS[i % DISK_COLORS.len()]).map(temp)).collect()
             };
-            (series, Rc::new(|| F::temp_label().into()), ChartOpts::new(app, || if F::fahrenheit() { (68.0, 140.0) } else { (20.0, 60.0) }), false)
+            (series, Rc::new(|| F::temp_label().into()), ChartOpts::temp(app, temp_range), false)
         }
         "diskIo" => (
             vec![SeriesDef::new("disk/read", tr!("Lesing"), "--c-load").fill().map(|b| b / 1e6), SeriesDef::new("disk/write", tr!("Skriving"), "--c-memctl").map(|b| b / 1e6)],
@@ -2110,8 +2125,6 @@ pub fn def_panel(app: &Rc<App>, id: &str, o: DefOpts) -> Rc<ChartPanel> {
         _ => 0,
     };
     opts.min_span = match id {
-        "gpuTemp" | "cpuTemp" => Rc::new(temp_span),
-        "diskTemp" => Rc::new(|| if F::fahrenheit() { 18.0 } else { 10.0 }),
         "diskIo" => Rc::new(|| 5.0),
         "net" => Rc::new(|| if F::format().net_unit == "bit" { 0.8 } else { 0.1 }),
         "coreClock" => Rc::new(|| 400.0),
@@ -2203,6 +2216,11 @@ mod cols_imp {
         /// Siste spalte og rad får 1 px mer enn plassen, så kantlinja til
         /// høyre og under (flisene) klippes bort av beholderen.
         pub bleed: Cell<bool>,
+        /// Bare hele rader: antall spalter går opp i antall barn (4 × 1,
+        /// 2 × 2 eller 1 × 4 for fire kort, aldri 3 + 1).
+        pub whole_rows: Cell<bool>,
+        /// Avstand mellom radene når den er en annen enn mellom spaltene.
+        pub row_gap: Cell<Option<i32>>,
     }
 
     impl Default for Cols {
@@ -2216,6 +2234,8 @@ mod cols_imp {
                 fill: Cell::new(false),
                 breaks: RefCell::new(vec![]),
                 bleed: Cell::new(false),
+                whole_rows: Cell::new(false),
+                row_gap: Cell::new(None),
             }
         }
     }
@@ -2252,7 +2272,11 @@ mod cols_imp {
             v
         }
 
-        pub fn n_cols(&self, width: i32, k: usize) -> usize {
+        /// Bruddpunktene gir det høyeste antallet spalter; det går ned til
+        /// hvert barn får minst sin minste bredde (`fit.rs`), så et bredt
+        /// barn aldri legger seg over naboen.
+        pub fn n_cols(&self, width: i32, kids: &[gtk::Widget]) -> usize {
+            let k = kids.len();
             if k == 0 {
                 return 1;
             }
@@ -2265,24 +2289,24 @@ mod cols_imp {
                     n = n.min(cols);
                 }
             }
-            n.clamp(1, k)
+            let want = n.clamp(1, k);
+            if want == 1 {
+                return 1;
+            }
+            let mins: Vec<i32> = kids.iter().map(|w| w.measure(gtk::Orientation::Horizontal, -1).0).collect();
+            let (whole, whole_rows) = (self.whole_rows.get(), crate::widgets::fit::whole_rows(k));
+            crate::widgets::fit::fit_cols_where(want, &mins, |n| self.columns(width, n), |n| !whole || whole_rows(n))
+        }
+
+        pub fn row_gap(&self) -> i32 {
+            self.row_gap.get().unwrap_or_else(|| self.gap.get())
         }
 
         /// (x, bredde) per spalte.
         pub fn columns(&self, width: i32, n: usize) -> Vec<(i32, i32)> {
-            let gap = self.gap.get();
-            let avail = (width - gap * (n as i32 - 1)).max(n as i32);
             let ws = self.weights.borrow();
             let weights: Vec<f32> = if ws.len() == n { ws.clone() } else { vec![1.0; n] };
-            let sum: f32 = weights.iter().sum();
-            let mut out = Vec::with_capacity(n);
-            let mut x = 0;
-            for (i, wgt) in weights.iter().enumerate() {
-                let cw = if i + 1 == n { width - x } else { (avail as f32 * wgt / sum).floor() as i32 };
-                out.push((x, cw.max(1)));
-                x += cw + gap;
-            }
-            out
+            crate::widgets::fit::columns(width, self.gap.get(), &weights)
         }
 
         /// Høyden per rad (naturlig, minst `min_row`).
@@ -2308,9 +2332,9 @@ mod cols_imp {
                 }
                 _ => {
                     let w = if for_size > 0 { for_size } else { 800 };
-                    let cols = self.columns(w, self.n_cols(w, kids.len()));
+                    let cols = self.columns(w, self.n_cols(w, &kids));
                     let rows = self.rows(&kids, &cols);
-                    let h = rows.iter().sum::<i32>() + self.gap.get() * (rows.len() as i32 - 1).max(0);
+                    let h = rows.iter().sum::<i32>() + self.row_gap() * (rows.len() as i32 - 1).max(0);
                     (h, h, -1, -1)
                 }
             }
@@ -2318,10 +2342,10 @@ mod cols_imp {
 
         fn size_allocate(&self, width: i32, height: i32, _b: i32) {
             let kids = self.kids();
-            let n = self.n_cols(width, kids.len());
+            let n = self.n_cols(width, &kids);
             let cols = self.columns(width, n);
             let mut rows = self.rows(&kids, &cols);
-            let gap = self.gap.get();
+            let gap = self.row_gap();
             let used = rows.iter().sum::<i32>() + gap * (rows.len() as i32 - 1).max(0);
             if self.fill.get() && height > used && !rows.is_empty() {
                 let extra = (height - used) / rows.len() as i32;
@@ -2380,6 +2404,18 @@ impl Cols {
     /// Færre spalter under bredder: `&[(900, 3), (640, 2)]`.
     pub fn set_breaks(&self, breaks: &[(i32, usize)]) {
         *self.imp().breaks.borrow_mut() = breaks.to_vec();
+        self.queue_resize();
+    }
+
+    /// Egen avstand mellom radene (standard: som mellom spaltene).
+    pub fn set_row_gap(&self, gap: i32) {
+        self.imp().row_gap.set(Some(gap));
+        self.queue_resize();
+    }
+
+    /// Bare hele rader (se `whole_rows` i `cols_imp::Cols`).
+    pub fn set_whole_rows(&self) {
+        self.imp().whole_rows.set(true);
         self.queue_resize();
     }
 

@@ -59,14 +59,22 @@ mod imp {
             out
         }
 
-        pub fn cols(&self, width: i32, n: usize) -> usize {
-            if width >= self.three.get() && n >= self.three_min.get() {
+        /// Bruddpunktene gir det høyeste antallet; det går ned til det
+        /// bredeste panelet får plass i en spalte (`fit.rs`).
+        pub fn cols(&self, width: i32, kids: &[gtk::Widget]) -> usize {
+            let n = kids.len();
+            let want = if width >= self.three.get() && n >= self.three_min.get() {
                 3
             } else if width >= self.two.get() && n >= 2 {
                 2
             } else {
                 1
+            };
+            if want == 1 {
+                return 1;
             }
+            let widest = kids.iter().map(|k| k.measure(gtk::Orientation::Horizontal, -1).0).max().unwrap_or(0);
+            crate::widgets::fit::fit_even(want, width, self.gap.get(), widest)
         }
 
         /// Deler barna i `n` spalter i rekkefølge, så den høyeste blir lavest mulig.
@@ -107,7 +115,7 @@ mod imp {
 
         pub fn layout(&self, width: i32) -> crate::widgets::Placed {
             let kids = self.children();
-            let n = self.cols(width, kids.len());
+            let n = self.cols(width, &kids);
             let gap = self.gap.get();
             let colw = ((width - gap * (n as i32 - 1)) / n as i32).max(1);
             let heights: Vec<i32> = kids.iter().map(|k| k.measure(gtk::Orientation::Vertical, colw).1).collect();

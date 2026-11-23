@@ -446,6 +446,7 @@ pub struct Kontroller {
     actions: gtk::Box,
     strip: Rc<LockStrip>,
     stats: Vec<Rc<Stat>>,
+    stat_strip: StatStrip,
     rows: Vec<Rc<OcRow>>,
     fan_seg: Seg,
     fan_edit: gtk::Button,
@@ -516,6 +517,8 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     // P-tilstand og begrensningen har ingen måler.
     stats[6].meter.set_visible(false);
     stats[7].meter.set_visible(false);
+    // Åtte fliser står 8, 4 + 4 eller 2 per rad, aldri 5 + 3.
+    strip_stats.balance_on_resize(8);
     let live = vbox(0, &["group", "oc-live"]);
     live.append(&strip_stats.root);
     root.append(&live);
@@ -675,6 +678,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         actions,
         strip,
         stats,
+        stat_strip: strip_stats,
         rows,
         fan_seg,
         fan_edit,
@@ -1047,6 +1051,7 @@ impl Kontroller {
     }
 
     fn render_stats(&self, r: &Read) {
+        self.stat_strip.balance(8);
         let s = &self.stats;
         let frac = |v: Option<f64>, m: Option<f64>| match (v, m) {
             (Some(v), Some(m)) if m > 0.0 => Some(v / m),
