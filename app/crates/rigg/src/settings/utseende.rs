@@ -157,16 +157,18 @@ fn check_badge() -> gtk::Box {
     b
 }
 
-fn palettes(app: &Rc<App>) -> gtk::Grid {
-    let grid = gtk::Grid::new();
-    grid.set_column_spacing(12);
-    grid.set_row_spacing(12);
-    grid.set_column_homogeneous(true);
+/// Fire like kort som brytes til 2 × 2 (og 1 × 4) når de ikke får plass.
+/// Et fast rutenett med fire spalter var bredere enn panelet i en tospalters
+/// visning og la seg over nabopanelet (1.6.0).
+fn palettes(app: &Rc<App>) -> crate::widgets::chart::Cols {
+    let grid = crate::widgets::chart::Cols::new(&[1.0; 4], 12, 0);
+    grid.set_whole_rows();
+    grid.set_hexpand(true);
     grid.set_accessible_role(gtk::AccessibleRole::RadioGroup);
     grid.update_property(&[gtk::accessible::Property::Label(tr!("Fargetema"))]);
     let cur = app.settings().palette.clone();
     let mut first: Option<gtk::ToggleButton> = None;
-    for (i, id) in PALETTE_IDS.iter().enumerate() {
+    for id in PALETTE_IDS.iter() {
         let (name, desc) = palette_text(id);
         let b = gtk::ToggleButton::new();
         b.add_css_class("pal-card");
@@ -185,9 +187,15 @@ fn palettes(app: &Rc<App>) -> gtk::Grid {
         let badge = check_badge();
         frame.add_overlay(&badge);
         col.append(&frame);
+        // Navn og beskrivelse brytes i kortet i stedet for å bestemme bredden.
         let n = label(name, &["pal-name"]);
+        n.set_wrap(true);
+        n.set_wrap_mode(gtk::pango::WrapMode::WordChar);
         col.append(&n);
-        col.append(&label(desc, &["pal-desc"]));
+        let d = label(desc, &["pal-desc"]);
+        d.set_wrap(true);
+        d.set_wrap_mode(gtk::pango::WrapMode::WordChar);
+        col.append(&d);
         b.set_child(Some(&col));
         b.set_active(*id == cur);
         badge.set_visible(*id == cur);
@@ -200,7 +208,7 @@ fn palettes(app: &Rc<App>) -> gtk::Grid {
                 save(&a, json!({"palette": idc}));
             }
         });
-        grid.attach(&b, i as i32, 0, 1, 1);
+        grid.append(&b);
     }
     grid
 }
@@ -270,7 +278,9 @@ fn icon_grid(app: &Rc<App>) -> gtk::FlowBox {
     fb.add_css_class("icon-grid");
     fb.set_selection_mode(gtk::SelectionMode::Single);
     fb.set_homogeneous(true);
-    fb.set_min_children_per_line(5);
+    // Tre per linje som minste (før fem): rutenettet holdt panelet bredere
+    // enn spalten med større skrift og i smale vinduer.
+    fb.set_min_children_per_line(3);
     fb.set_max_children_per_line(10);
     fb.set_column_spacing(12);
     fb.set_row_spacing(8);

@@ -95,7 +95,7 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
                 ),
                 row(
                     tr!("Y-akse"),
-                    Some(tr!("Tilpass følger dataene i vinduet. Fast beholder normalområdet, men begge utvider aksen når verdiene går utenfor. Last og minne i prosent har skala 0–100; vifter kan gå over 100 %.")),
+                    Some(tr!("Tilpass følger dataene i vinduet. Fast beholder normalområdet, men begge utvider aksen når verdiene går utenfor. Temperaturgrafer går alltid til minst 100 °C. Last og minne i prosent har skala 0–100; vifter kan gå over 100 %.")),
                     &scale.root,
                     &kw("skala akse adaptiv temperatur klokke", tr!("søkeord", "skala akse adaptiv temperatur klokke")),
                 ),

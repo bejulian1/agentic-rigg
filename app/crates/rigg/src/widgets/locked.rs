@@ -789,6 +789,16 @@ mod cols_imp {
         fn side_width(&self, width: i32) -> i32 {
             self.side_w.get().min(width / 2)
         }
+        /// Under hverandre: under bruddpunktet, eller når en av flatene ikke
+        /// får sin minste bredde side ved side (lange ord, større skrift).
+        fn stacked(&self, width: i32, main: &gtk::Widget, side: &gtk::Widget) -> bool {
+            if width < self.bp.get() {
+                return true;
+            }
+            let sw = self.side_width(width);
+            let mw = width - sw - self.gap.get();
+            !crate::widgets::fit::fits_pair(mw, main.measure(gtk::Orientation::Horizontal, -1).0, sw, side.measure(gtk::Orientation::Horizontal, -1).0)
+        }
     }
 
     impl WidgetImpl for Columns {
@@ -807,7 +817,7 @@ mod cols_imp {
                 }
                 _ => {
                     let w = if for_size < 0 { self.bp.get() } else { for_size };
-                    if w >= self.bp.get() {
+                    if !self.stacked(w, &main, &side) {
                         let sw = self.side_width(w);
                         let mw = (w - sw - gap).max(0);
                         let (m0, m1, _, _) = main.measure(o, mw);
@@ -825,7 +835,7 @@ mod cols_imp {
         fn size_allocate(&self, width: i32, height: i32, _baseline: i32) {
             let (Some(main), Some(side)) = self.kids() else { return };
             let gap = self.gap.get();
-            let narrow = width < self.bp.get();
+            let narrow = self.stacked(width, &main, &side);
             let main_w = if narrow { width } else { width - self.side_width(width) - gap };
             let state = (narrow, main_w < self.row_bp.get());
             if self.narrow.replace(Some(state)) != Some(state) {

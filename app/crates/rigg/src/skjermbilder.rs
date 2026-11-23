@@ -27,6 +27,14 @@ mod ui140;
 #[path = "skjermbilder_oppgaver.rs"]
 mod oppgaver;
 
+#[path = "skjermbilder_revisjon.rs"]
+mod revisjon;
+
+thread_local! {
+    /// Bredden planen sist ba om (`Step::Size`), for layoutrevisjonen.
+    static REQUESTED_WIDTH: std::cell::Cell<i32> = const { std::cell::Cell::new(0) };
+}
+
 enum Step {
     Set(Value),
     Size(i32, i32),
@@ -36,6 +44,8 @@ enum Step {
     CloseSettings,
     Wait(u64),
     Shot(&'static str),
+    /// Som `Shot`, men bare når siden faktisk er rullet (etter `Scroll`).
+    ShotScrolled(&'static str),
     /// Kortmenyen er en egen GTK-flate og må tegnes med sin egen renderer.
     DeviceShot(&'static str),
     Keys(&'static str),
@@ -73,6 +83,7 @@ fn plan() -> Vec<Step> {
         Ok("rgb-ui") => plan_rgb(),
         Ok("rgb-flow") => plan_rgb_flow(),
         Ok("oppgaver") => oppgaver::plan(),
+        Ok("revisjon") => revisjon::plan(),
         _ => plan_grunnmur(),
     }
 }
@@ -1079,6 +1090,7 @@ fn run(app: Rc<App>, steps: Rc<Vec<Step>>, i: usize, dir: PathBuf) {
             app.replace_settings(next);
         }
         Step::Size(w, h) => {
+            REQUESTED_WIDTH.with(|r| r.set(*w));
             if let Some(win) = app.window() {
                 win.unmaximize();
                 win.set_default_size(*w, *h);
@@ -1143,6 +1155,15 @@ fn run(app: Rc<App>, steps: Rc<Vec<Step>>, i: usize, dir: PathBuf) {
         Step::Shot(name) => {
             if let Some(win) = app.window() {
                 shot(win.upcast_ref(), &dir.join(format!("{name}.png")));
+            }
+        }
+        Step::ShotScrolled(name) => {
+            if let Some(win) = app.window() {
+                let mut scrolled = false;
+                scrollers(win.upcast_ref(), &mut |sc| scrolled |= sc.vadjustment().value() > sc.vadjustment().lower() + 1.0);
+                if scrolled {
+                    shot(win.upcast_ref(), &dir.join(format!("{name}.png")));
+                }
             }
         }
         Step::DeviceShot(name) => {
@@ -1270,6 +1291,29 @@ fn shot(win: &gtk::Window, path: &std::path::Path) {
             use std::io::Write;
             if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(dir.join("kuttet.txt")) {
                 let _ = writeln!(f, "{name}: {}", cut.join(", "));
+            }
+        }
+    }
+    if std::env::var("RIGG_PLAN").as_deref() == Ok("revisjon") {
+        let mut found = Vec::new();
+        revisjon::findings(win.upcast_ref(), &mut found);
+        found.dedup();
+        // Innhold som holder vinduet bredere enn planen ba om (aldri under
+        // appens minste bredde): vinduet kan da ikke gjøres så smalt.
+        let want = REQUESTED_WIDTH.with(|w| w.get()).max(crate::window::MIN_WIDTH);
+        if win.width() > want + 1 {
+            let min = win.measure(gtk::Orientation::Horizontal, -1).0;
+            found.push(format!("VINDU er {} px, ønsket {want} px (minste bredde {min} px); krever bredden: {}", win.width(), revisjon::culprit(win.upcast_ref())));
+        }
+        if !found.is_empty()
+            && let Some(dir) = path.parent()
+        {
+            use std::io::Write;
+            let name = path.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
+            if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(dir.join("funn.txt")) {
+                for line in &found {
+                    let _ = writeln!(f, "{name}: {line}");
+                }
             }
         }
     }

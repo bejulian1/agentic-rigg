@@ -11,12 +11,14 @@
 //! | `spark.rs` | sparklinje | grunnmuren |
 //! | `popover.rs` | meny og popover | grunnmuren |
 //! | `masonry.rs` | spalter | grunnmuren |
+//! | `fit.rs` | antall spalter som får plass (felles for spalteoppsettene) | 1.6.1 |
 //! | `chart.rs`, `gauge.rs`, `bar.rs` | graf, målere, stolper | 2A |
 //! | `locked.rs` | låst-banneret og lesevisningene | 2C |
 //! | `oc.rs` | glideren, tallflisene og (i) på Kontroller og Viftekurve | 6C |
 
 pub mod bar;
 pub mod chart;
+pub mod fit;
 pub mod fixed;
 pub mod gauge;
 pub mod icon;
@@ -28,11 +30,13 @@ pub mod panel;
 pub mod popover;
 pub mod rows;
 pub mod seg;
+pub mod setrow;
 pub mod spark;
 pub mod styrer;
 pub mod switchrow;
 pub mod trader;
 pub mod version_log;
+pub mod wrap;
 
 /// Tegner vinduet med cairo (`GSK_RENDERER=cairo`, standard fra runde 3C)?
 /// Da tegnes sparklinjene med cairo direkte i stedet for som GSK-stier.

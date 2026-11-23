@@ -59,8 +59,8 @@ msgid "synkron tidspunkt sikte"
 msgstr "sync crosshair cursor timestamp"
 
 #: crates/rigg/src/settings/grafer.rs:98
-msgid "Tilpass følger dataene i vinduet. Fast beholder normalområdet, men begge utvider aksen når verdiene går utenfor. Last og minne i prosent har skala 0–100; vifter kan gå over 100 %."
-msgstr "Auto fits the visible data. Fixed keeps the normal range, while both expand if values exceed it. Load and memory percentages use 0–100; fans can exceed 100 %."
+msgid "Tilpass følger dataene i vinduet. Fast beholder normalområdet, men begge utvider aksen når verdiene går utenfor. Temperaturgrafer går alltid til minst 100 °C. Last og minne i prosent har skala 0–100; vifter kan gå over 100 %."
+msgstr "Auto fits the visible data. Fixed keeps the normal range, while both expand if values exceed it. Temperature graphs always reach at least 100 °C. Load and memory percentages use 0–100; fans can exceed 100 %."
 
 #: crates/rigg/src/settings/grafer.rs:100
 msgctxt "søkeord"

@@ -133,7 +133,8 @@ impl SectionPanel {
                     vl.set_wrap(true);
                     vl.set_wrap_mode(gtk::pango::WrapMode::WordChar);
                     vl.set_xalign(0.0);
-                    vb.append(&vl);
+                    // Brytes bare når bredden er for liten, ikke fordi raden er høy (fixed.rs).
+                    vb.append(&crate::widgets::fixed::Steady::new(&vl));
                     let info = Icon::new("info", 12);
                     info.add_css_class("info-mark");
                     info.set_valign(gtk::Align::Center);
@@ -180,6 +181,9 @@ impl SectionPanel {
                             l.set_xalign(1.0);
                         }
                         l.set_hexpand(c == wide);
+                        if c == wide {
+                            shrinkable(&l);
+                        }
                         g.attach(&l, c as i32, 0, 1, 1);
                     }
                     for (ri, row) in t.rows.iter().enumerate() {
@@ -193,6 +197,9 @@ impl SectionPanel {
                                 l.add_css_class("last");
                             }
                             l.set_selectable(c == 0 && t.id == "prosesser");
+                            if c == wide {
+                                shrinkable(&l);
+                            }
                             g.attach(&l, c as i32, ri as i32 + 1, 1, 1);
                             rl.push(l);
                         }
@@ -256,6 +263,27 @@ impl SectionPanel {
     pub fn row(&self, id: &str) -> Option<&KvRefs> {
         self.kv.iter().find(|(k, _)| k.split(':').next() == Some(id)).map(|(_, v)| v)
     }
+}
+
+/// Minste bredde (tegn) for den brede tekstkolonnen i en tabell.
+const TABLE_WIDE_MIN_CHARS: i32 = 8;
+
+/// Den brede tekstkolonnen i en tabell kan krympe: teksten kuttes med «…»
+/// og står hel i verktøytipset. Uten dette var tabellens minste bredde summen
+/// av de lengste cellene, og «Kontrollere» på System stakk ut av panelet i
+/// tospalters visning (drivernavnene ble klippet bort).
+fn shrinkable(l: &gtk::Label) {
+    l.set_ellipsize(gtk::pango::EllipsizeMode::End);
+    l.set_width_chars((l.text().chars().count() as i32).min(TABLE_WIDE_MIN_CHARS));
+    l.set_has_tooltip(true);
+    l.connect_query_tooltip(|l, _, _, _, tip| {
+        if l.layout().is_ellipsized() {
+            tip.set_text(Some(&l.text()));
+            true
+        } else {
+            false
+        }
+    });
 }
 
 /// Kalles når en seksjon er bygd (Grafikkort legger til UUID-knappene).

@@ -633,16 +633,18 @@ impl StatStrip {
     /// oppdateres; gjør ingenting før flisene har fått bredde.
     pub fn balance(&self, max: u32) {
         let mut n = 0u32;
+        // Den naturlige bredden: flisene kan krympe (tekst med «…»), men
+        // FlowBox legger dem ut etter det de vil ha. Flisene er like brede,
+        // så den bredeste avgjør. Før ble bare den første målt: med en lengre
+        // tittel lenger ut («Manuelle Mindestdrehzahl») ble det 5 + 1.
+        let mut min_w = 1;
         let mut c = self.root.first_child();
         while let Some(ch) = c {
             n += 1;
+            min_w = min_w.max(ch.measure(gtk::Orientation::Horizontal, -1).1);
             c = ch.next_sibling();
         }
         let w = self.root.width();
-        let Some(first) = self.root.first_child() else { return };
-        // Den naturlige bredden: flisene kan krympe (tekst med «…»), men
-        // FlowBox legger dem ut etter det de vil ha.
-        let min_w = first.measure(gtk::Orientation::Horizontal, -1).1.max(1);
         if w <= 0 || n == 0 {
             return;
         }
@@ -652,6 +654,25 @@ impl StatStrip {
         if self.root.max_children_per_line() != per {
             self.root.set_max_children_per_line(per);
         }
+    }
+
+    /// Holder radene like når vinduet endrer bredde (ellers ved neste
+    /// oppdatering, innen ett sekund).
+    pub fn balance_on_resize(&self, max: u32) {
+        self.root.connect_realize(move |root| {
+            if let Some(win) = root.root().and_downcast::<gtk::Window>() {
+                // Svake referanser: vinduet skal ikke holde raden i live.
+                let weak = root.downgrade();
+                win.connect_default_width_notify(move |_| {
+                    let weak = weak.clone();
+                    gtk::glib::timeout_add_local_once(std::time::Duration::from_millis(80), move || {
+                        if let Some(root) = weak.upgrade() {
+                            StatStrip { root }.balance(max);
+                        }
+                    });
+                });
+            }
+        });
     }
 
     pub fn add(&self, stat: &Stat) {
