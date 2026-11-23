@@ -33,6 +33,9 @@ mod revisjon;
 #[path = "skjermbilder_nettverk.rs"]
 mod nettverk;
 
+#[path = "skjermbilder_readme.rs"]
+mod readme;
+
 thread_local! {
     /// Bredden planen sist ba om (`Step::Size`), for layoutrevisjonen.
     static REQUESTED_WIDTH: std::cell::Cell<i32> = const { std::cell::Cell::new(0) };
@@ -88,6 +91,7 @@ fn plan() -> Vec<Step> {
         Ok("rgb-flow") => plan_rgb_flow(),
         Ok("oppgaver") => oppgaver::plan(),
         Ok("nettverk") => nettverk::plan(),
+        Ok("readme") => readme::plan(),
         Ok("revisjon") => revisjon::plan(),
         _ => plan_grunnmur(),
     }
