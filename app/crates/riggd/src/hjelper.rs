@@ -531,17 +531,20 @@ mod compatibility_tests {
 
     #[test]
     fn krever_rettet_binaer_ogsa_nar_byggnummeret_er_likt() {
-        assert!(rigg_core::version::build() >= 25);
+        assert!(rigg_core::version::build() >= 32);
         assert_eq!(
-            state_for_status(&json!({"helper":{"build":25,"protocol":2}})),
-            State::Outdated(25)
+            state_for_status(&json!({"helper":{"build":32,"protocol":2}})),
+            State::Outdated(32)
         );
+        // Hjelpere før sikkerhetsrettingene i 1.6.0 (bygg 25–31) er utdatert.
+        for old in [24, 25, 31] {
+            assert_eq!(
+                state_for_status(&json!({"helper":{"build":old,"protocol":2,"strictRequests":true}})),
+                State::Outdated(old)
+            );
+        }
         assert_eq!(
-            state_for_status(&json!({"helper":{"build":24,"protocol":2,"strictRequests":true}})),
-            State::Outdated(24)
-        );
-        assert_eq!(
-            state_for_status(&json!({"helper":{"build":25,"protocol":2,"strictRequests":true}})),
+            state_for_status(&json!({"helper":{"build":32,"protocol":2,"strictRequests":true}})),
             State::On
         );
         assert_eq!(

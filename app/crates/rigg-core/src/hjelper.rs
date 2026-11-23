@@ -25,7 +25,9 @@ use std::path::{Path, PathBuf};
 pub const PROTOCOL: u32 = 2;
 /// Gjennomgått sikkerhetsmotor. Øk ved sikkerhetsrettinger som eldre hjelpere
 /// ikke må få omgå; rene UI-patcher kan beholde autorisasjonen fra dette bygget.
-pub const MIN_COMPATIBLE_BUILD: u32 = 25;
+/// Bygg 32 (1.6.0): monoton klokke, trygg nødregel, merkøren slettes aldri
+/// ubekreftet, overtemperaturvern i feiltilstand og IPC-herding.
+pub const MIN_COMPATIBLE_BUILD: u32 = 32;
 
 /// Bare kjente hjelpere innen samme protokoll godtas. En nyere hjelper enn
 /// appen krever også oppdatering; ingen fremtidig kompatibilitet antas.
@@ -561,14 +563,15 @@ mod tests {
 
     #[test]
     fn uioppdatering_beholder_kompatibel_hjelper_men_ikke_eldre_motor() {
-        assert!(crate::version::build() >= 25);
-        assert!(!compatible(PROTOCOL, 23));
-        assert!(!compatible(PROTOCOL, 24));
-        assert!(compatible(PROTOCOL, 25));
+        assert!(crate::version::build() >= 32);
+        // 1.6.0 (bygg 32) retter sikkerhetsmotoren: 25–31 er utdatert.
+        for old in [22, 23, 24, 25, 28, 31] {
+            assert!(!compatible(PROTOCOL, old), "{old}");
+        }
+        assert!(compatible(PROTOCOL, 32));
         assert!(compatible(PROTOCOL, crate::version::build()));
-        assert!(!compatible(PROTOCOL, 22));
-        assert!(!compatible(PROTOCOL - 1, 23));
-        assert!(!compatible(PROTOCOL + 1, 23));
+        assert!(!compatible(PROTOCOL - 1, 32));
+        assert!(!compatible(PROTOCOL + 1, 32));
         assert!(!compatible(PROTOCOL, crate::version::build() + 1));
     }
 

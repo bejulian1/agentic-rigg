@@ -1,6 +1,18 @@
 # Versjonslogg
 
-Gjeldende versjon: **1.5.6 · bygg 31**. Nedlastinger og utgivelsesnotater ligger under [Releases](https://github.com/bejulian1/agentic-rigg/releases).
+Gjeldende versjon: **1.6.0 · bygg 32**. Nedlastinger og utgivelsesnotater ligger under [Releases](https://github.com/bejulian1/agentic-rigg/releases).
+
+## 1.6.0 · bygg 32 – 23. november 2026
+
+- **Sikrere GPU-hjelper:** Fristene for Behold, livssignalet og oppdagelsen av hvile følger en monoton klokke (`CLOCK_BOOTTIME`) i stedet for veggklokka, så de verken fryser eller tilbakestilles når klokka stilles. Nødregelen over 85 °C godtar aldri lav manuell vifte som gjenoppretting: kan 100 % ikke skrives, settes kortet til grunnverdiene med bekreftet Auto, ellers meldes feil. Gjenopprettingsmerkøren (`dirty.json`) lagrer antall vifter, og den slettes aldri når den ikke kan bekreftes, heller ikke ved stopp, endret oppsett eller tilbakestilling. Er merkøren ubekreftet, tar hjelperen ikke imot nye endringer før den er startet på nytt. Socketløkka begrenser tilkoblinger, linjer og svartid per runde.
+- **Overtemperaturvern i feiltilstand (issue #20):** Har en gjenoppretting feilet, leser hjelperen fortsatt temperaturen. Ved 85 °C eller mer, eller når temperaturen ikke kan leses, forsøker den grunnverdiene med Auto-vifter straks og så med økende mellomrom (opptil 60 s) til standard er bekreftet. Den skriver aldri andre verdier og åpner ikke for nye endringer. Feiltilstanden står til du selv tilbakestiller.
+- **Én ny administratoraktivering:** Rettingene ligger i hjelperen, så GPU-hjelpere fra bygg 25–31 vises som utdatert (minimumsbygget er 32, protokoll 2 er uendret). Slå på «Tillat endring av skjermkortet» i Innstillinger › Skjermkortstyring og skriv administratorpassordet én gang. Systemkomponentene oppdateres, og GPU-styringen aktiveres igjen. RGB-minimumet 29 er uendret.
+- **RGB-avklaring etter observert lys (issue #17):** Når en uavklart RGB-økt avsluttes under oppdateringen, settes kortet først tilbake til det lagrede lyset og leses av. Deretter spør appen om du ser det lyset. Først når du bekrefter, avklares økten. Lukker du dialogen, eller kortet er byttet, beholdes økten og ingenting byttes.
+- **Felles systemlås (issue #18):** Tillatelsene leses før nedlastingen og på nytt etterpå. Har noe endret seg, stopper installasjonen før en fil er byttet. Installasjon, NVML-gjenaktivering og valgt aktivering skjer under én felles systemlås.
+- **Festede systemfiler (issue #19, delvis):** Pakken har `SYSTEMFILER.sha256`, som `install.sh` legger hos brukeren. Ved oppdatering fra appen må den nedlastede utgaven ha nøyaktig de systemfilene den installerte appen kjenner, så en utgave som er byttet ut etter installasjonen avvises. Arkivet kontrolleres strengere (én rotmappe, bare vanlige filer, samme versjon og bygg, avgrenset størrelse).
+- **Systemfelt og installasjon (PR #22):** Stopp av bakgrunnsopptak fra systemfeltet beholder holdte GPU- og RGB-verdier. RGB-aktiveringen reparerer manglende systemfiler, tilbyr oppdatering av en utdatert hjelper og avbryter hvis behovet endres mens dialogen er åpen. Installasjon tilbys ikke over et nyere installert bygg, og systeminstallereren avviser nedgradering før noe endres. Arkiveringen kontrollerer alle NVIDIA-kort etter UUID.
+- **Opprydding (issue #21):** NVML-aktiveringen beholder høyst fem eldre grunnopptak (`baseline-forrige-*.json`): det opprinnelige og de fire nyeste.
+- **Begrensninger:** Rettingene i hjelperen, overtemperaturvernet og den nye RGB-avklaringen er bare prøvd mot simulerte kort og skript, ikke på ekte maskinvare. Issue #19 er delvis løst: `SHA256SUMS` er ennå ikke signert, og passorddialogen ved installasjon fra appen navngir fortsatt `python3`, ikke Agentic Rigg. Begge krever en egen beslutning (signeringsnøkkel og en fast hentehjelper eid av root). Første installasjon og kildebygg kontrolleres derfor bare mot summene GitHub publiserer.
 
 ## 1.5.6 · bygg 31 – 21. november 2026
 
