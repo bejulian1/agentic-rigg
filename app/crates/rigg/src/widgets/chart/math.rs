@@ -299,20 +299,43 @@ pub struct LimitLine {
     pub level: &'static str,
 }
 
-/// Tekstene til grenselinjene: y (piksler) for hver linje som er innenfor
-/// aksen, og om teksten får plass uten å kollidere med en annen. Linjene
-/// sorteres ovenfra; en tekst som ville truffet den forrige, skjules (linja
-/// står). `text_h`: høyden på teksten.
-pub fn limit_labels(ys: &[Option<f32>], text_h: f32) -> Vec<bool> {
+/// Hvor teksten til hver grenselinje står: øvre kant (piksler), eller `None`
+/// når teksten skjules (linja står). `ys`: y for hver linje som er innenfor
+/// aksen. `text_h`: høyden på teksten. `top`/`bottom`: plottet.
+///
+/// Teksten står over sin egen linje når det er plass og ingen annen linje
+/// går gjennom den, ellers under, og da under alle linjene som ligger tett
+/// i tett nedover. Før sto «Avstenging 100 °C» rett under sin egen linje
+/// øverst i plottet, og linja for nedklokking (97 °C) gikk gjennom teksten.
+/// Linjene tas ovenfra; en tekst som ville truffet en som alt står, skjules.
+pub fn limit_label_tops(ys: &[Option<f32>], text_h: f32, top: f32, bottom: f32) -> Vec<Option<f32>> {
     let mut order: Vec<usize> = (0..ys.len()).filter(|i| ys[*i].is_some()).collect();
     order.sort_by(|a, b| ys[*a].unwrap_or(0.0).total_cmp(&ys[*b].unwrap_or(0.0)));
-    let mut out = vec![false; ys.len()];
-    let mut last: Option<f32> = None;
+    let lines: Vec<f32> = order.iter().filter_map(|i| ys[*i]).collect();
+    // En linje (1 px) treffer teksten når den ligger innenfor, med 1 px luft.
+    let crossed = |t: f32, own: f32| lines.iter().any(|l| *l != own && *l >= t - 1.0 && *l <= t + text_h);
+    let mut placed: Vec<f32> = Vec::new();
+    let mut out = vec![None; ys.len()];
     for i in order {
         let y = ys[i].unwrap_or(0.0);
-        if last.is_none_or(|l| y - l >= text_h + 2.0) {
-            out[i] = true;
-            last = Some(y);
+        let free = |t: f32| placed.iter().all(|p| t >= p + text_h + 2.0 || t + text_h + 2.0 <= *p);
+        let above = y - 1.0 - text_h;
+        let pick = if above >= top && !crossed(above, y) && free(above) {
+            Some(above)
+        } else {
+            // Under linja, og videre ned forbi hver linje som ellers går gjennom.
+            let mut t = y + 2.0;
+            for _ in 0..lines.len() {
+                match lines.iter().filter(|l| **l != y && **l >= t - 1.0 && **l <= t + text_h).fold(None, |m: Option<f32>, l| Some(m.map_or(*l, |m| m.max(*l)))) {
+                    Some(l) => t = l + 2.0,
+                    None => break,
+                }
+            }
+            (t + text_h <= bottom && !crossed(t, y) && free(t)).then_some(t)
+        };
+        if let Some(t) = pick {
+            placed.push(t);
+            out[i] = Some(t);
         }
     }
     out
@@ -1095,9 +1118,46 @@ mod akse_tester {
         // 30–40 °C: grensene er langt unna og drar ikke aksen opp.
         let s = y_axis(Some((30.0, 40.0)), &temp(true), &[97.0, 100.0]);
         assert!(s.hi < 97.0, "{s:?}");
-        // Tekstene til 97 og 100 kolliderer i en lav graf: bare den øverste vises.
-        assert_eq!(limit_labels(&[Some(40.0), Some(34.0)], 12.0), vec![false, true]);
-        assert_eq!(limit_labels(&[Some(60.0), None, Some(20.0)], 12.0), vec![true, false, true]);
+        // Linjer langt fra hverandre: begge tekstene står over sin linje.
+        assert_eq!(limit_label_tops(&[Some(60.0), None, Some(20.0)], 12.0, 0.0, 200.0), vec![Some(47.0), None, Some(7.0)]);
+    }
+
+    #[test]
+    fn grenseteksten_strykes_ikke_over_av_en_linje() {
+        let th = 12.0;
+        // Ingen linje går gjennom en tekst som vises.
+        let clear = |ys: &[Option<f32>], tops: &[Option<f32>]| {
+            for (i, t) in tops.iter().enumerate() {
+                let Some(t) = t else { continue };
+                for (j, y) in ys.iter().enumerate() {
+                    let Some(y) = y else { continue };
+                    assert!(*y < t - 1.0 || *y > t + th, "linje {j} (y {y}) går gjennom teksten til linje {i} ({t}–{})", t + th);
+                }
+            }
+        };
+        // 20–100 °C: avstenging 100 øverst (y 8), nedklokking 97 fire piksler under.
+        // Før sto teksten på y 10–22, med 97-linja (y 12) tvers gjennom.
+        let ys = [Some(12.0), Some(8.0)];
+        let tops = limit_label_tops(&ys, th, 8.0, 200.0);
+        assert_eq!(tops, vec![None, Some(14.0)], "under begge linjene; nedklokking har ikke plass");
+        clear(&ys, &tops);
+        // 0–125 °C: det er plass over 100-linja, og 97-teksten står under sin.
+        let ys = [Some(46.0), Some(40.0)];
+        let tops = limit_label_tops(&ys, th, 8.0, 200.0);
+        assert_eq!(tops, vec![Some(48.0), Some(27.0)]);
+        clear(&ys, &tops);
+        // Tre linjer tett i tett øverst: teksten går ned forbi alle.
+        let ys = [Some(8.0), Some(13.0), Some(18.0)];
+        let tops = limit_label_tops(&ys, th, 8.0, 200.0);
+        assert_eq!(tops[0], Some(20.0));
+        clear(&ys, &tops);
+        // Ingen plass verken over eller under: teksten skjules, ingenting krasjer.
+        assert_eq!(limit_label_tops(&[Some(10.0)], th, 8.0, 20.0), vec![None]);
+        assert_eq!(limit_label_tops(&[], th, 8.0, 200.0), Vec::<Option<f32>>::new());
+        // To tekster legger seg aldri oppå hverandre.
+        let tops = limit_label_tops(&[Some(100.0), Some(101.0)], th, 8.0, 200.0);
+        let shown: Vec<f32> = tops.iter().flatten().copied().collect();
+        assert!(shown.len() == 2 && (shown[0] - shown[1]).abs() >= th + 2.0, "{tops:?}");
     }
 
     #[test]

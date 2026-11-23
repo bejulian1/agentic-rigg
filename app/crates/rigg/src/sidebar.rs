@@ -51,12 +51,20 @@ fn lock_badge(app: &crate::state::App) -> gtk::Box {
     let t = crate::widgets::rows::tag(&text, Some(icon), kind);
     t.add_css_class("nav-lock");
     // Et langt merke («Helfer aktualisieren») kuttes heller enn å gjøre
-    // sidefeltet bredere enn spalten; hele teksten står i verktøytipset.
+    // sidefeltet bredere enn spalten. Da står merketeksten først i verktøytipset.
     if let Some(l) = t.last_child().and_then(|l| l.downcast::<gtk::Label>().ok()) {
         l.set_ellipsize(gtk::pango::EllipsizeMode::End);
     }
     t.set_visible(!crate::widgets::locked::control_ready(app));
-    t.set_tooltip_text(Some(&tiptext));
+    t.set_has_tooltip(true);
+    {
+        let (text, tiptext) = (text.clone(), tiptext.clone());
+        t.connect_query_tooltip(move |t, _, _, _, tip| {
+            let cut = t.last_child().and_then(|l| l.downcast::<gtk::Label>().ok()).is_some_and(|l| l.layout().is_ellipsized());
+            tip.set_text(Some(&if cut { format!("{text}\n{tiptext}") } else { tiptext.clone() }));
+            true
+        });
+    }
     t.set_can_target(true);
     t.update_property(&[gtk::accessible::Property::Label(&text), gtk::accessible::Property::Description(&tiptext)]);
     t
@@ -782,22 +790,16 @@ impl Sidebar {
             if *sec != Section::Control {
                 continue;
             }
-            // Overskriften og merket ligger i en `Wrap` inni seksjonsraden.
-            let Some(flow) = w.first_child().and_then(|f| f.downcast::<crate::widgets::wrap::Wrap>().ok()) else { continue };
-            let mut c = flow.first_child();
-            while let Some(ch) = c {
-                c = ch.next_sibling();
-                if ch.has_css_class("nav-lock") {
-                    ch.set_visible(!ready);
-                    let same = ch.first_child().and_then(|i| i.next_sibling()).and_then(|l| l.downcast::<gtk::Label>().ok()).is_some_and(|l| l.text() == text);
-                    if same {
-                        return;
-                    }
-                    ch.unparent();
+            // Overskriften og merket ligger i en `LeadRow` inni seksjonsraden.
+            let Some(row) = w.first_child().and_then(|f| f.downcast::<crate::widgets::leadrow::LeadRow>().ok()) else { continue };
+            if let Some(badge) = row.trail() {
+                badge.set_visible(!ready);
+                let same = badge.first_child().and_then(|i| i.next_sibling()).and_then(|l| l.downcast::<gtk::Label>().ok()).is_some_and(|l| l.text() == text);
+                if same {
+                    return;
                 }
             }
-            flow.append(&lock_badge(&self.app));
-            flow.queue_resize();
+            row.set_trail(Some(&lock_badge(&self.app)));
         }
     }
 
@@ -829,19 +831,19 @@ impl Sidebar {
                 title.set_xalign(0.0);
                 title.set_ellipsize(gtk::pango::EllipsizeMode::End);
                 title.set_accessible_role(gtk::AccessibleRole::Heading);
-                // Overskrift og merke på samme linje når de får plass, ellers
-                // merket på linja under. Før sto de i en rad som ikke kunne
-                // brytes: «Skjermkortstyring» + «Oppdater hjelper» var bredere
-                // enn sidefeltet og la seg inn over innholdet (1.6.0).
-                let flow = crate::widgets::wrap::Wrap::new();
-                flow.set_hexpand(true);
-                flow.append(&title);
+                // Overskrift og merke på samme linje: overskriften får plassen
+                // først, og merket kutter teksten sin når resten er for lite
+                // (leadrow.rs). I 1.6.0 sto de i en rad som ikke kunne krympe
+                // og la sidefeltet inn over innholdet; etterpå gikk merket ned
+                // på egen linje («Grafikkortsstyrning» på svensk).
+                let row = crate::widgets::leadrow::LeadRow::new(&title, 4);
+                row.set_hexpand(true);
                 if p.section == Section::Control {
                     // Ett merke for hele seksjonen, med forklaringen i
                     // verktøytipset. Teksten følger root-hjelperen (7A).
-                    flow.append(&lock_badge(&self.app));
+                    row.set_trail(Some(&lock_badge(&self.app)));
                 }
-                sec.append(&flow);
+                sec.append(&row);
                 let line = gtk::Box::new(gtk::Orientation::Horizontal, 0);
                 line.add_css_class("nav-sec-line");
                 line.set_visible(false);
