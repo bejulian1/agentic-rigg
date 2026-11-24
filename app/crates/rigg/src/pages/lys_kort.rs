@@ -68,9 +68,13 @@ pub(super) struct CardLight {
     queued: Cell<bool>,
     /// Nøyaktig valget brukeren trykket «Bruk» på, og når. Sendes bare én gang,
     /// bare innen [`QUEUE_TTL`] og bare uten endringer siden.
-    queued_request: RefCell<Option<(Value, Instant)>>,
+    queued_request: RefCell<Option<(Value, Instant, bool)>>,
     /// Neste steg etter et vellykket kall (lagre som varig, start «hold»).
     followups: RefCell<std::collections::VecDeque<Followup>>,
+    /// Neste `rgb_apply` er «Av» som skal holdes mens appen er åpen.
+    hold_intent: Cell<bool>,
+    /// Skrivemåten for «Av» (`rgbAv`), under detaljene.
+    av_method: gtk::DropDown,
     /// Brukeren har endret valgene siden siste synkronisering fra kortet.
     edited: Cell<bool>,
     syncing: Cell<bool>,
@@ -333,15 +337,26 @@ fn color_text(value: &Value) -> Option<String> {
 /// Så lenge et «Bruk» fra før aktiveringen gjelder.
 const QUEUE_TTL: Duration = Duration::from_secs(120);
 
-/// Steg som følger etter et vellykket «Behold».
+/// Steg som følger etter et vellykket «Bruk» eller «Behold».
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum Followup {
     /// Lagre det beholdte valget som varig utgangspunkt.
     Persist,
-    /// Start «hold» (keepalive) for «Av» med samme faste verdi.
-    StartHold,
-    /// Bekreft «hold» med en gang: kortet viser allerede det brukeren beholdt.
-    ConfirmHold,
+    /// Start «hold» for «Av»: hjelperen skriver det kortet skal vise på nytt
+    /// hvert 2. sekund, uten en ny prøve (allerede under prøven, så kortet
+    /// ikke går tilbake til fabrikklyset mens fristen løper).
+    Hold,
+}
+
+/// Skrivemåtene for «Av» (`rgbAv`), i rekkefølgen de vises.
+fn av_methods() -> [(&'static str, &'static str); 5] {
+    [
+        ("hold", tr!("Svart med 0 %, holdt mens appen er åpen (standard, kandidat 5)")),
+        ("svart-100", tr!("Svart med 100 % (kandidat 1)")),
+        ("svart-0", tr!("Svart med 0 % (kandidat 2)")),
+        ("farge-0", tr!("Valgt farge med 0 % (kandidat 3)")),
+        ("nesten-svart", tr!("Nesten svart (#010101) med 1 % (kandidat 4)")),
+    ]
 }
 
 /// «Av» slik innstillingen `rgbAv` sier: forespørselen, og om den må skrives
@@ -378,8 +393,27 @@ fn request_text(value: &Value) -> String {
     }
     match serde_json::from_value::<Request>(value.clone()) {
         Ok(Request::Off {}) => tr!("Av").into(),
-        Ok(Request::Static { color, brightness }) => trf!("Fast farge {farge} · {styrke}", farge = format!("#{:02X}{:02X}{:02X}", color[0], color[1], color[2]), styrke = fmt::pct(Some(f64::from(brightness.get())), 0)),
+        // Står inne i setninger («… går tilbake til fast farge #3A7BF0 · 80 %»).
+        Ok(Request::Static { color, brightness }) => trf!("fast farge {farge} · {styrke}", farge = format!("#{:02X}{:02X}{:02X}", color[0], color[1], color[2]), styrke = fmt::pct(Some(f64::from(brightness.get())), 0)),
         Err(_) => tr!("Ingen kjent innstilling").into(),
+    }
+}
+
+/// [`request_text`] først på en linje.
+fn request_heading(value: &Value) -> String {
+    let text = request_text(value);
+    let mut chars = text.chars();
+    chars.next().map(|first| first.to_uppercase().chain(chars).collect()).unwrap_or_default()
+}
+
+/// Det kortet sist ble lest til, som tekst (også rå lysstyrke over 100 %).
+fn observed_text(observed: &Value) -> String {
+    match (color_text(&observed["color"]), observed["brightnessRaw"].as_u64()) {
+        (Some(_), Some(level)) if level <= 100 => {
+            request_text(&json!({"mode": "static", "color": observed["color"], "brightness": level}))
+        }
+        (Some(color), Some(level)) => trf!("{farge} · rå lysstyrke {styrke}, utenfor støttet område", farge = color, styrke = fmt::num(Some(level as f64), 0)),
+        _ => tr!("et lys som ikke kunne leses").into(),
     }
 }
 
@@ -413,7 +447,90 @@ fn rgb_stale(app: &App, helper: &Value) -> bool {
     if FIXTURE_STALE.with(Cell::get) {
         return true;
     }
-    !app.profile.is_dev() && helper["systemAdmin"] == true && crate::system_install::rgb_older_than_system()
+    lacks_current_features(helper)
+        || (!app.profile.is_dev() && helper["systemAdmin"] == true && crate::system_install::rgb_older_than_system())
+}
+
+/// En kjørende RGB-hjelper fra før 1.7.0 mangler varig valg og «hold». Med
+/// den ville «Av» gått tilbake til fabrikklyset og en økt kunne stå uavklart
+/// (1.6.0-feilen), selv om byggnummeret er kompatibelt. Den regnes derfor som
+/// «må oppdateres»: «Bruk» oppdaterer og aktiverer med ett passord.
+fn lacks_current_features(helper: &Value) -> bool {
+    helper["state"] == "on"
+        && helper["status"].is_object()
+        && !(helper["status"]["persist"] == true && helper["status"]["hold"] == true)
+}
+
+thread_local! {
+    /// «Hold» ved oppstart er forsøkt for denne forbindelsen til tjenesten.
+    static AUTO_HOLD_TRIED: Cell<bool> = const { Cell::new(false) };
+}
+
+/// Etter hver ny forbindelse til tjenesten (appstart, eller tjenesten startet
+/// på nytt): er «Av» lagret som kortets utgangspunkt og skrivemåten «hold»,
+/// startes «hold» igjen, én gang. Bare når kortet allerede er lest likt
+/// utgangspunktet av hjelperen; et avvik vises på siden RGB-lys i stedet.
+pub(crate) fn auto_hold(app: &Rc<App>) {
+    AUTO_HOLD_TRIED.with(|t| t.set(false));
+    try_auto_hold(app);
+    thread_local! { static WIRED: Cell<bool> = const { Cell::new(false) }; }
+    if !WIRED.with(|w| w.replace(true)) {
+        let a = Rc::downgrade(app);
+        app.on_devices.connect(move |_| {
+            if let Some(app) = a.upgrade() {
+                try_auto_hold(&app);
+            }
+        });
+    }
+}
+
+fn try_auto_hold(app: &Rc<App>) {
+    if AUTO_HOLD_TRIED.with(Cell::get)
+        || app.settings().rgb_av != "hold"
+        || !app.client.is_connected()
+        || !card_present(app)
+        || selected_identity(app).is_none()
+    {
+        return;
+    }
+    AUTO_HOLD_TRIED.with(|t| t.set(true));
+    let a = app.clone();
+    app.client.request("get_rgb_helper", json!({"refresh": true}), move |result| {
+        let Ok(helper) = result else { return };
+        let Some((pci, uuid)) = selected_identity(&a).filter(|_| auto_hold_wanted(&a, &helper)) else { return };
+        let args = json!({"gpu": pci, "uuid": uuid, "kilde": "hold-oppstart"});
+        a.client.request("rgb_hold", args, move |result| {
+            if let Err(error) = &result {
+                eprintln!("RGB: «hold» ved oppstart ble ikke startet: {}", error.message);
+            }
+            if let Some(p) = CURRENT.with(|c| c.borrow().upgrade()) {
+                p.refresh();
+            }
+        });
+    });
+}
+
+/// «Av» er lagret som utgangspunkt, økten er ren og ingen holder lyset.
+fn auto_hold_wanted(app: &App, helper: &Value) -> bool {
+    bound_status(helper, selected_identity(app).as_ref())
+        && !rgb_stale(app, helper)
+        && helper["busy"] != true
+        && hold_status_ready(&helper["status"])
+}
+
+/// Hjelperens del av [`auto_hold_wanted`].
+fn hold_status_ready(status: &Value) -> bool {
+    let state = &status["state"];
+    status["hold"] == true
+        && status["keepalive"] != true
+        && status["holding"].is_null()
+        && status["effect"].is_null()
+        && status["drift"] != true
+        && state["dirty"] == false
+        && state["pending"].is_null()
+        && !is_blocked(state)
+        && looks_off(&status["baselineRequest"])
+        && state["confirmed"] == status["baselineRequest"]
 }
 
 thread_local! {
@@ -676,6 +793,19 @@ impl CardLight {
         }
         let install_prompt = crate::system_install::offline_fallback();
         details_box.append(&install_prompt);
+        // Skrivemåten for «Av». Prøveskriptet (rgb-av-prove.py) viser hvilken
+        // kandidat kortet faktisk holder; standard er «hold».
+        let methods = av_methods();
+        let av_method = gtk::DropDown::from_strings(&methods.map(|(_, text)| text));
+        let current = app.settings().rgb_av.clone();
+        av_method.set_selected(methods.iter().position(|(id, _)| *id == current).unwrap_or(0) as u32);
+        av_method.set_halign(gtk::Align::Start);
+        av_method.update_property(&[gtk::accessible::Property::Label(tr!("Skrivemåte for «Av»"))]);
+        let av_row = hbox(8, &[]);
+        av_row.append(&label(tr!("Skrivemåte for «Av»"), &["sm"]));
+        av_row.append(&av_method);
+        details_box.append(&av_row);
+        details_box.append(&paragraph(tr!("Kandidat 1–4 skrives én gang. «Hold» skriver svart med 0 % på nytt hvert 2. sekund mens appen er åpen. Prøveskriptet rgb-av-prove.py viser hvilken kandidat kortet ditt holder."), &["muted", "sm"]));
         let details_actions = flow();
         let refresh = button(Some("refresh-cw"), Some(tr!("Sjekk igjen")), &["sm", "flat"]);
         let activate = button(Some("shield"), Some(tr!("Aktiver kortlys …")), &["sm", "flat"]);
@@ -726,6 +856,8 @@ impl CardLight {
             queued: Cell::new(false),
             queued_request: RefCell::new(None),
             followups: RefCell::new(Default::default()),
+            hold_intent: Cell::new(false),
+            av_method,
             edited: Cell::new(false),
             syncing: Cell::new(false),
             last_synced: RefCell::new(Value::Null),
@@ -830,6 +962,16 @@ impl CardLight {
             }
         });
         let weak = Rc::downgrade(self);
+        self.av_method.connect_selected_notify(move |d| {
+            if let Some(p) = weak.upgrade()
+                && let Some((id, _)) = av_methods().get(d.selected() as usize)
+                && p.app.settings().rgb_av != *id
+            {
+                p.app.set(json!({"rgbAv": id}));
+                p.render();
+            }
+        });
+        let weak = Rc::downgrade(self);
         self.factory.connect_clicked(move |_| {
             let Some(p) = weak.upgrade() else { return };
             let factory = p.helper.borrow()["status"]["factory"].clone();
@@ -898,7 +1040,7 @@ impl CardLight {
                 return;
             };
             let selected = selected_identity(&p.app);
-            let check = if expected["mode"] == "off" {
+            let check = if looks_off(&expected) {
                 tr!("Jeg ser at lyset på kortet er slukket.")
             } else { tr!("Jeg ser at lyset viser den forventede faste fargen.") };
             let w = Rc::downgrade(&p);
@@ -1006,15 +1148,15 @@ impl CardLight {
             });
     }
 
-    /// Valget i kontrollene som `rgb_apply`-argumenter. «Av» skrives slik
-    /// innstillingen `rgbAv` sier; med «hold» prøves først den faste verdien,
-    /// og keepalive startes etter «Behold» (se [`Followup`]).
-    fn request_args(&self) -> Option<Value> {
+    /// Valget i kontrollene som `rgb_apply`-argumenter, og om det er «Av» som
+    /// skal holdes. «Av» skrives slik innstillingen `rgbAv` sier; med «hold»
+    /// startes keepalive så snart prøven er skrevet (se [`Followup::Hold`]).
+    fn request_args(&self) -> Option<(Value, bool)> {
         let color = hex_color(&self.color.text());
         if !self.power.is_active() {
             let method = self.app.settings().rgb_av.clone();
-            let (request, _) = off_request(&method, color.unwrap_or([58, 123, 240]));
-            return Some(json!({"request": request, "confirmTimeoutS": 15}));
+            let (request, hold) = off_request(&method, color.unwrap_or([58, 123, 240]));
+            return Some((json!({"request": request, "confirmTimeoutS": 15}), hold));
         }
         let mode = self.mode.value().unwrap_or_else(|| "static".into());
         let brightness = u8::try_from(self.brightness.value_as_int()).ok().and_then(|v| Brightness::try_from(v).ok())?;
@@ -1022,7 +1164,7 @@ impl CardLight {
         if effect_name(&mode).is_some() {
             args["effect"] = json!(mode);
         }
-        Some(args)
+        Some((args, false))
     }
 
     fn apply(self: &Rc<Self>) {
@@ -1037,23 +1179,32 @@ impl CardLight {
             // Første «Bruk»: aktiver (og om nødvendig oppdater) kortlyset med
             // ett passord. Nøyaktig dette valget brukes som en vanlig prøve når
             // hjelperen er klar, med «Behold» og tilbakerulling som før.
-            *self.queued_request.borrow_mut() = self.request_args().map(|args| (args, Instant::now()));
+            // Også om «Av» skal holdes, så keepalive starter etter aktiveringen.
+            *self.queued_request.borrow_mut() = self.request_args().map(|(args, hold)| (args, Instant::now(), hold));
             self.edited.set(false);
             self.admin_dialog(AdminAction::Activate, true);
             return;
         }
-        let Some(mut args) = self.request_args() else { return };
+        let Some((mut args, hold)) = self.request_args() else { return };
         let effect = args["effect"].as_str().map(str::to_owned);
         if !can_apply(&self.helper.borrow()["status"], effect.as_deref()) {
             return;
         }
         args["kilde"] = json!(source);
+        // Står kortet allerede på dette «Av» (lagret, eller etter «Slutt å
+        // holde av»), gir prøven «uendret» og ingen skriving; «hold» startes da
+        // direkte som oppfølging.
+        self.hold_intent.set(hold);
         self.operation("rgb_apply", args);
     }
 
-    fn operation(self: &Rc<Self>, op: &'static str, mut args: Value) {
+    /// Sender ett RGB-kall. `false`: kallet ble ikke sendt (opptatt, ikke
+    /// eier, frakoblet …); et oppfølgingssteg melder da fra selv.
+    fn operation(self: &Rc<Self>, op: &'static str, mut args: Value) -> bool {
+        // Gjelder bare dette kallet, også når det ikke blir sendt.
+        let hold_intent = op == "rgb_apply" && self.hold_intent.replace(false);
         if self.fixture.get() || self.busy.get() || !self.app.client.is_connected() {
-            return;
+            return false;
         }
         let h = self.helper.borrow().clone();
         if flow_requested(&self.app)
@@ -1061,24 +1212,24 @@ impl CardLight {
         {
             *self.message.borrow_mut() = Some(error);
             self.render();
-            return;
+            return false;
         }
         let selected = selected_identity(&self.app);
         if !usable(&self.app, &h, selected.as_ref()) || h["busy"] == true {
-            return;
+            return false;
         }
-        let Some((pci, uuid)) = selected else { return };
+        let Some((pci, uuid)) = selected else { return false };
         if matches!(op, "rgb_confirm" | "rgb_revert") {
             if h["owned"] != true {
-                return;
+                return false;
             }
             let Some(txn) = h["status"]["state"]["pending"]["txn"].as_u64() else {
-                return;
+                return false;
             };
             args["txn"] = json!(txn);
         }
         if op == "rgb_release" && h["owned"] != true {
-            return;
+            return false;
         }
         args["gpu"] = json!(pci);
         args["uuid"] = json!(uuid);
@@ -1088,6 +1239,10 @@ impl CardLight {
         }
         // Det som beholdes nå, for oppfølgingen (varig, «hold»).
         let kept = (op == "rgb_confirm").then(|| (h["status"]["state"]["pending"]["requested"].clone(), h["status"]["effect"].as_str().map(str::to_owned)));
+        if !matches!(op, "rgb_persist" | "rgb_hold") {
+            // Et nytt brukervalg erstatter oppfølginger fra forrige.
+            self.followups.borrow_mut().clear();
+        }
         self.busy.set(true);
         self.message.borrow_mut().take();
         self.render();
@@ -1099,6 +1254,19 @@ impl CardLight {
                 Ok(value) => {
                     if value["status"].is_object() {
                         p.helper.borrow_mut()["status"] = value["status"].clone();
+                    }
+                    // Eierskapet etter kallet (fra tjenesten), så neste steg
+                    // ikke avvises av en eldre status (1.7.0-kontrollen, B1).
+                    if let Some(owned) = value["owned"].as_bool() {
+                        p.helper.borrow_mut()["owned"] = json!(owned);
+                    }
+                    let outcome = value["outcome"]["status"].as_str();
+                    if hold_intent
+                        && matches!(outcome, Some("pending" | "unchanged"))
+                        && value["status"]["hold"] == true
+                        && value["status"]["keepalive"] != true
+                    {
+                        p.followups.borrow_mut().push_back(Followup::Hold);
                     }
                     if let Some((request, effect)) = kept {
                         p.plan_followups(&request, effect.as_deref());
@@ -1118,13 +1286,19 @@ impl CardLight {
                     {
                         p.helper.borrow_mut()["status"] = details["status"].clone();
                     }
-                    let message = operation_error(&error);
+                    let drift = op == "rgb_hold" && p.helper.borrow()["status"]["drift"] == true;
+                    let message = if drift {
+                        tr!("Kortet viser ikke det lagrede utgangspunktet. Se boksen på siden: «Gjenopprett utgangspunktet» setter det tilbake.").to_string()
+                    } else {
+                        operation_error(&error)
+                    };
                     *p.message.borrow_mut() = Some(message.clone());
                     p.summary.set_tooltip_text(Some(&error.message));
-                    let title = if op == "rgb_read" {
-                        tr!("Kunne ikke lese kortlyset")
-                    } else {
-                        tr!("Lysendringen ble ikke fullført")
+                    let title = match op {
+                        "rgb_read" => tr!("Kunne ikke lese kortlyset"),
+                        "rgb_persist" => tr!("Valget ble ikke lagret som varig"),
+                        "rgb_hold" => tr!("«Av» holdes ikke"),
+                        _ => tr!("Lysendringen ble ikke fullført"),
                     };
                     p.app.toast(Toast::new(title).body(&message).error());
                 }
@@ -1132,10 +1306,12 @@ impl CardLight {
             p.render();
             p.refresh();
         });
+        true
     }
 
     /// Etter «Behold» på et fast valg eller «Av»: lagre som varig når brukeren
-    /// vil det, og start «hold» når «Av» må holdes mens appen er åpen.
+    /// vil det. «Hold» startet allerede under prøven og fortsetter; startet det
+    /// ikke da, prøves det igjen her.
     fn plan_followups(&self, kept: &Value, effect: Option<&str>) {
         let mut queue = self.followups.borrow_mut();
         queue.clear();
@@ -1147,22 +1323,35 @@ impl CardLight {
             queue.push_back(Followup::Persist);
         }
         let (_, hold) = off_request(&self.app.settings().rgb_av, [0, 0, 0]);
-        let holds = status["softwareEffects"].as_array().is_some_and(|e| e.iter().any(|v| v == "hold"));
-        if hold && holds && looks_off(kept) && !self.power.is_active() {
-            queue.push_back(Followup::StartHold);
+        if hold && status["hold"] == true && status["keepalive"] != true && looks_off(kept) && !self.power.is_active() {
+            queue.push_back(Followup::Hold);
         }
     }
 
+    /// Ett oppfølgingssteg. Blir det ikke sendt, sier siden fra: et steg som
+    /// stille faller bort, var feilen bak «Av» som ikke holdt (1.7.0-kontrollen).
     fn run_followup(self: &Rc<Self>, step: Followup) {
-        match step {
+        let sent = match step {
             Followup::Persist => self.operation("rgb_persist", json!({"kilde": "varig-etter-behold"})),
-            Followup::StartHold => {
-                let confirmed = self.helper.borrow()["status"]["state"]["confirmed"].clone();
-                self.followups.borrow_mut().push_front(Followup::ConfirmHold);
-                self.operation("rgb_apply", json!({"request": confirmed, "confirmTimeoutS": 15, "effect": "hold", "kilde": "hold-start"}));
-            }
-            Followup::ConfirmHold => self.operation("rgb_confirm", json!({"kilde": "hold-bekreft"})),
+            Followup::Hold => self.operation("rgb_hold", json!({"kilde": "hold-start"})),
+        };
+        if sent {
+            return;
         }
+        self.followups.borrow_mut().clear();
+        let (title, body) = match step {
+            Followup::Persist => (
+                tr!("Valget ble ikke lagret som varig"),
+                tr!("Lyset er beholdt, men ikke lagret som kortets utgangspunkt. Trykk «Bruk» og «Behold» igjen for å prøve på nytt."),
+            ),
+            Followup::Hold => (
+                tr!("«Av» holdes ikke"),
+                tr!("«Av» er satt, men skrives ikke på nytt mens appen er åpen. Trykk «Bruk» igjen for å starte det."),
+            ),
+        };
+        *self.message.borrow_mut() = Some(body.to_string());
+        self.app.toast(Toast::new(title).body(body).error());
+        self.render();
     }
 
     /// Viser kortets beholdte valg i kontrollene, så lenge brukeren ikke har
@@ -1186,7 +1375,7 @@ impl CardLight {
         };
         self.syncing.set(true);
         let effect = target["effect"].as_str();
-        if effect == Some("hold") || (effect.is_none() && looks_off(&target["confirmed"])) {
+        if effect.is_none() && looks_off(&target["confirmed"]) {
             self.power.set_active(false);
         } else {
             self.power.set_active(true);
@@ -1220,8 +1409,8 @@ impl CardLight {
         let other = helper["busy"] == true && !owned;
         let pending = state["pending"].is_object();
         // «Hold» er ikke en effekt for brukeren: det er «Av» som holdes mens appen er åpen.
-        let holding_off = status["effect"] == "hold";
-        let worker_effect = status["effect"].as_str().filter(|e| *e != "hold");
+        let holding_off = status["keepalive"] == true;
+        let worker_effect = status["effect"].as_str();
         let worker_effect_name = worker_effect.and_then(effect_name);
         for (id, _) in EFFECTS {
             if let Some(button) = self.mode.button(id) {
@@ -1240,6 +1429,8 @@ impl CardLight {
         // Med kortlyset slått av er modusen bare et lagret valg, ikke det som sendes.
         let chosen_effect = effect_name(&selected_mode).filter(|_| self.power.is_active());
         let blocked = is_blocked(state);
+        // Kortet har selv endret seg i en ren økt (ingen sperre; se boksen).
+        let drift = bound && !pending && status["drift"] == true && state["dirty"] == false;
         let available = connected && bound && !self.busy.get() && helper["busy"] != true;
         let admin_ui = helper["systemAdmin"] == true;
         let newer_installed = admin_ui && !self.fixture.get() && !self.app.profile.is_dev()
@@ -1260,6 +1451,8 @@ impl CardLight {
             tr!("Prøve pågår")
         } else if blocked {
             tr!("Må avklares")
+        } else if drift {
+            tr!("Avviker")
         } else if worker_effect.is_some() {
             tr!("Effekt aktiv")
         } else if holding_off || looks_off(&state["confirmed"]) {
@@ -1280,7 +1473,7 @@ impl CardLight {
         class(
             &self.badge,
             "warn",
-            connected && bound && (pending || blocked),
+            connected && bound && (pending || blocked || drift),
         );
         let message = if self.busy.get() {
             tr!("Venter på svar. Ingen ny endring kan sendes nå.").into()
@@ -1297,6 +1490,8 @@ impl CardLight {
             tr!("Hele kortlyset er én sone. Ingenting sendes før du trykker «Bruk».").into()
         } else if unsettled {
             tr!("En tidligere RGB-økt er ikke avsluttet, og RGB-delen må oppdateres. Trykk «Bruk»: kortet settes tilbake til det lagrede lyset, du ser på kortet og bekrefter, og så oppdateres og aktiveres kortlyset med ett passord.").into()
+        } else if stale && lacks_current_features(&helper) {
+            tr!("RGB-hjelperen er fra en eldre versjon og mangler «Av» som holder og varig valg. Trykk «Bruk» for å oppdatere og aktivere kortlyset med ett passord.").into()
         } else if stale {
             tr!("RGB-delen er eldre enn GPU-delen og må oppdateres. Trykk «Bruk» for å oppdatere og aktivere kortlyset med ett passord.").into()
         } else if helper["state"] == "on" {
@@ -1406,7 +1601,7 @@ impl CardLight {
             &self.deadline,
             &format!(
                 "{} · {}",
-                request_text(&state["pending"]["requested"]),
+                request_heading(&state["pending"]["requested"]),
                 remaining.map_or_else(
                     || tr!("fristen styres av hjelperen").into(),
                     |s| if s == 0 {
@@ -1510,7 +1705,7 @@ impl CardLight {
         let needs_ack = bound && status["recoveryId"].is_string() && !pending;
         let runtime_failed = bound && status["runtimeError"].is_string();
         let must_resolve = bound && !pending && (blocked || runtime_failed) && !needs_ack;
-        let action = needs_ack || must_resolve;
+        let action = needs_ack || must_resolve || drift;
         self.action_box.set_visible(action);
         if needs_ack {
             set_text(&self.action_title, tr!("Se på kortet og bekreft lyset"));
@@ -1524,6 +1719,10 @@ impl CardLight {
             };
             let base = if status["baselineRequest"].is_object() { &status["baselineRequest"] } else { &state["confirmed"] };
             set_text(&self.action_text, &format!("{text} {}", trf!("Utgangspunktet er {lys}.", lys = request_text(base))));
+        } else if drift {
+            set_text(&self.action_title, tr!("Kortet viser ikke det lagrede utgangspunktet"));
+            let now = observed_text(observed);
+            set_text(&self.action_text, &trf!("Kortet viser nå {lest}, men det lagrede utgangspunktet er {lys}. Det er ingen endring fra appen: kortet kan ha gått tilbake til fabrikklyset av seg selv, for eksempel etter en kaldstart. «Gjenopprett utgangspunktet» skriver {lys} på nytt, og så bekrefter du det du ser på kortet. Det krever ikke passord.", lest = now, lys = request_text(&state["confirmed"])));
         }
         self.ack.set_visible(needs_ack);
         self.ack.set_sensitive(available);
@@ -1531,8 +1730,8 @@ impl CardLight {
         self.reset.set_sensitive(available);
         set_text_button(&self.reset, if needs_ack { tr!("Gjenopprett på nytt") } else { tr!("Gjenopprett utgangspunktet") });
         self.apply.set_visible(present && !action && !(pending && bound));
-        // Å slippe lyset er en nødutgang også under en prøve (for eksempel fra en effekt).
-        self.release.set_visible(bound && owned && !action);
+        // Under en prøve står «Behold» og «Rull tilbake» i egen boks.
+        self.release.set_visible(bound && owned && !action && !pending);
         self.release.set_sensitive(available);
         self.release.set_label(if worker_effect.is_some() {
             tr!("Stopp effekten")
@@ -1547,14 +1746,24 @@ impl CardLight {
         let chosen_effect_now = chosen_effect.is_some();
         self.varig.set_visible(persist_supported && !action && !chosen_effect_now);
         self.varig.set_sensitive(!self.busy.get());
+        self.av_method.set_sensitive(!self.busy.get());
         let resting = if status["baselineRequest"].is_object() { request_text(&status["baselineRequest"]) } else { tr!("det lagrede utgangspunktet").to_string() };
         let (_, hold) = off_request(&self.app.settings().rgb_av, [0, 0, 0]);
         let varig_text = if !bound || action {
             String::new()
         } else if chosen_effect_now || worker_effect.is_some() {
             trf!("Effekter kjører bare mens appen er åpen. Når appen lukkes, stopper effekten og kortet går tilbake til {lys}.", lys = resting)
+        } else if off && hold && !pending && looks_off(&status["baselineRequest"]) && state["confirmed"] == status["baselineRequest"] {
+            // «Av» er allerede lagret som utgangspunkt.
+            if holding_off {
+                tr!("«Av» er kortets utgangspunkt og skrives ikke tilbake når appen lukkes. Mens appen er åpen, skrives det på nytt hvert 2. sekund, fordi kortet ellers kan gå tilbake til fabrikklyset av seg selv. Det kan også skje etter at appen er lukket.").to_string()
+            } else {
+                tr!("«Av» er kortets utgangspunkt, men skrives ikke på nytt nå. Trykk «Bruk» for å holde det mens appen er åpen.").to_string()
+            }
+        } else if off && hold && persist_supported && self.varig.is_active() {
+            tr!("«Av» blir kortets utgangspunkt etter «Behold» og skrives ikke tilbake når appen lukkes. Mens appen er åpen, skrives det på nytt hvert 2. sekund, fordi kortet ellers kan gå tilbake til fabrikklyset av seg selv. Det kan også skje etter at appen er lukket.").to_string()
         } else if off && hold {
-            tr!("«Av» skrives på nytt hvert 2. sekund mens appen er åpen, fordi kortet ellers kan gå tilbake til fabrikklyset av seg selv. Når appen lukkes, kan kortet derfor lyse igjen.").to_string()
+            trf!("«Av» skrives på nytt hvert 2. sekund mens appen er åpen, fordi kortet ellers kan gå tilbake til fabrikklyset av seg selv. Når appen lukkes, går kortet tilbake til {lys}.", lys = resting)
         } else if persist_supported && self.varig.is_active() {
             tr!("Etter «Behold» blir valget kortets utgangspunkt og skrives ikke tilbake når appen lukkes. Om kortet selv beholder lyset etter omstart, er ikke verifisert.").to_string()
         } else {
@@ -1578,13 +1787,14 @@ impl CardLight {
             // «Bruk» på, én gang, bare innen fristen og bare uendret.
             self.queued.set(false);
             let queued = self.queued_request.borrow_mut().take();
-            if let Some((mut args, at)) = queued
+            if let Some((mut args, at, hold)) = queued
                 && apply_ok
                 && queued_ready(at, Instant::now(), self.edited.get())
             {
                 args["kilde"] = json!("etter-aktivering");
                 glib::idle_add_local_once(move || {
                     if let Some(p) = CURRENT.with(|c| c.borrow().upgrade()) {
+                        p.hold_intent.set(hold);
                         p.operation("rgb_apply", args);
                     }
                 });
@@ -2090,14 +2300,16 @@ pub(crate) fn debug_flow(step: &str) {
                 assert!(p.keep.is_sensitive() && p.revert.is_sensitive());
             }
             "keep" => click(&p.keep),
+            // «Behold også etter at appen lukkes» er standard: valget er
+            // lagret som varig, økten er ren og appen eier ikke lyset lenger.
             "kept" => {
+                let kept = json!({"mode":"static","color":[50,180,135],"brightness":65});
                 assert!(state["pending"].is_null());
-                assert_eq!(state["dirty"], true);
-                assert_eq!(helper["owned"], true);
-                assert_eq!(
-                    state["confirmed"],
-                    json!({"mode":"static","color":[50,180,135],"brightness":65})
-                );
+                assert_eq!(state["confirmed"], kept);
+                assert_eq!(helper["status"]["baselineRequest"], kept);
+                assert_eq!(state["dirty"], false);
+                assert_eq!(helper["owned"], false);
+                assert_eq!(helper["status"]["keepalive"], false, "bare «Av» holdes");
             }
             "effect_from_kept" => {
                 let button = p.mode.button("breathing").expect("Pusting mangler");
@@ -2178,11 +2390,13 @@ pub(crate) fn debug_flow(step: &str) {
             }
             // Prøver videresending av et gammelt/feil forventet mål. Dette
             // velger aldri et skrivemål og er bare tilgjengelig i fake-flow.
-            "stale_ack" => p.operation(
-                "rgb_ack_recovery",
-                json!({"confirmedStatic":true,"expected":{"mode":"off"},
-                    "recoveryId":helper["status"]["recoveryId"]}),
-            ),
+            "stale_ack" => {
+                assert!(p.operation(
+                    "rgb_ack_recovery",
+                    json!({"confirmedStatic":true,"expected":{"mode":"off"},
+                        "recoveryId":helper["status"]["recoveryId"]}),
+                ));
+            }
             "stale_rejected" => {
                 assert!(
                     p.message.borrow().is_some(),
@@ -2233,17 +2447,82 @@ pub(crate) fn debug_flow(step: &str) {
                 assert_eq!(state["recoveryConfirmationSource"], "userVisual");
                 assert!(state["observed"]["mode"].is_null());
                 assert_eq!(helper["owned"], false);
+                assert!(looks_off(&state["confirmed"]), "tilbake på det varige «Av»");
             }
-            // «Av» er en egen bryter; standardmåten er svart med 0 %.
-            "off" => p.power.set_active(false),
-            "off_pending" => assert!(looks_off(&state["pending"]["requested"]), "{}", state["pending"]["requested"]),
-            "release" => click(&p.release),
-            "released" => {
+            // «Av» er en egen bryter; standardmåten er svart med 0 %, holdt.
+            "off" => {
+                assert_eq!(p.app.settings().rgb_av, "hold");
+                assert!(p.varig.is_active(), "«Behold også etter at appen lukkes» er standard");
+                p.power.set_active(false);
+            }
+            // «Hold» starter allerede under prøven (før «Behold»), uten effekt.
+            "off_pending" => {
+                assert!(looks_off(&state["pending"]["requested"]), "{}", state["pending"]["requested"]);
+                assert_eq!(helper["status"]["keepalive"], true, "«hold» må gå mens fristen løper");
                 assert!(helper["status"]["effect"].is_null());
+                assert_eq!(helper["owned"], true);
+            }
+            // Etter «Behold»: lagret som varig, ren økt, «hold» fortsetter.
+            "off_kept" => {
+                assert!(state["pending"].is_null());
+                assert_eq!(state["dirty"], false, "varig «Av» gir ingen uavklart økt");
+                assert!(looks_off(&helper["status"]["baselineRequest"]));
+                assert_eq!(state["confirmed"], helper["status"]["baselineRequest"]);
+                assert_eq!(helper["status"]["keepalive"], true);
+                assert_eq!(helper["owned"], true);
+                assert!(!p.power.is_active());
+                assert_eq!(p.release.label().as_deref(), Some(tr!("Slutt å holde av")));
+                FLOW_EFFECT_START.with(|v| *v.borrow_mut() = json!({
+                    "writes": helper["status"]["holdWrites"], "outcome": helper["status"]["lastOutcome"],
+                }));
+            }
+            // Minst 10 s senere: fortsatt «hold», ingen ny prøve, flere skrivinger.
+            "off_held" => {
+                assert!(state["pending"].is_null(), "ingen ny prøve");
+                assert!(!p.pending.is_visible());
+                assert_eq!(helper["status"]["keepalive"], true);
+                assert_eq!(state["dirty"], false);
+                FLOW_EFFECT_START.with(|v| {
+                    let v = v.borrow();
+                    assert_eq!(helper["status"]["lastOutcome"], v["outcome"], "ingen ny transaksjon");
+                    let before = v["writes"].as_u64().unwrap_or(0);
+                    let now = helper["status"]["holdWrites"].as_u64().unwrap_or(0);
+                    assert!(now >= before + 4, "«hold» skrev bare {} ganger på ≥ 10 s", now - before);
+                });
+            }
+            // Som en omstart av appen: tjenesten mister forbindelsen og «hold» stopper.
+            "restart" => p.app.client.debug_reconnect(),
+            "off_restarted" => {
+                assert!(p.app.client.is_connected());
+                assert_eq!(helper["status"]["keepalive"], true, "«hold» startet ikke igjen etter omstart");
+                assert_eq!(helper["owned"], true);
+                assert_eq!(state["dirty"], false);
+                assert!(state["pending"].is_null());
+            }
+            "release" => click(&p.release),
+            "hold_stopped" => {
+                assert_eq!(helper["status"]["keepalive"], false);
                 assert_eq!(helper["owned"], false);
+                assert_eq!(state["dirty"], false);
+                assert!(looks_off(&state["confirmed"]));
+            }
+            // Ny farge, så «Rull tilbake»: utgangspunktet («Av») må bekreftes.
+            "on" => {
+                p.power.set_active(true);
+                p.mode.set("static");
+            }
+            "on_pending" => {
+                assert_eq!(state["pending"]["requested"], json!({"mode":"static","color":[50,180,135],"brightness":65}));
+                assert_eq!(helper["status"]["keepalive"], false);
+                assert!(!p.release.is_visible(), "under prøven står bare Behold og Rull tilbake");
+            }
+            "revert" => click(&p.revert),
+            "reverted" => {
+                assert!(helper["status"]["effect"].is_null());
                 assert!(state["pending"].is_null());
                 assert_eq!(state["recoveryNeedsConfirmation"], true);
-                FLOW_INITIAL.with(|v| assert_eq!(state["confirmed"], v.borrow()["confirmed"]));
+                assert!(looks_off(&state["confirmed"]));
+                assert!(p.action_box.is_visible() && p.ack.is_visible());
             }
             _ => panic!("Ukjent RGB-flow-steg: {step}"),
         }
@@ -2269,8 +2548,8 @@ pub(crate) fn debug_fixture(kind: &str) {
                 "status":{
                     "helper":{"name":rgb_auth::HELPER_NAME,"domain":rgb_auth::DOMAIN,"protocol":rgb_auth::PROTOCOL,"strictRequests":true,"build":rigg_core::version::build()},
                     "authorized":true,"observationSource":"operation_readback",
-                    "softwareEffects":["breathing","rainbow","cycle","hold"],
-                    "persist":true,
+                    "softwareEffects":["breathing","rainbow","cycle"],
+                    "persist":true, "hold":true, "keepalive":false, "drift":false,
                     "baselineRequest":{"mode":"static","color":[58,123,240],"brightness":80},
                     "factory":{"mode":"static","color":[69,200,0],"brightness":100},
                     "identity":{"pci":pci,"uuid":uuid,"pciIds":{"vendor":0x10de,"device":0x1e87,"subsystemVendor":0x10de,"subsystemDevice":0x1e87},"adapter":{"port":1,"name":adapter_name,"parentPci":pci,"driver":"nvidia"},"address":73,"signature":"palit_150"},
@@ -2281,21 +2560,25 @@ pub(crate) fn debug_fixture(kind: &str) {
             // Kontrollene som brukeren ville sett dem i tilstanden.
             p.syncing.set(true);
             p.power.set_active(kind != "lys_av");
+            p.varig.set_active(true);
             p.mode.set(if kind == "effekt" { "breathing" } else { "static" });
             p.syncing.set(false);
             match kind {
-                // «Av» holdes mens appen er åpen (keepalive) og er lagret som varig.
+                // «Av» er lagret som varig utgangspunkt og holdes mens appen er
+                // åpen: ren økt, ingen journal, lease for «hold».
                 "lys_av" => {
                     let off = json!({"mode":"static","color":[0,0,0],"brightness":0});
                     value["owned"] = json!(true);
-                    value["status"]["effect"] = json!("hold");
+                    value["status"]["keepalive"] = json!(true);
                     value["status"]["baselineRequest"] = off.clone();
                     value["status"]["holding"] = json!({"owner":12,"deadlineMs":boottime_ms().unwrap_or(0)+15_000,"leaseMs":15_000});
                     value["status"]["state"]["confirmed"] = off;
                     value["status"]["state"]["observed"] = json!({"color":[0,0,0],"brightnessRaw":0,"mode":null});
-                    value["status"]["state"]["owner"] = json!(12);
-                    value["status"]["state"]["dirty"] = json!(true);
-                    value["status"]["state"]["mayHaveWritten"] = json!(true);
+                }
+                // Ren økt, men kortet har selv gått tilbake til fabrikklyset.
+                "avvik" => {
+                    value["status"]["drift"] = json!(true);
+                    value["status"]["state"]["observed"] = json!({"color":[69,200,0],"brightnessRaw":100,"mode":null});
                 }
                 // Bundet, men gjenopprettingen er uavklart (feil i tilbakelesing).
                 "blocked" => {
@@ -2314,7 +2597,11 @@ pub(crate) fn debug_fixture(kind: &str) {
                 "off" => value = json!({"state":"off","owned":false,"busy":false,"message":"Kortlyset trenger sin egen administratoraktivering.","status":null}),
                 // GPU-oppdateringen lot RGB-delen stå på bygg 31 med en uavklart økt.
                 "stale_unsettled" => {
+                    // Bygg 31 kjenner verken varig valg eller «hold».
                     value["status"]["helper"]["build"] = json!(31);
+                    for key in ["persist", "hold", "keepalive", "drift", "baselineRequest", "factory"] {
+                        value["status"][key] = Value::Null;
+                    }
                     value["status"]["state"]["dirty"] = json!(true);
                     value["status"]["state"]["recovery"] = json!("readable_fields_match");
                     value["status"]["state"]["recoveryNeedsConfirmation"] = json!(true);
@@ -2404,6 +2691,55 @@ mod tests {
         let on = json!({"mode":"static","color":[58,123,240],"brightness":80});
         assert!(!looks_off(&on));
         assert!(request_text(&on).contains("#3A7BF0"));
+    }
+
+    #[test]
+    fn hjelper_uten_varig_valg_og_hold_maa_oppdateres() {
+        // Bygg 31 (1.6.0) og main før kontrollen (bare «persist»).
+        let old = json!({"state": "on", "status": {"helper": {"build": 31}}});
+        assert!(lacks_current_features(&old));
+        let partial = json!({"state": "on", "status": {"persist": true, "softwareEffects": ["hold"]}});
+        assert!(lacks_current_features(&partial));
+        let current = json!({"state": "on", "status": {"persist": true, "hold": true}});
+        assert!(!lacks_current_features(&current));
+        // Bare en kjørende hjelper vurderes; «av» og «outdated» har egne veier.
+        assert!(!lacks_current_features(&json!({"state": "off", "status": null})));
+    }
+
+    #[test]
+    fn hold_ved_oppstart_bare_for_lagret_av_i_ren_okt() {
+        let off = json!({"mode": "static", "color": [0, 0, 0], "brightness": 0});
+        let ready = json!({
+            "hold": true, "keepalive": false, "holding": null, "effect": null, "drift": false,
+            "baselineRequest": off,
+            "state": {"dirty": false, "pending": null, "confirmed": off, "recovery": null, "error": null},
+        });
+        assert!(hold_status_ready(&ready));
+        let mut colour = ready.clone();
+        colour["baselineRequest"] = json!({"mode": "static", "color": [58, 123, 240], "brightness": 80});
+        colour["state"]["confirmed"] = colour["baselineRequest"].clone();
+        assert!(!hold_status_ready(&colour), "bare «Av» holdes");
+        for (key, value) in [("keepalive", json!(true)), ("drift", json!(true)), ("hold", Value::Null)] {
+            let mut status = ready.clone();
+            status[key] = value;
+            assert!(!hold_status_ready(&status), "{key}");
+        }
+        let mut dirty = ready.clone();
+        dirty["state"]["dirty"] = json!(true);
+        assert!(!hold_status_ready(&dirty), "aldri over en uavklart økt");
+        let mut held = ready;
+        held["holding"] = json!({"owner": 3});
+        assert!(!hold_status_ready(&held), "noen andre holder lyset");
+    }
+
+    #[test]
+    fn tekst_for_lys_inne_i_setninger_og_avvik() {
+        let blue = json!({"mode": "static", "color": [58, 123, 240], "brightness": 80});
+        assert!(request_text(&blue).starts_with("fast farge"));
+        assert!(request_heading(&blue).starts_with("Fast farge"));
+        assert_eq!(observed_text(&json!({"color": [69, 200, 0], "brightnessRaw": 100})), request_text(&json!({"mode": "static", "color": [69, 200, 0], "brightness": 100})));
+        assert!(observed_text(&json!({"color": [1, 2, 3], "brightnessRaw": 250})).contains("250"));
+        assert!(!observed_text(&json!({"color": null})).is_empty());
     }
 
     #[test]

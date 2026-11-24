@@ -295,6 +295,14 @@ impl Client {
         }
     }
 
+    /// Bare RGB-funksjonsprøven (dev): bryt forbindelsen slik en omstart av
+    /// appen gjør for tjenesten. Den kobles til igjen av seg selv.
+    pub fn debug_reconnect(self: &Rc<Self>) {
+        if self.profile.is_dev() && self.connected.get() {
+            self.lost(false);
+        }
+    }
+
     /// Forbindelsen er brutt: alle som venter, får en feil, og vi prøver igjen.
     fn lost(self: &Rc<Self>, from_in_watch: bool) {
         let pending: Vec<Callback> = {

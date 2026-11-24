@@ -49,7 +49,7 @@ class AvProveTest(unittest.TestCase):
 
     def test_hver_kandidat_skrives_holdes_og_rulles_tilbake_med_ett_sporsmal(self):
         base = self.status()['state']['confirmed']
-        for number in (1, 2, 3, 4):
+        for number in (1, 2, 3, 4, 5):
             code, out, err = self.main('--kandidat', str(number))
             self.assertEqual(code, 0, err)
             self.assertEqual(out.count('SPØRSMÅL TIL BRUKEREN'), 1)
@@ -73,6 +73,31 @@ class AvProveTest(unittest.TestCase):
         self.assertEqual(requests[2], {'mode': 'static', 'color': [0, 0, 0], 'brightness': 0})
         self.assertEqual(requests[3], {'mode': 'static', 'color': base, 'brightness': 0})
         self.assertEqual(requests[4], {'mode': 'static', 'color': [1, 1, 1], 'brightness': 1})
+        self.assertEqual(requests[5], requests[2], '«hold» prøver samme verdi, skrevet på nytt')
+
+    def test_hold_kandidaten_skriver_paa_nytt_og_stopper_ved_tilbakerulling(self):
+        writes = self.status()['holdWrites']
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            code = self.mod['main'](['--kandidat', '5', '--socket', self.socket, '--holdetid', '2.5'])
+        self.assertEqual(code, 0, err.getvalue())
+        status = self.status()
+        self.assertGreaterEqual(status['holdWrites'], writes + 2, 'minst én ny skriving etter starten')
+        self.assertFalse(status['keepalive'], '«hold» stopper med tilbakerullingen')
+        self.assertTrue(status['state']['recoveryNeedsConfirmation'])
+
+    def test_ctrl_c_gir_ingen_traceback(self):
+        mod = self.mod
+        def avbryt(*_):
+            raise KeyboardInterrupt
+        mod['run_candidate'].__globals__['time'].sleep, original = avbryt, mod['run_candidate'].__globals__['time'].sleep
+        try:
+            code, _, err = self.main('--kandidat', '2')
+        finally:
+            mod['run_candidate'].__globals__['time'].sleep = original
+        self.assertEqual(code, 130)
+        self.assertIn('--bekreft', err)
+        self.assertNotIn('Traceback', err)
 
     def test_avbrutt_prove_rulles_tilbake_av_hjelperen(self):
         helper = self.mod['Hjelper'](self.socket)

@@ -993,3 +993,26 @@ Brukerens beslutning: bare fast farge og «Av» skal holde seg etter at appen er
 
 Kontrollert visuelt med merkede fixturer ved 1024 og 1280 px på nb og en. Ingen GPU-/RGB-/I2C-skriving på verten.
 
+
+## 24. november 2026 – Claude Code: RGB etter den uavhengige kontrollen av #43 og #45
+
+Kontrollen konkluderte med «ikke klar». Rettet i én PR:
+
+- **B1: «Av» stoppet etter «Behold».** Oppfølgingssteget ble avvist stille fordi eierskapet i appen var utdatert. riggd legger nå `owned` i hvert operasjonssvar. Et steg som ikke blir sendt, gir melding.
+- **«Hold» som egen operasjon (`rgb_hold`), ikke en effekt.** Starter allerede under prøven av «Av» (S7), fortsetter gjennom «Behold» og varig lagring, og startes igjen ved appstart (S2). «Bruk» på et «Av» som allerede står, starter «hold» uten ny skriving. Et valg fra før aktiveringen husker at «Av» skal holdes (S1).
+- **Varig «Av» tåler krasj (S5/S6).** «Hold» av et lagret «Av» skrives uten journal, bare når kortet allerede er lest likt utgangspunktet. Et krasj gir ingen uavklart økt og ikke passord. Begrunnelsen står i `rgb-hjelper.md`.
+- **Avvik låser ikke (S3).** Kortet som selv går tilbake til fabrikklyset, gir en egen boks. «Gjenopprett utgangspunktet» skriver med journal og krever ett klikk, ikke passord.
+- **Avbrutt varig valg (S4)** fullføres eller forkastes ved oppstart.
+- **Eldre RGB-hjelper (B2).** En hjelper uten `persist` og `hold` regnes som «må oppdateres».
+- **Prøveskriptet** har kandidat 5 (`hold`) og avslutter rent ved Ctrl+C. Skrivemåten for «Av» kan velges under «Detaljer og feilsøking».
+- **Småting.**
+  - Statusraden for skjermkortstyring deler ikke lenger ord (S10).
+  - Fabrikklyset caches.
+  - «fast farge» skrives med liten forbokstav inne i setninger, og engelsk bruker «color».
+  - «Avslutt lysstyring» er skjult under en prøve.
+- **Tester.**
+  - Falsk hjelper med varig valg og «hold».
+  - Flyten «Av → Bruk → Behold → hold i ≥ 10 s uten ny prøve → omstart → hold igjen».
+  - En kjedetest i hjelperen fra en uavklart journal fra bygg 31 til et varig «Av» som tåler krasj.
+
+Ingen GPU-/RGB-/I2C-skriving på verten.

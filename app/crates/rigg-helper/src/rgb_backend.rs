@@ -93,8 +93,22 @@ pub(crate) struct NativeBackend {
     // Kun siste vellykkede egne apply/frame, aldri en vilkårlig read. Dette
     // live-beviset kan ikke rekonstrueres fra en journal etter restart.
     last_apply: Option<Observed>,
+    /// Fabrikklyset (fra før første varige valg), lest ved oppstart og etter
+    /// et nytt varig valg; status leser aldri disken.
+    factory: Option<Baseline>,
     hardware: Box<dyn Hardware>,
     production: bool,
+}
+
+/// Fullfør eller forkast et varig valg som ble avbrutt (se
+/// [`PrivateStore::finish_adopt`]), og si fra i systemjournalen.
+fn finish_adopt(store: &PrivateStore) -> Result<(), String> {
+    match store.finish_adopt()? {
+        Some(true) => crate::journal::notice("RGB: et avbrutt varig valg er fullført; det nye utgangspunktet gjelder."),
+        Some(false) => crate::journal::notice("RGB: et avbrutt varig valg er forkastet; journalen for det forrige utgangspunktet avklares som før."),
+        None => {}
+    }
+    Ok(())
 }
 
 impl NativeBackend {
@@ -108,6 +122,7 @@ impl NativeBackend {
         }
         let authorization = load_authorization(Path::new(rgb_auth::CONFIG_PATH))?;
         let store = PrivateStore::open_production()?;
+        finish_adopt(&store)?;
         let baseline = store.baseline()?;
         let backend = Self::from_parts(
             authorization.clone(),
@@ -147,6 +162,7 @@ impl NativeBackend {
                 record.phase
             ));
         }
+        let factory = store.factory(baseline.binding())?;
         Ok(Self {
             authorization,
             baseline,
@@ -156,6 +172,7 @@ impl NativeBackend {
             last_recovery: None,
             last_read: None,
             last_apply: None,
+            factory,
             hardware,
             production,
         })
@@ -198,9 +215,11 @@ impl NativeBackend {
                     .into(),
             );
         }
+        let store = PrivateStore::open_production()?;
+        finish_adopt(&store)?;
         Self::from_existing(
             authorization,
-            PrivateStore::open_production()?,
+            store,
             Box::new(Physical),
             true,
         )
@@ -226,6 +245,7 @@ impl NativeBackend {
             .journal(&baseline)?
             .ok_or("Det finnes ingen RGB-journal å avklare.")?;
         let own_write_responsibility = record.has_recorded_write_responsibility();
+        let factory = store.factory(baseline.binding())?;
         Ok(Self {
             authorization,
             baseline,
@@ -235,6 +255,7 @@ impl NativeBackend {
             last_recovery: None,
             last_read: None,
             last_apply: None,
+            factory,
             hardware,
             production,
         })
@@ -553,6 +574,41 @@ impl Backend for NativeBackend {
         result
     }
 
+    fn refresh_baseline(
+        &mut self,
+        binding: &Binding,
+        target: &Request,
+        expected_before: &Observed,
+        baseline: &Baseline,
+    ) -> Result<Observed, WriteError> {
+        self.binding(binding, baseline).map_err(no_write)?;
+        let initial = Book::new(self.baseline.clone())
+            .map_err(|e| no_write(e.to_string()))?
+            .baseline_request()
+            .clone();
+        // Bare det lagrede utgangspunktet, i en ren økt, rett etter adapterens
+        // egen ferske lesing som allerede viser det i alle lesbare felt.
+        if self.record.is_some()
+            || target != &initial
+            || !matches!(target, Request::Static { .. })
+            || self.last_read.as_ref() != Some(expected_before)
+            || !fields_match(target, expected_before)
+        {
+            return Err(no_write(
+                "«Hold» uten journal gjelder bare utgangspunktet etter en fersk, samsvarende avlesning.",
+            ));
+        }
+        self.last_recovery = None;
+        self.last_read = None;
+        self.last_apply = None;
+        self.current_authorization().map_err(no_write)?;
+        self.store.validate_state(&self.baseline, None).map_err(no_write)?;
+        // Transporten sammenligner `expected_before` på samme fd før første
+        // setter; hver setter skriver en verdi registeret allerede har, eller
+        // utgangspunktets modus (60), som ikke kan leses.
+        self.hardware.apply(binding, target, expected_before, baseline)
+    }
+
     fn recover(
         &mut self,
         binding: &Binding,
@@ -609,6 +665,7 @@ impl Backend for NativeBackend {
             return Err("Det varige RGB-valget mangler en fersk, samsvarende avlesning.".into());
         }
         self.store.adopt_baseline(&self.baseline, self.record.as_ref(), next)?;
+        self.factory = self.store.factory(binding)?;
         self.baseline = next.clone();
         self.record = None;
         self.own_write_responsibility = false;
@@ -638,7 +695,7 @@ impl Backend for NativeBackend {
     }
 
     fn factory_baseline(&self) -> Option<Baseline> {
-        self.store.factory(self.baseline.binding()).ok().flatten()
+        self.factory.clone()
     }
 
     fn ack_recovery(
@@ -933,6 +990,127 @@ mod tests {
         book.persist(&mut backend, 7, 5).unwrap();
         assert_eq!(backend.factory_baseline(), Some(baseline));
         assert_eq!(Book::new(backend.store.baseline().unwrap()).unwrap().baseline_request(), &red);
+    }
+
+    #[test]
+    fn avbrutt_varig_valg_fullfores_eller_forkastes_ved_oppstart() {
+        // Krasj mellom journalrydding og bytte: valget fullføres ved oppstart.
+        let baseline = baseline();
+        let (f, mut native, state) = backend(&baseline);
+        let mut book = Book::new(baseline.clone()).unwrap();
+        let blue = static_request([0, 0, 255]);
+        state.lock().unwrap().result = Ok(frame_observed([0, 0, 255]));
+        let pending = book.apply(&mut native, 7, blue.clone(), 0, 10_000).unwrap();
+        book.keep(&mut native, 7, pending.txn.unwrap(), 1).unwrap();
+        native.store.fail_sync_after_unlink.store(true, Ordering::Relaxed);
+        assert!(book.persist(&mut native, 7, 2).is_err());
+        assert!(f.path.join("baseline-neste.json").exists());
+        assert!(!f.path.join("journal.json").exists());
+        drop(native);
+        let store = PrivateStore::open_fixture(&f.path).unwrap();
+        assert_eq!(store.finish_adopt(), Ok(Some(true)));
+        let current = store.baseline().unwrap();
+        assert_eq!(Book::new(current.clone()).unwrap().baseline_request(), &blue);
+        assert!(!f.path.join("baseline-neste.json").exists());
+        assert_eq!(store.finish_adopt(), Ok(None));
+        NativeBackend::from_parts(authorization(), current, store, hardware().0, false)
+            .expect("ren oppstart med det nye utgangspunktet");
+
+        // Avbrutt før journalen ble ryddet: valget forkastes, journalen gjelder.
+        let (f, mut native, state) = backend(&baseline);
+        let mut book = Book::new(baseline.clone()).unwrap();
+        state.lock().unwrap().result = Ok(frame_observed([0, 0, 255]));
+        let pending = book.apply(&mut native, 7, blue.clone(), 0, 10_000).unwrap();
+        book.keep(&mut native, 7, pending.txn.unwrap(), 1).unwrap();
+        drop(native);
+        let next = Baseline::user_confirmed_static(binding(), frame_observed([0, 0, 255])).unwrap();
+        f.write("baseline-neste.json", &serde_json::to_vec(&next).unwrap());
+        let store = PrivateStore::open_fixture(&f.path).unwrap();
+        assert_eq!(store.finish_adopt(), Ok(Some(false)));
+        assert!(!f.path.join("baseline-neste.json").exists());
+        assert_eq!(store.baseline().unwrap(), baseline);
+        assert!(store.journal(&baseline).unwrap().is_some());
+    }
+
+    /// Brukerens tilstand før 1.7.0, hele veien i hjelperens lagring: en
+    /// uavklart journal fra bygg 31 sperrer oppstart; oppdateringen avklarer
+    /// den (gjenopprett + én visuell bekreftelse); den nye hjelperen starter
+    /// rent, «Av» prøves med «hold», beholdes og lagres som varig. Et krasj
+    /// midt i «hold» etterlater ingen journal: neste oppstart er ren, uten
+    /// passord, og «Av» kan holdes igjen. (Oppdateringen selv: se
+    /// test-system-install.py; UI-et regner bygg 31 som «må oppdateres».)
+    #[test]
+    fn kjede_fra_uavklart_bygg_31_til_varig_av_som_taaler_krasj() {
+        let f = Fixture::new();
+        let baseline = baseline();
+        let store = f.store(&baseline);
+        let mut record = fixtures::record(&baseline);
+        record.phase = Phase::Attempted;
+        store.write_journal(&baseline, None, &record).unwrap();
+        let (hw, _) = hardware();
+        assert!(NativeBackend::from_parts(authorization(), baseline.clone(), store, hw, false).is_err(), "journalen sperrer oppstart");
+        // Oppdateringens avklaring (ett passord): gjenopprett, så brukerens bekreftelse.
+        let (hw, state) = hardware();
+        let mut resolver =
+            NativeBackend::from_existing(authorization(), PrivateStore::open_fixture(&f.path).unwrap(), hw, false).unwrap();
+        state.lock().unwrap().result = Ok(observed());
+        resolver.restore_original().unwrap();
+        resolver.resolve_original().unwrap();
+        drop(resolver);
+        // Ny hjelper: ren oppstart. «Av» med «hold» allerede under prøven.
+        let off = Request::Static { color: [0, 0, 0], brightness: rigg_core::rgb::Brightness::try_from(0).unwrap() };
+        let off_seen = Observed { color: Some([0, 0, 0]), brightness_raw: Some(0), mode: None };
+        let (hw, state) = hardware();
+        let mut native =
+            NativeBackend::from_parts(authorization(), baseline.clone(), PrivateStore::open_fixture(&f.path).unwrap(), hw, false)
+                .unwrap();
+        let mut book = Book::new(baseline.clone()).unwrap();
+        state.lock().unwrap().result = Ok(off_seen.clone());
+        let txn = book.apply(&mut native, 7, off.clone(), 0, 10_000).unwrap().txn.unwrap();
+        book.refresh(&mut native, 7, &off).unwrap();
+        book.keep(&mut native, 7, txn, 1).unwrap();
+        book.persist(&mut native, 7, 2).unwrap();
+        assert!(native.store.journal(&native.baseline).unwrap().is_none());
+        assert_eq!(native.factory_baseline(), Some(baseline.clone()), "fabrikklyset er sikret");
+        book.refresh(&mut native, 7, &off).unwrap();
+        assert!(native.store.journal(&native.baseline).unwrap().is_none(), "«hold» av utgangspunktet uten journal");
+        // Krasj midt i «hold».
+        drop(native);
+        let store = PrivateStore::open_fixture(&f.path).unwrap();
+        let current = store.baseline().unwrap();
+        let (hw, state) = hardware();
+        state.lock().unwrap().read_observed = off_seen.clone();
+        state.lock().unwrap().result = Ok(off_seen);
+        let mut native = NativeBackend::from_parts(authorization(), current.clone(), store, hw, false)
+            .expect("ren oppstart etter krasj, uten avklaring eller passord");
+        let mut book = Book::new(current).unwrap();
+        assert_eq!(book.baseline_request(), &off);
+        book.refresh(&mut native, 9, &off).unwrap();
+        assert!(!book.snapshot().dirty && book.snapshot().recovery.is_none());
+    }
+
+    #[test]
+    fn hold_av_utgangspunktet_skrives_uten_journal_bare_etter_fersk_lik_lesing() {
+        let baseline = baseline();
+        let (_f, mut backend, state) = backend(&baseline);
+        let mut book = Book::new(baseline.clone()).unwrap();
+        let target = book.baseline_request().clone();
+        state.lock().unwrap().result = Ok(observed());
+        book.refresh(&mut backend, 7, &target).unwrap();
+        assert_eq!(state.lock().unwrap().actions, vec!["read", "apply"]);
+        assert!(backend.store.journal(&baseline).unwrap().is_none());
+        assert!(!book.snapshot().dirty);
+        // Uten en fersk lesing (eller med et annet mål) skrives ingenting.
+        let before = observed();
+        assert!(backend.refresh_baseline(&binding(), &target, &before, &baseline).is_err());
+        assert!(backend.refresh_baseline(&binding(), &static_request([1, 2, 3]), &before, &baseline).is_err());
+        // Avvik i en ren økt: ingen skriving, men heller ingen sperre.
+        state.lock().unwrap().read_observed = frame_observed([69, 200, 0]);
+        let actions = state.lock().unwrap().actions.len();
+        assert!(matches!(book.refresh(&mut backend, 7, &target), Err(rigg_core::rgb_txn::Error::Readback(_))));
+        assert_eq!(state.lock().unwrap().actions.len(), actions + 1, "bare lesing");
+        assert!(book.drift());
+        assert!(book.snapshot().error.is_none());
     }
 
     #[test]

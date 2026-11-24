@@ -43,8 +43,12 @@ impl Journal {
         if self.baseline.binding() != expected {
             return Err("RGB-journalen tilhører et annet kort.".into());
         }
-        Book::new(self.baseline.clone()).map_err(|e| e.to_string())?;
-        if !matched(request_readback(&self.before, &self.before_observed)) {
+        let initial = Book::new(self.baseline.clone()).map_err(|e| e.to_string())?.initial;
+        // En gjenoppretting av utgangspunktet etter avvik kortet selv sto for
+        // (se `Book::restore_drift`): forrige valg ER utgangspunktet, og
+        // avlesningen før viser det kortet faktisk hadde.
+        let drift_restore = self.before == initial && self.requested == initial;
+        if !drift_restore && !matched(request_readback(&self.before, &self.before_observed)) {
             return Err("RGB-journalens forrige valg mangler samsvarende avlesning.".into());
         }
         Ok(())
@@ -94,6 +98,23 @@ pub trait Backend {
     ) -> Result<Observed, WriteError> {
         Err(WriteError {
             message: "Denne RGB-adapteren støtter ikke programvareanimasjon.".into(),
+            write_attempted: false,
+        })
+    }
+    /// «Hold» i en ren økt: skriv det lagrede utgangspunktet på nytt, uten
+    /// journal. Bare når `expected_before` er adapterens egen ferske avlesning
+    /// og alle lesbare felt allerede er lik utgangspunktet; transporten
+    /// sammenligner på nytt rett før første setter. Et avbrudd kan da bare
+    /// etterlate utgangspunktets egne verdier (se `Book::refresh`).
+    fn refresh_baseline(
+        &mut self,
+        _binding: &Binding,
+        _target: &Request,
+        _expected_before: &Observed,
+        _baseline: &Baseline,
+    ) -> Result<Observed, WriteError> {
+        Err(WriteError {
+            message: "Denne RGB-adapteren kan ikke holde utgangspunktet.".into(),
             write_attempted: false,
         })
     }
@@ -495,6 +516,137 @@ impl Book {
             return Err(Error::Readback(readback));
         }
         Ok(())
+    }
+
+    /// Ren økt der en fersk avlesning viser noe annet enn det lagrede
+    /// utgangspunktet, uten at denne hjelperen har skrevet (for eksempel kort
+    /// som går tilbake til fabrikklyset etter kaldstart). Ikke en sperre:
+    /// [`Book::restore_drift`] gjenoppretter med journal.
+    pub fn drift(&self) -> bool {
+        !self.dirty
+            && self.pending.is_none()
+            && self.owner.is_none()
+            && request_readback(&self.confirmed, &self.observed) == RecoveryReadback::Mismatch
+    }
+
+    /// Hva «hold» skriver på nytt nå: ventende prøve, ellers det bekreftede.
+    pub fn target(&self) -> &Request {
+        self.pending.as_ref().map_or(&self.confirmed, |pending| &pending.requested)
+    }
+
+    /// Eksplisitt «Gjenopprett utgangspunktet» i en ren økt med avvik. Kortet
+    /// har selv endret seg, så det er ingen egen skriving å rulle tilbake; men
+    /// gjenopprettingen er en skriving og journalføres som vanlig før første
+    /// setter. Etterpå venter den på brukerens visuelle bekreftelse (ett klikk,
+    /// ikke passord), som enhver gjenoppretting med lesbare felt.
+    pub fn restore_drift<B: Backend>(&mut self, backend: &mut B, owner: u64, now_ms: u64) -> Result<Outcome, Error> {
+        if owner == 0 {
+            return Err(Error::InvalidOwner);
+        }
+        self.tick(backend, now_ms)?;
+        if self.dirty || self.pending.is_some() || self.owner.is_some() {
+            return Err(Error::RecoveryRequired);
+        }
+        if self.blocked() || self.automatic_recovery_blocked {
+            return Err(Error::RecoveryRequired);
+        }
+        let next = self.next_txn.checked_add(1).ok_or(Error::Overflow)?;
+        self.observe(backend)?;
+        let readback = request_readback(&self.initial, &self.observed);
+        if matched(readback) && self.confirmed == self.initial {
+            return Ok(Outcome { txn: None, status: Status::Unchanged, reason: Reason::Reset, readback });
+        }
+        let journal = Journal {
+            version: 1,
+            baseline: self.baseline.clone(),
+            before: self.initial.clone(),
+            before_observed: self.observed.clone(),
+            requested: self.initial.clone(),
+            owner,
+            txn: self.next_txn,
+        };
+        backend.mark_dirty(&journal).map_err(|message| Error::Backend { operation: "journalføring", message })?;
+        self.next_txn = next;
+        self.dirty = true;
+        self.owner = Some(owner);
+        Ok(self.recover(backend, self.initial.clone(), None, Reason::Reset))
+    }
+
+    /// Én «hold»-skriving av `target` (keepalive for kort som selv går tilbake
+    /// fra «Av»). Tre tilfeller, alle uten ny prøve:
+    /// - ventende prøve av `target`: samme journal som prøven dekker skrivingen;
+    /// - beholdt `target` som ikke er utgangspunktet: som et effektbilde;
+    /// - ren økt der `target` er det lagrede utgangspunktet: uten journal, bare
+    ///   når en fersk avlesning allerede viser utgangspunktet i alle lesbare
+    ///   felt. Da kan selv et avbrudd midt i skrivingen bare etterlate
+    ///   utgangspunktets egne verdier; det er ingen endring å gjenopprette, og
+    ///   et krasj gir ingen uavklart økt. Avvik stopper «hold» uten skriving.
+    pub fn refresh<B: Backend>(&mut self, backend: &mut B, owner: u64, target: &Request) -> Result<(), Error> {
+        if owner == 0 {
+            return Err(Error::InvalidOwner);
+        }
+        if !matches!(target, Request::Static { .. }) {
+            return Err(Error::UnsupportedBaseline);
+        }
+        if self.blocked() || self.automatic_recovery_blocked || self.recovery.is_some() {
+            return Err(Error::RecoveryRequired);
+        }
+        if let Some(pending) = self.pending.clone() {
+            if pending.owner != owner || &pending.requested != target || !self.may_have_written {
+                return Err(Error::Busy);
+            }
+            let result = backend.animation_frame(self.baseline.binding(), target, &self.observed, &self.baseline);
+            return self.after_refresh(result, target);
+        }
+        if self.dirty {
+            if self.owner != Some(owner) || &self.confirmed != target {
+                return Err(Error::Busy);
+            }
+            return self.animation_frame(backend, owner, target.clone());
+        }
+        if self.owner.is_some() || &self.initial != target || &self.confirmed != target {
+            return Err(Error::Busy);
+        }
+        self.observe(backend)?;
+        let before = request_readback(target, &self.observed);
+        if !matched(before) {
+            return Err(Error::Readback(before));
+        }
+        match backend.refresh_baseline(self.baseline.binding(), target, &self.observed, &self.baseline) {
+            Ok(observed) => {
+                self.observed = observed;
+                let readback = request_readback(target, &self.observed);
+                if matched(readback) { Ok(()) } else { Err(Error::Readback(readback)) }
+            }
+            Err(failure) => {
+                // Bare utgangspunktets egne verdier kan ha blitt skrevet; økten
+                // forblir ren, men lyset er ikke lest etterpå.
+                self.observed = Observed::default();
+                Err(Error::Backend { operation: "hold", message: failure.message })
+            }
+        }
+    }
+
+    fn after_refresh(&mut self, result: Result<Observed, WriteError>, target: &Request) -> Result<(), Error> {
+        let failure = match result {
+            Ok(observed) => {
+                self.observed = observed;
+                let readback = request_readback(target, &self.observed);
+                if matched(readback) {
+                    return Ok(());
+                }
+                Error::Readback(readback)
+            }
+            Err(failure) => {
+                self.automatic_recovery_blocked = !failure.write_attempted;
+                self.observed = Observed::default();
+                Error::Backend { operation: "hold", message: failure.message }
+            }
+        };
+        self.recovery = Some(RecoveryReadback::Unknown);
+        self.recovery_confirmation_source = None;
+        self.error = Some(failure.to_string());
+        Err(failure)
     }
 
     /// `now_ms` er monoton tid levert av kalleren, aldri veggklokke. Produksjon
@@ -2016,4 +2168,3 @@ mod tests {
         let _ = txn;
     }
 }
-

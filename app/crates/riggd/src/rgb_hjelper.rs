@@ -147,11 +147,17 @@ impl View {
             ));
         }
         let owner = state["owner"].as_u64().filter(|n| *n > 0);
+        // «Hold» av det lagrede utgangspunktet eier lyset uten en transaksjon.
+        let keepalive = status["keepalive"] == true;
+        let holder = owner.or_else(|| {
+            status["holding"]["owner"].as_u64().filter(|n| keepalive && *n > 0)
+        });
         if (!state["owner"].is_null() && owner.is_none())
             || (owner.is_some() && status["holding"].is_null())
+            || (keepalive && status["holding"].is_null())
             || (!status["holding"].is_null()
-                && (status["holding"]["owner"].as_u64() != owner
-                    || owner.is_none()
+                && (status["holding"]["owner"].as_u64() != holder
+                    || holder.is_none()
                     || status["holding"]["deadlineMs"].as_u64().is_none()
                     || status["holding"]["leaseMs"] != 15_000))
         {
@@ -173,8 +179,7 @@ impl View {
             Some(value) => serde_json::from_value(value.clone())
                 .map_err(|_| Self::error("RGB-hjelperen oppga ukjente programvareeffekter."))?,
         };
-        // Pusting, regnbue, fargesyklus og «hold» (keepalive fra 1.7.0).
-        if effects.len() > 4
+        if effects.len() > 3
             || effects
                 .iter()
                 .enumerate()
@@ -205,7 +210,9 @@ impl View {
         let request_or_null = |value: &Value| value.is_null() || serde_json::from_value::<ColorRequest>(value.clone()).is_ok();
         if !request_or_null(&status["baselineRequest"])
             || !request_or_null(&status["factory"])
-            || !(status["persist"].is_null() || status["persist"].is_boolean())
+            || ["persist", "hold", "keepalive", "drift"]
+                .iter()
+                .any(|key| !(status[*key].is_null() || status[*key].is_boolean()))
         {
             return Err(Self::error("RGB-hjelperens varige utgangspunkt er ugyldig."));
         }
@@ -469,7 +476,15 @@ impl RgbClient {
             let result = if pending.refresh {
                 Ok(self.view(pending.sid))
             } else {
-                event.result
+                // Eierskapet etter operasjonen, så appen ikke må vente på en
+                // ny statusrunde før et oppfølgingssteg (Behold, varig, «hold»).
+                let owned = self.control.owner.load(Ordering::SeqCst) == pending.sid;
+                event.result.map(|mut value| {
+                    if let Some(object) = value.as_object_mut() {
+                        object.insert("owned".into(), json!(owned));
+                    }
+                    value
+                })
             };
             Some((pending.sid, pending.id, result))
         } else {
@@ -570,7 +585,7 @@ fn validate_args(op: &str, args: &Value) -> Result<(), ProtoError> {
         "rgb_apply" => &["gpu", "uuid", "request", "confirmTimeoutS", "effect"],
         "rgb_confirm" | "rgb_revert" => &["gpu", "uuid", "txn"],
         "rgb_ack_recovery" => &["gpu", "uuid", "confirmedStatic", "expected", "recoveryId"],
-        "rgb_reset" | "rgb_release" | "rgb_read" | "rgb_persist" => &["gpu", "uuid"],
+        "rgb_reset" | "rgb_release" | "rgb_read" | "rgb_persist" | "rgb_hold" => &["gpu", "uuid"],
         _ => return Err(ProtoError::new(ErrorCode::UnknownOp)),
     };
     if object.keys().any(|key| !allowed.contains(&key.as_str())) {
@@ -1427,6 +1442,8 @@ mod tests {
         let mut extra = identity();
         extra["request"] = json!({"mode":"off"});
         assert!(validate_args("rgb_persist", &extra).is_err());
+        assert!(validate_args("rgb_hold", &identity()).is_ok());
+        assert!(validate_args("rgb_hold", &extra).is_err());
     }
 
     #[test]
@@ -1449,11 +1466,26 @@ mod tests {
         assert!(View::checked(status.clone()).is_ok());
         // 1.7.0: «hold» og varig utgangspunkt.
         let mut newer = status.clone();
-        newer["softwareEffects"] = json!(["breathing", "rainbow", "cycle", "hold"]);
         newer["persist"] = json!(true);
+        newer["hold"] = json!(true);
+        newer["drift"] = json!(false);
+        newer["keepalive"] = json!(false);
         newer["baselineRequest"] = json!({"mode":"static","color":[0,0,0],"brightness":0});
         newer["factory"] = json!({"mode":"static","color":[69,200,0],"brightness":100});
         assert!(View::checked(newer.clone()).is_ok());
+        // «Hold» av utgangspunktet: lease uten transaksjonseier.
+        let mut holding = newer.clone();
+        holding["keepalive"] = json!(true);
+        holding["holding"] = json!({"owner": 3, "deadlineMs": 15_000, "leaseMs": 15_000});
+        assert!(View::checked(holding.clone()).is_ok());
+        holding["keepalive"] = json!(false);
+        assert!(View::checked(holding.clone()).is_err(), "lease uten eier eller «hold»");
+        holding["keepalive"] = json!(true);
+        holding["holding"] = Value::Null;
+        assert!(View::checked(holding).is_err(), "«hold» uten lease");
+        let mut stale = newer.clone();
+        stale["softwareEffects"] = json!(["breathing", "rainbow", "cycle", "hold"]);
+        assert!(View::checked(stale).is_err(), "«hold» er ingen effekt");
         newer["factory"] = json!({"mode":"blink"});
         assert!(View::checked(newer).is_err());
         status["effect"] = json!("breathing");

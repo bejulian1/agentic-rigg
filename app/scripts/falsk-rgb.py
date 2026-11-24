@@ -29,6 +29,7 @@ MAX_OUTPUT = 262_144
 MAX_CLIENTS = 4
 MAX_TRACE = 16 * 1024 * 1024
 LEASE_MS = 15_000
+HOLD_MS = 2_000
 BASELINE = {"mode": "static", "color": [20, 40, 60], "brightness": 80}
 SOFTWARE_EFFECTS = ("breathing", "rainbow", "cycle")
 BINDING = {
@@ -159,6 +160,32 @@ class FakeState:
         self.effect_seed = None
         self.effect_start = None
         self.effect_frame = None
+        # 1.7.0: varig utgangspunkt og «hold» (keepalive uten ny prøve).
+        self.baseline = copy.deepcopy(BASELINE)
+        self.factory = None
+        self.keepalive = None
+        self.hold_writes = 0
+
+    def holder(self):
+        if self.owner is not None:
+            return self.owner
+        return self.keepalive["owner"] if self.keepalive else None
+
+    def target(self):
+        return self.pending["requested"] if self.pending else self.confirmed
+
+    def drift(self):
+        return (not self.dirty and self.pending is None and self.owner is None
+                and self.observed != observed(self.confirmed))
+
+    def reconcile_hold(self):
+        hold = self.keepalive
+        if hold and (self.effect is not None or self.error or self.recovery
+                     or (self.owner is not None and self.owner != hold["owner"])
+                     or self.target() != hold["target"]):
+            self.keepalive = None
+            if self.owner is None:
+                self.lease = None
 
     def recovery_id(self):
         if self.recovery == "readable_fields_match" and self.confirmation_source is None:
@@ -176,9 +203,17 @@ class FakeState:
             "authorized": True,
             "recoveryId": self.recovery_id(),
             "softwareEffects": list(SOFTWARE_EFFECTS),
+            "persist": True,
+            "hold": True,
+            "keepalive": self.keepalive is not None,
+            "drift": self.drift(),
+            "baselineRequest": copy.deepcopy(self.baseline),
+            "factory": copy.deepcopy(self.factory),
+            # Bare fixturen: antall «hold»-skrivinger, så prøven kan se at de skjer.
+            "holdWrites": self.hold_writes,
             "effect": self.effect,
-            "holding": None if self.owner is None else {
-                "owner": self.owner, "deadlineMs": self.lease, "leaseMs": LEASE_MS,
+            "holding": None if self.holder() is None else {
+                "owner": self.holder(), "deadlineMs": self.lease, "leaseMs": LEASE_MS,
             },
             "state": {
                 "baselineSource": "user_confirmed_static",
@@ -216,6 +251,7 @@ class FakeState:
         self.error = None
         self.dirty = True
         self.may_have_written = True
+        self.keepalive = None
         if release:
             self.owner = None
             self.lease = None
@@ -223,10 +259,20 @@ class FakeState:
 
     def tick(self, now):
         # Lease prioriteres slik at samtidige frister ikke gir to tilbakeføringer.
-        if self.owner is not None and now >= self.lease:
-            return self.recovery_to(BASELINE, "release", release=True)
+        if self.holder() is not None and now >= self.lease:
+            if self.owner is None:
+                self.keepalive = self.lease = None
+                return None
+            return self.recovery_to(self.baseline, "release", release=True)
         if self.pending and now >= self.pending["deadlineMs"]:
             return self.recovery_to(self.pending["before"], "timeout")
+        self.reconcile_hold()
+        if self.keepalive and now - self.keepalive["last"] >= HOLD_MS:
+            # Kun visningsfixture: «hold» skriver samme mål på nytt.
+            self.keepalive["last"] = now
+            self.hold_writes += 1
+            self.observed = observed(self.keepalive["target"])
+            self.observation_source = "operation_readback"
         if self.effect_start is not None and self.pending is None:
             # Kun visningsfixture. Aldri IO eller en produksjonsalgoritme.
             frame = max(0, now - self.effect_start) // 250
@@ -238,12 +284,16 @@ class FakeState:
         return None
 
     def disconnect(self, sid):
+        if self.keepalive and self.keepalive["owner"] == sid:
+            self.keepalive = None
+            if self.owner is None:
+                self.lease = None
         if sid == self.owner:
-            return self.recovery_to(BASELINE, "disconnect", release=True)
+            return self.recovery_to(self.baseline, "disconnect", release=True)
         return None
 
     def require_owner(self, sid, allow_unowned=False):
-        if self.owner == sid or (allow_unowned and self.owner is None):
+        if self.holder() == sid or (allow_unowned and self.holder() is None):
             return
         raise RpcError("not_owner", "Lysstyringen tilhører en annen forbindelse.")
 
@@ -258,6 +308,8 @@ class FakeState:
             "rgb_release": ("gpu", "uuid"),
             "rgb_heartbeat": ("gpu", "uuid"),
             "rgb_ack_recovery": ("gpu", "uuid", "confirmedStatic", "expected", "recoveryId"),
+            "rgb_persist": ("gpu", "uuid"),
+            "rgb_hold": ("gpu", "uuid"),
         }
         if op not in shapes:
             raise RpcError("unknown_op", "Ukjent operasjon i RGB-fixturen.")
@@ -290,7 +342,7 @@ class FakeState:
                 raise RpcError("busy", "En lysprøve venter allerede.")
             if self.error or (self.recovery and self.confirmation_source is None):
                 raise RpcError("write_locked", "Gjenopprettingen må bekreftes først.")
-            if effect is not None and BASELINE["mode"] != "static":
+            if effect is not None and self.baseline["mode"] != "static":
                 raise RpcError("not_supported", "Programvareeffekter krever et statisk utgangspunkt.")
             from_effect = self.effect is not None
             if from_effect:
@@ -348,14 +400,62 @@ class FakeState:
             self.lease = now + LEASE_MS
         elif op == "rgb_release":
             self.require_owner(sid)
-            result = self.recovery_to(BASELINE, "release", release=True)
+            if self.owner is None:
+                # Bare «hold» av utgangspunktet: ingenting å rulle tilbake.
+                self.keepalive = self.lease = None
+            else:
+                result = self.recovery_to(self.baseline, "release", release=True)
         elif op == "rgb_reset":
             self.require_owner(sid, allow_unowned=True)
-            if self.dirty:
-                result = self.recovery_to(BASELINE, "reset")
+            self.keepalive = None
+            if self.dirty or self.drift():
+                # Også avvik i en ren økt: gjenopprett med journal, så én bekreftelse.
+                self.owner = sid
+                result = self.recovery_to(self.baseline, "reset")
+                self.lease = now + LEASE_MS
             else:
                 self.observed = observed(self.confirmed)
                 self.observation_source = "operation_readback"
+        elif op == "rgb_persist":
+            self.require_owner(sid, allow_unowned=True)
+            if self.effect is not None:
+                raise RpcError("not_supported", "En lyseffekt kan ikke lagres som varig utgangspunkt.")
+            if self.pending or self.error or (self.recovery and self.confirmation_source is None):
+                raise RpcError("write_locked", "Valget kan ikke lagres nå.")
+            if self.confirmed["mode"] != "static":
+                raise RpcError("not_supported", "Bare fast farge kan lagres i fixturen.")
+            if self.factory is None:
+                self.factory = copy.deepcopy(self.baseline)
+            self.baseline = copy.deepcopy(self.confirmed)
+            self.dirty = self.may_have_written = False
+            self.recovery = self.confirmation_source = None
+            self.owner = None
+            if self.keepalive is None:
+                self.lease = None
+            result = self.outcome("kept", "keep")
+        elif op == "rgb_hold":
+            if self.effect is not None:
+                raise RpcError("busy", "En effekt kjører.")
+            if self.error or (self.recovery and self.confirmation_source is None):
+                raise RpcError("write_locked", "Gjenopprettingen må bekreftes først.")
+            target = self.target()
+            if self.pending:
+                self.require_owner(sid)
+            elif self.dirty:
+                self.require_owner(sid)
+            else:
+                self.require_owner(sid, allow_unowned=True)
+                if self.confirmed != self.baseline:
+                    raise RpcError("busy", "«Hold» gjelder det lagrede utgangspunktet.")
+                if self.drift():
+                    raise RpcError("unavailable", "Kortet viser ikke utgangspunktet (Mismatch).")
+            if target["mode"] != "static":
+                raise RpcError("not_supported", "«Hold» trenger en fast farge.")
+            self.keepalive = {"owner": sid, "target": copy.deepcopy(target), "last": now}
+            self.hold_writes += 1
+            self.observed = observed(target)
+            self.observation_source = "operation_readback"
+            self.lease = now + LEASE_MS
         elif op == "rgb_read":
             if self.dirty:
                 raise RpcError("write_locked", "Ny feltlesing krever en ren økt.")
@@ -372,12 +472,13 @@ class FakeState:
             self.observed = observed(self.confirmed)
             self.observation_source = "operation_readback"
             self.confirmation_source = "userVisual"
-            if self.confirmed == BASELINE:
+            if self.confirmed == self.baseline:
                 self.dirty = self.may_have_written = False
                 self.owner = self.lease = None
             else:
                 self.owner, self.lease = sid, now + LEASE_MS
             result = self.outcome("user_confirmed", "user_confirmed")
+        self.reconcile_hold()
         return {"outcome": result, "status": self.status()}
 
 
