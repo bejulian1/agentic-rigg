@@ -4,7 +4,7 @@ use crate::state::App;
 use crate::toast::Toast;
 use crate::widgets::locked;
 use crate::widgets::rows::KvList;
-use crate::widgets::{button, hbox, label};
+use crate::widgets::{button, hbox, label, vbox};
 use gtk::glib;
 use gtk::prelude::*;
 use rigg_core::hjelper::{Step, display_diagnostic};
@@ -273,7 +273,16 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     );
     crate::widgets::switchrow::make_row_toggle(&main_row.widget, &sw);
 
-    let status_box = hbox(8, &["helper-status"]);
+    // Status og tekst på én linje, knappene under: teksten får hele bredden,
+    // så lange ord (for eksempel «administratorgodkjenning») ikke deles.
+    let status_box = vbox(6, &[]);
+    let status_line = hbox(8, &["helper-status"]);
+    // Raden har en minstehøyde; statuslinjen står midt i den, ikke øverst.
+    status_line.set_vexpand(true);
+    status_line.set_valign(gtk::Align::Center);
+    let status_actions = hbox(8, &[]);
+    status_actions.set_halign(gtk::Align::Start);
+    status_box.append(&status_line);
     let (kind, icon) = match state.as_str() {
         _ if busy => ("quiet", "timer"),
         "on" if locked::control_ready(app) => ("ok", "shield"),
@@ -292,26 +301,30 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
         "outdated" => tr!("Oppdater hjelper"),
         _ => tr!("Av"),
     };
-    status_box.append(&crate::widgets::rows::tag(word, Some(icon), kind));
+    status_line.append(&crate::widgets::rows::tag(word, Some(icon), kind));
     let status = label(&state_text(app), &["helper-status-text"]);
     status.set_wrap(true);
-    status.set_wrap_mode(gtk::pango::WrapMode::WordChar);
+    status.set_wrap_mode(gtk::pango::WrapMode::Word);
     status.set_xalign(0.0);
     status.set_hexpand(true);
     live(&status, state_text);
     status.set_tooltip_text(state_tip(app).as_deref());
-    status_box.append(&status);
-    if locked::control_ready(app) || locked::gate(app) == rigg_core::txn::Gate::Sim {
+    status_line.append(&status);
+    // Mens administratorgodkjenningen venter, er det ingenting å åpne eller sjekke.
+    if !busy && (locked::control_ready(app) || locked::gate(app) == rigg_core::txn::Gate::Sim) {
         let open = button(Some("arrow-right"), Some(tr!("Åpne styring")), &["sm"]);
         let a = app.clone();
         open.connect_clicked(move |_| { a.shell().close_settings(); a.go("kontroller"); });
-        status_box.append(&open);
+        status_actions.append(&open);
     }
-    if matches!(state.as_str(), "error" | "outdated") {
+    if !busy && matches!(state.as_str(), "error" | "outdated") {
         let again = button(Some("refresh-cw"), Some(tr!("Sjekk igjen")), &["sm"]);
         let a = app.clone();
         again.connect_clicked(move |_| locked::refresh_helper(&a, request_render));
-        status_box.append(&again);
+        status_actions.append(&again);
+    }
+    if status_actions.first_child().is_some() {
+        status_box.append(&status_actions);
     }
     let status_row = custom_row(&status_box, &format!("status {}", state_text(app)));
     status_row.widget.add_css_class("set-row");

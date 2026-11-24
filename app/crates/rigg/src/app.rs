@@ -274,6 +274,8 @@ fn on_conn(app: &Rc<App>, up: bool) {
 
 fn after_hello(app: &Rc<App>) {
     crate::widgets::locked::poll_helper(app);
+    // «Av» lagret som kortets utgangspunkt holdes igjen mens appen er åpen.
+    crate::pages::lys_kort::auto_hold(app);
     let iv = app.settings().interval_ms;
     app.client.request("subscribe", json!({"topics": crate::client::TOPICS, "intervalMs": iv}), |_| {});
     let a = app.clone();

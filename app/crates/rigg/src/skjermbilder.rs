@@ -121,9 +121,17 @@ fn plan_rgb_flow() -> Vec<Step> {
         Eval(|_| flow("apply")), Wait(1000), Eval(|_| flow("effect_pending")),
         Wait(700), Eval(|_| flow("effect_not_started")),
         Eval(|_| flow("keep")), Wait(3800), Eval(|_| flow("effect_active")), Shot("rgb-flow-fargesyklus-aktiv-sim"),
-        // Direkte fra aktiv effekt -> Av -> Frigi -> gammel ACK avvist -> visuell bekreftelse.
-        Eval(|_| flow("off")), Eval(|_| flow("apply")), Wait(1000), Eval(|_| flow("off_pending")),
-        Eval(|_| flow("release")), Wait(1000), Eval(|_| flow("released")), Shot("rgb-flow-frigitt-sim"),
+        // Direkte fra aktiv effekt -> Av -> Bruk («hold» starter under prøven) ->
+        // Behold (lagret som varig) -> «hold» i minst 10 s uten ny prøve ->
+        // omstart av appen -> «hold» starter igjen -> Slutt å holde av.
+        Eval(|_| flow("off")), Eval(|_| flow("apply")), Wait(1500), Eval(|_| flow("off_pending")), Shot("rgb-flow-av-prove-sim"),
+        Eval(|_| flow("keep")), Wait(1500), Eval(|_| flow("off_kept")),
+        Wait(10_500), Eval(|_| flow("off_held")), Shot("rgb-flow-av-holdes-sim"),
+        Eval(|_| flow("restart")), Wait(4000), Eval(|_| flow("off_restarted")),
+        Eval(|_| flow("release")), Wait(1000), Eval(|_| flow("hold_stopped")),
+        // Ny farge -> Rull tilbake -> gammel ACK avvist -> visuell bekreftelse.
+        Eval(|_| flow("on")), Eval(|_| flow("edit")), Wait(500), Eval(|_| flow("apply")), Wait(1000), Eval(|_| flow("on_pending")),
+        Eval(|_| flow("revert")), Wait(1000), Eval(|_| flow("reverted")), Shot("rgb-flow-tilbakerullet-sim"),
         Eval(|_| flow("stale_ack")), Wait(1000), Eval(|_| flow("stale_rejected")), Shot("rgb-flow-gammel-bekreftelse-avvist-sim"),
         Eval(|_| flow("ack")), Wait(1000), Eval(|_| flow("acknowledged")), Shot("rgb-flow-brukerbekreftet-sim"),
     ]
@@ -158,7 +166,8 @@ fn plan_forste_mote() -> Vec<Step> {
 
 /// Alle tilstandene på RGB-lys (1.7.0) ved 1280 og 1024 px, som merkede
 /// visningsfixturer: ikke aktivert, klar, prøve med frist, lys av (holdes),
-/// effekt, uavklart økt (bekreft lyset) og feil (må avklares).
+/// effekt, uavklart økt (bekreft lyset), feil (må avklares), avvik fra
+/// utgangspunktet og en eldre RGB-hjelper som må oppdateres.
 fn plan_rgb_tilstander() -> Vec<Step> {
     use Step::*;
     let mut v = vec![Set(base())];
@@ -166,7 +175,7 @@ fn plan_rgb_tilstander() -> Vec<Step> {
         v.extend([Size(w, h), Wait(500), Size(w, h), Go("lys"), Wait(1500), Eval(|_| crate::pages::lys::debug_mode("2d"))]);
         use crate::pages::lys_kort::debug_fixture as fixture;
         type SetFixture = fn(&Rc<App>);
-        let kinds: [(&str, SetFixture); 7] = [
+        let kinds: [(&str, SetFixture); 9] = [
             ("off", |_| fixture("off")),
             ("stored", |_| fixture("stored")),
             ("pending", |_| fixture("pending")),
@@ -174,6 +183,8 @@ fn plan_rgb_tilstander() -> Vec<Step> {
             ("effekt", |_| fixture("effekt")),
             ("recovery", |_| fixture("recovery")),
             ("blocked", |_| fixture("blocked")),
+            ("avvik", |_| fixture("avvik")),
+            ("eldre-hjelper", |_| fixture("stale_unsettled")),
         ];
         for (kind, set) in kinds {
             v.extend([

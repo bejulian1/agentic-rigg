@@ -31,9 +31,18 @@ struct Animation {
     txn: u64,
     started_ms: Option<u64>,
     last_frame_ms: u64,
-    /// Siste faktiske skriving («Hold» skriver samme farge på nytt).
-    last_write_ms: u64,
     last_request: Request,
+}
+
+/// «Hold»: samme faste valg skrevet på nytt hvert `HOLD_INTERVAL_MS` mens
+/// forbindelsen som startet det, er åpen (for kort som selv går tilbake fra
+/// «Av»). Ingen effekt og ingen ny prøve: målet er det kortet allerede skal
+/// vise (ventende prøve, beholdt valg eller det lagrede utgangspunktet). Stopper
+/// av seg selv når målet endres, ved feil, frakobling og utløpt lease.
+struct Keepalive {
+    owner: u64,
+    target: Request,
+    last_write_ms: u64,
 }
 
 #[derive(Clone, Copy, Debug, Serialize)]
@@ -105,6 +114,8 @@ enum Action {
     AckRecovery(RecoveryAckArgs),
     /// Lagre det beholdte faste valget (eller «Av») som varig utgangspunkt.
     Persist(IdentityArgs),
+    /// Start «hold» av det kortet skal vise nå (se [`Keepalive`]).
+    Hold(IdentityArgs),
 }
 
 fn parse<T: DeserializeOwned>(args: &Value) -> Result<T, ProtoError> {
@@ -161,6 +172,7 @@ impl Action {
             "rgb_release" => Self::Release(parse(args)?),
             "rgb_heartbeat" => Self::Heartbeat(parse(args)?),
             "rgb_persist" => Self::Persist(parse(args)?),
+            "rgb_hold" => Self::Hold(parse(args)?),
             "rgb_ack_recovery" => {
                 let args: RecoveryAckArgs = parse(args)?;
                 if !args.confirmed_static {
@@ -181,7 +193,12 @@ impl Action {
             Self::Apply(args) => Some((&args.gpu, &args.uuid)),
             Self::AckRecovery(args) => Some((&args.gpu, &args.uuid)),
             Self::Confirm(args) | Self::Revert(args) => Some((&args.gpu, &args.uuid)),
-            Self::Reset(args) | Self::Read(args) | Self::Release(args) | Self::Heartbeat(args) | Self::Persist(args) => {
+            Self::Reset(args)
+            | Self::Read(args)
+            | Self::Release(args)
+            | Self::Heartbeat(args)
+            | Self::Persist(args)
+            | Self::Hold(args) => {
                 Some((&args.gpu, &args.uuid))
             }
         }
@@ -200,6 +217,7 @@ pub struct Runtime<B: Backend> {
     revoked: bool,
     static_baseline: bool,
     animation: Option<Animation>,
+    keepalive: Option<Keepalive>,
     effect_error: Option<String>,
     instance_id: String,
 }
@@ -233,6 +251,7 @@ impl<B: Backend> Runtime<B> {
             revoked: false,
             static_baseline,
             animation: None,
+            keepalive: None,
             effect_error: None,
             instance_id,
         })
@@ -267,10 +286,14 @@ impl<B: Backend> Runtime<B> {
             "recoveryId": self.recovery_id(),
             "observationSource": self.observation_source,
             "lastOutcome": self.last_outcome,
-            "softwareEffects": [Effect::Breathing, Effect::Rainbow, Effect::Cycle, Effect::Hold],
-            // Varig utgangspunkt (fra 1.7.0): det kortet går tilbake til når
-            // appen lukkes, og fabrikklyset fra før første varige valg.
+            "softwareEffects": [Effect::Breathing, Effect::Rainbow, Effect::Cycle],
+            // Fra 1.7.0: varig utgangspunkt (det kortet går tilbake til når
+            // appen lukkes, og fabrikklyset fra før første varige valg),
+            // «hold» av det kortet skal vise, og avvik i en ren økt.
             "persist": true,
+            "hold": true,
+            "keepalive": self.keepalive.is_some(),
+            "drift": self.book.drift(),
             "baselineRequest": self.book.baseline_request(),
             "factory": self.backend.factory_baseline().and_then(|b| Book::new(b).ok()).map(|b| b.baseline_request().clone()),
             "effect": self.animation.as_ref().map(|animation| animation.effect),
@@ -329,6 +352,12 @@ impl<B: Backend> Runtime<B> {
             )
         })?;
         self.tick(now_ms)?;
+        // En annen forbindelses «hold» eier lyset som en effekt gjør.
+        if self.keepalive.as_ref().is_some_and(|hold| hold.owner != conn)
+            && !matches!(action, Action::Read(_) | Action::Heartbeat(_))
+        {
+            return Err(self.transaction_error(Error::Busy));
+        }
         let before = self.book.snapshot();
         let clean_read = !before.dirty && matches!(action, Action::Read(_) | Action::Reset(_));
         let (result, renew) = match action {
@@ -406,7 +435,6 @@ impl<B: Backend> Runtime<B> {
                             txn,
                             started_ms: None,
                             last_frame_ms: now_ms,
-                            last_write_ms: now_ms,
                             last_request: request,
                         });
                     }
@@ -452,15 +480,52 @@ impl<B: Backend> Runtime<B> {
             }
             Action::Release(_) => {
                 self.require_owner(conn, false)?;
-                (Ok(self.release()), false)
+                if self.book.snapshot().owner.is_none() {
+                    // Bare «hold» av utgangspunktet: ingen egen endring å rulle tilbake.
+                    self.keepalive = None;
+                    (Ok(None), false)
+                } else {
+                    (Ok(self.release()), false)
+                }
             }
             Action::Reset(_) => {
                 self.require_owner(conn, true)?;
                 self.animation = None;
+                self.keepalive = None;
                 if self.book.snapshot().dirty {
                     (Ok(self.book.restore_baseline(&mut self.backend)), false)
                 } else {
-                    (self.read_clean(), false)
+                    // Ren økt: les. Viser kortet noe annet enn utgangspunktet
+                    // (kortet har selv endret seg), gjenopprett med journal.
+                    match self.read_clean() {
+                        Err(Error::Readback(RecoveryReadback::Mismatch)) => {
+                            (self.book.restore_drift(&mut self.backend, conn, now_ms).map(Some), true)
+                        }
+                        other => (other, false),
+                    }
+                }
+            }
+            Action::Hold(_) => {
+                if self.animation.is_some() {
+                    return Err(self.transaction_error(Error::Busy));
+                }
+                let target = self.book.target().clone();
+                match self.book.refresh(&mut self.backend, conn, &target) {
+                    Ok(()) => {
+                        self.keepalive = Some(Keepalive { owner: conn, target, last_write_ms: now_ms });
+                        self.effect_error = None;
+                        self.observation_source = ObservationSource::OperationReadback;
+                        (Ok(None), true)
+                    }
+                    Err(error) => {
+                        self.keepalive = None;
+                        // En mulig delvis skriving under egen journal får én
+                        // avgrenset gjenoppretting, som et feilet effektbilde.
+                        if self.book.snapshot().error.is_some() {
+                            self.release();
+                        }
+                        (Err(error), false)
+                    }
                 }
             }
             Action::Read(_) => (self.read_clean(), false),
@@ -502,6 +567,7 @@ impl<B: Backend> Runtime<B> {
         };
         // En feil kan ha etablert eget recoveryansvar. Gi en ny eier en
         // begrenset lease, men forny aldri en eksisterende lease ved feil.
+        self.reconcile_keepalive();
         self.sync_holding(lease_deadline, renew && result.is_ok());
         self.reconcile_animation();
         match result {
@@ -547,16 +613,36 @@ impl<B: Backend> Runtime<B> {
         };
     }
 
+    /// Forbindelsen som eier lyset: en transaksjon, ellers «hold».
+    fn holder(&self) -> Option<u64> {
+        self.book.snapshot().owner.or(self.keepalive.as_ref().map(|hold| hold.owner))
+    }
+
     fn require_owner(&self, conn: u64, allow_unowned: bool) -> Result<(), ProtoError> {
-        match self.book.snapshot().owner {
+        match self.holder() {
             Some(owner) if owner == conn => Ok(()),
             None if allow_unowned => Ok(()),
             _ => Err(ProtoError::new(ErrorCode::NotOwner)),
         }
     }
 
+    /// «Hold» gjelder bare målet det ble startet for, og bare uten feil eller
+    /// en annen eier. Ny prøve, tilbakerulling og gjenoppretting stopper det.
+    fn reconcile_keepalive(&mut self) {
+        let state = self.book.snapshot();
+        if self.keepalive.as_ref().is_some_and(|hold| {
+            self.animation.is_some()
+                || state.error.is_some()
+                || state.recovery.is_some()
+                || state.owner.is_some_and(|owner| owner != hold.owner)
+                || self.book.target() != &hold.target
+        }) {
+            self.keepalive = None;
+        }
+    }
+
     fn sync_holding(&mut self, deadline_ms: u64, renew: bool) {
-        let Some(owner) = self.book.snapshot().owner else {
+        let Some(owner) = self.holder() else {
             self.holding = None;
             return;
         };
@@ -597,7 +683,7 @@ impl<B: Backend> Runtime<B> {
     pub fn animate(&mut self, now_ms: u64) -> Result<bool, ProtoError> {
         self.tick(now_ms)?;
         let Some(animation) = &mut self.animation else {
-            return Ok(false);
+            return Ok(self.hold(now_ms));
         };
         let Some(started_ms) = animation.started_ms else {
             return Ok(false);
@@ -610,11 +696,7 @@ impl<B: Backend> Runtime<B> {
             animation
                 .effect
                 .frame(animation.color, animation.brightness, now_ms - started_ms);
-        // «Hold» skriver samme faste farge på nytt med jevne mellomrom, for
-        // kort som selv går tilbake fra «Av» etter noen sekunder.
-        let hold_due = animation.effect == Effect::Hold
-            && now_ms.saturating_sub(animation.last_write_ms) >= rigg_core::rgb_effect::HOLD_INTERVAL_MS;
-        if request == animation.last_request && !hold_due {
+        if request == animation.last_request {
             return Ok(false);
         }
         let owner = animation.owner;
@@ -625,7 +707,6 @@ impl<B: Backend> Runtime<B> {
             Ok(()) => {
                 if let Some(animation) = &mut self.animation {
                     animation.last_request = request;
-                    animation.last_write_ms = now_ms;
                 }
                 self.observation_source = ObservationSource::OperationReadback;
             }
@@ -639,6 +720,35 @@ impl<B: Backend> Runtime<B> {
             }
         }
         Ok(true)
+    }
+
+    /// Én «hold»-skriving når den er forfallen. `true` når kortet ble lest
+    /// eller skrevet. Ved feil stopper «hold»; en mulig delvis skriving under
+    /// egen journal får én avgrenset gjenoppretting.
+    fn hold(&mut self, now_ms: u64) -> bool {
+        self.reconcile_keepalive();
+        let Some(hold) = &self.keepalive else { return false };
+        if now_ms.saturating_sub(hold.last_write_ms) < rigg_core::rgb_effect::HOLD_INTERVAL_MS {
+            return false;
+        }
+        let (owner, target) = (hold.owner, hold.target.clone());
+        match self.book.refresh(&mut self.backend, owner, &target) {
+            Ok(()) => {
+                if let Some(hold) = &mut self.keepalive {
+                    hold.last_write_ms = now_ms;
+                }
+                self.observation_source = ObservationSource::OperationReadback;
+            }
+            Err(error) => {
+                self.keepalive = None;
+                self.effect_error = Some(format!("«Hold» er stoppet: {error}"));
+                self.observation_source = ObservationSource::Unknown;
+                if self.book.snapshot().error.is_some() {
+                    self.release();
+                }
+            }
+        }
+        true
     }
 
     /// Minst 250 ms hvile etter fysisk retur, også når én frame tok lengre
@@ -680,7 +790,8 @@ impl<B: Backend> Runtime<B> {
         }
         match self.book.tick(&mut self.backend, now_ms) {
             Ok(outcome) => {
-                if self.book.snapshot().owner.is_none() {
+                self.reconcile_keepalive();
+                if self.holder().is_none() {
                     self.holding = None;
                 }
                 if let Some(outcome) = &outcome {
@@ -701,6 +812,9 @@ impl<B: Backend> Runtime<B> {
         {
             self.animation = None;
         }
+        if self.keepalive.as_ref().is_some_and(|hold| hold.owner == conn) {
+            self.keepalive = None;
+        }
         let outcome = self.book.disconnect(&mut self.backend, conn);
         if self.holding.is_some_and(|held| held.owner == conn) {
             self.holding = None;
@@ -715,6 +829,7 @@ impl<B: Backend> Runtime<B> {
     /// eksplisitte reset-stien og gjør ingen setter etter ren preflight-feil.
     pub fn release(&mut self) -> Option<Outcome> {
         self.animation = None;
+        self.keepalive = None;
         self.holding = None;
         let outcome = self.book.release(&mut self.backend);
         if let Some(outcome) = &outcome {
@@ -879,6 +994,20 @@ mod tests {
                 });
             }
             self.apply(binding, request, before, baseline)
+        }
+        fn refresh_baseline(
+            &mut self,
+            binding: &Binding,
+            request: &Request,
+            before: &Observed,
+            baseline: &Baseline,
+        ) -> Result<Observed, WriteError> {
+            assert_eq!(binding, baseline.binding());
+            assert!(self.journal.is_none(), "«hold» av utgangspunktet skrives uten journal");
+            assert_eq!(&self.current, before);
+            self.writes.push(request.clone());
+            self.current = observed(request);
+            Ok(self.current.clone())
         }
         fn clear_dirty(&mut self, _: &Binding) -> Result<(), String> {
             panic!("Palit-fixturen beviser ikke modus og kan aldri rydde dirty")
@@ -1592,24 +1721,105 @@ mod tests {
         assert_eq!(error.code, ErrorCode::NotSupported);
     }
 
+    const HOLD: u64 = rigg_core::rgb_effect::HOLD_INTERVAL_MS;
+
+    fn off() -> Request {
+        Request::Static { color: [0, 0, 0], brightness: Brightness::try_from(0).unwrap() }
+    }
+
     #[test]
-    fn hold_skriver_samme_farge_pa_nytt_hvert_andre_sekund() {
+    fn hold_gaar_fra_prove_til_behold_og_varig_uten_ny_prove() {
         let mut runtime = setup();
-        start_effect(&mut runtime, Effect::Hold, 0);
+        let txn = apply(&mut runtime, 0, off(), 10);
+        // Allerede under prøven (før «Behold»).
+        let result = runtime.handle(1000, 7, "rgb_hold", &identity(), 1).unwrap();
+        assert_eq!(result["status"]["keepalive"], true);
+        assert_eq!(result["status"]["hold"], true);
         let writes = runtime.backend.writes.len();
-        // Ingen ny skriving før intervallet, så én per intervall.
-        assert!(!runtime.animate(1000).unwrap());
-        assert_eq!(runtime.backend.writes.len(), writes);
-        assert!(runtime.animate(rigg_core::rgb_effect::HOLD_INTERVAL_MS + 100).unwrap());
-        runtime.frame_completed(rigg_core::rgb_effect::HOLD_INTERVAL_MS + 100).unwrap();
+        assert!(!runtime.animate(1000).unwrap(), "ingen skriving før intervallet");
+        assert!(runtime.animate(HOLD + 10).unwrap());
         assert_eq!(runtime.backend.writes.len(), writes + 1);
-        assert_eq!(runtime.backend.writes.last(), Some(&color([120, 60, 30])), "samme faste farge");
-        assert!(!runtime.animate(rigg_core::rgb_effect::HOLD_INTERVAL_MS + 1000).unwrap());
-        assert!(runtime.animate(2 * rigg_core::rgb_effect::HOLD_INTERVAL_MS + 200).unwrap());
-        assert_eq!(runtime.backend.writes.len(), writes + 2);
-        // Lukkes appen, skrives utgangspunktet og økten avsluttes.
+        assert_eq!(runtime.backend.writes.last(), Some(&off()));
+        // Behold og varig: «hold» fortsetter, uten ny prøve og uten journal.
+        runtime.handle(1000, 7, "rgb_confirm", &txn_args(txn), HOLD + 20).unwrap();
+        assert_eq!(runtime.status()["keepalive"], true);
+        let result = runtime.handle(1000, 7, "rgb_persist", &identity(), HOLD + 30).unwrap();
+        assert_eq!(result["status"]["state"]["dirty"], false);
+        assert_eq!(result["status"]["keepalive"], true);
+        assert_eq!(result["status"]["holding"]["owner"], 7, "riggd holder forbindelsen og leasen");
+        assert!(runtime.backend.journal.is_none());
+        for step in 1..=5 {
+            runtime.handle(1000, 7, "rgb_heartbeat", &identity(), HOLD + 30 + step * HOLD).unwrap();
+            assert!(runtime.animate(HOLD + 40 + step * HOLD).unwrap());
+        }
+        assert_eq!(runtime.backend.writes.len(), writes + 6);
+        assert!(runtime.backend.journal.is_none(), "et krasj her etterlater ingen journal");
+        assert!(runtime.status()["state"]["pending"].is_null());
+        // En annen forbindelse kan ikke ta lyset mens «hold» går.
+        assert_eq!(
+            runtime.handle(1000, 8, "rgb_apply", &apply_args(color([9, 9, 9]), 10), 20_000).unwrap_err().code,
+            ErrorCode::Busy
+        );
+        // Lukkes appen, stopper «hold» uten skriving og uten uavklart økt.
+        let writes = runtime.backend.writes.len();
         runtime.disconnect(7);
-        assert_eq!(runtime.status()["state"]["dirty"], false);
+        assert_eq!(runtime.backend.writes.len(), writes);
+        let status = runtime.status();
+        assert_eq!(status["keepalive"], false);
+        assert!(status["holding"].is_null());
+        assert_eq!(status["state"]["dirty"], false);
+        // Neste oppstart av appen kan starte «hold» igjen.
+        runtime.handle(1000, 9, "rgb_hold", &identity(), 30_000).unwrap();
+        assert_eq!(runtime.status()["keepalive"], true);
+        // «Slutt å holde av» stopper bare «hold».
+        runtime.handle(1000, 9, "rgb_release", &identity(), 30_001).unwrap();
+        assert_eq!(runtime.status()["keepalive"], false);
+        assert_eq!(runtime.backend.writes.len(), writes + 1);
+    }
+
+    #[test]
+    fn hold_stopper_ved_tilbakerulling_og_lease() {
+        let mut runtime = setup();
+        let txn = apply(&mut runtime, 0, off(), 10);
+        runtime.handle(1000, 7, "rgb_hold", &identity(), 1).unwrap();
+        runtime.handle(1000, 7, "rgb_revert", &txn_args(txn), 2).unwrap();
+        assert_eq!(runtime.status()["keepalive"], false, "målet er endret");
+        let writes = runtime.backend.writes.len();
+        assert!(!runtime.animate(HOLD + 10).unwrap());
+        assert_eq!(runtime.backend.writes.len(), writes);
+        // Utløpt lease stopper også «hold».
+        let mut runtime = setup();
+        apply(&mut runtime, 0, off(), 60);
+        runtime.handle(1000, 7, "rgb_hold", &identity(), 1).unwrap();
+        runtime.tick(LEASE_MS + 5).unwrap();
+        assert_eq!(runtime.status()["keepalive"], false);
+    }
+
+    #[test]
+    fn avvik_i_ren_okt_stopper_hold_og_gjenopprettes_med_journal_uten_lås() {
+        let mut runtime = setup();
+        // Kortet har selv gått tilbake til noe annet (for eksempel etter kaldstart).
+        runtime.backend.current = observed(&color([69, 200, 0]));
+        let error = runtime.handle(1000, 7, "rgb_hold", &identity(), 1).unwrap_err();
+        assert_eq!(error.code, ErrorCode::Unavailable);
+        assert!(runtime.backend.writes.is_empty(), "ingen skriving over et lys vi ikke har satt");
+        let status = runtime.status();
+        assert_eq!(status["drift"], true);
+        assert_eq!(status["state"]["dirty"], false);
+        assert!(status["state"]["error"].is_null(), "avvik er ingen sperre");
+        // «Gjenopprett utgangspunktet»: journal før skriving, deretter én bekreftelse.
+        let result = runtime.handle(1000, 7, "rgb_reset", &identity(), 2).unwrap();
+        assert_eq!(result["outcome"]["status"], "recovery_needs_confirmation");
+        assert!(runtime.backend.journal.is_some());
+        assert_eq!(runtime.backend.writes, vec![color([1, 2, 3])]);
+        let args = ack_args(&runtime);
+        runtime.handle(1000, 7, "rgb_ack_recovery", &args, 3).unwrap();
+        let status = runtime.status();
+        assert_eq!(status["state"]["dirty"], false);
+        assert_eq!(status["drift"], false);
+        assert!(runtime.backend.journal.is_none());
+        // Ny prøve virker igjen.
+        apply(&mut runtime, 4, color([9, 9, 9]), 10);
     }
 
     #[test]

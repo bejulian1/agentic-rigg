@@ -643,10 +643,13 @@ impl PrivateStore {
 
     /// Gjør `next` til nytt utgangspunkt (et varig valg brukeren beholdt).
     /// Rekkefølgen tåler avbrudd: fabrikklyset sikres først (bare første
-    /// gang), så skrives det nye utgangspunktet til en egen fil, så ryddes
-    /// journalen og kvitteringen for det gamle, og til slutt byttes det nye
-    /// atomisk inn. Avbrytes det før byttet, står det gamle utgangspunktet
-    /// uten journal; kortet viser da et annet lys, og «Gjenopprett» virker.
+    /// gang), så skrives det nye utgangspunktet til en egen fil (`NEXT`), så
+    /// ryddes journalen og kvitteringen for det gamle, og til slutt byttes det
+    /// nye atomisk inn. Et avbrudd fullføres ved neste oppstart av
+    /// [`PrivateStore::finish_adopt`]: står journalen fortsatt, ble valget
+    /// aldri tatt i bruk og `NEXT` fjernes; er journalen ryddet, byttes `NEXT`
+    /// inn. Ingen avbrudd kan dermed etterlate kortets nye lys uten journal
+    /// mot et gammelt utgangspunkt.
     pub fn adopt_baseline(
         &self,
         old: &Baseline,
@@ -665,6 +668,10 @@ impl PrivateStore {
         self.replace(NEXT, &bytes, || self.validate_state(old, record))?;
         if record.is_some() {
             unlink_at(&self.directory, JOURNAL)?;
+            #[cfg(test)]
+            if self.fail_sync_after_unlink.load(Ordering::Relaxed) {
+                return Err("Simulert krasj mellom journalrydding og bytte av utgangspunkt.".into());
+            }
         }
         if read_private(&self.directory, VISUAL, self.owner)?.is_some() {
             rename_at(&self.directory, VISUAL, VISUAL_REPLACED)?;
@@ -676,6 +683,37 @@ impl PrivateStore {
             return Err("Det varige RGB-valget kunne ikke kontrolleres etter lagring.".into());
         }
         Ok(())
+    }
+
+    /// Ved oppstart, før utgangspunktet leses: fullfør eller forkast et varig
+    /// valg som ble avbrutt (se [`PrivateStore::adopt_baseline`]). `Some(true)`:
+    /// byttet ble fullført, `Some(false)`: det ble forkastet, `None`: ingenting.
+    pub fn finish_adopt(&self) -> Result<Option<bool>, String> {
+        self.revalidate()?;
+        let Some(text) = read_private(&self.directory, NEXT, self.owner)? else {
+            return Ok(None);
+        };
+        if read_private(&self.directory, JOURNAL, self.owner)?.is_some() {
+            // Avbrutt før journalen ble ryddet: det gamle utgangspunktet og
+            // journalen gjelder fortsatt, og avklares som før.
+            unlink_at(&self.directory, NEXT)?;
+            self.directory.sync_all().map_err(|e| e.to_string())?;
+            return Ok(Some(false));
+        }
+        let next: Baseline =
+            serde_json::from_str(&text).map_err(|e| format!("Ugyldig nytt RGB-utgangspunkt: {e}"))?;
+        let old = self.baseline()?;
+        if next.binding() != old.binding() || next.source() != BaselineSource::UserConfirmedStatic {
+            return Err("Det avbrutte varige RGB-valget gjelder et annet kort.".into());
+        }
+        Book::new(next.clone()).map_err(|e| e.to_string())?;
+        if read_private(&self.directory, VISUAL, self.owner)?.is_some() {
+            rename_at(&self.directory, VISUAL, VISUAL_REPLACED)?;
+        }
+        self.directory.sync_all().map_err(|e| e.to_string())?;
+        rename_at(&self.directory, NEXT, BASELINE)?;
+        self.directory.sync_all().map_err(|e| e.to_string())?;
+        Ok(Some(true))
     }
 
     /// Bare etter full tilbakelesing eller varig, eksplisitt userVisual-

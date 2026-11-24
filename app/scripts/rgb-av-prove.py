@@ -14,12 +14,13 @@ Kandidatene (bare registrene 60 og 6C–6F, som appens faste farge):
   2  svart-0       60=01, RGB 000000, lysstyrke 0
   3  farge-0       60=01, utgangsfargen, lysstyrke 0
   4  nesten-svart  60=01, RGB 010101, lysstyrke 1
+  5  hold          som 2, men skrevet på nytt hvert 2. sekund (appens standard)
 
 Bruk (lukk appen først, eller trykk «Avslutt lysstyring»):
   python3 rgb-av-prove.py --liste
   python3 rgb-av-prove.py --kandidat 2      # én kandidat, ca. 20 s
   python3 rgb-av-prove.py --bekreft          # etter svaret: lyset er som før
-  python3 rgb-av-prove.py --alle             # alle fire, spør i terminalen
+  python3 rgb-av-prove.py --alle             # alle fem, spør i terminalen
 
 Etter hver kandidat er kortet tilbake på utgangslyset, men hjelperen venter
 på at et menneske bekrefter det. `--bekreft` lagrer den bekreftelsen; først
@@ -41,7 +42,11 @@ CANDIDATES = {
     2: ('svart-0', 'svart med lysstyrke 0', lambda base: {'mode': 'static', 'color': [0, 0, 0], 'brightness': 0}),
     3: ('farge-0', 'utgangsfargen med lysstyrke 0', lambda base: {'mode': 'static', 'color': base, 'brightness': 0}),
     4: ('nesten-svart', 'nesten svart (010101) med lysstyrke 1', lambda base: {'mode': 'static', 'color': [1, 1, 1], 'brightness': 1}),
+    5: ('hold', 'svart med lysstyrke 0, skrevet på nytt hvert 2. sekund (appens standard for «Av»)',
+        lambda base: {'mode': 'static', 'color': [0, 0, 0], 'brightness': 0}),
 }
+# Kandidaten som prøver appens «hold» (keepalive) i stedet for én skriving.
+HOLD_CANDIDATE = 5
 
 
 class Feil(Exception):
@@ -101,7 +106,8 @@ def ready(status):
     if state.get('recoveryNeedsConfirmation'):
         raise Feil('En gjenoppretting venter på bekreftelse. Se på kortet, og kjør --bekreft '
                    'når lyset er som før.')
-    if state.get('pending') or state.get('owner') or status.get('effect'):
+    if (state.get('pending') or state.get('owner') or status.get('effect')
+            or status.get('holding') or status.get('keepalive')):
         raise Feil('Kortlyset eies av appen eller en annen prøve. Trykk «Avslutt lysstyring» '
                    'i appen eller lukk appen, og prøv igjen.')
     if state.get('dirty') or state.get('error') or state.get('readError'):
@@ -127,6 +133,12 @@ def run_candidate(path, number, hold, out=print):
     txn = (result.get('outcome') or {}).get('txn')
     if not txn:
         raise Feil('Hjelperen startet ingen prøve (valget er likt utgangslyset?).')
+    if number == HOLD_CANDIDATE:
+        if result.get('status', {}).get('hold') is not True:
+            helper.call('rgb_revert', {**ids, 'txn': txn})
+            raise Feil('RGB-hjelperen støtter ikke «hold». Oppdater appen og kortlyset først.')
+        # Samme prøve; hjelperen skriver den på nytt til den rulles tilbake.
+        helper.call('rgb_hold', ids)
     started = time.monotonic()
     out(f'Skrevet: {describe(request)}. Holder i {hold} s …')
     while (left := hold - (time.monotonic() - started)) > 0:
@@ -175,6 +187,7 @@ def main(argv=None):
         if args.liste:
             for number, (name, text, _) in CANDIDATES.items():
                 print(f'{number}  {name:<13} {text}')
+            print('Kandidat 5 er det appen bruker som standard; 1–4 er én enkelt skriving.')
             print(f'Hver kandidat tar ca. {args.holdetid + 5:.0f} s. Kommando: python3 {sys.argv[0]} --kandidat N')
         elif args.bekreft:
             confirm(args.socket)
@@ -195,6 +208,12 @@ def main(argv=None):
     except (Feil, OSError, ValueError) as error:
         print(f'rgb-av-prove: {error}', file=sys.stderr)
         return 1
+    except KeyboardInterrupt:
+        # Forbindelsen lukkes; hjelperen ruller selv tilbake til utgangslyset.
+        print('\nrgb-av-prove: avbrutt. Hjelperen ruller tilbake til utgangslyset av seg selv; '
+              f'se på kortet, og kjør python3 {sys.argv[0]} --bekreft når lyset er som før.',
+              file=sys.stderr)
+        return 130
     return 0
 
 
