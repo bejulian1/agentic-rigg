@@ -38,7 +38,7 @@ It is meant for people who use Linux on a desktop PC and want what tools like MS
 | Network | Active connection, current and total traffic, routing and DNS, Wi-Fi signal, frequency and security, one expandable row per interface with addresses, hardware, counters and a graph, and listening ports |
 | System | Motherboard, BIOS, memory, operating system and controllers |
 | Clocks & Power, Fans | Opt-in NVML control of power limit, core and memory clock offsets, temperature target and fans: Basic and Advanced views, fan curves with hysteresis, drafts and profiles |
-| RGB lighting | Card-bound lighting control for the Palit GeForce RTX 2080 Super JetStream: static colour, off, brightness, breathing, rainbow and colour cycle, with a 2D or 3D card that previews the choice |
+| RGB lighting | Card-bound lighting control for the Palit GeForce RTX 2080 Super JetStream: a card lighting switch, static colour with a colour picker, breathing, rainbow and colour cycle, and brightness. Off holds while the app runs, and a static colour or off can be kept after the app closes. A 2D or 3D card previews the choice |
 
 Readings come from `/proc`, sysfs/DMI, hwmon, UDisks2, NetworkManager and NVIDIA NVML. What is available depends on your hardware and drivers. Missing or unsupported values are shown as unknown, never estimated.
 
@@ -61,7 +61,7 @@ All screenshots are real GTK 4 windows from private test sessions with **simulat
   </tr>
   <tr><th>RGB lighting</th><th>Overview, dark theme</th></tr>
   <tr>
-    <td><a href="docs/images/rgb-lighting.png"><img src="docs/images/rgb-lighting.png" alt="RGB lighting page with the 2D card preview, mode, colour and brightness controls, and a pending test with Keep and Roll back (simulated RGB data)" width="430"></a></td>
+    <td><a href="docs/images/rgb-lighting.png"><img src="docs/images/rgb-lighting.png" alt="RGB lighting page with the 2D card preview, the card lighting switch, mode, colour picker and brightness, the Keep after the app closes option, and a pending static colour test with Keep and Roll back (simulated RGB data)" width="430"></a></td>
     <td><a href="docs/images/overview-dark.png"><img src="docs/images/overview-dark.png" alt="Overview page in the dark theme (simulated data)" width="430"></a></td>
   </tr>
 </table>
