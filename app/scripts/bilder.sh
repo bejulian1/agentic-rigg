@@ -73,6 +73,8 @@
 #   nettverk-ekte     samme plan mot maskinens egne nettdata uten NetworkManager
 #   readme            bildene til README.md: engelsk brukerflate (standard
 #                     RIGG_BILDER_SPRAK=en), sim:spill, 1440 × 1000 px
+#                     (docs/images/rgb-lighting.png tas fra 1.7.0 med rgb-flow:
+#                     RIGG_BILDER_SPRAK=en, bildet rgb-flow-pending-sim.png)
 #   readme-oppgaver   Oppgaver til README mot en falsk --root med simulerte
 #                     prosesser og brukere (scripts/readme-prosesser.py)
 #
