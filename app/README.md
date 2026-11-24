@@ -14,11 +14,20 @@ Agentic HW Monitor er et overvåkingsverktøy for skjermkort og maskin på Ubunt
 
 En allerede åpen app følger nå `--innstillinger DEL`. Hjelperstatus sjekkes også mens styring er låst, slik at ny administratoraktivering oppdages uten å starte vinduet på nytt.
 
-Sidefeltet har et maskinhode med skjermkortet og prosessoren, og tastene 1–9 og 0 går til de ti sidene. Klikk på skjermkortet øverst åpner Grafikkort direkte. Kortet under Skjermkortstyring åpner en smal detaljmeny i sidefeltets bredde, med kortvalg når det finnes flere kort. Ikonene står sentrert også når sidefeltet er lagt sammen. Versjon og byggnummer står i Innstillinger › Om, sammen med signaturen Code Pro. Grafene kutter aldri en verdi: aksen utvides når temperaturen går over 100 °C eller under 20 °C, og krymper først når kurven har roet seg. Denne fila gjelder 1.6.0 · bygg 32. Sensorfilteret slipper fokus ved klikk utenfor og ved sideskifte; Esc tømmer/avslutter søket. Nedtrekksmenyene har tydelige tilstander for valgt rad og tastaturfokus.
+Sidefeltet har et maskinhode med skjermkortet og prosessoren, og tastene 1–9 og 0 går til de ti sidene. Klikk på skjermkortet øverst åpner Grafikkort direkte. Kortet under Skjermkortstyring åpner en smal detaljmeny i sidefeltets bredde, med kortvalg når det finnes flere kort. Ikonene står sentrert også når sidefeltet er lagt sammen. Versjon og byggnummer står i Innstillinger › Om, sammen med signaturen Code Pro. Grafene kutter aldri en verdi: aksen utvides når temperaturen går over 100 °C eller under 20 °C, og krymper først når kurven har roet seg. Denne fila gjelder 1.7.0 · bygg 33. Sensorfilteret slipper fokus ved klikk utenfor og ved sideskifte; Esc tømmer/avslutter søket. Nedtrekksmenyene har tydelige tilstander for valgt rad og tastaturfokus.
 
 Prosessor viser også lanseringsdato når den konkrete modellen er i det lokale oppslaget. Ryzen 7 2700X viser 19. april 2018, med AMD som kilde. Ukjente modeller får ingen antatt dato. Gjennomgangen av øvrige spesifikasjoner og mangler står i `docs/produksjon/spesifikasjoner-revisjon-2026-11-14.md`.
 
 Måleaksene utvides også for 110 °C og klokker over kortets oppgitte maksimum. Ferske topper i langtidsvinduer og viftekurvens målte punkter tas med; lovlige redigeringsgrenser og 0–100 % for last og brukt minne beholdes.
+
+## Nytt i 1.7.0
+
+- Nytt visningsnavn, Agentic HW Monitor, og svensk som ellevte språk. Kommandoer, app-ID og stier er uendret.
+- Ny side, Nettverk, under Maskinvare. Oppgaver viser alle prosesser med privat minne (`RssAnon`), gruppering etter app og et detaljfelt for valgt prosess.
+- Temperaturaksene går til minst 100 °C, og layouten er rettet over hele appen. Under gliderne på Klokker og effekt står min, standard og maks.
+- GPU-bryteren rører ikke lenger en uavklart RGB-økt, og oppgraderingen fra bygg 31 tar ett passord for GPU og ett for RGB.
+- RGB-lys har egen av/på-bryter, fargevelger og «Av» som holder mens appen eier lyset. En fast farge eller «Av» kan beholdes etter at appen lukkes, og «Av» kommer tilbake etter krasj uten passord. Prøveskriptet `rgb-av-prove.py` installeres i `~/.local/share/doc/agentic-rigg/`. Dette er ikke prøvd på ekte maskinvare ennå.
+- GPU-hjelperen er uendret, så en hjelper fra bygg 32 virker videre. En RGB-hjelper fra bygg 29–32 oppdateres med ett passord fra RGB-lys.
 
 ## Nytt i 1.6.0
 

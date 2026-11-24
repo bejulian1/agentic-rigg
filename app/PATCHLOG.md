@@ -1,5 +1,13 @@
 # Patchlog
 
+## 1.7.0 · bygg 33 – 24. november 2026: nytt navn, svensk, Nettverk, Oppgaver, layout og RGB «Av» som holder
+
+- Samler PR #32 (visningsnavn og svensk), #34 (layoutrevisjon, `math::temp_axis`, Om), #37 (GPU-aktivering med `--keep-rgb`, Oppgaver med `RssAnon`, gruppering og `get_task_detail`), #38 (`get_network`, Nettverk-siden), #39 (README og bilder), #40 (`widgets/charthead.rs`, `StatStrip` som `Cols`, `limit_label_tops`, `leadrow`), #43 (RGB-oppgradering med ett passord, `--keep-nvml`, `nvml_admin_files`, `TaskRow`), #45 (`rgb_persist`, `rgbAv`, fargevelger, `rgb-av-prove.py`) og #47 (`rgb_hold` som egen operasjon, `owned` i svarene, funksjonssjekk for eldre RGB-hjelpere).
+- `widgets/oc.rs`: tallene under glideren viser alltid min, standard og maks. `place_ticks` flytter «standard …» inn mellom endene i stedet for å skjule en ende; `TICK_LEVELS` har tre former (enhet på alle, enhet bare ved standard, standard som bare verdien), og `share_ticks` lar radene på Klokker og effekt bruke samme form ut fra den smaleste synlige glideren. Minstebredden er uendret (100 px), så vinduet kan fortsatt bli 640 px. Tester: `tallene_under_glideren_viser_min_standard_og_maks`, `tall_uten_enhet`.
+- `rigg_core::hjelper::MIN_COMPATIBLE_BUILD` står på 32 og protokoll 2 er uendret: NVML-delen av `rigg-helper` er ikke endret siden 1.6.0 (bare navnet i `--version`). `rgb_auth::MIN_COMPATIBLE_BUILD` står på 29; RGB-hjelpere uten `persist`/`hold` i statusen avgjøres som «må oppdateres» etter egenskaper (PR #47), ikke bygg. Ingen kompatibilitetstest er endret.
+- `skjermbilder_ui140.rs`: nyeste utgave i versjonsloggen er 1.7.0. `docs/images/clocks-power.png` er tatt på nytt (simulerte data).
+- Ikke prøvd på ekte maskinvare: «hold», varig «Av», gjenoppretting etter krasj og kaldstart. Ekte `pkexec` og nedlasting fra GitHub er bare dekket av kjedede tester med falske systemkall. Issue #19 (signert `SHA256SUMS`) står åpen.
+
 ## 1.6.0 · bygg 32 – 23. november 2026: sikkerhetsrettinger i NVML-hjelperen og systeminstallasjonen
 
 - `rigg_core::hjelper::MIN_COMPATIBLE_BUILD` = 32 (protokoll 2 uendret, RGB 29 uendret). Kompatibilitetstestene i `rigg-core`, `riggd` og `system_install.rs` avviser 25–31 og godtar 32. `utgaven_med_nvml_rettingene_avviser_eldre_hjelpere` vokter grensen.

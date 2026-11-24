@@ -1,5 +1,21 @@
 [
   {
+    "version": "1.7.0",
+    "build": 33,
+    "date": "2026-11-24",
+    "title": "Nytt navn, Nettverk og RGB-lys som holder seg av",
+    "changes": [
+      "Appen heter nå Agentic HW Monitor. Innstillinger, historikk, logger og en aktivert hjelper følger med.",
+      "Svensk er det ellevte språket.",
+      "Ny side, Nettverk, under Maskinvare: tilkobling, fart nå, ruting og DNS, Wi-Fi, grensesnitt med egne grafer og porter som lytter.",
+      "Oppgaver viser alle prosesser og riktig minne, også over 1 GB, gruppert etter app og med detaljer for valgt prosess.",
+      "Temperaturgrafene går alltid til minst 100 °C, og oppsettet er rettet over hele appen. Under gliderne på Klokker og effekt står min, standard og maks.",
+      "Bryteren for GPU-styring stopper ikke lenger på en uavklart RGB-økt, og oppgraderingen krever færre passord.",
+      "RGB-lys har egen av/på-bryter og fargevelger. «Av» holder mens appen er åpen, og en fast farge eller «Av» kan beholdes etter at appen lukkes.",
+      "En GPU-hjelper fra 1.6.0 virker videre uten nytt passord. En eldre RGB-hjelper oppdateres med ett passord fra RGB-lys."
+    ]
+  },
+  {
     "version": "1.6.0",
     "build": 32,
     "date": "2026-11-23",

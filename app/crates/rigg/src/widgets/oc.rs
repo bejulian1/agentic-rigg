@@ -83,6 +83,68 @@ fn ring(s: &gtk::Snapshot, cx: f32, cy: f32, r: f32, w: f32, c: &gdk::RGBA) {
 pub type FmtFn = Rc<dyn Fn(f64) -> String>;
 
 const PAD: f32 = 10.0;
+/// Luft mellom tallene under glideren.
+const TICK_GAP: f32 = 8.0;
+/// Formene tallene under glideren kan ha, fra lengst til kortest: med enhet
+/// på alle tre («−1 000 MHz · standard 0 MHz · +1 000 MHz»), enhet bare på
+/// standard («−1 000 · standard 0 MHz · +1 000»), og standard som bare
+/// verdien ved merket («−1 000 · 0 MHz · +1 000»). Den lengste som får plass,
+/// brukes; min, standard og maks står i alle tre.
+const TICK_LEVELS: usize = 3;
+
+/// Hvor tallene under glideren står: om minste og største vises, og venstre
+/// kant for «standard …».
+#[derive(Debug, PartialEq)]
+struct Ticks {
+    lo: bool,
+    stock: Option<f32>,
+    hi: bool,
+}
+
+/// Tallet uten enheten bak («−1 000 MHz» → «−1 000»).
+fn bare_number(t: &str) -> &str {
+    let t = t.trim_end_matches(|c: char| !c.is_numeric());
+    if t.is_empty() { "" } else { t }
+}
+
+/// Glidere som står under hverandre: samme form på tallene under (se
+/// [`TICK_LEVELS`]), den som får plass i den smaleste synlige glideren, så
+/// radene ser like ut. Kalles når område, standard eller enhet kan ha endret seg.
+pub fn share_ticks<'a>(sliders: impl IntoIterator<Item = &'a Slider> + Clone) {
+    let group: Vec<glib::WeakRef<Slider>> = sliders.clone().into_iter().map(|s| s.downgrade()).collect();
+    for s in sliders {
+        let i = s.imp();
+        let need = Some(i.tick_needs());
+        if i.needs.replace(need) != need {
+            s.queue_draw();
+        }
+        *i.group.borrow_mut() = group.clone();
+    }
+}
+
+/// Bredden glideren trenger for at alle tallene står på én linje.
+fn tick_min_width(lo: Option<f32>, stock: Option<f32>, hi: f32, gap: f32) -> f32 {
+    [lo, stock, Some(hi)].into_iter().flatten().fold(0.0, |a, w| if a > 0.0 { a + gap + w } else { w })
+}
+
+/// Plasserer tallene i bredden `ww`: minste til venstre, største til høyre og
+/// «standard …» midt under merket (`stock` = (merkets x, bredde)). Standard
+/// flyttes inn mellom endene når den ellers ville truffet dem. Bare når
+/// bredden ikke rekker til alle tre, viker en ende for standard.
+fn place_ticks(ww: f32, lo: Option<f32>, stock: Option<(f32, f32)>, hi: f32, gap: f32) -> Ticks {
+    let Some((cx, sw)) = stock else {
+        return Ticks { lo: lo.is_some(), stock: None, hi: true };
+    };
+    let left = lo.map_or(0.0, |w| w + gap);
+    let right = ww - hi - gap - sw;
+    let want = cx - sw / 2.0;
+    if left <= right {
+        return Ticks { lo: lo.is_some(), stock: Some(want.clamp(left, right)), hi: true };
+    }
+    // For smalt: standard ved merket, og endene den treffer viker.
+    let sx = want.clamp(0.0, (ww - sw).max(0.0));
+    Ticks { lo: lo.is_some_and(|w| sx >= w + gap), stock: Some(sx), hi: sx + sw <= ww - hi - gap }
+}
 const KNOB: f32 = 7.5;
 const ROW: f32 = 24.0;
 
@@ -104,6 +166,10 @@ mod slider_imp {
         pub on_change: crate::widgets::Slot<dyn Fn(f64)>,
         pub drag: Cell<bool>,
         pub hover: Cell<bool>,
+        /// Bredden tallene trengte per form ved siste [`share_ticks`].
+        pub needs: Cell<Option<[f32; TICK_LEVELS]>>,
+        /// Gliderne som skal ha samme form på tallene ([`share_ticks`]).
+        pub group: RefCell<Vec<glib::WeakRef<super::Slider>>>,
     }
 
     impl Default for Slider {
@@ -122,7 +188,40 @@ mod slider_imp {
                 on_change: RefCell::new(None),
                 drag: Cell::new(false),
                 hover: Cell::new(false),
+                needs: Cell::new(None),
+                group: RefCell::new(Vec::new()),
             }
+        }
+    }
+
+    impl Slider {
+        /// Tekstene under glideren i form `level` ([`TICK_LEVELS`]): minste
+        /// (`None` når den er lik standard), standard (når den er kjent) og
+        /// største.
+        pub fn tick_texts(&self, level: usize) -> (Option<String>, Option<String>, String) {
+            let f = self.fmt.borrow().clone();
+            let end = |v: f64| {
+                let t = f(v);
+                if level == 0 { t } else { bare_number(&t).to_string() }
+            };
+            let (lo, hi) = (end(self.lo.get()), end(self.hi.get()));
+            match self.stock.get() {
+                Some(st) => {
+                    let v = f(st);
+                    let lo = (f(self.lo.get()) != v).then_some(lo);
+                    (lo, Some(if level < 2 { trf!("standard {verdi}", verdi = v) } else { v }), hi)
+                }
+                None => (Some(lo), None, hi),
+            }
+        }
+
+        /// Bredden tallene trenger på én linje, per form.
+        pub fn tick_needs(&self) -> [f32; TICK_LEVELS] {
+            let wd = |t: &str| self.obj().create_pango_layout(Some(t)).pixel_size().0 as f32;
+            std::array::from_fn(|level| {
+                let (lo, st, hi) = self.tick_texts(level);
+                tick_min_width(lo.as_deref().map(wd), st.as_deref().map(wd), wd(&hi), TICK_GAP)
+            })
         }
     }
 
@@ -207,9 +306,20 @@ mod slider_imp {
                 let e = if self.drag.get() || self.hover.get() { fill } else { edge };
                 ring(s, cx, cy, KNOB, 1.0, &dim(&e));
             }
-            // Tallene under: minste, standard og største. Standard vinner når
-            // de ville overlappet; endene viker.
-            let f = self.fmt.borrow().clone();
+            // Tallene under: minste, standard og største, i den lengste formen
+            // som får plass, også i de andre radene i gruppen. Standard står
+            // ved merket, men flyttes inn mellom endene heller enn å skjule dem.
+            let best = |width: f32, needs: [f32; TICK_LEVELS]| (0..TICK_LEVELS).find(|&i| width >= needs[i]).unwrap_or(TICK_LEVELS - 1);
+            let mut level = best(ww, self.needs.get().unwrap_or_else(|| self.tick_needs()));
+            for m in self.group.borrow().iter().filter_map(|m| m.upgrade()) {
+                if let Some(n) = m.imp().needs.get()
+                    && m.is_mapped()
+                    && m.width() > 0
+                {
+                    level = level.max(best(m.width() as f32, n));
+                }
+            }
+            let (t_lo, t_st, t_hi) = self.tick_texts(level);
             let ty = ROW + 1.0;
             let lay = |t: &str| {
                 let l = w.create_pango_layout(Some(t));
@@ -222,29 +332,20 @@ mod slider_imp {
                 s.append_layout(l, &dim(c));
                 s.restore();
             };
-            let (l_lo, w_lo) = lay(&f(lo));
-            let (l_hi, w_hi) = lay(&f(hi));
-            let gap = 10.0;
-            let mut lo_span = Some((0.0f32, w_lo));
-            let mut hi_span = Some((ww - w_hi, ww));
-            if let Some(st) = stock {
-                let (l_st, w_st) = lay(&trf!("standard {verdi}", verdi = f(st)));
-                let sx = (x(st) - w_st / 2.0).clamp(0.0, (ww - w_st).max(0.0));
-                if lo_span.is_some_and(|(_, b)| sx < b + gap) {
-                    lo_span = None;
-                }
-                if hi_span.is_some_and(|(a, _)| sx + w_st > a - gap) {
-                    hi_span = None;
-                }
-                draw(&l_st, sx, &text);
+            let lo_l = t_lo.as_deref().map(lay);
+            let st_l = t_st.as_deref().map(lay);
+            let (l_hi, w_hi) = lay(&t_hi);
+            let place = place_ticks(ww, lo_l.as_ref().map(|(_, lw)| *lw), stock.zip(st_l.as_ref()).map(|(st, (_, sw))| (x(st), *sw)), w_hi, TICK_GAP);
+            if let (Some(sx), Some((l_st, _))) = (place.stock, &st_l) {
+                draw(l_st, sx, &text);
             }
             let mut faint = text;
             faint.set_alpha(faint.alpha() * 0.75);
-            if let Some((a, _)) = lo_span {
-                draw(&l_lo, a, &faint);
+            if let (true, Some((l_lo, _))) = (place.lo, &lo_l) {
+                draw(l_lo, 0.0, &faint);
             }
-            if let Some((a, _)) = hi_span {
-                draw(&l_hi, a, &faint);
+            if place.hi {
+                draw(&l_hi, ww - w_hi, &faint);
             }
         }
     }
@@ -933,5 +1034,45 @@ mod tests {
         assert!(snap(-1.0, 5.0, (-200.0, 300.0), None, 0.0).is_sign_positive());
         // Standard utenfor området trekker ikke.
         assert_eq!(snap(36.0, 1.0, (35.0, 100.0), Some(20.0), 50.0), 36.0);
+    }
+
+    #[test]
+    fn tallene_under_glideren_viser_min_standard_og_maks() {
+        // Effektgrense: standard 245 W nær maks 275 W. Standard flyttes inn,
+        // maks står.
+        let t = place_ticks(220.0, Some(40.0), Some((190.0, 90.0)), 40.0, 10.0);
+        assert_eq!(t, Ticks { lo: true, stock: Some(80.0), hi: true });
+        // Minnejustering: standard 0 nær min −1000. Standard flyttes til høyre.
+        let t = place_ticks(240.0, Some(60.0), Some((60.0, 90.0)), 60.0, 10.0);
+        assert_eq!(t, Ticks { lo: true, stock: Some(70.0), hi: true });
+        // Plass nok: standard midt under merket.
+        let t = place_ticks(400.0, Some(60.0), Some((200.0, 90.0)), 60.0, 10.0);
+        assert_eq!(t, Ticks { lo: true, stock: Some(155.0), hi: true });
+        // Bredden `tick_min_width` gir, rekker alltid til alle tre.
+        let need = tick_min_width(Some(60.0), Some(90.0), 60.0, 10.0);
+        assert_eq!(need, 230.0);
+        for cx in [0.0, 30.0, 115.0, 200.0, 230.0] {
+            let t = place_ticks(need, Some(60.0), Some((cx, 90.0)), 60.0, 10.0);
+            assert!(t.lo && t.hi && t.stock == Some(70.0), "{cx}: {t:?}");
+        }
+        // For smalt (skal ikke skje): standard vinner, og endene viker.
+        let t = place_ticks(150.0, Some(60.0), Some((140.0, 90.0)), 60.0, 10.0);
+        assert_eq!(t, Ticks { lo: false, stock: Some(60.0), hi: false });
+        // Minste lik standard: bare standard og maks.
+        let t = place_ticks(200.0, None, Some((10.0, 90.0)), 40.0, 10.0);
+        assert_eq!(t, Ticks { lo: false, stock: Some(0.0), hi: true });
+        assert_eq!(tick_min_width(None, Some(90.0), 40.0, 10.0), 140.0);
+        // Uten standard: begge endene.
+        assert_eq!(place_ticks(200.0, Some(40.0), None, 40.0, 10.0), Ticks { lo: true, stock: None, hi: true });
+    }
+
+    #[test]
+    fn tall_uten_enhet() {
+        assert_eq!(bare_number("\u{2212}1\u{202F}000\u{202F}MHz"), "\u{2212}1\u{202F}000");
+        assert_eq!(bare_number("+3 000 MHz"), "+3 000");
+        assert_eq!(bare_number("245\u{202F}W"), "245");
+        assert_eq!(bare_number("83\u{202F}°C"), "83");
+        assert_eq!(bare_number("35 %"), "35");
+        assert_eq!(bare_number("1,5 kW"), "1,5");
     }
 }

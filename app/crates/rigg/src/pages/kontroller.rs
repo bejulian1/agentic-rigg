@@ -1189,6 +1189,8 @@ impl Kontroller {
         });
         set_text(&row.now, &if r.fans.is_empty() { F::DASH.to_string() } else { r.fans_line() });
         row.set_changed(diff.iter().any(|x| x.starts_with("fan.")));
+        // Samme form på tallene under alle gliderne.
+        crate::widgets::oc::share_ticks(self.rows.iter().map(|r| &r.slider));
     }
 
     fn render_limits(&self, r: &Read) {
