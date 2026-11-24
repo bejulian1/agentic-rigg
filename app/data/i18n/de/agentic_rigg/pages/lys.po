@@ -75,70 +75,78 @@ msgstr "Effekt aktiv"
 msgid "Speiler kortlyset"
 msgstr "Spiegelt Kartenlicht"
 
-#: crates/rigg/src/pages/lys.rs:559
+#: crates/rigg/src/pages/lys.rs:561
+msgid "Utgangspunkt: Av"
+msgstr "Ausgangszustand: Aus"
+
+#: crates/rigg/src/pages/lys.rs:563
+msgid "Sist lest: Av"
+msgstr "Zuletzt gelesen: Aus"
+
+#: crates/rigg/src/pages/lys.rs:565
 msgid "Utgangspunkt: {farge} · {styrke}"
 msgstr "Ausgangswert: {farge} · {styrke}"
 
-#: crates/rigg/src/pages/lys.rs:561
+#: crates/rigg/src/pages/lys.rs:567
 msgid "Sist lest: {farge} · {styrke}"
 msgstr "Zuletzt gelesen: {farge} · {styrke}"
 
-#: crates/rigg/src/pages/lys.rs:735 crates/rigg/src/pages/lys.rs:955
+#: crates/rigg/src/pages/lys.rs:741 crates/rigg/src/pages/lys.rs:961
 msgid "Lys vises i 2D"
 msgstr "Karte wird in 2D angezeigt"
 
-#: crates/rigg/src/pages/lys.rs:735
+#: crates/rigg/src/pages/lys.rs:741
 msgid "3D-kortet kunne ikke tegnes med grafikken her. Det flate kortet viser de samme lysvalgene."
 msgstr "Die 3D-Karte konnte mit dieser Grafikkonfiguration nicht gerendert werden. Die 2D-Ansicht zeigt dieselbe Beleuchtung."
 
-#: crates/rigg/src/pages/lys.rs:833
+#: crates/rigg/src/pages/lys.rs:839
 msgid "3D kan ikke tegnes her ({feil}). Klikk for å prøve igjen."
 msgstr "3D kann hier nicht gerendert werden ({feil}). Zum erneuten Versuch klicken."
 
-#: crates/rigg/src/pages/lys.rs:835
+#: crates/rigg/src/pages/lys.rs:841
 msgid "Grafikken tegnet 3D for tregt. Klikk for å prøve igjen."
 msgstr "Die Grafik hat 3D zu langsam gerendert. Zum erneuten Versuch klicken."
 
-#: crates/rigg/src/pages/lys.rs:837
+#: crates/rigg/src/pages/lys.rs:843
 msgid "Kortet i 3D. Dra for å vri."
 msgstr "Karte in 3D. Zum Drehen ziehen."
 
-#: crates/rigg/src/pages/lys.rs:842
+#: crates/rigg/src/pages/lys.rs:848
 msgid "Flatt kort sett forfra. Bruker minst ressurser."
 msgstr "Flache Karte von vorn. Verbraucht am wenigsten Ressourcen."
 
-#: crates/rigg/src/pages/lys.rs:857
+#: crates/rigg/src/pages/lys.rs:863
 msgid "Stillbilde: grafikken tegner for tregt"
 msgstr "Standbild: Grafik rendert zu langsam"
 
-#: crates/rigg/src/pages/lys.rs:859
+#: crates/rigg/src/pages/lys.rs:865
 msgid "Animasjon av"
 msgstr "Animation aus"
 
-#: crates/rigg/src/pages/lys.rs:955
+#: crates/rigg/src/pages/lys.rs:961
 msgid "Grafikken tegnet 3D-kortet for tregt. Velg 3D over visningen for å prøve igjen."
 msgstr "Die 3D-Karte wurde zu langsam gerendert. Wählen Sie oben 3D, um es erneut zu versuchen."
 
-#: crates/rigg/src/pages/lys.rs:1062
+#: crates/rigg/src/pages/lys.rs:1068
 msgid "Kortlys er ikke aktivert."
 msgstr "Kartenbeleuchtung ist nicht aktiviert."
 
-#: crates/rigg/src/pages/lys.rs:1064
+#: crates/rigg/src/pages/lys.rs:1070
 msgid "Lysene er av."
 msgstr "Die Beleuchtung ist aus."
 
-#: crates/rigg/src/pages/lys.rs:1066
+#: crates/rigg/src/pages/lys.rs:1072
 msgid "Lysstyrke {styrke}."
 msgstr "Helligkeit {styrke}."
 
-#: crates/rigg/src/pages/lys.rs:1080
+#: crates/rigg/src/pages/lys.rs:1086
 msgid "{lag} · lagene skilt"
 msgstr "{lag} · Ebenen getrennt"
 
-#: crates/rigg/src/pages/lys.rs:1103
+#: crates/rigg/src/pages/lys.rs:1109
 msgid "Flatt skjermkort sett forfra."
 msgstr "Flache Grafikkarte von vorn gesehen."
 
-#: crates/rigg/src/pages/lys.rs:1119
+#: crates/rigg/src/pages/lys.rs:1125
 msgid "Kortet har én fysisk lyssone."
 msgstr "Die Karte hat eine physische Beleuchtungszone."

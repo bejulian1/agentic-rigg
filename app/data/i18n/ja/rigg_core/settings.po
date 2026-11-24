@@ -72,190 +72,194 @@ msgstr "GPU 温度の赤しきい値は黄しきい値より大きくしてく�
 msgid "Rød grense for CPU-temperatur må være over gul"
 msgstr "CPU 温度の赤しきい値は黄しきい値より大きくしてください"
 
-#: crates/rigg-core/src/settings.rs:294
+#: crates/rigg-core/src/settings.rs:317
 msgid "{felt} må være true/false"
 msgstr "{felt} は true/false である必要があります"
 
-#: crates/rigg-core/src/settings.rs:298
+#: crates/rigg-core/src/settings.rs:321
 msgid "{felt} må være en liste"
 msgstr "{felt} はリストである必要があります"
 
-#: crates/rigg-core/src/settings.rs:307
+#: crates/rigg-core/src/settings.rs:330
 msgid "Ukjent verdi i {felt}: {verdi}"
 msgstr "{felt} に不明な値があります: {verdi}"
 
-#: crates/rigg-core/src/settings.rs:314
+#: crates/rigg-core/src/settings.rs:337
 msgid "{felt} må ha {min}–{max} valg"
 msgstr "{felt} は {min}–{max} 件である必要があります"
 
-#: crates/rigg-core/src/settings.rs:343
+#: crates/rigg-core/src/settings.rs:366
 msgid "statusItems må være en liste"
 msgstr "statusItems はリストである必要があります"
 
-#: crates/rigg-core/src/settings.rs:348
+#: crates/rigg-core/src/settings.rs:371
 msgid "Ukjent verdi i statusItems: {verdi}"
 msgstr "statusItems に不明な値があります: {verdi}"
 
-#: crates/rigg-core/src/settings.rs:355
+#: crates/rigg-core/src/settings.rs:378
 msgid "Statusblokken kan ha høyst {maks} verdier"
 msgstr "ステータス欄は最大 {maks} 件までです"
 
-#: crates/rigg-core/src/settings.rs:363
+#: crates/rigg-core/src/settings.rs:386
 msgid "{felt} er ugyldig"
 msgstr "{felt} は無効です"
 
-#: crates/rigg-core/src/settings.rs:370 crates/rigg-core/src/settings.rs:602 crates/rigg-core/src/settings.rs:711
+#: crates/rigg-core/src/settings.rs:393 crates/rigg-core/src/settings.rs:627 crates/rigg-core/src/settings.rs:736
 msgid "Forventet et JSON-objekt"
 msgstr "JSON オブジェクトが必要です"
 
-#: crates/rigg-core/src/settings.rs:376
+#: crates/rigg-core/src/settings.rs:399
 msgid "Ukjent språkvalg"
 msgstr "不明な言語が選択されました"
 
-#: crates/rigg-core/src/settings.rs:378
+#: crates/rigg-core/src/settings.rs:401
 msgid "Ugyldig intervall"
 msgstr "無効な間隔です"
 
-#: crates/rigg-core/src/settings.rs:379
+#: crates/rigg-core/src/settings.rs:402
 msgid "Enhet må være C eller F"
 msgstr "単位は C または F である必要があります"
 
-#: crates/rigg-core/src/settings.rs:380
+#: crates/rigg-core/src/settings.rs:403
 msgid "Tema må være system, light eller dark"
 msgstr "テーマは system、light、dark のいずれかにしてください"
 
-#: crates/rigg-core/src/settings.rs:382
+#: crates/rigg-core/src/settings.rs:405
 msgid "Ukjent aksentfarge"
 msgstr "不明なアクセントカラーです"
 
-#: crates/rigg-core/src/settings.rs:384
+#: crates/rigg-core/src/settings.rs:407
 msgid "Ukjent fargetema"
 msgstr "不明なカラーテーマです"
 
-#: crates/rigg-core/src/settings.rs:386
+#: crates/rigg-core/src/settings.rs:409
 msgid "Ukjent tetthet"
 msgstr "不明な表示密度です"
 
-#: crates/rigg-core/src/settings.rs:387
+#: crates/rigg-core/src/settings.rs:410
 msgid "Ugyldig skriftstørrelse"
 msgstr "無効な文字サイズです"
 
-#: crates/rigg-core/src/settings.rs:388
+#: crates/rigg-core/src/settings.rs:411
 msgid "Animasjoner må være system, full, reduced eller off"
 msgstr "アニメーションは system、full、reduced、off のいずれかにしてください"
 
-#: crates/rigg-core/src/settings.rs:392
+#: crates/rigg-core/src/settings.rs:415
 msgid "Ukjent startside"
 msgstr "不明な起動ページです"
 
-#: crates/rigg-core/src/settings.rs:404 crates/rigg-core/src/settings.rs:409
+#: crates/rigg-core/src/settings.rs:427 crates/rigg-core/src/settings.rs:432
 msgid "Tidsvindu må være en av {verdier} s"
 msgstr "時間範囲は {verdier} s のいずれかにしてください"
 
-#: crates/rigg-core/src/settings.rs:408
+#: crates/rigg-core/src/settings.rs:431
 msgid "windows må være et objekt"
 msgstr "windows はオブジェクトである必要があります"
 
-#: crates/rigg-core/src/settings.rs:417
+#: crates/rigg-core/src/settings.rs:440
 msgid "Ukjent side i windows: {side}"
 msgstr "windows に不明なページがあります: {side}"
 
-#: crates/rigg-core/src/settings.rs:422
+#: crates/rigg-core/src/settings.rs:445
 msgid "chartScale må være auto eller fixed"
 msgstr "chartScale は auto または fixed である必要があります"
 
-#: crates/rigg-core/src/settings.rs:427
+#: crates/rigg-core/src/settings.rs:450
 msgid "Desimaler må være auto, 0 eller 1"
 msgstr "小数点以下は auto、0、1 のいずれかにしてください"
 
-#: crates/rigg-core/src/settings.rs:428
+#: crates/rigg-core/src/settings.rs:451
 msgid "memUnit må være bin eller dec"
 msgstr "memUnit は bin または dec である必要があります"
 
-#: crates/rigg-core/src/settings.rs:429
+#: crates/rigg-core/src/settings.rs:452
 msgid "netUnit må være byte eller bit"
 msgstr "netUnit は byte または bit である必要があります"
 
-#: crates/rigg-core/src/settings.rs:430
+#: crates/rigg-core/src/settings.rs:453
 msgid "Klokke må være system, 24 eller 12"
 msgstr "時刻形式は system、24、12 のいずれかにしてください"
 
-#: crates/rigg-core/src/settings.rs:433
+#: crates/rigg-core/src/settings.rs:456
 msgid "Fristen må være {verdier} s"
 msgstr "制限時間は {verdier} s である必要があります"
 
-#: crates/rigg-core/src/settings.rs:437
+#: crates/rigg-core/src/settings.rs:460
 msgid "lys3d må være auto, 3d eller 2d"
 msgstr "lys3d は auto、3d、2d のいずれかである必要があります"
 
-#: crates/rigg-core/src/settings.rs:446
+#: crates/rigg-core/src/settings.rs:461
+msgid "rgbAv må være hold, svart-100, svart-0, farge-0 eller nesten-svart"
+msgstr "rgbAv は hold、svart-100、svart-0、farge-0、nesten-svart のいずれかである必要があります"
+
+#: crates/rigg-core/src/settings.rs:471
 msgid "Ukjent del av Innstillinger"
 msgstr "不明な設定セクションです"
 
-#: crates/rigg-core/src/settings.rs:449
+#: crates/rigg-core/src/settings.rs:474
 msgid "Ukjent side"
 msgstr "不明なページです"
 
-#: crates/rigg-core/src/settings.rs:452
+#: crates/rigg-core/src/settings.rs:477
 msgid "window må være et objekt"
 msgstr "window はオブジェクトである必要があります"
 
-#: crates/rigg-core/src/settings.rs:472
+#: crates/rigg-core/src/settings.rs:497
 msgid "gpuMakers må være et objekt"
 msgstr "gpuMakers はオブジェクトである必要があります"
 
-#: crates/rigg-core/src/settings.rs:474
+#: crates/rigg-core/src/settings.rs:499
 msgid "Høyst 16 kort i gpuMakers"
 msgstr "gpuMakers に登録できるのは最大 16 枚です"
 
-#: crates/rigg-core/src/settings.rs:478
+#: crates/rigg-core/src/settings.rs:503
 msgid "Produsenten må være tekst"
 msgstr "メーカー名は文字列である必要があります"
 
-#: crates/rigg-core/src/settings.rs:481
+#: crates/rigg-core/src/settings.rs:506
 msgid "Ugyldig kort i gpuMakers"
 msgstr "gpuMakers に無効なカードがあります"
 
-#: crates/rigg-core/src/settings.rs:484
+#: crates/rigg-core/src/settings.rs:509
 msgid "Produsenten kan ha høyst 40 tegn"
 msgstr "メーカー名は 40 文字以内にしてください"
 
-#: crates/rigg-core/src/settings.rs:607
+#: crates/rigg-core/src/settings.rs:632
 msgid "Takten i bakgrunnen må være 1, 2 eller 5 s"
 msgstr "バックグラウンド間隔は 1、2、5 s のいずれかにしてください"
 
-#: crates/rigg-core/src/settings.rs:610
+#: crates/rigg-core/src/settings.rs:635
 msgid "Fristen må være 10, 15, 30 eller 60 s"
 msgstr "制限時間は 10、15、30、60 s のいずれかにしてください"
 
-#: crates/rigg-core/src/settings.rs:612
+#: crates/rigg-core/src/settings.rs:637
 msgid "log må være et objekt"
 msgstr "log はオブジェクトである必要があります"
 
-#: crates/rigg-core/src/settings.rs:617
+#: crates/rigg-core/src/settings.rs:642
 msgid "log.keys må være en liste"
 msgstr "log.keys はリストである必要があります"
 
-#: crates/rigg-core/src/settings.rs:623
+#: crates/rigg-core/src/settings.rs:648
 msgid "Ukjent sensor i log.keys"
 msgstr "log.keys に不明なセンサーがあります"
 
-#: crates/rigg-core/src/settings.rs:628
+#: crates/rigg-core/src/settings.rs:653
 msgid "Loggintervallet må være 0,5, 1, 2, 5 eller 10 s"
 msgstr "ログ間隔は 0.5、1、2、5、10 s のいずれかにしてください"
 
-#: crates/rigg-core/src/settings.rs:633
+#: crates/rigg-core/src/settings.rs:658
 msgid "Loggmappa må være en full sti"
 msgstr "ログフォルダは絶対パスである必要があります"
 
-#: crates/rigg-core/src/settings.rs:636
+#: crates/rigg-core/src/settings.rs:661
 msgid "Formatet må være standard eller norsk"
 msgstr "形式は standard または norsk である必要があります"
 
-#: crates/rigg-core/src/settings.rs:642
+#: crates/rigg-core/src/settings.rs:667
 msgid "alarms må være et objekt"
 msgstr "alarms はオブジェクトである必要があります"
 
-#: crates/rigg-core/src/settings.rs:707
+#: crates/rigg-core/src/settings.rs:732
 msgid "Fila har ingen innstillinger"
 msgstr "ファイルに設定が含まれていません"

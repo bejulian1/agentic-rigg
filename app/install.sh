@@ -154,6 +154,12 @@ for f in aktiver.sh deaktiver.sh trinn.sh agentic-rigg-helper agentic-rigg-helpe
     rm -f -- "$hjelper_dir/$f"
 done
 rmdir --ignore-fail-on-non-empty -- "$hjelper_dir" 2>/dev/null || true
+# Kort fysisk prøve av «Av» på kortlyset (vanlig bruker, ingen root).
+if [ -f "$here/rgb-av-prove.py" ]; then
+    install -Dm755 "$here/rgb-av-prove.py" "$doc_dir/rgb-av-prove.py"
+elif [ -f "$here/scripts/rgb-av-prove.py" ]; then
+    install -Dm755 "$here/scripts/rgb-av-prove.py" "$doc_dir/rgb-av-prove.py"
+fi
 if [ -f "$here/RGB-HJELPER.md" ]; then
     install -Dm644 "$here/RGB-HJELPER.md" "$doc_dir/RGB-HJELPER.md"
 elif [ -f "$here/../docs/produksjon/rgb-hjelper.md" ]; then

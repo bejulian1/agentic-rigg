@@ -54,6 +54,8 @@
 #   sprak             sim: appnavnet og språket. Alle sidene og Innstillinger i
 #                     1440 px, de tekstrike sidene i 1100 og 640 px. Kjør én
 #                     gang per språk med RIGG_BILDER_SPRAK=sv (de, ja …)
+#   rgb-tilstander    alle tilstandene på RGB-lys (1.7.0) ved 1280 og 1024 px:
+#                     ikke aktivert, klar, prøve, lys av, effekt, uavklart, feil
 #   rgb-ui            fysisk RGB-panel med merkede simulerte visningstilstander;
 #                     alle administratorhandlinger og RGB-RPC-er er blokkert
 #   rgb-flow          vanlig RGB-flyt mot en privat, merket fake-arbeider
@@ -222,7 +224,7 @@ for plan in "${plans[@]}"; do
     innstillinger-sok) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=innstillinger-sok") backend=sim warm=${RIGG_OPPVARMING:-4} ;;
     adaptive-akser) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=adaptive-akser") backend=sim warm=${RIGG_OPPVARMING:-4} ;;
     sprak) vars=("RIGG_SKJERMBILDER=$dir" "RIGG_PLAN=sprak") backend=sim dargs=--syntetisk-historikk warm=${RIGG_OPPVARMING:-8} ;;
-    rgb-ui | rgb-flow)
+    rgb-ui | rgb-flow | rgb-tilstander)
         fake=$(mktemp -d /tmp/rigg-rgb-ui-root.XXXXXX)
         hdata=$(mktemp -d /tmp/rigg-rgb-ui-data.XXXXXX)
         cp "$here"/data/hjelper/* "$hdata/"
@@ -283,7 +285,7 @@ for plan in "${plans[@]}"; do
     rc=$?
     set -e
     case "$plan" in
-    7a | 7a-ekte | 1.4.0-ui | rgb-ui | rgb-flow)
+    7a | 7a-ekte | 1.4.0-ui | rgb-ui | rgb-flow | rgb-tilstander)
         # Hjelperen den falske pkexec startet, er stoppet av planen; sikre det.
         [ -f "$fake/run/agentic-rigg/falsk.pid" ] && { kill "$(cat "$fake/run/agentic-rigg/falsk.pid")" 2>/dev/null || true; }
         find "$fake" -type f | sed "s|$fake/||" | sort >"$dir/falsk-rot-etter.txt"

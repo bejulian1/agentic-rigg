@@ -9,7 +9,7 @@
 //! skriving. Alle forsøkte settere kan ha gitt delvis endring. Ukjent modus
 //! forblir ukjent; samsvarende fargeregistre er ikke bekreftet gjenoppretting.
 
-use crate::rgb::{Baseline, BaselineSource, Binding, Mode, Observed, RecoveryReadback, Request};
+use crate::rgb::{Baseline, BaselineSource, Binding, Brightness, Mode, Observed, RecoveryReadback, Request};
 use serde::{Deserialize, Serialize};
 
 pub const MIN_TIMEOUT_MS: u64 = 10_000;
@@ -119,6 +119,27 @@ pub trait Backend {
         _baseline: &Baseline,
     ) -> Result<(), String> {
         Err("Denne RGB-adapteren støtter ikke lagret brukerbekreftelse.".into())
+    }
+    /// Etter en programvareeffekt (eller «Hold») har denne hjelperen selv
+    /// skrevet hvert bilde og så utgangspunktet med den samme faste sekvensen.
+    /// Stemmer alle lesbare felt med utgangspunktet, kan journalen ryddes uten
+    /// en ny visuell bekreftelse. Brukes bare ved frakobling/frigivelse fra en
+    /// kjørende effekt, aldri etter en prøve som ikke ble beholdt.
+    fn settle_after_animation(&mut self, _binding: &Binding) -> Result<(), String> {
+        Err("Denne RGB-adapteren kan ikke avslutte en effekt uten bekreftelse.".into())
+    }
+    /// Gjør et beholdt, tilbakelest statisk valg til nytt varig utgangspunkt
+    /// (det kortet går tilbake til når appen lukkes). Det opprinnelige
+    /// fabrikklyset må bevares for en vei tilbake. Varig før `Ok`; en
+    /// eventuell journal for det gamle utgangspunktet ryddes først etter at
+    /// det nye er lagret og fabrikklyset er sikret.
+    fn adopt_baseline(&mut self, _binding: &Binding, _next: &Baseline) -> Result<(), String> {
+        Err("Denne RGB-adapteren kan ikke lagre et varig utgangspunkt.".into())
+    }
+    /// Lyset kortet hadde før appen første gang lagret et varig valg
+    /// (fabrikklyset), når det er sikret. `None`: utgangspunktet er fortsatt det.
+    fn factory_baseline(&self) -> Option<Baseline> {
+        None
     }
 }
 
@@ -270,6 +291,9 @@ pub struct Book {
     recovery_confirmation_source: Option<RecoveryConfirmationSource>,
     recovery_attempt: u64,
     current_recovery_attempt: Option<u64>,
+    /// Denne økten har skrevet bilder av en programvareeffekt siden siste
+    /// beholdte valg (se `Backend::settle_after_animation`).
+    animated: bool,
     read_error: Option<String>,
     error: Option<String>,
     next_txn: u64,
@@ -338,11 +362,67 @@ impl Book {
             recovery_confirmation_source: None,
             recovery_attempt: 0,
             current_recovery_attempt: None,
+            animated: false,
             read_error: None,
             error: None,
             next_txn: 1,
             last_ms: None,
         })
+    }
+
+    /// Utgangspunktet kortet går tilbake til (det lagrede varige valget).
+    pub fn baseline_request(&self) -> &Request {
+        &self.initial
+    }
+
+    /// Lagre det beholdte valget som nytt varig utgangspunkt. Bare uten
+    /// ventende prøve, sperre eller annen eier, og bare når en fersk avlesning
+    /// stemmer med valget brukeren beholdt. Etterpå er økten ren: lukkes appen,
+    /// skrives ingenting og ingen økt står uavklart.
+    pub fn persist<B: Backend>(&mut self, backend: &mut B, owner: u64, now_ms: u64) -> Result<Outcome, Error> {
+        if owner == 0 {
+            return Err(Error::InvalidOwner);
+        }
+        self.tick(backend, now_ms)?;
+        if self.owner.is_some_and(|held| held != owner) {
+            return Err(Error::NotOwner);
+        }
+        if self.pending.is_some() {
+            return Err(Error::Busy);
+        }
+        if self.blocked() || self.automatic_recovery_blocked {
+            return Err(Error::RecoveryRequired);
+        }
+        self.observe(backend)?;
+        let readback = request_readback(&self.confirmed, &self.observed);
+        if !matched(readback) {
+            return Err(Error::Readback(readback));
+        }
+        if self.confirmed == self.initial && !self.dirty {
+            return Ok(Outcome { txn: None, status: Status::Unchanged, reason: Reason::Keep, readback });
+        }
+        let next = Baseline::user_confirmed_static(self.baseline.binding().clone(), self.observed.clone())
+            .map_err(|message| Error::Backend { operation: "varig utgangspunkt", message })?;
+        let book = Book::new(next.clone())?;
+        if book.initial != self.confirmed {
+            // Avlesningen må gi nøyaktig valget som lagres (svart med 100 % er «Av»).
+            if !(self.confirmed == Request::Off {} && book.initial == (Request::Static { color: [0, 0, 0], brightness: Brightness::try_from(100).expect("100") })) {
+                return Err(Error::UnsupportedBaseline);
+            }
+        }
+        backend
+            .adopt_baseline(self.baseline.binding(), &next)
+            .map_err(|message| Error::Backend { operation: "varig utgangspunkt", message })?;
+        self.baseline = next;
+        self.initial = self.confirmed.clone();
+        self.dirty = false;
+        self.may_have_written = false;
+        self.owner = None;
+        self.recovery = None;
+        self.recovery_confirmation_source = None;
+        self.current_recovery_attempt = None;
+        self.error = None;
+        Ok(Outcome { txn: None, status: Status::Kept, reason: Reason::Keep, readback })
     }
 
     pub fn snapshot(&self) -> Snapshot {
@@ -496,6 +576,8 @@ impl Book {
         if owner == 0 {
             return Err(Error::InvalidOwner);
         }
+        // En ny prøve er ikke lenger en kjørende effekt; bilder setter det igjen.
+        self.animated = false;
         if !(MIN_TIMEOUT_MS..=MAX_TIMEOUT_MS).contains(&timeout_ms) {
             return Err(Error::InvalidTimeout);
         }
@@ -678,11 +760,13 @@ impl Book {
                 self.observed = observed;
                 let readback = request_readback(&request, &self.observed);
                 if matched(readback) {
+                    self.animated = true;
                     return Ok(());
                 }
                 Error::Readback(readback)
             }
             Err(failure) => {
+                self.animated = false;
                 self.automatic_recovery_blocked = !failure.write_attempted;
                 self.observed = Observed::default();
                 Error::Backend {
@@ -946,6 +1030,23 @@ impl Book {
                     self.error =
                         Some("Gjenoppretting samsvarer ikke med fersk tilbakelesing.".into());
                 }
+                let animation_ended = self.animated
+                    && baseline_target
+                    && readback == RecoveryReadback::ReadableFieldsMatch
+                    && matches!(reason, Reason::Disconnect | Reason::Release)
+                    && self.error.is_none();
+                if animation_ended {
+                    match backend.settle_after_animation(self.baseline.binding()) {
+                        Ok(()) => {
+                            self.dirty = false;
+                            self.may_have_written = false;
+                            self.owner = None;
+                        }
+                        Err(message) => {
+                            self.error = Some(format!("Effekten er stoppet, men journalen kunne ikke ryddes: {message}"));
+                        }
+                    }
+                }
                 if readback == RecoveryReadback::Verified && baseline_target {
                     match backend.clear_dirty(self.baseline.binding()) {
                         Ok(()) => {
@@ -963,8 +1064,12 @@ impl Book {
                 readback
             }
         };
-        self.recovery = Some(readback);
+        self.animated = false;
+        // Avsluttet effekt med samsvarende felt: ren økt, ingen ventende bekreftelse.
+        let settled = !self.dirty && baseline_target && matched(readback) && self.error.is_none();
+        self.recovery = if settled && readback != RecoveryReadback::Verified { None } else { Some(readback) };
         let status = match readback {
+            _ if settled => Status::BaselineRestored,
             RecoveryReadback::Verified if self.error.is_none() && baseline_target => {
                 Status::BaselineRestored
             }
@@ -1041,6 +1146,8 @@ mod tests {
         fail_ack: bool,
         fail_read: bool,
         acknowledgments: Vec<Request>,
+        adopted: Vec<Baseline>,
+        settled: usize,
     }
 
     impl Fake {
@@ -1153,6 +1260,18 @@ mod tests {
             }
             Ok(())
         }
+        fn adopt_baseline(&mut self, _: &Binding, next: &Baseline) -> Result<(), String> {
+            self.calls.push("adopt");
+            self.adopted.push(next.clone());
+            self.journal = None;
+            Ok(())
+        }
+        fn settle_after_animation(&mut self, _: &Binding) -> Result<(), String> {
+            self.calls.push("settle");
+            self.settled += 1;
+            self.journal = None;
+            Ok(())
+        }
     }
 
     fn setup(known_mode: bool) -> (Book, Fake) {
@@ -1206,11 +1325,13 @@ mod tests {
             hw.calls.iter().filter(|call| **call == "read").count(),
             reads
         );
+        // Fra 1.7.0: effekten stoppes ved frigivelse, utgangspunktet skrives med
+        // den faste sekvensen og leses likt, og økten avsluttes uten en ny
+        // visuell bekreftelse (se `Backend::settle_after_animation`).
         let restored = book.release(&mut hw).unwrap();
-        assert_eq!(restored.status, Status::RecoveryNeedsConfirmation);
+        assert_eq!(restored.status, Status::BaselineRestored);
         assert_eq!(hw.writes.last(), Some(&initial));
-        assert!(book.snapshot().dirty && hw.journal.is_some());
-        book.ack_recovery(&mut hw, 8, 3).unwrap();
+        assert_eq!(hw.settled, 1);
         assert!(!book.snapshot().dirty && !book.snapshot().may_have_written);
         assert!(hw.journal.is_none());
         assert_eq!(book.snapshot().observed.mode, None);
@@ -1816,4 +1937,83 @@ mod tests {
         assert!(book.release(&mut hw).is_none());
         assert_eq!(hw.writes.len(), writes_before);
     }
+
+    #[test]
+    fn varig_utgangspunkt_gjor_okten_ren_og_lukking_skriver_ingenting() {
+        let (mut book, mut hw) = setup(false);
+        let blue = color([0, 0, 255]);
+        let txn = book.apply(&mut hw, 7, blue.clone(), 0, 10_000).unwrap().txn.unwrap();
+        // Ikke mens prøven venter.
+        assert_eq!(book.persist(&mut hw, 7, 1), Err(Error::Busy));
+        book.keep(&mut hw, 7, txn, 2).unwrap();
+        assert!(book.snapshot().dirty);
+        // En annen klient kan ikke lagre eierens valg.
+        assert_eq!(book.persist(&mut hw, 8, 3), Err(Error::NotOwner));
+        let outcome = book.persist(&mut hw, 7, 3).unwrap();
+        assert_eq!(outcome.status, Status::Kept);
+        assert_eq!(hw.adopted.len(), 1);
+        assert_eq!(book.baseline_request(), &blue);
+        let snapshot = book.snapshot();
+        assert!(!snapshot.dirty && snapshot.owner.is_none() && hw.journal.is_none());
+        // Appen lukkes: ingen skriving og ingen uavklart økt.
+        let writes = hw.writes.len();
+        assert_eq!(book.disconnect(&mut hw, 7), None);
+        assert_eq!(hw.writes.len(), writes);
+        // En senere prøve som ikke beholdes, går tilbake til det varige valget.
+        let txn = book.apply(&mut hw, 7, color([255, 0, 0]), 4, 10_000).unwrap().txn.unwrap();
+        book.revert(&mut hw, 7, txn, 5).unwrap();
+        assert_eq!(hw.writes.last(), Some(&blue));
+        assert_eq!(book.snapshot().confirmed, blue);
+    }
+
+    #[test]
+    fn varig_utgangspunkt_krever_samsvarende_avlesning() {
+        let (mut book, mut hw) = setup(false);
+        let txn = book.apply(&mut hw, 7, color([0, 0, 255]), 0, 10_000).unwrap().txn.unwrap();
+        book.keep(&mut hw, 7, txn, 1).unwrap();
+        hw.observed.color = Some([1, 1, 1]);
+        assert!(matches!(book.persist(&mut hw, 7, 2), Err(Error::Readback(_))));
+        assert!(hw.adopted.is_empty());
+        assert!(book.snapshot().dirty, "journalen står til valget kan bekreftes");
+    }
+
+    #[test]
+    fn av_som_svart_med_null_lysstyrke_kan_lagres_som_varig() {
+        let (mut book, mut hw) = setup(false);
+        let off = Request::Static { color: [0, 0, 0], brightness: Brightness::try_from(0).unwrap() };
+        let txn = book.apply(&mut hw, 7, off.clone(), 0, 10_000).unwrap().txn.unwrap();
+        book.keep(&mut hw, 7, txn, 1).unwrap();
+        book.persist(&mut hw, 7, 2).unwrap();
+        assert_eq!(book.baseline_request(), &off);
+        assert_eq!(hw.adopted[0].observed().brightness_raw, Some(0));
+    }
+
+    #[test]
+    fn effekt_som_stoppes_ved_lukking_gir_ingen_uavklart_okt() {
+        let (mut book, mut hw) = setup(false);
+        let start = book.snapshot().confirmed;
+        let txn = book.apply_for_effect(&mut hw, 7, start.clone(), 0, 10_000).unwrap().txn.unwrap();
+        book.keep(&mut hw, 7, txn, 1).unwrap();
+        book.animation_frame(&mut hw, 7, color([9, 9, 9])).unwrap();
+        // Appen lukkes: utgangspunktet skrives og avleses likt, økten er avsluttet.
+        let outcome = book.disconnect(&mut hw, 7).unwrap();
+        assert_eq!(outcome.status, Status::BaselineRestored);
+        assert_eq!(hw.writes.last(), Some(&start));
+        assert_eq!(hw.settled, 1);
+        let snapshot = book.snapshot();
+        assert!(!snapshot.dirty && !snapshot.recovery_needs_confirmation && snapshot.recovery.is_none());
+    }
+
+    #[test]
+    fn provd_men_ikke_beholdt_valg_krever_fortsatt_visuell_bekreftelse() {
+        let (mut book, mut hw) = setup(false);
+        let txn = book.apply(&mut hw, 7, color([0, 0, 255]), 0, 10_000).unwrap().txn.unwrap();
+        // Frakobling under en prøve (ingen effekt): som før.
+        let outcome = book.disconnect(&mut hw, 7).unwrap();
+        assert_eq!(outcome.status, Status::RecoveryNeedsConfirmation);
+        assert_eq!(hw.settled, 0);
+        assert!(book.snapshot().dirty);
+        let _ = txn;
+    }
 }
+

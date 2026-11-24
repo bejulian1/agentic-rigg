@@ -18,6 +18,12 @@ pub(crate) const STATE_DIR: &str = "/var/lib/agentic-rigg-rgb";
 const BASELINE: &str = "baseline.json";
 const JOURNAL: &str = "journal.json";
 const VISUAL: &str = "visual-confirmation.json";
+/// Lyset kortet hadde ved første aktivering, sikret før første varige valg.
+const FACTORY: &str = "fabrikk-baseline.json";
+/// Det nye utgangspunktet skrives hit først og byttes så atomisk inn.
+const NEXT: &str = "baseline-neste.json";
+/// Kvitteringen for et utgangspunkt som er erstattet av et varig valg.
+const VISUAL_REPLACED: &str = "visual-confirmation-erstattet.json";
 const LIMIT: u64 = 65_536;
 static TEMP_ID: AtomicU64 = AtomicU64::new(1);
 
@@ -617,6 +623,57 @@ impl PrivateStore {
                 return Err("RGB-kvitteringen kunne ikke kontrolleres etter lagring.".into());
             }
             self.clear_journal(baseline.binding(), baseline, record)?;
+        }
+        Ok(())
+    }
+
+    /// Fabrikklyset, når et varig valg har erstattet det.
+    pub fn factory(&self, binding: &Binding) -> Result<Option<Baseline>, String> {
+        self.revalidate()?;
+        let Some(text) = read_private(&self.directory, FACTORY, self.owner)? else {
+            return Ok(None);
+        };
+        let baseline: Baseline =
+            serde_json::from_str(&text).map_err(|e| format!("Ugyldig RGB-fabrikklys: {e}"))?;
+        if baseline.binding() != binding {
+            return Err("RGB-fabrikklyset tilhører et annet kort.".into());
+        }
+        Ok(Some(baseline))
+    }
+
+    /// Gjør `next` til nytt utgangspunkt (et varig valg brukeren beholdt).
+    /// Rekkefølgen tåler avbrudd: fabrikklyset sikres først (bare første
+    /// gang), så skrives det nye utgangspunktet til en egen fil, så ryddes
+    /// journalen og kvitteringen for det gamle, og til slutt byttes det nye
+    /// atomisk inn. Avbrytes det før byttet, står det gamle utgangspunktet
+    /// uten journal; kortet viser da et annet lys, og «Gjenopprett» virker.
+    pub fn adopt_baseline(
+        &self,
+        old: &Baseline,
+        record: Option<&StoredJournal>,
+        next: &Baseline,
+    ) -> Result<(), String> {
+        if next.binding() != old.binding() {
+            return Err("Det varige RGB-valget gjelder et annet kort.".into());
+        }
+        self.validate_state(old, record)?;
+        if read_private(&self.directory, FACTORY, self.owner)?.is_none() {
+            let bytes = serde_json::to_vec(old).map_err(|e| e.to_string())?;
+            self.replace(FACTORY, &bytes, || self.validate_state(old, record))?;
+        }
+        let bytes = serde_json::to_vec(next).map_err(|e| e.to_string())?;
+        self.replace(NEXT, &bytes, || self.validate_state(old, record))?;
+        if record.is_some() {
+            unlink_at(&self.directory, JOURNAL)?;
+        }
+        if read_private(&self.directory, VISUAL, self.owner)?.is_some() {
+            rename_at(&self.directory, VISUAL, VISUAL_REPLACED)?;
+        }
+        self.directory.sync_all().map_err(|e| e.to_string())?;
+        rename_at(&self.directory, NEXT, BASELINE)?;
+        self.directory.sync_all().map_err(|e| e.to_string())?;
+        if &self.baseline()? != next {
+            return Err("Det varige RGB-valget kunne ikke kontrolleres etter lagring.".into());
         }
         Ok(())
     }

@@ -75,70 +75,78 @@ msgstr "Aktiv effekt"
 msgid "Speiler kortlyset"
 msgstr "Speiler kortlyset"
 
-#: crates/rigg/src/pages/lys.rs:559
+#: crates/rigg/src/pages/lys.rs:561
+msgid "Utgangspunkt: Av"
+msgstr "Utgangspunkt: Av"
+
+#: crates/rigg/src/pages/lys.rs:563
+msgid "Sist lest: Av"
+msgstr "Sist lest: Av"
+
+#: crates/rigg/src/pages/lys.rs:565
 msgid "Utgangspunkt: {farge} · {styrke}"
 msgstr "Utgangspunkt: {farge} · {styrke}"
 
-#: crates/rigg/src/pages/lys.rs:561
+#: crates/rigg/src/pages/lys.rs:567
 msgid "Sist lest: {farge} · {styrke}"
 msgstr "Sist lest: {farge} · {styrke}"
 
-#: crates/rigg/src/pages/lys.rs:735 crates/rigg/src/pages/lys.rs:955
+#: crates/rigg/src/pages/lys.rs:741 crates/rigg/src/pages/lys.rs:961
 msgid "Lys vises i 2D"
 msgstr "Lys vises i 2D"
 
-#: crates/rigg/src/pages/lys.rs:735
+#: crates/rigg/src/pages/lys.rs:741
 msgid "3D-kortet kunne ikke tegnes med grafikken her. Det flate kortet viser de samme lysvalgene."
 msgstr "3D-kortet kunne ikke tegnes med grafikken her. Det flate kortet viser de samme lysvalgene."
 
-#: crates/rigg/src/pages/lys.rs:833
+#: crates/rigg/src/pages/lys.rs:839
 msgid "3D kan ikke tegnes her ({feil}). Klikk for å prøve igjen."
 msgstr "3D kan ikke tegnes her ({feil}). Klikk for å prøve igjen."
 
-#: crates/rigg/src/pages/lys.rs:835
+#: crates/rigg/src/pages/lys.rs:841
 msgid "Grafikken tegnet 3D for tregt. Klikk for å prøve igjen."
 msgstr "Grafikken tegnet 3D for tregt. Klikk for å prøve igjen."
 
-#: crates/rigg/src/pages/lys.rs:837
+#: crates/rigg/src/pages/lys.rs:843
 msgid "Kortet i 3D. Dra for å vri."
 msgstr "Kortet i 3D. Dra for å vri."
 
-#: crates/rigg/src/pages/lys.rs:842
+#: crates/rigg/src/pages/lys.rs:848
 msgid "Flatt kort sett forfra. Bruker minst ressurser."
 msgstr "Flatt kort sett forfra. Bruker minst ressurser."
 
-#: crates/rigg/src/pages/lys.rs:857
+#: crates/rigg/src/pages/lys.rs:863
 msgid "Stillbilde: grafikken tegner for tregt"
 msgstr "Stillbilde: grafikken tegner for tregt"
 
-#: crates/rigg/src/pages/lys.rs:859
+#: crates/rigg/src/pages/lys.rs:865
 msgid "Animasjon av"
 msgstr "Animasjon av"
 
-#: crates/rigg/src/pages/lys.rs:955
+#: crates/rigg/src/pages/lys.rs:961
 msgid "Grafikken tegnet 3D-kortet for tregt. Velg 3D over visningen for å prøve igjen."
 msgstr "Grafikken tegnet 3D-kortet for tregt. Velg 3D over visningen for å prøve igjen."
 
-#: crates/rigg/src/pages/lys.rs:1062
+#: crates/rigg/src/pages/lys.rs:1068
 msgid "Kortlys er ikke aktivert."
 msgstr "Kortlys er ikke aktivert."
 
-#: crates/rigg/src/pages/lys.rs:1064
+#: crates/rigg/src/pages/lys.rs:1070
 msgid "Lysene er av."
 msgstr "Lysene er av."
 
-#: crates/rigg/src/pages/lys.rs:1066
+#: crates/rigg/src/pages/lys.rs:1072
 msgid "Lysstyrke {styrke}."
 msgstr "Lysstyrke {styrke}."
 
-#: crates/rigg/src/pages/lys.rs:1080
+#: crates/rigg/src/pages/lys.rs:1086
 msgid "{lag} · lagene skilt"
 msgstr "{lag} · lagene skilt"
 
-#: crates/rigg/src/pages/lys.rs:1103
+#: crates/rigg/src/pages/lys.rs:1109
 msgid "Flatt skjermkort sett forfra."
 msgstr "Flatt skjermkort sett forfra."
 
-#: crates/rigg/src/pages/lys.rs:1119
+#: crates/rigg/src/pages/lys.rs:1125
 msgid "Kortet har én fysisk lyssone."
 msgstr "Kortet har én fysisk lyssone."

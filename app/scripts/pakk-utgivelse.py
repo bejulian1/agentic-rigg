@@ -88,6 +88,8 @@ def file_list(bin_dir):
         ("version.json", APP / "version.json", False),
         ("LISENSER.md", APP / "data/LISENSER.md", False),
         ("RGB-HJELPER.md", APP.parent / "docs/produksjon/rgb-hjelper.md", False),
+        # Kort fysisk prøve av «Av» (brukeren kjører den selv; ingen root).
+        ("rgb-av-prove.py", APP / "scripts/rgb-av-prove.py", True),
     ])
     data_dir = APP / "data"
     if not data_dir.is_dir() or data_dir.is_symlink():

@@ -975,3 +975,21 @@ Kjent: på Grafer i tospalters bredde har kort med én serie en tom linje under 
 
 B1: Etter GPU-oppdateringen sto RGB-delen igjen på bygg 31 med uavklart journal, og appen kjørte `rgb-aktiver.sh` direkte, som avviste. Nå regnes en RGB-del som er eldre enn systemrevisjonen som «må oppdateres», og direkte aktivering krever RGB-delen fra appens bygg. «Bruk» tar installasjonsveien med ett passord (gjenopprett, én bekreftelse i appen, avklar, installer og aktiver), og `system-install --keep-nvml` lar en aktiv GPU-hjelper fra samme utgivelse gå. RGB-siden viser den uavklarte økten i varselfarge. En kjedet test i en privat rot teller to passord for hele oppgraderingen fra bygg 31 (GPU og RGB), med én bekreftelse i appen. B2: Av-bryteren krever ikke lenger den egne `rgb-admin.py`-kopien for komponenter fra bygg 32. Oppgaver har fast kolonneoppsett med skjuling i stedet for sidelengs rulling, PSS/USS leses utenfor riggds hovedløkke, og minnetallene forklares i detaljfeltet. RGB-lys: glideren har `ctl-scale`, og merkene i panelhodet er ikke lenger strukket. Ny skjermbildeplan `forste-mote` med en falsk GPU-hjelper fra bygg 31. `--keep-rgb` med ufullstendig RGB-del stopper ikke lenger GPU-oppdateringen, og en journal uten `rgb.json` gir en egen melding. Ingen GPU-/RGB-/I2C-skriving, installasjon eller Release.
 
+## 24. november 2026 – Claude Code: RGB-lys før 1.7.0 – varig utgangspunkt, «Av» som holder og opprydding
+
+Brukerens beslutning: bare fast farge og «Av» skal holde seg etter at appen er lukket, og effekter kjører bare mens appen er åpen. Det lages ingen oppstartstjeneste.
+
+- **Varig utgangspunkt.** RGB-hjelperen kan gjøre et beholdt fast valg eller «Av» til nytt utgangspunkt (`rgb_persist`, uten passord). Fabrikklyset sikres først, og byttet tåler avbrudd. Etterpå er økten ren, så det skrives ingenting når appen lukkes.
+- **Effekter.** En effekt som stoppes ved lukking, avsluttes uten ny visuell bekreftelse når alle felt leses likt.
+- **«Av».** «Av» er en egen bryter. Standardmåten er svart med 0 % med keepalive (`hold`) mens appen er åpen, fordi brukerens kort gikk tilbake til grønt etter ca. 5 s. Et kort prøveskript (`rgb-av-prove.py`) prøver fire kandidater med automatisk tilbakerulling.
+- **Uforklart prøve med 0 %.** Den kom fra et «Bruk» før aktiveringen som ble sendt mye senere med gamle verdier. Nå gjelder køen bare 120 s og bare uendret valg. Hurtigfarger bytter ikke modus, og hvert RGB-kall logges med kilde.
+- **Brukerflaten.**
+  - Fargevelger med hele spekteret og hex.
+  - Én handlingsboks når lyset må avklares.
+  - Tett tallfelt og `ctl-scale`.
+  - «Bruk» ser deaktivert ut når den er sperret.
+  - «Sist lest: Av».
+  - Fabrikklyset finnes som egen handling.
+
+Kontrollert visuelt med merkede fixturer ved 1024 og 1280 px på nb og en. Ingen GPU-/RGB-/I2C-skriving på verten.
+

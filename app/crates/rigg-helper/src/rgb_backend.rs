@@ -601,6 +601,46 @@ impl Backend for NativeBackend {
         Ok(())
     }
 
+    fn adopt_baseline(&mut self, binding: &Binding, next: &Baseline) -> Result<(), String> {
+        self.binding(binding, &self.baseline.clone())?;
+        self.current_authorization()?;
+        // Bare nøyaktig feltene hjelperen nettopp leste fra kortet.
+        if self.last_read.as_ref() != Some(next.observed()) {
+            return Err("Det varige RGB-valget mangler en fersk, samsvarende avlesning.".into());
+        }
+        self.store.adopt_baseline(&self.baseline, self.record.as_ref(), next)?;
+        self.baseline = next.clone();
+        self.record = None;
+        self.own_write_responsibility = false;
+        self.last_recovery = None;
+        self.last_apply = None;
+        Ok(())
+    }
+
+    fn settle_after_animation(&mut self, binding: &Binding) -> Result<(), String> {
+        self.binding(binding, &self.baseline.clone())?;
+        let restored = self.last_recovery.as_ref().is_some_and(|observed| {
+            matches!(
+                self.baseline.recovery_readback(binding, observed),
+                RecoveryReadback::ReadableFieldsMatch | RecoveryReadback::Verified
+            )
+        });
+        if !restored {
+            return Err("RGB-journalen beholdes: utgangspunktet ble ikke lest tilbake likt.".into());
+        }
+        let record = self.record.as_ref().ok_or("RGB-journalen mangler.")?;
+        self.store.clear_journal(binding, &self.baseline, record)?;
+        self.record = None;
+        self.own_write_responsibility = false;
+        self.last_recovery = None;
+        self.last_apply = None;
+        Ok(())
+    }
+
+    fn factory_baseline(&self) -> Option<Baseline> {
+        self.store.factory(self.baseline.binding()).ok().flatten()
+    }
+
     fn ack_recovery(
         &mut self,
         binding: &Binding,
@@ -839,21 +879,74 @@ mod tests {
         book.animation_frame(&mut backend, 7, static_request([18, 19, 20]))
             .unwrap();
         assert_eq!(book.snapshot().confirmed, initial);
+        // Fra 1.7.0: frigivelse etter en effekt skriver utgangspunktet med den
+        // faste sekvensen; leses alle felt likt, ryddes journalen uten en ny
+        // visuell kvittering (ingen uavklart økt hver gang appen lukkes).
         state.lock().unwrap().result = Ok(observed());
         book.release(&mut backend).unwrap();
-        assert!(backend.store.journal(&baseline).unwrap().is_some());
-        assert!(!f.path.join("visual-confirmation.json").exists());
-        book.ack_recovery(&mut backend, 8, 2).unwrap();
-        assert!(!book.snapshot().dirty && !book.snapshot().may_have_written);
         assert!(backend.store.journal(&baseline).unwrap().is_none());
+        assert!(!f.path.join("visual-confirmation.json").exists());
+        assert!(!book.snapshot().dirty && !book.snapshot().may_have_written);
         assert_eq!(backend.store.baseline().unwrap(), baseline);
-        let receipt: serde_json::Value = serde_json::from_slice(
-            &std::fs::read(f.path.join("visual-confirmation.json")).unwrap(),
-        )
-        .unwrap();
-        assert_eq!(receipt["source"], "userVisual");
-        assert_eq!(receipt["originalBaseline"], true);
-        assert!(receipt["observed"]["mode"].is_null());
+    }
+
+    #[test]
+    fn effekt_som_stoppes_med_avvikende_felt_beholder_journalen() {
+        let baseline = baseline();
+        let (_f, mut backend, state) = backend(&baseline);
+        let mut book = Book::new(baseline.clone()).unwrap();
+        let initial = book.snapshot().confirmed;
+        state.lock().unwrap().result = Ok(observed());
+        let pending = book.apply_for_effect(&mut backend, 7, initial, 0, 10_000).unwrap();
+        book.keep(&mut backend, 7, pending.txn.unwrap(), 1).unwrap();
+        state.lock().unwrap().result = Ok(frame_observed([18, 19, 20]));
+        book.animation_frame(&mut backend, 7, static_request([18, 19, 20])).unwrap();
+        // Gjenopprettingen leses ikke likt: journalen og bekreftelseskravet står.
+        state.lock().unwrap().result = Ok(frame_observed([1, 1, 1]));
+        book.release(&mut backend).unwrap();
+        assert!(backend.store.journal(&baseline).unwrap().is_some());
+        assert!(book.snapshot().dirty);
+    }
+
+    #[test]
+    fn varig_valg_sikrer_fabrikklyset_og_bytter_utgangspunktet_atomisk() {
+        let baseline = baseline();
+        let (f, mut backend, state) = backend(&baseline);
+        let mut book = Book::new(baseline.clone()).unwrap();
+        let blue = static_request([0, 0, 255]);
+        state.lock().unwrap().result = Ok(frame_observed([0, 0, 255]));
+        let pending = book.apply(&mut backend, 7, blue.clone(), 0, 10_000).unwrap();
+        book.keep(&mut backend, 7, pending.txn.unwrap(), 1).unwrap();
+        assert!(backend.store.journal(&baseline).unwrap().is_some());
+        book.persist(&mut backend, 7, 2).unwrap();
+        // Det nye utgangspunktet er lagret, journalen ryddet og fabrikklyset sikret.
+        let current = backend.store.baseline().unwrap();
+        assert_eq!(Book::new(current.clone()).unwrap().baseline_request(), &blue);
+        assert!(backend.store.journal(&current).unwrap().is_none());
+        assert_eq!(backend.factory_baseline(), Some(baseline.clone()));
+        assert!(!f.path.join("baseline-neste.json").exists());
+        // Et nytt varig valg beholder det opprinnelige fabrikklyset.
+        let red = static_request([255, 0, 0]);
+        state.lock().unwrap().result = Ok(frame_observed([255, 0, 0]));
+        let pending = book.apply(&mut backend, 7, red.clone(), 3, 10_000).unwrap();
+        book.keep(&mut backend, 7, pending.txn.unwrap(), 4).unwrap();
+        book.persist(&mut backend, 7, 5).unwrap();
+        assert_eq!(backend.factory_baseline(), Some(baseline));
+        assert_eq!(Book::new(backend.store.baseline().unwrap()).unwrap().baseline_request(), &red);
+    }
+
+    #[test]
+    fn varig_valg_avvises_uten_fersk_samsvarende_lesing() {
+        let baseline = baseline();
+        let (_f, mut backend, state) = backend(&baseline);
+        let mut book = Book::new(baseline.clone()).unwrap();
+        state.lock().unwrap().result = Ok(frame_observed([0, 0, 255]));
+        let pending = book.apply(&mut backend, 7, static_request([0, 0, 255]), 0, 10_000).unwrap();
+        book.keep(&mut backend, 7, pending.txn.unwrap(), 1).unwrap();
+        let next = Baseline::user_confirmed_static(binding(), frame_observed([9, 9, 9])).unwrap();
+        assert!(backend.adopt_baseline(&binding(), &next).is_err());
+        assert_eq!(backend.store.baseline().unwrap(), baseline);
+        assert!(backend.store.journal(&baseline).unwrap().is_some());
     }
 
     #[test]

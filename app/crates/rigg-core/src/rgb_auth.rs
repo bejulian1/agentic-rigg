@@ -27,6 +27,7 @@ pub const UI_OPS: &[&str] = &[
     "rgb_release",
     "rgb_ack_recovery",
     "rgb_read",
+    "rgb_persist",
 ];
 
 /// Faste RGB-stier under en uttrykkelig valgt rot. Ingen fallback til verten.

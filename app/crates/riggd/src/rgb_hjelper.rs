@@ -173,7 +173,8 @@ impl View {
             Some(value) => serde_json::from_value(value.clone())
                 .map_err(|_| Self::error("RGB-hjelperen oppga ukjente programvareeffekter."))?,
         };
-        if effects.len() > 3
+        // Pusting, regnbue, fargesyklus og «hold» (keepalive fra 1.7.0).
+        if effects.len() > 4
             || effects
                 .iter()
                 .enumerate()
@@ -199,6 +200,14 @@ impl View {
                     "RGB-effekten mangler gyldig støtte eller eierskap.",
                 ));
             }
+        }
+        // Varig utgangspunkt (fra 1.7.0): fast farge/av eller null.
+        let request_or_null = |value: &Value| value.is_null() || serde_json::from_value::<ColorRequest>(value.clone()).is_ok();
+        if !request_or_null(&status["baselineRequest"])
+            || !request_or_null(&status["factory"])
+            || !(status["persist"].is_null() || status["persist"].is_boolean())
+        {
+            return Err(Self::error("RGB-hjelperens varige utgangspunkt er ugyldig."));
         }
         Ok(Self {
             state: "on",
@@ -347,7 +356,15 @@ impl RgbClient {
     /// `None` betyr at svaret kommer i completion-køen. Kalleren har allerede
     /// kontrollert at UI-økta finnes, har sagt hello og ikke stopper.
     pub fn enqueue(&mut self, sid: u64, request: &Request) -> Result<Option<Value>, ProtoError> {
+        // Hvor i appen kallet kom fra («kilde»), bare til loggen: hjelperen får
+        // aldri feltet. Hver endring logges, så en uventet transaksjon kan spores.
+        let mut request = request.clone();
+        let source = take_source(&mut request.args)?;
         validate_args(&request.op, &request.args)?;
+        if request.op != "get_rgb_helper" {
+            eprintln!("{}", log_line(sid, &request.op, source.as_deref(), &request.args));
+        }
+        let request = &request;
         let refresh = request.op == "get_rgb_helper";
         if self.view.state == "disabled" {
             return if refresh {
@@ -521,6 +538,29 @@ fn invalid(message: &str) -> ProtoError {
     ProtoError::msg(ErrorCode::InvalidArgument, message)
 }
 
+/// Fjerner og kontrollerer `kilde` (kort, fast tekst fra appen, for eksempel
+/// «bruk-knapp» eller «etter-aktivering»).
+fn take_source(args: &mut Value) -> Result<Option<String>, ProtoError> {
+    let Some(object) = args.as_object_mut() else { return Ok(None) };
+    let Some(value) = object.remove("kilde") else { return Ok(None) };
+    let source = value.as_str().filter(|s| (1..=40).contains(&s.len()) && s.bytes().all(|b| b.is_ascii_lowercase() || b == b'-'));
+    source.map(|s| Some(s.to_string())).ok_or_else(|| invalid("Ugyldig kilde for RGB-kallet."))
+}
+
+/// Én linje i tjenestens logg for et RGB-kall: økt, operasjon, kilde og valget.
+fn log_line(sid: u64, op: &str, source: Option<&str>, args: &Value) -> String {
+    let what = match op {
+        "rgb_apply" => format!(
+            " valg={} effekt={}",
+            serde_json::to_string(&args["request"]).unwrap_or_default(),
+            args["effect"].as_str().unwrap_or("-")
+        ),
+        "rgb_confirm" | "rgb_revert" => format!(" txn={}", args["txn"]),
+        _ => String::new(),
+    };
+    format!("RGB: økt {sid} {op} fra {}{what}", source.unwrap_or("ukjent"))
+}
+
 fn validate_args(op: &str, args: &Value) -> Result<(), ProtoError> {
     let object = args
         .as_object()
@@ -530,7 +570,7 @@ fn validate_args(op: &str, args: &Value) -> Result<(), ProtoError> {
         "rgb_apply" => &["gpu", "uuid", "request", "confirmTimeoutS", "effect"],
         "rgb_confirm" | "rgb_revert" => &["gpu", "uuid", "txn"],
         "rgb_ack_recovery" => &["gpu", "uuid", "confirmedStatic", "expected", "recoveryId"],
-        "rgb_reset" | "rgb_release" | "rgb_read" => &["gpu", "uuid"],
+        "rgb_reset" | "rgb_release" | "rgb_read" | "rgb_persist" => &["gpu", "uuid"],
         _ => return Err(ProtoError::new(ErrorCode::UnknownOp)),
     };
     if object.keys().any(|key| !allowed.contains(&key.as_str())) {
@@ -1369,6 +1409,27 @@ mod tests {
     }
 
     #[test]
+    fn kilden_logges_og_fjernes_for_hjelperen() {
+        let mut args = request(1, "rgb_apply").args;
+        args["kilde"] = json!("etter-aktivering");
+        assert_eq!(take_source(&mut args).unwrap().as_deref(), Some("etter-aktivering"));
+        assert!(args.get("kilde").is_none(), "hjelperen får aldri kilden");
+        assert!(validate_args("rgb_apply", &args).is_ok());
+        let line = log_line(7, "rgb_apply", Some("etter-aktivering"), &args);
+        assert!(line.contains("økt 7 rgb_apply fra etter-aktivering") && line.contains("\"brightness\":80"), "{line}");
+        assert!(log_line(7, "rgb_persist", None, &args).ends_with("rgb_persist fra ukjent"));
+        for bad in [json!(""), json!("Bruk knapp"), json!(3), json!("x".repeat(41))] {
+            let mut args = request(1, "rgb_apply").args;
+            args["kilde"] = bad;
+            assert!(take_source(&mut args).is_err());
+        }
+        assert!(validate_args("rgb_persist", &identity()).is_ok());
+        let mut extra = identity();
+        extra["request"] = json!({"mode":"off"});
+        assert!(validate_args("rgb_persist", &extra).is_err());
+    }
+
+    #[test]
     fn effekter_valideres_for_koling_og_krever_eksplisitt_hjelperstotte() {
         let mut args = request(1, "rgb_apply").args;
         args["request"] = json!({"mode":"static","color":[20,40,60],"brightness":80});
@@ -1386,6 +1447,15 @@ mod tests {
         let mut status = initial_status();
         status["softwareEffects"] = json!(["breathing", "rainbow", "cycle"]);
         assert!(View::checked(status.clone()).is_ok());
+        // 1.7.0: «hold» og varig utgangspunkt.
+        let mut newer = status.clone();
+        newer["softwareEffects"] = json!(["breathing", "rainbow", "cycle", "hold"]);
+        newer["persist"] = json!(true);
+        newer["baselineRequest"] = json!({"mode":"static","color":[0,0,0],"brightness":0});
+        newer["factory"] = json!({"mode":"static","color":[69,200,0],"brightness":100});
+        assert!(View::checked(newer.clone()).is_ok());
+        newer["factory"] = json!({"mode":"blink"});
+        assert!(View::checked(newer).is_err());
         status["effect"] = json!("breathing");
         assert!(
             View::checked(status.clone()).is_err(),
