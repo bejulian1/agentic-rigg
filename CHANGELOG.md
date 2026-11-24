@@ -1,6 +1,21 @@
 # Versjonslogg
 
-Gjeldende versjon: **1.6.0 · bygg 32**. Nedlastinger og utgivelsesnotater ligger under [Releases](https://github.com/bejulian1/agentic-rigg/releases).
+Gjeldende versjon: **1.7.0 · bygg 33** (forhåndsutgivelse til den er prøvd på kortet). Nedlastinger og utgivelsesnotater ligger under [Releases](https://github.com/bejulian1/agentic-rigg/releases).
+
+## 1.7.0 · bygg 33 – 24. november 2026
+
+- **Nytt navn:** Appen heter nå **Agentic HW Monitor**. Bare visningsnavnet er endret. Kommandoene, app-ID-en `io.github.AgenticRigg`, repoet og alle mapper og systemstier er de samme, så innstillinger, historikk, logger og en aktivert hjelper følger med (PR #32).
+- **Svensk** er det ellevte språket, med svenske tall, datoer og søkeord. Oversettelseskontrollen sjekker nå også katalogene for alle språk (PR #32).
+- **Nettverk:** Ny side under Maskinvare med aktiv tilkobling, ned og opp nå, ruting og DNS, Wi-Fi, ett utfoldbart kort per grensesnitt med egen graf, og porter som lytter. Siden bare leser (PR #38).
+- **Oppgaver:** Alle prosesser vises, også root og andre brukere. Minnekolonnen viser privat minne (`RssAnon`), så summen stemmer med systemet, og RAM-kortet viser hva minnet brukes til (prosesser, delt/tmpfs, kjerne, cache og swap). Prosessene grupperes etter navn, og et detaljfelt viser kommando, bruker, minne, PSS/USS og disk-I/O for valgt prosess. Nye kort for CPU og GPU, og bunnfeltet forklarer hvorfor en prosess er beskyttet (PR #37, #43).
+- **Temperaturakser** går alltid til minst 100 °C (212 °F) og utvides når verdiene går over (PR #34).
+- **Layout over hele appen:** Spaltene velger antall etter plassen, innstillingsradene brytes, sidefeltet legger seg ikke lenger over innholdet, grafhodene kutter ikke titlene, flisene står i hele rader, og menyene bryter lange navn. En maskinell kontroll av widgettreet ble kjørt på flere språk og bredder (PR #34, #40).
+- **Klokker og effekt:** Under alle gliderne står nå min, standard og maks. Tidligere manglet maks på effektgrensen og min på minnejusteringen. Når plassen er knapp, står enheten bare ved standard.
+- **Om** krediterer Antigravity ved riktig navn (PR #34).
+- **Aktivering av GPU-styring rettet:** I 1.6.0 stoppet bryteren når en RGB-økt var uavklart, og en oppgradering kunne kreve fire til seks passord. Nå oppdateres bare GPU-delen, RGB-delen står urørt, og oppgraderingen fra bygg 31 tar ett passord for GPU og ett for RGB (PR #37, #43).
+- **RGB-lys:** Egen bryter for kortlyset, fargevelger med hele spekteret, og «Av» som holder: appen skriver svart på nytt hvert 2. sekund mens den eier lyset. En fast farge eller «Av» kan beholdes også etter at appen lukkes, uten egen tjeneste; effekter kjører bare mens appen er åpen. Etter krasj eller omstart kommer «Av» tilbake uten passord og uten låst økt. Prøveskriptet `rgb-av-prove.py` (installeres i `~/.local/share/doc/agentic-rigg/`) prøver fem måter å slå lyset av på, med automatisk tilbakerulling (PR #45, #47).
+- **Hjelpere:** GPU-hjelperen er uendret siden 1.6.0, så en hjelper fra bygg 32 virker videre uten nytt passord (minimum 32, protokoll 2). En RGB-hjelper uten de nye egenskapene (bygg 29–32) vises som «må oppdateres», og «Bruk» på RGB-lys oppdaterer den med ett passord.
+- **Begrensninger:** Utgaven er en forhåndsutgivelse til den er prøvd på kortet. «Av» som holder, varig «Av» etter at appen lukkes, gjenopprettingen etter krasj og hva kortet viser etter en kald omstart er bare prøvd mot simulerte kort og en falsk hjelper, ikke på ekte maskinvare. Selve installasjonen med ekte `pkexec` og nedlasting fra GitHub er dekket av kjedede tester med falske systemkall. `SHA256SUMS` er fortsatt ikke signert (issue #19).
 
 ## 1.6.0 · bygg 32 – 23. november 2026
 
