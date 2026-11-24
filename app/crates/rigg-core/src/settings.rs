@@ -219,6 +219,27 @@ pub struct Settings {
     /// så produsenten kan ikke alltid leses (`vendor::board_maker`).
     #[serde(default)]
     pub gpu_makers: std::collections::BTreeMap<String, String>,
+    // ---- nytt i 1.7 ----
+    /// Slik skrives «Av» på kortlyset (se `RGB_AV`). Standard er «hold»:
+    /// svart med lysstyrke 0, skrevet på nytt mens appen er åpen, fordi
+    /// kortet selv kan gå tilbake fra «Av» etter noen sekunder.
+    #[serde(default = "default_rgb_av")]
+    pub rgb_av: String,
+    /// «Behold også etter at appen lukkes»: et beholdt fast lysvalg lagres
+    /// som kortets varige utgangspunkt.
+    #[serde(default = "default_true")]
+    pub rgb_varig: bool,
+}
+
+/// Måtene «Av» kan skrives på (prøves med `scripts/rgb-av-prove.py`).
+pub const RGB_AV: [&str; 5] = ["hold", "svart-100", "svart-0", "farge-0", "nesten-svart"];
+
+fn default_rgb_av() -> String {
+    "hold".into()
+}
+
+fn default_true() -> bool {
+    true
 }
 
 fn default_language() -> String {
@@ -271,6 +292,8 @@ impl Default for Settings {
             last_page: "oversikt".into(),
             window: WindowGeom::default(),
             lys3d: default_lys3d(),
+            rgb_av: default_rgb_av(),
+            rgb_varig: true,
             gpu_makers: Default::default(),
         }
     }
@@ -435,6 +458,8 @@ pub fn merge(base: &Settings, patch: &Value) -> Result<Settings, ValidationError
             "surprises" => o.surprises = boolean(v, "surprises")?,
             "appIcon" => o.app_icon = ident(v, "appIcon")?,
             "lys3d" => o.lys3d = one_of(v, &["auto", "3d", "2d"], tr!("lys3d må være auto, 3d eller 2d"))?,
+            "rgbAv" => o.rgb_av = one_of(v, &RGB_AV, tr!("rgbAv må være hold, svart-100, svart-0, farge-0 eller nesten-svart"))?,
+            "rgbVarig" => o.rgb_varig = boolean(v, "rgbVarig")?,
             "gpuMakers" => o.gpu_makers = gpu_makers(v)?,
             "eggsFound" => {
                 let mut value = v.clone();

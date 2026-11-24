@@ -70,3 +70,9 @@ window.rigg .lys button.swatch:focus:focus-visible { outline-offset: 1px; }
 .lys .rgb-card-details-expander { margin-top: var(--sp-1); }
 .lys .rgb-card-details { padding-top: var(--sp-1); }
 .rgb-card-control label.warn { color: var(--warn); }
+
+/* 1.7: handlingsboks når lyset må avklares, og en «Bruk» som ser sperret ut. */
+.rgb-action-box { background: var(--warn-soft); border: 1px solid color-mix(in srgb, var(--warn) 40%, transparent); border-radius: var(--r); padding: 10px 12px; }
+.rgb-card-control button.suggested:disabled { background-color: var(--card-alt); color: var(--muted); opacity: 1; }
+window.rigg button.rgb-color-pick { min-width: 28px; min-height: 28px; padding: 2px; border-radius: 50%; }
+.rgb-card-varig { margin-top: 2px; }

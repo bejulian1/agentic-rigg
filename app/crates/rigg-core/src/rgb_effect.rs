@@ -9,11 +9,19 @@ pub enum Effect {
     Breathing,
     Rainbow,
     Cycle,
+    /// Samme faste farge skrevet på nytt med jevne mellomrom, for kort som
+    /// selv faller tilbake fra «Av» etter noen sekunder (keepalive). Bare
+    /// mens appen eier lyset, som de andre effektene.
+    Hold,
 }
+
+/// Hvor ofte «Hold» skriver den faste fargen på nytt.
+pub const HOLD_INTERVAL_MS: u64 = 2_000;
 
 impl Effect {
     pub fn frame(self, color: [u8; 3], brightness: Brightness, elapsed_ms: u64) -> Request {
         let color = match self {
+            Self::Hold => color,
             Self::Breathing => {
                 // Fire sekunder per pust. Demp RGB-kanalene sammen for å
                 // beholde fargetonen og den valgte globale lysstyrkegrensen.
@@ -84,6 +92,15 @@ mod tests {
         assert_eq!(color(Effect::Breathing, c, 0), c);
         assert_eq!(color(Effect::Breathing, c, 2000), [4, 12, 20]);
         assert_eq!(color(Effect::Breathing, c, 4000), c);
+    }
+
+    #[test]
+    fn hold_gir_alltid_samme_faste_farge() {
+        for ms in [0, 1999, 2000, 60_000] {
+            assert_eq!(color(Effect::Hold, [0, 0, 0], ms), [0, 0, 0]);
+            assert_eq!(color(Effect::Hold, [9, 8, 7], ms), [9, 8, 7]);
+        }
+        assert_eq!(serde_json::to_value(Effect::Hold).unwrap(), "hold");
     }
 
     #[test]

@@ -157,3 +157,25 @@ Fase 4 er kontrollert med ren workspace-clippy og **536 beståtte tester, 4 igno
 Kontrollene bruker private røtter, simulerte kort og falske svar; administratorhandlinger er sperret i `rgb-flow`.
 
 Den 20. november 2026 identifiserte den lesende proben én PALIT 100-sone på NVIDIA-port 1, adresse `0x49`. Brukeren bekreftet fast grønt (`#45C800`, 100 %) før aktivering med polkit. Produksjonshjelperen leste tilbake blått (`#0000FF`, 100 %) etter Bruk og den opprinnelige grønnfargen etter ti sekunders frist. Brukeren så blått og deretter grønt igjen. Hjelperen leste feltene på nytt, lagret bekreftelsen som `userVisual` og ryddet journalen. RGB-testtilgangen ble deaktivert. Prøven gikk gjennom hjelpersocketen. GTK-betjening er prøvd i simulering. Av-modus og endring av lysstyrke på kortet gjenstår.
+
+## Varig utgangspunkt, «Av» og effekter (1.7.0)
+
+- **Varig utgangspunkt.** `rgb_persist` gjør et beholdt fast valg eller «Av» til nytt utgangspunkt, uten passord. Hjelperen krever da at ingen prøve venter, at ingen effekt kjører, og at en fersk avlesning stemmer med valget.
+  - Lagringen tåler avbrudd. Rekkefølgen er:
+    1. Fabrikklyset sikres i `fabrikk-baseline.json` (bare første gang).
+    2. Det nye utgangspunktet skrives til `baseline-neste.json`.
+    3. Journalen fjernes, og den gamle kvitteringen flyttes til `visual-confirmation-erstattet.json`.
+    4. Det nye utgangspunktet byttes atomisk inn som `baseline.json`.
+  - Etterpå er økten ren. Når appen lukkes, skrives ingenting, og ingen økt står uavklart.
+  - «Tilbake til fabrikklyset» prøver fabrikklyset som et vanlig valg, og «Behold» gjør det til utgangspunktet igjen.
+- **«Av».** «Av» er en egen bryter på RGB-siden, atskilt fra modus og effekt.
+  - Skrivemåten velges i `rgbAv`. Standarden `hold` er svart med 0 %, som hjelperens effekt `hold` skriver på nytt hvert 2. sekund mens appen eier lyset. Se [rgb-av-prove.md](rgb-av-prove.md) for den fysiske prøven.
+  - «Behold også etter at appen lukkes» (`rgbVarig`, standard på) lagrer beholdte faste valg og «Av» som varige.
+  - Om kortet selv holder lyset etter omstart, er ikke verifisert. Det lages ingen oppstartstjeneste.
+- **Effekter.** Effektene kjører bare mens appen er åpen.
+  - Når appen lukkes, eller lyset frigis, under en effekt eller `hold`, skriver hjelperen selv utgangspunktet med den faste sekvensen og leser alle felt tilbake. Stemmer de, avsluttes økten uten en ny visuell bekreftelse (`settle_after_animation`).
+  - En prøve som ikke ble beholdt, eller en tilbakelesing som ikke stemmer, krever fortsatt visuell bekreftelse som før.
+- **Sporing.** Hvert RGB-kall fra appen har en kilde, for eksempel `bruk-knapp`, `etter-aktivering`, `varig-etter-behold`, `hold-start` eller `fabrikklys`. riggd logger én linje per kall på stderr (`RGB: økt N rgb_apply fra … valg=…`), og hjelperen får aldri feltet.
+  - Et «Bruk» trykket før aktiveringen sendes bare én gang, innen 120 s og bare uendret. I 1.6.0 ble et gammelt valg (`#3A7BF0`, 0 %) sendt da RGB-hjelperen ble startet på nytt utenfra.
+  - Hurtigfargene bytter ikke lenger modus i det skjulte.
+

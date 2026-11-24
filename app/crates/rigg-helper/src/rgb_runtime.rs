@@ -31,6 +31,8 @@ struct Animation {
     txn: u64,
     started_ms: Option<u64>,
     last_frame_ms: u64,
+    /// Siste faktiske skriving («Hold» skriver samme farge på nytt).
+    last_write_ms: u64,
     last_request: Request,
 }
 
@@ -101,6 +103,8 @@ enum Action {
     Release(IdentityArgs),
     Heartbeat(IdentityArgs),
     AckRecovery(RecoveryAckArgs),
+    /// Lagre det beholdte faste valget (eller «Av») som varig utgangspunkt.
+    Persist(IdentityArgs),
 }
 
 fn parse<T: DeserializeOwned>(args: &Value) -> Result<T, ProtoError> {
@@ -156,6 +160,7 @@ impl Action {
             "rgb_read" => Self::Read(parse(args)?),
             "rgb_release" => Self::Release(parse(args)?),
             "rgb_heartbeat" => Self::Heartbeat(parse(args)?),
+            "rgb_persist" => Self::Persist(parse(args)?),
             "rgb_ack_recovery" => {
                 let args: RecoveryAckArgs = parse(args)?;
                 if !args.confirmed_static {
@@ -176,7 +181,7 @@ impl Action {
             Self::Apply(args) => Some((&args.gpu, &args.uuid)),
             Self::AckRecovery(args) => Some((&args.gpu, &args.uuid)),
             Self::Confirm(args) | Self::Revert(args) => Some((&args.gpu, &args.uuid)),
-            Self::Reset(args) | Self::Read(args) | Self::Release(args) | Self::Heartbeat(args) => {
+            Self::Reset(args) | Self::Read(args) | Self::Release(args) | Self::Heartbeat(args) | Self::Persist(args) => {
                 Some((&args.gpu, &args.uuid))
             }
         }
@@ -262,7 +267,12 @@ impl<B: Backend> Runtime<B> {
             "recoveryId": self.recovery_id(),
             "observationSource": self.observation_source,
             "lastOutcome": self.last_outcome,
-            "softwareEffects": [Effect::Breathing, Effect::Rainbow, Effect::Cycle],
+            "softwareEffects": [Effect::Breathing, Effect::Rainbow, Effect::Cycle, Effect::Hold],
+            // Varig utgangspunkt (fra 1.7.0): det kortet går tilbake til når
+            // appen lukkes, og fabrikklyset fra før første varige valg.
+            "persist": true,
+            "baselineRequest": self.book.baseline_request(),
+            "factory": self.backend.factory_baseline().and_then(|b| Book::new(b).ok()).map(|b| b.baseline_request().clone()),
             "effect": self.animation.as_ref().map(|animation| animation.effect),
             "runtimeError": if self.clock_error {
                 Some("Den monotone RGB-klokken gikk bakover. Nye endringer er sperret.")
@@ -396,6 +406,7 @@ impl<B: Backend> Runtime<B> {
                             txn,
                             started_ms: None,
                             last_frame_ms: now_ms,
+                            last_write_ms: now_ms,
                             last_request: request,
                         });
                     }
@@ -453,6 +464,22 @@ impl<B: Backend> Runtime<B> {
                 }
             }
             Action::Read(_) => (self.read_clean(), false),
+            Action::Persist(_) => {
+                // Effekter kjører bare mens appen eier lyset og kan ikke lagres.
+                if self.animation.is_some() {
+                    return Err(ProtoError::msg(
+                        ErrorCode::NotSupported,
+                        "En lyseffekt kan ikke lagres som varig utgangspunkt. Velg fast farge eller av.",
+                    )
+                    .details(json!({"status": self.status()})));
+                }
+                let result = self.book.persist(&mut self.backend, conn, now_ms);
+                if result.is_ok() {
+                    self.static_baseline = true;
+                    self.observation_source = ObservationSource::OperationReadback;
+                }
+                (result.map(Some), false)
+            }
             Action::AckRecovery(args) => {
                 self.require_owner(conn, true)?;
                 if self.animation.is_some() {
@@ -583,7 +610,11 @@ impl<B: Backend> Runtime<B> {
             animation
                 .effect
                 .frame(animation.color, animation.brightness, now_ms - started_ms);
-        if request == animation.last_request {
+        // «Hold» skriver samme faste farge på nytt med jevne mellomrom, for
+        // kort som selv går tilbake fra «Av» etter noen sekunder.
+        let hold_due = animation.effect == Effect::Hold
+            && now_ms.saturating_sub(animation.last_write_ms) >= rigg_core::rgb_effect::HOLD_INTERVAL_MS;
+        if request == animation.last_request && !hold_due {
             return Ok(false);
         }
         let owner = animation.owner;
@@ -594,6 +625,7 @@ impl<B: Backend> Runtime<B> {
             Ok(()) => {
                 if let Some(animation) = &mut self.animation {
                     animation.last_request = request;
+                    animation.last_write_ms = now_ms;
                 }
                 self.observation_source = ObservationSource::OperationReadback;
             }
@@ -772,6 +804,7 @@ mod tests {
         acknowledgments: usize,
         fail_ack: bool,
         fail_read: bool,
+        adopted: Vec<Baseline>,
     }
 
     impl Backend for Fake {
@@ -849,6 +882,16 @@ mod tests {
         }
         fn clear_dirty(&mut self, _: &Binding) -> Result<(), String> {
             panic!("Palit-fixturen beviser ikke modus og kan aldri rydde dirty")
+        }
+        fn adopt_baseline(&mut self, _: &Binding, next: &Baseline) -> Result<(), String> {
+            assert_eq!(next.observed(), &self.current, "bare nøyaktig det som er lest");
+            self.adopted.push(next.clone());
+            self.journal = None;
+            Ok(())
+        }
+        fn settle_after_animation(&mut self, _: &Binding) -> Result<(), String> {
+            self.journal = None;
+            Ok(())
         }
         fn ack_recovery(
             &mut self,
@@ -1524,6 +1567,49 @@ mod tests {
         );
         assert_eq!(runtime.status()["state"]["observed"]["mode"], Value::Null);
         assert!(!runtime.animate(7249).unwrap());
+    }
+
+    #[test]
+    fn varig_valg_over_socket_og_aldri_under_effekt() {
+        let mut runtime = setup();
+        let blue = color([0, 0, 255]);
+        let txn = apply(&mut runtime, 0, blue.clone(), 10);
+        runtime.handle(1000, 7, "rgb_confirm", &txn_args(txn), 1).unwrap();
+        // En annen tilkobling kan ikke lagre eierens valg.
+        assert!(runtime.handle(1000, 8, "rgb_persist", &identity(), 2).is_err());
+        let result = runtime.handle(1000, 7, "rgb_persist", &identity(), 2).unwrap();
+        assert_eq!(result["status"]["persist"], true);
+        assert_eq!(result["status"]["baselineRequest"], serde_json::to_value(&blue).unwrap());
+        assert_eq!(result["status"]["state"]["dirty"], false);
+        assert_eq!(runtime.backend.adopted.len(), 1);
+        // Lukking: ingen skriving, ingen uavklart økt.
+        let writes = runtime.backend.writes.len();
+        runtime.disconnect(7);
+        assert_eq!(runtime.backend.writes.len(), writes);
+        // Under en effekt kan valget ikke lagres.
+        start_effect(&mut runtime, Effect::Breathing, 10);
+        let error = runtime.handle(1000, 7, "rgb_persist", &identity(), 11).unwrap_err();
+        assert_eq!(error.code, ErrorCode::NotSupported);
+    }
+
+    #[test]
+    fn hold_skriver_samme_farge_pa_nytt_hvert_andre_sekund() {
+        let mut runtime = setup();
+        start_effect(&mut runtime, Effect::Hold, 0);
+        let writes = runtime.backend.writes.len();
+        // Ingen ny skriving før intervallet, så én per intervall.
+        assert!(!runtime.animate(1000).unwrap());
+        assert_eq!(runtime.backend.writes.len(), writes);
+        assert!(runtime.animate(rigg_core::rgb_effect::HOLD_INTERVAL_MS + 100).unwrap());
+        runtime.frame_completed(rigg_core::rgb_effect::HOLD_INTERVAL_MS + 100).unwrap();
+        assert_eq!(runtime.backend.writes.len(), writes + 1);
+        assert_eq!(runtime.backend.writes.last(), Some(&color([120, 60, 30])), "samme faste farge");
+        assert!(!runtime.animate(rigg_core::rgb_effect::HOLD_INTERVAL_MS + 1000).unwrap());
+        assert!(runtime.animate(2 * rigg_core::rgb_effect::HOLD_INTERVAL_MS + 200).unwrap());
+        assert_eq!(runtime.backend.writes.len(), writes + 2);
+        // Lukkes appen, skrives utgangspunktet og økten avsluttes.
+        runtime.disconnect(7);
+        assert_eq!(runtime.status()["state"]["dirty"], false);
     }
 
     #[test]

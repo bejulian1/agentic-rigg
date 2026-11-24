@@ -72,190 +72,194 @@ msgstr "El umbral rojo de temperatura de GPU debe superar el amarillo"
 msgid "Rød grense for CPU-temperatur må være over gul"
 msgstr "El umbral rojo de temperatura de CPU debe superar el amarillo"
 
-#: crates/rigg-core/src/settings.rs:294
+#: crates/rigg-core/src/settings.rs:317
 msgid "{felt} må være true/false"
 msgstr "{felt} debe ser true/false"
 
-#: crates/rigg-core/src/settings.rs:298
+#: crates/rigg-core/src/settings.rs:321
 msgid "{felt} må være en liste"
 msgstr "{felt} debe ser una lista"
 
-#: crates/rigg-core/src/settings.rs:307
+#: crates/rigg-core/src/settings.rs:330
 msgid "Ukjent verdi i {felt}: {verdi}"
 msgstr "Valor desconocido en {felt}: {verdi}"
 
-#: crates/rigg-core/src/settings.rs:314
+#: crates/rigg-core/src/settings.rs:337
 msgid "{felt} må ha {min}–{max} valg"
 msgstr "{felt} debe tener {min}–{max} elementos"
 
-#: crates/rigg-core/src/settings.rs:343
+#: crates/rigg-core/src/settings.rs:366
 msgid "statusItems må være en liste"
 msgstr "statusItems debe ser una lista"
 
-#: crates/rigg-core/src/settings.rs:348
+#: crates/rigg-core/src/settings.rs:371
 msgid "Ukjent verdi i statusItems: {verdi}"
 msgstr "Valor desconocido en statusItems: {verdi}"
 
-#: crates/rigg-core/src/settings.rs:355
+#: crates/rigg-core/src/settings.rs:378
 msgid "Statusblokken kan ha høyst {maks} verdier"
 msgstr "El bloque de estado admite como máximo {maks} valores"
 
-#: crates/rigg-core/src/settings.rs:363
+#: crates/rigg-core/src/settings.rs:386
 msgid "{felt} er ugyldig"
 msgstr "{felt} no es válido"
 
-#: crates/rigg-core/src/settings.rs:370 crates/rigg-core/src/settings.rs:602 crates/rigg-core/src/settings.rs:711
+#: crates/rigg-core/src/settings.rs:393 crates/rigg-core/src/settings.rs:627 crates/rigg-core/src/settings.rs:736
 msgid "Forventet et JSON-objekt"
 msgstr "Se esperaba un objeto JSON"
 
-#: crates/rigg-core/src/settings.rs:376
+#: crates/rigg-core/src/settings.rs:399
 msgid "Ukjent språkvalg"
 msgstr "Idioma seleccionado desconocido"
 
-#: crates/rigg-core/src/settings.rs:378
+#: crates/rigg-core/src/settings.rs:401
 msgid "Ugyldig intervall"
 msgstr "Intervalo no válido"
 
-#: crates/rigg-core/src/settings.rs:379
+#: crates/rigg-core/src/settings.rs:402
 msgid "Enhet må være C eller F"
 msgstr "La unidad debe ser C o F"
 
-#: crates/rigg-core/src/settings.rs:380
+#: crates/rigg-core/src/settings.rs:403
 msgid "Tema må være system, light eller dark"
 msgstr "El tema debe ser system, light o dark"
 
-#: crates/rigg-core/src/settings.rs:382
+#: crates/rigg-core/src/settings.rs:405
 msgid "Ukjent aksentfarge"
 msgstr "Color de énfasis desconocido"
 
-#: crates/rigg-core/src/settings.rs:384
+#: crates/rigg-core/src/settings.rs:407
 msgid "Ukjent fargetema"
 msgstr "Tema de color desconocido"
 
-#: crates/rigg-core/src/settings.rs:386
+#: crates/rigg-core/src/settings.rs:409
 msgid "Ukjent tetthet"
 msgstr "Densidad desconocida"
 
-#: crates/rigg-core/src/settings.rs:387
+#: crates/rigg-core/src/settings.rs:410
 msgid "Ugyldig skriftstørrelse"
 msgstr "Tamaño de fuente no válido"
 
-#: crates/rigg-core/src/settings.rs:388
+#: crates/rigg-core/src/settings.rs:411
 msgid "Animasjoner må være system, full, reduced eller off"
 msgstr "Las animaciones deben ser system, full, reduced u off"
 
-#: crates/rigg-core/src/settings.rs:392
+#: crates/rigg-core/src/settings.rs:415
 msgid "Ukjent startside"
 msgstr "Página de inicio desconocida"
 
-#: crates/rigg-core/src/settings.rs:404 crates/rigg-core/src/settings.rs:409
+#: crates/rigg-core/src/settings.rs:427 crates/rigg-core/src/settings.rs:432
 msgid "Tidsvindu må være en av {verdier} s"
 msgstr "El intervalo de tiempo debe ser uno de {verdier} s"
 
-#: crates/rigg-core/src/settings.rs:408
+#: crates/rigg-core/src/settings.rs:431
 msgid "windows må være et objekt"
 msgstr "windows debe ser un objeto"
 
-#: crates/rigg-core/src/settings.rs:417
+#: crates/rigg-core/src/settings.rs:440
 msgid "Ukjent side i windows: {side}"
 msgstr "Página desconocida en windows: {side}"
 
-#: crates/rigg-core/src/settings.rs:422
+#: crates/rigg-core/src/settings.rs:445
 msgid "chartScale må være auto eller fixed"
 msgstr "chartScale debe ser auto o fixed"
 
-#: crates/rigg-core/src/settings.rs:427
+#: crates/rigg-core/src/settings.rs:450
 msgid "Desimaler må være auto, 0 eller 1"
 msgstr "Los decimales deben ser auto, 0 o 1"
 
-#: crates/rigg-core/src/settings.rs:428
+#: crates/rigg-core/src/settings.rs:451
 msgid "memUnit må være bin eller dec"
 msgstr "memUnit debe ser bin o dec"
 
-#: crates/rigg-core/src/settings.rs:429
+#: crates/rigg-core/src/settings.rs:452
 msgid "netUnit må være byte eller bit"
 msgstr "netUnit debe ser byte o bit"
 
-#: crates/rigg-core/src/settings.rs:430
+#: crates/rigg-core/src/settings.rs:453
 msgid "Klokke må være system, 24 eller 12"
 msgstr "El reloj debe ser system, 24 o 12"
 
-#: crates/rigg-core/src/settings.rs:433
+#: crates/rigg-core/src/settings.rs:456
 msgid "Fristen må være {verdier} s"
 msgstr "El plazo debe ser {verdier} s"
 
-#: crates/rigg-core/src/settings.rs:437
+#: crates/rigg-core/src/settings.rs:460
 msgid "lys3d må være auto, 3d eller 2d"
 msgstr "lys3d debe ser auto, 3d o 2d"
 
-#: crates/rigg-core/src/settings.rs:446
+#: crates/rigg-core/src/settings.rs:461
+msgid "rgbAv må være hold, svart-100, svart-0, farge-0 eller nesten-svart"
+msgstr "rgbAv debe ser hold, svart-100, svart-0, farge-0 o nesten-svart"
+
+#: crates/rigg-core/src/settings.rs:471
 msgid "Ukjent del av Innstillinger"
 msgstr "Sección de Configuración desconocida"
 
-#: crates/rigg-core/src/settings.rs:449
+#: crates/rigg-core/src/settings.rs:474
 msgid "Ukjent side"
 msgstr "Página desconocida"
 
-#: crates/rigg-core/src/settings.rs:452
+#: crates/rigg-core/src/settings.rs:477
 msgid "window må være et objekt"
 msgstr "window debe ser un objeto"
 
-#: crates/rigg-core/src/settings.rs:472
+#: crates/rigg-core/src/settings.rs:497
 msgid "gpuMakers må være et objekt"
 msgstr "gpuMakers debe ser un objeto"
 
-#: crates/rigg-core/src/settings.rs:474
+#: crates/rigg-core/src/settings.rs:499
 msgid "Høyst 16 kort i gpuMakers"
 msgstr "Como máximo 16 tarjetas en gpuMakers"
 
-#: crates/rigg-core/src/settings.rs:478
+#: crates/rigg-core/src/settings.rs:503
 msgid "Produsenten må være tekst"
 msgstr "El fabricante debe ser texto"
 
-#: crates/rigg-core/src/settings.rs:481
+#: crates/rigg-core/src/settings.rs:506
 msgid "Ugyldig kort i gpuMakers"
 msgstr "Tarjeta no válida en gpuMakers"
 
-#: crates/rigg-core/src/settings.rs:484
+#: crates/rigg-core/src/settings.rs:509
 msgid "Produsenten kan ha høyst 40 tegn"
 msgstr "El fabricante puede tener como máximo 40 caracteres"
 
-#: crates/rigg-core/src/settings.rs:607
+#: crates/rigg-core/src/settings.rs:632
 msgid "Takten i bakgrunnen må være 1, 2 eller 5 s"
 msgstr "El ritmo en segundo plano debe ser 1, 2 o 5 s"
 
-#: crates/rigg-core/src/settings.rs:610
+#: crates/rigg-core/src/settings.rs:635
 msgid "Fristen må være 10, 15, 30 eller 60 s"
 msgstr "El plazo debe ser 10, 15, 30 o 60 s"
 
-#: crates/rigg-core/src/settings.rs:612
+#: crates/rigg-core/src/settings.rs:637
 msgid "log må være et objekt"
 msgstr "log debe ser un objeto"
 
-#: crates/rigg-core/src/settings.rs:617
+#: crates/rigg-core/src/settings.rs:642
 msgid "log.keys må være en liste"
 msgstr "log.keys debe ser una lista"
 
-#: crates/rigg-core/src/settings.rs:623
+#: crates/rigg-core/src/settings.rs:648
 msgid "Ukjent sensor i log.keys"
 msgstr "Sensor desconocido en log.keys"
 
-#: crates/rigg-core/src/settings.rs:628
+#: crates/rigg-core/src/settings.rs:653
 msgid "Loggintervallet må være 0,5, 1, 2, 5 eller 10 s"
 msgstr "El intervalo de registro debe ser 0,5, 1, 2, 5 o 10 s"
 
-#: crates/rigg-core/src/settings.rs:633
+#: crates/rigg-core/src/settings.rs:658
 msgid "Loggmappa må være en full sti"
 msgstr "La carpeta del registro debe ser una ruta completa"
 
-#: crates/rigg-core/src/settings.rs:636
+#: crates/rigg-core/src/settings.rs:661
 msgid "Formatet må være standard eller norsk"
 msgstr "El formato debe ser standard o norsk"
 
-#: crates/rigg-core/src/settings.rs:642
+#: crates/rigg-core/src/settings.rs:667
 msgid "alarms må være et objekt"
 msgstr "alarms debe ser un objeto"
 
-#: crates/rigg-core/src/settings.rs:707
+#: crates/rigg-core/src/settings.rs:732
 msgid "Fila har ingen innstillinger"
 msgstr "El archivo no contiene configuración"

@@ -416,7 +416,7 @@ fn install_kopierer_bare_filene_og_uninstall_sier_fra() {
 /// bare midlertidige mapper og falske nettsvar; ingen root, nett eller systemd.
 #[test]
 fn systeminstallasjonens_python_prover() {
-    for script in ["scripts/test-system-install.py", "scripts/test-system-hent.py"] {
+    for script in ["scripts/test-system-install.py", "scripts/test-system-hent.py", "scripts/test-rgb-av-prove.py"] {
         let out = std::process::Command::new("/usr/bin/python3")
             .arg("-I")
             .arg(app_dir().join(script))

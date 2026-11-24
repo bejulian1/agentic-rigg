@@ -89,6 +89,7 @@ fn plan() -> Vec<Step> {
         Ok("1.4.0-ui") => ui140::plan(),
         Ok("rgb-ui") => plan_rgb(),
         Ok("forste-mote") => plan_forste_mote(),
+        Ok("rgb-tilstander") => plan_rgb_tilstander(),
         Ok("rgb-flow") => plan_rgb_flow(),
         Ok("oppgaver") => oppgaver::plan(),
         Ok("nettverk") => nettverk::plan(),
@@ -152,6 +153,40 @@ fn plan_forste_mote() -> Vec<Step> {
             Eval(|_| crate::pages::lys_kort::debug_fixture("stored")),
         ]);
     }
+    v
+}
+
+/// Alle tilstandene på RGB-lys (1.7.0) ved 1280 og 1024 px, som merkede
+/// visningsfixturer: ikke aktivert, klar, prøve med frist, lys av (holdes),
+/// effekt, uavklart økt (bekreft lyset) og feil (må avklares).
+fn plan_rgb_tilstander() -> Vec<Step> {
+    use Step::*;
+    let mut v = vec![Set(base())];
+    for (w, h) in [(1280, 820), (1024, 760)] {
+        v.extend([Size(w, h), Wait(500), Size(w, h), Go("lys"), Wait(1500), Eval(|_| crate::pages::lys::debug_mode("2d"))]);
+        use crate::pages::lys_kort::debug_fixture as fixture;
+        type SetFixture = fn(&Rc<App>);
+        let kinds: [(&str, SetFixture); 7] = [
+            ("off", |_| fixture("off")),
+            ("stored", |_| fixture("stored")),
+            ("pending", |_| fixture("pending")),
+            ("lys_av", |_| fixture("lys_av")),
+            ("effekt", |_| fixture("effekt")),
+            ("recovery", |_| fixture("recovery")),
+            ("blocked", |_| fixture("blocked")),
+        ];
+        for (kind, set) in kinds {
+            v.extend([
+                Eval(set),
+                Wait(500),
+                Scroll(1.0),
+                Wait(300),
+                Shot(name(format!("rgb-{kind}-{w}-sim"))),
+                Scroll(0.0),
+            ]);
+        }
+    }
+    v.push(Eval(|_| crate::pages::lys_kort::debug_fixture("stored")));
     v
 }
 

@@ -555,7 +555,13 @@ impl Lys {
                 self.ui.readout_dot.queue_draw();
             }
             let hex = format!("#{:02X}{:02X}{:02X}", rgb[0], rgb[1], rgb[2]);
-            let label_text = if v.observation_source == "stored_baseline" {
+            // Svart eller lysstyrke 0 lyser ikke: vis det som «Av».
+            let dark = rgb == [0, 0, 0] || bri == 0;
+            let label_text = if dark && v.observation_source == "stored_baseline" {
+                tr!("Utgangspunkt: Av").to_string()
+            } else if dark {
+                tr!("Sist lest: Av").to_string()
+            } else if v.observation_source == "stored_baseline" {
                 trf!("Utgangspunkt: {farge} · {styrke}", farge = hex, styrke = fmt::pct(Some(f64::from(bri)), 0))
             } else {
                 trf!("Sist lest: {farge} · {styrke}", farge = hex, styrke = fmt::pct(Some(f64::from(bri)), 0))
