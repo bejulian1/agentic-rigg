@@ -1034,3 +1034,9 @@ Innstillinger viser fortsatt kortbindingen når en arbeider venter eller stopper
 ## 2026-11-27 · Kortstyring etter omstart, 1.7.1 bygg 34
 
 Codex rettet gjenoppretting ved generasjonsbytte, gjentatt Hold, kanonisk Av-mål og betinget avklaring etter omstart. Migrering og tilbakekalling bevarer en uavklart journals kortbinding. Innstillinger viser venting og feil per arbeider. Regresjonene bruker private systemrøtter og simulerte kort. Fysisk kort og ekte systemd-omstart gjenstår.
+
+## 2026-11-27 · Spektrumvelger og styringssider, 1.7.1 · bygg 34
+
+Codex implementerte spektrumvelgeren etter Gemini 4 Neons gjennomgang. Metning, lyshet, fargetone, hekskode og RGB-kanaler følger samme lokale utkast. Den simulerte RGB-flytprøven redigerer i selve velgeren, kontrollerer kortmodellens farge og sjekker at arbeideren fortsatt har forrige tilstand før «Bruk». Lysprøvens bekreftelse ligger over rulleområdet. Vifter og Klokker og effekt viser når prøven venter på bekreftelse.
+
+Layoutrevisjonen av de tre sidene ga 0 funn i lyst og mørkt tema ved 640, 1024, 1280 og 1920 px. Den separate kontrollen av forkortede etiketter registrerte maskinopplysninger og simuleringsmerket i sidefeltet ved 116 % skrift. Spektrumvelgeren ble kontrollert visuelt i begge temaer, og RGB-bekreftelsen ved 640 px. Alle maskinvareprøver brukte simulerte arbeidere eller private testfiler.

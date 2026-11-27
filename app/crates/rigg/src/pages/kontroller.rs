@@ -244,8 +244,8 @@ fn point_count(count: usize) -> String {
 fn field_text(v: &Values, field: &str) -> (&'static str, String) {
     match field {
         "powerLimitW" => (tr!("Effektgrense"), F::watt(Some(v.power_limit_w), 0)),
-        "clockOffsets.coreMhz" => (tr!("Kjerneklokke-offset"), signed(v.core_offset_mhz, "MHz")),
-        "clockOffsets.memMhz" => (tr!("Minneklokke-offset"), signed(v.mem_offset_mhz, "MHz")),
+        "clockOffsets.coreMhz" => (tr!("GPU-justering"), signed(v.core_offset_mhz, "MHz")),
+        "clockOffsets.memMhz" => (tr!("Minnejustering"), signed(v.mem_offset_mhz, "MHz")),
         "tempTargetC" => (tr!("Temperaturmål"), F::temp(Some(v.temp_target_c), 0)),
         "fan.mode" => (tr!("Viftemodus"), mode_name(v.fan_mode).into()),
         "fan.manualPercent" => (tr!("Viftefart (manuell)"), F::pct(Some(v.fan_percent), 0)),
@@ -549,9 +549,10 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
         if i < 3 { rows_box.append(&r.root); } else { extra_rows.append(&r.root); }
     }
     let advanced = gtk::Expander::new(Some(tr!("Avansert · temperaturmål og vifter")));
+    advanced.add_css_class("oc-advanced");
     advanced.set_child(Some(&extra_rows));
     setup.body.append(&advanced);
-    let fans_link = hbox(8, &[]);
+    let fans_link = hbox(8, &["oc-fans-link"]);
     let fans_note = label(tr!("Auto, fast viftefart og egen kurve"), &["muted", "sm"]);
     fans_note.set_wrap(true);
     fans_note.set_hexpand(true);
@@ -1253,7 +1254,9 @@ impl Kontroller {
         let base = self.base();
         let diff = draft_diff(&base, d);
         if diff.is_empty() {
-            let l = label(tr!("Utkastet er likt det kortet har nå."), &["muted", "sm"]);
+            let l = label(if self.confirm.active() {
+                tr!("Prøven pågår. Velg «Behold» eller «Rull tilbake» øverst.")
+            } else { tr!("Utkastet er likt det kortet har nå.") }, &["muted", "sm"]);
             l.set_wrap(true);
             self.diff_kv.append(&l);
         }
@@ -1275,9 +1278,10 @@ impl Kontroller {
         }
         let note = label(if locked::control_ready(&self.app) { tr!("Sendes til kortet med Bruk. Behold innen fristen, ellers rulles endringen tilbake.") } else { tr!("Lagres i appen som utkast. Ctrl+Z angrer.") }, &["muted", "sm", "diff-note"]);
         note.set_wrap(true);
-        self.diff_kv.append(&note);
+        if !self.confirm.active() { self.diff_kv.append(&note); }
         let n = diff.len();
         set_text(&self.dirty, &match n {
+            0 if self.confirm.active() => tr!("Prøve pågår").to_string(),
             0 => tr!("Ingen endringer").to_string(),
             n => trn!(n, "{n} endring i utkastet", "{n} endringer i utkastet", n = F::num(Some(n as f64), 0)),
         });

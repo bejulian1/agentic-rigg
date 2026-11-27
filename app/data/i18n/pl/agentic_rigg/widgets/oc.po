@@ -8,18 +8,18 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n == 1 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : 2);\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg/src/widgets/oc.rs:231
+#: crates/rigg/src/widgets/oc.rs:212
 msgid "standard {verdi}"
 msgstr "domyślnie: {verdi}"
 
-#: crates/rigg/src/widgets/oc.rs:703 crates/rigg/src/widgets/oc.rs:704
+#: crates/rigg/src/widgets/oc.rs:776 crates/rigg/src/widgets/oc.rs:777
 msgid "Mer om {what}"
 msgstr "Więcej informacji: {what}"
 
-#: crates/rigg/src/widgets/oc.rs:804
+#: crates/rigg/src/widgets/oc.rs:877
 msgid "Tilbakestill"
 msgstr "Przywróć"
 
-#: crates/rigg/src/widgets/oc.rs:808
+#: crates/rigg/src/widgets/oc.rs:881
 msgid "Tilbakestill {verdi} til standard"
 msgstr "Przywróć wartość domyślną: {verdi}"

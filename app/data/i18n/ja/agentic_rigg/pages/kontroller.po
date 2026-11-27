@@ -45,19 +45,19 @@ msgstr[0] "{antall}点"
 msgid "Effektgrense"
 msgstr "電力制限"
 
-#: crates/rigg/src/pages/kontroller.rs:247
-msgid "Kjerneklokke-offset"
-msgstr "コアクロックオフセット"
+#: crates/rigg/src/pages/kontroller.rs:247 crates/rigg/src/pages/kontroller.rs:541
+msgid "GPU-justering"
+msgstr "GPUクロックオフセット"
 
-#: crates/rigg/src/pages/kontroller.rs:248
-msgid "Minneklokke-offset"
+#: crates/rigg/src/pages/kontroller.rs:248 crates/rigg/src/pages/kontroller.rs:542
+msgid "Minnejustering"
 msgstr "メモリクロックオフセット"
 
 #: crates/rigg/src/pages/kontroller.rs:249 crates/rigg/src/pages/kontroller.rs:288 crates/rigg/src/pages/kontroller.rs:543
 msgid "Temperaturmål"
 msgstr "目標温度"
 
-#: crates/rigg/src/pages/kontroller.rs:250 crates/rigg/src/pages/kontroller.rs:572
+#: crates/rigg/src/pages/kontroller.rs:250 crates/rigg/src/pages/kontroller.rs:573
 msgid "Viftemodus"
 msgstr "ファンモード"
 
@@ -109,19 +109,19 @@ msgstr "最低速度を保つ温度"
 msgid "Viftekurve"
 msgstr "ファンカーブ"
 
-#: crates/rigg/src/pages/kontroller.rs:266 crates/rigg/src/pages/kontroller.rs:572
+#: crates/rigg/src/pages/kontroller.rs:266 crates/rigg/src/pages/kontroller.rs:573
 msgid "Auto"
 msgstr "自動"
 
-#: crates/rigg/src/pages/kontroller.rs:267 crates/rigg/src/pages/kontroller.rs:572
+#: crates/rigg/src/pages/kontroller.rs:267 crates/rigg/src/pages/kontroller.rs:573
 msgid "Kurve"
 msgstr "カーブ"
 
-#: crates/rigg/src/pages/kontroller.rs:268 crates/rigg/src/pages/kontroller.rs:572
+#: crates/rigg/src/pages/kontroller.rs:268 crates/rigg/src/pages/kontroller.rs:573
 msgid "Manuell"
 msgstr "手動"
 
-#: crates/rigg/src/pages/kontroller.rs:283 crates/rigg/src/pages/kontroller.rs:716
+#: crates/rigg/src/pages/kontroller.rs:283 crates/rigg/src/pages/kontroller.rs:717
 msgid "Tomgang"
 msgstr "アイドル"
 
@@ -145,7 +145,7 @@ msgstr "GPUの消費電力が電力制限に達しています。"
 msgid "Maskinvare-nedklokking"
 msgstr "ハードウェアによるクロック低下"
 
-#: crates/rigg/src/pages/kontroller.rs:286 crates/rigg/src/pages/kontroller.rs:715
+#: crates/rigg/src/pages/kontroller.rs:286 crates/rigg/src/pages/kontroller.rs:716
 msgid "Kortet klokker ned av seg selv (strøm eller temperatur)."
 msgstr "電力または温度の影響で、GPUが自動的にクロックを下げています。"
 
@@ -209,7 +209,7 @@ msgstr "制限要因の報告なし"
 msgid "nvmlDeviceGetCurrentClocksEventReasons svarer ikke på dette kortet."
 msgstr "このGPUではnvmlDeviceGetCurrentClocksEventReasonsが応答しません。"
 
-#: crates/rigg/src/pages/kontroller.rs:331 crates/rigg/src/pages/kontroller.rs:334 crates/rigg/src/pages/kontroller.rs:597 crates/rigg/src/pages/kontroller.rs:713
+#: crates/rigg/src/pages/kontroller.rs:331 crates/rigg/src/pages/kontroller.rs:334 crates/rigg/src/pages/kontroller.rs:598 crates/rigg/src/pages/kontroller.rs:714
 msgid "Temperatur"
 msgstr "温度"
 
@@ -217,7 +217,7 @@ msgstr "温度"
 msgid "Maskinvaren klokker ned"
 msgstr "ハードウェアによるクロック低下"
 
-#: crates/rigg/src/pages/kontroller.rs:332 crates/rigg/src/pages/kontroller.rs:335 crates/rigg/src/pages/kontroller.rs:597 crates/rigg/src/pages/kontroller.rs:712
+#: crates/rigg/src/pages/kontroller.rs:332 crates/rigg/src/pages/kontroller.rs:335 crates/rigg/src/pages/kontroller.rs:598 crates/rigg/src/pages/kontroller.rs:713
 msgid "Effekt"
 msgstr "電力"
 
@@ -225,7 +225,7 @@ msgstr "電力"
 msgid "Strømforsyningen bremser"
 msgstr "電源ユニットによる抑制"
 
-#: crates/rigg/src/pages/kontroller.rs:333 crates/rigg/src/pages/kontroller.rs:715
+#: crates/rigg/src/pages/kontroller.rs:333 crates/rigg/src/pages/kontroller.rs:716
 msgid "Maskinvare"
 msgstr "ハードウェア"
 
@@ -269,7 +269,7 @@ msgstr "目標値 {maal} に到達"
 msgid "Kortet har ingenting å gjøre og holder klokkene nede (tomgang)."
 msgstr "GPUはアイドル状態のため、クロックを低く保っています。"
 
-#: crates/rigg/src/pages/kontroller.rs:362 crates/rigg/src/pages/kontroller.rs:714
+#: crates/rigg/src/pages/kontroller.rs:362 crates/rigg/src/pages/kontroller.rs:715
 msgid "Spenning"
 msgstr "電圧"
 
@@ -421,14 +421,6 @@ msgstr "下書き · GPUに未送信"
 msgid "Gjenopprett utgangspunkt"
 msgstr "元の設定に戻す"
 
-#: crates/rigg/src/pages/kontroller.rs:541
-msgid "GPU-justering"
-msgstr "GPUクロックオフセット"
-
-#: crates/rigg/src/pages/kontroller.rs:542
-msgid "Minnejustering"
-msgstr "メモリクロックオフセット"
-
 #: crates/rigg/src/pages/kontroller.rs:544
 msgid "Vifte"
 msgstr "ファン"
@@ -437,559 +429,567 @@ msgstr "ファン"
 msgid "Avansert · temperaturmål og vifter"
 msgstr "詳細 · 目標温度とファン"
 
-#: crates/rigg/src/pages/kontroller.rs:555
+#: crates/rigg/src/pages/kontroller.rs:556
 msgid "Auto, fast viftefart og egen kurve"
 msgstr "自動、固定速度、カスタムカーブ"
 
-#: crates/rigg/src/pages/kontroller.rs:559
+#: crates/rigg/src/pages/kontroller.rs:560
 msgid "Åpne Vifter"
 msgstr "ファンを開く"
 
-#: crates/rigg/src/pages/kontroller.rs:573
+#: crates/rigg/src/pages/kontroller.rs:574
 msgid "Rediger kurven"
 msgstr "カーブを編集"
 
-#: crates/rigg/src/pages/kontroller.rs:574
+#: crates/rigg/src/pages/kontroller.rs:575
 msgid "Gå til Vifter, der kurven redigeres"
 msgstr "ファンページでカーブを編集します"
 
-#: crates/rigg/src/pages/kontroller.rs:597
+#: crates/rigg/src/pages/kontroller.rs:598
 msgid "Kjerneklokke"
 msgstr "コアクロック"
 
-#: crates/rigg/src/pages/kontroller.rs:610
+#: crates/rigg/src/pages/kontroller.rs:611
 msgid "Utkast"
 msgstr "下書き"
 
-#: crates/rigg/src/pages/kontroller.rs:616
+#: crates/rigg/src/pages/kontroller.rs:617
 msgid "Profiler"
 msgstr "プロファイル"
 
-#: crates/rigg/src/pages/kontroller.rs:619
+#: crates/rigg/src/pages/kontroller.rs:620
 msgid "Hent fyller utkastet med verdiene fra profilen. Ingenting sendes til kortet."
 msgstr "「読み込み」はプロファイルの値を下書きにコピーします。GPUには何も送信しません。"
 
-#: crates/rigg/src/pages/kontroller.rs:625
+#: crates/rigg/src/pages/kontroller.rs:626
 msgid "Begrensninger"
 msgstr "パフォーマンス制限"
 
-#: crates/rigg/src/pages/kontroller.rs:637
+#: crates/rigg/src/pages/kontroller.rs:638
 msgid "Funksjonsstøtte på kortet"
 msgstr "GPUの対応機能"
 
-#: crates/rigg/src/pages/kontroller.rs:641
+#: crates/rigg/src/pages/kontroller.rs:642
 msgid "Spenningsoffset"
 msgstr "電圧オフセット"
 
-#: crates/rigg/src/pages/kontroller.rs:641
+#: crates/rigg/src/pages/kontroller.rs:642
 msgid "Spenningsstyring er ikke implementert i appen."
 msgstr "電圧制御は未実装です。"
 
-#: crates/rigg/src/pages/kontroller.rs:642
+#: crates/rigg/src/pages/kontroller.rs:643
 msgid "Klokkekurven (V/F)"
 msgstr "電圧/周波数カーブ（V/F）"
 
-#: crates/rigg/src/pages/kontroller.rs:642
+#: crates/rigg/src/pages/kontroller.rs:643
 msgid "Redigering av spennings-/klokkekurven er ikke implementert. GPU-justering bruker offset der driveren støtter det."
 msgstr "電圧・周波数カーブの編集は未実装です。ドライバーが対応していれば、GPUクロックオフセットを利用できます。"
 
-#: crates/rigg/src/pages/kontroller.rs:643
+#: crates/rigg/src/pages/kontroller.rs:644
 msgid "Låst minneklokke"
 msgstr "固定メモリクロック"
 
-#: crates/rigg/src/pages/kontroller.rs:643
+#: crates/rigg/src/pages/kontroller.rs:644
 msgid "Fastlåsing av minneklokken er ikke implementert. Minnejustering bruker offset der driveren støtter det."
 msgstr "メモリクロックの固定は未実装です。ドライバーが対応していれば、メモリクロックオフセットを利用できます。"
 
-#: crates/rigg/src/pages/kontroller.rs:644
+#: crates/rigg/src/pages/kontroller.rs:645
 msgid "Viftestopp (0 %)"
 msgstr "ファン停止（0%）"
 
-#: crates/rigg/src/pages/kontroller.rs:644
+#: crates/rigg/src/pages/kontroller.rs:645
 msgid "Egen viftestopp er ikke implementert. Manuell fart følger driverens område; automatisk viftestopp avhenger av kort og driver."
 msgstr "ファン停止のカスタマイズは未実装です。手動で指定できる速度はドライバーが報告する範囲内です。自動ファン停止はGPUとドライバーに依存します。"
 
-#: crates/rigg/src/pages/kontroller.rs:651
+#: crates/rigg/src/pages/kontroller.rs:652
 msgid "Avansert · kortets grenser og funksjoner"
 msgstr "詳細 · GPUの制限と対応機能"
 
-#: crates/rigg/src/pages/kontroller.rs:663
+#: crates/rigg/src/pages/kontroller.rs:664
 msgid "Forkast utkast"
 msgstr "下書きを破棄"
 
-#: crates/rigg/src/pages/kontroller.rs:664
+#: crates/rigg/src/pages/kontroller.rs:665
 msgid "Tilbake til det kortet har. Utkastet slettes (Ctrl+Z angrer)."
 msgstr "GPUの現在値に戻し、下書きを破棄します。Ctrl+Zで取り消せます。"
 
-#: crates/rigg/src/pages/kontroller.rs:665
+#: crates/rigg/src/pages/kontroller.rs:666
 msgid "Bruk"
 msgstr "適用"
 
-#: crates/rigg/src/pages/kontroller.rs:712
+#: crates/rigg/src/pages/kontroller.rs:713
 msgid "Effektgrensen er nådd, eller strømforsyningen bremser."
 msgstr "電力制限に達したか、電源ユニットがクロックを抑制しています。"
 
-#: crates/rigg/src/pages/kontroller.rs:713
+#: crates/rigg/src/pages/kontroller.rs:714
 msgid "Temperaturmålet er nådd, eller maskinvaren klokker ned fordi kortet er for varmt."
 msgstr "目標温度に達したか、GPUが高温のためハードウェアがクロックを下げています。"
 
-#: crates/rigg/src/pages/kontroller.rs:714
+#: crates/rigg/src/pages/kontroller.rs:715
 msgid "Utledet: ingen begrensning fra NVML mens kortet har last. Da står det på toppen av klokkekurven."
 msgstr "推定：GPUに負荷がかかっていますが、NVMLは制限を報告していません。GPUはクロックカーブの上限で動作しています。"
 
-#: crates/rigg/src/pages/kontroller.rs:716
+#: crates/rigg/src/pages/kontroller.rs:717
 msgid "Kortet har ingenting å gjøre."
 msgstr "GPUはアイドル状態です。"
 
-#: crates/rigg/src/pages/kontroller.rs:717
+#: crates/rigg/src/pages/kontroller.rs:718
 msgid "Annet"
 msgstr "その他"
 
-#: crates/rigg/src/pages/kontroller.rs:717
+#: crates/rigg/src/pages/kontroller.rs:718
 msgid "Programklokker, synkronisert boost eller skjermklokke."
 msgstr "アプリケーションクロック、Sync Boost、またはディスプレイクロック。"
 
-#: crates/rigg/src/pages/kontroller.rs:727 crates/rigg/src/pages/kontroller.rs:738 crates/rigg/src/pages/kontroller.rs:746
+#: crates/rigg/src/pages/kontroller.rs:728 crates/rigg/src/pages/kontroller.rs:739 crates/rigg/src/pages/kontroller.rs:747
 msgid "{min} til {maks}"
 msgstr "{min}～{maks}"
 
-#: crates/rigg/src/pages/kontroller.rs:730 crates/rigg/src/pages/kontroller.rs:737 crates/rigg/src/pages/kontroller.rs:745 crates/rigg/src/pages/kontroller.rs:753 crates/rigg/src/pages/kontroller.rs:760
+#: crates/rigg/src/pages/kontroller.rs:731 crates/rigg/src/pages/kontroller.rs:738 crates/rigg/src/pages/kontroller.rs:746 crates/rigg/src/pages/kontroller.rs:754 crates/rigg/src/pages/kontroller.rs:761
 msgid "Lagret utgangspunkt"
 msgstr "保存済みの基準値"
 
-#: crates/rigg/src/pages/kontroller.rs:731 crates/rigg/src/pages/kontroller.rs:754
+#: crates/rigg/src/pages/kontroller.rs:732 crates/rigg/src/pages/kontroller.rs:755
 msgid "Område"
 msgstr "範囲"
 
-#: crates/rigg/src/pages/kontroller.rs:731 crates/rigg/src/pages/kontroller.rs:754
+#: crates/rigg/src/pages/kontroller.rs:732 crates/rigg/src/pages/kontroller.rs:755
 msgid "{min} til {maks} (fra kortet)"
 msgstr "{min}～{maks}（GPUの報告値）"
 
-#: crates/rigg/src/pages/kontroller.rs:732 crates/rigg/src/pages/kontroller.rs:740 crates/rigg/src/pages/kontroller.rs:748 crates/rigg/src/pages/kontroller.rs:756 crates/rigg/src/pages/kontroller.rs:762
+#: crates/rigg/src/pages/kontroller.rs:733 crates/rigg/src/pages/kontroller.rs:741 crates/rigg/src/pages/kontroller.rs:749 crates/rigg/src/pages/kontroller.rs:757 crates/rigg/src/pages/kontroller.rs:763
 msgid "Nå"
 msgstr "現在"
 
-#: crates/rigg/src/pages/kontroller.rs:732
+#: crates/rigg/src/pages/kontroller.rs:733
 msgid "grense {grense}, trekker {forbruk}"
 msgstr "制限 {grense}、消費電力 {forbruk}"
 
-#: crates/rigg/src/pages/kontroller.rs:733 crates/rigg/src/pages/kontroller.rs:741 crates/rigg/src/pages/kontroller.rs:749
+#: crates/rigg/src/pages/kontroller.rs:734 crates/rigg/src/pages/kontroller.rs:742 crates/rigg/src/pages/kontroller.rs:750
 msgid "Påvirker"
 msgstr "影響する項目"
 
-#: crates/rigg/src/pages/kontroller.rs:733
+#: crates/rigg/src/pages/kontroller.rs:734
 msgid "Kjerneklokken under last, temperatur, viftestøy og strømforbruk"
 msgstr "負荷時のコアクロック、温度、ファンの動作音、消費電力"
 
-#: crates/rigg/src/pages/kontroller.rs:734
+#: crates/rigg/src/pages/kontroller.rs:735
 msgid "nvmlDeviceGetEnforcedPowerLimit (avlesning)."
 msgstr "nvmlDeviceGetEnforcedPowerLimit（読み戻し）。"
 
-#: crates/rigg/src/pages/kontroller.rs:738 crates/rigg/src/pages/kontroller.rs:746
+#: crates/rigg/src/pages/kontroller.rs:739 crates/rigg/src/pages/kontroller.rs:747
 msgid "Kortet tillater"
 msgstr "GPUの許容範囲"
 
-#: crates/rigg/src/pages/kontroller.rs:738 crates/rigg/src/pages/kontroller.rs:746 crates/rigg/src/pages/kontroller.rs:754
+#: crates/rigg/src/pages/kontroller.rs:739 crates/rigg/src/pages/kontroller.rs:747 crates/rigg/src/pages/kontroller.rs:755
 msgid "leses ikke"
 msgstr "報告なし"
 
-#: crates/rigg/src/pages/kontroller.rs:739 crates/rigg/src/pages/kontroller.rs:747
+#: crates/rigg/src/pages/kontroller.rs:740 crates/rigg/src/pages/kontroller.rs:748
 msgid "Tjenesten tillater"
 msgstr "サービスの許容範囲"
 
-#: crates/rigg/src/pages/kontroller.rs:740
+#: crates/rigg/src/pages/kontroller.rs:741
 msgid "kjerneklokke {klokke}, rapportert maks {maks}"
 msgstr "コアクロック {klokke}、報告上限 {maks}"
 
-#: crates/rigg/src/pages/kontroller.rs:741
+#: crates/rigg/src/pages/kontroller.rs:742
 msgid "Kjerneklokken på hele kurven og stabiliteten. Ikke spenningen."
 msgstr "カーブ全体のコアクロックと動作の安定性に影響します。電圧は変わりません。"
 
-#: crates/rigg/src/pages/kontroller.rs:742 crates/rigg/src/pages/kontroller.rs:750
+#: crates/rigg/src/pages/kontroller.rs:743 crates/rigg/src/pages/kontroller.rs:751
 msgid "nvmlDeviceGetClockOffsets (avlesning)."
 msgstr "nvmlDeviceGetClockOffsets（読み戻し）。"
 
-#: crates/rigg/src/pages/kontroller.rs:748
+#: crates/rigg/src/pages/kontroller.rs:749
 msgid "minneklokke {klokke}, rapportert maks {maks}"
 msgstr "メモリクロック {klokke}、報告上限 {maks}"
 
-#: crates/rigg/src/pages/kontroller.rs:749
+#: crates/rigg/src/pages/kontroller.rs:750
 msgid "Minnebåndbredden. Ikke kjerneklokken."
 msgstr "メモリ帯域幅に影響します。コアクロックは変わりません。"
 
-#: crates/rigg/src/pages/kontroller.rs:755
+#: crates/rigg/src/pages/kontroller.rs:756
 msgid "Faste grenser"
 msgstr "ハードウェアのしきい値"
 
-#: crates/rigg/src/pages/kontroller.rs:755
+#: crates/rigg/src/pages/kontroller.rs:756
 msgid "nedklokking ved {nedklokking}, avstenging ved {avstenging}"
 msgstr "クロック低下 {nedklokking}、シャットダウン {avstenging}"
 
-#: crates/rigg/src/pages/kontroller.rs:757
+#: crates/rigg/src/pages/kontroller.rs:758
 msgid "nvmlDeviceGetTemperatureThreshold, ACOUSTIC_CURR (avlesning)."
 msgstr "nvmlDeviceGetTemperatureThreshold、ACOUSTIC_CURR（読み戻し）。"
 
-#: crates/rigg/src/pages/kontroller.rs:760
+#: crates/rigg/src/pages/kontroller.rs:761
 msgid "Auto (driveren styrer)"
 msgstr "自動（ドライバー）"
 
-#: crates/rigg/src/pages/kontroller.rs:761
+#: crates/rigg/src/pages/kontroller.rs:762
 msgid "Manuelt minimum"
 msgstr "手動時の最低速度"
 
-#: crates/rigg/src/pages/kontroller.rs:761
+#: crates/rigg/src/pages/kontroller.rs:762
 msgid "{fart} (rapportert av driveren)"
 msgstr "{fart}（ドライバーの報告値）"
 
-#: crates/rigg/src/pages/kontroller.rs:761
+#: crates/rigg/src/pages/kontroller.rs:762
 msgid "Ikke rapportert av driveren"
 msgstr "ドライバーからの報告なし"
 
-#: crates/rigg/src/pages/kontroller.rs:763
+#: crates/rigg/src/pages/kontroller.rs:764
 msgid "Modus nå"
 msgstr "現在のモード"
 
-#: crates/rigg/src/pages/kontroller.rs:764
+#: crates/rigg/src/pages/kontroller.rs:765
 msgid "nvmlDeviceGetFanControlPolicy_v2 (avlesning)."
 msgstr "nvmlDeviceGetFanControlPolicy_v2（読み戻し）。"
 
-#: crates/rigg/src/pages/kontroller.rs:769
+#: crates/rigg/src/pages/kontroller.rs:770
 msgid "Klar. Bruk prøver endringen; Behold lar den fortsette."
 msgstr "準備完了。「適用」で変更を試し、「維持」で確定します。"
 
-#: crates/rigg/src/pages/kontroller.rs:771
+#: crates/rigg/src/pages/kontroller.rs:772
 msgid "Simulert kort. Ekte maskinvare endres ikke."
 msgstr "シミュレートされたGPUです。実際のハードウェアは変更されません。"
 
-#: crates/rigg/src/pages/kontroller.rs:774
+#: crates/rigg/src/pages/kontroller.rs:775
 msgid "Styring"
 msgstr "制御"
 
-#: crates/rigg/src/pages/kontroller.rs:877
+#: crates/rigg/src/pages/kontroller.rs:878
 msgid "Utkastet er forkastet"
 msgstr "下書きを破棄しました"
 
-#: crates/rigg/src/pages/kontroller.rs:877 crates/rigg/src/pages/kontroller.rs:971 crates/rigg/src/pages/kontroller.rs:1485
+#: crates/rigg/src/pages/kontroller.rs:878 crates/rigg/src/pages/kontroller.rs:972 crates/rigg/src/pages/kontroller.rs:1491
 msgid "Angre"
 msgstr "元に戻す"
 
-#: crates/rigg/src/pages/kontroller.rs:952
+#: crates/rigg/src/pages/kontroller.rs:953
 msgid "Kortets utgangspunkt er gjenopprettet"
 msgstr "GPUの元の設定を復元しました"
 
-#: crates/rigg/src/pages/kontroller.rs:954
+#: crates/rigg/src/pages/kontroller.rs:955
 msgid "Kunne ikke bekrefte gjenoppretting"
 msgstr "復元を確認できませんでした"
 
-#: crates/rigg/src/pages/kontroller.rs:966
+#: crates/rigg/src/pages/kontroller.rs:967
 msgid "Kortet står allerede på standard"
 msgstr "GPUはすでに標準設定です"
 
-#: crates/rigg/src/pages/kontroller.rs:971
+#: crates/rigg/src/pages/kontroller.rs:972
 msgid "Utkastet har standardverdiene"
 msgstr "標準値を下書きにコピーしました"
 
-#: crates/rigg/src/pages/kontroller.rs:971
+#: crates/rigg/src/pages/kontroller.rs:972
 msgid "Ingenting er sendt til kortet."
 msgstr "GPUには何も送信していません。"
 
-#: crates/rigg/src/pages/kontroller.rs:996
+#: crates/rigg/src/pages/kontroller.rs:997
 msgid "Leser kortets innstillinger …"
 msgstr "GPUの設定を読み取り中…"
 
-#: crates/rigg/src/pages/kontroller.rs:996
+#: crates/rigg/src/pages/kontroller.rs:997
 msgid "Prøv Bruk igjen når innstillingene er lest."
 msgstr "設定の読み込み後に、もう一度「適用」をクリックしてください。"
 
-#: crates/rigg/src/pages/kontroller.rs:1003
+#: crates/rigg/src/pages/kontroller.rs:1004
 msgid "Utkastet må oppdateres"
 msgstr "下書きの更新が必要です"
 
-#: crates/rigg/src/pages/kontroller.rs:1008
+#: crates/rigg/src/pages/kontroller.rs:1009
 msgid "Funksjonen er utilgjengelig"
 msgstr "この機能は利用できません"
 
-#: crates/rigg/src/pages/kontroller.rs:1018 crates/rigg/src/pages/kontroller.rs:1295
+#: crates/rigg/src/pages/kontroller.rs:1019 crates/rigg/src/pages/kontroller.rs:1301
 msgid "Ingen endringer å bruke"
 msgstr "適用する変更はありません"
 
-#: crates/rigg/src/pages/kontroller.rs:1019
+#: crates/rigg/src/pages/kontroller.rs:1020
 msgid "Kunne ikke bruke utkastet"
 msgstr "下書きを適用できませんでした"
 
-#: crates/rigg/src/pages/kontroller.rs:1045
+#: crates/rigg/src/pages/kontroller.rs:1046
 msgid "Bruk prøver endringen i {tid}. Trykk Behold i det faste feltet øverst for å fortsette; uten svar går kortet tilbake til forrige oppsett."
 msgstr "「適用」で変更を{tid}間試せます。確定するには上部のバーで「維持」を選択してください。操作しなければ、GPUは変更前の設定に戻ります。"
 
-#: crates/rigg/src/pages/kontroller.rs:1056 crates/rigg/src/pages/kontroller.rs:1059
+#: crates/rigg/src/pages/kontroller.rs:1057 crates/rigg/src/pages/kontroller.rs:1060
 msgid "maks {maks}"
 msgstr "最大 {maks}"
 
-#: crates/rigg/src/pages/kontroller.rs:1058
+#: crates/rigg/src/pages/kontroller.rs:1059
 msgid "Målt GPU-klokke nå. Maks er rapportert av NVIDIA-driveren, ikke en beregnet sluttklokke etter justering. GPU-boost, temperatur og effekt påvirker den faktiske hastigheten."
 msgstr "GPUクロックの実測値です。最大値はNVIDIAドライバーの報告値であり、オフセット適用後の予測値ではありません。実際のクロックはブースト、温度、電力の影響を受けます。"
 
-#: crates/rigg/src/pages/kontroller.rs:1061
+#: crates/rigg/src/pages/kontroller.rs:1062
 msgid "Målt minneklokke nå. Maks er rapportert av NVIDIA-driveren. MHz-justeringen under er et tillegg, ikke en fast minnefrekvens eller båndbredde i Gb/s."
 msgstr "メモリクロックの実測値です。最大値はNVIDIAドライバーの報告値です。下のMHz単位のオフセットは、固定のメモリクロックやGb/s単位の帯域幅ではありません。"
 
-#: crates/rigg/src/pages/kontroller.rs:1069
+#: crates/rigg/src/pages/kontroller.rs:1070
 msgid "mål {maal}"
 msgstr "目標 {maal}"
 
-#: crates/rigg/src/pages/kontroller.rs:1072
+#: crates/rigg/src/pages/kontroller.rs:1073
 msgid "GPU-temperaturen. Merket på måleren er temperaturmålet; måleren går til nedklokkingen ved {temperatur}."
 msgstr "GPUの温度です。マーカーは目標温度、ゲージの上限はクロックが低下するしきい値（{temperatur}）です。"
 
-#: crates/rigg/src/pages/kontroller.rs:1076
+#: crates/rigg/src/pages/kontroller.rs:1077
 msgid "{andel} av {grense}"
 msgstr "{grense}のうち{andel}"
 
-#: crates/rigg/src/pages/kontroller.rs:1082
+#: crates/rigg/src/pages/kontroller.rs:1083
 msgid "Strømtrekket nå, og hvor mye av effektgrensen det er."
 msgstr "現在の消費電力と、電力制限に対する割合です。"
 
-#: crates/rigg/src/pages/kontroller.rs:1083
+#: crates/rigg/src/pages/kontroller.rs:1084
 msgid "minnekontroller {last}"
 msgstr "メモリコントローラー {last}"
 
-#: crates/rigg/src/pages/kontroller.rs:1085
+#: crates/rigg/src/pages/kontroller.rs:1086
 msgid "GPU-last nå."
 msgstr "現在のGPU負荷です。"
 
-#: crates/rigg/src/pages/kontroller.rs:1089
+#: crates/rigg/src/pages/kontroller.rs:1090
 msgid "Den raskeste viften nå. Merket er driverens rapporterte manuelle minimum ({minimum})."
 msgstr "最も速いファンの速度です。マーカーはドライバーが報告した手動時の最低速度（{minimum}）です。"
 
-#: crates/rigg/src/pages/kontroller.rs:1089
+#: crates/rigg/src/pages/kontroller.rs:1090
 msgid "Den raskeste viften nå. Driverens manuelle minimum er ikke rapportert."
 msgstr "最も速いファンの速度です。手動時の最低速度はドライバーから報告されていません。"
 
-#: crates/rigg/src/pages/kontroller.rs:1092
+#: crates/rigg/src/pages/kontroller.rs:1093
 msgid "P-tilstanden. P0 er full ytelse, P8 er dyp tomgang."
 msgstr "パフォーマンス状態です。P0は最高性能、P8は低電力のアイドル状態です。"
 
-#: crates/rigg/src/pages/kontroller.rs:1106
+#: crates/rigg/src/pages/kontroller.rs:1107
 msgid "Kortets tillatte område er ikke lest. Ingen modellspesifikke grenser antas."
 msgstr "GPUから許容範囲の報告がありません。モデル固有の制限値は推定しません。"
 
-#: crates/rigg/src/pages/kontroller.rs:1124
+#: crates/rigg/src/pages/kontroller.rs:1125
 msgid "Valgt grense: {grense} av kortets standard · trekker nå {forbruk}"
 msgstr "選択した制限：標準値の{grense} · 消費電力 {forbruk}"
 
-#: crates/rigg/src/pages/kontroller.rs:1126 crates/rigg/src/pages/kontroller.rs:1169
+#: crates/rigg/src/pages/kontroller.rs:1127 crates/rigg/src/pages/kontroller.rs:1170
 msgid "Tilbake til lagret utgangspunkt ({verdi})"
 msgstr "保存済みの基準値に戻す（{verdi}）"
 
-#: crates/rigg/src/pages/kontroller.rs:1142
+#: crates/rigg/src/pages/kontroller.rs:1143
 msgid "Kortets område overlapper ikke appens tillatte justeringer. Avlest verdi vises uten å anta et annet korts grenser."
 msgstr "GPUの許容範囲とアプリで指定できるオフセット範囲に重なりがありません。別のGPUの制限は流用せず、実測値を表示します。"
 
-#: crates/rigg/src/pages/kontroller.rs:1148
+#: crates/rigg/src/pages/kontroller.rs:1149
 msgid "Målt nå: {klokke} · rapportert maks: {maks}{merknad}"
 msgstr "実測：{klokke} · 報告上限：{maks}{merknad}"
 
-#: crates/rigg/src/pages/kontroller.rs:1148
+#: crates/rigg/src/pages/kontroller.rs:1149
 msgid " · gjeldende justering er ukjent"
 msgstr " · 現在のオフセットは不明"
 
-#: crates/rigg/src/pages/kontroller.rs:1150
+#: crates/rigg/src/pages/kontroller.rs:1151
 msgid "Tilbake til grunnverdi ({verdi})"
 msgstr "基準値に戻す（{verdi}）"
 
-#: crates/rigg/src/pages/kontroller.rs:1151
+#: crates/rigg/src/pages/kontroller.rs:1152
 msgid "Tjenesten tillater {tjeneste_min} til {tjeneste_maks} når endring er slått på. Kortet tillater {kort_min} til {kort_maks}."
 msgstr "設定変更が有効な場合、サービスの許容範囲は{tjeneste_min}～{tjeneste_maks}、GPUの許容範囲は{kort_min}～{kort_maks}です。"
 
-#: crates/rigg/src/pages/kontroller.rs:1163
+#: crates/rigg/src/pages/kontroller.rs:1164
 msgid "GPU-temperatur nå {temperatur} · nedklokking ved {nedklokking}, avstenging ved {avstenging}"
 msgstr "GPU温度 {temperatur} · クロック低下 {nedklokking}、シャットダウン {avstenging}"
 
-#: crates/rigg/src/pages/kontroller.rs:1164
+#: crates/rigg/src/pages/kontroller.rs:1165
 msgid "GPU-temperatur nå {temperatur}"
 msgstr "GPU温度 {temperatur}"
 
-#: crates/rigg/src/pages/kontroller.rs:1184
+#: crates/rigg/src/pages/kontroller.rs:1185
 msgid "Tilbake til standard (Auto)"
 msgstr "標準設定に戻す（自動）"
 
-#: crates/rigg/src/pages/kontroller.rs:1186
+#: crates/rigg/src/pages/kontroller.rs:1187
 msgid "Driveren styrer viftene etter temperaturen, som uten appen."
 msgstr "アプリを使用しないときと同様に、ドライバーが温度に応じてファン速度を調整します。"
 
-#: crates/rigg/src/pages/kontroller.rs:1187
+#: crates/rigg/src/pages/kontroller.rs:1188
 msgid "Agentic HW Monitor setter farten etter viftekurven hvert sekund."
 msgstr "Agentic HW Monitorがカーブに従って毎秒ファン速度を調整します。"
 
-#: crates/rigg/src/pages/kontroller.rs:1188
+#: crates/rigg/src/pages/kontroller.rs:1189
 msgid "Viftene går med fast fart, uansett temperatur."
 msgstr "温度にかかわらず一定の速度で回転します。"
 
-#: crates/rigg/src/pages/kontroller.rs:1206
+#: crates/rigg/src/pages/kontroller.rs:1209
 msgid "Ja · siden {tid}"
 msgstr "はい · {tid}から"
 
-#: crates/rigg/src/pages/kontroller.rs:1207
+#: crates/rigg/src/pages/kontroller.rs:1210
 msgid "Ja"
 msgstr "はい"
 
-#: crates/rigg/src/pages/kontroller.rs:1210
+#: crates/rigg/src/pages/kontroller.rs:1213
 msgid "Nei"
 msgstr "いいえ"
 
-#: crates/rigg/src/pages/kontroller.rs:1217
+#: crates/rigg/src/pages/kontroller.rs:1220
 msgid "{why}\nNå: {arsaker}."
 msgstr "{why}\n現在：{arsaker}。"
 
-#: crates/rigg/src/pages/kontroller.rs:1225
+#: crates/rigg/src/pages/kontroller.rs:1228
 msgid "Kortet svarer ikke. Begrensningene vises igjen når det er tilbake."
 msgstr "GPUが応答していません。応答が戻ると制限が再表示されます。"
 
-#: crates/rigg/src/pages/kontroller.rs:1227
+#: crates/rigg/src/pages/kontroller.rs:1230
 msgid "Kortet er i tomgang (P8). Årsakene leses når kortet jobber."
 msgstr "GPUはアイドル状態（P8）です。動作を再開したら制限要因を読み取ります。"
 
-#: crates/rigg/src/pages/kontroller.rs:1229
+#: crates/rigg/src/pages/kontroller.rs:1232
 msgid "Kortet melder ikke klokkebegrensninger."
 msgstr "GPUはクロック制限を報告していません。"
 
-#: crates/rigg/src/pages/kontroller.rs:1235
+#: crates/rigg/src/pages/kontroller.rs:1238
 msgid "I P8 spør tjenesten ikke om årsakene: kallet koster ca. 25 ms og vekker kortet."
 msgstr "P8では、照会に約25 msかかり、GPUがアイドル状態から復帰するため、サービスは照会を省略します。"
 
-#: crates/rigg/src/pages/kontroller.rs:1254
+#: crates/rigg/src/pages/kontroller.rs:1258
+msgid "Prøven pågår. Velg «Behold» eller «Rull tilbake» øverst."
+msgstr "試行中です。上部で「維持」または「元に戻す」を選んでください。"
+
+#: crates/rigg/src/pages/kontroller.rs:1259
 msgid "Utkastet er likt det kortet har nå."
 msgstr "下書きとGPUの現在の設定は一致しています。"
 
-#: crates/rigg/src/pages/kontroller.rs:1263
+#: crates/rigg/src/pages/kontroller.rs:1268
 msgid "ukjent"
 msgstr "不明"
 
-#: crates/rigg/src/pages/kontroller.rs:1274
+#: crates/rigg/src/pages/kontroller.rs:1279
 msgid "Sendes til kortet med Bruk. Behold innen fristen, ellers rulles endringen tilbake."
 msgstr "「適用」で変更をGPUに送信します。制限時間内に「維持」を選択しないと、変更前の設定に戻ります。"
 
-#: crates/rigg/src/pages/kontroller.rs:1274
+#: crates/rigg/src/pages/kontroller.rs:1279
 msgid "Lagres i appen som utkast. Ctrl+Z angrer."
 msgstr "アプリに下書きとして保存しました。Ctrl+Zで取り消せます。"
 
-#: crates/rigg/src/pages/kontroller.rs:1279
+#: crates/rigg/src/pages/kontroller.rs:1284
+msgid "Prøve pågår"
+msgstr "試用中"
+
+#: crates/rigg/src/pages/kontroller.rs:1285
 msgid "Ingen endringer"
 msgstr "変更なし"
 
-#: crates/rigg/src/pages/kontroller.rs:1280
+#: crates/rigg/src/pages/kontroller.rs:1286
 msgid "{n} endring i utkastet"
 msgid_plural "{n} endringer i utkastet"
 msgstr[0] "下書きに{n}件の変更"
 
-#: crates/rigg/src/pages/kontroller.rs:1295
+#: crates/rigg/src/pages/kontroller.rs:1301
 msgid "Endringen venter på Behold"
 msgstr "「維持」の選択を待機中"
 
-#: crates/rigg/src/pages/kontroller.rs:1295
+#: crates/rigg/src/pages/kontroller.rs:1301
 msgid "Bruk utkastet"
 msgstr "下書きを適用"
 
-#: crates/rigg/src/pages/kontroller.rs:1315
+#: crates/rigg/src/pages/kontroller.rs:1321
 msgid "{used} av {plasser}"
 msgstr "{used}/{plasser}"
 
-#: crates/rigg/src/pages/kontroller.rs:1317
+#: crates/rigg/src/pages/kontroller.rs:1323
 msgid "Ingen profiler ennå. En profil husker alle verdiene på siden, også viftekurven."
 msgstr "プロファイルはまだありません。ファンカーブを含む、このページのすべての設定をプロファイルに保存できます。"
 
-#: crates/rigg/src/pages/kontroller.rs:1334
+#: crates/rigg/src/pages/kontroller.rs:1340
 msgid "Nytt navn på {profil}"
 msgstr "{profil}の新しい名前"
 
-#: crates/rigg/src/pages/kontroller.rs:1365
+#: crates/rigg/src/pages/kontroller.rs:1371
 msgid "Dobbeltklikk for å gi nytt navn"
 msgstr "ダブルクリックで名前を変更"
 
-#: crates/rigg/src/pages/kontroller.rs:1380
+#: crates/rigg/src/pages/kontroller.rs:1386
 msgid "på siden"
 msgstr "表示中"
 
-#: crates/rigg/src/pages/kontroller.rs:1381
+#: crates/rigg/src/pages/kontroller.rs:1387
 msgid "Verdiene på siden er de samme som i profilen"
 msgstr "このページの値はプロファイルと一致しています。"
 
-#: crates/rigg/src/pages/kontroller.rs:1387
+#: crates/rigg/src/pages/kontroller.rs:1393
 msgid "Hent"
 msgstr "読み込み"
 
-#: crates/rigg/src/pages/kontroller.rs:1388
+#: crates/rigg/src/pages/kontroller.rs:1394
 msgid "Fyll utkastet med verdiene fra profilen"
 msgstr "プロファイルの値を下書きにコピーします。"
 
-#: crates/rigg/src/pages/kontroller.rs:1395
+#: crates/rigg/src/pages/kontroller.rs:1401
 msgid "Hentet «{profil}»"
 msgstr "「{profil}」を読み込みました"
 
-#: crates/rigg/src/pages/kontroller.rs:1395
+#: crates/rigg/src/pages/kontroller.rs:1401
 msgid "Utkastet har verdiene fra profilen. Ingenting er sendt til kortet."
 msgstr "プロファイルの値を下書きにコピーしました。GPUには何も送信していません。"
 
-#: crates/rigg/src/pages/kontroller.rs:1400
+#: crates/rigg/src/pages/kontroller.rs:1406
 msgid "Flere valg for {profil}"
 msgstr "「{profil}」のその他の操作"
 
-#: crates/rigg/src/pages/kontroller.rs:1406
+#: crates/rigg/src/pages/kontroller.rs:1412
 msgid "Lagre over med verdiene på siden"
 msgstr "このページの値で上書き"
 
-#: crates/rigg/src/pages/kontroller.rs:1407
+#: crates/rigg/src/pages/kontroller.rs:1413
 msgid "Gi nytt navn"
 msgstr "名前を変更"
 
-#: crates/rigg/src/pages/kontroller.rs:1411
+#: crates/rigg/src/pages/kontroller.rs:1417
 msgid "Tøm plassen"
 msgstr "スロットを空にする"
 
-#: crates/rigg/src/pages/kontroller.rs:1418
+#: crates/rigg/src/pages/kontroller.rs:1424
 msgid "egen, {punkter}"
 msgstr "カスタム（{punkter}）"
 
-#: crates/rigg/src/pages/kontroller.rs:1418
+#: crates/rigg/src/pages/kontroller.rs:1424
 msgid "standard"
 msgstr "標準"
 
-#: crates/rigg/src/pages/kontroller.rs:1419
+#: crates/rigg/src/pages/kontroller.rs:1425
 msgid "{verdier}\nViftekurve: {kurve}\nLagret {tid}"
 msgstr "{verdier}\nファンカーブ：{kurve}\n保存日時：{tid}"
 
-#: crates/rigg/src/pages/kontroller.rs:1425
+#: crates/rigg/src/pages/kontroller.rs:1431
 msgid "Lagre som ny profil"
 msgstr "新しいプロファイルとして保存"
 
-#: crates/rigg/src/pages/kontroller.rs:1430
+#: crates/rigg/src/pages/kontroller.rs:1436
 msgid "Verdiene på siden er de samme som i «{t}»"
 msgstr "このページの値は「{t}」と一致しています。"
 
-#: crates/rigg/src/pages/kontroller.rs:1431
+#: crates/rigg/src/pages/kontroller.rs:1437
 msgid "Lik «{t}»"
 msgstr "「{t}」と一致"
 
-#: crates/rigg/src/pages/kontroller.rs:1433
+#: crates/rigg/src/pages/kontroller.rs:1439
 msgid "Lagrer utkastet som en ny profil"
 msgstr "下書きを新しいプロファイルとして保存します。"
 
-#: crates/rigg/src/pages/kontroller.rs:1433
+#: crates/rigg/src/pages/kontroller.rs:1439
 msgid "Lagrer verdiene kortet har nå som en ny profil"
 msgstr "GPUの現在値を新しいプロファイルとして保存します。"
 
-#: crates/rigg/src/pages/kontroller.rs:1445
+#: crates/rigg/src/pages/kontroller.rs:1451
 msgid "Alle fem plassene er i bruk. Lagre over en profil fra ⋯-menyen."
 msgstr "5つのスロットがすべて使用中です。上書きするプロファイルの「⋯」メニューを開いてください。"
 
-#: crates/rigg/src/pages/kontroller.rs:1458 crates/rigg/src/pages/kontroller.rs:1460
+#: crates/rigg/src/pages/kontroller.rs:1464 crates/rigg/src/pages/kontroller.rs:1466
 msgid "Profil {n}"
 msgstr "プロファイル {n}"
 
-#: crates/rigg/src/pages/kontroller.rs:1464
+#: crates/rigg/src/pages/kontroller.rs:1470
 msgid "Lagret i «{name}»"
 msgstr "「{name}」に保存しました"
 
-#: crates/rigg/src/pages/kontroller.rs:1485
+#: crates/rigg/src/pages/kontroller.rs:1491
 msgid "«{name}» er tømt"
 msgstr "「{name}」を消去しました"

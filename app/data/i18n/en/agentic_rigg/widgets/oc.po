@@ -8,18 +8,18 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg/src/widgets/oc.rs:231
+#: crates/rigg/src/widgets/oc.rs:212
 msgid "standard {verdi}"
 msgstr "default {verdi}"
 
-#: crates/rigg/src/widgets/oc.rs:703 crates/rigg/src/widgets/oc.rs:704
+#: crates/rigg/src/widgets/oc.rs:776 crates/rigg/src/widgets/oc.rs:777
 msgid "Mer om {what}"
 msgstr "More about {what}"
 
-#: crates/rigg/src/widgets/oc.rs:804
+#: crates/rigg/src/widgets/oc.rs:877
 msgid "Tilbakestill"
 msgstr "Reset"
 
-#: crates/rigg/src/widgets/oc.rs:808
+#: crates/rigg/src/widgets/oc.rs:881
 msgid "Tilbakestill {verdi} til standard"
 msgstr "Restore {verdi} to default"

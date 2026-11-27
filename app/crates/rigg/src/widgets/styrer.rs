@@ -76,12 +76,16 @@ impl TargetLine {
         root.set_accessible_role(gtk::AccessibleRole::Note);
         let icon = Icon::new("gpu", 16);
         icon.add_css_class("tl-icon");
-        icon.set_valign(gtk::Align::Center);
+        icon.set_valign(gtk::Align::Start);
+        icon.set_margin_top(3);
         root.append(&icon);
         let lead = label(tr!("Styrer"), &["tl-lead"]);
         lead.set_valign(gtk::Align::Baseline);
         root.append(&lead);
         let text = hbox(8, &[]);
+        root.set_baseline_position(gtk::BaselinePosition::Top);
+        text.set_baseline_position(gtk::BaselinePosition::Top);
+        text.set_valign(gtk::Align::Baseline);
         text.set_hexpand(true);
         let name = label("", &["tl-name"]);
         name.set_valign(gtk::Align::Baseline);

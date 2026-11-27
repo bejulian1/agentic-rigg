@@ -8,566 +8,570 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg/src/pages/lys_kort.rs:112 crates/rigg/src/pages/lys_kort.rs:602
+#: crates/rigg/src/pages/lys_kort.rs:114 crates/rigg/src/pages/lys_kort.rs:592
 msgid "Pusting"
 msgstr "Breathing"
 
-#: crates/rigg/src/pages/lys_kort.rs:113 crates/rigg/src/pages/lys_kort.rs:603
+#: crates/rigg/src/pages/lys_kort.rs:115 crates/rigg/src/pages/lys_kort.rs:593
 msgid "Regnbue"
 msgstr "Rainbow"
 
-#: crates/rigg/src/pages/lys_kort.rs:114 crates/rigg/src/pages/lys_kort.rs:604
+#: crates/rigg/src/pages/lys_kort.rs:116 crates/rigg/src/pages/lys_kort.rs:594
 msgid "Fargesyklus"
 msgstr "Color cycle"
 
-#: crates/rigg/src/pages/lys_kort.rs:132
+#: crates/rigg/src/pages/lys_kort.rs:134
 msgid "Lysstyringen er opptatt eller tilhører et annet vindu."
 msgstr "Lighting control is busy or owned by another window."
 
-#: crates/rigg/src/pages/lys_kort.rs:133
+#: crates/rigg/src/pages/lys_kort.rs:135
 msgid "Lysprøven finnes ikke lenger eller fristen er ute."
 msgstr "The lighting trial is no longer active or has expired."
 
-#: crates/rigg/src/pages/lys_kort.rs:134
+#: crates/rigg/src/pages/lys_kort.rs:136
 msgid "Nye lysendringer er sperret. Kontroller status og avklar eventuell gjenoppretting."
 msgstr "New lighting changes are blocked. Check the status and resolve any pending restoration."
 
-#: crates/rigg/src/pages/lys_kort.rs:135
+#: crates/rigg/src/pages/lys_kort.rs:137
 msgid "RGB-tillatelsen for dette kortet kunne ikke bekreftes."
 msgstr "RGB permission for this card could not be verified."
 
-#: crates/rigg/src/pages/lys_kort.rs:136
+#: crates/rigg/src/pages/lys_kort.rs:138
 msgid "Det valgte kortet er ikke tilgjengelig."
 msgstr "The selected card is unavailable."
 
-#: crates/rigg/src/pages/lys_kort.rs:137 crates/rigg/src/pages/lys_kort.rs:1642
+#: crates/rigg/src/pages/lys_kort.rs:139 crates/rigg/src/pages/lys_kort.rs:1639
 msgid "RGB-hjelperen støtter ikke dette lysvalget."
 msgstr "The RGB helper does not support this lighting setting."
 
-#: crates/rigg/src/pages/lys_kort.rs:138
+#: crates/rigg/src/pages/lys_kort.rs:140
 msgid "RGB-hjelperen avviste forespørselen. Les status før du prøver igjen."
 msgstr "The RGB helper rejected the request. Check the status before trying again."
 
-#: crates/rigg/src/pages/lys_kort.rs:141
+#: crates/rigg/src/pages/lys_kort.rs:143
 msgid "RGB-forespørselen mislyktes. Sjekk status og se på kortet før du prøver igjen."
 msgstr "The RGB request failed. Check the status and look at the card before trying again."
 
-#: crates/rigg/src/pages/lys_kort.rs:162
+#: crates/rigg/src/pages/lys_kort.rs:164
 msgid "Avlesning av kortlyset mislyktes. Nye lysendringer er sperret."
 msgstr "Could not read card lighting. New lighting changes are blocked."
 
-#: crates/rigg/src/pages/lys_kort.rs:165
+#: crates/rigg/src/pages/lys_kort.rs:167
 msgid "Gjenopprettingen er bekreftet av deg. Effektmodusen er fortsatt ikke maskinelt avlest."
 msgstr "You confirmed restoration. The effect mode still has not been read from hardware."
 
-#: crates/rigg/src/pages/lys_kort.rs:169
+#: crates/rigg/src/pages/lys_kort.rs:171
 msgid "Farge og lysstyrke samsvarer etter tilbakeføring. Se på kortet før du bekrefter gjenopprettingen."
 msgstr "Color and brightness match after rollback. Look at the card before confirming restoration."
 
-#: crates/rigg/src/pages/lys_kort.rs:170
+#: crates/rigg/src/pages/lys_kort.rs:172
 msgid "Tilbakeføringen samsvarer ikke med avlesningen. Nye fargeendringer er sperret."
 msgstr "Rollback does not match the readback. New color changes are blocked."
 
-#: crates/rigg/src/pages/lys_kort.rs:171 crates/rigg/src/pages/lys_kort.rs:172
+#: crates/rigg/src/pages/lys_kort.rs:173 crates/rigg/src/pages/lys_kort.rs:174
 msgid "Gjenopprettingen er uavklart. Nye fargeendringer er sperret."
 msgstr "Restoration is unresolved. New color changes are blocked."
 
-#: crates/rigg/src/pages/lys_kort.rs:178
+#: crates/rigg/src/pages/lys_kort.rs:180
 msgid "Gjenopprett lagret Av"
 msgstr "Restore saved Off setting"
 
-#: crates/rigg/src/pages/lys_kort.rs:178
+#: crates/rigg/src/pages/lys_kort.rs:180
 msgid "Gjenopprett lagret lys"
 msgstr "Restore saved lighting"
 
-#: crates/rigg/src/pages/lys_kort.rs:329
+#: crates/rigg/src/pages/lys_kort.rs:319
 msgid "Svart med 0 %, holdt mens appen er åpen"
 msgstr "Black at 0 %, held while the app is open"
 
-#: crates/rigg/src/pages/lys_kort.rs:330
+#: crates/rigg/src/pages/lys_kort.rs:320
 msgid "Svart med 100 %"
 msgstr "Black at 100 %"
 
-#: crates/rigg/src/pages/lys_kort.rs:331
+#: crates/rigg/src/pages/lys_kort.rs:321
 msgid "Svart med 0 %"
 msgstr "Black at 0 %"
 
-#: crates/rigg/src/pages/lys_kort.rs:332
+#: crates/rigg/src/pages/lys_kort.rs:322
 msgid "Valgt farge med 0 %"
 msgstr "Chosen color at 0 %"
 
-#: crates/rigg/src/pages/lys_kort.rs:333
+#: crates/rigg/src/pages/lys_kort.rs:323
 msgid "Nesten svart (#010101) med 1 %"
 msgstr "Almost black (#010101) at 1 %"
 
-#: crates/rigg/src/pages/lys_kort.rs:363 crates/rigg/src/pages/lys_kort.rs:366
+#: crates/rigg/src/pages/lys_kort.rs:353 crates/rigg/src/pages/lys_kort.rs:356
 msgid "Av"
 msgstr "Off"
 
-#: crates/rigg/src/pages/lys_kort.rs:368
+#: crates/rigg/src/pages/lys_kort.rs:358
 msgid "fast farge {farge} · {styrke}"
 msgstr "static color {farge} · {styrke}"
 
-#: crates/rigg/src/pages/lys_kort.rs:369
+#: crates/rigg/src/pages/lys_kort.rs:359
 msgid "Ingen kjent innstilling"
 msgstr "No known setting"
 
-#: crates/rigg/src/pages/lys_kort.rs:386 crates/rigg/src/pages/lys_kort.rs:1556
+#: crates/rigg/src/pages/lys_kort.rs:376 crates/rigg/src/pages/lys_kort.rs:1546
 msgid "{farge} · rå lysstyrke {styrke}, utenfor støttet område"
 msgstr "{farge} · raw brightness {styrke}, outside supported range"
 
-#: crates/rigg/src/pages/lys_kort.rs:387
+#: crates/rigg/src/pages/lys_kort.rs:377
 msgid "et lys som ikke kunne leses"
 msgstr "lighting that could not be read"
 
-#: crates/rigg/src/pages/lys_kort.rs:557
+#: crates/rigg/src/pages/lys_kort.rs:547
 msgid "Lys på kortet"
 msgstr "Card lighting"
 
-#: crates/rigg/src/pages/lys_kort.rs:562 crates/rigg/src/pages/lys_kort.rs:1443
+#: crates/rigg/src/pages/lys_kort.rs:552 crates/rigg/src/pages/lys_kort.rs:1423
 msgid "Ikke aktivert"
 msgstr "Not enabled"
 
-#: crates/rigg/src/pages/lys_kort.rs:596
+#: crates/rigg/src/pages/lys_kort.rs:586
 msgid "Kortlys på eller av"
 msgstr "Card lighting on or off"
 
-#: crates/rigg/src/pages/lys_kort.rs:597
+#: crates/rigg/src/pages/lys_kort.rs:587
 msgid "Kortlys"
 msgstr "Card lighting"
 
-#: crates/rigg/src/pages/lys_kort.rs:601
+#: crates/rigg/src/pages/lys_kort.rs:591
 msgid "Fast farge"
 msgstr "Static color"
 
-#: crates/rigg/src/pages/lys_kort.rs:607
+#: crates/rigg/src/pages/lys_kort.rs:597
 msgid "Fysisk lysmodus"
 msgstr "Physical lighting mode"
 
-#: crates/rigg/src/pages/lys_kort.rs:611
+#: crates/rigg/src/pages/lys_kort.rs:601
 msgid "Modus"
 msgstr "Mode"
 
-#: crates/rigg/src/pages/lys_kort.rs:633
+#: crates/rigg/src/pages/lys_kort.rs:618
 msgid "Farge på kortet, seks heksadesimale siffer"
 msgstr "Card color, six hexadecimal digits"
 
-#: crates/rigg/src/pages/lys_kort.rs:640 crates/rigg/src/pages/lys_kort.rs:641
+#: crates/rigg/src/pages/lys_kort.rs:631 crates/rigg/src/pages/lys_kort.rs:632
 msgid "Velg farge …"
 msgstr "Choose color…"
 
-#: crates/rigg/src/pages/lys_kort.rs:647
+#: crates/rigg/src/pages/lys_kort.rs:638
 msgid "Hurtigfarger"
 msgstr "Quick colors"
 
-#: crates/rigg/src/pages/lys_kort.rs:679
+#: crates/rigg/src/pages/lys_kort.rs:670
 msgid "Farge"
 msgstr "Color"
 
-#: crates/rigg/src/pages/lys_kort.rs:689 crates/rigg/src/pages/lys_kort.rs:699
+#: crates/rigg/src/pages/lys_kort.rs:680 crates/rigg/src/pages/lys_kort.rs:690
 msgid "Kortlysets lysstyrke i prosent"
 msgstr "Card lighting brightness as a percentage"
 
-#: crates/rigg/src/pages/lys_kort.rs:705
+#: crates/rigg/src/pages/lys_kort.rs:696
 msgid "Lysstyrke"
 msgstr "Brightness"
 
-#: crates/rigg/src/pages/lys_kort.rs:708
+#: crates/rigg/src/pages/lys_kort.rs:699
 msgid "Behold også etter at appen lukkes"
 msgstr "Keep after the app closes"
 
-#: crates/rigg/src/pages/lys_kort.rs:736
+#: crates/rigg/src/pages/lys_kort.rs:727
 msgid "Bruk"
 msgstr "Apply"
 
-#: crates/rigg/src/pages/lys_kort.rs:739
+#: crates/rigg/src/pages/lys_kort.rs:730
 msgid "Gjenopprett utgangspunkt"
 msgstr "Restore original settings"
 
-#: crates/rigg/src/pages/lys_kort.rs:742 crates/rigg/src/pages/lys_kort.rs:1706
+#: crates/rigg/src/pages/lys_kort.rs:733 crates/rigg/src/pages/lys_kort.rs:1700
 msgid "Avslutt lysstyring"
 msgstr "Release lighting control"
 
-#: crates/rigg/src/pages/lys_kort.rs:743
+#: crates/rigg/src/pages/lys_kort.rs:734
 msgid "Bekreft lyset …"
 msgstr "Confirm the lighting…"
 
-#: crates/rigg/src/pages/lys_kort.rs:759
+#: crates/rigg/src/pages/lys_kort.rs:750 crates/rigg/src/pages/lys_kort.rs:1602
 msgid "Behold"
 msgstr "Keep"
 
-#: crates/rigg/src/pages/lys_kort.rs:760
+#: crates/rigg/src/pages/lys_kort.rs:751
 msgid "Rull tilbake"
 msgstr "Roll back"
 
-#: crates/rigg/src/pages/lys_kort.rs:770
+#: crates/rigg/src/pages/lys_kort.rs:761
 msgid "Avlesning: ukjent. Kortet er ikke undersøkt av denne visningen."
 msgstr "Readback unknown. This view has not checked the card."
 
-#: crates/rigg/src/pages/lys_kort.rs:774
+#: crates/rigg/src/pages/lys_kort.rs:765
 msgid "Farge og lysstyrke kan leses tilbake. Effektmodusen kan ikke leses; en visuell bekreftelse er din observasjon."
 msgstr "Color and brightness can be read back. The effect mode cannot; visual confirmation is based on what you see."
 
-#: crates/rigg/src/pages/lys_kort.rs:775
+#: crates/rigg/src/pages/lys_kort.rs:766
 msgid "Agentic HW Monitor støtter Palit GeForce RTX 2080 Super JetStream via den separate RGB-hjelperen."
 msgstr "Agentic HW Monitor supports the Palit GeForce RTX 2080 Super JetStream through the separate RGB helper."
 
-#: crates/rigg/src/pages/lys_kort.rs:784 crates/rigg/src/pages/lys_kort.rs:786
+#: crates/rigg/src/pages/lys_kort.rs:775 crates/rigg/src/pages/lys_kort.rs:777
 msgid "Skrivemåte for «Av»"
 msgstr "How “Off” is written"
 
-#: crates/rigg/src/pages/lys_kort.rs:790
+#: crates/rigg/src/pages/lys_kort.rs:781
 msgid "Sjekk igjen"
 msgstr "Check again"
 
-#: crates/rigg/src/pages/lys_kort.rs:791
+#: crates/rigg/src/pages/lys_kort.rs:782
 msgid "Åpne Innstillinger › Skjermkortstyring"
 msgstr "Open Settings › GPU control"
 
-#: crates/rigg/src/pages/lys_kort.rs:792 crates/rigg/src/pages/lys_kort.rs:1661 crates/rigg/src/pages/lys_kort.rs:2260
+#: crates/rigg/src/pages/lys_kort.rs:783 crates/rigg/src/pages/lys_kort.rs:1652 crates/rigg/src/pages/lys_kort.rs:2263
 msgid "Jeg ser én fast farge"
 msgstr "I see one steady color"
 
-#: crates/rigg/src/pages/lys_kort.rs:795
+#: crates/rigg/src/pages/lys_kort.rs:786
 msgid "Tilbake til fabrikklyset"
 msgstr "Back to factory lighting"
 
-#: crates/rigg/src/pages/lys_kort.rs:799
+#: crates/rigg/src/pages/lys_kort.rs:790
 msgid "Detaljer og feilsøking"
 msgstr "Details and troubleshooting"
 
-#: crates/rigg/src/pages/lys_kort.rs:916
-msgid "Velg farge"
-msgstr "Choose color"
-
-#: crates/rigg/src/pages/lys_kort.rs:1021
+#: crates/rigg/src/pages/lys_kort.rs:999
 msgid "Jeg ser at lyset på kortet er slukket."
 msgstr "I can see that the card lighting is off."
 
-#: crates/rigg/src/pages/lys_kort.rs:1022
+#: crates/rigg/src/pages/lys_kort.rs:1000
 msgid "Jeg ser at lyset viser den forventede faste fargen."
 msgstr "I can see the expected static color on the card."
 
-#: crates/rigg/src/pages/lys_kort.rs:1024 crates/rigg/src/pages/lys_kort.rs:2024
+#: crates/rigg/src/pages/lys_kort.rs:1002 crates/rigg/src/pages/lys_kort.rs:2024
 msgid "Bekreft lyset på kortet"
 msgstr "Confirm card lighting"
 
-#: crates/rigg/src/pages/lys_kort.rs:1024
+#: crates/rigg/src/pages/lys_kort.rs:1002
 msgid "Forventet lys: {lys}.\n\nSe på det fysiske kortet. Samsvarende fargeverdier alene er ikke nok. Hjelperen leser verdiene på nytt før observasjonen din lagres."
 msgstr "Expected lighting: {lys}.\n\nLook at the physical card. Matching color values alone are not enough. The helper reads the values again before recording your observation."
 
-#: crates/rigg/src/pages/lys_kort.rs:1024 crates/rigg/src/pages/lys_kort.rs:2046
+#: crates/rigg/src/pages/lys_kort.rs:1002 crates/rigg/src/pages/lys_kort.rs:2046
 msgid "Bekreft min observasjon"
 msgstr "Confirm what I see"
 
-#: crates/rigg/src/pages/lys_kort.rs:1030 crates/rigg/src/pages/lys_kort.rs:1035
+#: crates/rigg/src/pages/lys_kort.rs:1008 crates/rigg/src/pages/lys_kort.rs:1013
 msgid "Lystilstanden er endret"
 msgstr "Lighting state has changed"
 
-#: crates/rigg/src/pages/lys_kort.rs:1030 crates/rigg/src/pages/lys_kort.rs:1035
+#: crates/rigg/src/pages/lys_kort.rs:1008 crates/rigg/src/pages/lys_kort.rs:1013
 msgid "Kontroller det nye forventede lyset og åpne bekreftelsen på nytt."
 msgstr "Check the new expected lighting and reopen the confirmation."
 
-#: crates/rigg/src/pages/lys_kort.rs:1276 crates/rigg/src/pages/lys_kort.rs:1688
+#: crates/rigg/src/pages/lys_kort.rs:1255 crates/rigg/src/pages/lys_kort.rs:1679
 msgid "Kortet viser ikke det lagrede utgangspunktet"
 msgstr "The card does not show the stored baseline"
 
-#: crates/rigg/src/pages/lys_kort.rs:1283
+#: crates/rigg/src/pages/lys_kort.rs:1262
 msgid "Kunne ikke lese kortlyset"
 msgstr "Could not read card lighting"
 
-#: crates/rigg/src/pages/lys_kort.rs:1284 crates/rigg/src/pages/lys_kort.rs:1329
+#: crates/rigg/src/pages/lys_kort.rs:1263 crates/rigg/src/pages/lys_kort.rs:1308
 msgid "Valget ble ikke lagret som varig"
 msgstr "The choice was not saved as persistent"
 
-#: crates/rigg/src/pages/lys_kort.rs:1285 crates/rigg/src/pages/lys_kort.rs:1333
+#: crates/rigg/src/pages/lys_kort.rs:1264 crates/rigg/src/pages/lys_kort.rs:1312
 msgid "«Av» holdes ikke"
 msgstr "“Off” is not being held"
 
-#: crates/rigg/src/pages/lys_kort.rs:1286 crates/rigg/src/pages/lys_kort.rs:1673
+#: crates/rigg/src/pages/lys_kort.rs:1265 crates/rigg/src/pages/lys_kort.rs:1664
 msgid "Lysendringen ble ikke fullført"
 msgstr "Lighting change did not complete"
 
-#: crates/rigg/src/pages/lys_kort.rs:1330
+#: crates/rigg/src/pages/lys_kort.rs:1309
 msgid "Lyset er beholdt, men ikke lagret som kortets utgangspunkt. Trykk «Bruk» og «Behold» igjen for å prøve på nytt."
 msgstr "The lighting was kept but not saved as the card’s baseline. Press “Apply” and “Keep” again to try once more."
 
-#: crates/rigg/src/pages/lys_kort.rs:1334
+#: crates/rigg/src/pages/lys_kort.rs:1313
 msgid "«Av» er satt, men skrives ikke på nytt mens appen er åpen. Trykk «Bruk» igjen for å starte det."
 msgstr "“Off” is set but is not being rewritten while the app is open. Press “Apply” again to start it."
 
-#: crates/rigg/src/pages/lys_kort.rs:1422 crates/rigg/src/pages/lys_kort.rs:2262
+#: crates/rigg/src/pages/lys_kort.rs:1402 crates/rigg/src/pages/lys_kort.rs:2265
 msgid "Bekreft kortets første lysopptak"
 msgstr "Confirm the card’s initial lighting"
 
-#: crates/rigg/src/pages/lys_kort.rs:1422 crates/rigg/src/pages/lys_kort.rs:1679 crates/rigg/src/pages/lys_kort.rs:2262
+#: crates/rigg/src/pages/lys_kort.rs:1402 crates/rigg/src/pages/lys_kort.rs:1670 crates/rigg/src/pages/lys_kort.rs:2265
 msgid "Lyset må avklares"
 msgstr "The lighting must be resolved"
 
-#: crates/rigg/src/pages/lys_kort.rs:1424
+#: crates/rigg/src/pages/lys_kort.rs:1404
 msgid "Se på kortet. Bekreft bare hvis det viser én fast farge."
 msgstr "Look at the card. Confirm only if it shows one steady color."
 
-#: crates/rigg/src/pages/lys_kort.rs:1426
+#: crates/rigg/src/pages/lys_kort.rs:1406
 msgid "Behold lyset du ser, eller gjenopprett det lagrede lyset."
 msgstr "Keep the lighting you see or restore the saved lighting."
 
-#: crates/rigg/src/pages/lys_kort.rs:1429
+#: crates/rigg/src/pages/lys_kort.rs:1409
 msgid "Venter …"
 msgstr "Waiting…"
 
-#: crates/rigg/src/pages/lys_kort.rs:1431
+#: crates/rigg/src/pages/lys_kort.rs:1411
 msgid "Frakoblet"
 msgstr "Disconnected"
 
-#: crates/rigg/src/pages/lys_kort.rs:1433
+#: crates/rigg/src/pages/lys_kort.rs:1413
 msgid "Kortet er utilgjengelig"
 msgstr "Card unavailable"
 
-#: crates/rigg/src/pages/lys_kort.rs:1435
+#: crates/rigg/src/pages/lys_kort.rs:1415
 msgid "Ikke klar"
 msgstr "Not ready"
 
-#: crates/rigg/src/pages/lys_kort.rs:1437
+#: crates/rigg/src/pages/lys_kort.rs:1417
 msgid "Må oppdateres"
 msgstr "Needs update"
 
-#: crates/rigg/src/pages/lys_kort.rs:1439 crates/rigg/src/pages/lys_kort.rs:1488
+#: crates/rigg/src/pages/lys_kort.rs:1419 crates/rigg/src/pages/lys_kort.rs:1477
 msgid "Ikke støttet"
 msgstr "Not supported"
 
-#: crates/rigg/src/pages/lys_kort.rs:1441 crates/rigg/src/pages/lys_kort.rs:1490
+#: crates/rigg/src/pages/lys_kort.rs:1421 crates/rigg/src/pages/lys_kort.rs:1479
 msgid "Venter på enhet"
 msgstr "Waiting for device"
 
-#: crates/rigg/src/pages/lys_kort.rs:1445
+#: crates/rigg/src/pages/lys_kort.rs:1425
 msgid "Prøve pågår"
 msgstr "Trial active"
 
-#: crates/rigg/src/pages/lys_kort.rs:1447 crates/rigg/src/pages/lys_kort.rs:2255
+#: crates/rigg/src/pages/lys_kort.rs:1427 crates/rigg/src/pages/lys_kort.rs:2258
 msgid "Må avklares"
 msgstr "Needs resolution"
 
-#: crates/rigg/src/pages/lys_kort.rs:1449
+#: crates/rigg/src/pages/lys_kort.rs:1429
 msgid "Avviker"
 msgstr "Differs"
 
-#: crates/rigg/src/pages/lys_kort.rs:1451
+#: crates/rigg/src/pages/lys_kort.rs:1431
 msgid "Effekt aktiv"
 msgstr "Effect active"
 
-#: crates/rigg/src/pages/lys_kort.rs:1453
+#: crates/rigg/src/pages/lys_kort.rs:1433
 msgid "Lyset er av"
 msgstr "Lighting off"
 
-#: crates/rigg/src/pages/lys_kort.rs:1455
+#: crates/rigg/src/pages/lys_kort.rs:1435
 msgid "Klar"
 msgstr "Ready"
 
-#: crates/rigg/src/pages/lys_kort.rs:1462
+#: crates/rigg/src/pages/lys_kort.rs:1442
 msgid "Simulerte RGB-data · {status}"
 msgstr "Simulated RGB data · {status}"
 
-#: crates/rigg/src/pages/lys_kort.rs:1473
+#: crates/rigg/src/pages/lys_kort.rs:1464
 msgid "Venter på svar. Ingen ny endring kan sendes nå."
 msgstr "Waiting for a response. No new changes can be sent now."
 
-#: crates/rigg/src/pages/lys_kort.rs:1475
+#: crates/rigg/src/pages/lys_kort.rs:1466
 msgid "Forbindelsen til tjenesten er brutt. Hjelperen håndterer eventuell tilbakeføring."
 msgstr "The service connection was lost. The helper handles any rollback."
 
-#: crates/rigg/src/pages/lys_kort.rs:1480
+#: crates/rigg/src/pages/lys_kort.rs:1471
 msgid "Kortet er ikke tilgjengelig. Nye lysendringer og aktivering er sperret."
 msgstr "The card is unavailable. Lighting changes and activation are blocked."
 
-#: crates/rigg/src/pages/lys_kort.rs:1484
+#: crates/rigg/src/pages/lys_kort.rs:1473
 msgid "Et annet vindu styrer kortlyset. Her vises bare status."
 msgstr "Another window controls the card lighting. Only status is shown here."
 
-#: crates/rigg/src/pages/lys_kort.rs:1486
+#: crates/rigg/src/pages/lys_kort.rs:1475
 msgid "Hele kortlyset er én sone. Ingenting sendes før du trykker «Bruk»."
 msgstr "The card lighting is one zone. Nothing is sent until you press “Apply”."
 
-#: crates/rigg/src/pages/lys_kort.rs:1492 crates/rigg/src/pages/lys_kort.rs:1498
+#: crates/rigg/src/pages/lys_kort.rs:1481 crates/rigg/src/pages/lys_kort.rs:1487
 msgid "RGB-hjelperen er ikke klar."
 msgstr "The RGB helper is unavailable."
 
-#: crates/rigg/src/pages/lys_kort.rs:1494
+#: crates/rigg/src/pages/lys_kort.rs:1483
 msgid "Skjermkortstyring er slått av."
 msgstr "GPU control is off."
 
-#: crates/rigg/src/pages/lys_kort.rs:1496
+#: crates/rigg/src/pages/lys_kort.rs:1485
 msgid "Tillatelsen gjelder et annet skjermkort."
 msgstr "Permission was granted for another graphics card."
 
-#: crates/rigg/src/pages/lys_kort.rs:1511
+#: crates/rigg/src/pages/lys_kort.rs:1490
+msgid "Avklar lyset øverst før nye endringer kan sendes."
+msgstr "Resolve the lighting issue above before sending more changes."
+
+#: crates/rigg/src/pages/lys_kort.rs:1501
 msgid "Venter på kortets PCI-adresse og UUID."
 msgstr "Waiting for the card’s PCI address and UUID."
 
-#: crates/rigg/src/pages/lys_kort.rs:1512
+#: crates/rigg/src/pages/lys_kort.rs:1502
 msgid "Valgt kort: {pci}"
 msgstr "Selected card: {pci}"
 
-#: crates/rigg/src/pages/lys_kort.rs:1517
+#: crates/rigg/src/pages/lys_kort.rs:1507
 msgid "{effekt} er valgt. Nå vises bare startfargen; animasjonen starter først etter «Behold»."
 msgstr "{effekt} is selected. Only the starting color is shown; the animation starts after you select Keep."
 
-#: crates/rigg/src/pages/lys_kort.rs:1521
+#: crates/rigg/src/pages/lys_kort.rs:1511
 msgid "{effekt} er aktiv på hele kortlyset. Velg en annen modus eller farge og trykk «Bruk» for å bytte, eller «Stopp effekten» for å gå tilbake til utgangspunktet."
 msgstr "{effekt} is active on all card lighting. Choose another mode or color and press “Apply” to switch, or “Stop the effect” to return to the baseline."
 
-#: crates/rigg/src/pages/lys_kort.rs:1527
+#: crates/rigg/src/pages/lys_kort.rs:1517
 msgid "Pusting varierer lysstyrken i fargen du velger."
 msgstr "Breathing varies the brightness of the selected color."
 
-#: crates/rigg/src/pages/lys_kort.rs:1529
+#: crates/rigg/src/pages/lys_kort.rs:1519
 msgid "Regnbue går gjennom hele fargespekteret fra fargetonen du velger. Gråtoner starter på rødt."
 msgstr "Rainbow runs through the full color spectrum starting at the selected hue. Grays start at red."
 
-#: crates/rigg/src/pages/lys_kort.rs:1532
+#: crates/rigg/src/pages/lys_kort.rs:1522
 msgid "Fargesyklus veksler mellom seks tydelige fargetoner fra fargetonen du velger. Gråtoner starter på rødt."
 msgstr "Color cycle alternates between six distinct hues starting at the selected hue. Grays start at red."
 
-#: crates/rigg/src/pages/lys_kort.rs:1535
+#: crates/rigg/src/pages/lys_kort.rs:1525
 msgid "{detalj} Først prøves startfargen; «Behold» starter animasjonen på én lyssone."
 msgstr "{detalj} The starting color is tried first. Keep starts the animation on one lighting zone."
 
-#: crates/rigg/src/pages/lys_kort.rs:1544
+#: crates/rigg/src/pages/lys_kort.rs:1534
 msgid "RGB-hjelperen meldte en driftsfeil. Kontroller lyset før du fortsetter."
 msgstr "The RGB helper reported a runtime error. Check the lighting before continuing."
 
-#: crates/rigg/src/pages/lys_kort.rs:1561
+#: crates/rigg/src/pages/lys_kort.rs:1551
 msgid "Lagret utgangspunkt: {lys}. Dette er ikke en ny avlesning."
 msgstr "Saved baseline: {lys}. This is not a fresh reading."
 
-#: crates/rigg/src/pages/lys_kort.rs:1564
+#: crates/rigg/src/pages/lys_kort.rs:1554
 msgid "Sist lest fra kortet: {lys}. Effektmodus: ukjent."
 msgstr "Last read from the card: {lys}. Effect mode: unknown."
 
-#: crates/rigg/src/pages/lys_kort.rs:1566
+#: crates/rigg/src/pages/lys_kort.rs:1556
 msgid "Avlesning: ukjent. Effektmodusen er ikke bekreftet."
 msgstr "Readback unknown. The effect mode is not confirmed."
 
-#: crates/rigg/src/pages/lys_kort.rs:1572
+#: crates/rigg/src/pages/lys_kort.rs:1562
 msgid "Sist bekreftede valg: {lys}. Valget er ikke bevis på avlest effektmodus."
 msgstr "Last confirmed choice: {lys}. This does not verify the effect mode by readback."
 
-#: crates/rigg/src/pages/lys_kort.rs:1584
+#: crates/rigg/src/pages/lys_kort.rs:1575
 msgid "Kontroller startfargen på kortet. «Behold» starter animasjonen; «Rull tilbake» eller fristutløp går tilbake til utgangspunktet."
 msgstr "Check the starting color on the card. Keep starts the animation; Roll back or a timeout returns to the baseline."
 
-#: crates/rigg/src/pages/lys_kort.rs:1586
+#: crates/rigg/src/pages/lys_kort.rs:1577
 msgid "Se på det fysiske kortet før du beholder endringen. Uten bekreftelse forsøker hjelperen å rulle tilbake."
 msgstr "Look at the physical card before keeping the change. Without confirmation, the helper attempts to roll it back."
 
-#: crates/rigg/src/pages/lys_kort.rs:1599
+#: crates/rigg/src/pages/lys_kort.rs:1590
 msgid "fristen styres av hjelperen"
 msgstr "deadline managed by the helper"
 
-#: crates/rigg/src/pages/lys_kort.rs:1601
+#: crates/rigg/src/pages/lys_kort.rs:1592
 msgid "fristen er ute; venter på status"
 msgstr "deadline expired; waiting for status"
 
-#: crates/rigg/src/pages/lys_kort.rs:1603
+#: crates/rigg/src/pages/lys_kort.rs:1594
 msgid "bekreft innen {tid}"
 msgstr "confirm within {tid}"
 
-#: crates/rigg/src/pages/lys_kort.rs:1634
+#: crates/rigg/src/pages/lys_kort.rs:1603
+msgid "Behold ({sek})"
+msgstr "Keep ({sek})"
+
+#: crates/rigg/src/pages/lys_kort.rs:1631
 msgid "Oppgi en gyldig fargekode på seks tegn, for eksempel #3A7BF0."
 msgstr "Enter a valid six-character hex color code, such as #3A7BF0."
 
-#: crates/rigg/src/pages/lys_kort.rs:1638
+#: crates/rigg/src/pages/lys_kort.rs:1635
 msgid "Bekreft eller rull tilbake prøven som pågår før du bruker en ny innstilling."
 msgstr "Keep or revert the pending test before applying a new setting."
 
-#: crates/rigg/src/pages/lys_kort.rs:1661 crates/rigg/src/pages/lys_kort.rs:2260
+#: crates/rigg/src/pages/lys_kort.rs:1652 crates/rigg/src/pages/lys_kort.rs:2263
 msgid "Behold lyset jeg ser"
 msgstr "Keep the light I see"
 
-#: crates/rigg/src/pages/lys_kort.rs:1664
+#: crates/rigg/src/pages/lys_kort.rs:1655
 msgid "Avlest lys: {lys}"
 msgstr "Lighting readback: {lys}"
 
-#: crates/rigg/src/pages/lys_kort.rs:1666
+#: crates/rigg/src/pages/lys_kort.rs:1657
 msgid "Lagret lys: {lys}"
 msgstr "Saved lighting: {lys}"
 
-#: crates/rigg/src/pages/lys_kort.rs:1669
+#: crates/rigg/src/pages/lys_kort.rs:1660
 msgid "Fabrikklys: {lys}"
 msgstr "Factory lighting: {lys}"
 
-#: crates/rigg/src/pages/lys_kort.rs:1676
+#: crates/rigg/src/pages/lys_kort.rs:1667
 msgid "Se på kortet og bekreft lyset"
 msgstr "Look at the card and confirm the lighting"
 
-#: crates/rigg/src/pages/lys_kort.rs:1677
+#: crates/rigg/src/pages/lys_kort.rs:1668
 msgid "Kortet er satt tilbake til {lys}. Hjelperen kan bare lese fargeverdiene, ikke hva kortet faktisk lyser. Bekreft når kortet viser dette, eller gjenopprett på nytt."
 msgstr "The card has been set back to {lys}. The helper can only read the color values, not what the card actually shows. Confirm when the card shows this, or restore again."
 
-#: crates/rigg/src/pages/lys_kort.rs:1681
+#: crates/rigg/src/pages/lys_kort.rs:1672
 msgid "RGB-hjelperen meldte en driftsfeil. Gjenopprett utgangspunktet og kontroller lyset før du fortsetter."
 msgstr "The RGB helper reported a runtime error. Restore the baseline and check the lighting before you continue."
 
-#: crates/rigg/src/pages/lys_kort.rs:1686
+#: crates/rigg/src/pages/lys_kort.rs:1677
 msgid "Utgangspunktet er {lys}."
 msgstr "The baseline is {lys}."
 
-#: crates/rigg/src/pages/lys_kort.rs:1690
+#: crates/rigg/src/pages/lys_kort.rs:1681
 msgid "Kortet viser {lest}. Velg «{knapp}» for å gjenopprette {lys}, og bekreft det du ser."
 msgstr "The card shows {lest}. Select “{knapp}” to restore {lys}, then confirm what you see."
 
-#: crates/rigg/src/pages/lys_kort.rs:1696
+#: crates/rigg/src/pages/lys_kort.rs:1690
 msgid "Gjenopprett på nytt"
 msgstr "Restore again"
 
-#: crates/rigg/src/pages/lys_kort.rs:1702 crates/rigg/src/pages/lys_kort.rs:1980
+#: crates/rigg/src/pages/lys_kort.rs:1696 crates/rigg/src/pages/lys_kort.rs:1980
 msgid "Stopp effekten"
 msgstr "Stop the effect"
 
-#: crates/rigg/src/pages/lys_kort.rs:1704 crates/rigg/src/pages/lys_kort.rs:2083
+#: crates/rigg/src/pages/lys_kort.rs:1698 crates/rigg/src/pages/lys_kort.rs:2083
 msgid "Slutt å holde av"
 msgstr "Stop holding off"
 
-#: crates/rigg/src/pages/lys_kort.rs:1708
+#: crates/rigg/src/pages/lys_kort.rs:1702
 msgid "Kortet går tilbake til det lagrede utgangspunktet, og appen slipper lyset."
 msgstr "The card returns to the saved baseline, and the app releases the lighting."
 
-#: crates/rigg/src/pages/lys_kort.rs:1715
+#: crates/rigg/src/pages/lys_kort.rs:1709
 msgid "det lagrede utgangspunktet"
 msgstr "the saved baseline"
 
-#: crates/rigg/src/pages/lys_kort.rs:1720
+#: crates/rigg/src/pages/lys_kort.rs:1714
 msgid "Effekter kjører bare mens appen er åpen. Når appen lukkes, stopper effekten og kortet går tilbake til {lys}."
 msgstr "Effects run only while the app is open. When the app closes, the effect stops and the card returns to {lys}."
 
-#: crates/rigg/src/pages/lys_kort.rs:1724
+#: crates/rigg/src/pages/lys_kort.rs:1718
 msgid "«Av» er kortets utgangspunkt og skrives ikke tilbake når appen lukkes. Mens appen er åpen, skrives det på nytt hvert 2. sekund, fordi kortet ellers kan gå tilbake til fabrikklyset av seg selv. Det kan også skje etter at appen er lukket."
 msgstr "“Off” is the card’s baseline and is not written back when the app closes. While the app is open, it is rewritten every 2 seconds, because the card may otherwise return to its factory lighting by itself. That can also happen after the app has closed."
 
-#: crates/rigg/src/pages/lys_kort.rs:1726
+#: crates/rigg/src/pages/lys_kort.rs:1720
 msgid "«Av» er kortets utgangspunkt, men skrives ikke på nytt nå. Trykk «Bruk» for å holde det mens appen er åpen."
 msgstr "“Off” is the card’s baseline but is not being rewritten now. Press “Apply” to hold it while the app is open."
 
-#: crates/rigg/src/pages/lys_kort.rs:1729
+#: crates/rigg/src/pages/lys_kort.rs:1723
 msgid "«Av» blir kortets utgangspunkt etter «Behold» og skrives ikke tilbake når appen lukkes. Mens appen er åpen, skrives det på nytt hvert 2. sekund, fordi kortet ellers kan gå tilbake til fabrikklyset av seg selv. Det kan også skje etter at appen er lukket."
 msgstr "After “Keep”, “Off” becomes the card’s baseline and is not written back when the app closes. While the app is open, it is rewritten every 2 seconds, because the card may otherwise return to its factory lighting by itself. That can also happen after the app has closed."
 
-#: crates/rigg/src/pages/lys_kort.rs:1731
+#: crates/rigg/src/pages/lys_kort.rs:1725
 msgid "«Av» skrives på nytt hvert 2. sekund mens appen er åpen, fordi kortet ellers kan gå tilbake til fabrikklyset av seg selv. Når appen lukkes, går kortet tilbake til {lys}."
 msgstr "“Off” is rewritten every 2 seconds while the app is open, because the card may otherwise return to its factory lighting by itself. When the app closes, the card returns to {lys}."
 
-#: crates/rigg/src/pages/lys_kort.rs:1733
+#: crates/rigg/src/pages/lys_kort.rs:1727
 msgid "Etter «Behold» blir valget kortets utgangspunkt og skrives ikke tilbake når appen lukkes. Om kortet selv beholder lyset etter omstart, er ikke verifisert."
 msgstr "After “Keep”, the choice becomes the card’s baseline and is not reverted when the app closes. Whether the card itself keeps the lighting after a restart has not been verified."
 
-#: crates/rigg/src/pages/lys_kort.rs:1735
+#: crates/rigg/src/pages/lys_kort.rs:1729
 msgid "Når appen lukkes, går kortet tilbake til {lys}."
 msgstr "When the app closes, the card returns to {lys}."
 
-#: crates/rigg/src/pages/lys_kort.rs:1744
+#: crates/rigg/src/pages/lys_kort.rs:1738
 msgid "Fabrikklyset: {lys}. Prøves som et vanlig valg; «Behold» gjør det til utgangspunktet igjen."
 msgstr "Factory lighting: {lys}. Tried as a normal choice; “Keep” makes it the baseline again."
 
-#: crates/rigg/src/pages/lys_kort.rs:1827
+#: crates/rigg/src/pages/lys_kort.rs:1821
 msgid "Avbryt"
 msgstr "Cancel"

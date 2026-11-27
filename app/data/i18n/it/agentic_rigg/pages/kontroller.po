@@ -46,19 +46,19 @@ msgstr[1] "{antall} punti"
 msgid "Effektgrense"
 msgstr "Limite di potenza"
 
-#: crates/rigg/src/pages/kontroller.rs:247
-msgid "Kjerneklokke-offset"
-msgstr "Offset frequenza del core"
+#: crates/rigg/src/pages/kontroller.rs:247 crates/rigg/src/pages/kontroller.rs:541
+msgid "GPU-justering"
+msgstr "Offset frequenza GPU"
 
-#: crates/rigg/src/pages/kontroller.rs:248
-msgid "Minneklokke-offset"
+#: crates/rigg/src/pages/kontroller.rs:248 crates/rigg/src/pages/kontroller.rs:542
+msgid "Minnejustering"
 msgstr "Offset frequenza memoria"
 
 #: crates/rigg/src/pages/kontroller.rs:249 crates/rigg/src/pages/kontroller.rs:288 crates/rigg/src/pages/kontroller.rs:543
 msgid "Temperaturmål"
 msgstr "Temperatura obiettivo"
 
-#: crates/rigg/src/pages/kontroller.rs:250 crates/rigg/src/pages/kontroller.rs:572
+#: crates/rigg/src/pages/kontroller.rs:250 crates/rigg/src/pages/kontroller.rs:573
 msgid "Viftemodus"
 msgstr "Modalità ventole"
 
@@ -110,19 +110,19 @@ msgstr "Mantieni il minimo fino a"
 msgid "Viftekurve"
 msgstr "Curva delle ventole"
 
-#: crates/rigg/src/pages/kontroller.rs:266 crates/rigg/src/pages/kontroller.rs:572
+#: crates/rigg/src/pages/kontroller.rs:266 crates/rigg/src/pages/kontroller.rs:573
 msgid "Auto"
 msgstr "Auto"
 
-#: crates/rigg/src/pages/kontroller.rs:267 crates/rigg/src/pages/kontroller.rs:572
+#: crates/rigg/src/pages/kontroller.rs:267 crates/rigg/src/pages/kontroller.rs:573
 msgid "Kurve"
 msgstr "Curva"
 
-#: crates/rigg/src/pages/kontroller.rs:268 crates/rigg/src/pages/kontroller.rs:572
+#: crates/rigg/src/pages/kontroller.rs:268 crates/rigg/src/pages/kontroller.rs:573
 msgid "Manuell"
 msgstr "Manuale"
 
-#: crates/rigg/src/pages/kontroller.rs:283 crates/rigg/src/pages/kontroller.rs:716
+#: crates/rigg/src/pages/kontroller.rs:283 crates/rigg/src/pages/kontroller.rs:717
 msgid "Tomgang"
 msgstr "Inattività"
 
@@ -146,7 +146,7 @@ msgstr "La GPU assorbe tutta la potenza consentita dal limite."
 msgid "Maskinvare-nedklokking"
 msgstr "Riduzione della frequenza imposta dall’hardware"
 
-#: crates/rigg/src/pages/kontroller.rs:286 crates/rigg/src/pages/kontroller.rs:715
+#: crates/rigg/src/pages/kontroller.rs:286 crates/rigg/src/pages/kontroller.rs:716
 msgid "Kortet klokker ned av seg selv (strøm eller temperatur)."
 msgstr "La GPU riduce automaticamente le frequenze per motivi di potenza o temperatura."
 
@@ -210,7 +210,7 @@ msgstr "Nessun motivo segnalato"
 msgid "nvmlDeviceGetCurrentClocksEventReasons svarer ikke på dette kortet."
 msgstr "nvmlDeviceGetCurrentClocksEventReasons non risponde su questa GPU."
 
-#: crates/rigg/src/pages/kontroller.rs:331 crates/rigg/src/pages/kontroller.rs:334 crates/rigg/src/pages/kontroller.rs:597 crates/rigg/src/pages/kontroller.rs:713
+#: crates/rigg/src/pages/kontroller.rs:331 crates/rigg/src/pages/kontroller.rs:334 crates/rigg/src/pages/kontroller.rs:598 crates/rigg/src/pages/kontroller.rs:714
 msgid "Temperatur"
 msgstr "Temperatura"
 
@@ -218,7 +218,7 @@ msgstr "Temperatura"
 msgid "Maskinvaren klokker ned"
 msgstr "Riduzione della frequenza imposta dall’hardware"
 
-#: crates/rigg/src/pages/kontroller.rs:332 crates/rigg/src/pages/kontroller.rs:335 crates/rigg/src/pages/kontroller.rs:597 crates/rigg/src/pages/kontroller.rs:712
+#: crates/rigg/src/pages/kontroller.rs:332 crates/rigg/src/pages/kontroller.rs:335 crates/rigg/src/pages/kontroller.rs:598 crates/rigg/src/pages/kontroller.rs:713
 msgid "Effekt"
 msgstr "Potenza"
 
@@ -226,7 +226,7 @@ msgstr "Potenza"
 msgid "Strømforsyningen bremser"
 msgstr "Limitazione da alimentatore"
 
-#: crates/rigg/src/pages/kontroller.rs:333 crates/rigg/src/pages/kontroller.rs:715
+#: crates/rigg/src/pages/kontroller.rs:333 crates/rigg/src/pages/kontroller.rs:716
 msgid "Maskinvare"
 msgstr "Hardware"
 
@@ -270,7 +270,7 @@ msgstr "Raggiunto l’obiettivo di {maal}"
 msgid "Kortet har ingenting å gjøre og holder klokkene nede (tomgang)."
 msgstr "La GPU è inattiva e mantiene basse le frequenze."
 
-#: crates/rigg/src/pages/kontroller.rs:362 crates/rigg/src/pages/kontroller.rs:714
+#: crates/rigg/src/pages/kontroller.rs:362 crates/rigg/src/pages/kontroller.rs:715
 msgid "Spenning"
 msgstr "Tensione"
 
@@ -422,14 +422,6 @@ msgstr "Bozza · non inviata alla GPU"
 msgid "Gjenopprett utgangspunkt"
 msgstr "Ripristina impostazioni iniziali"
 
-#: crates/rigg/src/pages/kontroller.rs:541
-msgid "GPU-justering"
-msgstr "Offset frequenza GPU"
-
-#: crates/rigg/src/pages/kontroller.rs:542
-msgid "Minnejustering"
-msgstr "Offset frequenza memoria"
-
 #: crates/rigg/src/pages/kontroller.rs:544
 msgid "Vifte"
 msgstr "Ventola"
@@ -438,560 +430,568 @@ msgstr "Ventola"
 msgid "Avansert · temperaturmål og vifter"
 msgstr "Avanzate · temperatura obiettivo e ventole"
 
-#: crates/rigg/src/pages/kontroller.rs:555
+#: crates/rigg/src/pages/kontroller.rs:556
 msgid "Auto, fast viftefart og egen kurve"
 msgstr "Auto, velocità fissa e curva personalizzata"
 
-#: crates/rigg/src/pages/kontroller.rs:559
+#: crates/rigg/src/pages/kontroller.rs:560
 msgid "Åpne Vifter"
 msgstr "Apri Ventole"
 
-#: crates/rigg/src/pages/kontroller.rs:573
+#: crates/rigg/src/pages/kontroller.rs:574
 msgid "Rediger kurven"
 msgstr "Modifica curva"
 
-#: crates/rigg/src/pages/kontroller.rs:574
+#: crates/rigg/src/pages/kontroller.rs:575
 msgid "Gå til Vifter, der kurven redigeres"
 msgstr "Vai a Ventole per modificare la curva"
 
-#: crates/rigg/src/pages/kontroller.rs:597
+#: crates/rigg/src/pages/kontroller.rs:598
 msgid "Kjerneklokke"
 msgstr "Frequenza del core"
 
-#: crates/rigg/src/pages/kontroller.rs:610
+#: crates/rigg/src/pages/kontroller.rs:611
 msgid "Utkast"
 msgstr "Bozza"
 
-#: crates/rigg/src/pages/kontroller.rs:616
+#: crates/rigg/src/pages/kontroller.rs:617
 msgid "Profiler"
 msgstr "Profili"
 
-#: crates/rigg/src/pages/kontroller.rs:619
+#: crates/rigg/src/pages/kontroller.rs:620
 msgid "Hent fyller utkastet med verdiene fra profilen. Ingenting sendes til kortet."
 msgstr "Carica copia i valori del profilo nella bozza. Non viene inviato nulla alla GPU."
 
-#: crates/rigg/src/pages/kontroller.rs:625
+#: crates/rigg/src/pages/kontroller.rs:626
 msgid "Begrensninger"
 msgstr "Limiti di prestazioni"
 
-#: crates/rigg/src/pages/kontroller.rs:637
+#: crates/rigg/src/pages/kontroller.rs:638
 msgid "Funksjonsstøtte på kortet"
 msgstr "Funzioni supportate dalla GPU"
 
-#: crates/rigg/src/pages/kontroller.rs:641
+#: crates/rigg/src/pages/kontroller.rs:642
 msgid "Spenningsoffset"
 msgstr "Offset tensione"
 
-#: crates/rigg/src/pages/kontroller.rs:641
+#: crates/rigg/src/pages/kontroller.rs:642
 msgid "Spenningsstyring er ikke implementert i appen."
 msgstr "Il controllo della tensione non è implementato."
 
-#: crates/rigg/src/pages/kontroller.rs:642
+#: crates/rigg/src/pages/kontroller.rs:643
 msgid "Klokkekurven (V/F)"
 msgstr "Curva tensione/frequenza (V/F)"
 
-#: crates/rigg/src/pages/kontroller.rs:642
+#: crates/rigg/src/pages/kontroller.rs:643
 msgid "Redigering av spennings-/klokkekurven er ikke implementert. GPU-justering bruker offset der driveren støtter det."
 msgstr "La modifica della curva tensione/frequenza non è implementata. L’offset della frequenza GPU è disponibile se il driver lo supporta."
 
-#: crates/rigg/src/pages/kontroller.rs:643
+#: crates/rigg/src/pages/kontroller.rs:644
 msgid "Låst minneklokke"
 msgstr "Frequenza memoria fissa"
 
-#: crates/rigg/src/pages/kontroller.rs:643
+#: crates/rigg/src/pages/kontroller.rs:644
 msgid "Fastlåsing av minneklokken er ikke implementert. Minnejustering bruker offset der driveren støtter det."
 msgstr "Il blocco della frequenza della memoria non è implementato. L’offset della frequenza della memoria è disponibile se il driver lo supporta."
 
-#: crates/rigg/src/pages/kontroller.rs:644
+#: crates/rigg/src/pages/kontroller.rs:645
 msgid "Viftestopp (0 %)"
 msgstr "Arresto ventole (0%)"
 
-#: crates/rigg/src/pages/kontroller.rs:644
+#: crates/rigg/src/pages/kontroller.rs:645
 msgid "Egen viftestopp er ikke implementert. Manuell fart følger driverens område; automatisk viftestopp avhenger av kort og driver."
 msgstr "L’arresto personalizzato delle ventole non è implementato. Le velocità manuali rispettano l’intervallo del driver; l’arresto automatico dipende dalla GPU e dal driver."
 
-#: crates/rigg/src/pages/kontroller.rs:651
+#: crates/rigg/src/pages/kontroller.rs:652
 msgid "Avansert · kortets grenser og funksjoner"
 msgstr "Avanzate · limiti e funzioni della GPU"
 
-#: crates/rigg/src/pages/kontroller.rs:663
+#: crates/rigg/src/pages/kontroller.rs:664
 msgid "Forkast utkast"
 msgstr "Scarta bozza"
 
-#: crates/rigg/src/pages/kontroller.rs:664
+#: crates/rigg/src/pages/kontroller.rs:665
 msgid "Tilbake til det kortet har. Utkastet slettes (Ctrl+Z angrer)."
 msgstr "Ripristina i valori attuali della GPU e scarta la bozza. Usa Ctrl+Z per annullare."
 
-#: crates/rigg/src/pages/kontroller.rs:665
+#: crates/rigg/src/pages/kontroller.rs:666
 msgid "Bruk"
 msgstr "Applica"
 
-#: crates/rigg/src/pages/kontroller.rs:712
+#: crates/rigg/src/pages/kontroller.rs:713
 msgid "Effektgrensen er nådd, eller strømforsyningen bremser."
 msgstr "È stato raggiunto il limite di potenza oppure l’alimentatore sta limitando la GPU."
 
-#: crates/rigg/src/pages/kontroller.rs:713
+#: crates/rigg/src/pages/kontroller.rs:714
 msgid "Temperaturmålet er nådd, eller maskinvaren klokker ned fordi kortet er for varmt."
 msgstr "È stata raggiunta la temperatura obiettivo oppure l’hardware sta riducendo le frequenze perché la GPU è troppo calda."
 
-#: crates/rigg/src/pages/kontroller.rs:714
+#: crates/rigg/src/pages/kontroller.rs:715
 msgid "Utledet: ingen begrensning fra NVML mens kortet har last. Da står det på toppen av klokkekurven."
 msgstr "Dato dedotto: NVML non segnala limiti mentre la GPU è sotto carico. La GPU è al punto più alto della curva di frequenza."
 
-#: crates/rigg/src/pages/kontroller.rs:716
+#: crates/rigg/src/pages/kontroller.rs:717
 msgid "Kortet har ingenting å gjøre."
 msgstr "La GPU è inattiva."
 
-#: crates/rigg/src/pages/kontroller.rs:717
+#: crates/rigg/src/pages/kontroller.rs:718
 msgid "Annet"
 msgstr "Altro"
 
-#: crates/rigg/src/pages/kontroller.rs:717
+#: crates/rigg/src/pages/kontroller.rs:718
 msgid "Programklokker, synkronisert boost eller skjermklokke."
 msgstr "Frequenze impostate dall’applicazione, Sync Boost o frequenze per il display."
 
-#: crates/rigg/src/pages/kontroller.rs:727 crates/rigg/src/pages/kontroller.rs:738 crates/rigg/src/pages/kontroller.rs:746
+#: crates/rigg/src/pages/kontroller.rs:728 crates/rigg/src/pages/kontroller.rs:739 crates/rigg/src/pages/kontroller.rs:747
 msgid "{min} til {maks}"
 msgstr "da {min} a {maks}"
 
-#: crates/rigg/src/pages/kontroller.rs:730 crates/rigg/src/pages/kontroller.rs:737 crates/rigg/src/pages/kontroller.rs:745 crates/rigg/src/pages/kontroller.rs:753 crates/rigg/src/pages/kontroller.rs:760
+#: crates/rigg/src/pages/kontroller.rs:731 crates/rigg/src/pages/kontroller.rs:738 crates/rigg/src/pages/kontroller.rs:746 crates/rigg/src/pages/kontroller.rs:754 crates/rigg/src/pages/kontroller.rs:761
 msgid "Lagret utgangspunkt"
 msgstr "Valori iniziali salvati"
 
-#: crates/rigg/src/pages/kontroller.rs:731 crates/rigg/src/pages/kontroller.rs:754
+#: crates/rigg/src/pages/kontroller.rs:732 crates/rigg/src/pages/kontroller.rs:755
 msgid "Område"
 msgstr "Intervallo"
 
-#: crates/rigg/src/pages/kontroller.rs:731 crates/rigg/src/pages/kontroller.rs:754
+#: crates/rigg/src/pages/kontroller.rs:732 crates/rigg/src/pages/kontroller.rs:755
 msgid "{min} til {maks} (fra kortet)"
 msgstr "da {min} a {maks} (segnalato dalla GPU)"
 
-#: crates/rigg/src/pages/kontroller.rs:732 crates/rigg/src/pages/kontroller.rs:740 crates/rigg/src/pages/kontroller.rs:748 crates/rigg/src/pages/kontroller.rs:756 crates/rigg/src/pages/kontroller.rs:762
+#: crates/rigg/src/pages/kontroller.rs:733 crates/rigg/src/pages/kontroller.rs:741 crates/rigg/src/pages/kontroller.rs:749 crates/rigg/src/pages/kontroller.rs:757 crates/rigg/src/pages/kontroller.rs:763
 msgid "Nå"
 msgstr "Ora"
 
-#: crates/rigg/src/pages/kontroller.rs:732
+#: crates/rigg/src/pages/kontroller.rs:733
 msgid "grense {grense}, trekker {forbruk}"
 msgstr "limite {grense}, assorbimento {forbruk}"
 
-#: crates/rigg/src/pages/kontroller.rs:733 crates/rigg/src/pages/kontroller.rs:741 crates/rigg/src/pages/kontroller.rs:749
+#: crates/rigg/src/pages/kontroller.rs:734 crates/rigg/src/pages/kontroller.rs:742 crates/rigg/src/pages/kontroller.rs:750
 msgid "Påvirker"
 msgstr "Influisce su"
 
-#: crates/rigg/src/pages/kontroller.rs:733
+#: crates/rigg/src/pages/kontroller.rs:734
 msgid "Kjerneklokken under last, temperatur, viftestøy og strømforbruk"
 msgstr "Frequenza del core sotto carico, temperatura, rumore delle ventole e consumi"
 
-#: crates/rigg/src/pages/kontroller.rs:734
+#: crates/rigg/src/pages/kontroller.rs:735
 msgid "nvmlDeviceGetEnforcedPowerLimit (avlesning)."
 msgstr "nvmlDeviceGetEnforcedPowerLimit (lettura del valore effettivo)."
 
-#: crates/rigg/src/pages/kontroller.rs:738 crates/rigg/src/pages/kontroller.rs:746
+#: crates/rigg/src/pages/kontroller.rs:739 crates/rigg/src/pages/kontroller.rs:747
 msgid "Kortet tillater"
 msgstr "Intervallo della GPU"
 
-#: crates/rigg/src/pages/kontroller.rs:738 crates/rigg/src/pages/kontroller.rs:746 crates/rigg/src/pages/kontroller.rs:754
+#: crates/rigg/src/pages/kontroller.rs:739 crates/rigg/src/pages/kontroller.rs:747 crates/rigg/src/pages/kontroller.rs:755
 msgid "leses ikke"
 msgstr "non segnalato"
 
-#: crates/rigg/src/pages/kontroller.rs:739 crates/rigg/src/pages/kontroller.rs:747
+#: crates/rigg/src/pages/kontroller.rs:740 crates/rigg/src/pages/kontroller.rs:748
 msgid "Tjenesten tillater"
 msgstr "Intervallo del servizio"
 
-#: crates/rigg/src/pages/kontroller.rs:740
+#: crates/rigg/src/pages/kontroller.rs:741
 msgid "kjerneklokke {klokke}, rapportert maks {maks}"
 msgstr "frequenza del core {klokke}, max. segnalato {maks}"
 
-#: crates/rigg/src/pages/kontroller.rs:741
+#: crates/rigg/src/pages/kontroller.rs:742
 msgid "Kjerneklokken på hele kurven og stabiliteten. Ikke spenningen."
 msgstr "Frequenze del core lungo la curva e stabilità. Non modifica la tensione."
 
-#: crates/rigg/src/pages/kontroller.rs:742 crates/rigg/src/pages/kontroller.rs:750
+#: crates/rigg/src/pages/kontroller.rs:743 crates/rigg/src/pages/kontroller.rs:751
 msgid "nvmlDeviceGetClockOffsets (avlesning)."
 msgstr "nvmlDeviceGetClockOffsets (lettura del valore effettivo)."
 
-#: crates/rigg/src/pages/kontroller.rs:748
+#: crates/rigg/src/pages/kontroller.rs:749
 msgid "minneklokke {klokke}, rapportert maks {maks}"
 msgstr "frequenza della memoria {klokke}, max. segnalato {maks}"
 
-#: crates/rigg/src/pages/kontroller.rs:749
+#: crates/rigg/src/pages/kontroller.rs:750
 msgid "Minnebåndbredden. Ikke kjerneklokken."
 msgstr "Larghezza di banda della memoria. Non modifica la frequenza del core."
 
-#: crates/rigg/src/pages/kontroller.rs:755
+#: crates/rigg/src/pages/kontroller.rs:756
 msgid "Faste grenser"
 msgstr "Soglie hardware"
 
-#: crates/rigg/src/pages/kontroller.rs:755
+#: crates/rigg/src/pages/kontroller.rs:756
 msgid "nedklokking ved {nedklokking}, avstenging ved {avstenging}"
 msgstr "riduzione delle frequenze a {nedklokking}, spegnimento a {avstenging}"
 
-#: crates/rigg/src/pages/kontroller.rs:757
+#: crates/rigg/src/pages/kontroller.rs:758
 msgid "nvmlDeviceGetTemperatureThreshold, ACOUSTIC_CURR (avlesning)."
 msgstr "nvmlDeviceGetTemperatureThreshold, ACOUSTIC_CURR (lettura del valore effettivo)."
 
-#: crates/rigg/src/pages/kontroller.rs:760
+#: crates/rigg/src/pages/kontroller.rs:761
 msgid "Auto (driveren styrer)"
 msgstr "Auto (gestita dal driver)"
 
-#: crates/rigg/src/pages/kontroller.rs:761
+#: crates/rigg/src/pages/kontroller.rs:762
 msgid "Manuelt minimum"
 msgstr "Minimo in modalità manuale"
 
-#: crates/rigg/src/pages/kontroller.rs:761
+#: crates/rigg/src/pages/kontroller.rs:762
 msgid "{fart} (rapportert av driveren)"
 msgstr "{fart} (segnalato dal driver)"
 
-#: crates/rigg/src/pages/kontroller.rs:761
+#: crates/rigg/src/pages/kontroller.rs:762
 msgid "Ikke rapportert av driveren"
 msgstr "Non segnalato dal driver"
 
-#: crates/rigg/src/pages/kontroller.rs:763
+#: crates/rigg/src/pages/kontroller.rs:764
 msgid "Modus nå"
 msgstr "Modalità attuale"
 
-#: crates/rigg/src/pages/kontroller.rs:764
+#: crates/rigg/src/pages/kontroller.rs:765
 msgid "nvmlDeviceGetFanControlPolicy_v2 (avlesning)."
 msgstr "nvmlDeviceGetFanControlPolicy_v2 (lettura del valore effettivo)."
 
-#: crates/rigg/src/pages/kontroller.rs:769
+#: crates/rigg/src/pages/kontroller.rs:770
 msgid "Klar. Bruk prøver endringen; Behold lar den fortsette."
 msgstr "Pronta. Applica prova la modifica; Mantieni la conferma."
 
-#: crates/rigg/src/pages/kontroller.rs:771
+#: crates/rigg/src/pages/kontroller.rs:772
 msgid "Simulert kort. Ekte maskinvare endres ikke."
 msgstr "GPU simulata. L’hardware reale non viene modificato."
 
-#: crates/rigg/src/pages/kontroller.rs:774
+#: crates/rigg/src/pages/kontroller.rs:775
 msgid "Styring"
 msgstr "Controllo"
 
-#: crates/rigg/src/pages/kontroller.rs:877
+#: crates/rigg/src/pages/kontroller.rs:878
 msgid "Utkastet er forkastet"
 msgstr "Bozza scartata"
 
-#: crates/rigg/src/pages/kontroller.rs:877 crates/rigg/src/pages/kontroller.rs:971 crates/rigg/src/pages/kontroller.rs:1485
+#: crates/rigg/src/pages/kontroller.rs:878 crates/rigg/src/pages/kontroller.rs:972 crates/rigg/src/pages/kontroller.rs:1491
 msgid "Angre"
 msgstr "Annulla"
 
-#: crates/rigg/src/pages/kontroller.rs:952
+#: crates/rigg/src/pages/kontroller.rs:953
 msgid "Kortets utgangspunkt er gjenopprettet"
 msgstr "Impostazioni iniziali della GPU ripristinate"
 
-#: crates/rigg/src/pages/kontroller.rs:954
+#: crates/rigg/src/pages/kontroller.rs:955
 msgid "Kunne ikke bekrefte gjenoppretting"
 msgstr "Impossibile verificare il ripristino"
 
-#: crates/rigg/src/pages/kontroller.rs:966
+#: crates/rigg/src/pages/kontroller.rs:967
 msgid "Kortet står allerede på standard"
 msgstr "La GPU usa già le impostazioni di fabbrica"
 
-#: crates/rigg/src/pages/kontroller.rs:971
+#: crates/rigg/src/pages/kontroller.rs:972
 msgid "Utkastet har standardverdiene"
 msgstr "Valori di fabbrica copiati nella bozza"
 
-#: crates/rigg/src/pages/kontroller.rs:971
+#: crates/rigg/src/pages/kontroller.rs:972
 msgid "Ingenting er sendt til kortet."
 msgstr "Non è stato inviato nulla alla GPU."
 
-#: crates/rigg/src/pages/kontroller.rs:996
+#: crates/rigg/src/pages/kontroller.rs:997
 msgid "Leser kortets innstillinger …"
 msgstr "Lettura delle impostazioni della GPU…"
 
-#: crates/rigg/src/pages/kontroller.rs:996
+#: crates/rigg/src/pages/kontroller.rs:997
 msgid "Prøv Bruk igjen når innstillingene er lest."
 msgstr "Una volta caricate le impostazioni, fai di nuovo clic su Applica."
 
-#: crates/rigg/src/pages/kontroller.rs:1003
+#: crates/rigg/src/pages/kontroller.rs:1004
 msgid "Utkastet må oppdateres"
 msgstr "Bozza da aggiornare"
 
-#: crates/rigg/src/pages/kontroller.rs:1008
+#: crates/rigg/src/pages/kontroller.rs:1009
 msgid "Funksjonen er utilgjengelig"
 msgstr "Funzione non disponibile"
 
-#: crates/rigg/src/pages/kontroller.rs:1018 crates/rigg/src/pages/kontroller.rs:1295
+#: crates/rigg/src/pages/kontroller.rs:1019 crates/rigg/src/pages/kontroller.rs:1301
 msgid "Ingen endringer å bruke"
 msgstr "Nessuna modifica da applicare"
 
-#: crates/rigg/src/pages/kontroller.rs:1019
+#: crates/rigg/src/pages/kontroller.rs:1020
 msgid "Kunne ikke bruke utkastet"
 msgstr "Impossibile applicare la bozza"
 
-#: crates/rigg/src/pages/kontroller.rs:1045
+#: crates/rigg/src/pages/kontroller.rs:1046
 msgid "Bruk prøver endringen i {tid}. Trykk Behold i det faste feltet øverst for å fortsette; uten svar går kortet tilbake til forrige oppsett."
 msgstr "Applica prova la modifica per {tid}. Fai clic su Mantieni nella barra in alto per confermarla. Altrimenti la GPU torna alle impostazioni precedenti."
 
-#: crates/rigg/src/pages/kontroller.rs:1056 crates/rigg/src/pages/kontroller.rs:1059
+#: crates/rigg/src/pages/kontroller.rs:1057 crates/rigg/src/pages/kontroller.rs:1060
 msgid "maks {maks}"
 msgstr "max. {maks}"
 
-#: crates/rigg/src/pages/kontroller.rs:1058
+#: crates/rigg/src/pages/kontroller.rs:1059
 msgid "Målt GPU-klokke nå. Maks er rapportert av NVIDIA-driveren, ikke en beregnet sluttklokke etter justering. GPU-boost, temperatur og effekt påvirker den faktiske hastigheten."
 msgstr "Frequenza misurata della GPU. Il massimo è segnalato dal driver NVIDIA e non è una previsione della frequenza dopo l’offset. Boost, temperatura e potenza influiscono sulla frequenza effettiva."
 
-#: crates/rigg/src/pages/kontroller.rs:1061
+#: crates/rigg/src/pages/kontroller.rs:1062
 msgid "Målt minneklokke nå. Maks er rapportert av NVIDIA-driveren. MHz-justeringen under er et tillegg, ikke en fast minnefrekvens eller båndbredde i Gb/s."
 msgstr "Frequenza misurata della memoria. Il driver NVIDIA segnala il massimo. L’offset in MHz qui sotto non indica una frequenza fissa né una larghezza di banda in Gb/s."
 
-#: crates/rigg/src/pages/kontroller.rs:1069
+#: crates/rigg/src/pages/kontroller.rs:1070
 msgid "mål {maal}"
 msgstr "obiettivo {maal}"
 
-#: crates/rigg/src/pages/kontroller.rs:1072
+#: crates/rigg/src/pages/kontroller.rs:1073
 msgid "GPU-temperaturen. Merket på måleren er temperaturmålet; måleren går til nedklokkingen ved {temperatur}."
 msgstr "Temperatura della GPU. Il riferimento indica la temperatura obiettivo. La scala termina alla soglia di riduzione delle frequenze, pari a {temperatur}."
 
-#: crates/rigg/src/pages/kontroller.rs:1076
+#: crates/rigg/src/pages/kontroller.rs:1077
 msgid "{andel} av {grense}"
 msgstr "{andel} di {grense}"
 
-#: crates/rigg/src/pages/kontroller.rs:1082
+#: crates/rigg/src/pages/kontroller.rs:1083
 msgid "Strømtrekket nå, og hvor mye av effektgrensen det er."
 msgstr "Potenza assorbita ora e relativa quota del limite di potenza."
 
-#: crates/rigg/src/pages/kontroller.rs:1083
+#: crates/rigg/src/pages/kontroller.rs:1084
 msgid "minnekontroller {last}"
 msgstr "controller della memoria {last}"
 
-#: crates/rigg/src/pages/kontroller.rs:1085
+#: crates/rigg/src/pages/kontroller.rs:1086
 msgid "GPU-last nå."
 msgstr "Carico attuale della GPU."
 
-#: crates/rigg/src/pages/kontroller.rs:1089
+#: crates/rigg/src/pages/kontroller.rs:1090
 msgid "Den raskeste viften nå. Merket er driverens rapporterte manuelle minimum ({minimum})."
 msgstr "Ventola più veloce. Il riferimento indica il minimo in modalità manuale segnalato dal driver ({minimum})."
 
-#: crates/rigg/src/pages/kontroller.rs:1089
+#: crates/rigg/src/pages/kontroller.rs:1090
 msgid "Den raskeste viften nå. Driverens manuelle minimum er ikke rapportert."
 msgstr "Ventola più veloce. Il driver non ha segnalato il minimo in modalità manuale."
 
-#: crates/rigg/src/pages/kontroller.rs:1092
+#: crates/rigg/src/pages/kontroller.rs:1093
 msgid "P-tilstanden. P0 er full ytelse, P8 er dyp tomgang."
 msgstr "Stato prestazionale: P0 indica le prestazioni massime; P8 l’inattività profonda."
 
-#: crates/rigg/src/pages/kontroller.rs:1106
+#: crates/rigg/src/pages/kontroller.rs:1107
 msgid "Kortets tillatte område er ikke lest. Ingen modellspesifikke grenser antas."
 msgstr "La GPU non ha segnalato il proprio intervallo. Non si presumono limiti specifici del modello."
 
-#: crates/rigg/src/pages/kontroller.rs:1124
+#: crates/rigg/src/pages/kontroller.rs:1125
 msgid "Valgt grense: {grense} av kortets standard · trekker nå {forbruk}"
 msgstr "Limite selezionato: {grense} del valore predefinito · assorbimento {forbruk}"
 
-#: crates/rigg/src/pages/kontroller.rs:1126 crates/rigg/src/pages/kontroller.rs:1169
+#: crates/rigg/src/pages/kontroller.rs:1127 crates/rigg/src/pages/kontroller.rs:1170
 msgid "Tilbake til lagret utgangspunkt ({verdi})"
 msgstr "Ripristina il valore iniziale salvato ({verdi})"
 
-#: crates/rigg/src/pages/kontroller.rs:1142
+#: crates/rigg/src/pages/kontroller.rs:1143
 msgid "Kortets område overlapper ikke appens tillatte justeringer. Avlest verdi vises uten å anta et annet korts grenser."
 msgstr "L’intervallo della GPU non si sovrappone agli offset consentiti dall’app. Il valore misurato è mostrato senza presumere i limiti di un’altra GPU."
 
-#: crates/rigg/src/pages/kontroller.rs:1148
+#: crates/rigg/src/pages/kontroller.rs:1149
 msgid "Målt nå: {klokke} · rapportert maks: {maks}{merknad}"
 msgstr "Misurato: {klokke} · max. segnalato: {maks}{merknad}"
 
-#: crates/rigg/src/pages/kontroller.rs:1148
+#: crates/rigg/src/pages/kontroller.rs:1149
 msgid " · gjeldende justering er ukjent"
 msgstr " · offset attuale sconosciuto"
 
-#: crates/rigg/src/pages/kontroller.rs:1150
+#: crates/rigg/src/pages/kontroller.rs:1151
 msgid "Tilbake til grunnverdi ({verdi})"
 msgstr "Ripristina il valore iniziale ({verdi})"
 
-#: crates/rigg/src/pages/kontroller.rs:1151
+#: crates/rigg/src/pages/kontroller.rs:1152
 msgid "Tjenesten tillater {tjeneste_min} til {tjeneste_maks} når endring er slått på. Kortet tillater {kort_min} til {kort_maks}."
 msgstr "Con le modifiche abilitate, il servizio consente valori da {tjeneste_min} a {tjeneste_maks}. La GPU consente valori da {kort_min} a {kort_maks}."
 
-#: crates/rigg/src/pages/kontroller.rs:1163
+#: crates/rigg/src/pages/kontroller.rs:1164
 msgid "GPU-temperatur nå {temperatur} · nedklokking ved {nedklokking}, avstenging ved {avstenging}"
 msgstr "Temperatura GPU {temperatur} · riduzione delle frequenze a {nedklokking}, spegnimento a {avstenging}"
 
-#: crates/rigg/src/pages/kontroller.rs:1164
+#: crates/rigg/src/pages/kontroller.rs:1165
 msgid "GPU-temperatur nå {temperatur}"
 msgstr "Temperatura GPU {temperatur}"
 
-#: crates/rigg/src/pages/kontroller.rs:1184
+#: crates/rigg/src/pages/kontroller.rs:1185
 msgid "Tilbake til standard (Auto)"
 msgstr "Ripristina il valore predefinito (Auto)"
 
-#: crates/rigg/src/pages/kontroller.rs:1186
+#: crates/rigg/src/pages/kontroller.rs:1187
 msgid "Driveren styrer viftene etter temperaturen, som uten appen."
 msgstr "Il driver regola la velocità delle ventole in base alla temperatura, come farebbe senza l’app."
 
-#: crates/rigg/src/pages/kontroller.rs:1187
+#: crates/rigg/src/pages/kontroller.rs:1188
 msgid "Agentic HW Monitor setter farten etter viftekurven hvert sekund."
 msgstr "Agentic HW Monitor aggiorna ogni secondo la velocità delle ventole in base alla curva."
 
-#: crates/rigg/src/pages/kontroller.rs:1188
+#: crates/rigg/src/pages/kontroller.rs:1189
 msgid "Viftene går med fast fart, uansett temperatur."
 msgstr "Le ventole girano a velocità fissa, indipendentemente dalla temperatura."
 
-#: crates/rigg/src/pages/kontroller.rs:1206
+#: crates/rigg/src/pages/kontroller.rs:1209
 msgid "Ja · siden {tid}"
 msgstr "Sì · da {tid}"
 
-#: crates/rigg/src/pages/kontroller.rs:1207
+#: crates/rigg/src/pages/kontroller.rs:1210
 msgid "Ja"
 msgstr "Sì"
 
-#: crates/rigg/src/pages/kontroller.rs:1210
+#: crates/rigg/src/pages/kontroller.rs:1213
 msgid "Nei"
 msgstr "No"
 
-#: crates/rigg/src/pages/kontroller.rs:1217
+#: crates/rigg/src/pages/kontroller.rs:1220
 msgid "{why}\nNå: {arsaker}."
 msgstr "{why}\nOra: {arsaker}."
 
-#: crates/rigg/src/pages/kontroller.rs:1225
+#: crates/rigg/src/pages/kontroller.rs:1228
 msgid "Kortet svarer ikke. Begrensningene vises igjen når det er tilbake."
 msgstr "La GPU non risponde. I limiti torneranno visibili quando risponderà."
 
-#: crates/rigg/src/pages/kontroller.rs:1227
+#: crates/rigg/src/pages/kontroller.rs:1230
 msgid "Kortet er i tomgang (P8). Årsakene leses når kortet jobber."
 msgstr "La GPU è inattiva (P8). I motivi delle limitazioni verranno letti alla ripresa dell’attività."
 
-#: crates/rigg/src/pages/kontroller.rs:1229
+#: crates/rigg/src/pages/kontroller.rs:1232
 msgid "Kortet melder ikke klokkebegrensninger."
 msgstr "La GPU non segnala limiti di frequenza."
 
-#: crates/rigg/src/pages/kontroller.rs:1235
+#: crates/rigg/src/pages/kontroller.rs:1238
 msgid "I P8 spør tjenesten ikke om årsakene: kallet koster ca. 25 ms og vekker kortet."
 msgstr "In P8 il servizio evita l’interrogazione perché richiede circa 25 ms e riattiva la GPU."
 
-#: crates/rigg/src/pages/kontroller.rs:1254
+#: crates/rigg/src/pages/kontroller.rs:1258
+msgid "Prøven pågår. Velg «Behold» eller «Rull tilbake» øverst."
+msgstr "Prova in corso. Scegli «Mantieni» o «Annulla modifiche» in alto."
+
+#: crates/rigg/src/pages/kontroller.rs:1259
 msgid "Utkastet er likt det kortet har nå."
 msgstr "La bozza corrisponde alle impostazioni attuali della GPU."
 
-#: crates/rigg/src/pages/kontroller.rs:1263
+#: crates/rigg/src/pages/kontroller.rs:1268
 msgid "ukjent"
 msgstr "sconosciuto"
 
-#: crates/rigg/src/pages/kontroller.rs:1274
+#: crates/rigg/src/pages/kontroller.rs:1279
 msgid "Sendes til kortet med Bruk. Behold innen fristen, ellers rulles endringen tilbake."
 msgstr "Applica invia le modifiche alla GPU. Fai clic su Mantieni prima che scada il tempo, altrimenti le modifiche vengono annullate."
 
-#: crates/rigg/src/pages/kontroller.rs:1274
+#: crates/rigg/src/pages/kontroller.rs:1279
 msgid "Lagres i appen som utkast. Ctrl+Z angrer."
 msgstr "Salvato nell’app come bozza. Usa Ctrl+Z per annullare."
 
-#: crates/rigg/src/pages/kontroller.rs:1279
+#: crates/rigg/src/pages/kontroller.rs:1284
+msgid "Prøve pågår"
+msgstr "Prova in corso"
+
+#: crates/rigg/src/pages/kontroller.rs:1285
 msgid "Ingen endringer"
 msgstr "Nessuna modifica"
 
-#: crates/rigg/src/pages/kontroller.rs:1280
+#: crates/rigg/src/pages/kontroller.rs:1286
 msgid "{n} endring i utkastet"
 msgid_plural "{n} endringer i utkastet"
 msgstr[0] "{n} modifica nella bozza"
 msgstr[1] "{n} modifiche nella bozza"
 
-#: crates/rigg/src/pages/kontroller.rs:1295
+#: crates/rigg/src/pages/kontroller.rs:1301
 msgid "Endringen venter på Behold"
 msgstr "In attesa di conferma con Mantieni"
 
-#: crates/rigg/src/pages/kontroller.rs:1295
+#: crates/rigg/src/pages/kontroller.rs:1301
 msgid "Bruk utkastet"
 msgstr "Applica bozza"
 
-#: crates/rigg/src/pages/kontroller.rs:1315
+#: crates/rigg/src/pages/kontroller.rs:1321
 msgid "{used} av {plasser}"
 msgstr "{used} di {plasser}"
 
-#: crates/rigg/src/pages/kontroller.rs:1317
+#: crates/rigg/src/pages/kontroller.rs:1323
 msgid "Ingen profiler ennå. En profil husker alle verdiene på siden, også viftekurven."
 msgstr "Non ci sono ancora profili. Un profilo salva tutte le impostazioni di questa pagina, inclusa la curva delle ventole."
 
-#: crates/rigg/src/pages/kontroller.rs:1334
+#: crates/rigg/src/pages/kontroller.rs:1340
 msgid "Nytt navn på {profil}"
 msgstr "Nuovo nome di {profil}"
 
-#: crates/rigg/src/pages/kontroller.rs:1365
+#: crates/rigg/src/pages/kontroller.rs:1371
 msgid "Dobbeltklikk for å gi nytt navn"
 msgstr "Fai doppio clic per rinominare"
 
-#: crates/rigg/src/pages/kontroller.rs:1380
+#: crates/rigg/src/pages/kontroller.rs:1386
 msgid "på siden"
 msgstr "attuale"
 
-#: crates/rigg/src/pages/kontroller.rs:1381
+#: crates/rigg/src/pages/kontroller.rs:1387
 msgid "Verdiene på siden er de samme som i profilen"
 msgstr "I valori di questa pagina corrispondono al profilo."
 
-#: crates/rigg/src/pages/kontroller.rs:1387
+#: crates/rigg/src/pages/kontroller.rs:1393
 msgid "Hent"
 msgstr "Carica"
 
-#: crates/rigg/src/pages/kontroller.rs:1388
+#: crates/rigg/src/pages/kontroller.rs:1394
 msgid "Fyll utkastet med verdiene fra profilen"
 msgstr "Copia i valori del profilo nella bozza."
 
-#: crates/rigg/src/pages/kontroller.rs:1395
+#: crates/rigg/src/pages/kontroller.rs:1401
 msgid "Hentet «{profil}»"
 msgstr "«{profil}» caricato"
 
-#: crates/rigg/src/pages/kontroller.rs:1395
+#: crates/rigg/src/pages/kontroller.rs:1401
 msgid "Utkastet har verdiene fra profilen. Ingenting er sendt til kortet."
 msgstr "La bozza contiene ora i valori del profilo. Non è stato inviato nulla alla GPU."
 
-#: crates/rigg/src/pages/kontroller.rs:1400
+#: crates/rigg/src/pages/kontroller.rs:1406
 msgid "Flere valg for {profil}"
 msgstr "Altre opzioni per {profil}"
 
-#: crates/rigg/src/pages/kontroller.rs:1406
+#: crates/rigg/src/pages/kontroller.rs:1412
 msgid "Lagre over med verdiene på siden"
 msgstr "Sovrascrivi con i valori di questa pagina"
 
-#: crates/rigg/src/pages/kontroller.rs:1407
+#: crates/rigg/src/pages/kontroller.rs:1413
 msgid "Gi nytt navn"
 msgstr "Rinomina"
 
-#: crates/rigg/src/pages/kontroller.rs:1411
+#: crates/rigg/src/pages/kontroller.rs:1417
 msgid "Tøm plassen"
 msgstr "Svuota slot"
 
-#: crates/rigg/src/pages/kontroller.rs:1418
+#: crates/rigg/src/pages/kontroller.rs:1424
 msgid "egen, {punkter}"
 msgstr "personalizzata, {punkter}"
 
-#: crates/rigg/src/pages/kontroller.rs:1418
+#: crates/rigg/src/pages/kontroller.rs:1424
 msgid "standard"
 msgstr "predefinita"
 
-#: crates/rigg/src/pages/kontroller.rs:1419
+#: crates/rigg/src/pages/kontroller.rs:1425
 msgid "{verdier}\nViftekurve: {kurve}\nLagret {tid}"
 msgstr "{verdier}\nCurva delle ventole: {kurve}\nSalvato: {tid}"
 
-#: crates/rigg/src/pages/kontroller.rs:1425
+#: crates/rigg/src/pages/kontroller.rs:1431
 msgid "Lagre som ny profil"
 msgstr "Salva come nuovo profilo"
 
-#: crates/rigg/src/pages/kontroller.rs:1430
+#: crates/rigg/src/pages/kontroller.rs:1436
 msgid "Verdiene på siden er de samme som i «{t}»"
 msgstr "I valori di questa pagina corrispondono a «{t}»."
 
-#: crates/rigg/src/pages/kontroller.rs:1431
+#: crates/rigg/src/pages/kontroller.rs:1437
 msgid "Lik «{t}»"
 msgstr "Corrisponde a «{t}»"
 
-#: crates/rigg/src/pages/kontroller.rs:1433
+#: crates/rigg/src/pages/kontroller.rs:1439
 msgid "Lagrer utkastet som en ny profil"
 msgstr "Salva la bozza come nuovo profilo."
 
-#: crates/rigg/src/pages/kontroller.rs:1433
+#: crates/rigg/src/pages/kontroller.rs:1439
 msgid "Lagrer verdiene kortet har nå som en ny profil"
 msgstr "Salva i valori attuali della GPU come nuovo profilo."
 
-#: crates/rigg/src/pages/kontroller.rs:1445
+#: crates/rigg/src/pages/kontroller.rs:1451
 msgid "Alle fem plassene er i bruk. Lagre over en profil fra ⋯-menyen."
 msgstr "Tutti e cinque gli slot sono occupati. Puoi sovrascrivere un profilo dal relativo menu ⋯."
 
-#: crates/rigg/src/pages/kontroller.rs:1458 crates/rigg/src/pages/kontroller.rs:1460
+#: crates/rigg/src/pages/kontroller.rs:1464 crates/rigg/src/pages/kontroller.rs:1466
 msgid "Profil {n}"
 msgstr "Profilo {n}"
 
-#: crates/rigg/src/pages/kontroller.rs:1464
+#: crates/rigg/src/pages/kontroller.rs:1470
 msgid "Lagret i «{name}»"
 msgstr "Salvato in «{name}»"
 
-#: crates/rigg/src/pages/kontroller.rs:1485
+#: crates/rigg/src/pages/kontroller.rs:1491
 msgid "«{name}» er tømt"
 msgstr "«{name}» rimosso"

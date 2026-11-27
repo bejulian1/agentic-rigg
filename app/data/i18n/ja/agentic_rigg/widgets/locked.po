@@ -36,230 +36,230 @@ msgstr "選択したカードが変更されました。元のカードでの復
 msgid "Valgt kort ble endret mens forespørselen ventet. Svaret brukes ikke på det nye kortet."
 msgstr "要求の処理中に選択中のGPUが変わりました。応答は新しく選択されたGPUには使用されません。"
 
-#: crates/rigg/src/widgets/locked.rs:340 crates/rigg/src/widgets/locked.rs:681
-msgid "Simulert kort"
-msgstr "シミュレートされたGPU"
-
-#: crates/rigg/src/widgets/locked.rs:340
-msgid "Endringer gjelder bare simuleringen."
-msgstr "変更はシミュレーションにのみ適用されます。"
-
-#: crates/rigg/src/widgets/locked.rs:342 crates/rigg/src/widgets/locked.rs:685
-msgid "Styring klar"
-msgstr "制御の準備完了"
-
-#: crates/rigg/src/widgets/locked.rs:342
-msgid "Støttede endringer sendes til det valgte kortet når du trykker Bruk."
-msgstr "「適用」を選ぶと、対応する変更が選択したカードに送信されます。"
-
-#: crates/rigg/src/widgets/locked.rs:343
-msgid "Simulert styring"
-msgstr "シミュレーション制御"
-
-#: crates/rigg/src/widgets/locked.rs:343
-msgid "Endringer gjelder bare det simulerte kortet."
-msgstr "変更はシミュレーションカードにのみ適用されます。"
-
-#: crates/rigg/src/widgets/locked.rs:344
-msgid "Styring utilgjengelig"
-msgstr "制御を利用できません"
-
-#: crates/rigg/src/widgets/locked.rs:345 crates/rigg/src/widgets/locked.rs:357
+#: crates/rigg/src/widgets/locked.rs:341 crates/rigg/src/widgets/locked.rs:367
 msgid "Venter på enhet"
 msgstr "デバイスを待機中"
 
-#: crates/rigg/src/widgets/locked.rs:346
-msgid "Styring: feil"
-msgstr "制御エラー"
-
-#: crates/rigg/src/widgets/locked.rs:347
+#: crates/rigg/src/widgets/locked.rs:342
 msgid "Oppdater hjelper"
 msgstr "補助プログラムを更新"
 
-#: crates/rigg/src/widgets/locked.rs:348
+#: crates/rigg/src/widgets/locked.rs:343
+msgid "Styring: feil"
+msgstr "制御エラー"
+
+#: crates/rigg/src/widgets/locked.rs:349 crates/rigg/src/widgets/locked.rs:691
+msgid "Simulert kort"
+msgstr "シミュレートされたGPU"
+
+#: crates/rigg/src/widgets/locked.rs:349
+msgid "Endringer gjelder bare simuleringen."
+msgstr "変更はシミュレーションにのみ適用されます。"
+
+#: crates/rigg/src/widgets/locked.rs:355 crates/rigg/src/widgets/locked.rs:695
+msgid "Styring klar"
+msgstr "制御の準備完了"
+
+#: crates/rigg/src/widgets/locked.rs:355
+msgid "Støttede endringer sendes til det valgte kortet når du trykker Bruk."
+msgstr "「適用」を選ぶと、対応する変更が選択したカードに送信されます。"
+
+#: crates/rigg/src/widgets/locked.rs:356
+msgid "Simulert styring"
+msgstr "シミュレーション制御"
+
+#: crates/rigg/src/widgets/locked.rs:356
+msgid "Endringer gjelder bare det simulerte kortet."
+msgstr "変更はシミュレーションカードにのみ適用されます。"
+
+#: crates/rigg/src/widgets/locked.rs:357
+msgid "Styring utilgjengelig"
+msgstr "制御を利用できません"
+
+#: crates/rigg/src/widgets/locked.rs:358
 msgid "Bare visning"
 msgstr "読み取り専用"
 
-#: crates/rigg/src/widgets/locked.rs:348
+#: crates/rigg/src/widgets/locked.rs:358
 msgid "Endringer på skjermkortet er slått av. Aktiver én gang med administratorpassord i Innstillinger › Skjermkortstyring."
 msgstr "GPUの設定変更は無効です。「設定 › GPU 制御」で管理者パスワードを使って有効にしてください。この操作は一度だけ必要です。"
 
-#: crates/rigg/src/widgets/locked.rs:356
+#: crates/rigg/src/widgets/locked.rs:366
 msgid "Hjelperen er ikke skriveklar for kortet som vises."
 msgstr "補助プログラムはこのGPUの設定を変更できる状態ではありません。"
 
-#: crates/rigg/src/widgets/locked.rs:358
+#: crates/rigg/src/widgets/locked.rs:368
 msgid "Hjelperen svarer ikke. Endringer er låst."
 msgstr "補助プログラムが応答していません。変更はロックされています。"
 
-#: crates/rigg/src/widgets/locked.rs:359
+#: crates/rigg/src/widgets/locked.rs:369
 msgid "Hjelperen må oppdateres. Oppdater systemkomponentene fra Innstillinger › Skjermkortstyring."
 msgstr "補助プログラムの更新が必要です。「設定 › GPU 制御」からシステムコンポーネントを更新してください。"
 
-#: crates/rigg/src/widgets/locked.rs:522
+#: crates/rigg/src/widgets/locked.rs:532
 msgid "Utkastet må oppdateres"
 msgstr "下書きの更新が必要です"
 
-#: crates/rigg/src/widgets/locked.rs:550
+#: crates/rigg/src/widgets/locked.rs:560
 msgid "Dette eldre utkastet mangler opprinnelig grunnlag. Behold det som referanse, eller forkast det og lag et nytt utkast fra kortets verdier."
 msgstr "この古い下書きには基準値が保存されていません。参照用に残すか、破棄してGPUの現在値から新しい下書きを作成してください。"
 
-#: crates/rigg/src/widgets/locked.rs:553
+#: crates/rigg/src/widgets/locked.rs:563
 msgid "Utkastet tilhører en annen kortidentitet. Velg det opprinnelige kortet, eller forkast utkastet før du lager et nytt."
 msgstr "この下書きは別のGPUのものです。元のGPUを選択するか、下書きを破棄してから新しい下書きを作成してください。"
 
-#: crates/rigg/src/widgets/locked.rs:559
+#: crates/rigg/src/widgets/locked.rs:569
 msgid "Det finnes ikke noe utkast å bruke."
 msgstr "適用できる下書きがありません。"
 
-#: crates/rigg/src/widgets/locked.rs:656 crates/rigg/src/widgets/locked.rs:689
+#: crates/rigg/src/widgets/locked.rs:666 crates/rigg/src/widgets/locked.rs:701
 msgid "Låst"
 msgstr "ロック中"
 
-#: crates/rigg/src/widgets/locked.rs:663
+#: crates/rigg/src/widgets/locked.rs:673
 msgid "Hva skal til?"
 msgstr "必要な条件は？"
 
-#: crates/rigg/src/widgets/locked.rs:665
+#: crates/rigg/src/widgets/locked.rs:675
 msgid "Aktivering og støtte for kortet"
 msgstr "有効化とカードの対応状況"
 
-#: crates/rigg/src/widgets/locked.rs:679
+#: crates/rigg/src/widgets/locked.rs:689
 msgid "Kortet svarer ikke"
 msgstr "GPUが応答していません"
 
-#: crates/rigg/src/widgets/locked.rs:679
+#: crates/rigg/src/widgets/locked.rs:689
 msgid "Verdiene vises igjen når kortet er tilbake. Utkastet beholdes."
 msgstr "カードが復帰すると値が再表示されます。下書きは保持されます。"
 
-#: crates/rigg/src/widgets/locked.rs:681
+#: crates/rigg/src/widgets/locked.rs:691
 msgid "Bruk sender utkastet til den simulerte backenden, med Behold eller Rull tilbake. Det ekte kortet røres ikke."
 msgstr "「適用」で下書きがシミュレーションバックエンドに送信されます。変更を維持するか元に戻せます。実物のカードは変更されません。"
 
-#: crates/rigg/src/widgets/locked.rs:683 crates/rigg/src/widgets/locked.rs:723
+#: crates/rigg/src/widgets/locked.rs:693 crates/rigg/src/widgets/locked.rs:735
 msgid "Utilgjengelig"
 msgstr "利用不可"
 
-#: crates/rigg/src/widgets/locked.rs:685
+#: crates/rigg/src/widgets/locked.rs:695
 msgid "Utkast"
 msgstr "下書き"
 
-#: crates/rigg/src/widgets/locked.rs:685
+#: crates/rigg/src/widgets/locked.rs:695
 msgid "Endringene sendes til kortet når du trykker Bruk. Behold dem innen fristen, ellers rulles de tilbake."
 msgstr "「適用」で変更をカードに送信します。期限内に維持しない場合は元に戻ります。"
 
-#: crates/rigg/src/widgets/locked.rs:685
+#: crates/rigg/src/widgets/locked.rs:695
 msgid "Støttede funksjoner kan endres med Bruk og Behold."
 msgstr "対応する機能は「適用」と「維持」で変更できます。"
 
-#: crates/rigg/src/widgets/locked.rs:687
+#: crates/rigg/src/widgets/locked.rs:699
 msgid "Utkast · låst"
 msgstr "下書き · ロック中"
 
-#: crates/rigg/src/widgets/locked.rs:687
+#: crates/rigg/src/widgets/locked.rs:699
 msgid "Utkastet lagres i appen og sendes ikke til kortet. Styring er ikke tilgjengelig for kortet som vises, så Bruk er låst."
 msgstr "下書きはアプリに保存され、カードには送信されません。このカードは制御できないため「適用」はロックされています。"
 
-#: crates/rigg/src/widgets/locked.rs:712
+#: crates/rigg/src/widgets/locked.rs:724
 msgid "Skjermkortstyring"
 msgstr "GPU 制御"
 
-#: crates/rigg/src/widgets/locked.rs:713
+#: crates/rigg/src/widgets/locked.rs:725
 msgid "Aktiver styring én gang med administratorpassord i Innstillinger. Funksjonene under blir tilgjengelige der kortet og driveren støtter dem."
 msgstr "設定で管理者パスワードを使って制御を一度有効にしてください。以下の機能はカードとドライバーが対応している場合に利用できます。"
 
-#: crates/rigg/src/widgets/locked.rs:717
+#: crates/rigg/src/widgets/locked.rs:729
 msgid "Effektgrense"
 msgstr "電力制限"
 
-#: crates/rigg/src/widgets/locked.rs:717
+#: crates/rigg/src/widgets/locked.rs:729
 msgid "Vifter"
 msgstr "ファン"
 
-#: crates/rigg/src/widgets/locked.rs:717
+#: crates/rigg/src/widgets/locked.rs:729
 msgid "Viftekurve"
 msgstr "ファンカーブ"
 
-#: crates/rigg/src/widgets/locked.rs:717
+#: crates/rigg/src/widgets/locked.rs:729
 msgid "Kjerneklokke"
 msgstr "コアクロック"
 
-#: crates/rigg/src/widgets/locked.rs:717
+#: crates/rigg/src/widgets/locked.rs:729
 msgid "Minneklokke"
 msgstr "メモリクロック"
 
-#: crates/rigg/src/widgets/locked.rs:717
+#: crates/rigg/src/widgets/locked.rs:729
 msgid "Temperaturmål"
 msgstr "目標温度"
 
-#: crates/rigg/src/widgets/locked.rs:723
+#: crates/rigg/src/widgets/locked.rs:735
 msgid "Tilgjengelig"
 msgstr "利用可能"
 
-#: crates/rigg/src/widgets/locked.rs:723
+#: crates/rigg/src/widgets/locked.rs:735
 msgid "Ikke undersøkt"
 msgstr "未確認"
 
-#: crates/rigg/src/widgets/locked.rs:727
+#: crates/rigg/src/widgets/locked.rs:739
 msgid "Hver endring må beholdes innen fristen. Du kan alltid velge Rull tilbake."
 msgstr "各変更は期限内に維持してください。「元に戻す」はいつでも選べます。"
 
-#: crates/rigg/src/widgets/locked.rs:731
+#: crates/rigg/src/widgets/locked.rs:743
 msgid "Åpne Innstillinger › Skjermkortstyring"
 msgstr "「設定 › GPU 制御」を開く"
 
-#: crates/rigg/src/widgets/locked.rs:956
+#: crates/rigg/src/widgets/locked.rs:968
 msgid "Rull tilbake"
 msgstr "元に戻す"
 
-#: crates/rigg/src/widgets/locked.rs:957
+#: crates/rigg/src/widgets/locked.rs:969
 msgid "Behold"
 msgstr "維持"
 
-#: crates/rigg/src/widgets/locked.rs:977
+#: crates/rigg/src/widgets/locked.rs:989
 msgid "Tilbakestilling kunne ikke bekreftes. Kortets tilstand er usikker. Prøv Rull tilbake, og se status i Innstillinger › Skjermkortstyring."
 msgstr "復元を確認できませんでした。カードの状態は不明です。「元に戻す」を試し、「設定 › GPU 制御」で状態を確認してください。"
 
-#: crates/rigg/src/widgets/locked.rs:981 crates/rigg/src/widgets/locked.rs:1069 crates/rigg/src/widgets/locked.rs:1123
+#: crates/rigg/src/widgets/locked.rs:993 crates/rigg/src/widgets/locked.rs:1081 crates/rigg/src/widgets/locked.rs:1135
 msgid "Endringene er rullet tilbake"
 msgstr "変更を元に戻しました"
 
-#: crates/rigg/src/widgets/locked.rs:1041
+#: crates/rigg/src/widgets/locked.rs:1053
 msgid "Behold ({sek})"
 msgstr "維持（{sek}）"
 
-#: crates/rigg/src/widgets/locked.rs:1042
+#: crates/rigg/src/widgets/locked.rs:1054
 msgid "Kortet er byttet. Venter på bekreftet tilbakestilling på det opprinnelige kortet …"
 msgstr "選択したカードが変更されました。元のカードでの復元の確認を待っています…"
 
-#: crates/rigg/src/widgets/locked.rs:1043
+#: crates/rigg/src/widgets/locked.rs:1055
 msgid "Fristen er ute. Venter på bekreftet tilbakestilling fra tjenesten …"
 msgstr "期限が切れました。サービスによる復元の確認を待っています…"
 
-#: crates/rigg/src/widgets/locked.rs:1044
+#: crates/rigg/src/widgets/locked.rs:1056
 msgid "Behold endringene? Uten svar rulles de tilbake om {tid}."
 msgstr "変更を維持しますか？応答がなければ {tid} 後に元に戻ります。"
 
-#: crates/rigg/src/widgets/locked.rs:1062
+#: crates/rigg/src/widgets/locked.rs:1074
 msgid "Tjenesten kan ikke bekrefte kortets tilstand eller tilbakestilling. Prøv Rull tilbake, og se status i Innstillinger › Skjermkortstyring."
 msgstr "サービスはカードの状態や復元を確認できません。「元に戻す」を試し、「設定 › GPU 制御」で状態を確認してください。"
 
-#: crates/rigg/src/widgets/locked.rs:1074
+#: crates/rigg/src/widgets/locked.rs:1086
 msgid "Kortets tilstand er bekreftet"
 msgstr "カードの状態を確認しました"
 
-#: crates/rigg/src/widgets/locked.rs:1074
+#: crates/rigg/src/widgets/locked.rs:1086
 msgid "Ingen ubekreftet endring venter."
 msgstr "確認待ちの変更はありません。"
 
-#: crates/rigg/src/widgets/locked.rs:1123
+#: crates/rigg/src/widgets/locked.rs:1135
 msgid "Endringene er beholdt"
 msgstr "変更を維持しました"
 
-#: crates/rigg/src/widgets/locked.rs:1127
+#: crates/rigg/src/widgets/locked.rs:1139
 msgid "Tjenesten kan ikke bekrefte tilbakestillingen. Kortets tilstand er usikker. Prøv Rull tilbake."
 msgstr "サービスは復元を確認できません。カードの状態は不明です。「元に戻す」を試してください。"
 
-#: crates/rigg/src/widgets/locked.rs:1128
+#: crates/rigg/src/widgets/locked.rs:1140
 msgid "Kunne ikke bekrefte svaret: {feil}. Prøv Rull tilbake. Endringen regnes ikke som tilbakestilt før tjenesten bekrefter det."
 msgstr "応答を確認できませんでした: {feil}。「元に戻す」を試してください。サービスが確認するまで、変更は元に戻ったとは見なされません。"

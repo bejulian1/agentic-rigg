@@ -1,0 +1,37 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic HW Monitor\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/widgets/color_picker.rs:119
+msgid "Metning og lyshet"
+msgstr "Saturação e brilho"
+
+#: crates/rigg/src/widgets/color_picker.rs:120
+msgid "Fargetone"
+msgstr "Matiz"
+
+#: crates/rigg/src/widgets/color_picker.rs:245
+msgid "Fargekode"
+msgstr "Código da cor"
+
+#: crates/rigg/src/widgets/color_picker.rs:251
+msgid "Rød kanal"
+msgstr "Canal vermelho"
+
+#: crates/rigg/src/widgets/color_picker.rs:252
+msgid "Grønn kanal"
+msgstr "Canal verde"
+
+#: crates/rigg/src/widgets/color_picker.rs:253
+msgid "Blå kanal"
+msgstr "Canal azul"
+
+#: crates/rigg/src/widgets/color_picker.rs:271
+msgid "Forhåndsvises på kortet. Trykk «Bruk» for å sende."
+msgstr "Prévia no modelo da placa. Clique em “Aplicar” para enviar."

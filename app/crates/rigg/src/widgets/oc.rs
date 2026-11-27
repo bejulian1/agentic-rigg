@@ -84,7 +84,7 @@ pub type FmtFn = Rc<dyn Fn(f64) -> String>;
 
 const PAD: f32 = 10.0;
 /// Luft mellom tallene under glideren.
-const TICK_GAP: f32 = 8.0;
+const TICK_GAP: f32 = 14.0;
 /// Formene tallene under glideren kan ha, fra lengst til kortest: med enhet
 /// på alle tre («−1 000 MHz · standard 0 MHz · +1 000 MHz»), enhet bare på
 /// standard («−1 000 · standard 0 MHz · +1 000»), og standard som bare

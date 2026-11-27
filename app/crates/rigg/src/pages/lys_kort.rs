@@ -3,7 +3,8 @@
 
 use crate::state::App;
 use crate::toast::Toast;
-use crate::widgets::{Panel, Seg, button, class, hbox, label, set_text, vbox};
+use crate::widgets::color_picker::{ColorPicker, draw_swatch, format_hex, parse_hex};
+use crate::widgets::{Icon, Panel, Seg, button, class, hbox, label, set_text, vbox};
 use gtk::glib;
 use gtk::prelude::*;
 use rigg_core::proto::{ErrorCode, ProtoError};
@@ -58,6 +59,7 @@ pub(super) struct CardLight {
     mode: Seg,
     color: gtk::Entry,
     color_pick: gtk::Button,
+    picker: Rc<ColorPicker>,
     swatch: gtk::DrawingArea,
     swatch_color: Rc<Cell<Option<[u8; 3]>>>,
     swatches_box: gtk::Box,
@@ -92,7 +94,7 @@ pub(super) struct CardLight {
     reset: gtk::Button,
     release: gtk::Button,
     ack: gtk::Button,
-    pending: gtk::Box,
+    pub pending: gtk::Box,
     deadline: gtk::Label,
     pending_hint: gtk::Label,
     keep: gtk::Button,
@@ -293,21 +295,9 @@ fn card_present(app: &App) -> bool {
         .is_some_and(|gpu| matches!(gpu.state, rigg_core::model::DeviceState::Ok))
 }
 
-fn hex_color(text: &str) -> Option<[u8; 3]> {
-    let value = text.strip_prefix('#').unwrap_or(text);
-    if value.len() != 6 || !value.bytes().all(|b| b.is_ascii_hexdigit()) {
-        return None;
-    }
-    Some([
-        u8::from_str_radix(&value[0..2], 16).ok()?,
-        u8::from_str_radix(&value[2..4], 16).ok()?,
-        u8::from_str_radix(&value[4..6], 16).ok()?,
-    ])
-}
-
 fn color_text(value: &Value) -> Option<String> {
     let rgb: [u8; 3] = serde_json::from_value(value.clone()).ok()?;
-    Some(format!("#{:02X}{:02X}{:02X}", rgb[0], rgb[1], rgb[2]))
+    Some(format_hex(rgb))
 }
 
 
@@ -365,7 +355,7 @@ fn request_text(value: &Value) -> String {
     match serde_json::from_value::<Request>(value.clone()) {
         Ok(Request::Off {}) => tr!("Av").into(),
         // Står inne i setninger («… går tilbake til fast farge #3A7BF0 · 80 %»).
-        Ok(Request::Static { color, brightness }) => trf!("fast farge {farge} · {styrke}", farge = format!("#{:02X}{:02X}{:02X}", color[0], color[1], color[2]), styrke = fmt::pct(Some(f64::from(brightness.get())), 0)),
+        Ok(Request::Static { color, brightness }) => trf!("fast farge {farge} · {styrke}", farge = format_hex(color), styrke = fmt::pct(Some(f64::from(brightness.get())), 0)),
         Err(_) => tr!("Ingen kjent innstilling").into(),
     }
 }
@@ -612,17 +602,12 @@ impl CardLight {
         controls.attach(&mode.root, 1, 1, 1, 1);
 
         let swatch = gtk::DrawingArea::new();
-        swatch.set_content_width(20);
-        swatch.set_content_height(20);
+        swatch.set_content_width(16);
+        swatch.set_content_height(16);
+        swatch.set_valign(gtk::Align::Center);
         let swatch_color = Rc::new(Cell::new(None::<[u8; 3]>));
         let fill = swatch_color.clone();
-        swatch.set_draw_func(move |_, context, width, height| {
-            if let Some([red, green, blue]) = fill.get() {
-                context.set_source_rgb(f64::from(red) / 255.0, f64::from(green) / 255.0, f64::from(blue) / 255.0);
-                context.arc(f64::from(width) / 2.0, f64::from(height) / 2.0, 8.0, 0.0, std::f64::consts::TAU);
-                let _ = context.fill();
-            }
-        });
+        swatch.set_draw_func(move |_, ctx, w, h| draw_swatch(ctx, w, h, fill.get()));
         let color = gtk::Entry::new();
         color.set_text("#3A7BF0");
         color.set_max_length(7);
@@ -634,8 +619,14 @@ impl CardLight {
         )]);
         // Fargeruten åpner en fargevelger med hele spekteret, hex og forhåndsvisning.
         let color_pick = gtk::Button::new();
-        color_pick.set_child(Some(&swatch));
-        color_pick.add_css_class("flat");
+        let trigger = hbox(5, &[]);
+        trigger.append(&swatch);
+        let chevron = Icon::new("chevron-down", 12);
+        chevron.add_css_class("muted");
+        trigger.append(&chevron);
+        color_pick.set_child(Some(&trigger));
+        let entry = color.clone();
+        let picker = ColorPicker::new(app, [58, 123, 240], move |rgb| entry.set_text(&format_hex(rgb)));
         color_pick.add_css_class("rgb-color-pick");
         color_pick.set_tooltip_text(Some(tr!("Velg farge …")));
         color_pick.update_property(&[gtk::accessible::Property::Label(tr!("Velg farge …"))]);
@@ -652,7 +643,7 @@ impl CardLight {
             let area = gtk::DrawingArea::new();
             area.set_content_width(18);
             area.set_content_height(18);
-            let rgb = hex_color(hex).unwrap_or([58, 123, 240]);
+            let rgb = parse_hex(hex).unwrap_or([58, 123, 240]);
             area.set_draw_func(move |_, ctx, w, h| {
                 let (cx, cy) = (f64::from(w) / 2.0, f64::from(h) / 2.0);
                 ctx.set_source_rgb(f64::from(rgb[0]) / 255.0, f64::from(rgb[1]) / 255.0, f64::from(rgb[2]) / 255.0);
@@ -758,10 +749,10 @@ impl CardLight {
         let confirmation = flow();
         let keep = button(Some("check"), Some(tr!("Behold")), &["sm", "suggested"]);
         let revert = button(Some("undo-2"), Some(tr!("Rull tilbake")), &["sm"]);
-        confirmation.insert(&keep, -1);
         confirmation.insert(&revert, -1);
+        confirmation.insert(&keep, -1);
         pending.append(&confirmation);
-        panel.body.append(&pending);
+        pending.set_visible(false);
 
         // Sjeldne ting: avlesning, kortidentitet og administratorhandlinger.
         let details_box = vbox(6, &["rgb-card-details"]);
@@ -826,6 +817,7 @@ impl CardLight {
             mode,
             color,
             color_pick,
+            picker,
             swatch,
             swatch_color,
             swatches_box,
@@ -910,22 +902,8 @@ impl CardLight {
             }
         });
         let weak = Rc::downgrade(self);
-        self.color_pick.connect_clicked(move |b| {
-            let Some(p) = weak.upgrade() else { return };
-            let dialog = gtk::ColorDialog::new();
-            dialog.set_title(tr!("Velg farge"));
-            dialog.set_with_alpha(false);
-            dialog.set_modal(true);
-            let [r, g, bl] = hex_color(&p.color.text()).unwrap_or([58, 123, 240]);
-            let initial = gtk::gdk::RGBA::new(f32::from(r) / 255.0, f32::from(g) / 255.0, f32::from(bl) / 255.0, 1.0);
-            let window = b.root().and_downcast::<gtk::Window>();
-            let entry = p.color.clone();
-            dialog.choose_rgba(window.as_ref(), Some(&initial), gtk::gio::Cancellable::NONE, move |result| {
-                if let Ok(rgba) = result {
-                    let channel = |v: f32| (v.clamp(0.0, 1.0) * 255.0).round() as u8;
-                    entry.set_text(&format!("#{:02X}{:02X}{:02X}", channel(rgba.red()), channel(rgba.green()), channel(rgba.blue())));
-                }
-            });
+        self.color_pick.connect_clicked(move |anchor| {
+            if let Some(p) = weak.upgrade() { p.picker.open(anchor); }
         });
         let weak = Rc::downgrade(self);
         self.varig.connect_toggled(move |b| {
@@ -953,7 +931,7 @@ impl CardLight {
                 p.syncing.set(true);
                 p.power.set_active(true);
                 p.mode.set("static");
-                p.color.set_text(&format!("#{:02X}{:02X}{:02X}", color[0], color[1], color[2]));
+                p.color.set_text(&format_hex(color));
                 p.brightness.set_value(f64::from(brightness.get()));
                 p.syncing.set(false);
                 p.edited.set(true);
@@ -1091,6 +1069,7 @@ impl CardLight {
 
     pub fn hide(&self) {
         self.visible.set(false);
+        self.picker.close();
         if let Some(timer) = self.timer.borrow_mut().take() {
             timer.remove();
         }
@@ -1131,7 +1110,7 @@ impl CardLight {
     /// skal holdes. «Av» skrives slik innstillingen `rgbAv` sier; med «hold»
     /// startes keepalive så snart prøven er skrevet (se [`Followup::Hold`]).
     fn request_args(&self) -> Option<(Value, bool)> {
-        let color = hex_color(&self.color.text());
+        let color = parse_hex(&self.color.text());
         if !self.power.is_active() {
             let method = self.app.settings().rgb_av.clone();
             let (request, hold) = off_request(&method, color.unwrap_or([58, 123, 240]));
@@ -1365,7 +1344,7 @@ impl CardLight {
         } else {
             self.power.set_active(true);
             if let Ok(Request::Static { color, brightness }) = serde_json::from_value::<Request>(target["confirmed"].clone()) {
-                self.color.set_text(&format!("#{:02X}{:02X}{:02X}", color[0], color[1], color[2]));
+                self.color.set_text(&format_hex(color));
                 self.brightness.set_value(f64::from(brightness.get()));
             }
             self.mode.set(effect.filter(|e| effect_name(e).is_some()).unwrap_or("static"));
@@ -1381,6 +1360,7 @@ impl CardLight {
         let selected = selected_identity(&self.app);
         let reported = &status["identity"];
         let same_card = selected.as_ref().is_some_and(|(pci, uuid)| reported["pci"].as_str() == Some(pci) && reported["uuid"].as_str() == Some(uuid));
+        let waiting = helper["state"] == "waiting" && (same_card || reported.is_null());
         let unsupported = same_card && helper["state"] == "unsupported";
         let stale = rgb_stale(&self.app, &helper);
         let bound = bound_status(&helper, selected.as_ref()) && !stale;
@@ -1437,7 +1417,7 @@ impl CardLight {
             tr!("Må oppdateres")
         } else if unsupported {
             tr!("Ikke støttet")
-        } else if same_card && helper["state"] == "waiting" {
+        } else if waiting {
             tr!("Venter på enhet")
         } else if !bound {
             tr!("Ikke aktivert")
@@ -1469,6 +1449,17 @@ impl CardLight {
             "warn",
             connected && bound && (pending || reviewing || blocked || drift),
         );
+        let needs_ack = bound && status["recoveryId"].is_string() && !pending;
+        let runtime_failed = bound && status["runtimeError"].is_string();
+        let must_resolve = bound && !pending && (blocked || runtime_failed) && !needs_ack;
+        let resolve = needs_ack || must_resolve || drift || reviewing;
+        let action = resolve || !bound;
+        let has_message = self.message.borrow().is_some();
+        let warn = resolve || has_message || !connected || !present || newer_installed || stale
+            || matches!(helper["state"].as_str(), Some("outdated" | "error"));
+        self.action_box.set_visible(action || has_message);
+        class(&self.action_box, "warn", warn);
+        class(&self.action_box, "neutral", !warn);
         let message = if self.busy.get() {
             tr!("Venter på svar. Ingen ny endring kan sendes nå.").into()
         } else if !connected {
@@ -1478,15 +1469,13 @@ impl CardLight {
             message
         } else if !present {
             tr!("Kortet er ikke tilgjengelig. Nye lysendringer og aktivering er sperret.").into()
-        } else if reviewing {
-            review_hint.into()
         } else if other {
             tr!("Et annet vindu styrer kortlyset. Her vises bare status.").into()
         } else if bound {
             tr!("Hele kortlyset er én sone. Ingenting sendes før du trykker «Bruk».").into()
         } else if unsupported {
             tr!("Ikke støttet").into()
-        } else if same_card && helper["state"] == "waiting" {
+        } else if waiting {
             with_diagnostic(tr!("Venter på enhet"), helper["message"].as_str())
         } else if helper["state"] == "error" || stale || newer_installed || helper["state"] == "outdated" {
             with_diagnostic(tr!("RGB-hjelperen er ikke klar."), helper["message"].as_str())
@@ -1497,9 +1486,10 @@ impl CardLight {
         } else {
             tr!("RGB-hjelperen er ikke klar.").into()
         };
-        set_text(&self.summary, &message);
-        // Må avklares eller oppdateres: varselfarge, så det ikke forsvinner i resten.
-        class(&self.summary, "warn", stale && self.message.borrow().is_none());
+        set_text(&self.summary, if resolve {
+            tr!("Avklar lyset øverst før nye endringer kan sendes.")
+        } else { &message });
+        self.summary.set_visible(resolve || (!action && !has_message && !pending));
         if newer_installed {
             self.summary.set_tooltip_text(Some(&message));
         } else if self.message.borrow().is_none() {
@@ -1577,6 +1567,7 @@ impl CardLight {
         self.recovery.set_tooltip_text(state["readError"].as_str().or_else(|| state["error"].as_str()));
         // Teksten står i handlingsboksen; avsnittet brukes ikke lenger alene.
         self.recovery.set_visible(false);
+        let entering_trial = pending && bound && !self.pending.is_visible();
         self.pending.set_visible(pending && bound);
         set_text(
             &self.pending_hint,
@@ -1608,19 +1599,25 @@ impl CardLight {
         self.keep
             .set_sensitive(available && owned && remaining != Some(0));
         self.revert.set_sensitive(available && owned);
+        set_text_button(&self.keep, &remaining.map_or_else(|| tr!("Behold").to_string(),
+            |s| trf!("Behold ({sek})", sek = fmt::num(Some(s as f64), 0))));
+        if entering_trial && self.keep.is_sensitive() { self.keep.grab_focus(); }
         let off = !self.power.is_active();
-        let valid_color = hex_color(&self.color.text()).is_some();
+        let rgb = parse_hex(&self.color.text());
+        if let Some(rgb) = rgb { self.picker.set_rgb(rgb); }
+        let valid_color = rgb.is_some();
         class(&self.color, "error", !valid_color && !off);
-        let color = (!off).then(|| hex_color(&self.color.text())).flatten();
+        let color = rgb.filter(|_| !off);
         if self.swatch_color.replace(color) != color {
             self.swatch.queue_draw();
         }
         self.support.set_visible(!bound && !unsupported);
-        self.controls.set_visible(present && bound && status["review"].is_null());
-        self.apply.set_visible(present);
+        self.controls.set_visible(present && bound && !reviewing);
+        self.controls.set_sensitive(!resolve);
         self.readback_note.set_visible(bound);
         self.color.set_sensitive(!off && !self.busy.get());
-        self.color_pick.set_sensitive(!off && !self.busy.get());
+        self.color_pick.set_sensitive(!off && available && !action);
+        if !self.color_pick.is_sensitive() || !present { self.picker.close(); }
         self.swatches_box.set_sensitive(!off && !self.busy.get());
         self.power.set_sensitive(!self.busy.get());
         self.brightness_box.set_sensitive(!off && !self.busy.get());
@@ -1648,12 +1645,6 @@ impl CardLight {
         self.apply_hint.set_visible(!(apply_hint.is_empty() || pending && bound));
         self.refresh
             .set_sensitive(connected && !self.reading.get() && !self.busy.get());
-        let needs_ack = bound && status["recoveryId"].is_string() && !pending;
-        let runtime_failed = bound && status["runtimeError"].is_string();
-        let must_resolve = bound && !pending && (blocked || runtime_failed) && !needs_ack;
-        let action = needs_ack || must_resolve || drift;
-        let action = action || reviewing || !bound;
-        self.action_box.set_visible(action || self.message.borrow().is_some());
         self.refresh.set_visible(reviewing || must_resolve || (!bound && !unsupported));
         self.settings.set_visible(!bound && !unsupported);
         self.keep_observed.set_visible(reviewing);
@@ -1661,7 +1652,7 @@ impl CardLight {
         set_text_button(&self.keep_observed, if review["kind"] == "first" { tr!("Jeg ser én fast farge") } else { tr!("Behold lyset jeg ser") });
         if reviewing {
             set_text(&self.action_title, review_title);
-            let mut fields = vec![trf!("Avlest lys: {lys}", lys = observed_text(observed))];
+            let mut fields = vec![review_hint.to_string(), trf!("Avlest lys: {lys}", lys = observed_text(observed))];
             if status["baselineRequest"].is_object() {
                 fields.push(trf!("Lagret lys: {lys}", lys = request_text(&status["baselineRequest"])));
             }
@@ -1688,6 +1679,9 @@ impl CardLight {
             set_text(&self.action_title, tr!("Kortet viser ikke det lagrede utgangspunktet"));
             let now = observed_text(observed);
             set_text(&self.action_text, &trf!("Kortet viser {lest}. Velg «{knapp}» for å gjenopprette {lys}, og bekreft det du ser.", lest = now, knapp = restore_label(status), lys = request_text(&status["baselineRequest"])));
+        }
+        if resolve && !reviewing && let Some(error) = self.message.borrow().as_deref() {
+            set_text(&self.action_text, &with_diagnostic(&self.action_text.text(), Some(error)));
         }
         self.ack.set_visible(needs_ack);
         self.ack.set_sensitive(available);
@@ -1753,7 +1747,7 @@ impl CardLight {
             bound,
             pending: pending && bound,
             selected_mode: if off { "off".into() } else { selected_mode },
-            selected_color: hex_color(&self.color.text()),
+            selected_color: parse_hex(&self.color.text()),
             selected_brightness: self.brightness.value_as_int().clamp(0, 100) as u8,
             active_effect: (bound && !pending)
                 .then(|| worker_effect.map(str::to_owned))
@@ -1776,7 +1770,7 @@ impl CardLight {
             bound: false,
             pending: false,
             selected_mode: "static".into(),
-            selected_color: hex_color(&self.color.text()),
+            selected_color: parse_hex(&self.color.text()),
             selected_brightness: self.brightness.value_as_int().clamp(0, 100) as u8,
             active_effect: None,
             observed_color: None,
@@ -1894,7 +1888,13 @@ pub(crate) fn debug_flow(step: &str) {
                 FLOW_INITIAL.with(|v| *v.borrow_mut() = state.clone());
             }
             "edit" => {
-                p.color.set_text("#32B487");
+                click(&p.color_pick);
+                let entry = crate::skjermbilder::find_class(p.color_pick.upcast_ref(), "mono")
+                    .unwrap().downcast::<gtk::Entry>().unwrap();
+                entry.set_text("#32B487");
+                assert_eq!(p.color.text(), "#32B487");
+                assert_eq!(p.visual_state().selected_color, Some([50,180,135]));
+                p.picker.close();
                 p.brightness.set_value(65.0);
             }
             "unchanged" => {
@@ -2251,6 +2251,9 @@ pub(crate) fn debug_fixture(kind: &str) {
             }
             *p.helper.borrow_mut() = value;
             p.render();
+            if matches!(kind, "first" | "journal" | "recovery" | "blocked" | "avvik") {
+                assert!(p.action_box.has_css_class("warn") && !p.controls.is_sensitive());
+            }
             if matches!(kind, "first" | "journal") {
                 assert!(p.badge.text().contains(tr!("Må avklares")) && p.badge.has_css_class("warn"));
                 assert!(!p.controls.is_visible() && p.keep_observed.is_visible() && !p.keep_observed.has_css_class("icon-only"));
@@ -2265,6 +2268,7 @@ pub(crate) fn debug_fixture(kind: &str) {
                 assert!(p.helper.borrow()["status"]["state"]["error"].is_null());
             } else if kind == "off" {
                 // Uten aktiv arbeider viser panelet inngangen til Skjermkortstyring.
+                assert!(p.action_box.has_css_class("neutral") && !p.summary.is_visible());
                 assert!(p.settings.is_visible() && !p.apply.is_sensitive());
                 assert!(!p.controls.is_visible() && !p.apply.is_visible());
             } else if kind == "pending_effects" {
@@ -2377,9 +2381,9 @@ mod tests {
 
     #[test]
     fn kortfarge_er_streng_og_valgene_er_semantiske() {
-        assert_eq!(hex_color("#00aAFF"), Some([0, 170, 255]));
+        assert_eq!(parse_hex("#00aAFF"), Some([0, 170, 255]));
         for bad in ["", "#abc", "#gg0000", "#1234567", "１２３４５６", "#12 456"] {
-            assert_eq!(hex_color(bad), None);
+            assert_eq!(parse_hex(bad), None);
         }
         assert_eq!(request_text(&json!({"mode": "off"})), "Av");
         assert_eq!(

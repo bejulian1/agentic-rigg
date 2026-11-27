@@ -163,14 +163,16 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
 
     let stack = gtk::Stack::new();
     stack.set_hexpand(true);
-    stack.set_vexpand(true);
+    stack.set_vhomogeneous(false);
+    stack.set_vexpand(false);
     let flat = FlatCard::new(rigg_core::version::NAME);
     stack.add_named(&flat, Some("2d"));
 
     let overlay = gtk::Overlay::new();
     overlay.add_css_class("rgb-stage");
     overlay.set_hexpand(true);
-    overlay.set_size_request(-1, 290);
+    overlay.set_vexpand(false);
+    overlay.set_valign(gtk::Align::Start);
     overlay.set_child(Some(&stack));
 
     let caption = label("", &["stage-chip"]);
@@ -286,6 +288,9 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     readout_box.append(&readout_label);
     readout_box.set_visible(false);
     bar.insert(&readout_box, -1);
+    if let Some(slot) = readout_box.parent() {
+        readout_box.bind_property("visible", &slot, "visible").sync_create().build();
+    }
 
     prev.body.append(&bar);
 
@@ -308,6 +313,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     content.append(&prev.root);
     content.append(&card_light.root);
     outer.set_child(Some(&content));
+    root.append(&card_light.pending);
     root.append(&outer);
 
     let stored = locked::stored(app);
@@ -498,9 +504,9 @@ impl Lys {
 
     fn apply_visual(self: &Rc<Self>, v: &VisualState) {
         *self.visual.borrow_mut() = v.clone();
-        // Før aktivering forhåndsviser kortet valget (farge og effekt), slik
-        // at brukeren ser hva «Bruk» vil sende.
-        let target = if v.bound && v.pending {
+        let target = if !v.bound {
+            PreviewTarget { mode: "off".into(), color: [0; 3], brightness: 0 }
+        } else if v.pending {
             let off = v.observed_color == Some([0, 0, 0])
                 || (v.observed_color.is_none() && v.selected_mode == "off");
             PreviewTarget {
@@ -526,7 +532,7 @@ impl Lys {
 
         // Oppdater statusmerket og kortets sist leste farge.
         let tag_text = if !v.bound {
-            tr!("Forhåndsvisning av valg")
+            tr!("Ikke aktivert")
         } else if v.pending {
             tr!("Prøve på kortet")
         } else if v.active_effect.is_some() {
@@ -819,6 +825,7 @@ impl Lys {
         self.ui.mode_seg.set(mode);
         let three = mode == "3d";
         class(&self.ui.root, "mode-2d", !three);
+        self.ui.overlay.set_size_request(-1, if three { 290 } else { 240 });
         for w in [
             self.ui.caption.clone().upcast::<gtk::Widget>(),
             self.ui.keys.clone().upcast(),

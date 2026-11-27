@@ -284,8 +284,6 @@ window.rigg dropdown.win-select popover listview > row:focus:focus-visible {
 .control-page-shell > revealer.sticky-confirm {
   margin: var(--content-pad) var(--content-pad) 0;
 }
-.viftekurve .fan-view-switch { margin-bottom: var(--sp-1); }
-.viftekurve .fan-view-switch > button { padding: var(--sp-2) var(--sp-3); }
 .viftekurve .fan-mode-card .manual-row { margin-top: var(--sp-2); }
 .viftekurve .fan-curve-notice {
   padding: var(--sp-2);

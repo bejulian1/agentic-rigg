@@ -57,7 +57,7 @@ mod imp {
         fn measure(&self, o: gtk::Orientation, _for: i32) -> (i32, i32, i32, i32) {
             match o {
                 gtk::Orientation::Horizontal => (240, 660, -1, -1),
-                _ => (140, 300, -1, -1),
+                _ => (140, 240, -1, -1),
             }
         }
 

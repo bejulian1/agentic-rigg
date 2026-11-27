@@ -11,7 +11,7 @@ msgstr ""
 msgid "Skjermkort"
 msgstr "显卡"
 
-#: crates/rigg/src/pages/lys.rs:156
+#: crates/rigg/src/pages/lys.rs:156 crates/rigg/src/pages/lys.rs:535
 msgid "Ikke aktivert"
 msgstr "未启用"
 
@@ -27,126 +27,126 @@ msgstr "2D"
 msgid "Visning"
 msgstr "视图"
 
-#: crates/rigg/src/pages/lys.rs:182
+#: crates/rigg/src/pages/lys.rs:184
 msgid "Dra for å vri · rull for zoom · 0 tilbakestiller"
 msgstr "拖动旋转 · 滚轮缩放 · 按 0 重置"
 
-#: crates/rigg/src/pages/lys.rs:188
+#: crates/rigg/src/pages/lys.rs:190
 msgid "Bygger 3D-kortet …"
 msgstr "正在构建 3D 显卡 …"
 
-#: crates/rigg/src/pages/lys.rs:226 crates/rigg/src/pages/lys.rs:232
+#: crates/rigg/src/pages/lys.rs:228 crates/rigg/src/pages/lys.rs:234
 msgid "Vinkel"
 msgstr "视角"
 
-#: crates/rigg/src/pages/lys.rs:228 crates/rigg/src/pages/lys.rs:229
+#: crates/rigg/src/pages/lys.rs:230 crates/rigg/src/pages/lys.rs:231
 msgid "Tilbakestill visningen"
 msgstr "重置视图"
 
-#: crates/rigg/src/pages/lys.rs:239 crates/rigg/src/pages/lys.rs:242
+#: crates/rigg/src/pages/lys.rs:241 crates/rigg/src/pages/lys.rs:244
 msgid "Lag"
 msgstr "层级"
 
-#: crates/rigg/src/pages/lys.rs:250 crates/rigg/src/pages/lys.rs:255
+#: crates/rigg/src/pages/lys.rs:252 crates/rigg/src/pages/lys.rs:257
 msgid "Skill lagene"
 msgstr "展开层级"
 
-#: crates/rigg/src/pages/lys.rs:263 crates/rigg/src/pages/lys.rs:266
+#: crates/rigg/src/pages/lys.rs:265 crates/rigg/src/pages/lys.rs:268
 msgid "Bakgrunnslys"
 msgstr "环境光晕"
 
-#: crates/rigg/src/pages/lys.rs:293
+#: crates/rigg/src/pages/lys.rs:298
 msgid "Deler i 3D-modellen"
 msgstr "3D 模型中的部件"
 
-#: crates/rigg/src/pages/lys.rs:528 crates/rigg/src/pages/lys.rs:546
-msgid "Forhåndsvisning av valg"
-msgstr "预览当前选择"
-
-#: crates/rigg/src/pages/lys.rs:530
+#: crates/rigg/src/pages/lys.rs:537
 msgid "Prøve på kortet"
 msgstr "显卡测试中"
 
-#: crates/rigg/src/pages/lys.rs:532
+#: crates/rigg/src/pages/lys.rs:539
 msgid "Aktiv effekt"
 msgstr "效果运行中"
 
-#: crates/rigg/src/pages/lys.rs:544
+#: crates/rigg/src/pages/lys.rs:551
 msgid "Speiler kortlyset"
 msgstr "与显卡灯光一致"
 
-#: crates/rigg/src/pages/lys.rs:561
+#: crates/rigg/src/pages/lys.rs:553
+msgid "Forhåndsvisning av valg"
+msgstr "预览当前选择"
+
+#: crates/rigg/src/pages/lys.rs:568
 msgid "Utgangspunkt: Av"
 msgstr "基准状态：关闭"
 
-#: crates/rigg/src/pages/lys.rs:563
+#: crates/rigg/src/pages/lys.rs:570
 msgid "Sist lest: Av"
 msgstr "上次读取：关闭"
 
-#: crates/rigg/src/pages/lys.rs:565
+#: crates/rigg/src/pages/lys.rs:572
 msgid "Utgangspunkt: {farge} · {styrke}"
 msgstr "初始状态：{farge} · {styrke}"
 
-#: crates/rigg/src/pages/lys.rs:567
+#: crates/rigg/src/pages/lys.rs:574
 msgid "Sist lest: {farge} · {styrke}"
 msgstr "上次读取：{farge} · {styrke}"
 
-#: crates/rigg/src/pages/lys.rs:741 crates/rigg/src/pages/lys.rs:961
+#: crates/rigg/src/pages/lys.rs:748 crates/rigg/src/pages/lys.rs:969
 msgid "Lys vises i 2D"
 msgstr "以 2D 模式显示"
 
-#: crates/rigg/src/pages/lys.rs:741
+#: crates/rigg/src/pages/lys.rs:748
 msgid "3D-kortet kunne ikke tegnes med grafikken her. Det flate kortet viser de samme lysvalgene."
 msgstr "当前图形环境无法渲染 3D 显卡。平面 2D 视图会显示相同的灯光设置。"
 
-#: crates/rigg/src/pages/lys.rs:839
+#: crates/rigg/src/pages/lys.rs:847
 msgid "3D kan ikke tegnes her ({feil}). Klikk for å prøve igjen."
 msgstr "无法在此渲染 3D（{feil}）。点击重试。"
 
-#: crates/rigg/src/pages/lys.rs:841
+#: crates/rigg/src/pages/lys.rs:849
 msgid "Grafikken tegnet 3D for tregt. Klikk for å prøve igjen."
 msgstr "3D 渲染速度过慢。点击重试。"
 
-#: crates/rigg/src/pages/lys.rs:843
+#: crates/rigg/src/pages/lys.rs:851
 msgid "Kortet i 3D. Dra for å vri."
 msgstr "3D 显卡视图。拖动可旋转。"
 
-#: crates/rigg/src/pages/lys.rs:848
+#: crates/rigg/src/pages/lys.rs:856
 msgid "Flatt kort sett forfra. Bruker minst ressurser."
 msgstr "正面平面显卡视图。资源占用最低。"
 
-#: crates/rigg/src/pages/lys.rs:863
+#: crates/rigg/src/pages/lys.rs:871
 msgid "Stillbilde: grafikken tegner for tregt"
 msgstr "静止画面：图形渲染过慢"
 
-#: crates/rigg/src/pages/lys.rs:865
+#: crates/rigg/src/pages/lys.rs:873
 msgid "Animasjon av"
 msgstr "动画已关闭"
 
-#: crates/rigg/src/pages/lys.rs:961
+#: crates/rigg/src/pages/lys.rs:969
 msgid "Grafikken tegnet 3D-kortet for tregt. Velg 3D over visningen for å prøve igjen."
 msgstr "3D 显卡渲染过慢。可在视图上方重新选择 3D 重试。"
 
-#: crates/rigg/src/pages/lys.rs:1068
+#: crates/rigg/src/pages/lys.rs:1076
 msgid "Kortlys er ikke aktivert."
 msgstr "显卡灯光未启用。"
 
-#: crates/rigg/src/pages/lys.rs:1070
+#: crates/rigg/src/pages/lys.rs:1078
 msgid "Lysene er av."
 msgstr "灯光已关闭。"
 
-#: crates/rigg/src/pages/lys.rs:1072
+#: crates/rigg/src/pages/lys.rs:1080
 msgid "Lysstyrke {styrke}."
 msgstr "亮度 {styrke}。"
 
-#: crates/rigg/src/pages/lys.rs:1086
+#: crates/rigg/src/pages/lys.rs:1094
 msgid "{lag} · lagene skilt"
 msgstr "{lag} · 层级已展开"
 
-#: crates/rigg/src/pages/lys.rs:1109
+#: crates/rigg/src/pages/lys.rs:1117
 msgid "Flatt skjermkort sett forfra."
 msgstr "正面平面显卡视图。"
 
-#: crates/rigg/src/pages/lys.rs:1125
+#: crates/rigg/src/pages/lys.rs:1133
 msgid "Kortet har én fysisk lyssone."
 msgstr "该显卡只有一个物理灯区。"

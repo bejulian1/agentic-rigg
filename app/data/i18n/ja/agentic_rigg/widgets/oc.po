@@ -8,18 +8,18 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg/src/widgets/oc.rs:231
+#: crates/rigg/src/widgets/oc.rs:212
 msgid "standard {verdi}"
 msgstr "既定値 {verdi}"
 
-#: crates/rigg/src/widgets/oc.rs:703 crates/rigg/src/widgets/oc.rs:704
+#: crates/rigg/src/widgets/oc.rs:776 crates/rigg/src/widgets/oc.rs:777
 msgid "Mer om {what}"
 msgstr "{what} の詳細"
 
-#: crates/rigg/src/widgets/oc.rs:804
+#: crates/rigg/src/widgets/oc.rs:877
 msgid "Tilbakestill"
 msgstr "リセット"
 
-#: crates/rigg/src/widgets/oc.rs:808
+#: crates/rigg/src/widgets/oc.rs:881
 msgid "Tilbakestill {verdi} til standard"
 msgstr "{verdi} を既定値に戻す"

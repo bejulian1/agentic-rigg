@@ -227,7 +227,7 @@ fn rgb_state_text(helper: Option<&serde_json::Value>, selected: Option<&(String,
         Some("on") if matches && (status["review"].is_object() || crate::pages::lys_kort::is_blocked(&status["state"]) || status["runtimeError"].is_string()) => tr!("Må avklares"),
         Some("on") if matches => tr!("Tilgjengelig"),
         Some("unsupported") if matches => tr!("Ikke støttet"),
-        Some("waiting") if matches => tr!("Venter på enhet"),
+        Some("waiting") if matches || status["identity"].is_null() => tr!("Venter på enhet"),
         Some("off") => tr!("Av"),
         Some("outdated") => tr!("Oppdater systemkomponenter"),
         _ => tr!("Ikke klar"),
@@ -510,6 +510,7 @@ mod tests {
             assert_eq!(rgb_state_text(Some(&helper), Some(&selected)), text);
             assert_eq!(rgb_state_text(Some(&helper), None), "Ikke klar");
         }
+        assert_eq!(rgb_state_text(Some(&serde_json::json!({"state":"waiting"})), Some(&selected)), "Venter på enhet");
         assert_eq!(rgb_state_text(Some(&serde_json::json!({"state":"on"})), None), "Ikke klar");
     }
 }

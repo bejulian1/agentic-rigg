@@ -117,6 +117,8 @@ window.rigg .styring-actions button:disabled { opacity: 0.6; }
   box-shadow: inset 3px 0 0 transparent;
   transition: background-color 300ms ease-out;
 }
+.styring .oc-advanced { border-top: 1px solid var(--border-soft); }
+.styring .oc-advanced > title, .styring .oc-fans-link { padding: var(--sp-2) var(--pad); }
 .styring .oc-row:last-child { border-bottom: none; }
 /* Utkastet er noe annet enn kortet: aksentkant, så det aldri forveksles. */
 .styring .oc-row.changed { box-shadow: inset 3px 0 0 var(--accent); background-color: color-mix(in srgb, var(--accent) 4%, transparent); }
