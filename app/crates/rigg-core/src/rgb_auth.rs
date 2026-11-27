@@ -1,5 +1,4 @@
-//! Separat, kortbundet RGB-tillatelse. GPU-hjelperens globale NVML-tillatelse
-//! brukes aldri her. Modellen leser ingen filer og åpner ingen enheter.
+//! RGB-arbeiderens projeksjon av den felles kortbundne tillatelsen. Modellen leser ingen filer og åpner ingen enheter.
 //!
 //! Produksjonskalleren må selv lese tillatelsen fra en trygg, root-eid fil
 //! skrevet ved eksplisitt administratoraktivering. JSON fra en klient er
@@ -16,7 +15,7 @@ pub const BINARY_PATH: &str = "/usr/local/libexec/agentic-rigg-rgb-v2/agentic-ri
 pub const LIBEXEC_DIR: &str = "/usr/local/libexec/agentic-rigg-rgb-v2";
 pub const POLICY_PATH: &str = "/usr/share/polkit-1/actions/io.github.AgenticRigg.rgb.v2.policy";
 pub const UNIT: &str = "agentic-rigg-rgb.service";
-pub const PROTOCOL: u32 = 3;
+pub const PROTOCOL: u32 = 4;
 pub const DOMAIN: &str = "palit_rgb";
 pub const HELPER_NAME: &str = "agentic-rigg-rgb-helper";
 pub const UI_OPS: &[&str] = &[
@@ -26,6 +25,7 @@ pub const UI_OPS: &[&str] = &[
     "rgb_reset",
     "rgb_release",
     "rgb_ack_recovery",
+    "rgb_keep_observed",
     "rgb_read",
     "rgb_persist",
     "rgb_hold",
@@ -66,11 +66,8 @@ impl Paths {
         self.at(LIBEXEC_DIR).join(name)
     }
 }
-/// Bare RGB-formatet og sikkerhetsmodellen fra dette bygget er gjennomgått.
-/// Dette er uavhengig av NVML-hjelperens kompatibilitet og autorisasjon.
-/// Bygg 29 innførte protokoll 3 (bytte mellom effekter); eldre RGB-hjelpere
-/// og tillatelser må installeres og aktiveres på nytt.
-pub const MIN_COMPATIBLE_BUILD: u32 = 29;
+/// Bygggrensen brukes sammen med protokoll 4 og felles kortgenerasjon.
+pub const MIN_COMPATIBLE_BUILD: u32 = 33;
 
 pub fn compatible_build(build: u32) -> bool {
     (MIN_COMPATIBLE_BUILD..=crate::version::build()).contains(&build)
@@ -92,6 +89,8 @@ struct Data {
     uid: u32,
     enabled: bool,
     binding: Binding,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    generation: Option<String>,
     build: u32,
 }
 
@@ -127,6 +126,7 @@ impl Authorization {
             version: SCHEMA_VERSION,
             uid,
             enabled: true,
+            generation: None,
             binding,
             build,
         }
@@ -148,6 +148,12 @@ impl Authorization {
 
     pub fn binding(&self) -> &Binding {
         &self.data.binding
+    }
+
+    pub fn matches_card(&self, grant: &crate::hjelper::Config) -> bool {
+        grant.enabled && grant.generation.is_some() && self.data.generation == grant.generation
+            && grant.uid == self.uid() && grant.build == self.build()
+            && grant.pci.as_deref() == Some(&self.binding().pci) && grant.uuid.as_deref() == Some(&self.binding().uuid)
     }
 
     pub fn uid(&self) -> u32 {
@@ -251,7 +257,7 @@ mod tests {
     fn rgb_har_egen_kompatibilitetsgrense() {
         assert!(!compatible_build(24));
         assert!(!compatible_build(28), "protokoll 2-hjelpere må installeres på nytt");
-        assert!(compatible_build(29));
+        assert!(!compatible_build(29));
         assert!(compatible_build(crate::version::build()));
         assert!(!compatible_build(crate::version::build() + 1));
     }

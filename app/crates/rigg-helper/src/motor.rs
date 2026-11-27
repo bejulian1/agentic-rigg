@@ -387,13 +387,16 @@ impl Motor {
     fn authorized(&self) -> bool {
         self.cfg
             .as_ref()
-            .is_some_and(|c| c.enabled || self.backend == "sim" && c.legacy && !c.steps.is_empty())
+            .is_some_and(|c| if self.backend == "sim" { c.enabled || c.legacy && !c.steps.is_empty() } else { c.enabled && c.generation.is_some() })
     }
 
     pub fn set_config(&mut self, cfg: Result<Config, String>, now: i64) {
         let before = self.cfg.clone();
         match cfg {
             Ok(c) => {
+                if self.backend == "nvml" && before.as_ref().is_some_and(|old| old.generation != c.generation) {
+                    self.locked = Some("Korttillatelsen er endret. Arbeideren må startes på nytt.".into());
+                }
                 self.cfg = Some(c);
                 self.cfg_err = None;
             }
@@ -1220,7 +1223,7 @@ mod tests {
             wide_power,
         };
         let mut m = Motor::new(Some(Box::new(writer)), "nvml", None);
-        m.set_config(Config::parse(r#"{"versjon":2,"uid":1000,"enabled":true,"pci":"0000:01:00.0","uuid":"GPU-fake-card"}"#), T0);
+        m.set_config(Config::parse(r#"{"versjon":2,"uid":1000,"enabled":true,"scope":"card","generation":"1234567890abcdef1234567890abcdef","pci":"0000:01:00.0","uuid":"GPU-fake-card"}"#), T0);
         (m, flags)
     }
 
@@ -1513,7 +1516,7 @@ mod tests {
             // Senere gjenoppretting (endret oppsett, stopp) gir grunnverdier,
             // men fjerner aldri den ubekreftede merkøren.
             m.set_config(
-                Config::parse(r#"{"versjon":2,"uid":1000,"enabled":true,"pci":"0000:01:00.0","uuid":"GPU-annet"}"#),
+                Config::parse(r#"{"versjon":2,"uid":1000,"enabled":true,"scope":"card","generation":"1234567890abcdef1234567890abcdef","pci":"0000:01:00.0","uuid":"GPU-annet"}"#),
                 now,
             );
             m.shutdown(now + 1);
@@ -1621,7 +1624,7 @@ mod tests {
                 }
                 if after == "oppsett" {
                     m.set_config(
-                        Config::parse(r#"{"versjon":2,"uid":1000,"enabled":true,"pci":"0000:01:00.0","uuid":"GPU-annet"}"#),
+                        Config::parse(r#"{"versjon":2,"uid":1000,"enabled":true,"scope":"card","generation":"1234567890abcdef1234567890abcdef","pci":"0000:01:00.0","uuid":"GPU-annet"}"#),
                         T0 + 2,
                     );
                 } else {

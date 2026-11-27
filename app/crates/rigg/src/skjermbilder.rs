@@ -175,10 +175,12 @@ fn plan_rgb_tilstander() -> Vec<Step> {
         v.extend([Size(w, h), Wait(500), Size(w, h), Go("lys"), Wait(1500), Eval(|_| crate::pages::lys::debug_mode("2d"))]);
         use crate::pages::lys_kort::debug_fixture as fixture;
         type SetFixture = fn(&Rc<App>);
-        let kinds: [(&str, SetFixture); 9] = [
+        let kinds: [(&str, SetFixture); 11] = [
             ("off", |_| fixture("off")),
             ("stored", |_| fixture("stored")),
             ("pending", |_| fixture("pending")),
+            ("nytt-kort", |_| fixture("first")),
+            ("journal-etter-omstart", |_| fixture("journal")),
             ("lys_av", |_| fixture("lys_av")),
             ("effekt", |_| fixture("effekt")),
             ("recovery", |_| fixture("recovery")),

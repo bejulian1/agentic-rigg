@@ -25,17 +25,27 @@ fn data_dir(app: &App) -> PathBuf {
     PathBuf::from("/usr/local/libexec/agentic-rigg")
 }
 
-fn admin(app: &App, activate: bool) -> Option<PathBuf> {
+fn admin(app: &App) -> Option<PathBuf> {
     if app.profile.is_dev() {
         let fake = PathBuf::from(std::env::var_os("RIGG_PKEXEC")?);
         let root = PathBuf::from(std::env::var_os("RIGG_HJELPER_ROT")?);
         return (fake.ends_with("falsk-pkexec.sh") && fake.is_absolute() && fake.canonicalize().is_ok_and(|path| path == fake) && root.starts_with("/tmp")
             && data_dir(app).is_absolute() && app.data.borrow().backend.starts_with("sim")).then_some(fake);
     }
-    let dir = data_dir(app);
-    (!app.data.borrow().backend.starts_with("sim") && crate::system_install::ready(if activate { crate::system_install::Need::Nvml } else { crate::system_install::Need::Cleanup })
-        && crate::system_install::nvml_admin_files(&dir, crate::system_install::installed_build())
-            .iter().all(|path| crate::system_install::trusted(path))).then(|| "/usr/bin/pkexec".into())
+    (!app.data.borrow().backend.starts_with("sim") && crate::system_install::ready())
+        .then(|| "/usr/bin/pkexec".into())
+}
+
+fn saved_binding(app: &App) -> bool {
+    if app.profile.is_dev() || app.data.borrow().backend.starts_with("sim") { return false; }
+    let path = std::path::Path::new(rigg_core::hjelper::CONFIG_PATH);
+    if crate::system_install::trusted(path) {
+        return std::fs::read_to_string(path).ok()
+            .and_then(|raw| rigg_core::hjelper::Config::parse(&raw).ok())
+            .is_some_and(|grant| !grant.legacy);
+    }
+    // Eldre RGB-tillatelser er private. Filen gir tilgang til opprydding i Innstillinger.
+    crate::system_install::trusted(std::path::Path::new(rigg_core::rgb_auth::CONFIG_PATH))
 }
 
 /// Statusen i klartekst. Merket foran sier tilstanden (Av, På, Feil), så
@@ -46,12 +56,15 @@ fn state_text(app: &App) -> String {
     if !app.client.is_connected() { return tr!("Tjenesten svarer ikke. Endringer er låst.").into(); }
     let h = locked::helper(app);
     match locked::helper_state(app).as_str() {
+        "waiting" => tr!("Venter på enhet").into(),
         "on" if locked::control_ready(app) => tr!("Styring er klar for det valgte skjermkortet. Endringer brukes først når du trykker Bruk.").into(),
         "on" if locked::gate(app) == rigg_core::txn::Gate::Sim => tr!("Simulert styring. Det ekte skjermkortet endres ikke.").into(),
-        "outdated" if app.profile.is_dev() || !crate::system_install::newer_installed() => tr!("Hjelperen må oppdateres. Slå på bryteren for å oppdatere den og aktivere styring.").into(),
+        "outdated" if app.profile.is_dev() || !crate::system_install::newer_installed() => tr!("Oppdater systemkomponenter").into(),
         "on" | "error" | "outdated" => h["message"].as_str().map(display_diagnostic).map(|text| text.into_owned()).unwrap_or_else(|| tr!("Hjelperen er ikke klar for kortet som vises. Se funksjonsstøtten under, eller trykk Sjekk igjen.").into()),
+        _ if saved_binding(app) && installable(app) => tr!("Oppdater systemkomponenter").into(),
+        _ if saved_binding(app) => tr!("Venter på enhet").into(),
         _ if installable(app) => tr!("Systemkomponentene mangler. Slå på bryteren for å installere dem og aktivere styring.").into(),
-        _ if admin(app, true).is_none() => tr!("Systemkomponentene mangler eller må oppdateres.").into(),
+        _ if admin(app).is_none() => tr!("Systemkomponentene mangler eller må oppdateres.").into(),
         _ => tr!("Bare visning. Endring av skjermkortet er slått av.").into(),
     }
 }
@@ -110,7 +123,7 @@ fn failure(code: i32, err: &str, title: &str) -> Option<Toast> {
 /// installere dem selv: bryteren installerer og aktiverer da med ett passord.
 fn installable(app: &App) -> bool {
     !app.profile.is_dev() && app.data.borrow().backend == "nvml" && crate::system_install::can_install()
-        && (admin(app, true).is_none() || locked::helper_state(app) == "outdated")
+        && (admin(app).is_none() || matches!(locked::helper_state(app).as_str(), "outdated" | "error"))
 }
 
 /// Bare private skjermbildeplaner (utviklerprofil): vis «Venter på
@@ -131,6 +144,8 @@ pub(crate) fn admin_busy() -> bool {
 fn activated(app: &Rc<App>) {
     if matches!(locked::gate(app), rigg_core::txn::Gate::Real | rigg_core::txn::Gate::Sim) {
         app.toast(Toast::new(tr!("Skjermkortstyring er aktivert")).body(tr!("Velg endringer og trykk Bruk. Behold dem innen fristen, ellers rulles de tilbake.")).ms(5000));
+    } else if locked::helper_state(app) == "waiting" {
+        app.toast(Toast::new(tr!("Skjermkortstyring er aktivert")).body(tr!("Venter på enhet")).ms(5000));
     } else {
         app.toast(Toast::new(tr!("Hjelperen er installert, men styring er ikke klar")).body(&state_text(app)).error());
     }
@@ -138,10 +153,19 @@ fn activated(app: &Rc<App>) {
 
 pub(crate) fn toggle(app: &Rc<App>, on: bool) {
     if BUSY.with(Cell::get) || crate::system_install::busy() { return; }
-    let install = on && installable(app);
-    let pkexec = admin(app, on);
+    let install = if on { installable(app) } else {
+        admin(app).is_none() && !app.profile.is_dev() && crate::system_install::can_install()
+    };
+    let pkexec = admin(app);
     if pkexec.is_none() && !install { return; }
     if on && !app.profile.is_dev() && app.data.borrow().backend != "nvml" { return; }
+    if install && !on {
+        let a = app.clone();
+        crate::system_install::run(app, crate::system_install::CardAction::Revoke, move |ok| {
+            if ok { locked::refresh_helper(&a, request_render); }
+        });
+        return;
+    }
     let args = if on {
         let Some(pci) = app.gpu_id() else {
             app.toast(Toast::new(tr!("Ingen skjermkort valgt")).error());
@@ -154,7 +178,7 @@ pub(crate) fn toggle(app: &Rc<App>, on: bool) {
         if install {
             // Ett passord: hent og installer systemkomponentene, og aktiver.
             let a = app.clone();
-            crate::system_install::run(app, crate::system_install::Activate::Nvml(pci, uuid), move |ok| {
+            crate::system_install::run(app, crate::system_install::CardAction::Activate(pci, uuid), move |ok| {
                 if ok {
                     let b = a.clone();
                     locked::refresh_helper(&a, move || { request_render(); activated(&b); });
@@ -163,7 +187,7 @@ pub(crate) fn toggle(app: &Rc<App>, on: bool) {
             request_render();
             return;
         }
-        vec!["--pci".into(), pci, "--uuid".into(), uuid]
+        vec!["--card-control".into(), "--pci".into(), pci, "--uuid".into(), uuid]
     } else { Vec::new() };
     let Some(pkexec) = pkexec else { return };
     BUSY.with(|b| b.set(true));
@@ -178,7 +202,7 @@ pub(crate) fn toggle(app: &Rc<App>, on: bool) {
             match failure(code, &err, what) {
                 Some(t) => a2.toast(t),
                 None if on => activated(&a2),
-                None => a2.toast(Toast::new(tr!("Skjermkortstyring er slått av")).body(tr!("Hjelperen har gjenopprettet utgangspunktet og tillatelsen er fjernet.")).ms(4000)),
+                None => a2.toast(Toast::new(tr!("Skjermkortstyring er slått av")).body(tr!("Tillatelsen er fjernet.")).ms(4000)),
             }
         });
     });
@@ -191,6 +215,26 @@ pub(crate) fn confirm_step(app: &Rc<App>, _step: Step) {
 }
 pub(crate) fn set_step(app: &Rc<App>, _step: Step, _on: bool) {
     locked::refresh_helper(app, request_render);
+}
+
+fn rgb_state_text(helper: Option<&serde_json::Value>, selected: Option<&(String, String)>) -> &'static str {
+    let Some(helper) = helper else { return tr!("Ikke klar"); };
+    let status = &helper["status"];
+    let matches = selected.is_some_and(|(pci, uuid)| status["identity"]["pci"] == pci.as_str()
+        && status["identity"]["uuid"] == uuid.as_str());
+    match helper["state"].as_str() {
+        Some("on") if matches && status["review"].is_object() => tr!("Må avklares"),
+        Some("on") if matches => tr!("Tilgjengelig"),
+        Some("unsupported") if matches => tr!("Ikke støttet"),
+        Some("waiting") if matches => tr!("Venter på enhet"),
+        Some("off") => tr!("Av"),
+        Some("outdated") => tr!("Oppdater systemkomponenter"),
+        _ => tr!("Ikke klar"),
+    }
+}
+
+fn switch_active(state: &str, saved: bool) -> bool {
+    saved || matches!(state, "waiting" | "on" | "outdated")
 }
 
 fn capabilities_group(app: &Rc<App>) -> Group {
@@ -219,9 +263,40 @@ fn capabilities_group(app: &Rc<App>) -> Group {
         } else { locked::capability_reason(app, key) };
         rows.push(row(name, Some(&detail), &tag, &format!("funksjonsstøtte {key} {status}")));
     }
+    let rgb = label(tr!("Ikke undersøkt"), &["tag", "quiet"]);
+    let timer = Rc::new(std::cell::RefCell::new(None::<glib::SourceId>));
+    let running = timer.clone();
+    let a = app.clone();
+    rgb.connect_map(move |label| {
+        let a = a.clone();
+        let target = label.downgrade();
+        let pending = Rc::new(Cell::new(false));
+        let refresh = move || {
+            if pending.replace(true) { return; }
+            let current = a.clone();
+            let target = target.clone();
+            let pending = pending.clone();
+            a.client.request("get_rgb_helper", serde_json::json!({"refresh":true}), move |reply| {
+                pending.set(false);
+                if let Some(label) = target.upgrade() {
+                    let selected = current.gpu_id().zip(current.statics().and_then(|s| s.uuid));
+                    label.set_text(rgb_state_text(reply.ok().as_ref(), selected.as_ref()));
+                }
+            });
+        };
+        refresh();
+        *running.borrow_mut() = Some(glib::timeout_add_seconds_local(3, move || {
+            refresh();
+            glib::ControlFlow::Continue
+        }));
+    });
+    rgb.connect_unmap(move |_| {
+        if let Some(id) = timer.borrow_mut().take() { id.remove(); }
+    });
+    rows.push(row(tr!("Kortlys (RGB)"), None, &rgb, "RGB"));
     group(tr!("Tilgjengelige funksjoner"), GroupOpts {
         desc: Some(tr!("Én administratoraktivering gjelder støttede funksjoner på det valgte kortet. Listen er status, ikke ekstra godkjenninger.")),
-        note: Some(tr!("Funksjoner uten støtte kan ikke brukes på kortet. RGB har egen tillatelse på siden RGB-lys.")),
+
         k: &kw("funksjoner støtte effekt vifter klokker temperatur", tr!("søkeord", "funksjoner støtte effekt vifter klokker temperatur")),
         ..Default::default()
     }, rows)
@@ -242,8 +317,10 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
         });
     }
     let state = locked::helper_state(app);
-    // En utdatert hjelper vises som av: bryteren oppdaterer og aktiverer.
-    let active = matches!(state.as_str(), "on" | "error");
+    // Bryteren viser tillatelsen. Arbeiderne rapporterer beredskap hver for seg.
+    let consent = saved_binding(app);
+    let waiting = state == "waiting" || (state == "off" && consent && !installable(app));
+    let active = switch_active(&state, consent);
     let busy = BUSY.with(Cell::get);
 
     // ---- Bryteren ----
@@ -252,7 +329,9 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     sw.set_state(active);
     sw.set_valign(gtk::Align::Center);
     sw.update_property(&[gtk::accessible::Property::Label(tr!("Tillat endring av skjermkortet"))]);
-    let can = app.client.is_connected() && (admin(app, !active).is_some() || (!active && installable(app)))
+    let revoke_via_install = active && !app.profile.is_dev() && !app.data.borrow().backend.starts_with("sim")
+        && crate::system_install::can_install();
+    let can = app.client.is_connected() && (admin(app).is_some() || installable(app) || revoke_via_install)
         && (active || app.profile.is_dev() || app.data.borrow().backend == "nvml");
     sw.set_sensitive(can && !busy && !crate::system_install::busy());
     {
@@ -267,7 +346,7 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     }
     let main_row = row(
         tr!("Tillat endring av skjermkortet"),
-        Some(tr!("Gir Agentic HW Monitor tilgang til støttede GPU-funksjoner via en administratorhjelper. Du blir spurt om passord. Ingen verdier endres før du trykker Bruk på en styringsside.")),
+        Some(tr!("Tillater effekt, vifter, klokker og temperaturmål på valgt kort, samt kortlyset på støttede Palit-kort.")),
         &sw,
         &kw("root polkit pkexec hjelper skriving endre overklokking", tr!("søkeord", "root polkit pkexec hjelper skriving endre overklokking")),
     );
@@ -294,6 +373,8 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     };
     let word = match state.as_str() {
         _ if busy => tr!("Venter"),
+        _ if waiting => tr!("Venter på enhet"),
+        "off" if consent => tr!("Oppdater hjelper"),
         "on" if locked::control_ready(app) => tr!("Klar"),
         "on" if locked::gate(app) == rigg_core::txn::Gate::Sim => tr!("Simulert"),
         "on" => tr!("Ikke klar"),
@@ -317,7 +398,13 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
         open.connect_clicked(move |_| { a.shell().close_settings(); a.go("kontroller"); });
         status_actions.append(&open);
     }
-    if !busy && matches!(state.as_str(), "error" | "outdated") {
+    if active && !busy && installable(app) {
+        let update = button(Some("refresh-cw"), Some(tr!("Oppdater systemkomponenter")), &["sm"]);
+        let a = app.clone();
+        update.connect_clicked(move |_| toggle(&a, true));
+        status_actions.append(&update);
+    }
+    if !busy && (waiting || matches!(state.as_str(), "error" | "outdated")) {
         let again = button(Some("refresh-cw"), Some(tr!("Sjekk igjen")), &["sm"]);
         let a = app.clone();
         again.connect_clicked(move |_| locked::refresh_helper(&a, request_render));
@@ -332,13 +419,13 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
 
     let mut rows = vec![main_row, status_row];
     if !app.profile.is_dev() && !crate::system_install::newer_installed()
-        && (state == "outdated" || ((active || app.data.borrow().backend == "nvml") && admin(app, true).is_none())) {
+        && (state == "outdated" || ((active || app.data.borrow().backend == "nvml") && admin(app).is_none())) {
         rows.push(custom_row(&crate::system_install::offline_fallback(), &kw("systemkomponenter installasjon terminal", tr!("søkeord", "systemkomponenter installasjon terminal"))));
     }
     let toggle_group = group(
         tr!("Endring av skjermkortet"),
         GroupOpts {
-            note: Some(tr!("Slår du bryteren av, gjenopprettes det lagrede utgangspunktet før tillatelsen fjernes. En feil vises hvis gjenopprettingen ikke kan bekreftes. Slå av styring før avinstallasjon.")),
+            note: Some(tr!("Når du slår av tilgangen, stoppes begge arbeiderne. Lagret lys og uavklarte endringer bevares.")),
             k: &kw("bryter av på status", tr!("søkeord", "bryter av på status")),
             ..Default::default()
         },
@@ -348,7 +435,7 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     // ---- Hva bryteren legger inn ----
     let kv = KvList::new();
     kv.grid.add_css_class("helper-kv");
-    kv.add(tr!("Hjelperen"), tr!("Et lite program som kjører i bakgrunnen med administratorrettigheter. Det kan bare endre effekt, vifter og klokker, innenfor det kortet selv tillater"));
+    kv.add(tr!("Hjelperen"), tr!("To isolerte arbeidere for GPU-styring og kortlys"));
     kv.add(tr!("Passord"), tr!("Én administratorgodkjenning ved aktivering. Vanlige endringer bruker Bruk og Behold"));
     kv.add(tr!("Hvem"), tr!("Bare brukeren din. Andre brukere på maskinen slipper ikke til"));
     kv.add(tr!("Vern"), tr!("Endringer rulles tilbake uten Behold innen fristen. Viftekurven har nødregel ved høy temperatur. Frakobling og stopp gjenoppretter utgangspunktet; eventuelle feil rapporteres"));
@@ -361,4 +448,27 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     what.rows.push(custom_row(&gtk::Box::new(gtk::Orientation::Horizontal, 0), &kw("hjelper root polkit systemd passord vern frist nødregel", tr!("søkeord", "hjelper root polkit systemd passord vern frist nødregel"))));
 
     vec![toggle_group, capabilities_group(app), what]
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn bryteren_bevarer_tillatelsen_mens_arbeiderne_venter_eller_stopper() {
+        assert!(!switch_active("off", false));
+        assert!(!switch_active("error", false));
+        for state in ["off", "waiting", "on", "outdated", "error"] {
+            assert!(switch_active(state, true));
+        }
+        let selected = ("0000:01:00.0".to_string(), "GPU-fixture".to_string());
+        for (state, text) in [("waiting", "Venter på enhet"), ("error", "Ikke klar"),
+            ("unsupported", "Ikke støttet"), ("on", "Tilgjengelig")] {
+            let helper = serde_json::json!({"state":state,"status":{
+                "identity":{"pci":selected.0, "uuid":selected.1}}});
+            assert_eq!(rgb_state_text(Some(&helper), Some(&selected)), text);
+            assert_eq!(rgb_state_text(Some(&helper), None), "Ikke klar");
+        }
+        assert_eq!(rgb_state_text(Some(&serde_json::json!({"state":"on"})), None), "Ikke klar");
+    }
 }

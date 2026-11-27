@@ -304,6 +304,7 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     outer.set_hscrollbar_policy(gtk::PolicyType::Never);
     outer.set_vexpand(true);
     let content = vbox(12, &[]);
+    content.append(&card_light.action_box);
     content.append(&prev.root);
     content.append(&card_light.root);
     outer.set_child(Some(&content));

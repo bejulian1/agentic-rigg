@@ -213,7 +213,12 @@ impl VisualEvidence {
 /// Lastes også ved tilbakekallingskontroll. Ingen klientstyrt sti brukes av
 /// produksjonsserveren: den sender alltid rgb_auth::CONFIG_PATH.
 pub(crate) fn load_authorization(path: &Path) -> Result<Authorization, String> {
-    load_authorization_owned(path, 0, true)
+    let auth = load_authorization_owned(path, 0, true)?;
+    let (grant, _) = crate::server::load_config(&path.with_file_name("helper.json"))?;
+    if !auth.matches_card(&grant) {
+        return Err("Korttillatelsen er endret eller tilbakekalt.".into());
+    }
+    Ok(auth)
 }
 
 /// Bare den allerede kjente, strenge diskmodellen brukes til administrativ
@@ -399,6 +404,14 @@ pub(crate) struct PrivateStore {
     pub fail_sync_after_unlink: std::sync::atomic::AtomicBool,
 }
 
+impl Drop for PrivateStore {
+    fn drop(&mut self) {
+        // En samtidig fork kan kortvarig holde en kopi av filbeskrivelsen
+        // frem til exec. Arbeiderens lås tilhører dette lagerets levetid.
+        let _ = self.lock.unlock();
+    }
+}
+
 impl PrivateStore {
     pub fn open_production() -> Result<Self, String> {
         // SAFETY: geteuid leser prosessens identitet uten sideeffekter.
@@ -465,12 +478,16 @@ impl PrivateStore {
         Ok(())
     }
 
+    pub fn sync(&self) -> Result<(), String> {
+        self.directory.sync_all().map_err(|e| e.to_string())
+    }
+
     pub fn baseline(&self) -> Result<Baseline, String> {
         self.baseline_optional()?
             .ok_or_else(|| "RGB mangler et særskilt lagret, brukerbekreftet grunnopptak.".into())
     }
 
-    fn baseline_optional(&self) -> Result<Option<Baseline>, String> {
+    pub fn baseline_optional(&self) -> Result<Option<Baseline>, String> {
         self.revalidate()?;
         read_private(&self.directory, BASELINE, self.owner)?
             .map(|text| {
@@ -482,7 +499,7 @@ impl PrivateStore {
     /// Under arbeiderlåsen, med ren journal og uten en aktiv tillatelse.
     /// Kvitteringen flyttes først. Hvis det avbrytes før baseline flyttes,
     /// vil samme ledige baseline-nummer brukes ved neste forsøk.
-    fn archive_baseline(&self, baseline: &Baseline) -> Result<(), String> {
+    pub fn archive_baseline(&self, baseline: &Baseline) -> Result<(), String> {
         self.validate_state(baseline, None)?;
         for number in 1..=u64::MAX {
             let archived = format!("baseline-{number}.json");
@@ -628,15 +645,41 @@ impl PrivateStore {
     }
 
     /// Fabrikklyset, når et varig valg har erstattet det.
+    pub fn accept_first(&self, baseline: &Baseline) -> Result<(), String> {
+        self.replace(BASELINE, &serde_json::to_vec(baseline).map_err(|e| e.to_string())?, || {
+            if self.baseline_optional()?.is_some() || read_private(&self.directory, JOURNAL, self.owner)?.is_some() {
+                return Err("RGB-opptaket er endret.".into());
+            }
+            Ok(())
+        })
+    }
+
+    pub fn archive_unresolved(&self, baseline: &Baseline, record: &StoredJournal) -> Result<(), String> {
+        self.validate_state(baseline, Some(record))?;
+        let archive = format!("journal-uavklart-{}.json", new_recovery_id()?);
+        rename_at(&self.directory, JOURNAL, &archive)?;
+        self.directory.sync_all().map_err(|e| e.to_string())
+    }
+
+    fn factory_name(binding: &Binding) -> Result<String, String> {
+        binding.validate()?;
+        if !binding.uuid.bytes().all(|c| c.is_ascii_alphanumeric() || c == b'-') || binding.uuid.len() > 96 {
+            return Err("Ugyldig UUID for fabrikkopptak.".into());
+        }
+        Ok(format!("fabrikk-{}-{}.json", binding.pci, binding.uuid))
+    }
+
     pub fn factory(&self, binding: &Binding) -> Result<Option<Baseline>, String> {
         self.revalidate()?;
-        let Some(text) = read_private(&self.directory, FACTORY, self.owner)? else {
+        let name = Self::factory_name(binding)?;
+        let current = read_private(&self.directory, &name, self.owner)?;
+        let legacy = current.is_none();
+        let Some(text) = (if legacy { read_private(&self.directory, FACTORY, self.owner)? } else { current }) else {
             return Ok(None);
         };
-        let baseline: Baseline =
-            serde_json::from_str(&text).map_err(|e| format!("Ugyldig RGB-fabrikklys: {e}"))?;
+        let baseline: Baseline = serde_json::from_str(&text).map_err(|e| format!("Ugyldig RGB-fabrikklys: {e}"))?;
         if baseline.binding() != binding {
-            return Err("RGB-fabrikklyset tilhører et annet kort.".into());
+            return if legacy { Ok(None) } else { Err("Feil binding i fabrikkopptaket.".into()) };
         }
         Ok(Some(baseline))
     }
@@ -660,9 +703,9 @@ impl PrivateStore {
             return Err("Det varige RGB-valget gjelder et annet kort.".into());
         }
         self.validate_state(old, record)?;
-        if read_private(&self.directory, FACTORY, self.owner)?.is_none() {
+        if self.factory(old.binding())?.is_none() {
             let bytes = serde_json::to_vec(old).map_err(|e| e.to_string())?;
-            self.replace(FACTORY, &bytes, || self.validate_state(old, record))?;
+            self.replace(&Self::factory_name(old.binding())?, &bytes, || self.validate_state(old, record))?;
         }
         let bytes = serde_json::to_vec(next).map_err(|e| e.to_string())?;
         self.replace(NEXT, &bytes, || self.validate_state(old, record))?;

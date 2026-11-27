@@ -18,7 +18,7 @@ unit_file=$config_dir/systemd/user/$unit
 # 0. Root-hjelperen. RIGG_HJELPER_ROT er en falsk rot (bare testene).
 hjelper_rot=${RIGG_HJELPER_ROT:-}
 hjelper_aktiv=0
-if [ -e "$hjelper_rot/etc/agentic-rigg/helper.json" ] || [ -e "$hjelper_rot/etc/systemd/system/agentic-rigg-helper.service" ] || [ -S "$hjelper_rot/run/agentic-rigg/helper.sock" ]; then
+if [ -e "$hjelper_rot/etc/systemd/system/agentic-rigg-card.service" ] || [ -e "$hjelper_rot/etc/agentic-rigg/helper.json" ] || [ -e "$hjelper_rot/etc/systemd/system/agentic-rigg-helper.service" ] || [ -S "$hjelper_rot/run/agentic-rigg/helper.sock" ]; then
     hjelper_aktiv=1
 fi
 if [ -e "$hjelper_rot/etc/agentic-rigg/rgb.json" ] ||
@@ -31,12 +31,10 @@ if [ -e "$hjelper_rot/etc/agentic-rigg/rgb.json" ] ||
    { [ -d "$hjelper_rot/var/lib/agentic-rigg-rgb" ] &&
      [ ! -f "$hjelper_rot/var/lib/agentic-rigg-rgb.inactive" ]; }; then
     cat >&2 <<'EOF'
-Slå av RGB-tilgangen før du avinstallerer Agentic HW Monitor.
-Åpne Lys › Lys på kortet. Gjenopprett og bekreft lyset visuelt
-hvis en endring venter. Hvis arbeideren er stoppet eller utdatert, bruk
-«Gjenopprett lagret lys» ved behov, deretter «Avklar tidligere økt».
-Velg «Slå av RGB-tilgang» og kjør dette skriptet igjen. Se RGB-HJELPER.md
-i apppakken for administratorkommandoer ved fjernet kort. Etter deaktivering:
+Slå av tilgangen i Innstillinger › Skjermkortstyring før avinstallasjon.
+Åpne RGB-lys for å avklare eventuelle tidligere endringer. En gjenstående
+journal og det lagrede lyset bevares når du slår av. Se RGB-HJELPER.md
+for arkivering ved fjernet kort. Etter deaktivering og avklaring:
 sudo /usr/local/libexec/agentic-rigg-system/system-install --uninstall
 EOF
     exit 3

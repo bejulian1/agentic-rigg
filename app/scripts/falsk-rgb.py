@@ -48,7 +48,7 @@ BINDING = {
         "driver": "nvidia",
     },
     "address": 73,
-    "signature": "palit_150",
+    "signature": "palit_100",
 }
 
 
@@ -139,7 +139,7 @@ def parse_json(line):
 
 
 class FakeState:
-    def __init__(self, build):
+    def __init__(self, build, review=None):
         self.build = build
         self.confirmed = copy.deepcopy(BASELINE)
         self.observed = observed(BASELINE)
@@ -165,6 +165,14 @@ class FakeState:
         self.factory = None
         self.keepalive = None
         self.hold_writes = 0
+        self.review = None
+        if review:
+            self.review = {"kind": review, "id": uuid.uuid4().hex, "expected": copy.deepcopy(BASELINE)}
+            self.observation_source = "operation_readback"
+            if review != "first":
+                self.baseline = {"mode": "static", "color": [0, 0, 0], "brightness": 0}
+                self.factory = copy.deepcopy(BASELINE)
+                self.confirmed = copy.deepcopy(self.baseline)
 
     def holder(self):
         if self.owner is not None:
@@ -180,7 +188,7 @@ class FakeState:
 
     def reconcile_hold(self):
         hold = self.keepalive
-        if hold and (self.effect is not None or self.error or self.recovery
+        if hold and (self.effect is not None or self.error or (self.recovery and self.confirmation_source is None)
                      or (self.owner is not None and self.owner != hold["owner"])
                      or self.target() != hold["target"]):
             self.keepalive = None
@@ -194,10 +202,10 @@ class FakeState:
 
     def status(self):
         return {
-            "testMarker": MARKER,
+            "testMarker": MARKER, "instanceId": self.instance_id, "review": copy.deepcopy(self.review),
             "helper": {
                 "name": "agentic-rigg-rgb-helper", "domain": "palit_rgb",
-                "protocol": 3, "strictRequests": True, "build": self.build, "version": "testfixture",
+                "protocol": 4, "strictRequests": True, "build": self.build, "version": "testfixture",
             },
             "identity": copy.deepcopy(BINDING),
             "authorized": True,
@@ -307,6 +315,7 @@ class FakeState:
             "rgb_read": ("gpu", "uuid"),
             "rgb_release": ("gpu", "uuid"),
             "rgb_heartbeat": ("gpu", "uuid"),
+            "rgb_keep_observed": ("gpu", "uuid", "confirmedStatic", "expected", "recoveryId"),
             "rgb_ack_recovery": ("gpu", "uuid", "confirmedStatic", "expected", "recoveryId"),
             "rgb_persist": ("gpu", "uuid"),
             "rgb_hold": ("gpu", "uuid"),
@@ -330,12 +339,30 @@ class FakeState:
                 raise RpcError("invalid_argument", "Bekreftelsesfristen må være 10–60 s.")
         if op in ("rgb_confirm", "rgb_revert") and not integer(args["txn"], 1, 2**64 - 1):
             raise RpcError("invalid_argument", "Ugyldig transaksjonsnummer.")
-        if op == "rgb_ack_recovery":
+        if op in ("rgb_ack_recovery", "rgb_keep_observed"):
             color_request(args["expected"])
             if args["confirmedStatic"] is not True:
                 raise RpcError("invalid_argument", "Visuell bekreftelse mangler.")
         self.tick(now)
         result = None
+        if self.review:
+            if op == "rgb_read":
+                self.review["id"] = uuid.uuid4().hex
+                return {"outcome": None, "status": self.status()}
+            if op == "rgb_keep_observed":
+                if (args["recoveryId"] != self.review["id"] or args["expected"] != self.review["expected"]
+                        or observed(args["expected"]) != self.observed):
+                    raise RpcError("write_locked", "Avlesningen må bekreftes på nytt.")
+                self.confirmed = copy.deepcopy(args["expected"])
+                if self.review["kind"] == "first":
+                    self.baseline = copy.deepcopy(self.confirmed)
+                self.review = None
+                return {"outcome": None, "status": self.status()}
+            if op != "rgb_reset" or self.review["kind"] == "first":
+                raise RpcError("write_locked", "Lyset må avklares først.")
+            self.review = None
+        if op == "rgb_keep_observed":
+            raise RpcError("write_locked", "Ingen avklaring venter.")
         if op == "rgb_apply":
             self.require_owner(sid, allow_unowned=True)
             if self.pending:
@@ -563,9 +590,9 @@ class Client:
 
 
 class Server:
-    def __init__(self, listener, trace, build):
+    def __init__(self, listener, trace, build, review=None):
         self.listener, self.trace = listener, trace
-        self.state = FakeState(build)
+        self.state = FakeState(build, review)
         self.selector = selectors.DefaultSelector()
         self.selector.register(listener, selectors.EVENT_READ, None)
         self.clients = {}
@@ -697,6 +724,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", required=True)
     parser.add_argument("--build", required=True, type=int)
+    parser.add_argument("--review", choices=("first", "journal", "drift"))
     args = parser.parse_args()
     if not 1 <= args.build <= 2**32 - 1:
         parser.error("--build må være et positivt 32-bits byggnummer")
@@ -721,7 +749,7 @@ def main():
         socket_inode = (metadata.st_dev, metadata.st_ino)
         listener.listen(MAX_CLIENTS)
         listener.setblocking(False)
-        server = Server(listener, trace, args.build)
+        server = Server(listener, trace, args.build, args.review)
 
         def stop(_signal, _frame):
             server.stopping = True

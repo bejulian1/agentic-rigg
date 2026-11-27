@@ -136,12 +136,12 @@ Root-komponentene følger med. Installer dem separat fra det verifiserte arkivet
 med kommandoen i RGB-HJELPER.md. Brukerinstallasjonen aktiverer ingen hjelpere.
 install.sh legger SYSTEMFILER.sha256 hos brukeren. Installerer appen senere
 systemkomponentene selv, godtas bare en nedlasting med nøyaktig de filene.
-Ekte GPU-styring aktiveres separat i Innstillinger › Skjermkortstyring,
+Skjermkortstyring aktiveres i Innstillinger › Skjermkortstyring,
 med én administratorgodkjenning. Støttede endringer i effekt, vifter og
 klokkeoffset sendes med Bruk og må beholdes innen fristen. Hjelperen bindes
-til kortet og lagrer utgangspunktet før skriving. Kortlys krever at en
-administrator setter opp de betrodde RGB-komponentene som beskrevet i
-RGB-HJELPER.md, og deretter en egen aktivering for et støttet kort.
+til kortet og lagrer utgangspunktet før skriving. Samme bryter gir tilgang til kortlyset
+på støttede Palit-kort. Første visuelle bekreftelse og journalavklaring skjer
+på RGB-siden. Oppstartskoordinatoren finner de bundne enhetene ved hver omstart.
 Fast blått og tilbakeføring til grønt er prøvd på Palit GeForce RTX 2080 Super JetStream.
 Se PATCHLOG.md for prøveresultat og omfang.
 

@@ -655,7 +655,10 @@ mod tests {
         /// vertsstier, ingen ekte GPU.
         fn server(&self) -> (Server, Motor) {
             let path = self.socket();
-            let listener = bind(&path, None).unwrap();
+            // Testrøttens 0700 beskytter socketen fra første øyeblikk.
+            // Produksjonsbind endrer umask prosessvidt og prøves i egen prosess.
+            let listener = UnixListener::bind(&path).unwrap();
+            listener.set_nonblocking(true).unwrap();
             // Ingen konfigfil: mtime er `None` og leses aldri på nytt.
             let srv = Server::new(listener, path, self.0.join("finnes-ikke.json"), None);
             let mut m = Motor::new(Some(Box::new(SimSkriver::new())), "sim", None);
@@ -1051,7 +1054,7 @@ mod tests {
     fn stopp_fjerner_bare_socketen_vi_bandt() {
         let fx = Fixture::new("inode");
         let path = fx.socket();
-        let first = bind(&path, None).unwrap();
+        let first = UnixListener::bind(&path).unwrap();
         let ours = socket_identity(&path);
         assert!(ours.is_some());
         // En annen prosess erstatter stien med sin egen socket.

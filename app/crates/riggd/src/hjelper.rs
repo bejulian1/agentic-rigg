@@ -34,6 +34,8 @@ const TIMEOUT: Duration = Duration::from_secs(2);
 pub enum State {
     /// Ikke aktivert (ingen `helper.json`).
     Off,
+    /// Korttillatelsen finnes, men oppstarten venter på driver eller enhet.
+    Waiting,
     /// På og med kompatibelt bygg/protokoll.
     On,
     /// Aktivert, men svarer ikke (eller svarte feil).
@@ -57,6 +59,29 @@ fn state_for_status(status: &Value) -> State {
     } else {
         State::Outdated(build.unwrap_or(0))
     }
+}
+
+/// Oppstartsrapporten er bare visningsdata. Bare en levende, kontrollert
+/// arbeider kan melde at styring er klar.
+pub(super) fn card_startup(root: &std::path::Path) -> Option<(hjelper::Config, Value)> {
+    let read = |relative: &str| {
+        let path = root.join(relative);
+        if path.canonicalize().ok()? != path { return None; }
+        let meta = std::fs::metadata(&path).ok()?;
+        if !meta.is_file() || meta.len() > 16_384 { return None; }
+        std::fs::read_to_string(path).ok()
+    };
+    let grant = hjelper::Config::parse(&read("etc/agentic-rigg/helper.json")?).ok()?;
+    if !grant.enabled || grant.generation.is_none() || (root == std::path::Path::new("/") && grant.uid != crate::server::my_uid()) {
+        return None;
+    }
+    let report = read("run/agentic-rigg-card/status.json")
+        .and_then(|raw| serde_json::from_str::<Value>(&raw).ok())
+        .filter(|r| r["generation"].as_str() == grant.generation.as_deref()
+            && r["pci"].as_str() == grant.pci.as_deref()
+            && r["uuid"].as_str() == grant.uuid.as_deref())
+        .unwrap_or(Value::Null);
+    Some((grant, report))
 }
 
 struct Conn {
@@ -238,6 +263,17 @@ impl Hjelper {
         self.last_probe = now;
         let cfg = self.paths.config();
         let sock = self.paths.socket();
+        if !sock.exists() && let Some((_, report)) = card_startup(&self.paths.root) {
+            self.drop_conn();
+            self.status = Value::Null;
+            self.owner = None;
+            self.state = if report["nvml"] == "ready" {
+                State::Error("GPU-arbeiderens socket er borte.".into())
+            } else {
+                State::Waiting
+            };
+            return;
+        }
         if !cfg.exists() && !sock.exists() {
             self.drop_conn();
             self.state = State::Off;
@@ -280,6 +316,7 @@ impl Hjelper {
     pub fn view(&self) -> Value {
         let (state, message) = match &self.state {
             State::Off => ("off", None),
+            State::Waiting => ("waiting", None),
             State::On => ("on", None),
             State::Error(e) => ("error", Some(e.clone())),
             State::Outdated(b) => (
@@ -378,7 +415,7 @@ impl Daemon {
         }
         match &self.hjelper.state {
             State::Off => return None,
-            State::Error(_) => return Some(Err(hjelper::locked("helper_error"))),
+            State::Waiting | State::Error(_) => return Some(Err(hjelper::locked("helper_error"))),
             State::Outdated(_) => return Some(Err(hjelper::locked("helper_outdated"))),
             State::On => {}
         }
@@ -537,14 +574,14 @@ mod compatibility_tests {
             State::Outdated(32)
         );
         // Hjelpere før sikkerhetsrettingene i 1.6.0 (bygg 25–31) er utdatert.
-        for old in [24, 25, 31] {
+        for old in [24, 25, 31, 32, 33] {
             assert_eq!(
                 state_for_status(&json!({"helper":{"build":old,"protocol":2,"strictRequests":true}})),
                 State::Outdated(old)
             );
         }
         assert_eq!(
-            state_for_status(&json!({"helper":{"build":32,"protocol":2,"strictRequests":true}})),
+            state_for_status(&json!({"helper":{"build":rigg_core::version::build(),"protocol":rigg_core::hjelper::PROTOCOL,"strictRequests":true}})),
             State::On
         );
         assert_eq!(

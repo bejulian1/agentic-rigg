@@ -65,6 +65,10 @@ pub struct WriteError {
 
 /// Adapterkontrakt for senere hjelperintegrasjon, og typed fakes i testene.
 pub trait Backend {
+    fn accept_observation(&mut self, _observed: &Observed) -> Result<Baseline, String> {
+        Err("Avklaring er utilgjengelig.".into())
+    }
+
     /// Fersk lesing etter ny kontroll av forventet identitet. Ingen fallback.
     fn read(&mut self, binding: &Binding) -> Result<Observed, String>;
     /// Atomisk, privat og varig før `Ok`; skal bevare tidligere dirty-tilstand.
@@ -317,6 +321,7 @@ pub struct Book {
     animated: bool,
     read_error: Option<String>,
     error: Option<String>,
+    last_kept: Option<(u64, u64, Outcome)>,
     next_txn: u64,
     last_ms: Option<u64>,
 }
@@ -386,6 +391,7 @@ impl Book {
             animated: false,
             read_error: None,
             error: None,
+            last_kept: None,
             next_txn: 1,
             last_ms: None,
         })
@@ -464,6 +470,35 @@ impl Book {
             read_error: self.read_error.clone(),
             error: self.error.clone(),
         }
+    }
+
+    fn prepare_journal<B: Backend>(&mut self, backend: &mut B, journal: &Journal) -> Result<(), Error> {
+        if let Err(message) = backend.mark_dirty(journal) {
+            if backend.journal_present() == Some(true) {
+                self.dirty = true;
+                self.automatic_recovery_blocked = true;
+                self.current_recovery_attempt = None;
+                self.recovery = Some(RecoveryReadback::Unknown);
+                self.recovery_confirmation_source = None;
+                self.error = Some(format!("RGB-journalen er uavklart: {message}"));
+            }
+            return Err(Error::Backend {
+                operation: "journalføring",
+                message,
+            });
+        }
+        Ok(())
+    }
+
+    pub fn accept_observation(&mut self, request: Request, observed: Observed) {
+        self.confirmed = request;
+        self.observed = observed;
+    }
+
+    pub fn restore_journal<B: Backend>(&mut self, backend: &mut B) -> Outcome {
+        self.dirty = true;
+        self.automatic_recovery_blocked = true;
+        self.recover(backend, self.initial.clone(), None, Reason::Reset)
     }
 
     fn blocked(&self) -> bool {
@@ -565,7 +600,7 @@ impl Book {
             owner,
             txn: self.next_txn,
         };
-        backend.mark_dirty(&journal).map_err(|message| Error::Backend { operation: "journalføring", message })?;
+        self.prepare_journal(backend, &journal)?;
         self.next_txn = next;
         self.dirty = true;
         self.owner = Some(owner);
@@ -588,7 +623,7 @@ impl Book {
         if !matches!(target, Request::Static { .. }) {
             return Err(Error::UnsupportedBaseline);
         }
-        if self.blocked() || self.automatic_recovery_blocked || self.recovery.is_some() {
+        if self.blocked() || self.automatic_recovery_blocked || (self.dirty && self.recovery.is_some()) {
             return Err(Error::RecoveryRequired);
         }
         if let Some(pending) = self.pending.clone() {
@@ -783,20 +818,7 @@ impl Book {
             owner,
             txn: pending.txn,
         };
-        if let Err(message) = backend.mark_dirty(&journal) {
-            if backend.journal_present() == Some(true) {
-                self.dirty = true;
-                self.automatic_recovery_blocked = true;
-                self.current_recovery_attempt = None;
-                self.recovery = Some(RecoveryReadback::Unknown);
-                self.recovery_confirmation_source = None;
-                self.error = Some(format!("RGB-journalen er uavklart: {message}"));
-            }
-            return Err(Error::Backend {
-                operation: "journalføring",
-                message,
-            });
-        }
+        self.prepare_journal(backend, &journal)?;
         self.dirty = true;
         self.owner = Some(owner);
         self.next_txn = next;
@@ -956,6 +978,11 @@ impl Book {
         now_ms: u64,
     ) -> Result<Outcome, Error> {
         self.tick(backend, now_ms)?;
+        if self.pending.is_none() && self.owner == Some(owner) && !self.blocked()
+            && let Some((held, id, outcome)) = &self.last_kept
+            && (*held, *id) == (owner, txn) && self.next_txn == txn + 1 {
+            return Ok(outcome.clone());
+        }
         let pending = self.owned_pending(owner, txn)?;
         if let Err(error) = self.observe(backend) {
             self.recover(backend, pending.before, Some(txn), Reason::KeepFailed);
@@ -968,12 +995,14 @@ impl Book {
         }
         self.confirmed = pending.requested;
         self.pending = None;
-        Ok(Outcome {
+        let outcome = Outcome {
             txn: Some(txn),
             status: Status::Kept,
             reason: Reason::Keep,
             readback,
-        })
+        };
+        self.last_kept = Some((owner, txn, outcome.clone()));
+        Ok(outcome)
     }
 
     pub fn revert<B: Backend>(

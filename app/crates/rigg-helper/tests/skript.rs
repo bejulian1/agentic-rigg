@@ -31,12 +31,20 @@ const UUID: &str = "GPU-01234567-1234-1234-1234-0123456789ab";
 fn fixture(tag: &str) -> PathBuf {
     let root = tmpdir(tag);
     std::fs::set_permissions(&root, std::fs::Permissions::from_mode(0o700)).unwrap();
+    let info = root.join("proc/driver/nvidia/gpus").join(PCI);
+    std::fs::create_dir_all(&info).unwrap();
+    std::fs::write(info.join("information"), format!("GPU UUID: {UUID}\nBus Location: {PCI}\nDevice Minor: 0\n")).unwrap();
+    let system = root.join("usr/local/libexec/agentic-rigg-system");
+    std::fs::DirBuilder::new().recursive(true).mode(0o755).create(&system).unwrap();
+    std::fs::write(system.join("revision"), "3:33\n").unwrap();
+    std::fs::set_permissions(system.join("revision"), std::fs::Permissions::from_mode(0o644)).unwrap();
     let lib = root.join("usr/local/libexec/agentic-rigg");
     std::fs::DirBuilder::new()
         .recursive(true)
         .mode(0o755)
         .create(&lib)
         .unwrap();
+    std::fs::copy(app_dir().join("data/hjelper/agentic-rigg-card.service"), lib.join("agentic-rigg-card.service")).unwrap();
     std::fs::copy(
         app_dir().join("data/hjelper/agentic-rigg-helper.service"),
         lib.join("agentic-rigg-helper.service"),
@@ -48,6 +56,7 @@ fn fixture(tag: &str) -> PathBuf {
     )
     .unwrap();
     for path in [
+        lib.join("agentic-rigg-card.service"),
         lib.join("agentic-rigg-helper.service"),
         lib.parent().unwrap().join("agentic-rigg-helper"),
     ] {
@@ -61,6 +70,7 @@ fn admin(root: &Path, action: &str, uid: &str, args: &[&str]) -> Output {
         .args(["-I", "-S"])
         .arg(app_dir().join("data/hjelper/nvml-admin.py"))
         .arg(action)
+        .args((action == "activate").then_some("--card-control"))
         .arg("--root")
         .arg(root)
         .args(["--uid", uid])
@@ -92,7 +102,7 @@ fn aktivering_binder_kort_og_deaktivering_krever_eier_ikke_kort() {
     assert!(path.exists());
     assert_eq!(
         std::fs::read_to_string(
-            root.join("etc/systemd/system/agentic-rigg-helper.service.d/gpu.conf")
+            root.join("run/systemd/system/agentic-rigg-helper.service.d/gpu.conf")
         )
         .unwrap(),
         "[Service]\nDeviceAllow=\nDeviceAllow=/dev/nvidiactl rw\nDeviceAllow=/dev/nvidia0 rw\n"
@@ -183,6 +193,7 @@ fn gjentatte_aktiveringer_begrenser_tidligere_grunnopptak() {
         found
     };
     let activate = || {
+        assert!(admin(&root, "deactivate", "1000", &[]).status.success());
         let out = admin(&root, "activate", "1000", &args);
         assert!(out.status.success(), "{}", String::from_utf8_lossy(&out.stderr));
     };

@@ -64,11 +64,6 @@ pub(super) struct CardLight {
     controls: gtk::Grid,
     brightness_box: gtk::Box,
     details: gtk::Expander,
-    /// «Bruk» startet aktiveringen; valget brukes når hjelperen er klar.
-    queued: Cell<bool>,
-    /// Nøyaktig valget brukeren trykket «Bruk» på, og når. Sendes bare én gang,
-    /// bare innen [`QUEUE_TTL`] og bare uten endringer siden.
-    queued_request: RefCell<Option<(Value, Instant, bool)>>,
     /// Neste steg etter et vellykket kall (lagre som varig, start «hold»).
     followups: RefCell<std::collections::VecDeque<Followup>>,
     /// Neste `rgb_apply` er «Av» som skal holdes mens appen er åpen.
@@ -81,7 +76,7 @@ pub(super) struct CardLight {
     last_synced: RefCell<Value>,
     varig: gtk::CheckButton,
     varig_info: gtk::Label,
-    action_box: gtk::Box,
+    pub action_box: gtk::Box,
     action_title: gtk::Label,
     action_text: gtk::Label,
     factory: gtk::Button,
@@ -91,11 +86,8 @@ pub(super) struct CardLight {
     brightness: gtk::SpinButton,
     apply: gtk::Button,
     apply_hint: gtk::Label,
-    install_prompt: gtk::Expander,
-    activate: gtk::Button,
-    deactivate: gtk::Button,
-    resolve: gtk::Button,
-    repair: gtk::Button,
+    settings: gtk::Button,
+    keep_observed: gtk::Button,
     refresh: gtk::Button,
     reset: gtk::Button,
     release: gtk::Button,
@@ -105,26 +97,6 @@ pub(super) struct CardLight {
     pending_hint: gtk::Label,
     keep: gtk::Button,
     revert: gtk::Button,
-}
-
-#[derive(Clone, Copy, PartialEq, Eq)]
-enum AdminAction {
-    Activate,
-    Deactivate,
-    Inspect,
-    Resolve,
-    Restore,
-}
-
-impl AdminAction {
-    fn script(self) -> &'static str {
-        match self {
-            Self::Activate => "rgb-aktiver.sh",
-            Self::Deactivate => "rgb-deaktiver.sh",
-            Self::Inspect | Self::Resolve => "rgb-avklar.sh",
-            Self::Restore => "rgb-gjenopprett.sh",
-        }
-    }
 }
 
 thread_local! {
@@ -212,7 +184,7 @@ fn is_blocked(state: &Value) -> bool {
 
 fn can_apply(status: &Value, chosen_effect: Option<&str>) -> bool {
     let state = &status["state"];
-    state["pending"].is_null()
+    status["review"].is_null() && state["pending"].is_null()
         && !is_blocked(state)
         && chosen_effect.is_none_or(|effect| supports_effect(status, effect))
 }
@@ -334,8 +306,7 @@ fn color_text(value: &Value) -> Option<String> {
     Some(format!("#{:02X}{:02X}{:02X}", rgb[0], rgb[1], rgb[2]))
 }
 
-/// Så lenge et «Bruk» fra før aktiveringen gjelder.
-const QUEUE_TTL: Duration = Duration::from_secs(120);
+
 
 /// Steg som følger etter et vellykket «Bruk» eller «Behold».
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -351,11 +322,11 @@ enum Followup {
 /// Skrivemåtene for «Av» (`rgbAv`), i rekkefølgen de vises.
 fn av_methods() -> [(&'static str, &'static str); 5] {
     [
-        ("hold", tr!("Svart med 0 %, holdt mens appen er åpen (standard, kandidat 5)")),
-        ("svart-100", tr!("Svart med 100 % (kandidat 1)")),
-        ("svart-0", tr!("Svart med 0 % (kandidat 2)")),
-        ("farge-0", tr!("Valgt farge med 0 % (kandidat 3)")),
-        ("nesten-svart", tr!("Nesten svart (#010101) med 1 % (kandidat 4)")),
+        ("hold", tr!("Svart med 0 %, holdt mens appen er åpen")),
+        ("svart-100", tr!("Svart med 100 %")),
+        ("svart-0", tr!("Svart med 0 %")),
+        ("farge-0", tr!("Valgt farge med 0 %")),
+        ("nesten-svart", tr!("Nesten svart (#010101) med 1 %")),
     ]
 }
 
@@ -383,10 +354,6 @@ fn looks_off(value: &Value) -> bool {
 }
 
 /// Et «Bruk» fra før aktiveringen kan sendes: innen fristen og uendret.
-fn queued_ready(at: Instant, now: Instant, edited_since: bool) -> bool {
-    !edited_since && now.checked_duration_since(at).is_some_and(|age| age < QUEUE_TTL)
-}
-
 fn request_text(value: &Value) -> String {
     if looks_off(value) {
         return tr!("Av").into();
@@ -440,21 +407,14 @@ fn bound_status(helper: &Value, selected: Option<&(String, String)>) -> bool {
             .is_some_and(rgb_auth::compatible_build)
 }
 
-/// RGB-delen er eldre enn GPU-delen (GPU-oppdateringen lot den stå, kanskje
-/// med en uavklart økt). Den kjørende RGB-hjelperen regnes da som «må
-/// oppdateres»: «Bruk» oppdaterer og avklarer med ett passord.
-fn rgb_stale(app: &App, helper: &Value) -> bool {
+/// RGB-arbeideren mangler funksjonene som kreves av kontrollsiden.
+fn rgb_stale(_app: &App, helper: &Value) -> bool {
     if FIXTURE_STALE.with(Cell::get) {
         return true;
     }
     lacks_current_features(helper)
-        || (!app.profile.is_dev() && helper["systemAdmin"] == true && crate::system_install::rgb_older_than_system())
 }
 
-/// En kjørende RGB-hjelper fra før 1.7.0 mangler varig valg og «hold». Med
-/// den ville «Av» gått tilbake til fabrikklyset og en økt kunne stå uavklart
-/// (1.6.0-feilen), selv om byggnummeret er kompatibelt. Den regnes derfor som
-/// «må oppdateres»: «Bruk» oppdaterer og aktiverer med ett passord.
 fn lacks_current_features(helper: &Value) -> bool {
     helper["state"] == "on"
         && helper["status"].is_object()
@@ -463,7 +423,9 @@ fn lacks_current_features(helper: &Value) -> bool {
 
 thread_local! {
     /// «Hold» ved oppstart er forsøkt for denne forbindelsen til tjenesten.
-    static AUTO_HOLD_TRIED: Cell<bool> = const { Cell::new(false) };
+    static AUTO_HOLD_QUERY: Cell<bool> = const { Cell::new(false) };
+    static AUTO_HOLD_INSTANCE: RefCell<Option<String>> = const { RefCell::new(None) };
+    static STOPPED_HOLD: RefCell<std::collections::BTreeSet<(String,String)>> = const { RefCell::new(std::collections::BTreeSet::new()) };
 }
 
 /// Etter hver ny forbindelse til tjenesten (appstart, eller tjenesten startet
@@ -471,10 +433,16 @@ thread_local! {
 /// startes «hold» igjen, én gang. Bare når kortet allerede er lest likt
 /// utgangspunktet av hjelperen; et avvik vises på siden RGB-lys i stedet.
 pub(crate) fn auto_hold(app: &Rc<App>) {
-    AUTO_HOLD_TRIED.with(|t| t.set(false));
+    AUTO_HOLD_INSTANCE.with(|t| t.borrow_mut().take());
     try_auto_hold(app);
     thread_local! { static WIRED: Cell<bool> = const { Cell::new(false) }; }
     if !WIRED.with(|w| w.replace(true)) {
+        let weak = Rc::downgrade(app);
+        glib::timeout_add_seconds_local(5, move || {
+            let Some(app) = weak.upgrade() else { return glib::ControlFlow::Break };
+            if crate::widgets::locked::helper_state(&app) == "on" { try_auto_hold(&app); }
+            glib::ControlFlow::Continue
+        });
         let a = Rc::downgrade(app);
         app.on_devices.connect(move |_| {
             if let Some(app) = a.upgrade() {
@@ -485,21 +453,33 @@ pub(crate) fn auto_hold(app: &Rc<App>) {
 }
 
 fn try_auto_hold(app: &Rc<App>) {
-    if AUTO_HOLD_TRIED.with(Cell::get)
-        || app.settings().rgb_av != "hold"
+    if app.settings().rgb_av != "hold"
         || !app.client.is_connected()
         || !card_present(app)
-        || selected_identity(app).is_none()
+        || selected_identity(app).is_none_or(|card| STOPPED_HOLD.with(|s| s.borrow().contains(&card)))
     {
         return;
     }
-    AUTO_HOLD_TRIED.with(|t| t.set(true));
+    if AUTO_HOLD_QUERY.with(|v| v.replace(true)) { return; }
     let a = app.clone();
     app.client.request("get_rgb_helper", json!({"refresh": true}), move |result| {
-        let Ok(helper) = result else { return };
-        let Some((pci, uuid)) = selected_identity(&a).filter(|_| auto_hold_wanted(&a, &helper)) else { return };
+        let eligible = result.ok().filter(|helper| auto_hold_wanted(&a, helper));
+        let Some((pci, uuid)) = selected_identity(&a).filter(|card| !STOPPED_HOLD.with(|s| s.borrow().contains(card))) else {
+            AUTO_HOLD_QUERY.with(|v| v.set(false));
+            return;
+        };
+        let Some(instance) = eligible.and_then(|h| h["status"]["instanceId"].as_str().map(str::to_owned)) else {
+            AUTO_HOLD_QUERY.with(|v| v.set(false));
+            return;
+        };
+        if AUTO_HOLD_INSTANCE.with(|v| v.borrow().as_ref() == Some(&instance)) {
+            AUTO_HOLD_QUERY.with(|v| v.set(false));
+            return;
+        }
         let args = json!({"gpu": pci, "uuid": uuid, "kilde": "hold-oppstart"});
         a.client.request("rgb_hold", args, move |result| {
+            AUTO_HOLD_QUERY.with(|v| v.set(false));
+            if result.is_ok() { AUTO_HOLD_INSTANCE.with(|v| v.replace(Some(instance))); }
             if let Err(error) = &result {
                 eprintln!("RGB: «hold» ved oppstart ble ikke startet: {}", error.message);
             }
@@ -521,7 +501,7 @@ fn auto_hold_wanted(app: &App, helper: &Value) -> bool {
 /// Hjelperens del av [`auto_hold_wanted`].
 fn hold_status_ready(status: &Value) -> bool {
     let state = &status["state"];
-    status["hold"] == true
+    status["review"].is_null() && status["hold"] == true
         && status["keepalive"] != true
         && status["holding"].is_null()
         && status["effect"].is_null()
@@ -745,7 +725,7 @@ impl CardLight {
         action_box.append(&action_text);
         action_box.append(&action_buttons);
         action_box.set_visible(false);
-        panel.body.append(&action_box);
+
 
         let actions = flow();
         let apply = button(Some("check"), Some(tr!("Bruk")), &["suggested"]);
@@ -791,10 +771,6 @@ impl CardLight {
         for l in [&identity, &observation, &confirmed, &readback_note, &support] {
             details_box.append(l);
         }
-        let install_prompt = crate::system_install::offline_fallback();
-        details_box.append(&install_prompt);
-        // Skrivemåten for «Av». Prøveskriptet (rgb-av-prove.py) viser hvilken
-        // kandidat kortet faktisk holder; standard er «hold».
         let methods = av_methods();
         let av_method = gtk::DropDown::from_strings(&methods.map(|(_, text)| text));
         let current = app.settings().rgb_av.clone();
@@ -805,17 +781,15 @@ impl CardLight {
         av_row.append(&label(tr!("Skrivemåte for «Av»"), &["sm"]));
         av_row.append(&av_method);
         details_box.append(&av_row);
-        details_box.append(&paragraph(tr!("Kandidat 1–4 skrives én gang. «Hold» skriver svart med 0 % på nytt hvert 2. sekund mens appen er åpen. Prøveskriptet rgb-av-prove.py viser hvilken kandidat kortet ditt holder."), &["muted", "sm"]));
         let details_actions = flow();
         let refresh = button(Some("refresh-cw"), Some(tr!("Sjekk igjen")), &["sm", "flat"]);
-        let activate = button(Some("shield"), Some(tr!("Aktiver kortlys …")), &["sm", "flat"]);
-        let repair = button(None, Some(tr!("Gjenopprett lagret lys …")), &["sm", "flat"]);
-        let resolve = button(None, Some(tr!("Avklar tidligere økt …")), &["sm", "flat"]);
-        let deactivate = button(None, Some(tr!("Slå av RGB-tilgang …")), &["sm", "flat"]);
+        let settings = button(Some("settings"), Some(tr!("Åpne Innstillinger › Skjermkortstyring")), &["sm"]);
+        let keep_observed = button(Some("check"), None, &["sm"]);
+        action_buttons.insert(&settings, -1);
+        action_buttons.insert(&keep_observed, -1);
         let factory = button(Some("rotate-ccw"), Some(tr!("Tilbake til fabrikklyset")), &["sm", "flat"]);
-        for b in [&refresh, &factory, &activate, &repair, &resolve, &deactivate] {
-            details_actions.insert(b, -1);
-        }
+        action_buttons.insert(&refresh, -1);
+        details_actions.insert(&factory, -1);
         details_box.append(&details_actions);
         let details = gtk::Expander::new(Some(tr!("Detaljer og feilsøking")));
         details.add_css_class("rgb-card-details-expander");
@@ -853,8 +827,6 @@ impl CardLight {
             controls,
             brightness_box,
             details,
-            queued: Cell::new(false),
-            queued_request: RefCell::new(None),
             followups: RefCell::new(Default::default()),
             hold_intent: Cell::new(false),
             av_method,
@@ -873,11 +845,8 @@ impl CardLight {
             brightness,
             apply,
             apply_hint,
-            activate,
-            install_prompt,
-            deactivate,
-            resolve,
-            repair,
+            settings,
+            keep_observed,
             refresh,
             reset,
             release,
@@ -903,8 +872,6 @@ impl CardLight {
             return;
         }
         self.edited.set(true);
-        self.queued.set(false);
-        self.queued_request.borrow_mut().take();
     }
 
     fn wire(self: &Rc<Self>) {
@@ -1018,19 +985,16 @@ impl CardLight {
                 }
             });
         }
-        for (button, action) in [
-            (&self.activate, AdminAction::Activate),
-            (&self.deactivate, AdminAction::Deactivate),
-            (&self.resolve, AdminAction::Inspect),
-            (&self.repair, AdminAction::Restore),
-        ] {
-            let weak = Rc::downgrade(self);
-            button.connect_clicked(move |_| {
-                if let Some(p) = weak.upgrade() {
-                    p.admin_dialog(action, false);
-                }
-            });
-        }
+        let a = self.app.clone();
+        self.settings.connect_clicked(move |_| a.open_settings("styring"));
+        let weak = Rc::downgrade(self);
+        self.keep_observed.connect_clicked(move |_| {
+            let Some(p) = weak.upgrade() else { return };
+            let review = p.helper.borrow()["status"]["review"].clone();
+            if review["expected"].is_object() && review["id"].is_string() {
+                p.operation("rgb_keep_observed", json!({"confirmedStatic":true,"expected":review["expected"],"recoveryId":review["id"]}));
+            }
+        });
         let weak = Rc::downgrade(self);
         self.ack.connect_clicked(move |_| {
             let Some(p) = weak.upgrade() else { return };
@@ -1111,7 +1075,6 @@ impl CardLight {
 
     pub fn hide(&self) {
         self.visible.set(false);
-        self.queued.set(false);
         if let Some(timer) = self.timer.borrow_mut().take() {
             timer.remove();
         }
@@ -1176,13 +1139,6 @@ impl CardLight {
             return;
         }
         if !usable(&self.app, &self.helper.borrow(), selected_identity(&self.app).as_ref()) {
-            // Første «Bruk»: aktiver (og om nødvendig oppdater) kortlyset med
-            // ett passord. Nøyaktig dette valget brukes som en vanlig prøve når
-            // hjelperen er klar, med «Behold» og tilbakerulling som før.
-            // Også om «Av» skal holdes, så keepalive starter etter aktiveringen.
-            *self.queued_request.borrow_mut() = self.request_args().map(|(args, hold)| (args, Instant::now(), hold));
-            self.edited.set(false);
-            self.admin_dialog(AdminAction::Activate, true);
             return;
         }
         let Some((mut args, hold)) = self.request_args() else { return };
@@ -1267,6 +1223,19 @@ impl CardLight {
                         && value["status"]["keepalive"] != true
                     {
                         p.followups.borrow_mut().push_back(Followup::Hold);
+                    }
+                    if op == "rgb_release" && let Some(card) = selected_identity(&p.app) {
+                        STOPPED_HOLD.with(|s| s.borrow_mut().insert(card));
+                    }
+                    if hold_intent && let Some(card) = selected_identity(&p.app) {
+                        STOPPED_HOLD.with(|s| s.borrow_mut().remove(&card));
+                    }
+                    if matches!(op, "rgb_ack_recovery" | "rgb_keep_observed") {
+                        AUTO_HOLD_INSTANCE.with(|v| v.borrow_mut().take());
+                        try_auto_hold(&p.app);
+                    }
+                    if op == "rgb_apply" && outcome == Some("unchanged") && p.varig.is_active() && value["status"]["effect"].is_null() {
+                        p.followups.borrow_mut().push_front(Followup::Persist);
                     }
                     if let Some((request, effect)) = kept {
                         p.plan_followups(&request, effect.as_deref());
@@ -1394,15 +1363,11 @@ impl CardLight {
         let status = &helper["status"];
         let state = &status["state"];
         let selected = selected_identity(&self.app);
+        let reported = &status["identity"];
+        let same_card = selected.as_ref().is_some_and(|(pci, uuid)| reported["pci"].as_str() == Some(pci) && reported["uuid"].as_str() == Some(uuid));
+        let unsupported = same_card && helper["state"] == "unsupported";
         let stale = rgb_stale(&self.app, &helper);
         let bound = bound_status(&helper, selected.as_ref()) && !stale;
-        // En uavklart RGB-økt: fra den kjørende hjelperen, eller rapportert av
-        // GPU-oppdateringen (som lot RGB-delen stå).
-        let unsettled = stale
-            && (state["dirty"] == true
-                || state["recovery"].is_string()
-                || crate::system_install::unsettled_rgb_reported()
-                    .is_some_and(|pci| pci.is_empty() || selected.as_ref().is_some_and(|s| s.0 == pci)));
         let connected = self.app.client.is_connected();
         let present = card_present(&self.app);
         let owned = helper["owned"] == true;
@@ -1445,6 +1410,10 @@ impl CardLight {
             tr!("Ikke klar")
         } else if !bound && (helper["state"] == "outdated" || stale) {
             tr!("Må oppdateres")
+        } else if unsupported {
+            tr!("Ikke støttet")
+        } else if same_card && helper["state"] == "waiting" {
+            tr!("Venter på enhet")
         } else if !bound {
             tr!("Ikke aktivert")
         } else if pending {
@@ -1488,21 +1457,14 @@ impl CardLight {
             tr!("Et annet vindu styrer kortlyset. Her vises bare status.").into()
         } else if bound {
             tr!("Hele kortlyset er én sone. Ingenting sendes før du trykker «Bruk».").into()
-        } else if unsettled {
-            tr!("En tidligere RGB-økt er ikke avsluttet, og RGB-delen må oppdateres. Trykk «Bruk»: kortet settes tilbake til det lagrede lyset, du ser på kortet og bekrefter, og så oppdateres og aktiveres kortlyset med ett passord.").into()
-        } else if stale && lacks_current_features(&helper) {
-            tr!("RGB-hjelperen er fra en eldre versjon og mangler «Av» som holder og varig valg. Trykk «Bruk» for å oppdatere og aktivere kortlyset med ett passord.").into()
-        } else if stale {
-            tr!("RGB-delen er eldre enn GPU-delen og må oppdateres. Trykk «Bruk» for å oppdatere og aktivere kortlyset med ett passord.").into()
-        } else if helper["state"] == "on" {
-            tr!("RGB-tillatelsen gjelder ikke kortet som er valgt. Ingen endringer kan sendes her.")
-                .into()
-        } else if newer_installed || helper["state"] == "error" {
-            tr!("RGB-hjelperen er ikke klar. Se «Detaljer og feilsøking» nedenfor.").into()
-        } else if helper["state"] == "outdated" {
-            tr!("Velg lys og trykk «Bruk». RGB-hjelperen oppdateres først, og du skriver passordet én gang.").into()
+        } else if unsupported {
+            tr!("Ikke støttet").into()
+        } else if same_card && helper["state"] == "waiting" {
+            with_diagnostic(tr!("Venter på enhet"), helper["message"].as_str())
+        } else if helper["state"] == "error" || stale || newer_installed || helper["state"] == "outdated" {
+            with_diagnostic(tr!("RGB-hjelperen er ikke klar."), helper["message"].as_str())
         } else {
-            tr!("Velg lys og trykk «Bruk». Første gang aktiveres kortlyset med passordet ditt.").into()
+            tr!("Skjermkortstyring er slått av.").into()
         };
         set_text(&self.summary, &message);
         // Må avklares eller oppdateres: varselfarge, så det ikke forsvinner i resten.
@@ -1623,7 +1585,7 @@ impl CardLight {
             self.swatch.queue_draw();
         }
         self.support.set_visible(!bound);
-        self.controls.set_visible(present);
+        self.controls.set_visible(present && bound && status["review"].is_null());
         self.apply.set_visible(present);
         self.readback_note.set_visible(bound);
         self.color.set_sensitive(!off && !self.busy.get());
@@ -1633,29 +1595,14 @@ impl CardLight {
         self.brightness_box.set_sensitive(!off && !self.busy.get());
         self.mode.root.set_sensitive(!off && !self.busy.get());
         let chosen_id = chosen_effect.map(|_| selected_mode.as_str());
-        let activation = admin_paths(&self.app, &helper, AdminAction::Activate);
-        let installable = installable(&self.app, &helper);
-        let admin_available = connected
-            && present
-            && !self.busy.get()
-            && !other
-            && selected_identity(&self.app).is_some();
-        let activatable = admin_available
-            && (helper["state"] != "outdated" || installable)
-            && (activation.is_ok() || installable);
-        let apply_ok = if bound {
-            available && present && (off || valid_color) && can_apply(status, chosen_id)
-        } else {
-            activatable && (stale || matches!(helper["state"].as_str(), Some("off" | "outdated"))) && (off || valid_color)
-        };
+        let apply_ok = available && present && (off || valid_color) && can_apply(status, chosen_id);
         self.apply.set_sensitive(apply_ok);
-        let unbound_hint = activation.as_ref().err().filter(|_| !installable).cloned().unwrap_or_default();
         let apply_hint = if apply_ok || self.busy.get() || !connected || !present || other {
             ""
         } else if !off && !valid_color {
             tr!("Oppgi en gyldig fargekode på seks tegn, for eksempel #3A7BF0.")
         } else if !bound {
-            unbound_hint.as_str()
+            ""
         } else if pending {
             tr!("Bekreft eller rull tilbake prøven som pågår før du bruker en ny innstilling.")
         } else if blocked {
@@ -1670,44 +1617,27 @@ impl CardLight {
         self.apply_hint.set_visible(!(apply_hint.is_empty() || pending && bound));
         self.refresh
             .set_sensitive(connected && !self.reading.get() && !self.busy.get());
-        self.activate.set_visible(!bound && present && admin_ui);
-        let resolution = admin_paths(&self.app, &helper, AdminAction::Resolve);
-        let restoration = admin_paths(&self.app, &helper, AdminAction::Restore);
-        // Mangler systemkomponentene, installerer «Bruk» dem med samme
-        // passord. Terminalkommandoen er reserven uten nett.
-        self.install_prompt.set_visible(
-            !self.app.profile.is_dev() && admin_ui && !newer_installed
-                && (helper["state"] == "outdated" || activation.is_err()),
-        );
-        let deactivation = admin_paths(&self.app, &helper, AdminAction::Deactivate);
-        self.activate.set_sensitive(activatable);
-        self.activate.set_tooltip_text(activation.as_ref().err().filter(|_| !installable).map(String::as_str));
-        self.resolve.set_visible(
-            !bound && present && admin_ui && matches!(helper["state"].as_str(), Some("off" | "error" | "outdated")),
-        );
-        self.resolve
-            .set_sensitive(admin_available && resolution.is_ok());
-        self.resolve.set_tooltip_text(resolution.err().as_deref());
-        self.repair.set_visible(
-            !bound && present && admin_ui && matches!(helper["state"].as_str(), Some("off" | "error" | "outdated")),
-        );
-        self.repair
-            .set_sensitive(admin_available && restoration.is_ok());
-        self.repair.set_tooltip_text(restoration.err().as_deref());
-        self.deactivate.set_visible(
-            (bound && state["dirty"] == false && !pending) || (!bound && deactivation.is_ok()),
-        );
-        self.deactivate
-            .set_sensitive(connected && !self.busy.get() && !other && deactivation.is_ok());
-        self.deactivate
-            .set_tooltip_text(deactivation.err().as_deref());
-        // Én handlingsboks når lyset må avklares: neste steg, og bare de knappene.
         let needs_ack = bound && status["recoveryId"].is_string() && !pending;
         let runtime_failed = bound && status["runtimeError"].is_string();
         let must_resolve = bound && !pending && (blocked || runtime_failed) && !needs_ack;
         let action = needs_ack || must_resolve || drift;
-        self.action_box.set_visible(action);
-        if needs_ack {
+        let review = &status["review"];
+        let reviewing = bound && review.is_object();
+        let action = action || reviewing || !bound;
+        self.action_box.set_visible(action || self.message.borrow().is_some());
+        self.refresh.set_visible(reviewing || must_resolve || (!bound && !unsupported));
+        self.settings.set_visible(!bound && !unsupported);
+        self.keep_observed.set_visible(reviewing);
+        self.keep_observed.set_sensitive(available && review["expected"].is_object());
+        self.keep_observed.set_label(if review["kind"] == "first" { tr!("Jeg ser én fast farge") } else { tr!("Behold lyset jeg ser") });
+        if reviewing {
+            set_text(&self.action_title, if review["expected"].is_null() { tr!("Avlesning av kortlyset mislyktes. Nye lysendringer er sperret.") } else { tr!("Jeg ser én fast farge") });
+            let fields = trf!("Avlest lys: {lest}. Lagret lys: {lagret}. Fabrikklys: {fabrikk}.", lest = observed_text(observed), lagret = request_text(&status["baselineRequest"]), fabrikk = request_text(&status["factory"]));
+            set_text(&self.action_text, &with_diagnostic(&fields, state["readError"].as_str().or(self.message.borrow().as_deref())));
+        } else if !bound || (!action && self.message.borrow().is_some()) {
+            set_text(&self.action_title, badge);
+            set_text(&self.action_text, &message);
+        } else if needs_ack {
             set_text(&self.action_title, tr!("Se på kortet og bekreft lyset"));
             set_text(&self.action_text, &trf!("Kortet er satt tilbake til {lys}. Hjelperen kan bare lese fargeverdiene, ikke hva kortet faktisk lyser. Bekreft når kortet viser dette, eller gjenopprett på nytt.", lys = request_text(&state["confirmed"])));
         } else if must_resolve {
@@ -1726,9 +1656,9 @@ impl CardLight {
         }
         self.ack.set_visible(needs_ack);
         self.ack.set_sensitive(available);
-        self.reset.set_visible(action);
+        self.reset.set_visible(bound && action && review["kind"] != "first");
         self.reset.set_sensitive(available);
-        set_text_button(&self.reset, if needs_ack { tr!("Gjenopprett på nytt") } else { tr!("Gjenopprett utgangspunktet") });
+        set_text_button(&self.reset, if needs_ack { tr!("Gjenopprett på nytt") } else if looks_off(&status["baselineRequest"]) { tr!("Gjenopprett lagret Av") } else { tr!("Gjenopprett lagret lys") });
         self.apply.set_visible(present && !action && !(pending && bound));
         // Under en prøve står «Behold» og «Rull tilbake» i egen boks.
         self.release.set_visible(bound && owned && !action && !pending);
@@ -1782,27 +1712,6 @@ impl CardLight {
             self.details.set_expanded(true);
         }
         *self.last_state.borrow_mut() = state_name;
-        if self.queued.get() && bound && !self.busy.get() {
-            // Aktiveringen er ferdig: send nøyaktig valget brukeren trykket
-            // «Bruk» på, én gang, bare innen fristen og bare uendret.
-            self.queued.set(false);
-            let queued = self.queued_request.borrow_mut().take();
-            if let Some((mut args, at, hold)) = queued
-                && apply_ok
-                && queued_ready(at, Instant::now(), self.edited.get())
-            {
-                args["kilde"] = json!("etter-aktivering");
-                glib::idle_add_local_once(move || {
-                    if let Some(p) = CURRENT.with(|c| c.borrow().upgrade()) {
-                        p.hold_intent.set(hold);
-                        p.operation("rgb_apply", args);
-                    }
-                });
-            }
-        }
-        if let Some(shell) = self.app.shell.get() {
-            shell.topbar.set_locked("lys", false);
-        }
         let observed_color: Option<[u8; 3]> = serde_json::from_value(observed["color"].clone()).ok();
         let observed_brightness = observed["brightnessRaw"].as_u64().and_then(|v| u8::try_from(v).ok());
         let visual = VisualState {
@@ -1841,338 +1750,6 @@ impl CardLight {
         })
     }
 
-    fn admin_dialog(self: &Rc<Self>, action: AdminAction, then_apply: bool) {
-        if self.busy.get() || (action != AdminAction::Deactivate && !card_present(&self.app)) {
-            return;
-        }
-        let mut identity = selected_identity(&self.app);
-        if action == AdminAction::Deactivate
-            && !bound_status(&self.helper.borrow(), identity.as_ref())
-        {
-            identity = None;
-        }
-        if identity.is_none() && action != AdminAction::Deactivate {
-            return;
-        }
-        let install = action == AdminAction::Activate && installable(&self.app, &self.helper.borrow());
-        if let Err(error) = admin_paths(&self.app, &self.helper.borrow(), action).map(|_| ()).or_else(|e| if install { Ok(()) } else { Err(e) }) {
-            self.app.toast(
-                Toast::new(tr!("RGB-oppsettet er ikke klart"))
-                    .body(&error)
-                    .error(),
-            );
-            return;
-        }
-        if action == AdminAction::Inspect {
-            self.run_admin(action, identity, None, false);
-            return;
-        }
-        let (title, text, check) = match action {
-            AdminAction::Deactivate => (
-                tr!("Slå av RGB-tilgang"),
-                tr!("Dette stopper RGB-arbeideren og fjerner kortets RGB-tillatelse når gjenopprettingen er avklart. Det lagrede utgangspunktet beholdes."),
-                tr!("Jeg vil slå av RGB-tilgangen for dette kortet."),
-            ),
-            AdminAction::Inspect | AdminAction::Resolve => unreachable!("egen avklaringsdialog"),
-            AdminAction::Restore => (
-                tr!("Gjenopprett lagret lys"),
-                tr!("Administratorhjelperen stopper RGB-arbeideren hvis den kjører. Hvis det finnes en uavklart journal, forsøker den deretter å gjenopprette det lagrede utgangspunktet. Kontroller lyset og velg «Avklar tidligere økt» etterpå."),
-                tr!("Jeg vil gjenopprette det lagrede utgangspunktet på dette kortet."),
-            ),
-            AdminAction::Activate => (
-                tr!("Aktiver lys på kortet"),
-                tr!("Se på det fysiske kortet før du fortsetter. Lyset må allerede vise én fast farge. Pust, fargeskift og et ukjent utgangspunkt kan ikke lagres som et sikkert utgangspunkt. Administratorgodkjenningen gjelder bare kortlyset; den endrer ikke GPU-tillatelsen."),
-                tr!("Jeg ser kortet og bekrefter at det viser én fast farge."),
-            ),
-        };
-        // En eventuell gammel RGB-økt avklares under oppdateringen, men først
-        // etter at brukeren har sett det gjenopprettede lyset (system-hent.py).
-        let text = if install {
-            // GPU-delen fra samme utgivelse står (`--keep-nvml`). Ellers byttes
-            // den også, og en aktiv GPU-hjelper startes på nytt.
-            let gpu = if crate::system_install::gpu_part_current() {
-                tr!("GPU-styringen røres ikke.")
-            } else if crate::widgets::locked::helper_state(&self.app) == "on" {
-                tr!("GPU-hjelperen oppdateres også og startes på nytt: effekt, vifter og klokker går tilbake til utgangspunktet og må brukes på nytt.")
-            } else {
-                ""
-            };
-            let restore = tr!("Har en tidligere RGB-økt ikke blitt avsluttet, settes kortet først tilbake til det lagrede lyset i samme godkjenning. Deretter ber appen deg se på kortet og bekrefte det gjenopprettede lyset før økten avsluttes og oppdateringen fortsetter.");
-            [text, restore, gpu].iter().filter(|t| !t.is_empty()).copied().collect::<Vec<_>>().join("\n\n")
-        } else {
-            text.to_owned()
-        };
-        let weak = Rc::downgrade(self);
-        confirm(
-            &self.app,
-            title,
-            &trf!("Kort: {kort}\n\n{beskrivelse}", kort = identity.as_ref().map_or(tr!("Lagret binding"), |card| card.0.as_str()), beskrivelse = text),
-            check,
-            tr!("Fortsett til administratorgodkjenning"),
-            move || {
-                if let Some(p) = weak.upgrade()
-                    && (identity.is_none() || selected_identity(&p.app) == identity)
-                {
-                    p.queued.set(then_apply);
-                    p.run_admin(action, identity, None, install);
-                }
-            },
-        );
-    }
-
-    fn confirm_offline(self: &Rc<Self>, identity: (String, String), expected: &Value, id: String) {
-        let weak = Rc::downgrade(self);
-        self.confirm_restored(identity.clone(), expected, tr!("Fortsett til administratorgodkjenning"), move |ok| {
-            if let Some(p) = weak.upgrade().filter(|_| ok) {
-                p.run_admin(AdminAction::Resolve, Some(identity), Some(id), false);
-            }
-        });
-    }
-
-    /// Brukeren ser på kortet og bekrefter det gjenopprettede, lagrede lyset.
-    /// `done(true)` bare når kortet fortsatt er valgt og brukeren bekreftet.
-    fn confirm_restored(
-        self: &Rc<Self>,
-        identity: (String, String),
-        expected: &Value,
-        action: &str,
-        done: impl FnOnce(bool) + 'static,
-    ) {
-        let weak = Rc::downgrade(self);
-        confirm_or_cancel(
-            &self.app,
-            tr!("Avklar tidligere RGB-økt"),
-            &trf!("Lagret lys for {kort}: {lys}.\n\nSe på kortet. Fortsett bare hvis lyset viser dette utgangspunktet som én fast farge.", kort = identity.0, lys = request_text(expected)),
-            tr!("Jeg ser at kortlyset viser det lagrede, faste utgangspunktet."),
-            action,
-            move |ok| {
-                done(ok && weak.upgrade().is_some_and(|p| selected_identity(&p.app).as_ref() == Some(&identity)));
-            },
-        );
-    }
-
-    /// Ett passord: hent og installer systemkomponentene, og aktiver kortlyset
-    /// for kortet brukeren nettopp bekreftet visuelt.
-    fn install_and_activate(self: &Rc<Self>, identity: Option<(String, String)>) {
-        let Some((pci, uuid)) = identity else {
-            self.queued.set(false);
-            return;
-        };
-        if self.busy.get() {
-            self.queued.set(false);
-            return;
-        }
-        self.message.borrow_mut().take();
-        // En gammel økt er gjenopprettet: avklares bare når brukeren har sett
-        // nøyaktig det lagrede lyset på det samme, fortsatt valgte kortet.
-        let weak = Rc::downgrade(self);
-        let confirm: crate::system_install::ConfirmRecovery = Box::new(move |recovery, reply| {
-            let identity = (recovery.pci, recovery.uuid);
-            match weak.upgrade() {
-                Some(p)
-                    if selected_identity(&p.app).as_ref() == Some(&identity)
-                        && serde_json::from_value::<Request>(recovery.expected.clone()).is_ok() =>
-                {
-                    p.confirm_restored(identity, &recovery.expected, tr!("Bekreft og fortsett oppdateringen"), reply);
-                }
-                _ => reply(false),
-            }
-        });
-        let weak = Rc::downgrade(self);
-        // `run` avviser selv samtidige administratorhandlinger (også denne
-        // sidens), så `busy` settes først når installasjonen faktisk er i gang.
-        crate::system_install::run(&self.app, crate::system_install::Activate::Rgb(pci, uuid, confirm), move |ok| {
-            let Some(p) = weak.upgrade() else { return };
-            p.busy.set(false);
-            p.queued.set(p.queued.get() && ok);
-            if ok {
-                let message = tr!("RGB-oppsettet er oppdatert. Kontroller status før du bruker en farge.").to_string();
-                *p.message.borrow_mut() = Some(message.clone());
-                p.app.toast(Toast::new(tr!("RGB-oppsett")).body(&message));
-            }
-            p.render();
-            p.refresh();
-        });
-        self.busy.set(crate::system_install::busy());
-        self.render();
-    }
-
-    fn run_admin(
-        self: &Rc<Self>,
-        action: AdminAction,
-        identity: Option<(String, String)>,
-        recovery_id: Option<String>,
-        confirmed_install: bool,
-    ) {
-        if self.fixture.get() || (action != AdminAction::Deactivate && !card_present(&self.app)) {
-            self.queued.set(false);
-            return;
-        }
-        if action == AdminAction::Activate {
-            let can_install = installable(&self.app, &self.helper.borrow());
-            if confirmed_install != can_install {
-                self.queued.set(false);
-                self.message.borrow_mut().take();
-                self.app.toast(Toast::new(tr!("RGB-oppsettet er ikke klart")));
-                self.render();
-                self.refresh();
-                return;
-            }
-            if confirmed_install {
-                self.install_and_activate(identity);
-                return;
-            }
-        }
-        let Ok((pkexec, script)) = admin_paths(&self.app, &self.helper.borrow(), action) else {
-            self.queued.set(false);
-            return;
-        };
-        // Aldri samtidig med installasjonen av systemkomponentene.
-        if crate::system_install::busy() || self.busy.replace(true) {
-            self.queued.set(false);
-            return;
-        }
-        self.message.borrow_mut().take();
-        self.render();
-        let mut argv = vec![pkexec.into_os_string(), script.into_os_string()];
-        if let Some((pci, uuid)) = &identity {
-            argv.extend(["--pci".into(), pci.into(), "--uuid".into(), uuid.into()]);
-        }
-        match action {
-            AdminAction::Restore => argv.push("--restore-original".into()),
-            AdminAction::Activate => argv.push("--static-confirmed".into()),
-            AdminAction::Inspect => argv.push("--inspect".into()),
-            AdminAction::Resolve => {
-                argv.extend([
-                    "--static-confirmed".into(),
-                    "--recovery-id".into(),
-                    recovery_id
-                        .expect("avklaringsdialogen har en identitet")
-                        .into(),
-                ]);
-            }
-            AdminAction::Deactivate => {}
-        }
-        let argv: Vec<&std::ffi::OsStr> = argv.iter().map(|s| s.as_os_str()).collect();
-        // Unntak: bare et eksplisitt brukerklikk etter visuell bekreftelse
-        // starter polkit. Ingen startup-/profil-/statusvei kaller dette.
-        #[allow(clippy::disallowed_methods)]
-        let result = gtk::gio::Subprocess::newv(
-            &argv,
-            gtk::gio::SubprocessFlags::STDOUT_PIPE | gtk::gio::SubprocessFlags::STDERR_PIPE,
-        );
-        let proc = match result {
-            Ok(proc) => proc,
-            Err(error) => {
-                self.busy.set(false);
-                self.queued.set(false);
-                let diagnostic = error.to_string();
-                *self.message.borrow_mut() = Some(with_diagnostic(tr!("RGB-oppsettet kunne ikke fullføres."), Some(&diagnostic)));
-                self.summary.set_tooltip_text(Some(&diagnostic));
-                self.render();
-                return;
-            }
-        };
-        let weak = Rc::downgrade(self);
-        glib::MainContext::default().spawn_local(async move {
-            let result = proc.communicate_utf8_future(None).await;
-            let Some(p) = weak.upgrade() else { return };
-            p.busy.set(false);
-            let mut code = if result.is_ok() && proc.has_exited() { proc.exit_status() } else { 1 };
-            let (output, error) = result.unwrap_or_default();
-            let mut invalid_target = false;
-            if code == 0 && action == AdminAction::Inspect {
-                let report = output.and_then(|out| serde_json::from_str::<Value>(&out).ok());
-                if let Some(report) = &report
-                    && let Some(id) = report["recoveryId"].as_str()
-                    && serde_json::from_value::<Request>(report["expected"].clone()).is_ok()
-                    && let Some(identity) = identity
-                    && selected_identity(&p.app).as_ref() == Some(&identity)
-                {
-                    p.render();
-                    p.confirm_offline(identity, &report["expected"], id.to_owned());
-                    return;
-                }
-                if !matches!(report, Some(Value::Object(fields)) if fields.is_empty()) {
-                    code = 1;
-                    invalid_target = true;
-                }
-            }
-            let diagnostic = error
-                .as_deref()
-                .and_then(|text| text.lines().rfind(|line| !line.trim().is_empty()))
-                .filter(|_| code != 0 && code != 126);
-            if code != 0 || action != AdminAction::Activate {
-                p.queued.set(false);
-            }
-            let message = match code {
-                0 if action == AdminAction::Restore => tr!("RGB-arbeideren er stoppet. Kontroller lyset og velg «Avklar tidligere økt» hvis en gjenoppretting gjenstår.").to_string(),
-                0 if action == AdminAction::Inspect => tr!("Ingen uavklart RGB-journal for kortet. Du kan slå av RGB-tilgangen.").to_string(),
-                0 if action == AdminAction::Resolve => tr!("Gjenopprettingen er avklart. Du kan slå av RGB-tilgangen eller aktivere lysstyring på nytt.").to_string(),
-                0 if action == AdminAction::Deactivate => tr!("RGB-tilgangen er slått av.").to_string(),
-                0 => tr!("RGB-oppsettet er oppdatert. Kontroller status før du bruker en farge.").to_string(),
-                126 => tr!("Administratorgodkjenningen ble avbrutt.").to_string(),
-                _ if invalid_target => tr!("Avklaringsmålet er ugyldig eller gjelder et annet valgt kort.").to_string(),
-                // Årsaken fra administratorskriptet sier hva som må avklares.
-                _ => with_diagnostic(tr!("RGB-oppsettet kunne ikke fullføres."), diagnostic),
-            };
-            p.summary.set_tooltip_text(diagnostic);
-            *p.message.borrow_mut() = Some(message.clone());
-            p.app.toast(if code == 0 { Toast::new(tr!("RGB-oppsett")).body(&message) } else { Toast::new(tr!("RGB-oppsett ble ikke fullført")).body(&message).error() });
-            p.render();
-            p.refresh();
-        });
-    }
-}
-
-/// Systemkomponentene mangler (eller er utdaterte), og appen kan installere
-/// dem selv sammen med RGB-aktiveringen.
-fn installable(app: &App, helper: &Value) -> bool {
-    !app.profile.is_dev() && helper["systemAdmin"] == true && crate::system_install::can_install()
-        && (helper["state"] == "outdated" || admin_paths(app, helper, AdminAction::Activate).is_err())
-}
-
-/// En RGB-handling pågår (installasjonen venter da).
-pub(crate) fn admin_busy() -> bool {
-    CURRENT.with(|c| c.borrow().upgrade().is_some_and(|p| p.busy.get()))
-}
-
-fn admin_paths(
-    app: &App,
-    helper: &Value,
-    action: AdminAction,
-) -> Result<(PathBuf, PathBuf), String> {
-    if app.profile.is_dev() || helper["systemAdmin"] != true {
-        return Err(
-            tr!("Administratorhandlinger for RGB krever appens vanlige maskinvareoppsett.").into(),
-        );
-    }
-    let pkexec = PathBuf::from("/usr/bin/pkexec");
-    let script = rgb_auth::Paths::new("/").libexec(action.script());
-    let need = if action == AdminAction::Activate {
-        crate::system_install::Need::Rgb
-    } else {
-        crate::system_install::Need::Cleanup
-    };
-    if !crate::system_install::ready(need)
-        || [
-            pkexec.as_path(),
-            &script,
-            Path::new(rgb_auth::POLICY_PATH),
-            Path::new("/usr/local/libexec/agentic-rigg-rgb-v2/agentic-rigg-helper"),
-            Path::new("/usr/local/libexec/agentic-rigg-rgb-v2/agentic-rigg-rgb.service"),
-        ]
-        .into_iter()
-        .any(|path| !crate::system_install::trusted(path))
-    {
-        let message = if crate::system_install::newer_installed() {
-            tr!("RGB-hjelperen er ikke klar. Se «Detaljer og feilsøking» nedenfor.")
-        } else {
-            tr!("Systemkomponentene mangler. Se «Uten nett: bruk terminal» under «Detaljer og feilsøking».")
-        };
-        return Err(message.into());
-    }
-    Ok((pkexec, script))
 }
 
 fn confirm(
@@ -2279,7 +1856,6 @@ pub(crate) fn debug_flow(step: &str) {
                 assert_eq!(state["dirty"], false);
                 assert!(state["pending"].is_null());
                 assert_ne!(state["confirmed"]["mode"], "off");
-                assert!(admin_paths(&p.app, &helper, AdminAction::Activate).is_err());
                 FLOW_INITIAL.with(|v| *v.borrow_mut() = state.clone());
             }
             "edit" => {
@@ -2552,7 +2128,7 @@ pub(crate) fn debug_fixture(kind: &str) {
                     "persist":true, "hold":true, "keepalive":false, "drift":false,
                     "baselineRequest":{"mode":"static","color":[58,123,240],"brightness":80},
                     "factory":{"mode":"static","color":[69,200,0],"brightness":100},
-                    "identity":{"pci":pci,"uuid":uuid,"pciIds":{"vendor":0x10de,"device":0x1e87,"subsystemVendor":0x10de,"subsystemDevice":0x1e87},"adapter":{"port":1,"name":adapter_name,"parentPci":pci,"driver":"nvidia"},"address":73,"signature":"palit_150"},
+                    "identity":{"pci":pci,"uuid":uuid,"pciIds":{"vendor":0x10de,"device":0x1e87,"subsystemVendor":0x10de,"subsystemDevice":0x1e87},"adapter":{"port":1,"name":adapter_name,"parentPci":pci,"driver":"nvidia"},"address":73,"signature":"palit_100"},
                     "state":{"baselineSource":"user_confirmed_static","confirmed":{"mode":"static","color":[58,123,240],"brightness":80},"observed":{"color":[58,123,240],"brightnessRaw":80,"mode":null},"pending":null,"dirty":false,"recovery":null,"recoveryNeedsConfirmation":false,"recoveryConfirmationSource":null,"error":null}
                 }
             });
@@ -2594,8 +2170,13 @@ pub(crate) fn debug_fixture(kind: &str) {
                     value["status"]["state"]["dirty"] = json!(true);
                     value["status"]["state"]["mayHaveWritten"] = json!(true);
                 }
-                "off" => value = json!({"state":"off","owned":false,"busy":false,"message":"Kortlyset trenger sin egen administratoraktivering.","status":null}),
+                "off" => value = json!({"state":"off","owned":false,"busy":false,"message":null,"status":null}),
                 // GPU-oppdateringen lot RGB-delen stå på bygg 31 med en uavklart økt.
+                "first" | "journal" => {
+                    value["status"]["review"] = json!({"kind":kind,"id":"simulated-attempt","expected":value["status"]["factory"]});
+                    value["status"]["state"]["observed"] = json!({"color":[69,200,0],"brightnessRaw":100,"mode":null});
+                    value["status"]["baselineRequest"] = if kind == "first" { Value::Null } else { json!({"mode":"static","color":[0,0,0],"brightness":0}) };
+                }
                 "stale_unsettled" => {
                     // Bygg 31 kjenner verken varig valg eller «hold».
                     value["status"]["helper"]["build"] = json!(31);
@@ -2643,7 +2224,7 @@ pub(crate) fn debug_fixture(kind: &str) {
             } else if kind == "off" {
                 // Uten aktiv hjelper skal valgene og «Bruk» likevel stå fremme:
                 // første «Bruk» aktiverer kortlyset (1.5.5).
-                assert!(p.controls.is_visible() && p.apply.is_visible(), "Lysvalgene er skjult før aktivering");
+                assert!(p.settings.is_visible() && !p.apply.is_sensitive());
                 for (id, _) in EFFECTS {
                     assert!(p.mode.button(id).unwrap().is_visible(), "Effekter er skjult før aktivering");
                 }
@@ -2663,6 +2244,7 @@ pub(crate) fn debug_fixture(kind: &str) {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
 
     #[test]
     fn av_skrives_slik_innstillingen_sier_og_bare_med_faste_registre() {
@@ -2741,18 +2323,6 @@ mod tests {
         assert!(observed_text(&json!({"color": [1, 2, 3], "brightnessRaw": 250})).contains("250"));
         assert!(!observed_text(&json!({"color": null})).is_empty());
     }
-
-    #[test]
-    fn bruk_for_aktivering_sendes_bare_uendret_og_innen_fristen() {
-        // 1.6.0: et gammelt «Bruk» ble sendt med lysstyrke 0 da hjelperen ble
-        // startet på nytt utenfra, uten at brukeren trykket noe.
-        let at = Instant::now();
-        assert!(queued_ready(at, at + Duration::from_secs(5), false));
-        assert!(!queued_ready(at, at + QUEUE_TTL, false), "for gammelt");
-        assert!(!queued_ready(at, at + Duration::from_secs(5), true), "endret siden");
-        assert!(!queued_ready(at + Duration::from_secs(1), at, false), "klokken bakover");
-    }
-    use super::*;
 
     #[test]
     fn kortfarge_er_streng_og_valgene_er_semantiske() {
@@ -2873,7 +2443,7 @@ mod tests {
             "state":"on", "status":{
                 "authorized":true,
                 "helper":{"name":rgb_auth::HELPER_NAME,"domain":rgb_auth::DOMAIN,"protocol":rgb_auth::PROTOCOL,"strictRequests":true,"build":rigg_core::version::build()},
-                "identity":{"pci":selected.0,"uuid":selected.1,"pciIds":{"vendor":0x10de,"device":0x1e87,"subsystemVendor":0x10de,"subsystemDevice":0x1e87},"adapter":{"port":1,"name":"NVIDIA i2c adapter 1 at 1c:00.0","parentPci":selected.0,"driver":"nvidia"},"address":73,"signature":"palit_150"}
+                "identity":{"pci":selected.0,"uuid":selected.1,"pciIds":{"vendor":0x10de,"device":0x1e87,"subsystemVendor":0x10de,"subsystemDevice":0x1e87},"adapter":{"port":1,"name":"NVIDIA i2c adapter 1 at 1c:00.0","parentPci":selected.0,"driver":"nvidia"},"address":73,"signature":"palit_100"}
             }
         });
         assert!(bound_status(&value, Some(&selected)));
@@ -2925,7 +2495,7 @@ mod tests {
                         "driver": "nvidia"
                     },
                     "address": 73,
-                    "signature": "palit_150"
+                    "signature": "palit_100"
                 },
                 "state": {"dirty": false}
             }

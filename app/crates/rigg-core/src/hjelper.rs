@@ -22,12 +22,12 @@ use std::borrow::Cow;
 use std::path::{Path, PathBuf};
 
 /// Protokollen mellom `riggd` og hjelperen (NDJSON, som `proto`).
-pub const PROTOCOL: u32 = 2;
+pub const PROTOCOL: u32 = 3;
 /// Gjennomgått sikkerhetsmotor. Øk ved sikkerhetsrettinger som eldre hjelpere
 /// ikke må få omgå; rene UI-patcher kan beholde autorisasjonen fra dette bygget.
 /// Bygg 32 (1.6.0): monoton klokke, trygg nødregel, merkøren slettes aldri
 /// ubekreftet, overtemperaturvern i feiltilstand og IPC-herding.
-pub const MIN_COMPATIBLE_BUILD: u32 = 32;
+pub const MIN_COMPATIBLE_BUILD: u32 = 33;
 
 /// Bare kjente hjelpere innen samme protokoll godtas. En nyere hjelper enn
 /// appen krever også oppdatering; ingen fremtidig kompatibilitet antas.
@@ -213,6 +213,7 @@ pub struct Config {
     /// Bygget som ble aktivert (fra `--version` på binæren).
     pub build: u32,
     pub activated: String,
+    pub generation: Option<String>,
 }
 
 impl Config {
@@ -225,10 +226,15 @@ impl Config {
         for k in o.keys() {
             if !matches!(
                 k.as_str(),
-                "versjon" | "uid" | "trinn" | "bygg" | "aktivert" | "enabled" | "pci" | "uuid"
+                "versjon" | "uid" | "trinn" | "bygg" | "aktivert" | "enabled" | "pci" | "uuid" | "scope" | "generation"
             ) {
                 return Err(format!("Ukjent felt i helper.json: {k}"));
             }
+        }
+        if (o.contains_key("scope") || o.contains_key("generation"))
+            && (o.get("scope").and_then(Value::as_str) != Some("card") || !o.get("generation").and_then(Value::as_str)
+                .is_some_and(|id| id.len() == 32 && id.bytes().all(|c| c.is_ascii_hexdigit()))) {
+            return Err("Ugyldig korttillatelse.".into());
         }
         let schema = o
             .get("versjon")
@@ -297,6 +303,7 @@ impl Config {
             steps,
             build,
             activated,
+            generation: o.get("generation").and_then(Value::as_str).map(str::to_owned),
         })
     }
 
@@ -304,7 +311,12 @@ impl Config {
         if self.legacy {
             json!({"versjon": 1, "uid": self.uid, "trinn": self.steps.iter().map(|s| s.id()).collect::<Vec<_>>(), "bygg": self.build, "aktivert": self.activated})
         } else {
-            json!({"versjon": 2, "uid": self.uid, "enabled": self.enabled, "pci": self.pci, "uuid": self.uuid, "bygg": self.build, "aktivert": self.activated})
+            let mut value = json!({"versjon": 2, "uid": self.uid, "enabled": self.enabled, "pci": self.pci, "uuid": self.uuid, "bygg": self.build, "aktivert": self.activated});
+            if let Some(id) = &self.generation {
+                value["scope"] = json!("card");
+                value["generation"] = json!(id);
+            }
+            value
         }
     }
 
@@ -568,7 +580,7 @@ mod tests {
         for old in [22, 23, 24, 25, 28, 31] {
             assert!(!compatible(PROTOCOL, old), "{old}");
         }
-        assert!(compatible(PROTOCOL, 32));
+        assert!(!compatible(PROTOCOL, 32));
         assert!(compatible(PROTOCOL, crate::version::build()));
         assert!(!compatible(PROTOCOL - 1, 32));
         assert!(!compatible(PROTOCOL + 1, 32));

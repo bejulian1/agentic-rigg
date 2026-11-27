@@ -120,7 +120,7 @@ impl View {
         {
             return Err(Self {
                 state: "outdated",
-                message: Some("RGB-hjelperen må oppdateres. Trykk «Aktiver kortlys» for å oppdatere og aktivere den med ett passord.".into()),
+                message: Some("RGB-hjelperen må oppdateres. Åpne Innstillinger › Skjermkortstyring.".into()),
                 status: Value::Null,
             });
         }
@@ -584,7 +584,7 @@ fn validate_args(op: &str, args: &Value) -> Result<(), ProtoError> {
         "get_rgb_helper" => &["refresh"],
         "rgb_apply" => &["gpu", "uuid", "request", "confirmTimeoutS", "effect"],
         "rgb_confirm" | "rgb_revert" => &["gpu", "uuid", "txn"],
-        "rgb_ack_recovery" => &["gpu", "uuid", "confirmedStatic", "expected", "recoveryId"],
+        "rgb_ack_recovery" | "rgb_keep_observed" => &["gpu", "uuid", "confirmedStatic", "expected", "recoveryId"],
         "rgb_reset" | "rgb_release" | "rgb_read" | "rgb_persist" | "rgb_hold" => &["gpu", "uuid"],
         _ => return Err(ProtoError::new(ErrorCode::UnknownOp)),
     };
@@ -629,7 +629,7 @@ fn validate_args(op: &str, args: &Value) -> Result<(), ProtoError> {
             "En kjent programvareeffekt krever statisk startfarge.",
         ));
     }
-    if op == "rgb_ack_recovery"
+    if matches!(op, "rgb_ack_recovery" | "rgb_keep_observed")
         && (args["confirmedStatic"] != true
             || !args["recoveryId"]
                 .as_str()
@@ -1079,7 +1079,16 @@ fn execute(
             *connection = Connection::open(paths, control, &command.alive, deadline)?;
         }
         let Some(connection) = connection.as_mut() else {
-            *view = View::off();
+            *view = if let Some((grant, report)) = crate::hjelper::card_startup(&paths.root) {
+                let identity = json!({"identity":{"pci":grant.pci, "uuid":grant.uuid}});
+                match report["rgb"].as_str() {
+                    Some("unsupported") => View { state: "unsupported", message: None, status: identity },
+                    Some("ready") => View { state: "error", message: Some("RGB-arbeiderens socket er borte.".into()), status: identity },
+                    _ => View { state: "waiting", message: report["message"].as_str().map(str::to_owned), status: identity },
+                }
+            } else {
+                View::off()
+            };
             return Ok(Err(ProtoError::msg(
                 ErrorCode::WriteLocked,
                 "Den separate RGB-hjelperen er av.",
@@ -1397,6 +1406,55 @@ mod tests {
             assert!(Instant::now() < deadline, "RGB-svaret mangler");
             std::thread::sleep(Duration::from_millis(5));
         }
+    }
+
+    #[test]
+    fn tillatelse_og_arbeiderstatus_ved_forsinket_oppstart_og_stopp() {
+        let root = Temp::new();
+        let paths = rigg_core::hjelper::Paths::new(&root.0);
+        let config = paths.config();
+        let report = root.0.join("run/agentic-rigg-card/status.json");
+        for path in [&config, &report] {
+            use std::os::unix::fs::DirBuilderExt;
+            std::fs::DirBuilder::new().recursive(true).mode(0o755)
+                .create(path.parent().unwrap()).unwrap();
+        }
+        let mut nvml = crate::hjelper::Hjelper::new(paths);
+        let (mut rgb, replies) = RgbClient::start(Some(root.paths()));
+        let grant = json!({"versjon":2, "uid":crate::server::my_uid().max(1),
+            "enabled":true, "pci":"0000:01:00.0", "uuid":"GPU-fixture",
+            "scope":"card", "generation":"0123456789abcdef0123456789abcdef"});
+        let mut check = |gpu_state, rgb_state| {
+            nvml.probe(1);
+            let gpu = nvml.view();
+            assert_eq!(gpu["state"], gpu_state);
+            assert_eq!(gpu["ready"], false);
+            rgb.enqueue(1, &request(1, "get_rgb_helper")).unwrap();
+            let view = complete(&mut rgb, &replies).unwrap();
+            assert_eq!(view["state"], rgb_state);
+            assert_ne!(view["status"]["authorized"], true);
+        };
+        check("off", "off");
+        std::fs::write(&config, grant.to_string()).unwrap();
+        check("waiting", "waiting");
+        let mut boot = json!({"pci":grant["pci"], "uuid":grant["uuid"],
+            "generation":grant["generation"], "rgb":"waiting"});
+        std::fs::write(&report, boot.to_string()).unwrap();
+        check("waiting", "waiting");
+        boot["nvml"] = json!("ready");
+        for (reported, expected) in [("waiting", "waiting"), ("unsupported", "unsupported"), ("ready", "error")] {
+            boot["rgb"] = json!(reported);
+            std::fs::write(&report, boot.to_string()).unwrap();
+            check("error", expected);
+        }
+        for field in ["uuid", "generation", "pci"] {
+            let mut stale = boot.clone();
+            stale[field] = json!("obsolete");
+            std::fs::write(&report, stale.to_string()).unwrap();
+            check("waiting", "waiting");
+        }
+        std::fs::remove_file(config).unwrap();
+        check("off", "off");
     }
 
     #[test]

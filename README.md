@@ -117,21 +117,17 @@ Turn off GPU control and card lighting in the app first, then run `./uninstall.s
 2. Download and verify the new release as above, then run `./install.sh --bin-dir "$PWD/bin"` from the new folder. From source: `git pull` and `./install.sh`.
 3. Start the app again. Settings, history, logs and profiles are kept.
 
-**GPU helper after upgrading:** the root helper is checked against the app on every start. A helper from **before build 32** (releases up to 1.5.6) is shown as outdated, because 1.6.0 (build 32) contains security fixes in the helper. Turn on **Allow GPU tuning** under `Settings › GPU control` and enter the administrator password once. The app downloads the matching release, verifies it and updates the system components. A helper from build 32 or newer keeps working without a new password, as long as the release notes do not say otherwise; 1.7.0 (build 33) does not change the GPU helper. The RGB helper has its own minimum build (29); if it is outdated, or lacks the hold and keep features added in 1.7.0 (builds 29–32), the RGB lighting page offers the update the same way.
-
-The app never installs a system component older than the one already installed.
+**Upgrading from build 32 or 33.** In this development version, open **Settings › GPU control** and choose **Update system components** to authorize the expanded scope for the selected card. If only lighting was enabled, use **Allow GPU tuning** in the same place. Migration preserves the saved lighting, factory reference and any unresolved lighting journal. You can resolve it after the workers start.
 
 ## GPU control and RGB lighting
 
-GPU control and RGB lighting run in small root helpers, installed with one administrator approval, much like MSI Afterburner's driver on Windows. To turn them on, enable **Allow GPU tuning** under `Settings › GPU control`, or press **Apply** on the RGB lighting page, and enter the administrator password in the polkit dialog. If the helpers are missing or outdated, the installer runs as root and:
+**Allow GPU tuning** authorizes power, fans, clocks and temperature targets supported by the selected GPU. On a supported Palit RTX 2080 Super JetStream with a PALIT 100 controller, the same switch also authorizes card lighting. The permission binds your user account to the card's PCI address and GPU UUID. Disabling it stops both workers, including active effects and Hold.
 
-1. downloads the release that matches the app's own version from GitHub into a new root-owned directory,
-2. verifies it against the SHA-256 checksum GitHub publishes for that file,
-3. only then runs the installer from that verified copy and enables the access you asked for.
+Activation or update uses one administrator approval. The installer fetches the matching GitHub release into a root-owned directory and checks its identity and SHA-256 before running its installer. Release installations also pin the hashes of individual system files. Settings provides an offline option that takes the archive and its independently obtained SHA-256. [Installation and trust model](docs/produksjon/rgb-hjelper.md)
 
-Nothing from your home directory is executed as root. Without a network connection, the same steps are available as a terminal command under *Offline: use a terminal*, where you give the archive path and the SHA-256 yourself. Each enable or disable action asks for the password through polkit; the authorization is not remembered.
+At boot, a coordinator discovers the current device numbers. The NVML worker receives the NVIDIA control node and the bound GPU. The lighting worker receives only the validated NVIDIA I2C adapter. A delayed adapter can become available after GPU control starts.
 
-Building the system components from source and the full trust model are described in [docs/produksjon/rgb-hjelper.md](docs/produksjon/rgb-hjelper.md) and [docs/produksjon/hjelper-sikkerhet.md](docs/produksjon/hjelper-sikkerhet.md) (Norwegian).
+Open **RGB lighting** to confirm the first steady reading. After a crash or a change to the lighting during reboot, compare the observed light, saved setting and factory reference. Restore the saved setting, or visually confirm the steady light on the card and keep it. These actions use the worker socket. The old journal is archived when you keep the observed light, and your saved preference remains available.
 
 ## Safety model for GPU control
 
@@ -141,7 +137,7 @@ Changing clocks, power and fans can make a card unstable, so every write goes th
 - **Draft, Apply, Keep.** Changes are drafts until you press **Apply**. Unless you press **Keep** within 15 seconds, the helper rolls back on its own. Lost heartbeats, a closed app, a sleep gap or a stopped service also roll back. Deadlines follow a monotonic clock, so changing the system time does not affect them.
 - **Saved starting point.** Before the first change the helper records the card's own settings. **Restore original settings** returns to them. A restore that fails or cannot be verified locks further changes and is reported as it is.
 - **Thermal protection.** Above 85 °C the fans go to 100 %, and the curve cannot turn this off. If a restore has failed, the helper keeps reading the temperature and retries the card's defaults with automatic fans.
-- **RGB.** The RGB helper is a separate service with its own permission. It finds the Palit controller by PCI device, NVIDIA I2C port, sysfs path and controller signature, never by bus number, and its systemd sandbox can open only that one I2C device. Because the effect mode cannot be read back, the final restore asks you to confirm what you see on the card.
+- **RGB.** The RGB helper is a separate service with a device-specific sandbox. It finds the Palit controller by PCI device, NVIDIA I2C port, sysfs path and controller signature, never by bus number, and its systemd sandbox can open only that one I2C device. Because the effect mode cannot be read back, the final restore asks you to confirm what you see on the card.
 - **Out of scope:** the app does not change the CPU, motherboard fans, kernel modules or system packages.
 
 ### Verified on hardware

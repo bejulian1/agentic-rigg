@@ -112,6 +112,7 @@ enum Action {
     Release(IdentityArgs),
     Heartbeat(IdentityArgs),
     AckRecovery(RecoveryAckArgs),
+    KeepObserved(RecoveryAckArgs),
     /// Lagre det beholdte faste valget (eller «Av») som varig utgangspunkt.
     Persist(IdentityArgs),
     /// Start «hold» av det kortet skal vise nå (se [`Keepalive`]).
@@ -173,7 +174,7 @@ impl Action {
             "rgb_heartbeat" => Self::Heartbeat(parse(args)?),
             "rgb_persist" => Self::Persist(parse(args)?),
             "rgb_hold" => Self::Hold(parse(args)?),
-            "rgb_ack_recovery" => {
+            "rgb_ack_recovery" | "rgb_keep_observed" => {
                 let args: RecoveryAckArgs = parse(args)?;
                 if !args.confirmed_static {
                     return Err(ProtoError::msg(
@@ -181,7 +182,7 @@ impl Action {
                         "Gjenopprettet statisk lys må være uttrykkelig bekreftet av brukeren.",
                     ));
                 }
-                Self::AckRecovery(args)
+                if op == "rgb_keep_observed" { Self::KeepObserved(args) } else { Self::AckRecovery(args) }
             }
             _ => return Err(ProtoError::new(ErrorCode::UnknownOp)),
         })
@@ -191,7 +192,7 @@ impl Action {
         match self {
             Self::Status => None,
             Self::Apply(args) => Some((&args.gpu, &args.uuid)),
-            Self::AckRecovery(args) => Some((&args.gpu, &args.uuid)),
+            Self::AckRecovery(args) | Self::KeepObserved(args) => Some((&args.gpu, &args.uuid)),
             Self::Confirm(args) | Self::Revert(args) => Some((&args.gpu, &args.uuid)),
             Self::Reset(args)
             | Self::Read(args)
@@ -220,10 +221,11 @@ pub struct Runtime<B: Backend> {
     keepalive: Option<Keepalive>,
     effect_error: Option<String>,
     instance_id: String,
+    review: Option<(&'static str, String)>,
 }
 
 impl<B: Backend> Runtime<B> {
-    /// Ingen maskinvarekall. `authorization` og `baseline` må komme fra
+    /// `authorization` og `baseline` må komme fra
     /// serverens betrodde diskadapter, ikke fra klientens JSON.
     pub fn new(
         authorization: Authorization,
@@ -239,7 +241,7 @@ impl<B: Backend> Runtime<B> {
         let static_baseline = baseline.expected_mode() == Mode::Static;
         let book = Book::new(baseline).map_err(|error| error.to_string())?;
         let instance_id = crate::rgb_store::new_recovery_id()?;
-        Ok(Self {
+        let mut runtime = Self {
             authorization,
             book,
             backend,
@@ -254,7 +256,35 @@ impl<B: Backend> Runtime<B> {
             keepalive: None,
             effect_error: None,
             instance_id,
-        })
+            review: None,
+        };
+        // The persistent backend always reports journal presence. A new or
+        // restarted worker cannot accept writes before its initial read.
+        if runtime.backend.journal_present().is_some() || runtime.book.snapshot().baseline_source == rigg_core::rgb::BaselineSource::AwaitingVisual {
+            runtime.inspect_startup()?;
+        }
+        Ok(runtime)
+    }
+
+    fn inspect_startup(&mut self) -> Result<(), String> {
+        let result = self.read_clean();
+        let kind = if self.book.snapshot().baseline_source == rigg_core::rgb::BaselineSource::AwaitingVisual {
+            "first"
+        } else if self.backend.journal_present() == Some(true) {
+            "journal"
+        } else if result.is_err() {
+            "drift"
+        } else {
+            self.review = None;
+            return Ok(());
+        };
+        self.review = Some((kind, crate::rgb_store::new_recovery_id()?));
+        Ok(())
+    }
+
+    fn observed_request(&self) -> Option<Request> {
+        let observed = self.book.snapshot().observed;
+        Some(Request::Static { color: observed.color?, brightness: observed.brightness_percent()? })
     }
 
     pub fn authorized_uid(&self) -> u32 {
@@ -281,9 +311,11 @@ impl<B: Backend> Runtime<B> {
             },
             "identity": self.authorization.binding(),
             "authorized": !self.revoked,
+            "instanceId": self.instance_id,
             "holding": self.holding,
             "state": self.book.snapshot(),
             "recoveryId": self.recovery_id(),
+            "review": self.review.as_ref().map(|(kind,id)| json!({"kind":kind,"id":id,"expected":self.observed_request()})),
             "observationSource": self.observation_source,
             "lastOutcome": self.last_outcome,
             "softwareEffects": [Effect::Breathing, Effect::Rainbow, Effect::Cycle],
@@ -294,7 +326,7 @@ impl<B: Backend> Runtime<B> {
             "hold": true,
             "keepalive": self.keepalive.is_some(),
             "drift": self.book.drift(),
-            "baselineRequest": self.book.baseline_request(),
+            "baselineRequest": (self.book.snapshot().baseline_source != rigg_core::rgb::BaselineSource::AwaitingVisual).then(|| self.book.baseline_request()),
             "factory": self.backend.factory_baseline().and_then(|b| Book::new(b).ok()).map(|b| b.baseline_request().clone()),
             "effect": self.animation.as_ref().map(|animation| animation.effect),
             "runtimeError": if self.clock_error {
@@ -352,6 +384,41 @@ impl<B: Backend> Runtime<B> {
             )
         })?;
         self.tick(now_ms)?;
+        if let Some((kind, id)) = self.review.clone() {
+            match action {
+                Action::Read(_) => self.inspect_startup().map_err(|e| ProtoError::msg(ErrorCode::Unavailable, e))?,
+                Action::KeepObserved(args) => {
+                    if args.recovery_id != id || self.observed_request().as_ref() != Some(&args.expected) {
+                        return Err(self.transaction_error(Error::RecoveryRequired));
+                    }
+                    let shown = self.book.snapshot().observed;
+                    self.inspect_startup().map_err(|e| ProtoError::msg(ErrorCode::Unavailable, e))?;
+                    let fresh = self.book.snapshot().observed;
+                    if fresh != shown || self.observed_request().as_ref() != Some(&args.expected) {
+                        return Err(self.transaction_error(Error::RecoveryRequired));
+                    }
+                    let saved = self.backend.accept_observation(&fresh)
+                        .map_err(|e| ProtoError::msg(ErrorCode::Unavailable, e))?;
+                    self.book = Book::new(saved).map_err(|e| self.transaction_error(e))?;
+                    self.book.accept_observation(args.expected, fresh);
+                    self.review = None;
+                }
+                Action::Reset(_) if kind != "first" => {
+                    let outcome = if self.backend.journal_present() == Some(true) {
+                        self.book.restore_journal(&mut self.backend)
+                    } else {
+                        self.book.restore_drift(&mut self.backend, conn, now_ms)
+                            .map_err(|e| self.transaction_error(e))?
+                    };
+                    self.review = None;
+                    self.record_outcome(&outcome);
+                    self.sync_holding(lease_deadline, true);
+                    return Ok(json!({"outcome":outcome,"status":self.status()}));
+                }
+                _ => return Err(self.transaction_error(Error::RecoveryRequired)),
+            }
+            return Ok(json!({"outcome":null,"status":self.status()}));
+        }
         // En annen forbindelses «hold» eier lyset som en effekt gjør.
         if self.keepalive.as_ref().is_some_and(|hold| hold.owner != conn)
             && !matches!(action, Action::Read(_) | Action::Heartbeat(_))
@@ -361,6 +428,7 @@ impl<B: Backend> Runtime<B> {
         let before = self.book.snapshot();
         let clean_read = !before.dirty && matches!(action, Action::Read(_) | Action::Reset(_));
         let (result, renew) = match action {
+            Action::KeepObserved(_) => return Err(self.transaction_error(Error::RecoveryRequired)),
             Action::Status => unreachable!("status ble håndtert uten sideeffekter"),
             Action::Apply(args) => {
                 if self
@@ -450,6 +518,7 @@ impl<B: Backend> Runtime<B> {
                     && let Some(animation) = &mut self.animation
                     && animation.owner == conn
                     && animation.txn == args.txn
+                    && animation.started_ms.is_none()
                 {
                     animation.started_ms = Some(now_ms);
                     animation.last_frame_ms = now_ms;
@@ -497,7 +566,9 @@ impl<B: Backend> Runtime<B> {
                 } else {
                     // Ren økt: les. Viser kortet noe annet enn utgangspunktet
                     // (kortet har selv endret seg), gjenopprett med journal.
+                    let differs = self.book.snapshot().confirmed != *self.book.baseline_request();
                     match self.read_clean() {
+                        Ok(_) if differs => (self.book.restore_drift(&mut self.backend, conn, now_ms).map(Some), true),
                         Err(Error::Readback(RecoveryReadback::Mismatch)) => {
                             (self.book.restore_drift(&mut self.backend, conn, now_ms).map(Some), true)
                         }
@@ -633,7 +704,7 @@ impl<B: Backend> Runtime<B> {
         if self.keepalive.as_ref().is_some_and(|hold| {
             self.animation.is_some()
                 || state.error.is_some()
-                || state.recovery.is_some()
+                || (state.recovery.is_some() && (state.dirty || state.recovery_needs_confirmation))
                 || state.owner.is_some_and(|owner| owner != hold.owner)
                 || self.book.target() != &hold.target
         }) {

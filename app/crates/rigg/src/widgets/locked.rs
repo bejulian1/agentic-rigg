@@ -331,7 +331,7 @@ pub fn mark_topbar(app: &Rc<App>, page: &'static str) {
 pub fn sync_topbar(app: &Rc<App>, page: &'static str) {
     if let Some(s) = app.shell.get() {
         // Lys har egen RGB-tillatelse og viser status ved sine kontroller.
-        let open = page == "lys" || !matches!(gate(app), Gate::Locked(_));
+        let open = !matches!(gate(app), Gate::Locked(_));
         s.topbar.set_locked(page, !open);
     }
 }
