@@ -25,26 +25,15 @@ use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
 const MARK: &str = "/usr/local/libexec/agentic-rigg-system/revision";
-/// Bygget RGB-delen faktisk kom fra. GPU-oppdateringen lar en aktiv eller
-/// uavklart RGB-del stå urørt (`--keep-rgb`), så den kan være eldre enn `MARK`.
-const RGB_MARK: &str = "/usr/local/libexec/agentic-rigg-system/rgb-revision";
 const COMMAND: &str = include_str!("../../../data/hjelper/system-bootstrap.command");
 const FETCH: &str = include_str!("../../../data/hjelper/system-hent.py");
 const VERSION_JSON: &[u8] = include_bytes!("../../../version.json");
 const PKEXEC: &str = "/usr/bin/pkexec";
-/// Linjen system-hent.py skriver når en gammel RGB-økt er gjenopprettet og
-/// brukeren må se på kortet (samme som `CONFIRM_PREFIX` i skriptet).
-const RECOVERY_PREFIX: &str = "AGENTIC-RIGG-RGB-AVKLAR ";
-/// Linjen system-hent.py skriver når RGB-delen ble stående urørt under en
-/// GPU-oppdatering (samme som `RGB_KEPT_PREFIX` i skriptet).
-const RGB_KEPT_PREFIX: &str = "AGENTIC-RIGG-RGB-BEHOLDT ";
 const MAX_MANIFEST: u64 = 16 * 1024;
 
 thread_local! {
     /// Installasjonen pågår (passordvinduet, nedlastingen eller installasjonen).
     static BUSY: Cell<bool> = const { Cell::new(false) };
-    /// Kortet en GPU-oppdatering rapporterte en uavklart RGB-økt for.
-    static UNSETTLED: RefCell<Option<String>> = const { RefCell::new(None) };
     /// Sider som vil vite når systemkomponentene er installert.
     static LISTENERS: RefCell<Vec<Box<dyn Fn() -> bool>>> = const { RefCell::new(Vec::new()) };
 }
@@ -63,114 +52,37 @@ pub fn trusted(path: &Path) -> bool {
     })
 }
 
-/// Hva den installerte revisjonen må dekke.
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum Need {
-    /// Slå av, avklare eller gjenopprette: også eldre installasjoner.
-    Cleanup,
-    /// Aktivere GPU-styring (NVML-hjelperen).
-    Nvml,
-    /// Aktivere kortlys (RGB-hjelperen).
-    Rgb,
-}
-
-pub fn ready(need: Need) -> bool {
+/// Begge handlingene bruker det felles administrasjonsskriptet. En eldre
+/// installasjon må migreres også når brukeren vil tilbakekalle begge tilganger.
+pub fn ready() -> bool {
     [
         MARK,
         "/usr/local/libexec/agentic-rigg-system/system-install",
-        "/usr/local/libexec/agentic-rigg-rgb-v2/rgb-admin.py",
+        rigg_core::hjelper::BINARY_PATH,
+        "/usr/local/libexec/agentic-rigg/agentic-rigg-card.service",
+        "/usr/local/libexec/agentic-rigg/agentic-rigg-helper.service",
+        "/usr/local/libexec/agentic-rigg/aktiver.sh",
+        "/usr/local/libexec/agentic-rigg/deaktiver.sh",
+        "/usr/local/libexec/agentic-rigg/nvml-admin.py",
+        "/usr/local/libexec/agentic-rigg/rgb-admin.py",
+        "/usr/share/polkit-1/actions/io.github.AgenticRigg.helper.policy",
+        rigg_core::rgb_auth::BINARY_PATH,
+        "/usr/local/libexec/agentic-rigg-rgb-v2/agentic-rigg-rgb.service",
     ]
     .iter()
     .all(|path| trusted(Path::new(path)))
-        && std::fs::read_to_string(MARK).is_ok_and(|value| compatible_revision(&value, need))
-        && (need != Need::Rgb || rgb_activates_directly(rgb_part_build(), rigg_core::version::build()))
+        && std::fs::read_to_string(MARK).is_ok_and(|value| compatible_revision(&value))
 }
 
-/// Bygget RGB-delen faktisk kom fra: egen RGB-revisjon, ellers den felles
-/// (eldre installasjoner). `Some(0)` er en ukjent eller ufullstendig RGB-del.
-pub fn rgb_part_build() -> Option<u32> {
-    let path = Path::new(RGB_MARK);
-    match std::fs::symlink_metadata(path) {
-        Err(error) if error.kind() == std::io::ErrorKind::NotFound => installed_build(),
-        _ if trusted(path) => std::fs::read_to_string(path).ok().map(|v| revision_build(&v).unwrap_or(0)),
-        _ => Some(0),
-    }
-}
-
-/// Aktivering med de installerte RGB-skriptene bare når RGB-delen er fra
-/// nøyaktig appens bygg. En eldre RGB-del (også en som GPU-oppdateringen lot
-/// stå med en uavklart økt) oppdateres i stedet med ett passord: gjenopprett,
-/// én bekreftelse i appen, avklar, installer og aktiver (`system-hent.py`).
-fn rgb_activates_directly(rgb: Option<u32>, app: u32) -> bool {
-    rgb.is_some_and(|build| build == app && rigg_core::rgb_auth::compatible_build(build))
-}
-
-/// RGB-delen er eldre enn systemrevisjonen (GPU-oppdateringen lot den stå).
-/// En kjørende RGB-hjelper derfra regnes da som «må oppdateres», ikke som klar.
-fn rgb_behind_system(rgb: Option<u32>, system: Option<u32>) -> bool {
-    matches!((rgb, system), (Some(rgb), Some(system)) if rgb < system)
-}
-
-pub fn rgb_older_than_system() -> bool {
-    rgb_behind_system(rgb_part_build(), installed_build())
-}
-
-/// GPU-delen er fra nøyaktig appens bygg, så en RGB-oppdatering lar
-/// GPU-hjelperen gå (`--keep-nvml`) og beholdte GPU-verdier står.
-pub fn gpu_part_current() -> bool {
-    installed_build() == Some(rigg_core::version::build())
-}
-
-/// Kortet GPU-oppdateringen sist rapporterte en uavklart RGB-økt for (bare
-/// i denne kjøringen av appen; RGB-siden viser det til økten er avklart).
-pub fn unsettled_rgb_reported() -> Option<String> {
-    UNSETTLED.with(|u| u.borrow().clone())
-}
-
-/// Fra dette bygget har GPU-mappa sin egen kopi av den felles
-/// administrasjonskoden (`rgb-admin.py`, se `nvml-admin.py`).
-pub const NVML_COMMON_COPY_BUILD: u32 = 33;
-
-/// Systemrevisjonens bygg (`2:BYGG`), når filen er betrodd.
-pub fn installed_build() -> Option<u32> {
-    trusted(Path::new(MARK)).then(|| std::fs::read_to_string(MARK).ok().and_then(|v| revision_build(&v))).flatten()
-}
-
-/// Filene GPU-bryteren krever i GPU-mappa `dir`. Kopien av den felles koden
-/// kom med bygg 33; en installasjon fra bygg 32 har den ikke, og skal fortsatt
-/// kunne slås av (og på) med sine egne skript.
-pub fn nvml_admin_files(dir: &Path, revision: Option<u32>) -> Vec<PathBuf> {
-    let mut files = vec![
-        PathBuf::from("/usr/local/libexec/agentic-rigg-helper"),
-        dir.join("agentic-rigg-helper.service"),
-        dir.join("aktiver.sh"),
-        dir.join("deaktiver.sh"),
-        dir.join("nvml-admin.py"),
-        PathBuf::from("/usr/share/polkit-1/actions/io.github.AgenticRigg.helper.policy"),
-    ];
-    if revision.is_some_and(|build| build >= NVML_COMMON_COPY_BUILD) {
-        files.push(dir.join("rgb-admin.py"));
-    }
-    files
-}
-
-/// NVML og RGB har hver sin kompatibilitetsgrense, så en ny RGB-protokoll
-/// gjør ikke en fungerende GPU-styring «utdatert».
-fn compatible_revision(value: &str, need: Need) -> bool {
-    if value == "1\n" {
-        return need == Need::Cleanup;
-    }
-    revision_build(value).is_some_and(|build| {
-        build > 0 && build <= rigg_core::version::build() && match need {
-            Need::Cleanup => true,
-            Need::Nvml => rigg_core::hjelper::compatible(rigg_core::hjelper::PROTOCOL, build),
-            Need::Rgb => rigg_core::rgb_auth::compatible_build(build),
-        }
+fn compatible_revision(value: &str) -> bool {
+    value.starts_with("3:") && revision_build(value).is_some_and(|build| {
+        rigg_core::hjelper::compatible(rigg_core::hjelper::PROTOCOL, build)
+            && rigg_core::rgb_auth::compatible_build(build)
     })
 }
 
 fn revision_build(value: &str) -> Option<u32> {
-    value.strip_prefix("2:")?.trim_end().parse().ok()
+    value.strip_prefix("2:").or_else(|| value.strip_prefix("3:"))?.trim_end().parse().ok()
 }
 
 fn newer_revision(value: &str) -> bool {
@@ -224,7 +136,7 @@ fn installed() {
 
 /// Reserven uten nett: terminalkommandoen der administratoren oppgir arkivet
 /// og summen selv. Vanlig installasjon skjer når brukeren slår på
-/// skjermkortstyring eller kortlys ([`run`]).
+/// skjermkortstyring ([`run`]).
 pub fn offline_fallback() -> gtk::Expander {
     let terminal = gtk::Box::new(gtk::Orientation::Vertical, 6);
     let hint = gtk::Label::new(Some(tr!("Kjør kommandoen i en administratorterminal. Oppgi arkivstien og SHA-256 fra utgivelsessiden.")));
@@ -245,27 +157,7 @@ pub fn offline_fallback() -> gtk::Expander {
     expander
 }
 
-/// Et gammelt RGB-utgangspunkt er skrevet tilbake under oppdateringen.
-/// Brukeren må se på kortet før journalen avklares.
-pub struct Recovery {
-    pub pci: String,
-    pub uuid: String,
-    pub expected: serde_json::Value,
-    pub recovery_id: String,
-}
-
-/// Viser avklaringsmålet for brukeren og svarer `true` bare når brukeren har
-/// sett og bekreftet nøyaktig det gjenopprettede lyset.
-pub type ConfirmRecovery = Box<dyn FnOnce(Recovery, Box<dyn FnOnce(bool)>)>;
-
-/// Hvilken tilgang som slås på rett etter installasjonen, for kortet
-/// (PCI-adresse, GPU-UUID). RGB krever at brukeren allerede har bekreftet
-/// det faste lyset på kortet, og en eventuell gammel økt avklares først
-/// etter en ny bekreftelse av det gjenopprettede lyset.
-pub enum Activate {
-    Nvml(String, String),
-    Rgb(String, String, ConfirmRecovery),
-}
+pub enum CardAction { Activate(String, String), Revoke }
 
 /// `version.json`, `bin/NAVN` eller `data/hjelper/NAVN` (som `SYSTEM_PATH`
 /// i system-hent.py).
@@ -323,49 +215,6 @@ fn pinned_manifest() -> Result<String, String> {
     checked_manifest(&text, VERSION_JSON)
 }
 
-/// RGB-delen ble stående urørt under GPU-oppdateringen: kortet den gjelder
-/// (hvis kjent) og om en tidligere RGB-økt fortsatt må avklares.
-#[derive(Debug, PartialEq, Eq)]
-struct RgbKept {
-    pci: Option<String>,
-    unsettled: bool,
-}
-
-fn rgb_kept(line: &str) -> Option<RgbKept> {
-    let value: serde_json::Value = serde_json::from_str(line.strip_prefix(RGB_KEPT_PREFIX)?).ok()?;
-    let pci = match &value["pci"] {
-        serde_json::Value::Null => None,
-        serde_json::Value::String(pci) if pci.len() == 12 && pci.bytes().all(|b| b.is_ascii_hexdigit() || matches!(b, b':' | b'.')) => Some(pci.clone()),
-        _ => return None,
-    };
-    Some(RgbKept { pci, unsettled: value["unsettled"].as_bool()? })
-}
-
-/// Meldingen etter en GPU-oppdatering som lot RGB-delen stå.
-fn rgb_kept_toast(kept: &RgbKept) -> Option<Toast> {
-    if !kept.unsettled {
-        return None;
-    }
-    let body = match &kept.pci {
-        Some(pci) => trf!("GPU-styringen er oppdatert uten å røre kortlyset. En tidligere RGB-økt for kortet {kort} er fortsatt ikke avsluttet. Velg det kortet og åpne RGB-lys for å avklare den.", kort = pci),
-        None => tr!("GPU-styringen er oppdatert uten å røre kortlyset. En tidligere RGB-økt er fortsatt ikke avsluttet. Åpne RGB-lys for å avklare den.").to_string(),
-    };
-    Some(Toast::new(tr!("RGB-økten må avklares separat")).body(&body).ms(9000))
-}
-
-/// Avklaringsmålet fra en linje på stdout, bare for kortet som oppdateres.
-fn recovery_request(line: &str, (pci, uuid): (&str, &str)) -> Option<Recovery> {
-    let value: serde_json::Value = serde_json::from_str(line.strip_prefix(RECOVERY_PREFIX)?).ok()?;
-    let id = value["recoveryId"].as_str()?;
-    let valid_id = id.len() == 32 && id.bytes().all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b));
-    (valid_id && value["pci"] == pci && value["uuid"] == uuid && value["expected"].is_object()).then(|| Recovery {
-        pci: pci.into(),
-        uuid: uuid.into(),
-        expected: value["expected"].clone(),
-        recovery_id: id.into(),
-    })
-}
-
 fn failure_text(code: i32, err: &str) -> String {
     match code {
         126 => tr!("Passordet ble ikke gitt. Ingenting er endret.").into(),
@@ -380,14 +229,12 @@ fn failure_text(code: i32, err: &str) -> String {
     }
 }
 
-/// Installerer systemkomponentene og slår på `activate` med ett passord:
-/// `pkexec PYTHON -I -S -c HENT VERSJON BYGG DOMENE PCI UUID`, uten å
-/// blokkere vinduet. Feil vises som melding. `done(true)` når både
-/// installasjonen og aktiveringen lyktes og sidene er varslet.
-pub fn run(app: &Rc<App>, activate: Activate, done: impl FnOnce(bool) + 'static) {
+/// Installerer systemkomponentene og aktiverer eller tilbakekaller korttillatelsen.
+/// Polkit håndterer godkjenningen uten å blokkere vinduet.
+pub fn run(app: &Rc<App>, action: CardAction, done: impl FnOnce(bool) + 'static) {
     // Én administratorhandling om gangen: ikke mens GPU-styring eller RGB
     // aktiveres, slås av eller gjenopprettes.
-    let other = crate::settings::styring::admin_busy() || crate::pages::lys_kort::admin_busy();
+    let other = crate::settings::styring::admin_busy();
     let Some(python) = python().filter(|_| !newer_installed() && trusted(Path::new(PKEXEC)) && !busy() && !other) else {
         if other {
             app.toast(Toast::new(tr!("Vent til den andre administratorhandlingen er ferdig")).ms(3500));
@@ -403,23 +250,21 @@ pub fn run(app: &Rc<App>, activate: Activate, done: impl FnOnce(bool) + 'static)
             return;
         }
     };
-    let (domain, pci, uuid, confirm) = match activate {
-        Activate::Nvml(pci, uuid) => ("nvml", pci, uuid, None),
-        Activate::Rgb(pci, uuid, confirm) => ("rgb", pci, uuid, Some(confirm)),
-    };
-    let argv: Vec<std::ffi::OsString> = vec![
+    let mut argv: Vec<std::ffi::OsString> = vec![
         PKEXEC.into(), python.into_os_string(), "-I".into(), "-S".into(), "-c".into(), FETCH.into(),
         rigg_core::version::VERSION.into(), rigg_core::version::BUILD_STR.into(), pins.into(),
-        domain.into(), pci.clone().into(), uuid.clone().into(),
     ];
+    match action {
+        CardAction::Activate(pci, uuid) => argv.extend(["card".into(), pci.into(), uuid.into()]),
+        CardAction::Revoke => argv.push("revoke-card".into()),
+    }
     let refs: Vec<&std::ffi::OsStr> = argv.iter().map(|a| a.as_os_str()).collect();
     // Unntaket fra «ingen programmer» (clippy.toml): brukeren slo selv på
-    // styringen eller kortlyset, og pkexec viser passordvinduet fra polkit.
-    // Stdin og stdout bærer bare avklaringen av en gammel RGB-økt.
+    // kortstyringen, og pkexec viser passordvinduet fra polkit.
     #[allow(clippy::disallowed_methods)]
     let started = gio::Subprocess::newv(
         &refs,
-        gio::SubprocessFlags::STDIN_PIPE | gio::SubprocessFlags::STDOUT_PIPE | gio::SubprocessFlags::STDERR_PIPE,
+        gio::SubprocessFlags::STDOUT_SILENCE | gio::SubprocessFlags::STDERR_PIPE,
     );
     let proc = match started {
         Ok(p) => p,
@@ -435,36 +280,6 @@ pub fn run(app: &Rc<App>, activate: Activate, done: impl FnOnce(bool) + 'static)
     let context = glib::MainContext::default();
     let stderr = proc.stderr_pipe().map(|stream| context.spawn_local(read_tail(stream)));
     glib::MainContext::default().spawn_local(async move {
-        let mut stdin = proc.stdin_pipe();
-        let mut confirm = confirm;
-        let mut kept = None;
-        if let Some(stdout) = proc.stdout_pipe() {
-            let lines = gio::DataInputStream::new(&stdout);
-            while let Ok(Some(line)) = lines.read_line_future(glib::Priority::DEFAULT).await {
-                let line = String::from_utf8_lossy(&line);
-                if line.starts_with(RGB_KEPT_PREFIX) {
-                    kept = rgb_kept(line.trim_end());
-                    continue;
-                }
-                if !line.starts_with(RECOVERY_PREFIX) {
-                    continue;
-                }
-                // Et ugyldig mål eller et annet kort: lukk stdin, så skriptet
-                // beholder journalen i stedet for å vente.
-                let Some(request) = recovery_request(line.trim_end(), (&pci, &uuid)) else {
-                    answer(stdin.take(), None);
-                    continue;
-                };
-                let id = request.recovery_id.clone();
-                let pipe = stdin.take();
-                let reply: Box<dyn FnOnce(bool)> = Box::new(move |ok| answer(pipe, ok.then_some(id)));
-                match confirm.take() {
-                    Some(confirm) => confirm(request, reply),
-                    None => reply(false),
-                }
-            }
-        }
-        drop(stdin);
         let _ = proc.wait_future().await;
         let code = if proc.has_exited() { proc.exit_status() } else { 1 };
         let err = match stderr {
@@ -480,34 +295,9 @@ pub fn run(app: &Rc<App>, activate: Activate, done: impl FnOnce(bool) + 'static)
             done(false);
             return;
         }
-        match &kept {
-            Some(k) if k.unsettled => UNSETTLED.with(|u| *u.borrow_mut() = Some(k.pci.clone().unwrap_or_default())),
-            // RGB-delen er installert på nytt: en eventuell økt er avklart.
-            _ if domain == "rgb" => UNSETTLED.with(|u| *u.borrow_mut() = None),
-            _ => {}
-        }
         installed();
         crate::widgets::locked::refresh_helper(&a, crate::settings::request_render);
-        if let Some(toast) = kept.as_ref().and_then(rgb_kept_toast) {
-            let b = a.clone();
-            a.toast(toast.action(tr!("Åpne RGB-lys"), move || {
-                b.shell().close_settings();
-                b.go("lys");
-            }));
-        }
         done(true);
-    });
-}
-
-/// Svar system-hent.py: gjenopprettingsidentiteten brukeren bekreftet, eller
-/// bare lukket stdin (da beholdes journalen og ingenting byttes).
-fn answer(stdin: Option<gio::OutputStream>, id: Option<String>) {
-    let Some(stdin) = stdin else { return };
-    glib::MainContext::default().spawn_local(async move {
-        if let Some(id) = id {
-            let _ = stdin.write_all_future(format!("{id}\n").into_bytes(), glib::Priority::DEFAULT).await;
-        }
-        let _ = stdin.close_future(glib::Priority::DEFAULT).await;
     });
 }
 
@@ -535,37 +325,19 @@ mod tests {
         let app_build = rigg_core::version::build();
         let newer = format!("2:{}\n", app_build + 1);
         assert!(newer_revision(&newer));
-        for need in [Need::Cleanup, Need::Nvml, Need::Rgb] {
-            assert!(!compatible_revision(&newer, need));
-        }
+        assert!(!compatible_revision(&newer));
+        assert!(!compatible_revision(&format!("3:{}\n", app_build + 1)));
         for other in ["".into(), "1\n".into(), "2:24\n".into(), format!("2:{app_build}\n")] {
             assert!(!newer_revision(&other));
         }
     }
 
     #[test]
-    fn gammel_installasjon_tillater_bare_opprydding() {
-        for old in ["1\n", "2:24\n"] {
-            assert!(!compatible_revision(old, Need::Nvml));
-            assert!(!compatible_revision(old, Need::Rgb));
-            assert!(compatible_revision(old, Need::Cleanup));
+    fn begge_kortoperasjonene_krever_felles_revisjon() {
+        for old in ["1\n", "2:32\n", "2:33\n"] {
+            assert!(!compatible_revision(old));
         }
-        // NVML-sikkerhetsrettingene i 1.6.0 (bygg 32) gjør 25–31 utdatert for
-        // GPU-styring; RGB-protokoll 3 (bygg 29) gjelder bare RGB-delen.
-        for old_nvml in ["2:25\n", "2:28\n"] {
-            assert!(!compatible_revision(old_nvml, Need::Nvml));
-            assert!(!compatible_revision(old_nvml, Need::Rgb));
-            assert!(compatible_revision(old_nvml, Need::Cleanup));
-        }
-        for rgb_only in ["2:29\n", "2:31\n"] {
-            assert!(compatible_revision(rgb_only, Need::Rgb));
-            assert!(!compatible_revision(rgb_only, Need::Nvml));
-        }
-        assert!(compatible_revision("2:32\n", Need::Rgb));
-        assert!(compatible_revision("2:32\n", Need::Nvml));
-        for unknown in ["", "3:25\n", "2:0\n", "2:4294967295\n"] {
-            assert!(!compatible_revision(unknown, Need::Cleanup));
-        }
+        assert!(compatible_revision(&format!("3:{}\n", rigg_core::version::build())));
     }
 
     fn manifest(version_json: &[u8]) -> String {
@@ -600,85 +372,6 @@ mod tests {
         }
     }
 
-    #[test]
-    fn avklaringsmaal_gjelder_bare_kortet_som_oppdateres() {
-        let card = ("0000:1c:00.0", "GPU-12345678-abcd-ef01-2345-6789abcdef01");
-        let line = |pci: &str, id: &str, expected: &str| {
-            format!("{RECOVERY_PREFIX}{{\"pci\":\"{pci}\",\"uuid\":\"{}\",\"expected\":{expected},\"recoveryId\":\"{id}\"}}", card.1)
-        };
-        let id = "0123456789abcdef0123456789abcdef";
-        let ok = recovery_request(&line(card.0, id, r#"{"mode":"static"}"#), card).unwrap();
-        assert_eq!((ok.pci.as_str(), ok.uuid.as_str(), ok.recovery_id.as_str()), (card.0, card.1, id));
-        assert_eq!(ok.expected["mode"], "static");
-        for bad in [
-            line("0000:01:00.0", id, "{}"),
-            line(card.0, "../x", "{}"),
-            line(card.0, &id.to_uppercase(), "{}"),
-            line(card.0, id, "[]"),
-            line(card.0, id, "{}").replace(RECOVERY_PREFIX, ""),
-            format!("{RECOVERY_PREFIX}ikke json"),
-        ] {
-            assert!(recovery_request(&bad, card).is_none(), "{bad}");
-        }
-        // Samme prefiks og samme stimønster som skriptet og pakkeskriptet.
-        assert!(FETCH.contains(&format!("CONFIRM_PREFIX = '{RECOVERY_PREFIX}'")));
-        assert!(FETCH.contains(&format!("RGB_KEPT_PREFIX = '{RGB_KEPT_PREFIX}'")));
-        let pattern = r"bin/[A-Za-z0-9._-]{1,64}|version\.json|data/hjelper/[A-Za-z0-9._-]{1,64}";
-        assert!(FETCH.contains(&format!("SYSTEM_PATH = r'{pattern}'")));
-        assert!(include_str!("../../../scripts/pakk-utgivelse.py").contains(&format!("re.compile(r\"{pattern}\"")));
-    }
-
-    #[test]
-    fn eldre_rgb_del_oppdateres_ved_aktivering_og_regnes_ikke_som_klar() {
-        let app = rigg_core::version::build();
-        // Direkte aktivering bare med RGB-delen fra appens eget bygg.
-        assert!(rgb_activates_directly(Some(app), app));
-        for older in [None, Some(0), Some(29), Some(31), Some(app - 1)] {
-            assert!(!rgb_activates_directly(older, app), "{older:?}");
-        }
-        // GPU-oppdateringen lot RGB stå på 31: en kjørende RGB-hjelper derfra
-        // regnes som «må oppdateres».
-        assert!(rgb_behind_system(Some(31), Some(33)));
-        assert!(rgb_behind_system(Some(0), Some(33)));
-        assert!(!rgb_behind_system(Some(33), Some(33)));
-        assert!(!rgb_behind_system(Some(31), None));
-        assert!(!rgb_behind_system(None, Some(33)));
-    }
-
-    #[test]
-    fn app_33_slar_av_gpu_styring_med_komponenter_fra_32() {
-        // Bygg 32 har ingen egen kopi av rgb-admin.py i GPU-mappa; av-bryteren
-        // (og aktivering med de installerte skriptene) skal ikke kreve den.
-        let dir = Path::new("/usr/local/libexec/agentic-rigg");
-        let copy = dir.join("rgb-admin.py");
-        for old in [None, Some(25), Some(31), Some(32)] {
-            let files = nvml_admin_files(dir, old);
-            assert!(!files.contains(&copy), "{old:?}");
-            assert!(files.contains(&dir.join("deaktiver.sh")) && files.contains(&dir.join("nvml-admin.py")));
-        }
-        for new in [33, 34] {
-            assert!(nvml_admin_files(dir, Some(new)).contains(&copy));
-        }
-        assert!(include_str!("../../../data/hjelper/nvml-admin.py").contains("with_name('rgb-admin.py')"));
-    }
-
-    #[test]
-    fn beholdt_rgb_del_gir_egen_avklaringsmelding() {
-        let line = |json: &str| format!("{RGB_KEPT_PREFIX}{json}");
-        assert_eq!(
-            rgb_kept(&line(r#"{"pci":"0000:1c:00.0","unsettled":true}"#)),
-            Some(RgbKept { pci: Some("0000:1c:00.0".into()), unsettled: true })
-        );
-        assert_eq!(rgb_kept(&line(r#"{"pci":null,"unsettled":false}"#)), Some(RgbKept { pci: None, unsettled: false }));
-        for bad in [r#"{"pci":"../x","unsettled":true}"#, r#"{"pci":"0000:1c:00.0"}"#, "[]", "ikke json"] {
-            assert!(rgb_kept(&line(bad)).is_none(), "{bad}");
-        }
-        assert!(rgb_kept(r#"{"pci":null,"unsettled":true}"#).is_none());
-        // Bare en uavklart økt gir egen melding; en avklart RGB-del er bare urørt.
-        assert!(rgb_kept_toast(&RgbKept { pci: None, unsettled: false }).is_none());
-        assert!(rgb_kept_toast(&RgbKept { pci: Some("0000:1c:00.0".into()), unsettled: true }).is_some());
-    }
-
     /// Argumentene appen sender passer skriptets strenge kontroll helt frem
     /// til root-kravet. Kjøres aldri som root, og aldri via pkexec.
     #[test]
@@ -690,7 +383,7 @@ mod tests {
         for pins in ["-".to_string(), manifest(VERSION_JSON)] {
             let out = std::process::Command::new(python().unwrap())
                 .args(["-I", "-S", "-c", FETCH, rigg_core::version::VERSION, rigg_core::version::BUILD_STR, &pins])
-                .args(["rgb", "0000:1c:00.0", "GPU-12345678-abcd-ef01-2345-6789abcdef01"])
+                .args(["card", "0000:1c:00.0", "GPU-12345678-abcd-ef01-2345-6789abcdef01"])
                 .env_clear()
                 .stdin(std::process::Stdio::null())
                 .output()

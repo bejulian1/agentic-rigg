@@ -8,70 +8,54 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg/src/system_install.rs:230
+#: crates/rigg/src/system_install.rs:142
 msgid "Kjør kommandoen i en administratorterminal. Oppgi arkivstien og SHA-256 fra utgivelsessiden."
 msgstr "请在管理员终端执行命令，提供归档路径及发布页面上的 SHA-256。"
 
-#: crates/rigg/src/system_install.rs:237
+#: crates/rigg/src/system_install.rs:149
 msgid "Kopier installasjonskommando"
 msgstr "复制安装命令"
 
-#: crates/rigg/src/system_install.rs:243
+#: crates/rigg/src/system_install.rs:155
 msgid "Uten nett: bruk terminal"
 msgstr "离线：使用终端"
 
-#: crates/rigg/src/system_install.rs:285
+#: crates/rigg/src/system_install.rs:177
 msgid "Summene fra utgivelsesarkivet appen ble installert fra, er ugyldige eller hører til en annen versjon. Installer appen på nytt fra utgivelsesarkivet, eller bruk terminalkommandoen."
 msgstr "安装本应用时所用发布归档中的校验和无效，或属于其他版本。请从发布归档重新安装应用，或使用终端命令。"
 
-#: crates/rigg/src/system_install.rs:350
-msgid "GPU-styringen er oppdatert uten å røre kortlyset. En tidligere RGB-økt for kortet {kort} er fortsatt ikke avsluttet. Velg det kortet og åpne RGB-lys for å avklare den."
-msgstr "GPU 控制已更新，未改动显卡灯光。显卡 {kort} 之前的 RGB 会话仍未结束。请选择该显卡并打开“RGB 灯效”进行确认处理。"
-
-#: crates/rigg/src/system_install.rs:351
-msgid "GPU-styringen er oppdatert uten å røre kortlyset. En tidligere RGB-økt er fortsatt ikke avsluttet. Åpne RGB-lys for å avklare den."
-msgstr "GPU 控制已更新，未改动显卡灯光。之前的 RGB 会话仍未结束。请打开“RGB 灯效”进行确认处理。"
-
-#: crates/rigg/src/system_install.rs:353
-msgid "RGB-økten må avklares separat"
-msgstr "RGB 会话需要单独确认处理"
-
-#: crates/rigg/src/system_install.rs:371
+#: crates/rigg/src/system_install.rs:220
 msgid "Passordet ble ikke gitt. Ingenting er endret."
 msgstr "未输入密码，未进行任何更改。"
 
-#: crates/rigg/src/system_install.rs:372
+#: crates/rigg/src/system_install.rs:221
 msgid "Fant ikke pkexec, eller ingen kan spørre om passordet (polkit)."
 msgstr "找不到 pkexec，或 polkit 无法请求输入密码。"
 
-#: crates/rigg/src/system_install.rs:374
+#: crates/rigg/src/system_install.rs:223
 msgid "Fikk ikke kontakt med GitHub. Sjekk nettet, eller bruk terminalkommandoen."
 msgstr "无法连接 GitHub。请检查网络，或使用终端命令。"
 
-#: crates/rigg/src/system_install.rs:375
+#: crates/rigg/src/system_install.rs:224
 msgid "Fant ikke utgivelsen for denne versjonen på GitHub."
 msgstr "在 GitHub 上找不到此版本的发布。"
 
-#: crates/rigg/src/system_install.rs:377
+#: crates/rigg/src/system_install.rs:226
 msgid "Nedlastingen stemmer ikke med summen GitHub oppgir. Ingen systemfiler er endret."
 msgstr "下载内容与 GitHub 公布的校验和不符。未更改任何系统文件。"
 
-#: crates/rigg/src/system_install.rs:378
+#: crates/rigg/src/system_install.rs:227
 msgid "Installasjonen feilet. Ingen nye tilganger er gitt."
 msgstr "安装失败。未授予任何新权限。"
 
-#: crates/rigg/src/system_install.rs:379
+#: crates/rigg/src/system_install.rs:228
 msgid "Installasjonen feilet: {feil}"
 msgstr "安装失败：{feil}"
 
-#: crates/rigg/src/system_install.rs:393
+#: crates/rigg/src/system_install.rs:240
 msgid "Vent til den andre administratorhandlingen er ferdig"
 msgstr "请等待另一项管理员操作完成"
 
-#: crates/rigg/src/system_install.rs:401 crates/rigg/src/system_install.rs:427 crates/rigg/src/system_install.rs:477
+#: crates/rigg/src/system_install.rs:248 crates/rigg/src/system_install.rs:272 crates/rigg/src/system_install.rs:292
 msgid "Installasjonen ble ikke fullført"
 msgstr "安装未完成"
-
-#: crates/rigg/src/system_install.rs:493
-msgid "Åpne RGB-lys"
-msgstr "打开 RGB 灯效"

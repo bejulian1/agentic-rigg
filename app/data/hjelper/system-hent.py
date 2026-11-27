@@ -1,8 +1,7 @@
 """Hent og installer systemkomponentene for én bestemt utgivelse (kjøres som root).
 
 Appen starter dette med `pkexec python3 -I -S -c <denne fila> VERSJON BYGG
-FESTET [nvml|rgb PCI UUID]` når brukeren slår på skjermkortstyring eller
-kortlys og komponentene mangler eller er utdaterte. Med domene aktiveres
+FESTET [card PCI UUID | revoke-card]` når brukeren endrer korttillatelsen og komponentene mangler eller er utdaterte. Med domene aktiveres
 tilgangen rett etter installasjonen med de faste, nettopp installerte
 skriptene, så ett passord holder.
 
@@ -26,39 +25,7 @@ Først etter kontrollene hentes `system-install` ut og kjøres med
 `python3 -I -S`, som kontrollerer summen på nytt og installerer bare
 navngitte filer.
 
-Låsing. Tillatelsene leses før nettet brukes og leses på nytt etter
-nedlastingen. Har noe endret seg, stopper alt før en eneste fil er
-byttet. RGB avsluttes med de gamle, installerte skriptene, som tar
-`/run/agentic-rigg-system.lock` selv. Deretter holder dette skriptet den
-felles låsen gjennom ny kontroll, installasjon, gjenaktivering av
-GPU-styringen og den valgte aktiveringen. De nyinstallerte skriptene får
-låsen som et arvet filhåndtak (`AGENTIC_RIGG_SYSTEM_LOCK_FD`), så ingen
-annen administratorhandling kommer imellom og en tilbakekalt tillatelse
-aldri gis tilbake.
-
-Installasjonen bytter hjelperne og fjerner derfor aktive tillatelser.
-En GPU-tillatelse for samme bruker aktiveres igjen for samme kort etterpå.
-
-GPU-styring (og en oppdatering uten aktivering) rører aldri en aktiv
-RGB-del eller en RGB-journal: da installeres bare NVML-delen og
-systeminstallasjonen (`--keep-rgb`), og RGB-hjelperen, tillatelsen,
-lyset og en eventuell uavklart økt blir stående som før. Appen får én
-linje på stdout (`RGB_KEPT_PREFIX`) og viser at RGB-avklaringen gjøres
-separat på siden RGB-lys. En uavklart RGB-økt kan dermed aldri stenge
-brukeren ute fra GPU-styring.
-
-Ber brukeren om RGB og er GPU-delen fra nøyaktig denne utgivelsen og aktiv,
-installeres bare RGB-delen (`--keep-nvml`): GPU-hjelperen stoppes ikke, så
-beholdte GPU-verdier står. Ellers gis GPU-tillatelsen tilbake etterpå.
-
-Ber brukeren om RGB, slås en eksisterende RGB-tilgang av med det
-installerte `rgb-deaktiver.sh` (lyset og utgangspunktet beholdes). Har den
-gamle RGB-hjelperen en uavklart økt (journal), skrives det lagrede
-utgangspunktet tilbake først. Så sender skriptet avklaringsmålet til appen
-(én linje på stdout) og venter på at brukeren ser på kortet og bekrefter
-nøyaktig den gjenopprettingsidentiteten (én linje på stdin). Først da
-avklares journalen. Uten den bekreftelsen beholdes journalen og ingenting
-byttes.
+Etter nedlasting kontrolleres kortbindingene under systemlåsen. Den nye arbeideren avklarer eventuelle journaler i appen.
 
 Uten nett finnes terminalkommandoen (`system-bootstrap.command`) med
 arkiv og sum oppgitt for hånd.
@@ -69,14 +36,12 @@ import http.client
 import json
 import os
 import re
-import select
 import shutil
 import stat
 import subprocess
 import sys
 import tarfile
 import tempfile
-import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -99,23 +64,13 @@ HEADERS = {'Accept': 'application/vnd.github+json', 'User-Agent': 'agentic-rigg-
 STAGING = '/var/tmp'
 MARK = '/usr/local/libexec/agentic-rigg-system/revision'
 INSTALLER = ['/usr/bin/python3', '-I', '-S']
-ACTIVATE = {'nvml': ['/usr/local/libexec/agentic-rigg/aktiver.sh'],
-            'rgb': ['/usr/local/libexec/agentic-rigg-rgb-v2/rgb-aktiver.sh']}
-# RGB-aktiveringen krever at brukeren har sett på kortet; appen spør før pkexec.
-ACTIVATE_FLAGS = {'nvml': [], 'rgb': ['--static-confirmed']}
-RGB_DEACTIVATE = ['/usr/local/libexec/agentic-rigg-rgb-v2/rgb-deaktiver.sh']
-RGB_RESTORE = ['/usr/local/libexec/agentic-rigg-rgb-v2/rgb-gjenopprett.sh']
-RGB_RESOLVE = ['/usr/local/libexec/agentic-rigg-rgb-v2/rgb-avklar.sh']
+ACTIVATE = '/usr/local/libexec/agentic-rigg/aktiver.sh'
+DEACTIVATE = '/usr/local/libexec/agentic-rigg/deaktiver.sh'
 RGB_JOURNAL = '/var/lib/agentic-rigg-rgb/journal.json'
 CONFIG = {'nvml': '/etc/agentic-rigg/helper.json', 'rgb': '/etc/agentic-rigg/rgb.json'}
 OWNER = 0
 LOCK = '/run/agentic-rigg-system.lock'
 LOCK_FD_ENV = 'AGENTIC_RIGG_SYSTEM_LOCK_FD'
-# Linjen appen ser etter på stdout, og hvor lenge brukeren har på seg.
-CONFIRM_PREFIX = 'AGENTIC-RIGG-RGB-AVKLAR '
-CONFIRM_TIMEOUT = 900
-# Linjen appen får når RGB-delen ble stående urørt (se `--keep-rgb`).
-RGB_KEPT_PREFIX = 'AGENTIC-RIGG-RGB-BEHOLDT '
 # Medlemmene som installeres eller kjøres som root (og appens binærer).
 SYSTEM_PATH = r'bin/[A-Za-z0-9._-]{1,64}|version\.json|data/hjelper/[A-Za-z0-9._-]{1,64}'
 MAX_PINS = 64
@@ -274,6 +229,8 @@ def verified_installer(archive, version, build, pins):
             changed = sorted(set(digests) ^ set(pins) | {p for p in digests.keys() & pins.keys() if digests[p] != pins[p]})
             fail('Arkivet samsvarer ikke med utgivelsen appen ble installert fra '
                  f'({", ".join(changed[:3])}). Ingen systemfiler endret.')
+    if 'data/hjelper/agentic-rigg-card.service' not in digests:
+        fail('Pakken mangler oppstartskoordinatoren for felles korttillatelse.')
     return installer
 
 
@@ -295,13 +252,15 @@ def activation(argv):
     """`[]` eller `[domene, pci, uuid]` → aktiveringskommandoen, eller None."""
     if not argv:
         return None
-    if len(argv) != 3 or argv[0] not in ACTIVATE:
-        fail('Forventet VERSJON BYGG [nvml|rgb PCI UUID].')
-    domain, pci, uuid = argv[0], argv[1].lower(), argv[2]
+    if argv == ['revoke-card']:
+        return [DEACTIVATE]
+    if len(argv) != 3 or argv[0] != 'card':
+        fail('Forventet VERSJON BYGG [card PCI UUID].')
+    pci, uuid = argv[1].lower(), argv[2]
     if not re.fullmatch(PCI, pci, re.ASCII) or not re.fullmatch(UUID, uuid, re.ASCII):
         fail('Aktivering krever full PCI-adresse og GPU-UUID.')
     pkexec_uid()
-    return [*ACTIVATE[domain], '--pci', pci, '--uuid', uuid, *ACTIVATE_FLAGS[domain]]
+    return [ACTIVATE, '--card-control', '--pci', pci, '--uuid', uuid]
 
 
 def installed_build():
@@ -314,7 +273,7 @@ def installed_build():
         info = os.fstat(stream.fileno())
         if not stat.S_ISREG(info.st_mode) or info.st_uid != OWNER or info.st_mode & 0o022:
             return None
-        found = re.fullmatch(rb'2:([0-9]{1,10})', stream.read(65).rstrip())
+        found = re.fullmatch(rb'[23]:([0-9]{1,10})', stream.read(65).rstrip())
     return int(found[1]) if found else None
 
 
@@ -330,7 +289,7 @@ def reject_downgrade(build):
         revision = stream.read(65)
     if len(revision) > 64:
         fail(f'Ugyldig systemrevisjon: {MARK}')
-    installed = re.fullmatch(rb'2:([0-9]+)', revision.rstrip())
+    installed = re.fullmatch(rb'[23]:([0-9]+)', revision.rstrip())
     if installed and int(installed[1]) > int(build):
         fail(f'Kan ikke nedgradere systemkomponentene fra bygg {int(installed[1])} til {build}.')
 
@@ -362,7 +321,7 @@ def authorization(domain, uid):
         return None
     if str(data.get('uid')) != uid:
         fail('Den aktive tillatelsen gjelder en annen bruker. Slå den av først.')
-    if data.get('enabled') is not True:
+    if data.get('enabled') is not True and not (domain == 'nvml' and data.get('scope') == 'card' and data.get('enabled') is False):
         fail('Den lagrede tillatelsen bruker et eldre oppsett eller er ikke aktiv. Fjern den gamle tillatelsen før installasjon.')
     card = data.get('binding') if domain == 'rgb' else data
     if not isinstance(card, dict):
@@ -416,77 +375,10 @@ def run(command, uid, lock=None):
                           check=False).returncode
 
 
-def confirmation(timeout=CONFIRM_TIMEOUT, fd=0):
-    """Én linje fra appen på stdin (`fd`) innen `timeout`, eller None (EOF, tidsavbrudd, feil)."""
-    deadline = time.monotonic() + timeout
-    data = b''
-    while b'\n' not in data and len(data) <= 64:
-        left = deadline - time.monotonic()
-        if left <= 0:
-            return None
-        try:
-            ready, _, _ = select.select([fd], [], [], left)
-            if not ready:
-                return None
-            chunk = os.read(fd, 65 - len(data))
-        except (OSError, ValueError):
-            return None
-        if not chunk:
-            break
-        data += chunk
-    line, newline, _ = data.partition(b'\n')
-    try:
-        return line.decode('ascii') if newline else None
-    except UnicodeDecodeError:
-        return None
-
-
-def settle_rgb(bound, uid):
-    """Avslutt en uavklart RGB-økt for kortet `bound` med de installerte skriptene.
-
-    Gjenopprettingen skriver det lagrede utgangspunktet og krever at
-    avlesningen samsvarer. Avlesningen kan ikke bekrefte effektmodusen, så
-    brukeren må se det gjenopprettede lyset: appen får avklaringsmålet og
-    svarer med gjenopprettingsidentiteten først når brukeren har bekreftet
-    det. Avklaringen leser på nytt før journalen fjernes. Feiler et trinn,
-    eller kommer ingen bekreftelse, beholdes journalen.
-    """
-    ids = ['--pci', bound[0], '--uuid', bound[1]]
-    if run([*RGB_RESTORE, *ids, '--restore-original'], uid):
-        print('RGB: Det lagrede lyset kunne ikke gjenopprettes. Journalen er beholdt; ingenting er byttet.', file=sys.stderr)
-        return False
-    after = 'RGB: Kortet er satt til det lagrede lyset, men økten ble ikke avsluttet. Velg «Avklar tidligere økt».'
-    inspect = subprocess.run([*RGB_RESOLVE, *ids, '--inspect'], stdin=subprocess.DEVNULL,
-                             stdout=subprocess.PIPE, env=env(uid), check=False)
-    if inspect.returncode:
-        print(after, file=sys.stderr)
-        return False
-    try:
-        report = json.loads(inspect.stdout or b'null')
-    except ValueError:
-        report = None
-    if report == {}:
-        return True
-    recovery = report.get('recoveryId') if isinstance(report, dict) else None
-    if (not isinstance(recovery, str) or not re.fullmatch(r'[0-9a-f]{32}', recovery, re.ASCII)
-            or not isinstance(report.get('expected'), dict)):
-        fail('RGB-hjelperen ga et ugyldig avklaringsmål. Journalen er beholdt.')
-    target = {'pci': bound[0], 'uuid': bound[1], 'expected': report['expected'], 'recoveryId': recovery}
-    print(CONFIRM_PREFIX + json.dumps(target, separators=(',', ':')), flush=True)
-    if confirmation() != recovery:
-        print('RGB: Kortet er satt til det lagrede lyset, men det gjenopprettede lyset ble ikke bekreftet. '
-              'Journalen er beholdt; ingenting er byttet. Kontroller lyset og velg «Avklar tidligere økt».', file=sys.stderr)
-        return False
-    if run([*RGB_RESOLVE, *ids, '--static-confirmed', '--recovery-id', recovery], uid):
-        print(after, file=sys.stderr)
-        return False
-    return True
-
-
 def main(argv):
-    if (len(argv) not in (3, 6) or not re.fullmatch(r'[0-9]{1,4}\.[0-9]{1,4}\.[0-9]{1,4}', argv[0])
+    if (len(argv) not in (3, 4, 6) or not re.fullmatch(r'[0-9]{1,4}\.[0-9]{1,4}\.[0-9]{1,4}', argv[0])
             or not re.fullmatch(r'[1-9][0-9]{0,8}', argv[1])):
-        fail('Forventet VERSJON BYGG FESTET [nvml|rgb PCI UUID].')
+        fail('Forventet VERSJON BYGG FESTET [card PCI UUID].')
     if os.geteuid() != 0:
         fail('Systeminstallasjon krever administrator.')
     version, build = argv[:2]
@@ -496,20 +388,9 @@ def main(argv):
     uid = pkexec_uid()
     # Leses før nettet brukes, så en fremmed tillatelse stopper alt tidlig.
     before = snapshot(uid)
-    nvml, rgb, journal = before
-    # Brukeren valgte RGB for dette kortet (bare RGB-aktivering).
-    chosen = (argv[4].lower(), argv[5]) if then and argv[3] == 'rgb' else None
-    # GPU-styring rører ikke en aktiv eller uavklart RGB-del (se over).
-    keep_rgb = chosen is None and (rgb is not None or journal)
-    # RGB-lys rører ikke en aktiv GPU-hjelper fra nøyaktig denne utgivelsen:
-    # da byttes bare RGB-delen, og GPU-verdier brukeren har beholdt, står.
-    keep_nvml = chosen is not None and nvml is not None and installed_build() == int(build)
-    unsettled = rgb is not None and journal and not keep_rgb
-    if chosen is not None and journal and rgb is None:
-        fail('Det finnes en RGB-journal uten RGB-tillatelse. Den kan ikke avklares herfra. '
-             'Bruk terminalkommandoen eller kontakt utvikleren; ingen systemfiler er endret.')
-    if unsettled and chosen != card(rgb):
-        fail(f'En tidligere RGB-økt for kortet {card(rgb)[0]} er ikke avsluttet. Velg det kortet, åpne RGB-lys og trykk «Bruk».')
+    chosen = (argv[4].lower(), argv[5]) if argv[3:4] == ['card'] else None
+    if chosen and any(auth and card(auth) != chosen for auth in before[:2]):
+        fail('Velg det autoriserte kortet før du oppdaterer systemkomponentene.')
     name = ASSET.format(version=version, build=build)
     digest = published_digest(version, name)
     os.umask(0o077)
@@ -530,48 +411,17 @@ def main(argv):
             with open(installer, 'xb') as out:
                 out.write(verified_installer(archive, version, build, pins))
             reject_downgrade(build)
-            # Nedlastingen kan ta et minutt. Ingenting brukes fra det gamle
-            # øyeblikksbildet hvis en tillatelse er endret eller trukket tilbake.
-            if snapshot(uid) != before:
-                fail(CHANGED)
-            # Installasjonen nekter mens RGB er aktiv. Den gamle, installerte
-            # deaktiveringen beholder lyset og utgangspunktet. En uavklart økt
-            # avsluttes først (se `settle_rgb`); feiler det, stopper alt her
-            # før noe er byttet. De gamle skriptene tar den felles låsen selv.
-            if unsettled and not settle_rgb(card(rgb), uid):
-                return 1
-            if not keep_rgb and rgb is not None and run([*RGB_DEACTIVATE, '--pci', card(rgb)[0], '--uuid', card(rgb)[1]], uid):
-                if unsettled:
-                    print('RGB: Økten er avsluttet, men den gamle RGB-tilgangen ble ikke slått av. Trykk «Bruk» igjen.', file=sys.stderr)
-                return 1
-            # Herfra holdes låsen til den valgte aktiveringen er ferdig.
             fd = lock.acquire()
             reject_downgrade(build)
-            nvml_now, rgb_now, journal_now = snapshot(uid)
-            if keep_rgb:
-                # RGB-delen skal være nøyaktig som før: samme tillatelse og journal.
-                if (nvml_now, rgb_now, journal_now) != before:
-                    fail(CHANGED)
-            elif nvml_now != nvml or rgb_now is not None or journal_now:
-                fail(CHANGED + (' RGB-tilgangen er slått av; trykk «Bruk» for å slå den på igjen.' if rgb else ''))
-            keep = ['--keep-rgb'] if keep_rgb else ['--keep-nvml'] if keep_nvml else []
-            result = subprocess.run([*INSTALLER, installer, *keep, archive, digest], stdin=subprocess.DEVNULL,
+            if snapshot(uid) != before:
+                fail(CHANGED)
+            result = subprocess.run([*INSTALLER, installer, archive, digest], stdin=subprocess.DEVNULL,
                                     env={'PATH': '/usr/bin:/bin', 'LC_ALL': 'C', LOCK_FD_ENV: str(fd)},
                                     pass_fds=(fd,), check=False)
             if result.returncode:
                 return result.returncode
         finally:
             shutil.rmtree(temp, ignore_errors=True)
-        if keep_rgb:
-            # RGB-lyset, tillatelsen og en eventuell journal er urørt.
-            kept = {'pci': card(rgb)[0] if rgb else None, 'unsettled': journal}
-            print(RGB_KEPT_PREFIX + json.dumps(kept, separators=(',', ':')), flush=True)
-        # Installasjonen fjernet GPU-tillatelsen. Gi den tilbake for samme kort,
-        # med mindre brukeren nettopp ba om GPU-styring (da gjør `then` det)
-        # eller GPU-delen ble stående (`keep_nvml`).
-        if nvml is not None and not keep_nvml and not (then and then[0] == ACTIVATE['nvml'][0]):
-            if run([*ACTIVATE['nvml'], '--pci', card(nvml)[0], '--uuid', card(nvml)[1]], uid, fd):
-                print('GPU-styringen ble ikke slått på igjen. Slå på bryteren i appen.', file=sys.stderr)
         if then is None:
             return 0
         return run(then, uid, fd)

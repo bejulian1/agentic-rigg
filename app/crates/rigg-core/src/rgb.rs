@@ -222,6 +222,7 @@ impl Discovery {
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum BaselineSource {
+    AwaitingVisual,
     ObservedMode,
     UserConfirmedStatic,
 }
@@ -254,7 +255,7 @@ impl TryFrom<BaselineData> for Baseline {
             BaselineSource::ObservedMode if data.observed.mode.is_none() => {
                 return Err("Ukjent effekt kan ikke brukes som avlest lysgrunnverdi.".into());
             }
-            BaselineSource::UserConfirmedStatic if data.observed.mode.is_some() => {
+            BaselineSource::UserConfirmedStatic | BaselineSource::AwaitingVisual if data.observed.mode.is_some() => {
                 return Err(
                     "Brukerbekreftet statisk effekt skal holdes atskilt fra avlest modus.".into(),
                 );
@@ -292,6 +293,10 @@ impl Baseline {
         .try_into()
     }
 
+    pub fn awaiting_visual(binding: Binding, observed: Observed) -> Result<Self, String> {
+        BaselineData { binding, observed, source: BaselineSource::AwaitingVisual }.try_into()
+    }
+
     /// Kalles bare etter en særskilt brukerbekreftelse av statisk utgangspunkt;
     /// denne modellen gir verken tillatelse til skriving eller gjenoppretting.
     pub fn user_confirmed_static(binding: Binding, observed: Observed) -> Result<Self, String> {
@@ -317,7 +322,7 @@ impl Baseline {
 
     pub fn expected_mode(&self) -> Mode {
         match self.data.source {
-            BaselineSource::UserConfirmedStatic => Mode::Static,
+            BaselineSource::AwaitingVisual | BaselineSource::UserConfirmedStatic => Mode::Static,
             BaselineSource::ObservedMode => self.data.observed.mode.expect("validert grunnopptak"),
         }
     }

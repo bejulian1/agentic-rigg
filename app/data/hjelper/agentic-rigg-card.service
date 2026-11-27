@@ -1,0 +1,25 @@
+[Unit]
+Description=Agentic HW Monitor – kortbundet oppstart
+After=local-fs.target
+ConditionPathExists=/etc/agentic-rigg/helper.json
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 -I -S /usr/local/libexec/agentic-rigg/nvml-admin.py boot
+Restart=on-failure
+RestartSec=15s
+ProtectSystem=strict
+ReadWritePaths=/run /etc/systemd/system /etc/agentic-rigg
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_UNIX
+PrivateNetwork=yes
+ProtectHome=yes
+NoNewPrivileges=yes
+DevicePolicy=closed
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

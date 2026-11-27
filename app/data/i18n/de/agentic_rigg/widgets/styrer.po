@@ -36,90 +36,90 @@ msgstr "Aus dem PCI-Subsystem ({s})."
 msgid "Produsenten er ikke lest."
 msgstr "Hersteller nicht erkannt."
 
-#: crates/rigg/src/widgets/styrer.rs:81
+#: crates/rigg/src/widgets/styrer.rs:82
 msgid "Styrer"
 msgstr "Steuert"
 
-#: crates/rigg/src/widgets/styrer.rs:101 crates/rigg/src/widgets/styrer.rs:102
+#: crates/rigg/src/widgets/styrer.rs:105 crates/rigg/src/widgets/styrer.rs:106
 msgid "Sett produsenten"
 msgstr "Hersteller festlegen"
 
-#: crates/rigg/src/widgets/styrer.rs:114
+#: crates/rigg/src/widgets/styrer.rs:118
 msgid "Velg kortet som styres"
 msgstr "Zu steuernde GPU auswählen"
 
-#: crates/rigg/src/widgets/styrer.rs:173
+#: crates/rigg/src/widgets/styrer.rs:177
 msgid "Venter på tjenesten"
 msgstr "Warte auf Dienst"
 
-#: crates/rigg/src/widgets/styrer.rs:173
+#: crates/rigg/src/widgets/styrer.rs:177
 msgid "kortet vises når tjenesten svarer"
 msgstr "die GPU wird angezeigt, sobald der Dienst antwortet"
 
-#: crates/rigg/src/widgets/styrer.rs:174
+#: crates/rigg/src/widgets/styrer.rs:178
 msgid "Leser skjermkortet …"
 msgstr "GPU wird erkannt …"
 
-#: crates/rigg/src/widgets/styrer.rs:175
+#: crates/rigg/src/widgets/styrer.rs:179
 msgid "Fant ingen NVIDIA-driver"
 msgstr "Kein NVIDIA-Treiber gefunden"
 
-#: crates/rigg/src/widgets/styrer.rs:175
+#: crates/rigg/src/widgets/styrer.rs:179
 msgid "ingen skjermkort å styre"
 msgstr "keine GPU steuerbar"
 
-#: crates/rigg/src/widgets/styrer.rs:178 crates/rigg/src/widgets/styrer.rs:186
+#: crates/rigg/src/widgets/styrer.rs:182 crates/rigg/src/widgets/styrer.rs:190
 msgid "Skjermkortet"
 msgstr "Grafikkarte"
 
-#: crates/rigg/src/widgets/styrer.rs:179
+#: crates/rigg/src/widgets/styrer.rs:183
 msgid "driveren er oppdatert · start maskinen på nytt for å styre kortet"
 msgstr "Treiber aktualisiert · für GPU-Steuerung Rechner neu starten"
 
-#: crates/rigg/src/widgets/styrer.rs:187
+#: crates/rigg/src/widgets/styrer.rs:191
 msgid "svarer ikke siden {since} · styringen er utilgjengelig"
 msgstr "keine Antwort seit {since} · Steuerung nicht verfügbar"
 
-#: crates/rigg/src/widgets/styrer.rs:203
+#: crates/rigg/src/widgets/styrer.rs:207
 msgid "driver {d}"
 msgstr "Treiber {d}"
 
-#: crates/rigg/src/widgets/styrer.rs:205
+#: crates/rigg/src/widgets/styrer.rs:209
 msgid "{kort}\nProdusent: {produsent}\nPCI-adresse: {pci}\nVBIOS: {vbios}\n{detalj}"
 msgstr "{kort}\nHersteller: {produsent}\nPCI-Adresse: {pci}\nVBIOS: {vbios}\n{detalj}"
 
-#: crates/rigg/src/widgets/styrer.rs:213
+#: crates/rigg/src/widgets/styrer.rs:217
 msgid "Skjermkort"
 msgstr "Grafikkarte"
 
-#: crates/rigg/src/widgets/styrer.rs:232
+#: crates/rigg/src/widgets/styrer.rs:236
 msgid "Kort {i} av {antall}"
 msgstr "GPU {i} von {antall}"
 
-#: crates/rigg/src/widgets/styrer.rs:234
+#: crates/rigg/src/widgets/styrer.rs:238
 msgid "Styrer: {name}. {meta}"
 msgstr "Steuert: {name}. {meta}"
 
-#: crates/rigg/src/widgets/styrer.rs:240
+#: crates/rigg/src/widgets/styrer.rs:244
 msgid "Kortet som styres"
 msgstr "Zu steuernde GPU"
 
-#: crates/rigg/src/widgets/styrer.rs:280
+#: crates/rigg/src/widgets/styrer.rs:284
 msgid "Produsent (valgfritt)"
 msgstr "Hersteller (optional)"
 
-#: crates/rigg/src/widgets/styrer.rs:292
+#: crates/rigg/src/widgets/styrer.rs:296
 msgid "Produsent"
 msgstr "Hersteller"
 
-#: crates/rigg/src/widgets/styrer.rs:294
+#: crates/rigg/src/widgets/styrer.rs:298
 msgid "Vises bare i appen, i Styrer-linja og i maskinhodet. Kortet endres ikke."
 msgstr "Wird nur in der App im GPU-Wähler und Systemkopf angezeigt. Die Karte bleibt unverändert."
 
-#: crates/rigg/src/widgets/styrer.rs:303
+#: crates/rigg/src/widgets/styrer.rs:307
 msgid "Fjern"
 msgstr "Entfernen"
 
-#: crates/rigg/src/widgets/styrer.rs:305
+#: crates/rigg/src/widgets/styrer.rs:309
 msgid "Lagre"
 msgstr "Speichern"

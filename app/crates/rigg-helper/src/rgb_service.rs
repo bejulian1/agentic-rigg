@@ -1,7 +1,7 @@
 //! Egen RGB-prosess og socket. Denne løkka deler ikke NVML-motor eller lease.
-//! Vanlig helperstart, profilvalg og status åpner aldri I2C.
+//! RGB-oppstart leser den bundne kontrolleren. Status bruker hurtigbufferen.
 
-use crate::rgb_backend::NativeBackend;
+use crate::rgb_backend::{NativeBackend, StartupError};
 use crate::rgb_runtime::Runtime;
 use crate::{rgb_store, server};
 use rigg_core::hjelper::{MAX_CLIENTS, MAX_LINE};
@@ -12,7 +12,7 @@ use serde_json::{Value, json};
 use std::collections::BTreeMap;
 use std::io::{Read, Write};
 use std::os::fd::AsRawFd;
-use std::os::unix::fs::{DirBuilderExt, FileTypeExt, MetadataExt};
+use std::os::unix::fs::{DirBuilderExt, FileTypeExt, MetadataExt, PermissionsExt};
 use std::os::unix::net::{UnixListener, UnixStream};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -34,10 +34,10 @@ fn mode(args: &[String]) -> Option<Result<(), String>> {
 fn dispatch_with(
     args: &[String],
     euid: u32,
-    run: impl FnOnce() -> Result<(), String>,
+    run: impl FnOnce() -> Result<(), StartupError>,
 ) -> Option<(Value, i32)> {
     let result = mode(args)?;
-    let result = result.and_then(|()| {
+    let result = result.map_err(StartupError::from).and_then(|()| {
         if euid != 0 {
             Err("RGB-tjenesten krever en separat administratoraktivering.".into())
         } else {
@@ -46,7 +46,8 @@ fn dispatch_with(
     });
     Some(match result {
         Ok(()) => (json!({"ok": true, "operation": "rgb_server"}), 0),
-        Err(message) => (
+        Err(StartupError::UnsupportedController) => (json!({"ok":false,"error":"unsupported_controller"}), 77),
+        Err(StartupError::Failed(message)) => (
             json!({"ok": false, "operation": "rgb_server", "error": message}),
             if euid == 0 { 2 } else { 1 },
         ),
@@ -72,13 +73,16 @@ pub fn dispatch() -> Option<i32> {
     // SAFETY: geteuid leser bare prosessens eksisterende rettigheter.
     let (result, code) = dispatch_with(&args, unsafe { libc::geteuid() }, run_production)?;
     if code != 0 {
+        if let Some(message) = result["error"].as_str() {
+            crate::sd_notify(&format!("STATUS={}", message.lines().next().unwrap_or_default()));
+        }
         eprintln!("{result}");
     }
     Some(code)
 }
 
 /// Monoton tid som også inkluderer suspend. Ingen reserve til veggklokke.
-fn now_ms() -> Result<u64, String> {
+pub(crate) fn now_ms() -> Result<u64, String> {
     let mut time = libc::timespec {
         tv_sec: 0,
         tv_nsec: 0,
@@ -119,6 +123,7 @@ fn prepare_socket_directory(path: &Path, owner: u32) -> Result<(), String> {
                 .mode(0o755)
                 .create(path)
                 .map_err(|e| e.to_string())?;
+            std::fs::set_permissions(path, std::fs::Permissions::from_mode(0o755)).map_err(|e| e.to_string())?;
         }
         Err(e) => return Err(e.to_string()),
     }
@@ -146,9 +151,7 @@ fn validate_existing_socket(path: &Path, owner: u32, client: u32) -> Result<(), 
     }
 }
 
-fn run_production() -> Result<(), String> {
-    // Åpner bare tillatelse, lås og grunnopptak. En gammel journal gir feil
-    // før socket/HW, og tolkes aldri som tillatelse til automatisk restore.
+fn run_production() -> Result<(), StartupError> {
     let (auth, baseline, backend) = NativeBackend::open_production()?;
     let mut runtime = Runtime::new(auth.clone(), baseline, backend)?;
     let path = PathBuf::from(SOCKET);
@@ -157,9 +160,10 @@ fn run_production() -> Result<(), String> {
     let listener = server::bind(&path, Some(auth.uid()))?;
     let mut service = Service::new(listener, path)?;
     server::install_signals();
+    crate::sd_notify("READY=1");
     service.run(&mut runtime, &server::STOP, &auth, || {
         rgb_store::load_authorization(Path::new(rgb_auth::CONFIG_PATH))
-    })
+    }).map_err(StartupError::from)
 }
 
 struct Conn {
@@ -168,7 +172,7 @@ struct Conn {
     buffer: LineBuffer,
 }
 
-struct Service {
+pub(crate) struct Service {
     listener: UnixListener,
     socket: PathBuf,
     socket_identity: (u64, u64),
@@ -178,7 +182,7 @@ struct Service {
 }
 
 impl Service {
-    fn new(listener: UnixListener, socket: PathBuf) -> Result<Self, String> {
+    pub(crate) fn new(listener: UnixListener, socket: PathBuf) -> Result<Self, String> {
         listener.set_nonblocking(true).map_err(|e| e.to_string())?;
         let metadata = std::fs::symlink_metadata(&socket).map_err(|e| e.to_string())?;
         Ok(Self {
@@ -205,7 +209,7 @@ impl Service {
         }
     }
 
-    fn run<B: Backend>(
+    pub(crate) fn run<B: Backend>(
         &mut self,
         runtime: &mut Runtime<B>,
         stop: &AtomicBool,
@@ -249,11 +253,7 @@ impl Service {
                 revents: 0,
             }));
             // SAFETY: fds inneholder gyldige descriptorer for denne runden.
-            let poll_ms = if runtime.animation_active() {
-                250
-            } else {
-                1000
-            };
+            let poll_ms = runtime.poll_ms(now_ms()?);
             let result =
                 unsafe { libc::poll(fds.as_mut_ptr(), fds.len() as libc::nfds_t, poll_ms) };
             if result < 0 {
@@ -296,7 +296,7 @@ impl Service {
             }
             // Frister og klienttrafikk går alltid foran en programvareramme.
             // Sjekk hangup igjen: annen RPC/recovery kan ha tatt tid siden poll.
-            if !runtime.animation_active() {
+            if !runtime.animation_active() && !runtime.keepalive_active() {
                 continue;
             }
             if stop.load(Ordering::SeqCst) {

@@ -11,6 +11,7 @@
 [Unit]
 Description=Agentic HW Monitor – hjelper for endring av skjermkortet
 ConditionPathExists=/etc/agentic-rigg/helper.json
+ConditionPathExists=/run/systemd/system/agentic-rigg-helper.service.d/gpu.conf
 
 [Service]
 Type=notify
@@ -70,6 +71,3 @@ SystemCallErrorNumber=EPERM
 # Liten og rolig.
 MemoryMax=128M
 TasksMax=32
-
-[Install]
-WantedBy=multi-user.target

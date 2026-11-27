@@ -263,7 +263,7 @@ fn plan_ekte() -> Vec<Step> {
         Set(json!({"theme": "dark"})),
         Wait(800),
         Shot("kontroller-1920-mork"),
-        Popover("Mer om kjerneklokke-offset", "kontroller-info-kjerneklokke-mork"),
+        Popover("Mer om gpu-justering", "kontroller-info-kjerneklokke-mork"),
         Eval(draft_kontroller),
         Wait(700),
         Shot("kontroller-utkast-1920-mork"),

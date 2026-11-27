@@ -8,308 +8,332 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg/src/settings/styring.rs:44
+#: crates/rigg/src/settings/styring.rs:54
 msgid "Venter på administratorgodkjenning …"
 msgstr "正在等待管理员授权…"
 
-#: crates/rigg/src/settings/styring.rs:45
+#: crates/rigg/src/settings/styring.rs:55
 msgid "Installerer systemkomponentene …"
 msgstr "正在安装系统组件…"
 
-#: crates/rigg/src/settings/styring.rs:46
+#: crates/rigg/src/settings/styring.rs:56
 msgid "Tjenesten svarer ikke. Endringer er låst."
 msgstr "服务无响应。无法更改设置。"
 
-#: crates/rigg/src/settings/styring.rs:49
+#: crates/rigg/src/settings/styring.rs:59 crates/rigg/src/settings/styring.rs:65 crates/rigg/src/settings/styring.rs:148 crates/rigg/src/settings/styring.rs:230 crates/rigg/src/settings/styring.rs:302 crates/rigg/src/settings/styring.rs:312 crates/rigg/src/settings/styring.rs:411
+msgid "Venter på enhet"
+msgstr "正在等待设备"
+
+#: crates/rigg/src/settings/styring.rs:60
 msgid "Styring er klar for det valgte skjermkortet. Endringer brukes først når du trykker Bruk."
 msgstr "所选显卡已就绪。点击“应用”后更改才会生效。"
 
-#: crates/rigg/src/settings/styring.rs:50
+#: crates/rigg/src/settings/styring.rs:61
 msgid "Simulert styring. Det ekte skjermkortet endres ikke."
 msgstr "模拟控制，不会更改实际显卡。"
 
-#: crates/rigg/src/settings/styring.rs:51
-msgid "Hjelperen må oppdateres. Slå på bryteren for å oppdatere den og aktivere styring."
-msgstr "必须更新辅助程序。打开开关即可更新并启用显卡调校。"
+#: crates/rigg/src/settings/styring.rs:62 crates/rigg/src/settings/styring.rs:64 crates/rigg/src/settings/styring.rs:226 crates/rigg/src/settings/styring.rs:232 crates/rigg/src/settings/styring.rs:302 crates/rigg/src/settings/styring.rs:437
+msgid "Oppdater systemkomponenter"
+msgstr "更新系统组件"
 
-#: crates/rigg/src/settings/styring.rs:52
+#: crates/rigg/src/settings/styring.rs:63
 msgid "Hjelperen er ikke klar for kortet som vises. Se funksjonsstøtten under, eller trykk Sjekk igjen."
 msgstr "辅助程序尚无法控制当前显卡。请查看下方支持的功能，或点击“重新检查”。"
 
-#: crates/rigg/src/settings/styring.rs:53
+#: crates/rigg/src/settings/styring.rs:66
 msgid "Systemkomponentene mangler. Slå på bryteren for å installere dem og aktivere styring."
 msgstr "系统组件缺失。打开开关即可安装并启用显卡调校。"
 
-#: crates/rigg/src/settings/styring.rs:54
+#: crates/rigg/src/settings/styring.rs:67
 msgid "Systemkomponentene mangler eller må oppdateres."
 msgstr "系统组件缺失或需要更新。"
 
-#: crates/rigg/src/settings/styring.rs:55
+#: crates/rigg/src/settings/styring.rs:68
 msgid "Bare visning. Endring av skjermkortet er slått av."
 msgstr "仅监控。显卡调校已关闭。"
 
-#: crates/rigg/src/settings/styring.rs:64
+#: crates/rigg/src/settings/styring.rs:77
 msgid "agentic-rigg-helper {versjon} · bygg {bygg}"
 msgstr "agentic-rigg-helper {versjon} · 构建 {bygg}"
 
-#: crates/rigg/src/settings/styring.rs:67
+#: crates/rigg/src/settings/styring.rs:80
 msgid "Simulert kort"
 msgstr "模拟显卡"
 
-#: crates/rigg/src/settings/styring.rs:67
+#: crates/rigg/src/settings/styring.rs:80
 msgid "Det ekte kortet (NVML)"
 msgstr "实际显卡（NVML）"
 
-#: crates/rigg/src/settings/styring.rs:103
+#: crates/rigg/src/settings/styring.rs:116
 msgid "Avbrutt"
 msgstr "已取消"
 
-#: crates/rigg/src/settings/styring.rs:103
+#: crates/rigg/src/settings/styring.rs:116
 msgid "Passordet ble ikke gitt. Ingenting er endret."
 msgstr "未输入密码，未进行任何更改。"
 
-#: crates/rigg/src/settings/styring.rs:104
+#: crates/rigg/src/settings/styring.rs:117
 msgid "Fant ikke pkexec, eller ingen kan spørre om passordet (polkit)."
 msgstr "找不到 pkexec，或 polkit 无法请求输入密码。"
 
-#: crates/rigg/src/settings/styring.rs:105
+#: crates/rigg/src/settings/styring.rs:118
 msgid "Skriptet feilet."
 msgstr "脚本执行失败。"
 
-#: crates/rigg/src/settings/styring.rs:133
+#: crates/rigg/src/settings/styring.rs:146 crates/rigg/src/settings/styring.rs:148
 msgid "Skjermkortstyring er aktivert"
 msgstr "显卡调校已启用"
 
-#: crates/rigg/src/settings/styring.rs:133
+#: crates/rigg/src/settings/styring.rs:146
 msgid "Velg endringer og trykk Bruk. Behold dem innen fristen, ellers rulles de tilbake."
 msgstr "修改设置后点击“应用”。请在倒计时结束前点击“保留”，否则将撤销更改。"
 
-#: crates/rigg/src/settings/styring.rs:135
+#: crates/rigg/src/settings/styring.rs:150
 msgid "Hjelperen er installert, men styring er ikke klar"
 msgstr "辅助程序已安装，但尚无法调校显卡"
 
-#: crates/rigg/src/settings/styring.rs:147
-msgid "Ingen skjermkort valgt"
-msgstr "未选择显卡"
-
-#: crates/rigg/src/settings/styring.rs:151
-msgid "Kortidentiteten er ikke klar"
-msgstr "显卡标识尚未就绪"
-
-#: crates/rigg/src/settings/styring.rs:151
-msgid "Vent til driveren har lest UUID, og prøv igjen."
-msgstr "请等待驱动程序读取 UUID，然后重试。"
-
-#: crates/rigg/src/settings/styring.rs:171
-msgid "Kunne ikke aktivere styring"
-msgstr "无法启用显卡调校"
-
-#: crates/rigg/src/settings/styring.rs:171
-msgid "Kunne ikke slå av styring"
-msgstr "无法关闭显卡调校"
-
-#: crates/rigg/src/settings/styring.rs:181
+#: crates/rigg/src/settings/styring.rs:165 crates/rigg/src/settings/styring.rs:205
 msgid "Skjermkortstyring er slått av"
 msgstr "显卡调校已关闭"
 
-#: crates/rigg/src/settings/styring.rs:181
-msgid "Hjelperen har gjenopprettet utgangspunktet og tillatelsen er fjernet."
-msgstr "辅助程序已恢复基准状态并撤销权限。"
+#: crates/rigg/src/settings/styring.rs:165 crates/rigg/src/settings/styring.rs:205
+msgid "Tillatelsen er fjernet."
+msgstr "权限已撤销。"
 
-#: crates/rigg/src/settings/styring.rs:190
+#: crates/rigg/src/settings/styring.rs:171
+msgid "Ingen skjermkort valgt"
+msgstr "未选择显卡"
+
+#: crates/rigg/src/settings/styring.rs:175
+msgid "Kortidentiteten er ikke klar"
+msgstr "显卡标识尚未就绪"
+
+#: crates/rigg/src/settings/styring.rs:175
+msgid "Vent til driveren har lest UUID, og prøv igjen."
+msgstr "请等待驱动程序读取 UUID，然后重试。"
+
+#: crates/rigg/src/settings/styring.rs:195
+msgid "Kunne ikke aktivere styring"
+msgstr "无法启用显卡调校"
+
+#: crates/rigg/src/settings/styring.rs:195
+msgid "Kunne ikke slå av styring"
+msgstr "无法关闭显卡调校"
+
+#: crates/rigg/src/settings/styring.rs:214
 msgid "Én aktivering"
 msgstr "只需启用一次"
 
-#: crates/rigg/src/settings/styring.rs:190
+#: crates/rigg/src/settings/styring.rs:214
 msgid "Bruk Tillat endring av skjermkortet. Funksjonsstøtten bestemmes av kortet og driveren."
 msgstr "请使用“允许调校显卡”。可用功能取决于显卡和驱动程序。"
 
-#: crates/rigg/src/settings/styring.rs:200
-msgid "Effektgrense"
-msgstr "功率限制"
+#: crates/rigg/src/settings/styring.rs:221 crates/rigg/src/settings/styring.rs:233 crates/rigg/src/settings/styring.rs:301 crates/rigg/src/settings/styring.rs:313 crates/rigg/src/settings/styring.rs:415
+msgid "Ikke klar"
+msgstr "未就绪"
 
-#: crates/rigg/src/settings/styring.rs:200
-msgid "Manuell viftefart og Auto"
-msgstr "手动和自动风扇转速"
+#: crates/rigg/src/settings/styring.rs:227 crates/rigg/src/settings/styring.rs:302 crates/rigg/src/settings/styring.rs:311
+msgid "Må avklares"
+msgstr "需要处理"
 
-#: crates/rigg/src/settings/styring.rs:200
-msgid "Viftekurve"
-msgstr "风扇曲线"
-
-#: crates/rigg/src/settings/styring.rs:200
-msgid "Kjerneklokke"
-msgstr "核心频率"
-
-#: crates/rigg/src/settings/styring.rs:200
-msgid "Minneklokke"
-msgstr "显存频率"
-
-#: crates/rigg/src/settings/styring.rs:200
-msgid "Temperaturmål"
-msgstr "目标温度"
-
-#: crates/rigg/src/settings/styring.rs:202
+#: crates/rigg/src/settings/styring.rs:228 crates/rigg/src/settings/styring.rs:247 crates/rigg/src/settings/styring.rs:300
 msgid "Tilgjengelig"
 msgstr "可用"
 
-#: crates/rigg/src/settings/styring.rs:202
+#: crates/rigg/src/settings/styring.rs:229
+msgid "Ikke støttet"
+msgstr "不支持"
+
+#: crates/rigg/src/settings/styring.rs:231 crates/rigg/src/settings/styring.rs:418
+msgid "Av"
+msgstr "关闭"
+
+#: crates/rigg/src/settings/styring.rs:245
+msgid "Effektgrense"
+msgstr "功率限制"
+
+#: crates/rigg/src/settings/styring.rs:245
+msgid "Manuell viftefart og Auto"
+msgstr "手动和自动风扇转速"
+
+#: crates/rigg/src/settings/styring.rs:245
+msgid "Viftekurve"
+msgstr "风扇曲线"
+
+#: crates/rigg/src/settings/styring.rs:245
+msgid "Kjerneklokke"
+msgstr "核心频率"
+
+#: crates/rigg/src/settings/styring.rs:245
+msgid "Minneklokke"
+msgstr "显存频率"
+
+#: crates/rigg/src/settings/styring.rs:245
+msgid "Temperaturmål"
+msgstr "目标温度"
+
+#: crates/rigg/src/settings/styring.rs:247 crates/rigg/src/settings/styring.rs:267
 msgid "Ikke undersøkt"
 msgstr "未检查"
 
-#: crates/rigg/src/settings/styring.rs:202
+#: crates/rigg/src/settings/styring.rs:247
 msgid "Utilgjengelig"
 msgstr "不可用"
 
-#: crates/rigg/src/settings/styring.rs:205
+#: crates/rigg/src/settings/styring.rs:250
 msgid "Leses når administratorhjelperen aktiveres for dette kortet."
 msgstr "为此显卡启用管理员辅助程序后进行检查。"
 
-#: crates/rigg/src/settings/styring.rs:215
+#: crates/rigg/src/settings/styring.rs:260
 msgid "Kortets rapporterte område: {omraade}."
 msgstr "显卡报告的范围：{omraade}。"
 
-#: crates/rigg/src/settings/styring.rs:217
+#: crates/rigg/src/settings/styring.rs:262
 msgid "Støttes av den tilkoblede hjelperen."
 msgstr "当前连接的辅助程序支持此功能。"
 
-#: crates/rigg/src/settings/styring.rs:222
+#: crates/rigg/src/settings/styring.rs:311
+msgid "Se RGB-lys"
+msgstr "查看 RGB 灯光"
+
+#: crates/rigg/src/settings/styring.rs:312
+msgid "Venter på at RGB-arbeideren skal starte."
+msgstr "正在等待 RGB 服务启动。"
+
+#: crates/rigg/src/settings/styring.rs:313 crates/rigg/src/settings/styring.rs:449
+msgid "Sjekk igjen"
+msgstr "重新检查"
+
+#: crates/rigg/src/settings/styring.rs:330
+msgid "Kortlys (RGB)"
+msgstr "显卡灯光（RGB）"
+
+#: crates/rigg/src/settings/styring.rs:331
 msgid "Tilgjengelige funksjoner"
 msgstr "可用功能"
 
-#: crates/rigg/src/settings/styring.rs:223
+#: crates/rigg/src/settings/styring.rs:332
 msgid "Én administratoraktivering gjelder støttede funksjoner på det valgte kortet. Listen er status, ikke ekstra godkjenninger."
 msgstr "一次管理员启用即可涵盖所选显卡支持的功能。此列表仅显示状态，并非额外的授权。"
 
-#: crates/rigg/src/settings/styring.rs:224
-msgid "Funksjoner uten støtte kan ikke brukes på kortet. RGB har egen tillatelse på siden RGB-lys."
-msgstr "此显卡无法使用不支持的功能。“RGB 灯光”页面需要单独授权。"
-
-#: crates/rigg/src/settings/styring.rs:225
+#: crates/rigg/src/settings/styring.rs:334
 msgctxt "søkeord"
 msgid "funksjoner støtte effekt vifter klokker temperatur"
 msgstr "功能 支持 功耗 风扇 频率 温度"
 
-#: crates/rigg/src/settings/styring.rs:254 crates/rigg/src/settings/styring.rs:269
+#: crates/rigg/src/settings/styring.rs:365 crates/rigg/src/settings/styring.rs:382
 msgid "Tillat endring av skjermkortet"
 msgstr "允许调校显卡"
 
-#: crates/rigg/src/settings/styring.rs:270
-msgid "Gir Agentic HW Monitor tilgang til støttede GPU-funksjoner via en administratorhjelper. Du blir spurt om passord. Ingen verdier endres før du trykker Bruk på en styringsside."
-msgstr "通过管理员辅助程序，允许 Agentic HW Monitor 访问受支持的显卡功能。系统会要求输入密码。在调校页面点击“应用”前，不会更改任何值。"
+#: crates/rigg/src/settings/styring.rs:383
+msgid "Tillater effekt, vifter, klokker og temperaturmål på valgt kort, samt kortlyset på støttede Palit-kort."
+msgstr "允许调整所选显卡的功耗、风扇、频率和目标温度，以及受支持的 Palit 显卡的灯光。"
 
-#: crates/rigg/src/settings/styring.rs:272
+#: crates/rigg/src/settings/styring.rs:385
 msgctxt "søkeord"
 msgid "root polkit pkexec hjelper skriving endre overklokking"
 msgstr "root polkit pkexec 辅助程序 写入 更改 超频"
 
-#: crates/rigg/src/settings/styring.rs:287
+#: crates/rigg/src/settings/styring.rs:410
 msgid "Venter"
 msgstr "等待中"
 
-#: crates/rigg/src/settings/styring.rs:288
-msgid "Klar"
-msgstr "就绪"
-
-#: crates/rigg/src/settings/styring.rs:289
-msgid "Simulert"
-msgstr "模拟"
-
-#: crates/rigg/src/settings/styring.rs:290
-msgid "Ikke klar"
-msgstr "未就绪"
-
-#: crates/rigg/src/settings/styring.rs:291
-msgid "Feil"
-msgstr "错误"
-
-#: crates/rigg/src/settings/styring.rs:292
+#: crates/rigg/src/settings/styring.rs:412 crates/rigg/src/settings/styring.rs:417
 msgid "Oppdater hjelper"
 msgstr "更新辅助程序"
 
-#: crates/rigg/src/settings/styring.rs:293
-msgid "Av"
-msgstr "关闭"
+#: crates/rigg/src/settings/styring.rs:413
+msgid "Klar"
+msgstr "就绪"
 
-#: crates/rigg/src/settings/styring.rs:305
+#: crates/rigg/src/settings/styring.rs:414
+msgid "Simulert"
+msgstr "模拟"
+
+#: crates/rigg/src/settings/styring.rs:416
+msgid "Feil"
+msgstr "错误"
+
+#: crates/rigg/src/settings/styring.rs:431
 msgid "Åpne styring"
 msgstr "打开显卡调校"
 
-#: crates/rigg/src/settings/styring.rs:311
-msgid "Sjekk igjen"
-msgstr "重新检查"
+#: crates/rigg/src/settings/styring.rs:443
+msgid "Start på nytt"
+msgstr "重启"
 
-#: crates/rigg/src/settings/styring.rs:323
+#: crates/rigg/src/settings/styring.rs:464
 msgctxt "søkeord"
 msgid "systemkomponenter installasjon terminal"
 msgstr "系统组件 安装 终端 离线"
 
-#: crates/rigg/src/settings/styring.rs:326
+#: crates/rigg/src/settings/styring.rs:467
 msgid "Endring av skjermkortet"
 msgstr "显卡调校"
 
-#: crates/rigg/src/settings/styring.rs:328
-msgid "Slår du bryteren av, gjenopprettes det lagrede utgangspunktet før tillatelsen fjernes. En feil vises hvis gjenopprettingen ikke kan bekreftes. Slå av styring før avinstallasjon."
-msgstr "关闭开关会先恢复已保存的基准状态，再撤销权限。无法验证恢复时会显示错误。卸载前请关闭控制。"
+#: crates/rigg/src/settings/styring.rs:469
+msgid "Når du slår av tilgangen, stoppes begge arbeiderne. Lagret lys og uavklarte endringer bevares."
+msgstr "关闭权限会停止两个服务。已保存的灯光和待确认的更改将保留。"
 
-#: crates/rigg/src/settings/styring.rs:329
+#: crates/rigg/src/settings/styring.rs:470
 msgctxt "søkeord"
 msgid "bryter av på status"
 msgstr "开关 开启 关闭 状态"
 
-#: crates/rigg/src/settings/styring.rs:338
+#: crates/rigg/src/settings/styring.rs:479
 msgid "Hjelperen"
 msgstr "辅助程序"
 
-#: crates/rigg/src/settings/styring.rs:338
-msgid "Et lite program som kjører i bakgrunnen med administratorrettigheter. Det kan bare endre effekt, vifter og klokker, innenfor det kortet selv tillater"
-msgstr "在后台以管理员权限运行的小程序。只能在显卡允许的范围内调整功率、风扇和频率"
+#: crates/rigg/src/settings/styring.rs:479
+msgid "To isolerte arbeidere for GPU-styring og kortlys"
+msgstr "显卡控制和灯光使用两个隔离的服务"
 
-#: crates/rigg/src/settings/styring.rs:339
+#: crates/rigg/src/settings/styring.rs:480
 msgid "Passord"
 msgstr "密码"
 
-#: crates/rigg/src/settings/styring.rs:339
+#: crates/rigg/src/settings/styring.rs:480
 msgid "Én administratorgodkjenning ved aktivering. Vanlige endringer bruker Bruk og Behold"
 msgstr "启用时只需一次管理员授权。日常更改使用“应用”和“保留”"
 
-#: crates/rigg/src/settings/styring.rs:340
+#: crates/rigg/src/settings/styring.rs:481
 msgid "Hvem"
 msgstr "访问权限"
 
-#: crates/rigg/src/settings/styring.rs:340
+#: crates/rigg/src/settings/styring.rs:481
 msgid "Bare brukeren din. Andre brukere på maskinen slipper ikke til"
 msgstr "仅限你的账户。此计算机上的其他用户无权访问"
 
-#: crates/rigg/src/settings/styring.rs:341
+#: crates/rigg/src/settings/styring.rs:482
 msgid "Vern"
 msgstr "保护机制"
 
-#: crates/rigg/src/settings/styring.rs:341
+#: crates/rigg/src/settings/styring.rs:482
 msgid "Endringer rulles tilbake uten Behold innen fristen. Viftekurven har nødregel ved høy temperatur. Frakobling og stopp gjenoppretter utgangspunktet; eventuelle feil rapporteres"
 msgstr "若未在倒计时结束前点击“保留”，将撤销更改。风扇曲线设有高温应急规则。断开连接或停止时会恢复原始设置，并报告任何错误"
 
-#: crates/rigg/src/settings/styring.rs:342
+#: crates/rigg/src/settings/styring.rs:483
 msgid "Filene"
 msgstr "文件"
 
-#: crates/rigg/src/settings/styring.rs:342
+#: crates/rigg/src/settings/styring.rs:483
 msgid "{hjelper}\n{konfigurasjon} (bruker, kort og aktivering)"
 msgstr "{hjelper}\n{konfigurasjon}（用户、显卡和启用状态）"
 
-#: crates/rigg/src/settings/styring.rs:344
+#: crates/rigg/src/settings/styring.rs:485
 msgid "Skriptene"
 msgstr "脚本"
 
-#: crates/rigg/src/settings/styring.rs:346
+#: crates/rigg/src/settings/styring.rs:487
 msgid "Hva bryteren gjør"
 msgstr "开关的作用"
 
-#: crates/rigg/src/settings/styring.rs:346
+#: crates/rigg/src/settings/styring.rs:487
 msgctxt "søkeord"
 msgid "hjelper root polkit systemd sikkerhet passord"
 msgstr "辅助程序 root polkit systemd 安全 密码"
 
-#: crates/rigg/src/settings/styring.rs:348
+#: crates/rigg/src/settings/styring.rs:489
 msgctxt "søkeord"
 msgid "hjelper root polkit systemd passord vern frist nødregel"
 msgstr "辅助程序 root polkit systemd 密码 保护 期限 紧急规则"

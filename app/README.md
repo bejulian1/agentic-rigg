@@ -14,11 +14,15 @@ Agentic HW Monitor er et overvåkingsverktøy for skjermkort og maskin på Ubunt
 
 En allerede åpen app følger nå `--innstillinger DEL`. Hjelperstatus sjekkes også mens styring er låst, slik at ny administratoraktivering oppdages uten å starte vinduet på nytt.
 
-Sidefeltet har et maskinhode med skjermkortet og prosessoren, og tastene 1–9 og 0 går til de ti sidene. Klikk på skjermkortet øverst åpner Grafikkort direkte. Kortet under Skjermkortstyring åpner en smal detaljmeny i sidefeltets bredde, med kortvalg når det finnes flere kort. Ikonene står sentrert også når sidefeltet er lagt sammen. Versjon og byggnummer står i Innstillinger › Om, sammen med signaturen Code Pro. Grafene kutter aldri en verdi: aksen utvides når temperaturen går over 100 °C eller under 20 °C, og krymper først når kurven har roet seg. Denne fila gjelder 1.7.0 · bygg 33. Sensorfilteret slipper fokus ved klikk utenfor og ved sideskifte; Esc tømmer/avslutter søket. Nedtrekksmenyene har tydelige tilstander for valgt rad og tastaturfokus.
+Sidefeltet har et maskinhode med skjermkortet og prosessoren, og tastene 1–9 og 0 går til de ti sidene. Klikk på skjermkortet øverst åpner Grafikkort direkte. Kortet under Skjermkortstyring åpner en smal detaljmeny i sidefeltets bredde, med kortvalg når det finnes flere kort. Ikonene står sentrert også når sidefeltet er lagt sammen. Versjon og byggnummer står i Innstillinger › Om, sammen med signaturen Code Pro. Grafene kutter aldri en verdi: aksen utvides når temperaturen går over 100 °C eller under 20 °C, og krymper først når kurven har roet seg. Denne fila gjelder 1.7.1 · bygg 34. Sensorfilteret slipper fokus ved klikk utenfor og ved sideskifte; Esc tømmer/avslutter søket. Nedtrekksmenyene har tydelige tilstander for valgt rad og tastaturfokus.
 
 Prosessor viser også lanseringsdato når den konkrete modellen er i det lokale oppslaget. Ryzen 7 2700X viser 19. april 2018, med AMD som kilde. Ukjente modeller får ingen antatt dato. Gjennomgangen av øvrige spesifikasjoner og mangler står i `docs/produksjon/spesifikasjoner-revisjon-2026-11-14.md`.
 
 Måleaksene utvides også for 110 °C og klokker over kortets oppgitte maksimum. Ferske topper i langtidsvinduer og viftekurvens målte punkter tas med; lovlige redigeringsgrenser og 0–100 % for last og brukt minne beholdes.
+
+## Nytt i 1.7.1
+
+Skjermkortstyring bruker én kortbundet tillatelse. Oppdater begge arbeidere til bygg 34 med ny administratorgodkjenning fra Innstillinger › Skjermkortstyring. RGB-lys viser eventuell avklaring etter omstart.
 
 ## Nytt i 1.7.0
 
@@ -180,9 +184,9 @@ Agentic HW Monitor overvåker uten administratorrettigheter. I 1.4.0 er NVML-sty
 
 **Hvilket kort styres?** Skjermkortstyring i sidefeltet viser kortet under tittelen. «Styrer»-linja viser navn, produsent, PCI-adresse, VBIOS og driver. Hjelperen bindes til det valgte kortets PCI-adresse og NVML-UUID; hvert skrivekall kontrollerer samme identitet. Den åpner aldri ubundet kortindeks 0. Et annet valgt kort får ikke bruke bindingen. Et produsentnavn du setter selv er bare en etikett og påvirker ikke bindingen eller funksjonsstøtten.
 
-**Én aktivering:** Gå til Innstillinger › Skjermkortstyring og slå på **«Tillat endring av skjermkortet»**. Brukeren skriver administratorpassord i polkit-dialogen. Hjelperen installeres i `/usr/local/libexec/`, oppsettet i `/etc/agentic-rigg/helper.json`, og en herdet systemtjeneste startes. Fire separate godkjenningstrinn brukes ikke lenger. Et eldre trinnoppsett gir ikke automatisk global tillatelse og må aktiveres på nytt. `install.sh` legger bare hjelpefilene under `~/.local/share/agentic-rigg/hjelper/` og aktiverer dem ikke.
+**Én aktivering:** Gå til Innstillinger › Skjermkortstyring og slå på **«Tillat endring av skjermkortet»**. Brukeren skriver administratorpassord i polkit-dialogen. Hjelperen installeres i `/usr/local/libexec/`, oppsettet i `/etc/agentic-rigg/helper.json`, og en oppstartskoordinator starter de herdede arbeiderne. Fire separate godkjenningstrinn brukes ikke lenger. Et eldre trinnoppsett gir ikke automatisk global tillatelse og må aktiveres på nytt. `install.sh` legger bare hjelpefilene under `~/.local/share/agentic-rigg/hjelper/` og aktiverer dem ikke.
 
-**Støtte per funksjon:** Innstillinger viser effekt, kjerneoffset, minneoffset, manuell vifte, viftekurve, og temperaturmål separat. RGB har egen tillatelse på siden RGB-lys. Manglende temperaturmål sperrer for eksempel ikke effektgrensen. Områdene hentes fra kortet; tall utenfor avvises fremfor å klemmes. Tilgjengelighet betyr at nødvendige gettere og setter-symboler finnes, ikke at driveren har godkjent et skriveforsøk. «Klar» krever at hjelperens backend og kortidentitet er klare; en socket alene er ikke nok.
+**Støtte per funksjon:** Innstillinger viser effekt, kjerneoffset, minneoffset, manuell vifte, viftekurve, og temperaturmål separat. Kortlys (RGB) viser status for samme kortbinding. Manglende temperaturmål sperrer for eksempel ikke effektgrensen. Områdene hentes fra kortet; tall utenfor avvises fremfor å klemmes. Tilgjengelighet betyr at nødvendige gettere og setter-symboler finnes, ikke at driveren har godkjent et skriveforsøk. «Klar» krever at hjelperens backend og kortidentitet er klare; en socket alene er ikke nok.
 
 **Bruk og Behold:** Et utkast blir sendt som bare de endrede feltene når du trykker Bruk. Behold innen fristen (15 s som standard), ellers forsøkes det bekreftede oppsettet gjenopprettet. Frist og eierskap håndteres i hjelperen. Tjenesten holdes i live mens den eier aktive GPU-innstillinger, også om vinduet lukkes. Manglende livssignal, frakobling, hvilegap og stopp utløser gjenoppretting etter egne endringer.
 
@@ -207,11 +211,11 @@ Til slutt bekreftet reset 245 W, offset 0/0 MHz, temperaturmål 83 °C og Auto p
 
 **Viftevern:** Nødregelen over 85 °C bruker bare faktisk tilgjengelig viftestyring og slipper under 80 °C. Temperaturbortfall under Manuell utløser gjenoppretting. Kurvemotoren har utjevning, hysterese, rampe og feilhåndtering; feil ved skriving meldes videre og behandles som gjenopprettingsbehov. Dette er implementert og dekket av sim-/mocktester, men ikke bekreftet på fysisk GPU ennå.
 
-**RGB på kortet:** Panelet «Lys på kortet» har egne kontroller for én fysisk sone, fast farge/av, lysstyrke og programvaredrevne effekter når hjelperen støtter dem. Det krever separat administratoraktivering, identifisert Palit 100/150-kontroller og et visuelt bekreftet statisk utgangspunkt. Bruk sender en tidsbegrenset prøve. Behold før fristen hvis kortet viser det forventede lyset. NVML-tillatelsen gir ikke RGB-tilgang. Betjeningen er prøvd i GTK mot en falsk RGB-arbeider. På brukerens Palit RTX 2080 Super JetStream er fast blått og automatisk tilbakeføring til grønt fysisk bekreftet ved 100 % lysstyrke. [Status og begrensninger](../docs/produksjon/rgb-hjelper.md).
+**RGB på kortet:** Panelet «Lys på kortet» har egne kontroller for én fysisk sone, fast farge/av, lysstyrke og programvaredrevne effekter når hjelperen støtter dem. Den felles korttillatelsen, en identifisert PALIT 100-kontroller og et visuelt bekreftet statisk utgangspunkt kreves for vanlig styring. Bruk sender en tidsbegrenset prøve. Behold før fristen hvis kortet viser det forventede lyset. Eldre NVML-tillatelser må oppdateres i Innstillinger før kortlyset kan styres. Betjeningen er prøvd i GTK mot en falsk RGB-arbeider. På brukerens Palit RTX 2080 Super JetStream er fast blått og automatisk tilbakeføring til grønt fysisk bekreftet ved 100 % lysstyrke. [Status og begrensninger](../docs/produksjon/rgb-hjelper.md).
 
 Detaljene, gjenværende begrensninger og den historiske sikkerhetsgjennomgangen står i `docs/produksjon/hjelper-sikkerhet.md`.
 
-GUI og daemon åpner ikke `/dev/i2c-*` eller `/dev/sd*`. Den separate RGB-root-hjelperen kan etter egen aktivering åpne bare det valgte kortets ferskt identifiserte NVIDIA-port 1 og den gjennomgåtte Palit-adressen. Ingen skanning eller annen I2C-enhet inngår. Diskene leses bare gjennom UDisks2 (uten root) og `/proc/diskstats`, og appen starter aldri en SMART-selvtest.
+GUI og daemon åpner ikke `/dev/i2c-*` eller `/dev/sd*`. Den separate RGB-root-hjelperen kan etter kortbundet godkjenning åpne bare det valgte kortets ferskt identifiserte NVIDIA-port 1 og den gjennomgåtte Palit-adressen. Ingen skanning eller annen I2C-enhet inngår. Diskene leses bare gjennom UDisks2 (uten root) og `/proc/diskstats`, og appen starter aldri en SMART-selvtest.
 
 ## Kjente begrensninger
 

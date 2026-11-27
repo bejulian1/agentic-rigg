@@ -1,6 +1,16 @@
 # Versjonslogg
 
-Gjeldende versjon: **1.7.0 · bygg 33** (forhåndsutgivelse til den er prøvd på kortet). Nedlastinger og utgivelsesnotater ligger under [Releases](https://github.com/bejulian1/agentic-rigg/releases).
+Gjeldende kildeversjon er **1.7.1 · bygg 34**.
+
+## 1.7.1 · bygg 34 – 27. november 2026
+
+- Skjermkortstyring gir én kortbundet tillatelse til to isolerte arbeidere. Etter omstart validerer koordinatoren PCI/UUID og finner dagens enhetsnoder. Midlertidige feil prøves på nytt etter 15 sekunder.
+- NVML leser tillatelsen før forespørsler og ved hver takt. Ny generasjon sperrer klientendringer. Etter en mislykket gjenoppretting kan temperaturvernet fortsatt forsøke Auto på kortet arbeideren selv har endret.
+- RGB gjentar «Hold» i tjenesteløkken. Lagret svart ved 100 % får samme mål på disk og i minnet. Avklaringspanelet knytter gjenoppretting til forsøket brukeren ser. En ny forskjell etter bekreftet gjenoppretting kan avklares igjen.
+- Deaktivering håndterer eldre GPU- og RGB-bindinger hver for seg og bevarer en privat arkivkvittering ved uavklart RGB-journal. Venting og feil vises per arbeider.
+- RGB-lys har en innebygd spektrumvelger med tastaturstyring, hekskode og RGB-kanaler. Kortmodellen viser fargen mens du velger. «Bruk» starter prøven, og «Behold» og «Rull tilbake» er synlige også når du ruller. Fargevalgene sperres mens lyset må avklares.
+- Vifter samler Enkel og Avansert i panelhodet. Klokker og effekt har mer avstand mellom glidermerkene og viser samme feltnavn i utkastet som i kontrollene. Begge sider viser når en prøve pågår.
+- Minste kompatible bygg er 34 for begge arbeidere. Oppdater systemkomponentene i Innstillinger › Skjermkortstyring og godkjenn tilgangen på nytt. Fysisk kortlys, temperaturvern på ekte kort og kald omstart med systemd gjenstår å verifisere.
 
 ## 1.7.0 · bygg 33 – 24. november 2026
 

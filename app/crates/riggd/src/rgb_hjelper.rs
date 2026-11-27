@@ -120,7 +120,7 @@ impl View {
         {
             return Err(Self {
                 state: "outdated",
-                message: Some("RGB-hjelperen må oppdateres. Trykk «Aktiver kortlys» for å oppdatere og aktivere den med ett passord.".into()),
+                message: Some("RGB-hjelperen må oppdateres. Åpne Innstillinger › Skjermkortstyring.".into()),
                 status: Value::Null,
             });
         }
@@ -128,7 +128,7 @@ impl View {
             .map_err(|_| Self::error("RGB-hjelperen mangler en gyldig kortbinding."))?;
         binding.validate().map_err(Self::error)?;
         if status["authorized"] != true {
-            return Err(Self::error("Den separate RGB-tillatelsen er ikke aktiv."));
+            return Err(Self::error("Korttillatelsen for RGB-arbeideren er ikke aktiv."));
         }
         let state = &status["state"];
         let observed: Observed = serde_json::from_value(state["observed"].clone())
@@ -584,8 +584,9 @@ fn validate_args(op: &str, args: &Value) -> Result<(), ProtoError> {
         "get_rgb_helper" => &["refresh"],
         "rgb_apply" => &["gpu", "uuid", "request", "confirmTimeoutS", "effect"],
         "rgb_confirm" | "rgb_revert" => &["gpu", "uuid", "txn"],
-        "rgb_ack_recovery" => &["gpu", "uuid", "confirmedStatic", "expected", "recoveryId"],
-        "rgb_reset" | "rgb_release" | "rgb_read" | "rgb_persist" | "rgb_hold" => &["gpu", "uuid"],
+        "rgb_ack_recovery" | "rgb_keep_observed" => &["gpu", "uuid", "confirmedStatic", "expected", "recoveryId"],
+        "rgb_reset" => &["gpu", "uuid", "recoveryId", "expected"],
+        "rgb_release" | "rgb_read" | "rgb_persist" | "rgb_hold" => &["gpu", "uuid"],
         _ => return Err(ProtoError::new(ErrorCode::UnknownOp)),
     };
     if object.keys().any(|key| !allowed.contains(&key.as_str())) {
@@ -629,7 +630,7 @@ fn validate_args(op: &str, args: &Value) -> Result<(), ProtoError> {
             "En kjent programvareeffekt krever statisk startfarge.",
         ));
     }
-    if op == "rgb_ack_recovery"
+    if matches!(op, "rgb_ack_recovery" | "rgb_keep_observed")
         && (args["confirmedStatic"] != true
             || !args["recoveryId"]
                 .as_str()
@@ -642,6 +643,8 @@ fn validate_args(op: &str, args: &Value) -> Result<(), ProtoError> {
     }
     Ok(())
 }
+
+const PEER_CLOSED: &str = "RGB-hjelperen lukket forbindelsen.";
 
 struct Connection {
     stream: UnixStream,
@@ -858,9 +861,10 @@ impl Connection {
             wait_io(&self.stream, libc::POLLOUT, deadline, control, alive)?;
             deadline.check()?;
             match self.stream.write(&line[written..]) {
-                Ok(0) => return Err("RGB-hjelperen lukket forbindelsen.".into()),
+                Ok(0) => return Err(PEER_CLOSED.into()),
                 Ok(n) => written += n,
                 Err(e) if matches!(e.kind(), ErrorKind::WouldBlock | ErrorKind::Interrupted) => {}
+                Err(e) if matches!(e.kind(), ErrorKind::BrokenPipe | ErrorKind::ConnectionReset | ErrorKind::NotConnected) => return Err(PEER_CLOSED.into()),
                 Err(e) => return Err(e.to_string()),
             }
         }
@@ -869,11 +873,12 @@ impl Connection {
         loop {
             wait_io(&self.stream, libc::POLLIN, deadline, control, alive)?;
             match self.stream.read(&mut chunk) {
-                Ok(0) => return Err("RGB-hjelperen lukket forbindelsen.".into()),
+                Ok(0) => return Err(PEER_CLOSED.into()),
                 Ok(n) => answer.extend_from_slice(&chunk[..n]),
                 Err(e) if matches!(e.kind(), ErrorKind::WouldBlock | ErrorKind::Interrupted) => {
                     continue;
                 }
+                Err(e) if matches!(e.kind(), ErrorKind::BrokenPipe | ErrorKind::ConnectionReset | ErrorKind::NotConnected) => return Err(PEER_CLOSED.into()),
                 Err(e) => return Err(e.to_string()),
             }
             deadline.check()?;
@@ -1073,16 +1078,27 @@ fn execute(
     deadline: Deadline,
     already_owned: bool,
 ) -> OpResult {
+    let retry_closed = connection.is_some() && command.op == "get_rgb_helper" && !already_owned
+        && control.owner.load(Ordering::SeqCst) == 0;
     let run = (|| -> Result<OpResult, String> {
         deadline.check()?;
         if connection.is_none() {
             *connection = Connection::open(paths, control, &command.alive, deadline)?;
         }
         let Some(connection) = connection.as_mut() else {
-            *view = View::off();
+            *view = if let Some((grant, report)) = crate::hjelper::card_startup(&paths.root) {
+                let identity = json!({"identity":{"pci":grant.pci, "uuid":grant.uuid}});
+                match report["rgb"].as_str() {
+                    Some("unsupported") => View { state: "unsupported", message: None, status: identity },
+                    Some("ready") => View { state: "error", message: Some("RGB-arbeiderens socket er borte.".into()), status: identity },
+                    _ => View { state: "waiting", message: report["message"].as_str().map(str::to_owned), status: identity },
+                }
+            } else {
+                View::off()
+            };
             return Ok(Err(ProtoError::msg(
                 ErrorCode::WriteLocked,
-                "Den separate RGB-hjelperen er av.",
+                "RGB-arbeideren er av.",
             )));
         };
         let status = connection
@@ -1168,6 +1184,10 @@ fn execute(
     })();
     match run {
         Ok(result) => result,
+        Err(message) if retry_closed && message == PEER_CLOSED && deadline.check().is_ok() => {
+            drop_connection(connection, control);
+            execute(paths, control, command, connection, view, deadline, already_owned)
+        }
         Err(message) => {
             if view.state != "outdated" {
                 *view = View::error(&message);
@@ -1400,12 +1420,62 @@ mod tests {
     }
 
     #[test]
+    fn tillatelse_og_arbeiderstatus_ved_forsinket_oppstart_og_stopp() {
+        let root = Temp::new();
+        let paths = rigg_core::hjelper::Paths::new(&root.0);
+        let config = paths.config();
+        let report = root.0.join("run/agentic-rigg-card/status.json");
+        for path in [&config, &report] {
+            use std::os::unix::fs::DirBuilderExt;
+            std::fs::DirBuilder::new().recursive(true).mode(0o755)
+                .create(path.parent().unwrap()).unwrap();
+        }
+        let mut nvml = crate::hjelper::Hjelper::new(paths);
+        let (mut rgb, replies) = RgbClient::start(Some(root.paths()));
+        let grant = json!({"versjon":2, "uid":crate::server::my_uid().max(1),
+            "enabled":true, "pci":"0000:01:00.0", "uuid":"GPU-fixture",
+            "scope":"card", "generation":"0123456789abcdef0123456789abcdef"});
+        let mut check = |gpu_state, rgb_state| {
+            nvml.probe(1);
+            let gpu = nvml.view();
+            assert_eq!(gpu["state"], gpu_state);
+            assert_eq!(gpu["ready"], false);
+            rgb.enqueue(1, &request(1, "get_rgb_helper")).unwrap();
+            let view = complete(&mut rgb, &replies).unwrap();
+            assert_eq!(view["state"], rgb_state);
+            assert_ne!(view["status"]["authorized"], true);
+        };
+        check("off", "off");
+        std::fs::write(&config, grant.to_string()).unwrap();
+        check("waiting", "waiting");
+        let mut boot = json!({"pci":grant["pci"], "uuid":grant["uuid"],
+            "generation":grant["generation"], "rgb":"waiting"});
+        std::fs::write(&report, boot.to_string()).unwrap();
+        check("waiting", "waiting");
+        boot["nvml"] = json!("ready");
+        for (reported, expected) in [("waiting", "waiting"), ("unsupported", "unsupported"), ("ready", "error")] {
+            boot["rgb"] = json!(reported);
+            std::fs::write(&report, boot.to_string()).unwrap();
+            check("error", expected);
+        }
+        for field in ["uuid", "generation", "pci"] {
+            let mut stale = boot.clone();
+            stale[field] = json!("obsolete");
+            std::fs::write(&report, stale.to_string()).unwrap();
+            check("waiting", "waiting");
+        }
+        std::fs::remove_file(config).unwrap();
+        check("off", "off");
+    }
+
+    #[test]
     fn status_krever_riktig_domene_tillatelse_bygg_og_hel_binding() {
         assert!(View::checked(initial_status()).is_ok());
         for (field, value) in [
             ("name", json!("agentic-rigg-helper")),
             ("domain", json!("nvml")),
             ("protocol", json!(1)),
+            ("build", json!(33)),
             ("build", json!(rigg_core::version::build() + 1)),
         ] {
             let mut status = initial_status();
@@ -1542,6 +1612,20 @@ mod tests {
             ErrorCode::Busy
         );
         assert!(!fake.has("rgb_apply"));
+        client.stop();
+    }
+
+    #[test]
+    fn ren_deaktivering_av_cachet_forbindelse_vises_som_av() {
+        let root = Temp::new();
+        let fake = Fake::start(&root.paths(), false);
+        let (mut client, rx) = RgbClient::start(Some(root.paths()));
+        client.enqueue(7, &request(1, "get_rgb_helper")).unwrap();
+        assert_eq!(complete(&mut client, &rx).unwrap()["state"], "on");
+        drop(fake);
+        std::fs::remove_file(root.paths().socket()).unwrap();
+        client.enqueue(7, &request(2, "get_rgb_helper")).unwrap();
+        assert_eq!(complete(&mut client, &rx).unwrap()["state"], "off");
         client.stop();
     }
 

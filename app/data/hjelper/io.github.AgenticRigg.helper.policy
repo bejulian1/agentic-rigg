@@ -7,7 +7,7 @@
 
   <action id="io.github.AgenticRigg.helper.v2.aktiver">
     <description>Slå på endring av skjermkortet</description>
-    <message>Agentic HW Monitor vil aktivere den installerte hjelpeprosessen med root-tilgang, så appen kan endre skjermkortet. Bare støttede funksjoner på det identifiserte kortet blir tilgjengelige. Endringer brukes først når du trykker Bruk.</message>
+    <message>Gi Agentic HW Monitor tilgang til effekt, vifter, klokker og temperaturmål på det valgte skjermkortet, samt kortlyset på støttede Palit-kort.</message>
     <defaults>
       <allow_any>no</allow_any>
       <allow_inactive>no</allow_inactive>
@@ -18,7 +18,7 @@
 
   <action id="io.github.AgenticRigg.helper.v2.deaktiver">
     <description>Slå av endring av skjermkortet</description>
-    <message>Agentic HW Monitor vil stoppe hjelpeprosessen og fjerne tillatelsen. Gjenoppretting kontrolleres før filene fjernes. Ved feil beholdes hjelperen for feilsøking.</message>
+    <message>Stopp skjermkortstyring og kortlys og trekk tilbake tilgangen. Grunnopptak og uavklarte endringer beholdes.</message>
     <defaults>
       <allow_any>no</allow_any>
       <allow_inactive>no</allow_inactive>

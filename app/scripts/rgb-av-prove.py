@@ -27,6 +27,7 @@ på at et menneske bekrefter det. `--bekreft` lagrer den bekreftelsen; først
 da kan neste kandidat prøves.
 """
 import argparse
+from contextlib import closing
 import json
 import os
 import socket
@@ -63,6 +64,7 @@ class Hjelper:
         try:
             self.sock.connect(path)
         except OSError as error:
+            self.sock.close()
             raise Feil(f'Fikk ikke kontakt med RGB-hjelperen på {path} ({error}). '
                        'Er kortlyset aktivert i appen?') from None
         self.buffer = b''
@@ -121,8 +123,13 @@ def ready(status):
 
 
 def run_candidate(path, number, hold, out=print):
-    name, text, build = CANDIDATES[number]
     helper = Hjelper(path)
+    with closing(helper.sock):
+        return _candidate(helper, number, hold, out)
+
+
+def _candidate(helper, number, hold, out):
+    name, text, build = CANDIDATES[number]
     status = helper.call('rgb_status')
     base = ready(status)
     request = build(base['color'])
@@ -152,15 +159,16 @@ def run_candidate(path, number, hold, out=print):
 
 def confirm(path, out=print):
     helper = Hjelper(path)
-    status = helper.call('rgb_status')
-    state = status.get('state') or {}
-    if not state.get('recoveryNeedsConfirmation') or not status.get('recoveryId'):
-        out('Ingen gjenoppretting venter på bekreftelse.')
-        return False
-    helper.call('rgb_ack_recovery', {**card(status), 'confirmedStatic': True,
-                                     'expected': state['confirmed'], 'recoveryId': status['recoveryId']})
-    out(f"Bekreftet: kortet viser {describe(state['confirmed'])} igjen. Økten er ren.")
-    return True
+    with closing(helper.sock):
+        status = helper.call('rgb_status')
+        state = status.get('state') or {}
+        if not state.get('recoveryNeedsConfirmation') or not status.get('recoveryId'):
+            out('Ingen gjenoppretting venter på bekreftelse.')
+            return False
+        helper.call('rgb_ack_recovery', {**card(status), 'confirmedStatic': True,
+                                         'expected': state['confirmed'], 'recoveryId': status['recoveryId']})
+        out(f"Bekreftet: kortet viser {describe(state['confirmed'])} igjen. Økten er ren.")
+        return True
 
 
 def question(name, base):

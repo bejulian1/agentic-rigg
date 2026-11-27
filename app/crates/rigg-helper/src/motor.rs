@@ -62,6 +62,8 @@ pub struct Motor {
     pub backend: &'static str,
     pub locked: Option<String>,
     pub cfg: Option<Config>,
+    startup_generation: Option<Option<String>>,
+    generation_changed: bool,
     pub cfg_err: Option<String>,
     pub emergency: bool,
     /// Forbindelsen som skrev sist. Forsvinner den, går kortet til standard.
@@ -233,6 +235,8 @@ impl Motor {
             backend,
             locked,
             cfg: None,
+            startup_generation: None,
+            generation_changed: false,
             cfg_err: None,
             emergency: false,
             lease: None,
@@ -385,15 +389,18 @@ impl Motor {
     }
 
     fn authorized(&self) -> bool {
-        self.cfg
+        !self.generation_changed && self.cfg
             .as_ref()
-            .is_some_and(|c| c.enabled || self.backend == "sim" && c.legacy && !c.steps.is_empty())
+            .is_some_and(|c| if self.backend == "sim" { c.enabled || c.legacy && !c.steps.is_empty() } else { c.enabled && c.generation.is_some() })
     }
 
     pub fn set_config(&mut self, cfg: Result<Config, String>, now: i64) {
         let before = self.cfg.clone();
         match cfg {
             Ok(c) => {
+                if self.backend == "nvml" && self.startup_generation.get_or_insert_with(|| c.generation.clone()) != &c.generation {
+                    self.generation_changed = true;
+                }
                 self.cfg = Some(c);
                 self.cfg_err = None;
             }
@@ -481,7 +488,7 @@ impl Motor {
             "helper": {"name": "agentic-rigg-helper", "version": rigg_core::version::VERSION,
                 "build": rigg_core::version::build(), "protocol": hjelper::PROTOCOL, "strictRequests": true,
                 "pid": std::process::id(), "backend": self.backend,
-                "realWrites": self.backend == "nvml" && self.hw.is_some(), "locked": self.locked,
+                "realWrites": self.backend == "nvml" && self.hw.is_some(), "locked": if self.generation_changed { Some("Korttillatelsen er endret. Arbeideren må startes på nytt.") } else { self.locked.as_deref() },
                 "enabled": self.authorized(), "ready": ready, "identity": identity,
                 "capabilities": caps},
             "uid": self.cfg.as_ref().map(|c| c.uid), "enabled": self.authorized(), "ready": ready,
@@ -532,7 +539,7 @@ impl Motor {
         if !hjelper::OPS.contains(&op) {
             return Err(ProtoError::new(ErrorCode::UnknownOp));
         }
-        if self.hw.is_none() || self.locked.is_some() {
+        if self.hw.is_none() || self.locked.is_some() || self.generation_changed {
             return Err(hjelper::locked("real_writes_off"));
         }
         if !self.identity_matches(args) {
@@ -1220,8 +1227,27 @@ mod tests {
             wide_power,
         };
         let mut m = Motor::new(Some(Box::new(writer)), "nvml", None);
-        m.set_config(Config::parse(r#"{"versjon":2,"uid":1000,"enabled":true,"pci":"0000:01:00.0","uuid":"GPU-fake-card"}"#), T0);
+        m.set_config(Config::parse(r#"{"versjon":2,"uid":1000,"enabled":true,"scope":"card","generation":"1234567890abcdef1234567890abcdef","pci":"0000:01:00.0","uuid":"GPU-fake-card"}"#), T0);
         (m, flags)
+    }
+
+    #[test]
+    fn generasjonsbytte_beholder_varmevern_etter_feilet_reset() {
+        for interrupt_read in [false, true] {
+            let (mut m, flags) = bound_motor(false, false, false);
+            let mut new = m.cfg.clone().unwrap();
+            new.generation = Some("22222222222222222222222222222222".into());
+            let args = bound_args(json!({"fan":{"mode":"manual","manualPercent":35}}));
+            m.handle(1, "apply", &args, T0).unwrap();
+            flags.set(4);
+            if interrupt_read { m.set_config(Err("lesefeil".into()), T0+1); }
+            m.set_config(Ok(new), T0+2);
+            assert!(m.hardware_error.is_some());
+            flags.set(128);
+            m.tick(T0+1000);
+            assert_eq!(m.status(T0+1000)["hardware"]["stock"], true);
+            assert!(m.handle(1, "apply", &args, T0+1001).is_err());
+        }
     }
 
     #[test]
@@ -1513,7 +1539,7 @@ mod tests {
             // Senere gjenoppretting (endret oppsett, stopp) gir grunnverdier,
             // men fjerner aldri den ubekreftede merkøren.
             m.set_config(
-                Config::parse(r#"{"versjon":2,"uid":1000,"enabled":true,"pci":"0000:01:00.0","uuid":"GPU-annet"}"#),
+                Config::parse(r#"{"versjon":2,"uid":1000,"enabled":true,"scope":"card","generation":"1234567890abcdef1234567890abcdef","pci":"0000:01:00.0","uuid":"GPU-annet"}"#),
                 now,
             );
             m.shutdown(now + 1);
@@ -1621,7 +1647,7 @@ mod tests {
                 }
                 if after == "oppsett" {
                     m.set_config(
-                        Config::parse(r#"{"versjon":2,"uid":1000,"enabled":true,"pci":"0000:01:00.0","uuid":"GPU-annet"}"#),
+                        Config::parse(r#"{"versjon":2,"uid":1000,"enabled":true,"scope":"card","generation":"1234567890abcdef1234567890abcdef","pci":"0000:01:00.0","uuid":"GPU-annet"}"#),
                         T0 + 2,
                     );
                 } else {

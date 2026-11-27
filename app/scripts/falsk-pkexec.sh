@@ -52,6 +52,13 @@ esac
 src=${RIGG_HJELPER_DATA:?}
 install -Dm755 "$src/agentic-rigg-helper" "$ROT/usr/local/libexec/agentic-rigg-helper"
 install -Dm644 "$src/agentic-rigg-helper.service" "$ROT/usr/local/libexec/agentic-rigg/agentic-rigg-helper.service"
+install -Dm644 "$src/agentic-rigg-card.service" "$ROT/usr/local/libexec/agentic-rigg/agentic-rigg-card.service"
+mkdir -p "$ROT/usr/local/libexec/agentic-rigg-system"
+printf '3:%s\n' "$("$src/agentic-rigg-helper" --version | sed -n 's/.*bygg \([0-9]*\).*/\1/p')" > "$ROT/usr/local/libexec/agentic-rigg-system/revision"
+if [[ $action == activate && $# == 5 && $1 == --card-control && $2 == --pci && $3 =~ ^[0-9a-f]{4}:[0-9a-f]{2}:[0-9a-f]{2}\.[0-7]$ && $4 == --uuid && $5 =~ ^GPU-sim0000-[0-9]{4}$ ]]; then
+    mkdir -p "$ROT/proc/driver/nvidia/gpus/$3"
+    printf 'GPU UUID: %s\nBus Location: %s\nDevice Minor: 0\n' "$5" "$3" > "$ROT/proc/driver/nvidia/gpus/$3/information"
+fi
 /usr/bin/python3 -I -S "$src/nvml-admin.py" "$action" --uid "$EUID" --root "$ROT" "$@"
 
 if [ "$navn" = aktiver.sh ] && [ "${RIGG_FALSK_SVAR:-}" != krasj ]; then

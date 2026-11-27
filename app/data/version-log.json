@@ -1,5 +1,19 @@
 [
   {
+    "version": "1.7.1",
+    "build": 34,
+    "date": "2026-11-27",
+    "title": "Én tillatelse for skjermkortet og kortlyset",
+    "changes": [
+      "Én bryter i Innstillinger aktiverer GPU-styring og støttet kortlys. Oppgradering fra eldre hjelpere krever ny administratoraktivering.",
+      "Etter omstart finner arbeiderne det valgte kortet på nytt. RGB-lys viser når lyset må avklares og lar deg velge mellom det avleste og det lagrede lyset.",
+      "«Hold» gjentar det lagrede Av-valget mens appen er åpen. Når tilgangen slås av, bevares uavklarte lysendringer med kortbindingen.",
+      "Den innebygde fargevelgeren viser fargen på kortmodellen mens du velger. «Bruk» starter prøven, og bekreftelsen følger med når du ruller.",
+      "Vifter samler enkel og avansert visning i panelhodet. Vifter og Klokker og effekt viser når en prøve venter på bekreftelse.",
+      "Ved høy temperatur kan GPU-arbeideren gjenopprette Auto-vifter også etter at tillatelsen er endret."
+    ]
+  },
+  {
     "version": "1.7.0",
     "build": 33,
     "date": "2026-11-24",

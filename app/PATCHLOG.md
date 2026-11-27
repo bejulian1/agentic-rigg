@@ -1,5 +1,15 @@
 # Patchlog
 
+## 1.7.1 · bygg 34 – 27. november 2026
+
+- Skjermkortstyring gir én kortbundet tillatelse til to isolerte arbeidere. Etter omstart validerer koordinatoren PCI/UUID og finner dagens enhetsnoder. Midlertidige feil prøves på nytt etter 15 sekunder.
+- NVML leser tillatelsen før forespørsler og ved hver takt. Ny generasjon sperrer klientendringer. Etter en mislykket gjenoppretting kan temperaturvernet fortsatt forsøke Auto på kortet arbeideren selv har endret.
+- RGB gjentar «Hold» i tjenesteløkken. Lagret svart ved 100 % får samme mål på disk og i minnet. Avklaringspanelet knytter gjenoppretting til forsøket brukeren ser. En ny forskjell etter bekreftet gjenoppretting kan avklares igjen.
+- Deaktivering håndterer eldre GPU- og RGB-bindinger hver for seg og bevarer en privat arkivkvittering ved uavklart RGB-journal. Venting og feil vises per arbeider.
+- RGB-lys har en innebygd spektrumvelger med tastaturstyring, hekskode og RGB-kanaler. Kortmodellen viser fargen mens du velger. «Bruk» starter prøven, og «Behold» og «Rull tilbake» er synlige også når du ruller. Fargevalgene sperres mens lyset må avklares.
+- Vifter samler Enkel og Avansert i panelhodet. Klokker og effekt har mer avstand mellom glidermerkene og viser samme feltnavn i utkastet som i kontrollene. Begge sider viser når en prøve pågår.
+- Minste kompatible bygg er 34 for begge arbeidere. Oppdater systemkomponentene i Innstillinger › Skjermkortstyring og godkjenn tilgangen på nytt. Fysisk kortlys, temperaturvern på ekte kort og kald omstart med systemd gjenstår å verifisere.
+
 ## 1.7.0 · bygg 33 – 24. november 2026: nytt navn, svensk, Nettverk, Oppgaver, layout og RGB «Av» som holder
 
 - Samler PR #32 (visningsnavn og svensk), #34 (layoutrevisjon, `math::temp_axis`, Om), #37 (GPU-aktivering med `--keep-rgb`, Oppgaver med `RssAnon`, gruppering og `get_task_detail`), #38 (`get_network`, Nettverk-siden), #39 (README og bilder), #40 (`widgets/charthead.rs`, `StatStrip` som `Cols`, `limit_label_tops`, `leadrow`), #43 (RGB-oppgradering med ett passord, `--keep-nvml`, `nvml_admin_files`, `TaskRow`), #45 (`rgb_persist`, `rgbAv`, fargevelger, `rgb-av-prove.py`) og #47 (`rgb_hold` som egen operasjon, `owned` i svarene, funksjonssjekk for eldre RGB-hjelpere).

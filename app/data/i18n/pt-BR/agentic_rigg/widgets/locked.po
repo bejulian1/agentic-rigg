@@ -36,226 +36,230 @@ msgstr "A seleção da placa mudou. Não foi possível verificar a reversão na 
 msgid "Valgt kort ble endret mens forespørselen ventet. Svaret brukes ikke på det nye kortet."
 msgstr "A GPU selecionada mudou enquanto a solicitação estava em andamento. A resposta não será usada para a nova GPU."
 
-#: crates/rigg/src/widgets/locked.rs:340 crates/rigg/src/widgets/locked.rs:675
-msgid "Simulert kort"
-msgstr "GPU simulada"
-
-#: crates/rigg/src/widgets/locked.rs:340
-msgid "Endringer gjelder bare simuleringen."
-msgstr "As alterações afetam apenas a simulação."
-
-#: crates/rigg/src/widgets/locked.rs:342 crates/rigg/src/widgets/locked.rs:679
-msgid "Styring klar"
-msgstr "Controle pronto"
+#: crates/rigg/src/widgets/locked.rs:341 crates/rigg/src/widgets/locked.rs:367
+msgid "Venter på enhet"
+msgstr "Aguardando dispositivo"
 
 #: crates/rigg/src/widgets/locked.rs:342
-msgid "Støttede endringer sendes til det valgte kortet når du trykker Bruk."
-msgstr "As alterações suportadas são enviadas à placa selecionada ao selecionar «Aplicar»."
-
-#: crates/rigg/src/widgets/locked.rs:343
-msgid "Simulert styring"
-msgstr "Controle simulado"
-
-#: crates/rigg/src/widgets/locked.rs:343
-msgid "Endringer gjelder bare det simulerte kortet."
-msgstr "As alterações afetam apenas a placa simulada."
-
-#: crates/rigg/src/widgets/locked.rs:344
-msgid "Styring utilgjengelig"
-msgstr "Controle indisponível"
-
-#: crates/rigg/src/widgets/locked.rs:345
-msgid "Styring: feil"
-msgstr "Erro de controle"
-
-#: crates/rigg/src/widgets/locked.rs:346
 msgid "Oppdater hjelper"
 msgstr "Atualizar auxiliar"
 
-#: crates/rigg/src/widgets/locked.rs:347
+#: crates/rigg/src/widgets/locked.rs:343
+msgid "Styring: feil"
+msgstr "Erro de controle"
+
+#: crates/rigg/src/widgets/locked.rs:349 crates/rigg/src/widgets/locked.rs:691
+msgid "Simulert kort"
+msgstr "GPU simulada"
+
+#: crates/rigg/src/widgets/locked.rs:349
+msgid "Endringer gjelder bare simuleringen."
+msgstr "As alterações afetam apenas a simulação."
+
+#: crates/rigg/src/widgets/locked.rs:355 crates/rigg/src/widgets/locked.rs:695
+msgid "Styring klar"
+msgstr "Controle pronto"
+
+#: crates/rigg/src/widgets/locked.rs:355
+msgid "Støttede endringer sendes til det valgte kortet når du trykker Bruk."
+msgstr "As alterações suportadas são enviadas à placa selecionada ao selecionar «Aplicar»."
+
+#: crates/rigg/src/widgets/locked.rs:356
+msgid "Simulert styring"
+msgstr "Controle simulado"
+
+#: crates/rigg/src/widgets/locked.rs:356
+msgid "Endringer gjelder bare det simulerte kortet."
+msgstr "As alterações afetam apenas a placa simulada."
+
+#: crates/rigg/src/widgets/locked.rs:357
+msgid "Styring utilgjengelig"
+msgstr "Controle indisponível"
+
+#: crates/rigg/src/widgets/locked.rs:358
 msgid "Bare visning"
 msgstr "Somente leitura"
 
-#: crates/rigg/src/widgets/locked.rs:347
+#: crates/rigg/src/widgets/locked.rs:358
 msgid "Endringer på skjermkortet er slått av. Aktiver én gang med administratorpassord i Innstillinger › Skjermkortstyring."
 msgstr "Os ajustes da GPU estão desativados. Ative-os uma única vez com a senha de administrador em Configurações › Controle da GPU."
 
-#: crates/rigg/src/widgets/locked.rs:355
+#: crates/rigg/src/widgets/locked.rs:366
 msgid "Hjelperen er ikke skriveklar for kortet som vises."
 msgstr "O auxiliar não está pronto para ajustar esta GPU."
 
-#: crates/rigg/src/widgets/locked.rs:356
+#: crates/rigg/src/widgets/locked.rs:368
 msgid "Hjelperen svarer ikke. Endringer er låst."
 msgstr "O auxiliar não responde. As alterações estão bloqueadas."
 
-#: crates/rigg/src/widgets/locked.rs:357
+#: crates/rigg/src/widgets/locked.rs:369
 msgid "Hjelperen må oppdateres. Oppdater systemkomponentene fra Innstillinger › Skjermkortstyring."
 msgstr "O auxiliar precisa ser atualizado. Atualize os componentes do sistema em Configurações › Controle da GPU."
 
-#: crates/rigg/src/widgets/locked.rs:516
+#: crates/rigg/src/widgets/locked.rs:532
 msgid "Utkastet må oppdateres"
 msgstr "O rascunho precisa ser atualizado"
 
-#: crates/rigg/src/widgets/locked.rs:544
+#: crates/rigg/src/widgets/locked.rs:560
 msgid "Dette eldre utkastet mangler opprinnelig grunnlag. Behold det som referanse, eller forkast det og lag et nytt utkast fra kortets verdier."
 msgstr "Este rascunho antigo não tem valores originais salvos. Guarde-o para consulta ou descarte-o e crie um rascunho com os valores atuais da GPU."
 
-#: crates/rigg/src/widgets/locked.rs:547
+#: crates/rigg/src/widgets/locked.rs:563
 msgid "Utkastet tilhører en annen kortidentitet. Velg det opprinnelige kortet, eller forkast utkastet før du lager et nytt."
 msgstr "Este rascunho pertence a outra GPU. Selecione a GPU de origem ou descarte o rascunho antes de criar outro."
 
-#: crates/rigg/src/widgets/locked.rs:553
+#: crates/rigg/src/widgets/locked.rs:569
 msgid "Det finnes ikke noe utkast å bruke."
 msgstr "Não há rascunho para aplicar."
 
-#: crates/rigg/src/widgets/locked.rs:650 crates/rigg/src/widgets/locked.rs:683
+#: crates/rigg/src/widgets/locked.rs:666 crates/rigg/src/widgets/locked.rs:701
 msgid "Låst"
 msgstr "Bloqueado"
 
-#: crates/rigg/src/widgets/locked.rs:657
+#: crates/rigg/src/widgets/locked.rs:673
 msgid "Hva skal til?"
 msgstr "O que é necessário?"
 
-#: crates/rigg/src/widgets/locked.rs:659
+#: crates/rigg/src/widgets/locked.rs:675
 msgid "Aktivering og støtte for kortet"
 msgstr "Ativação e suporte da placa"
 
-#: crates/rigg/src/widgets/locked.rs:673
+#: crates/rigg/src/widgets/locked.rs:689
 msgid "Kortet svarer ikke"
 msgstr "GPU sem resposta"
 
-#: crates/rigg/src/widgets/locked.rs:673
+#: crates/rigg/src/widgets/locked.rs:689
 msgid "Verdiene vises igjen når kortet er tilbake. Utkastet beholdes."
 msgstr "Os valores voltam quando a placa estiver disponível. O rascunho é mantido."
 
-#: crates/rigg/src/widgets/locked.rs:675
+#: crates/rigg/src/widgets/locked.rs:691
 msgid "Bruk sender utkastet til den simulerte backenden, med Behold eller Rull tilbake. Det ekte kortet røres ikke."
 msgstr "«Aplicar» envia o rascunho ao backend simulado. Você pode manter ou reverter a alteração. A placa física não é afetada."
 
-#: crates/rigg/src/widgets/locked.rs:677 crates/rigg/src/widgets/locked.rs:717
+#: crates/rigg/src/widgets/locked.rs:693 crates/rigg/src/widgets/locked.rs:735
 msgid "Utilgjengelig"
 msgstr "Indisponível"
 
-#: crates/rigg/src/widgets/locked.rs:679
+#: crates/rigg/src/widgets/locked.rs:695
 msgid "Utkast"
 msgstr "Rascunho"
 
-#: crates/rigg/src/widgets/locked.rs:679
+#: crates/rigg/src/widgets/locked.rs:695
 msgid "Endringene sendes til kortet når du trykker Bruk. Behold dem innen fristen, ellers rulles de tilbake."
 msgstr "As alterações são enviadas à placa ao selecionar «Aplicar». Mantenha-as dentro do prazo ou elas serão revertidas."
 
-#: crates/rigg/src/widgets/locked.rs:679
+#: crates/rigg/src/widgets/locked.rs:695
 msgid "Støttede funksjoner kan endres med Bruk og Behold."
 msgstr "Use «Aplicar» e «Manter» para alterar funções suportadas."
 
-#: crates/rigg/src/widgets/locked.rs:681
+#: crates/rigg/src/widgets/locked.rs:699
 msgid "Utkast · låst"
 msgstr "Rascunho · bloqueado"
 
-#: crates/rigg/src/widgets/locked.rs:681
+#: crates/rigg/src/widgets/locked.rs:699
 msgid "Utkastet lagres i appen og sendes ikke til kortet. Styring er ikke tilgjengelig for kortet som vises, så Bruk er låst."
 msgstr "O rascunho fica salvo no app e não é enviado à placa. O controle não está disponível para esta placa, então «Aplicar» está bloqueado."
 
-#: crates/rigg/src/widgets/locked.rs:706
+#: crates/rigg/src/widgets/locked.rs:724
 msgid "Skjermkortstyring"
 msgstr "Controle da GPU"
 
-#: crates/rigg/src/widgets/locked.rs:707
+#: crates/rigg/src/widgets/locked.rs:725
 msgid "Aktiver styring én gang med administratorpassord i Innstillinger. Funksjonene under blir tilgjengelige der kortet og driveren støtter dem."
 msgstr "Ative o controle uma vez com uma senha de administrador em Configurações. As funções abaixo ficam disponíveis quando a placa e o driver dão suporte."
 
-#: crates/rigg/src/widgets/locked.rs:711
+#: crates/rigg/src/widgets/locked.rs:729
 msgid "Effektgrense"
 msgstr "Limite de potência"
 
-#: crates/rigg/src/widgets/locked.rs:711
+#: crates/rigg/src/widgets/locked.rs:729
 msgid "Vifter"
 msgstr "Ventoinhas"
 
-#: crates/rigg/src/widgets/locked.rs:711
+#: crates/rigg/src/widgets/locked.rs:729
 msgid "Viftekurve"
 msgstr "Curva das ventoinhas"
 
-#: crates/rigg/src/widgets/locked.rs:711
+#: crates/rigg/src/widgets/locked.rs:729
 msgid "Kjerneklokke"
 msgstr "Clock do núcleo"
 
-#: crates/rigg/src/widgets/locked.rs:711
+#: crates/rigg/src/widgets/locked.rs:729
 msgid "Minneklokke"
 msgstr "Clock da memória"
 
-#: crates/rigg/src/widgets/locked.rs:711
+#: crates/rigg/src/widgets/locked.rs:729
 msgid "Temperaturmål"
 msgstr "Temperatura-alvo"
 
-#: crates/rigg/src/widgets/locked.rs:717
+#: crates/rigg/src/widgets/locked.rs:735
 msgid "Tilgjengelig"
 msgstr "Disponível"
 
-#: crates/rigg/src/widgets/locked.rs:717
+#: crates/rigg/src/widgets/locked.rs:735
 msgid "Ikke undersøkt"
 msgstr "Não verificado"
 
-#: crates/rigg/src/widgets/locked.rs:721
+#: crates/rigg/src/widgets/locked.rs:739
 msgid "Hver endring må beholdes innen fristen. Du kan alltid velge Rull tilbake."
 msgstr "Mantenha cada alteração dentro do prazo. Você sempre pode selecionar «Reverter»."
 
-#: crates/rigg/src/widgets/locked.rs:725
+#: crates/rigg/src/widgets/locked.rs:743
 msgid "Åpne Innstillinger › Skjermkortstyring"
 msgstr "Abrir Configurações › Controle da GPU"
 
-#: crates/rigg/src/widgets/locked.rs:940
+#: crates/rigg/src/widgets/locked.rs:968
 msgid "Rull tilbake"
 msgstr "Reverter"
 
-#: crates/rigg/src/widgets/locked.rs:941
+#: crates/rigg/src/widgets/locked.rs:969
 msgid "Behold"
 msgstr "Manter"
 
-#: crates/rigg/src/widgets/locked.rs:961
+#: crates/rigg/src/widgets/locked.rs:989
 msgid "Tilbakestilling kunne ikke bekreftes. Kortets tilstand er usikker. Prøv Rull tilbake, og se status i Innstillinger › Skjermkortstyring."
 msgstr "Não foi possível verificar a reversão. O estado da placa é incerto. Tente «Reverter» e confira Configurações › Controle da GPU."
 
-#: crates/rigg/src/widgets/locked.rs:965 crates/rigg/src/widgets/locked.rs:1053 crates/rigg/src/widgets/locked.rs:1107
+#: crates/rigg/src/widgets/locked.rs:993 crates/rigg/src/widgets/locked.rs:1081 crates/rigg/src/widgets/locked.rs:1135
 msgid "Endringene er rullet tilbake"
 msgstr "Alterações revertidas"
 
-#: crates/rigg/src/widgets/locked.rs:1025
+#: crates/rigg/src/widgets/locked.rs:1053
 msgid "Behold ({sek})"
 msgstr "Manter ({sek})"
 
-#: crates/rigg/src/widgets/locked.rs:1026
+#: crates/rigg/src/widgets/locked.rs:1054
 msgid "Kortet er byttet. Venter på bekreftet tilbakestilling på det opprinnelige kortet …"
 msgstr "A seleção da placa mudou. Aguardando confirmação da reversão na placa original…"
 
-#: crates/rigg/src/widgets/locked.rs:1027
+#: crates/rigg/src/widgets/locked.rs:1055
 msgid "Fristen er ute. Venter på bekreftet tilbakestilling fra tjenesten …"
 msgstr "O prazo expirou. Aguardando o serviço confirmar a reversão…"
 
-#: crates/rigg/src/widgets/locked.rs:1028
+#: crates/rigg/src/widgets/locked.rs:1056
 msgid "Behold endringene? Uten svar rulles de tilbake om {tid}."
 msgstr "Manter as alterações? Sem resposta, elas serão revertidas em {tid}."
 
-#: crates/rigg/src/widgets/locked.rs:1046
+#: crates/rigg/src/widgets/locked.rs:1074
 msgid "Tjenesten kan ikke bekrefte kortets tilstand eller tilbakestilling. Prøv Rull tilbake, og se status i Innstillinger › Skjermkortstyring."
 msgstr "O serviço não consegue verificar o estado da placa nem a reversão. Tente «Reverter» e confira Configurações › Controle da GPU."
 
-#: crates/rigg/src/widgets/locked.rs:1058
+#: crates/rigg/src/widgets/locked.rs:1086
 msgid "Kortets tilstand er bekreftet"
 msgstr "Estado da placa verificado"
 
-#: crates/rigg/src/widgets/locked.rs:1058
+#: crates/rigg/src/widgets/locked.rs:1086
 msgid "Ingen ubekreftet endring venter."
 msgstr "Não há alterações não confirmadas pendentes."
 
-#: crates/rigg/src/widgets/locked.rs:1107
+#: crates/rigg/src/widgets/locked.rs:1135
 msgid "Endringene er beholdt"
 msgstr "Alterações mantidas"
 
-#: crates/rigg/src/widgets/locked.rs:1111
+#: crates/rigg/src/widgets/locked.rs:1139
 msgid "Tjenesten kan ikke bekrefte tilbakestillingen. Kortets tilstand er usikker. Prøv Rull tilbake."
 msgstr "O serviço não consegue verificar a reversão. O estado da placa é incerto. Tente «Reverter»."
 
-#: crates/rigg/src/widgets/locked.rs:1112
+#: crates/rigg/src/widgets/locked.rs:1140
 msgid "Kunne ikke bekrefte svaret: {feil}. Prøv Rull tilbake. Endringen regnes ikke som tilbakestilt før tjenesten bekrefter det."
 msgstr "Não foi possível verificar a resposta: {feil}. Tente «Reverter». A alteração não é considerada revertida até o serviço confirmá-la."

@@ -51,8 +51,8 @@ trinnene du har godkjent.
 
 --rgb-identifiser er en separat, lesende administratorprøve for ett valgt
 skjermkort. Den gir JSON uten å starte tjenesten eller endre oppsettet.
---rgb-server starter en separat RGB-tjeneste med egen tillatelse og journal;
-den bruker ikke GPU-hjelperens konfigurasjon eller autorisasjon.";
+--rgb-server starter en separat RGB-tjeneste med egen socket og journal
+under den felles korttillatelsen.";
 
 struct Args {
     backend: String,
@@ -104,10 +104,11 @@ fn parse_args() -> Result<Args, String> {
 fn open_backend(
     name: &str,
     cfg: &hjelper::Config,
+    restore_only: bool,
 ) -> (Option<Box<dyn Skriver>>, &'static str, Option<String>) {
     match name {
         "sim" => (Some(Box::new(SimSkriver::new())), "sim", None),
-        _ if cfg.legacy || !cfg.enabled => (
+        _ if cfg.legacy || (!restore_only && (!cfg.enabled || cfg.generation.is_none())) => (
             None,
             "nvml",
             Some("Skjermkortstyring må aktiveres på nytt med global autorisasjon.".into()),
@@ -337,14 +338,14 @@ fn main() {
             Ok(_) => {}
         }
     }
-    let (cfg, mtime) = match server::load_config(&args.config) {
+    let cfg = match server::load_config(&args.config) {
         Ok(c) => c,
         Err(e) => {
             journal::err(&format!("Starter ikke: {e}"));
             std::process::exit(1);
         }
     };
-    let (mut hw, backend, mut locked) = open_backend(&args.backend, &cfg);
+    let (mut hw, backend, mut locked) = open_backend(&args.backend, &cfg, args.reset_only);
     if backend == "nvml"
         && let Some(h) = hw.as_mut()
         && let Err(e) = prepare_baseline(h.as_mut(), &args.baseline, !args.reset_only)
@@ -433,7 +434,6 @@ fn main() {
         listener,
         args.socket.clone(),
         args.config.clone(),
-        Some(mtime),
     );
     srv.run(&mut m);
     sd_notify("STOPPING=1");

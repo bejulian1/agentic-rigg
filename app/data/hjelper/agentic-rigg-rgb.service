@@ -2,9 +2,11 @@
 [Unit]
 Description=Agentic HW Monitor – separat kortbundet RGB-hjelper
 ConditionPathExists=/etc/agentic-rigg/rgb.json
+ConditionPathExists=/run/systemd/system/agentic-rigg-rgb.service.d/50-agentic-rigg-card.conf
 
 [Service]
-Type=simple
+Type=notify
+TimeoutStartSec=20s
 ExecStart=/usr/local/libexec/agentic-rigg-rgb-v2/agentic-rigg-helper --rgb-server
 Restart=no
 TimeoutStopSec=10s

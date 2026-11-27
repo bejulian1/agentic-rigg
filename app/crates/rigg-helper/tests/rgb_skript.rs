@@ -1,4 +1,4 @@
-//! RGB-installasjon mot en uttrykkelig privat filrot. Ingen hjelper/systemctl
+//! Bygg 33 som inngang til migrering, mot en uttrykkelig privat filrot. Ingen hjelper/systemctl
 //! kjøres, også når testen selv er root. Rust-adapteren testes separat.
 
 use rigg_core::rgb::{AdapterIdentity, Baseline, Binding, Observed, PciIdentity, Signature};
@@ -20,7 +20,7 @@ const JOURNAL: &str = "var/lib/agentic-rigg-rgb/journal.json";
 const INACTIVE: &str = "var/lib/agentic-rigg-rgb.inactive";
 const RECOVERY_ID: &str = "0123456789abcdef0123456789abcdef";
 const PCI: &str = "0000:1c:00.0";
-const UUID: &str = "GPU-11111111-2222-3333-4444-555555555555";
+const UUID: &str = "GPU-12345678-abcd-ef01-2345-6789abcdef01";
 static NEXT: AtomicU64 = AtomicU64::new(0);
 
 struct Fixture {
@@ -56,7 +56,8 @@ impl Fixture {
             "agentic-rigg-rgb.service",
             "io.github.AgenticRigg.rgb.v2.policy",
         ] {
-            fs::copy(app().join("data/hjelper").join(name), source.join(name)).unwrap();
+            let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/build33");
+            fs::copy(dir.join(name), source.join(name)).unwrap();
             fs::set_permissions(source.join(name), fs::Permissions::from_mode(0o644)).unwrap();
         }
         // Denne kilden må aldri kjøres av --root, heller ikke for --version.
@@ -539,4 +540,24 @@ fn stoppet_eller_eldre_arbeider_avklares_for_appen_fjernes() {
     assert!(f.run("deactivate", &[]).status.success());
     assert!(uninstall().status.success());
     assert!(!bin.join("agentic-rigg").exists() && !bin.join("agentic-riggd").exists());
+}
+
+#[test]
+fn ny_installasjon_bevarer_grunnopptaket_fra_bygg33_skriptet() {
+    let f = Fixture::new();
+    f.activate();
+    f.systemd(json!({"ActiveState":"inactive"}));
+    let baseline = f.at("var/lib/agentic-rigg-rgb/baseline.json");
+    let before = fs::read(&baseline).unwrap();
+    f.write_fixture(JOURNAL, b"uavklart", 0o600);
+    #[allow(clippy::disallowed_methods)]
+    let result = Command::new("/usr/bin/python3")
+        .args(["-I", "-S"])
+        .arg(app().join("scripts/test-system-install.py"))
+        .arg("--migrate-fixture")
+        .arg(&f.root)
+        .output().unwrap();
+    assert!(result.status.success(), "{}", String::from_utf8_lossy(&result.stderr));
+    assert_eq!(fs::read(baseline).unwrap(), before);
+    assert_eq!(fs::read(f.at(JOURNAL)).unwrap(), b"uavklart");
 }

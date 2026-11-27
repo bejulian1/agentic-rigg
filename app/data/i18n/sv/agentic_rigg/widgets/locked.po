@@ -36,226 +36,230 @@ msgstr "Det valda kortet ändrades. Tillbakarullningen på det ursprungliga kort
 msgid "Valgt kort ble endret mens forespørselen ventet. Svaret brukes ikke på det nye kortet."
 msgstr "Det valda kortet ändrades medan begäran väntade. Svaret används inte på det nya kortet."
 
-#: crates/rigg/src/widgets/locked.rs:340 crates/rigg/src/widgets/locked.rs:679
-msgid "Simulert kort"
-msgstr "Simulerat kort"
-
-#: crates/rigg/src/widgets/locked.rs:340
-msgid "Endringer gjelder bare simuleringen."
-msgstr "Ändringar gäller bara simuleringen."
-
-#: crates/rigg/src/widgets/locked.rs:342 crates/rigg/src/widgets/locked.rs:683
-msgid "Styring klar"
-msgstr "Styrningen är klar"
+#: crates/rigg/src/widgets/locked.rs:341 crates/rigg/src/widgets/locked.rs:367
+msgid "Venter på enhet"
+msgstr "Väntar på enhet"
 
 #: crates/rigg/src/widgets/locked.rs:342
-msgid "Støttede endringer sendes til det valgte kortet når du trykker Bruk."
-msgstr "Ändringar som stöds skickas till det valda kortet när du trycker på Verkställ."
-
-#: crates/rigg/src/widgets/locked.rs:343
-msgid "Simulert styring"
-msgstr "Simulerad styrning"
-
-#: crates/rigg/src/widgets/locked.rs:343
-msgid "Endringer gjelder bare det simulerte kortet."
-msgstr "Ändringar gäller bara det simulerade kortet."
-
-#: crates/rigg/src/widgets/locked.rs:344
-msgid "Styring utilgjengelig"
-msgstr "Styrningen är inte tillgänglig"
-
-#: crates/rigg/src/widgets/locked.rs:345
-msgid "Styring: feil"
-msgstr "Styrning: fel"
-
-#: crates/rigg/src/widgets/locked.rs:346
 msgid "Oppdater hjelper"
 msgstr "Uppdatera hjälparen"
 
-#: crates/rigg/src/widgets/locked.rs:347
+#: crates/rigg/src/widgets/locked.rs:343
+msgid "Styring: feil"
+msgstr "Styrning: fel"
+
+#: crates/rigg/src/widgets/locked.rs:349 crates/rigg/src/widgets/locked.rs:691
+msgid "Simulert kort"
+msgstr "Simulerat kort"
+
+#: crates/rigg/src/widgets/locked.rs:349
+msgid "Endringer gjelder bare simuleringen."
+msgstr "Ändringar gäller bara simuleringen."
+
+#: crates/rigg/src/widgets/locked.rs:355 crates/rigg/src/widgets/locked.rs:695
+msgid "Styring klar"
+msgstr "Styrningen är klar"
+
+#: crates/rigg/src/widgets/locked.rs:355
+msgid "Støttede endringer sendes til det valgte kortet når du trykker Bruk."
+msgstr "Ändringar som stöds skickas till det valda kortet när du trycker på Verkställ."
+
+#: crates/rigg/src/widgets/locked.rs:356
+msgid "Simulert styring"
+msgstr "Simulerad styrning"
+
+#: crates/rigg/src/widgets/locked.rs:356
+msgid "Endringer gjelder bare det simulerte kortet."
+msgstr "Ändringar gäller bara det simulerade kortet."
+
+#: crates/rigg/src/widgets/locked.rs:357
+msgid "Styring utilgjengelig"
+msgstr "Styrningen är inte tillgänglig"
+
+#: crates/rigg/src/widgets/locked.rs:358
 msgid "Bare visning"
 msgstr "Endast visning"
 
-#: crates/rigg/src/widgets/locked.rs:347
+#: crates/rigg/src/widgets/locked.rs:358
 msgid "Endringer på skjermkortet er slått av. Aktiver én gang med administratorpassord i Innstillinger › Skjermkortstyring."
 msgstr "Ändringar på grafikkortet är avstängda. Aktivera en gång med administratörslösenord i Inställningar › Grafikkortsstyrning."
 
-#: crates/rigg/src/widgets/locked.rs:355
+#: crates/rigg/src/widgets/locked.rs:366
 msgid "Hjelperen er ikke skriveklar for kortet som vises."
 msgstr "Hjälparen är inte redo att skriva till det kort som visas."
 
-#: crates/rigg/src/widgets/locked.rs:356
+#: crates/rigg/src/widgets/locked.rs:368
 msgid "Hjelperen svarer ikke. Endringer er låst."
 msgstr "Hjälparen svarar inte. Ändringar är låsta."
 
-#: crates/rigg/src/widgets/locked.rs:357
+#: crates/rigg/src/widgets/locked.rs:369
 msgid "Hjelperen må oppdateres. Oppdater systemkomponentene fra Innstillinger › Skjermkortstyring."
 msgstr "Hjälparen måste uppdateras. Uppdatera systemkomponenterna från Inställningar › Grafikkortsstyrning."
 
-#: crates/rigg/src/widgets/locked.rs:520
+#: crates/rigg/src/widgets/locked.rs:532
 msgid "Utkastet må oppdateres"
 msgstr "Utkastet måste uppdateras"
 
-#: crates/rigg/src/widgets/locked.rs:548
+#: crates/rigg/src/widgets/locked.rs:560
 msgid "Dette eldre utkastet mangler opprinnelig grunnlag. Behold det som referanse, eller forkast det og lag et nytt utkast fra kortets verdier."
 msgstr "Det här äldre utkastet saknar ursprungligt underlag. Behåll det som referens, eller förkasta det och skapa ett nytt utkast från kortets värden."
 
-#: crates/rigg/src/widgets/locked.rs:551
+#: crates/rigg/src/widgets/locked.rs:563
 msgid "Utkastet tilhører en annen kortidentitet. Velg det opprinnelige kortet, eller forkast utkastet før du lager et nytt."
 msgstr "Utkastet tillhör en annan kortidentitet. Välj det ursprungliga kortet, eller förkasta utkastet innan du skapar ett nytt."
 
-#: crates/rigg/src/widgets/locked.rs:557
+#: crates/rigg/src/widgets/locked.rs:569
 msgid "Det finnes ikke noe utkast å bruke."
 msgstr "Det finns inget utkast att verkställa."
 
-#: crates/rigg/src/widgets/locked.rs:654 crates/rigg/src/widgets/locked.rs:687
+#: crates/rigg/src/widgets/locked.rs:666 crates/rigg/src/widgets/locked.rs:701
 msgid "Låst"
 msgstr "Låst"
 
-#: crates/rigg/src/widgets/locked.rs:661
+#: crates/rigg/src/widgets/locked.rs:673
 msgid "Hva skal til?"
 msgstr "Vad krävs?"
 
-#: crates/rigg/src/widgets/locked.rs:663
+#: crates/rigg/src/widgets/locked.rs:675
 msgid "Aktivering og støtte for kortet"
 msgstr "Aktivering och stöd för kortet"
 
-#: crates/rigg/src/widgets/locked.rs:677
+#: crates/rigg/src/widgets/locked.rs:689
 msgid "Kortet svarer ikke"
 msgstr "Kortet svarar inte"
 
-#: crates/rigg/src/widgets/locked.rs:677
+#: crates/rigg/src/widgets/locked.rs:689
 msgid "Verdiene vises igjen når kortet er tilbake. Utkastet beholdes."
 msgstr "Värdena visas igen när kortet är tillbaka. Utkastet behålls."
 
-#: crates/rigg/src/widgets/locked.rs:679
+#: crates/rigg/src/widgets/locked.rs:691
 msgid "Bruk sender utkastet til den simulerte backenden, med Behold eller Rull tilbake. Det ekte kortet røres ikke."
 msgstr "Verkställ skickar utkastet till den simulerade backenden, med Behåll eller Rulla tillbaka. Det riktiga kortet berörs inte."
 
-#: crates/rigg/src/widgets/locked.rs:681 crates/rigg/src/widgets/locked.rs:721
+#: crates/rigg/src/widgets/locked.rs:693 crates/rigg/src/widgets/locked.rs:735
 msgid "Utilgjengelig"
 msgstr "Inte tillgänglig"
 
-#: crates/rigg/src/widgets/locked.rs:683
+#: crates/rigg/src/widgets/locked.rs:695
 msgid "Utkast"
 msgstr "Utkast"
 
-#: crates/rigg/src/widgets/locked.rs:683
+#: crates/rigg/src/widgets/locked.rs:695
 msgid "Endringene sendes til kortet når du trykker Bruk. Behold dem innen fristen, ellers rulles de tilbake."
 msgstr "Ändringarna skickas till kortet när du trycker på Verkställ. Behåll dem inom tidsgränsen, annars rullas de tillbaka."
 
-#: crates/rigg/src/widgets/locked.rs:683
+#: crates/rigg/src/widgets/locked.rs:695
 msgid "Støttede funksjoner kan endres med Bruk og Behold."
 msgstr "Funktioner som stöds kan ändras med Verkställ och Behåll."
 
-#: crates/rigg/src/widgets/locked.rs:685
+#: crates/rigg/src/widgets/locked.rs:699
 msgid "Utkast · låst"
 msgstr "Utkast · låst"
 
-#: crates/rigg/src/widgets/locked.rs:685
+#: crates/rigg/src/widgets/locked.rs:699
 msgid "Utkastet lagres i appen og sendes ikke til kortet. Styring er ikke tilgjengelig for kortet som vises, så Bruk er låst."
 msgstr "Utkastet sparas i appen och skickas inte till kortet. Styrningen är inte tillgänglig för det kort som visas, så Verkställ är låst."
 
-#: crates/rigg/src/widgets/locked.rs:710
+#: crates/rigg/src/widgets/locked.rs:724
 msgid "Skjermkortstyring"
 msgstr "Grafikkortsstyrning"
 
-#: crates/rigg/src/widgets/locked.rs:711
+#: crates/rigg/src/widgets/locked.rs:725
 msgid "Aktiver styring én gang med administratorpassord i Innstillinger. Funksjonene under blir tilgjengelige der kortet og driveren støtter dem."
 msgstr "Aktivera styrningen en gång med administratörslösenord i Inställningar. Funktionerna nedan blir tillgängliga där kortet och drivrutinen stöder dem."
 
-#: crates/rigg/src/widgets/locked.rs:715
+#: crates/rigg/src/widgets/locked.rs:729
 msgid "Effektgrense"
 msgstr "Effektgräns"
 
-#: crates/rigg/src/widgets/locked.rs:715
+#: crates/rigg/src/widgets/locked.rs:729
 msgid "Vifter"
 msgstr "Fläktar"
 
-#: crates/rigg/src/widgets/locked.rs:715
+#: crates/rigg/src/widgets/locked.rs:729
 msgid "Viftekurve"
 msgstr "Fläktkurva"
 
-#: crates/rigg/src/widgets/locked.rs:715
+#: crates/rigg/src/widgets/locked.rs:729
 msgid "Kjerneklokke"
 msgstr "Kärnklocka"
 
-#: crates/rigg/src/widgets/locked.rs:715
+#: crates/rigg/src/widgets/locked.rs:729
 msgid "Minneklokke"
 msgstr "Minnesklocka"
 
-#: crates/rigg/src/widgets/locked.rs:715
+#: crates/rigg/src/widgets/locked.rs:729
 msgid "Temperaturmål"
 msgstr "Temperaturmål"
 
-#: crates/rigg/src/widgets/locked.rs:721
+#: crates/rigg/src/widgets/locked.rs:735
 msgid "Tilgjengelig"
 msgstr "Tillgängligt"
 
-#: crates/rigg/src/widgets/locked.rs:721
+#: crates/rigg/src/widgets/locked.rs:735
 msgid "Ikke undersøkt"
 msgstr "Inte undersökt"
 
-#: crates/rigg/src/widgets/locked.rs:725
+#: crates/rigg/src/widgets/locked.rs:739
 msgid "Hver endring må beholdes innen fristen. Du kan alltid velge Rull tilbake."
 msgstr "Varje ändring måste behållas inom tidsgränsen. Du kan alltid välja Rulla tillbaka."
 
-#: crates/rigg/src/widgets/locked.rs:729
+#: crates/rigg/src/widgets/locked.rs:743
 msgid "Åpne Innstillinger › Skjermkortstyring"
 msgstr "Öppna Inställningar › Grafikkortsstyrning"
 
-#: crates/rigg/src/widgets/locked.rs:954
+#: crates/rigg/src/widgets/locked.rs:968
 msgid "Rull tilbake"
 msgstr "Rulla tillbaka"
 
-#: crates/rigg/src/widgets/locked.rs:955
+#: crates/rigg/src/widgets/locked.rs:969
 msgid "Behold"
 msgstr "Behåll"
 
-#: crates/rigg/src/widgets/locked.rs:975
+#: crates/rigg/src/widgets/locked.rs:989
 msgid "Tilbakestilling kunne ikke bekreftes. Kortets tilstand er usikker. Prøv Rull tilbake, og se status i Innstillinger › Skjermkortstyring."
 msgstr "Tillbakarullningen kunde inte bekräftas. Kortets tillstånd är osäkert. Prova Rulla tillbaka och se status i Inställningar › Grafikkortsstyrning."
 
-#: crates/rigg/src/widgets/locked.rs:979 crates/rigg/src/widgets/locked.rs:1067 crates/rigg/src/widgets/locked.rs:1121
+#: crates/rigg/src/widgets/locked.rs:993 crates/rigg/src/widgets/locked.rs:1081 crates/rigg/src/widgets/locked.rs:1135
 msgid "Endringene er rullet tilbake"
 msgstr "Ändringarna har rullats tillbaka"
 
-#: crates/rigg/src/widgets/locked.rs:1039
+#: crates/rigg/src/widgets/locked.rs:1053
 msgid "Behold ({sek})"
 msgstr "Behåll ({sek})"
 
-#: crates/rigg/src/widgets/locked.rs:1040
+#: crates/rigg/src/widgets/locked.rs:1054
 msgid "Kortet er byttet. Venter på bekreftet tilbakestilling på det opprinnelige kortet …"
 msgstr "Kortet har bytts. Väntar på bekräftad tillbakarullning på det ursprungliga kortet…"
 
-#: crates/rigg/src/widgets/locked.rs:1041
+#: crates/rigg/src/widgets/locked.rs:1055
 msgid "Fristen er ute. Venter på bekreftet tilbakestilling fra tjenesten …"
 msgstr "Tidsgränsen har gått ut. Väntar på bekräftad tillbakarullning från tjänsten…"
 
-#: crates/rigg/src/widgets/locked.rs:1042
+#: crates/rigg/src/widgets/locked.rs:1056
 msgid "Behold endringene? Uten svar rulles de tilbake om {tid}."
 msgstr "Behålla ändringarna? Utan svar rullas de tillbaka om {tid}."
 
-#: crates/rigg/src/widgets/locked.rs:1060
+#: crates/rigg/src/widgets/locked.rs:1074
 msgid "Tjenesten kan ikke bekrefte kortets tilstand eller tilbakestilling. Prøv Rull tilbake, og se status i Innstillinger › Skjermkortstyring."
 msgstr "Tjänsten kan inte bekräfta kortets tillstånd eller tillbakarullningen. Prova Rulla tillbaka och se status i Inställningar › Grafikkortsstyrning."
 
-#: crates/rigg/src/widgets/locked.rs:1072
+#: crates/rigg/src/widgets/locked.rs:1086
 msgid "Kortets tilstand er bekreftet"
 msgstr "Kortets tillstånd är bekräftat"
 
-#: crates/rigg/src/widgets/locked.rs:1072
+#: crates/rigg/src/widgets/locked.rs:1086
 msgid "Ingen ubekreftet endring venter."
 msgstr "Ingen obekräftad ändring väntar."
 
-#: crates/rigg/src/widgets/locked.rs:1121
+#: crates/rigg/src/widgets/locked.rs:1135
 msgid "Endringene er beholdt"
 msgstr "Ändringarna har behållits"
 
-#: crates/rigg/src/widgets/locked.rs:1125
+#: crates/rigg/src/widgets/locked.rs:1139
 msgid "Tjenesten kan ikke bekrefte tilbakestillingen. Kortets tilstand er usikker. Prøv Rull tilbake."
 msgstr "Tjänsten kan inte bekräfta tillbakarullningen. Kortets tillstånd är osäkert. Prova Rulla tillbaka."
 
-#: crates/rigg/src/widgets/locked.rs:1126
+#: crates/rigg/src/widgets/locked.rs:1140
 msgid "Kunne ikke bekrefte svaret: {feil}. Prøv Rull tilbake. Endringen regnes ikke som tilbakestilt før tjenesten bekrefter det."
 msgstr "Det gick inte att bekräfta svaret: {feil}. Prova Rulla tillbaka. Ändringen räknas inte som tillbakarullad förrän tjänsten bekräftar det."

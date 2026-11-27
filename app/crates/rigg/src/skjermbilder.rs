@@ -54,6 +54,7 @@ enum Step {
     ShotScrolled(&'static str),
     /// Kortmenyen er en egen GTK-flate og må tegnes med sin egen renderer.
     DeviceShot(&'static str),
+    PickerShot(&'static str),
     Keys(&'static str),
     /// Åpner en dialog og tar bilde av den (navn, hvordan den åpnes).
     Dialog(&'static str, fn(&Rc<App>)),
@@ -175,10 +176,12 @@ fn plan_rgb_tilstander() -> Vec<Step> {
         v.extend([Size(w, h), Wait(500), Size(w, h), Go("lys"), Wait(1500), Eval(|_| crate::pages::lys::debug_mode("2d"))]);
         use crate::pages::lys_kort::debug_fixture as fixture;
         type SetFixture = fn(&Rc<App>);
-        let kinds: [(&str, SetFixture); 9] = [
+        let kinds: [(&str, SetFixture); 11] = [
             ("off", |_| fixture("off")),
             ("stored", |_| fixture("stored")),
             ("pending", |_| fixture("pending")),
+            ("nytt-kort", |_| fixture("first")),
+            ("journal-etter-omstart", |_| fixture("journal")),
             ("lys_av", |_| fixture("lys_av")),
             ("effekt", |_| fixture("effekt")),
             ("recovery", |_| fixture("recovery")),
@@ -209,7 +212,17 @@ fn plan_rgb() -> Vec<Step> {
         Size(1440, 960), Set(base()), Go("lys"), Wait(1200),
         Eval(|_| crate::pages::lys::debug_mode("2d")),
         Eval(|_| crate::pages::lys_kort::debug_fixture("stored")), Wait(500), Shot("rgb-2d-lys-sim"),
-        Set(json!({"theme":"dark"})), Wait(500), Shot("rgb-2d-mork-sim"),
+        Eval(|app| {
+            let win = app.window().unwrap();
+            find_class(win.upcast_ref(), "rgb-color-pick").unwrap().downcast::<gtk::Button>().unwrap().emit_clicked();
+        }),
+        Wait(350), PickerShot("rgb-fargevelger-lys-sim"),
+        Set(json!({"theme":"dark"})), Wait(500), PickerShot("rgb-fargevelger-mork-sim"),
+        Eval(|app| {
+            let win = app.window().unwrap();
+            find_class(win.upcast_ref(), "rgb-picker-pop").unwrap().downcast::<gtk::Popover>().unwrap().popdown();
+        }),
+        Wait(350), Shot("rgb-2d-mork-sim"),
         Eval(|_| crate::pages::lys::debug_mode("3d")), Wait(1800),
         Eval(|_| { let _ = crate::pages::lys::debug_ready(); }), Wait(1000), Shot("rgb-3d-mork-sim"),
         Set(json!({"theme":"light"})), Wait(800), Shot("rgb-3d-lys-sim"),
@@ -220,7 +233,7 @@ fn plan_rgb() -> Vec<Step> {
         Eval(|_| crate::pages::lys_kort::debug_fixture("off")), Wait(400), Shot("rgb-1920-av-sim"),
         Eval(|_| crate::pages::lys_kort::debug_fixture("stored")), Wait(400), Shot("rgb-1920-lagret-sim"),
         Eval(|_| crate::pages::lys_kort::debug_fixture("pending")), Wait(400), Shot("rgb-1920-pending-sim"),
-        Size(640, 900), Eval(|_| crate::pages::lys_kort::debug_fixture("pending")), Wait(500), Shot("rgb-640-pending-sim"),
+        Size(640, 900), Wait(500), Size(640, 900), Eval(|_| crate::pages::lys_kort::debug_fixture("pending")), Wait(500), Shot("rgb-640-pending-sim"),
         Set(json!({"theme":"dark"})), Eval(|_| crate::pages::lys_kort::debug_fixture("recovery")), Wait(500), Shot("rgb-640-recovery-sim"),
         Set(json!({"fontScale":116,"highContrast":true})), Eval(|_| crate::pages::lys_kort::debug_fixture("confirmed")), Wait(500), Shot("rgb-640-brukerbekreftet-sim"),
         Set(base()), Size(1920,1080), Eval(|_| crate::pages::lys_kort::debug_fixture("error")), Wait(500), Shot("rgb-1920-uavklart-sim"),
@@ -776,7 +789,7 @@ fn focus_machine(app: &Rc<App>) {
 }
 
 /// Første synlige flate med CSS-klassen.
-fn find_class(w: &gtk::Widget, class: &str) -> Option<gtk::Widget> {
+pub(crate) fn find_class(w: &gtk::Widget, class: &str) -> Option<gtk::Widget> {
     if !w.is_visible() {
         return None;
     }
@@ -1314,6 +1327,11 @@ fn run(app: Rc<App>, steps: Rc<Vec<Step>>, i: usize, dir: PathBuf) {
                 }
             }
         }
+        Step::PickerShot(name) => {
+            let win = app.window().unwrap();
+            let pop = find_class(win.upcast_ref(), "rgb-picker-pop").unwrap().downcast::<gtk::Popover>().unwrap();
+            snapshot_popover(&pop, &dir.join(format!("{name}.png")));
+        }
         Step::DeviceShot(name) => {
             let win = app.window().unwrap();
             let anchor = find_class(win.upcast_ref(), "nav-target").unwrap();
@@ -1327,11 +1345,7 @@ fn run(app: Rc<App>, steps: Rc<Vec<Step>>, i: usize, dir: PathBuf) {
             let card_width = contents.compute_bounds(&contents).unwrap().width();
             let row_width = anchor.compute_bounds(&anchor).unwrap().width();
             eprintln!("RIGG_KORTMENY {name}: meny={} kort={card_width} rad={row_width} x={x} y={y}", pop.width());
-            let paintable = gtk::WidgetPaintable::new(Some(&pop));
-            let snap = gtk::Snapshot::new();
-            paintable.snapshot(&snap, pop.width() as f64, pop.height() as f64);
-            let texture = pop.renderer().unwrap().render_texture(snap.to_node().unwrap(), None);
-            texture.save_to_png(dir.join(format!("{name}.png"))).unwrap();
+            snapshot_popover(&pop, &dir.join(format!("{name}.png")));
             // Vindu og popover er separate native flater. Helheten tas av
             // Shell ved pekerprøven; ikke gjett popupens plassering i et montasjebilde.
             let _ = shot(win.upcast_ref(), &dir.join(format!("{name}-vindu.png")));
@@ -1339,6 +1353,14 @@ fn run(app: Rc<App>, steps: Rc<Vec<Step>>, i: usize, dir: PathBuf) {
         }
     }
     gtk::glib::timeout_add_local_once(Duration::from_millis(wait), move || run(app, steps, i + 1, dir));
+}
+
+fn snapshot_popover(pop: &gtk::Popover, path: &std::path::Path) {
+    let paintable = gtk::WidgetPaintable::new(Some(pop));
+    let snap = gtk::Snapshot::new();
+    paintable.snapshot(&snap, pop.width() as f64, pop.height() as f64);
+    let texture = pop.renderer().unwrap().render_texture(snap.to_node().unwrap(), None);
+    texture.save_to_png(path).unwrap();
 }
 
 /// Alle synlige rullefelt som kan rulles loddrett.

@@ -45,7 +45,9 @@ class AvProveTest(unittest.TestCase):
         return code, out.getvalue(), err.getvalue()
 
     def status(self):
-        return self.mod['Hjelper'](self.socket).call('rgb_status')
+        helper = self.mod['Hjelper'](self.socket)
+        with contextlib.closing(helper.sock):
+            return helper.call('rgb_status')
 
     def test_hver_kandidat_skrives_holdes_og_rulles_tilbake_med_ett_sporsmal(self):
         base = self.status()['state']['confirmed']

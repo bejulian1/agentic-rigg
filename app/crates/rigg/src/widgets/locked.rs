@@ -330,20 +330,31 @@ pub fn mark_topbar(app: &Rc<App>, page: &'static str) {
 
 pub fn sync_topbar(app: &Rc<App>, page: &'static str) {
     if let Some(s) = app.shell.get() {
-        // Lys har egen RGB-tillatelse og viser status ved sine kontroller.
-        let open = page == "lys" || !matches!(gate(app), Gate::Locked(_));
+        // Kortlyset har egen arbeider og viser status ved sine kontroller.
+        let open = !matches!(gate(app), Gate::Locked(_));
         s.topbar.set_locked(page, !open);
+    }
+}
+
+fn helper_problem(state: &str) -> Option<(&'static str, &'static str)> {
+    match state {
+        "waiting" => Some(("timer", tr!("Venter på enhet"))),
+        "outdated" => Some(("circle-alert", tr!("Oppdater hjelper"))),
+        "error" => Some(("triangle-alert", tr!("Styring: feil"))),
+        _ => None,
     }
 }
 
 pub fn badge(app: &App) -> (String, &'static str, String) {
     if gate(app) == Gate::Sim { return (tr!("Simulert kort").into(), "circle-dot", tr!("Endringer gjelder bare simuleringen.").into()); }
-    match helper_state(app).as_str() {
+    let state = helper_state(app);
+    if let Some((icon, title)) = helper_problem(&state) {
+        return (title.into(), icon, helper_line(app).unwrap_or_default());
+    }
+    match state.as_str() {
         "on" if control_ready(app) => (tr!("Styring klar").into(), "shield", tr!("Støttede endringer sendes til det valgte kortet når du trykker Bruk.").into()),
         "on" if gate(app) == Gate::Sim => (tr!("Simulert styring").into(), "circle-dot", tr!("Endringer gjelder bare det simulerte kortet.").into()),
         "on" => (tr!("Styring utilgjengelig").into(), "triangle-alert", helper_line(app).unwrap_or_default()),
-        "error" => (tr!("Styring: feil").into(), "triangle-alert", helper_line(app).unwrap_or_default()),
-        "outdated" => (tr!("Oppdater hjelper").into(), "circle-alert", helper_line(app).unwrap_or_default()),
         _ => (tr!("Bare visning").into(), "lock", tr!("Endringer på skjermkortet er slått av. Aktiver én gang med administratorpassord i Innstillinger › Skjermkortstyring.").into()),
     }
 }
@@ -353,6 +364,7 @@ pub fn helper_line(app: &App) -> Option<String> {
     match helper_state(app).as_str() {
         "on" if control_ready(app) || gate(app) == Gate::Sim => None,
         "on" => Some(h["message"].as_str().map(display_diagnostic).map_or_else(|| tr!("Hjelperen er ikke skriveklar for kortet som vises.").into(), |text| text.into_owned())),
+        "waiting" => Some(h["message"].as_str().map(display_diagnostic).map_or_else(|| tr!("Venter på enhet").into(), |text| text.into_owned())),
         "error" => Some(h["message"].as_str().map(display_diagnostic).map_or_else(|| tr!("Hjelperen svarer ikke. Endringer er låst.").into(), |text| text.into_owned())),
         "outdated" => Some(tr!("Hjelperen må oppdateres. Oppdater systemkomponentene fra Innstillinger › Skjermkortstyring.").into()),
         _ => None,
@@ -681,6 +693,8 @@ impl LockStrip {
             ("lock", tr!("Utilgjengelig"), capability_reason(app, self.required.unwrap()), "")
         } else if control_ready(app) {
             ("shield", if drafting { tr!("Utkast") } else { tr!("Styring klar") }, if drafting { tr!("Endringene sendes til kortet når du trykker Bruk. Behold dem innen fristen, ellers rulles de tilbake.").into() } else { tr!("Støttede funksjoner kan endres med Bruk og Behold.").into() }, "")
+        } else if let Some((icon, title)) = helper_problem(&helper_state(app)) {
+            (icon, title, helper_line(app).unwrap_or_default(), "")
         } else if drafting {
             ("pencil", tr!("Utkast · låst"), tr!("Utkastet lagres i appen og sendes ikke til kortet. Styring er ikke tilgjengelig for kortet som vises, så Bruk er låst.").into(), "draft")
         } else {
@@ -718,7 +732,7 @@ pub fn what_it_takes(app: &Rc<App>, anchor: &gtk::Button) {
         title.set_hexpand(true);
         row.append(&title);
         let available = supports(app, key);
-        row.append(&label(if available { tr!("Tilgjengelig") } else if helper_state(app) == "off" { tr!("Ikke undersøkt") } else { tr!("Utilgjengelig") }, &["muted", "sm"]));
+        row.append(&label(if available { tr!("Tilgjengelig") } else if matches!(helper_state(app).as_str(), "off" | "waiting") { tr!("Ikke undersøkt") } else { tr!("Utilgjengelig") }, &["muted", "sm"]));
         row.set_tooltip_text((!available).then(|| capability_reason(app, key)).as_deref());
         bx.append(&row);
     }

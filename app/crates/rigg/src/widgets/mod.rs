@@ -19,6 +19,7 @@
 pub mod bar;
 pub mod chart;
 pub mod charthead;
+pub mod color_picker;
 pub mod fit;
 pub mod fixed;
 pub mod gauge;

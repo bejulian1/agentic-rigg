@@ -109,7 +109,7 @@ pub fn install_signals() {
 /// Leser `helper.json` og sjekker hvem som eier den: som root må fila og
 /// mappa eies av root og ikke kunne skrives av andre. Ellers (testene, den
 /// falske roten) må de eies av brukeren selv.
-pub fn load_config(path: &Path) -> Result<(Config, i64), String> {
+pub fn load_config(path: &Path) -> Result<Config, String> {
     let euid = unsafe { libc::geteuid() };
     let meta = std::fs::symlink_metadata(path).map_err(|e| format!("{}: {e}", path.display()))?;
     if !meta.file_type().is_file() {
@@ -142,16 +142,7 @@ pub fn load_config(path: &Path) -> Result<(Config, i64), String> {
         return Err("helper.json er for stor".into());
     }
     let text = std::fs::read_to_string(path).map_err(|e| e.to_string())?;
-    Ok((
-        Config::parse(&text)?,
-        meta.mtime() * 1_000_000_000 + meta.mtime_nsec(),
-    ))
-}
-
-fn mtime(path: &Path) -> Option<i64> {
-    std::fs::symlink_metadata(path)
-        .ok()
-        .map(|m| m.mtime() * 1_000_000_000 + m.mtime_nsec())
+    Config::parse(&text)
 }
 
 /// Binder socketen. En gammel socket fjernes; alt annet på stien er en feil.
@@ -322,7 +313,6 @@ pub struct Server {
     pub listener: UnixListener,
     pub socket: PathBuf,
     pub config: PathBuf,
-    cfg_mtime: Option<i64>,
     conns: BTreeMap<u64, Conn>,
     seq: u64,
     /// Socketen vi bandt (`dev`, `inode`), så stopp ikke fjerner en annens.
@@ -342,14 +332,12 @@ impl Server {
         listener: UnixListener,
         socket: PathBuf,
         config: PathBuf,
-        cfg_mtime: Option<i64>,
     ) -> Server {
         Server {
             listener,
             socket_id: socket_identity(&socket),
             socket,
             config,
-            cfg_mtime,
             conns: BTreeMap::new(),
             seq: 0,
             clock: boot_ms,
@@ -378,14 +366,9 @@ impl Server {
             .min(REPLY_BUDGET)
     }
 
-    /// `helper.json` på nytt når den er endret (trinn godkjent eller trukket).
+    /// Les innholdet på nytt før hver forespørsel og hver periodiske takt.
     fn reload(&mut self, m: &mut Motor, now: i64) {
-        let cur = mtime(&self.config);
-        if cur == self.cfg_mtime {
-            return;
-        }
-        self.cfg_mtime = cur;
-        m.set_config(load_config(&self.config).map(|(c, _)| c), now);
+        m.set_config(load_config(&self.config), now);
     }
 
     fn reply(
@@ -597,7 +580,7 @@ impl Server {
             };
             let (rid, r) = match proto::parse_request(&line) {
                 Ok(req) => {
-                    // Trinnene kan være endret siden forrige runde (én stat).
+                    // Tillatelsen kan være erstattet med samme endringstid.
                     self.reload(m, now);
                     let allowed = self
                         .conns
@@ -655,17 +638,20 @@ mod tests {
         /// vertsstier, ingen ekte GPU.
         fn server(&self) -> (Server, Motor) {
             let path = self.socket();
-            let listener = bind(&path, None).unwrap();
-            // Ingen konfigfil: mtime er `None` og leses aldri på nytt.
-            let srv = Server::new(listener, path, self.0.join("finnes-ikke.json"), None);
-            let mut m = Motor::new(Some(Box::new(SimSkriver::new())), "sim", None);
+            // Testrøttens 0700 beskytter socketen fra første øyeblikk.
+            // Produksjonsbind endrer umask prosessvidt og prøves i egen prosess.
+            let listener = UnixListener::bind(&path).unwrap();
+            listener.set_nonblocking(true).unwrap();
+            let config = self.0.join("helper.json");
             let uid = unsafe { libc::geteuid() };
-            m.set_config(
-                Config::parse(&format!(
-                    r#"{{"versjon":1,"uid":{uid},"trinn":["effekt","vifter"]}}"#
-                )),
-                0,
-            );
+            std::fs::write(
+                &config,
+                format!(r#"{{"versjon":1,"uid":{uid},"trinn":["effekt","vifter"]}}"#),
+            ).unwrap();
+            let mut m = Motor::new(Some(Box::new(SimSkriver::new())), "sim", None);
+            std::fs::set_permissions(&config, std::fs::Permissions::from_mode(0o600)).unwrap();
+            m.set_config(Ok(load_config(&config).unwrap()), 0);
+            let srv = Server::new(listener, path, config);
             (srv, m)
         }
     }
@@ -1051,7 +1037,7 @@ mod tests {
     fn stopp_fjerner_bare_socketen_vi_bandt() {
         let fx = Fixture::new("inode");
         let path = fx.socket();
-        let first = bind(&path, None).unwrap();
+        let first = UnixListener::bind(&path).unwrap();
         let ours = socket_identity(&path);
         assert!(ours.is_some());
         // En annen prosess erstatter stien med sin egen socket.

@@ -1,0 +1,37 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Agentic HW Monitor\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Rigg-Status: complete\n"
+
+#: crates/rigg/src/widgets/color_picker.rs:119
+msgid "Metning og lyshet"
+msgstr "Sättigung und Helligkeit"
+
+#: crates/rigg/src/widgets/color_picker.rs:120
+msgid "Fargetone"
+msgstr "Farbton"
+
+#: crates/rigg/src/widgets/color_picker.rs:245
+msgid "Fargekode"
+msgstr "Farbcode"
+
+#: crates/rigg/src/widgets/color_picker.rs:251
+msgid "Rød kanal"
+msgstr "Rotkanal"
+
+#: crates/rigg/src/widgets/color_picker.rs:252
+msgid "Grønn kanal"
+msgstr "Grünkanal"
+
+#: crates/rigg/src/widgets/color_picker.rs:253
+msgid "Blå kanal"
+msgstr "Blaukanal"
+
+#: crates/rigg/src/widgets/color_picker.rs:271
+msgid "Forhåndsvises på kortet. Trykk «Bruk» for å sende."
+msgstr "Die Vorschau erscheint am Kartenmodell. Zum Senden auf „Anwenden“ klicken."

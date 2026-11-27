@@ -5,7 +5,6 @@
 
 .lys .rgb-preview > .group-body { padding: var(--sp-1) var(--sp-1) 0; }
 .lys .rgb-stage {
-  min-height: 260px;
   border-radius: var(--r);
   background-color: var(--stage);
 }
@@ -36,6 +35,7 @@
 /* Linja under scenen. */
 .lys .rgb-bar { padding: var(--sp-2) var(--pad); }
 .lys .rgb-bar > flowboxchild { padding: 0; min-height: var(--h-md); }
+.lys.mode-2d .rgb-bar { padding: var(--sp-1) var(--pad); }
 .lys .rgb-bar .pair { border-spacing: var(--sp-2); }
 
 /* Dellisten i 3D (sammenleggbar under scenen). */
@@ -72,7 +72,15 @@ window.rigg .lys button.swatch:focus:focus-visible { outline-offset: 1px; }
 .rgb-card-control label.warn { color: var(--warn); }
 
 /* 1.7: handlingsboks når lyset må avklares, og en «Bruk» som ser sperret ut. */
-.rgb-action-box { background: var(--warn-soft); border: 1px solid color-mix(in srgb, var(--warn) 40%, transparent); border-radius: var(--r); padding: 10px 12px; }
+.rgb-action-box { border-radius: var(--r); padding: 10px 12px; }
+.rgb-action-box.neutral { background: var(--card); border: 1px solid var(--border); }
+.rgb-action-box.warn { background: var(--warn-soft); border: 1px solid color-mix(in srgb, var(--warn) 40%, transparent); }
 .rgb-card-control button.suggested:disabled { background-color: var(--card-alt); color: var(--muted); opacity: 1; }
-window.rigg button.rgb-color-pick { min-width: 28px; min-height: 28px; padding: 2px; border-radius: 50%; }
+window.rigg button.rgb-color-pick { min-height: var(--h-sm); padding: 0 6px; background: var(--field); border: 1px solid var(--field-border); border-radius: var(--r-sm); }
 .rgb-card-varig { margin-top: 2px; }
+
+.rgb-picker-pop > contents { min-width: 244px; }
+.rgb-picker { padding: var(--sp-2); }
+.rgb-spectrum, .rgb-picker-preview { border: 1px solid var(--field-border); border-radius: 4px; }
+.rgb-spectrum:focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: 1px; }
+.rgb-picker spinbutton.ctl-spin { min-width: 0; }

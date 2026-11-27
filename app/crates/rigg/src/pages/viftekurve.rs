@@ -1548,13 +1548,6 @@ impl Page for Wrap {
 pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     let root = vbox(8, &["page", "styring", "viftekurve"]);
     root.append(&crate::widgets::styrer::TargetLine::new(app).root);
-    let view_seg = Seg::new(&[("simple", tr!("Enkel")), ("advanced", tr!("Avansert"))], if locked::fan_advanced(app) { "advanced" } else { "simple" }, tr!("Visning av viftestyring"));
-    view_seg.root.add_css_class("fan-view-switch");
-    view_seg.root.set_hexpand(true);
-    for id in ["simple", "advanced"] {
-        if let Some(b) = view_seg.button(id) { b.set_hexpand(true); }
-    }
-    root.append(&view_seg.root);
     let strip = LockStrip::new(app, tr!("Viser hvordan driveren faktisk har styrt viftene. Det du endrer, blir et utkast som lagres i appen og ikke sendes til kortet."));
     root.append(&strip.root);
     let confirm = ConfirmBar::new(app);
@@ -1786,6 +1779,8 @@ pub fn build(app: &Rc<App>) -> Box<dyn Page> {
     // ---- Sidekolonnen ----
     let side = vbox(8, &[]);
     let mode_p = Panel::new(tr!("Viftestyring"));
+    let view_seg = Seg::new(&[("simple", tr!("Enkel")), ("advanced", tr!("Avansert"))], if locked::fan_advanced(app) { "advanced" } else { "simple" }, tr!("Visning av viftestyring")).small();
+    mode_p.aside.append(&view_seg.root);
     mode_p.root.add_css_class("fan-mode-card");
     let modes = Cols::new(&[1.0, 1.0, 1.0], 8, 620);
     modes.add_css_class("mode-list");
@@ -2594,7 +2589,15 @@ impl Viftekurve {
         let curve_notice = simple_curve_message(base.fan_mode, shown.fan_mode, editing);
         self.simple_curve.set_visible(!advanced && curve_notice.is_some());
         set_text(&self.simple_curve_text, curve_notice.unwrap_or(""));
-        set_text(&self.apply_note, &fan_control_unavailable(actual_count, shown.fan_mode).unwrap_or_else(|| trf!("Bruk prøver endringen i {tid}. Trykk Behold i linjen øverst for å fortsette. Uten Behold går viftene tilbake til forrige innstilling.", tid = format!("{}{}s", self.app.settings().confirm_sec, F::NNBSP))));
+        let apply_note = if self.confirm.active() {
+            tr!("Prøven pågår. Velg «Behold» eller «Rull tilbake» øverst.").to_string()
+        } else {
+            fan_control_unavailable(actual_count, shown.fan_mode).unwrap_or_else(|| trf!(
+                "Bruk prøver endringen i {tid}. Trykk Behold i linjen øverst for å fortsette. Uten Behold går viftene tilbake til forrige innstilling.",
+                tid = format!("{}{}s", self.app.settings().confirm_sec, F::NNBSP)
+            ))
+        };
+        set_text(&self.apply_note, &apply_note);
         self.strip.sync(&self.app, r.lost, editing);
         locked::sync_topbar(&self.app, "viftekurve");
         class(&self.root, "drafting", editing);
@@ -2787,13 +2790,14 @@ impl Viftekurve {
         // for inaktive kurvefelt gjennom n/draft_diff nedenfor.
         let stored_changes = base.diff(&d).len();
         set_text(&self.dirty, &match stored_changes {
+            _ if n == 0 && self.confirm.active() => tr!("Prøve pågår").to_string(),
             0 => tr!("Ingen endringer").to_string(),
             n => trn!(n, "{n} endring i utkastet", "{n} endringer i utkastet", n = F::num(Some(n as f64), 0)),
         });
         for w in [self.discard.clone().upcast::<gtk::Widget>(), self.apply.clone().upcast()] {
             w.set_visible(true);
         }
-        self.dirty.set_visible(true);
+        self.dirty.set_visible(!self.narrow.get());
         match locked::gate(&self.app) {
             Gate::Sim | Gate::Real => {
                 let ok = n > 0 && !self.confirm.active()

@@ -8,70 +8,54 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n == 1 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : 2);\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg/src/system_install.rs:230
+#: crates/rigg/src/system_install.rs:142
 msgid "Kjør kommandoen i en administratorterminal. Oppgi arkivstien og SHA-256 fra utgivelsessiden."
 msgstr "Uruchom polecenie w terminalu administratora. Podaj ścieżkę do archiwum i sumę SHA-256 ze strony wydania."
 
-#: crates/rigg/src/system_install.rs:237
+#: crates/rigg/src/system_install.rs:149
 msgid "Kopier installasjonskommando"
 msgstr "Kopiuj polecenie instalacji"
 
-#: crates/rigg/src/system_install.rs:243
+#: crates/rigg/src/system_install.rs:155
 msgid "Uten nett: bruk terminal"
 msgstr "Bez internetu: użyj terminala"
 
-#: crates/rigg/src/system_install.rs:285
+#: crates/rigg/src/system_install.rs:177
 msgid "Summene fra utgivelsesarkivet appen ble installert fra, er ugyldige eller hører til en annen versjon. Installer appen på nytt fra utgivelsesarkivet, eller bruk terminalkommandoen."
 msgstr "Sumy kontrolne z archiwum wydania, z którego zainstalowano aplikację, są nieprawidłowe lub należą do innej wersji. Zainstaluj aplikację ponownie z archiwum wydania albo użyj polecenia w terminalu."
 
-#: crates/rigg/src/system_install.rs:350
-msgid "GPU-styringen er oppdatert uten å røre kortlyset. En tidligere RGB-økt for kortet {kort} er fortsatt ikke avsluttet. Velg det kortet og åpne RGB-lys for å avklare den."
-msgstr "Sterowanie GPU zostało zaktualizowane bez zmiany podświetlenia karty. Poprzednia sesja RGB dla karty {kort} nadal nie została zakończona. Wybierz tę kartę i otwórz Podświetlenie RGB, aby ją wyjaśnić."
-
-#: crates/rigg/src/system_install.rs:351
-msgid "GPU-styringen er oppdatert uten å røre kortlyset. En tidligere RGB-økt er fortsatt ikke avsluttet. Åpne RGB-lys for å avklare den."
-msgstr "Sterowanie GPU zostało zaktualizowane bez zmiany podświetlenia karty. Poprzednia sesja RGB nadal nie została zakończona. Otwórz Podświetlenie RGB, aby ją wyjaśnić."
-
-#: crates/rigg/src/system_install.rs:353
-msgid "RGB-økten må avklares separat"
-msgstr "Sesję RGB trzeba wyjaśnić osobno"
-
-#: crates/rigg/src/system_install.rs:371
+#: crates/rigg/src/system_install.rs:220
 msgid "Passordet ble ikke gitt. Ingenting er endret."
 msgstr "Nie podano hasła. Nic się nie zmieniło."
 
-#: crates/rigg/src/system_install.rs:372
+#: crates/rigg/src/system_install.rs:221
 msgid "Fant ikke pkexec, eller ingen kan spørre om passordet (polkit)."
 msgstr "Nie znaleziono pkexec lub polkit nie może poprosić o hasło."
 
-#: crates/rigg/src/system_install.rs:374
+#: crates/rigg/src/system_install.rs:223
 msgid "Fikk ikke kontakt med GitHub. Sjekk nettet, eller bruk terminalkommandoen."
 msgstr "Nie można połączyć się z GitHubem. Sprawdź połączenie lub użyj polecenia w terminalu."
 
-#: crates/rigg/src/system_install.rs:375
+#: crates/rigg/src/system_install.rs:224
 msgid "Fant ikke utgivelsen for denne versjonen på GitHub."
 msgstr "Nie znaleziono wydania tej wersji na GitHubie."
 
-#: crates/rigg/src/system_install.rs:377
+#: crates/rigg/src/system_install.rs:226
 msgid "Nedlastingen stemmer ikke med summen GitHub oppgir. Ingen systemfiler er endret."
 msgstr "Pobrany plik nie zgadza się z sumą podaną przez GitHuba. Nie zmieniono żadnych plików systemowych."
 
-#: crates/rigg/src/system_install.rs:378
+#: crates/rigg/src/system_install.rs:227
 msgid "Installasjonen feilet. Ingen nye tilganger er gitt."
 msgstr "Instalacja nie powiodła się. Nie przyznano żadnego nowego dostępu."
 
-#: crates/rigg/src/system_install.rs:379
+#: crates/rigg/src/system_install.rs:228
 msgid "Installasjonen feilet: {feil}"
 msgstr "Instalacja nie powiodła się: {feil}"
 
-#: crates/rigg/src/system_install.rs:393
+#: crates/rigg/src/system_install.rs:240
 msgid "Vent til den andre administratorhandlingen er ferdig"
 msgstr "Poczekaj na zakończenie innej czynności administratora"
 
-#: crates/rigg/src/system_install.rs:401 crates/rigg/src/system_install.rs:427 crates/rigg/src/system_install.rs:477
+#: crates/rigg/src/system_install.rs:248 crates/rigg/src/system_install.rs:272 crates/rigg/src/system_install.rs:292
 msgid "Installasjonen ble ikke fullført"
 msgstr "Instalacja nie została ukończona"
-
-#: crates/rigg/src/system_install.rs:493
-msgid "Åpne RGB-lys"
-msgstr "Otwórz Podświetlenie RGB"

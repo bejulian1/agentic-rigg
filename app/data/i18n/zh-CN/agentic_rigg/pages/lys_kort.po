@@ -8,686 +8,570 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Rigg-Status: complete\n"
 
-#: crates/rigg/src/pages/lys_kort.rs:140 crates/rigg/src/pages/lys_kort.rs:617
+#: crates/rigg/src/pages/lys_kort.rs:114 crates/rigg/src/pages/lys_kort.rs:592
 msgid "Pusting"
 msgstr "呼吸"
 
-#: crates/rigg/src/pages/lys_kort.rs:141 crates/rigg/src/pages/lys_kort.rs:618
+#: crates/rigg/src/pages/lys_kort.rs:115 crates/rigg/src/pages/lys_kort.rs:593
 msgid "Regnbue"
 msgstr "彩虹"
 
-#: crates/rigg/src/pages/lys_kort.rs:142 crates/rigg/src/pages/lys_kort.rs:619
+#: crates/rigg/src/pages/lys_kort.rs:116 crates/rigg/src/pages/lys_kort.rs:594
 msgid "Fargesyklus"
 msgstr "颜色循环"
 
-#: crates/rigg/src/pages/lys_kort.rs:160
+#: crates/rigg/src/pages/lys_kort.rs:134
 msgid "Lysstyringen er opptatt eller tilhører et annet vindu."
 msgstr "灯光控制正忙或由其他窗口持有。"
 
-#: crates/rigg/src/pages/lys_kort.rs:161
+#: crates/rigg/src/pages/lys_kort.rs:135
 msgid "Lysprøven finnes ikke lenger eller fristen er ute."
 msgstr "灯光试用已结束或超时。"
 
-#: crates/rigg/src/pages/lys_kort.rs:162
+#: crates/rigg/src/pages/lys_kort.rs:136
 msgid "Nye lysendringer er sperret. Kontroller status og avklar eventuell gjenoppretting."
 msgstr "已阻止新的灯光更改。请检查状态并处理未完成的恢复。"
 
-#: crates/rigg/src/pages/lys_kort.rs:163
+#: crates/rigg/src/pages/lys_kort.rs:137
 msgid "RGB-tillatelsen for dette kortet kunne ikke bekreftes."
 msgstr "无法验证此显卡的 RGB 权限。"
 
-#: crates/rigg/src/pages/lys_kort.rs:164
+#: crates/rigg/src/pages/lys_kort.rs:138
 msgid "Det valgte kortet er ikke tilgjengelig."
 msgstr "所选显卡不可用。"
 
-#: crates/rigg/src/pages/lys_kort.rs:165 crates/rigg/src/pages/lys_kort.rs:1664
+#: crates/rigg/src/pages/lys_kort.rs:139 crates/rigg/src/pages/lys_kort.rs:1639
 msgid "RGB-hjelperen støtter ikke dette lysvalget."
 msgstr "RGB 辅助程序不支持此灯光设置。"
 
-#: crates/rigg/src/pages/lys_kort.rs:166
+#: crates/rigg/src/pages/lys_kort.rs:140
 msgid "RGB-hjelperen avviste forespørselen. Les status før du prøver igjen."
 msgstr "RGB 辅助程序拒绝了请求。请检查状态后重试。"
 
-#: crates/rigg/src/pages/lys_kort.rs:169
+#: crates/rigg/src/pages/lys_kort.rs:143
 msgid "RGB-forespørselen mislyktes. Sjekk status og se på kortet før du prøver igjen."
 msgstr "RGB 请求失败。请检查状态并查看显卡后重试。"
 
-#: crates/rigg/src/pages/lys_kort.rs:190
+#: crates/rigg/src/pages/lys_kort.rs:164
 msgid "Avlesning av kortlyset mislyktes. Nye lysendringer er sperret."
 msgstr "无法读取显卡灯光。已阻止新的更改。"
 
-#: crates/rigg/src/pages/lys_kort.rs:193
+#: crates/rigg/src/pages/lys_kort.rs:167
 msgid "Gjenopprettingen er bekreftet av deg. Effektmodusen er fortsatt ikke maskinelt avlest."
 msgstr "已确认恢复。仍未从硬件读取效果模式。"
 
-#: crates/rigg/src/pages/lys_kort.rs:197
+#: crates/rigg/src/pages/lys_kort.rs:171
 msgid "Farge og lysstyrke samsvarer etter tilbakeføring. Se på kortet før du bekrefter gjenopprettingen."
 msgstr "回退后颜色和亮度匹配。请先查看显卡，再确认恢复。"
 
-#: crates/rigg/src/pages/lys_kort.rs:198
+#: crates/rigg/src/pages/lys_kort.rs:172
 msgid "Tilbakeføringen samsvarer ikke med avlesningen. Nye fargeendringer er sperret."
 msgstr "回读值与预期的回退结果不符。已阻止新的颜色更改。"
 
-#: crates/rigg/src/pages/lys_kort.rs:199 crates/rigg/src/pages/lys_kort.rs:200
+#: crates/rigg/src/pages/lys_kort.rs:173 crates/rigg/src/pages/lys_kort.rs:174
 msgid "Gjenopprettingen er uavklart. Nye fargeendringer er sperret."
 msgstr "恢复尚未处理完成。已阻止新的颜色更改。"
 
-#: crates/rigg/src/pages/lys_kort.rs:354
-msgid "Svart med 0 %, holdt mens appen er åpen (standard, kandidat 5)"
-msgstr "黑色、亮度 0 %，应用打开期间保持（默认，候选 5）"
-
-#: crates/rigg/src/pages/lys_kort.rs:355
-msgid "Svart med 100 % (kandidat 1)"
-msgstr "黑色、亮度 100 %（候选 1）"
-
-#: crates/rigg/src/pages/lys_kort.rs:356
-msgid "Svart med 0 % (kandidat 2)"
-msgstr "黑色、亮度 0 %（候选 2）"
-
-#: crates/rigg/src/pages/lys_kort.rs:357
-msgid "Valgt farge med 0 % (kandidat 3)"
-msgstr "所选颜色、亮度 0 %（候选 3）"
-
-#: crates/rigg/src/pages/lys_kort.rs:358
-msgid "Nesten svart (#010101) med 1 % (kandidat 4)"
-msgstr "近乎黑色（#010101）、亮度 1 %（候选 4）"
-
-#: crates/rigg/src/pages/lys_kort.rs:392 crates/rigg/src/pages/lys_kort.rs:395
-msgid "Av"
-msgstr "关闭"
-
-#: crates/rigg/src/pages/lys_kort.rs:397
-msgid "fast farge {farge} · {styrke}"
-msgstr "固定颜色 {farge} · {styrke}"
-
-#: crates/rigg/src/pages/lys_kort.rs:398
-msgid "Ingen kjent innstilling"
-msgstr "无已知设置"
-
-#: crates/rigg/src/pages/lys_kort.rs:415 crates/rigg/src/pages/lys_kort.rs:1563
-msgid "{farge} · rå lysstyrke {styrke}, utenfor støttet område"
-msgstr "{farge} · 原始亮度 {styrke}，超出支持范围"
-
-#: crates/rigg/src/pages/lys_kort.rs:416
-msgid "et lys som ikke kunne leses"
-msgstr "无法读取的灯光"
-
-#: crates/rigg/src/pages/lys_kort.rs:571
-msgid "Lys på kortet"
-msgstr "显卡灯光"
-
-#: crates/rigg/src/pages/lys_kort.rs:576 crates/rigg/src/pages/lys_kort.rs:1449
-msgid "Ikke aktivert"
-msgstr "未启用"
-
-#: crates/rigg/src/pages/lys_kort.rs:611
-msgid "Kortlys på eller av"
-msgstr "显卡灯光开或关"
-
-#: crates/rigg/src/pages/lys_kort.rs:612
-msgid "Kortlys"
-msgstr "显卡灯光"
-
-#: crates/rigg/src/pages/lys_kort.rs:616
-msgid "Fast farge"
-msgstr "固定颜色"
-
-#: crates/rigg/src/pages/lys_kort.rs:622
-msgid "Fysisk lysmodus"
-msgstr "实体灯光模式"
-
-#: crates/rigg/src/pages/lys_kort.rs:626
-msgid "Modus"
-msgstr "模式"
-
-#: crates/rigg/src/pages/lys_kort.rs:648
-msgid "Farge på kortet, seks heksadesimale siffer"
-msgstr "显卡灯光颜色，六位十六进制数"
-
-#: crates/rigg/src/pages/lys_kort.rs:655 crates/rigg/src/pages/lys_kort.rs:656
-msgid "Velg farge …"
-msgstr "选择颜色…"
-
-#: crates/rigg/src/pages/lys_kort.rs:662
-msgid "Hurtigfarger"
-msgstr "快捷颜色"
-
-#: crates/rigg/src/pages/lys_kort.rs:694
-msgid "Farge"
-msgstr "颜色"
-
-#: crates/rigg/src/pages/lys_kort.rs:704 crates/rigg/src/pages/lys_kort.rs:714
-msgid "Kortlysets lysstyrke i prosent"
-msgstr "显卡灯光亮度百分比"
-
-#: crates/rigg/src/pages/lys_kort.rs:720
-msgid "Lysstyrke"
-msgstr "亮度"
-
-#: crates/rigg/src/pages/lys_kort.rs:723
-msgid "Behold også etter at appen lukkes"
-msgstr "关闭应用后也保留"
-
-#: crates/rigg/src/pages/lys_kort.rs:751
-msgid "Bruk"
-msgstr "应用"
-
-#: crates/rigg/src/pages/lys_kort.rs:754
-msgid "Gjenopprett utgangspunkt"
-msgstr "恢复原始设置"
-
-#: crates/rigg/src/pages/lys_kort.rs:757 crates/rigg/src/pages/lys_kort.rs:1741
-msgid "Avslutt lysstyring"
-msgstr "释放灯光控制"
-
-#: crates/rigg/src/pages/lys_kort.rs:758
-msgid "Bekreft lyset …"
-msgstr "确认灯光…"
-
-#: crates/rigg/src/pages/lys_kort.rs:774
-msgid "Behold"
-msgstr "保留"
-
-#: crates/rigg/src/pages/lys_kort.rs:775
-msgid "Rull tilbake"
-msgstr "回退"
-
-#: crates/rigg/src/pages/lys_kort.rs:785
-msgid "Avlesning: ukjent. Kortet er ikke undersøkt av denne visningen."
-msgstr "回读未知。此视图尚未检查显卡。"
-
-#: crates/rigg/src/pages/lys_kort.rs:789
-msgid "Farge og lysstyrke kan leses tilbake. Effektmodusen kan ikke leses; en visuell bekreftelse er din observasjon."
-msgstr "颜色和亮度可以回读，但效果模式无法回读；目视确认以实际看到的灯光为准。"
-
-#: crates/rigg/src/pages/lys_kort.rs:790
-msgid "Agentic HW Monitor støtter Palit GeForce RTX 2080 Super JetStream via den separate RGB-hjelperen."
-msgstr "Agentic HW Monitor 通过独立的 RGB 辅助程序支持 Palit GeForce RTX 2080 Super JetStream。"
-
-#: crates/rigg/src/pages/lys_kort.rs:803 crates/rigg/src/pages/lys_kort.rs:805
-msgid "Skrivemåte for «Av»"
-msgstr "“关闭”的写入方式"
-
-#: crates/rigg/src/pages/lys_kort.rs:808
-msgid "Kandidat 1–4 skrives én gang. «Hold» skriver svart med 0 % på nytt hvert 2. sekund mens appen er åpen. Prøveskriptet rgb-av-prove.py viser hvilken kandidat kortet ditt holder."
-msgstr "候选 1–4 只写入一次。“保持”在应用打开期间每 2 秒重新写入黑色、亮度 0 %。测试脚本 rgb-av-prove.py 会显示你的显卡能保持哪个候选。"
-
-#: crates/rigg/src/pages/lys_kort.rs:810
-msgid "Sjekk igjen"
-msgstr "重新检查"
-
-#: crates/rigg/src/pages/lys_kort.rs:811
-msgid "Aktiver kortlys …"
-msgstr "启用显卡灯光…"
-
-#: crates/rigg/src/pages/lys_kort.rs:812
-msgid "Gjenopprett lagret lys …"
-msgstr "恢复已保存的灯光…"
-
-#: crates/rigg/src/pages/lys_kort.rs:813
-msgid "Avklar tidligere økt …"
-msgstr "处理先前会话…"
-
-#: crates/rigg/src/pages/lys_kort.rs:814
-msgid "Slå av RGB-tilgang …"
-msgstr "停用 RGB 访问…"
-
-#: crates/rigg/src/pages/lys_kort.rs:815
-msgid "Tilbake til fabrikklyset"
-msgstr "恢复出厂灯光"
-
-#: crates/rigg/src/pages/lys_kort.rs:820
-msgid "Detaljer og feilsøking"
-msgstr "详细信息与故障排除"
-
-#: crates/rigg/src/pages/lys_kort.rs:943
-msgid "Velg farge"
-msgstr "选择颜色"
-
-#: crates/rigg/src/pages/lys_kort.rs:1044
-msgid "Jeg ser at lyset på kortet er slukket."
-msgstr "我看到显卡灯光已熄灭。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1045
-msgid "Jeg ser at lyset viser den forventede faste fargen."
-msgstr "我看到显卡显示预期的固定颜色。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1047 crates/rigg/src/pages/lys_kort.rs:2415
-msgid "Bekreft lyset på kortet"
-msgstr "确认显卡灯光"
-
-#: crates/rigg/src/pages/lys_kort.rs:1047
-msgid "Forventet lys: {lys}.\n\nSe på det fysiske kortet. Samsvarende fargeverdier alene er ikke nok. Hjelperen leser verdiene på nytt før observasjonen din lagres."
-msgstr "预期灯光：{lys}。\n\n请查看实体显卡。仅颜色值一致并不足够。辅助程序会再次读取数值，然后记录目视确认结果。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1047 crates/rigg/src/pages/lys_kort.rs:2437
-msgid "Bekreft min observasjon"
-msgstr "确认我的观察"
-
-#: crates/rigg/src/pages/lys_kort.rs:1053
-msgid "Lystilstanden er endret"
-msgstr "灯光状态已更改"
-
-#: crates/rigg/src/pages/lys_kort.rs:1053
-msgid "Kontroller det nye forventede lyset og åpne bekreftelsen på nytt."
-msgstr "请检查新的预期灯光并重新打开确认窗口。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1291
-msgid "Kortet viser ikke det lagrede utgangspunktet. Se boksen på siden: «Gjenopprett utgangspunktet» setter det tilbake."
-msgstr "显卡没有显示已保存的基准。请查看页面上的提示框：“恢复基准”会将其恢复。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1298
-msgid "Kunne ikke lese kortlyset"
-msgstr "无法读取显卡灯光"
-
-#: crates/rigg/src/pages/lys_kort.rs:1299 crates/rigg/src/pages/lys_kort.rs:1344
-msgid "Valget ble ikke lagret som varig"
-msgstr "该选择未保存为持久设置"
-
-#: crates/rigg/src/pages/lys_kort.rs:1300 crates/rigg/src/pages/lys_kort.rs:1348
-msgid "«Av» holdes ikke"
-msgstr "“关闭”未被保持"
-
-#: crates/rigg/src/pages/lys_kort.rs:1301
-msgid "Lysendringen ble ikke fullført"
-msgstr "灯光更改未完成"
-
-#: crates/rigg/src/pages/lys_kort.rs:1345
-msgid "Lyset er beholdt, men ikke lagret som kortets utgangspunkt. Trykk «Bruk» og «Behold» igjen for å prøve på nytt."
-msgstr "灯光已保留，但未保存为显卡的基准。请再次按“应用”和“保留”重试。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1349
-msgid "«Av» er satt, men skrives ikke på nytt mens appen er åpen. Trykk «Bruk» igjen for å starte det."
-msgstr "“关闭”已设置，但应用打开期间不会重新写入。请再次按“应用”来启动。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1439
-msgid "Venter …"
-msgstr "等待中…"
-
-#: crates/rigg/src/pages/lys_kort.rs:1441
-msgid "Frakoblet"
-msgstr "已断开"
-
-#: crates/rigg/src/pages/lys_kort.rs:1443
-msgid "Kortet er utilgjengelig"
-msgstr "显卡不可用"
-
-#: crates/rigg/src/pages/lys_kort.rs:1445
-msgid "Ikke klar"
-msgstr "未就绪"
-
-#: crates/rigg/src/pages/lys_kort.rs:1447
-msgid "Må oppdateres"
-msgstr "需要更新"
-
-#: crates/rigg/src/pages/lys_kort.rs:1451
-msgid "Prøve pågår"
-msgstr "试用进行中"
-
-#: crates/rigg/src/pages/lys_kort.rs:1453
-msgid "Må avklares"
-msgstr "需要处理"
-
-#: crates/rigg/src/pages/lys_kort.rs:1455
-msgid "Avviker"
-msgstr "不一致"
-
-#: crates/rigg/src/pages/lys_kort.rs:1457
-msgid "Effekt aktiv"
-msgstr "效果已启用"
-
-#: crates/rigg/src/pages/lys_kort.rs:1459
-msgid "Lyset er av"
-msgstr "灯光已关闭"
-
-#: crates/rigg/src/pages/lys_kort.rs:1461
-msgid "Klar"
-msgstr "就绪"
-
-#: crates/rigg/src/pages/lys_kort.rs:1468
-msgid "Simulerte RGB-data · {status}"
-msgstr "模拟 RGB 数据 · {status}"
-
-#: crates/rigg/src/pages/lys_kort.rs:1479
-msgid "Venter på svar. Ingen ny endring kan sendes nå."
-msgstr "正在等待响应。现在无法发送新更改。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1481
-msgid "Forbindelsen til tjenesten er brutt. Hjelperen håndterer eventuell tilbakeføring."
-msgstr "服务连接已断开。如需回退，由辅助程序处理。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1486
-msgid "Kortet er ikke tilgjengelig. Nye lysendringer og aktivering er sperret."
-msgstr "显卡不可用。已阻止灯光更改和启用。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1488
-msgid "Et annet vindu styrer kortlyset. Her vises bare status."
-msgstr "其他窗口正在控制显卡灯光。此处仅显示状态。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1490
-msgid "Hele kortlyset er én sone. Ingenting sendes før du trykker «Bruk»."
-msgstr "显卡灯光是一个区域。按“应用”之前不会发送任何内容。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1492
-msgid "En tidligere RGB-økt er ikke avsluttet, og RGB-delen må oppdateres. Trykk «Bruk»: kortet settes tilbake til det lagrede lyset, du ser på kortet og bekrefter, og så oppdateres og aktiveres kortlyset med ett passord."
-msgstr "之前的 RGB 会话尚未结束，RGB 部分需要更新。按“应用”：显卡先恢复到已保存的灯光，你查看显卡并确认，然后只需一次密码即可更新并启用显卡灯光。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1494
-msgid "RGB-hjelperen er fra en eldre versjon og mangler «Av» som holder og varig valg. Trykk «Bruk» for å oppdatere og aktivere kortlyset med ett passord."
-msgstr "RGB 助手来自旧版本，不支持能保持的“关闭”和持久选择。按“应用”即可用一次密码更新并启用显卡灯光。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1496
-msgid "RGB-delen er eldre enn GPU-delen og må oppdateres. Trykk «Bruk» for å oppdatere og aktivere kortlyset med ett passord."
-msgstr "RGB 部分比 GPU 部分旧，需要更新。按“应用”只需一次密码即可更新并启用显卡灯光。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1498
-msgid "RGB-tillatelsen gjelder ikke kortet som er valgt. Ingen endringer kan sendes her."
-msgstr "RGB 权限不适用于所选显卡。无法在此发送更改。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1501 crates/rigg/src/pages/lys_kort.rs:2169
-msgid "RGB-hjelperen er ikke klar. Se «Detaljer og feilsøking» nedenfor."
-msgstr "RGB 辅助程序尚未就绪。请查看下方的“详细信息与故障排除”。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1503
-msgid "Velg lys og trykk «Bruk». RGB-hjelperen oppdateres først, og du skriver passordet én gang."
-msgstr "选择灯光并按“应用”。会先更新 RGB 辅助程序，你只需输入一次密码。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1505
-msgid "Velg lys og trykk «Bruk». Første gang aktiveres kortlyset med passordet ditt."
-msgstr "选择灯光并按“应用”。首次使用时会用你的密码启用显卡灯光。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1518
-msgid "Venter på kortets PCI-adresse og UUID."
-msgstr "正在等待显卡的 PCI 地址和 UUID。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1519
-msgid "Valgt kort: {pci}"
-msgstr "所选显卡：{pci}"
-
-#: crates/rigg/src/pages/lys_kort.rs:1524
-msgid "{effekt} er valgt. Nå vises bare startfargen; animasjonen starter først etter «Behold»."
-msgstr "已选择{effekt}。现在只显示起始颜色；选择“保留”后才开始动画。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1528
-msgid "{effekt} er aktiv på hele kortlyset. Velg en annen modus eller farge og trykk «Bruk» for å bytte, eller «Stopp effekten» for å gå tilbake til utgangspunktet."
-msgstr "{effekt}正在整块显卡灯光上运行。选择其他模式或颜色并按“应用”即可切换，或按“停止效果”恢复基准状态。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1534
-msgid "Pusting varierer lysstyrken i fargen du velger."
-msgstr "呼吸效果会改变所选颜色的亮度。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1536
-msgid "Regnbue går gjennom hele fargespekteret fra fargetonen du velger. Gråtoner starter på rødt."
-msgstr "彩虹效果从所选色相开始遍历整个色谱。灰色从红色开始。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1539
-msgid "Fargesyklus veksler mellom seks tydelige fargetoner fra fargetonen du velger. Gråtoner starter på rødt."
-msgstr "颜色循环从所选色相开始，在六种明显不同的色相间切换。灰色从红色开始。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1542
-msgid "{detalj} Først prøves startfargen; «Behold» starter animasjonen på én lyssone."
-msgstr "{detalj} 首先试用起始颜色。选择“保留”将在一个区域启动动画。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1551
-msgid "RGB-hjelperen meldte en driftsfeil. Kontroller lyset før du fortsetter."
-msgstr "RGB 辅助程序报告运行错误。请检查灯光后再继续。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1568
-msgid "Lagret utgangspunkt: {lys}. Dette er ikke en ny avlesning."
-msgstr "已保存的基准状态：{lys}。这不是新的读数。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1571
-msgid "Sist lest fra kortet: {lys}. Effektmodus: ukjent."
-msgstr "显卡最后一次读数：{lys}。效果模式：未知。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1573
-msgid "Avlesning: ukjent. Effektmodusen er ikke bekreftet."
-msgstr "回读未知。效果模式未经确认。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1579
-msgid "Sist bekreftede valg: {lys}. Valget er ikke bevis på avlest effektmodus."
-msgstr "上次确认的选项：{lys}。这不能证明效果模式已回读。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1591
-msgid "Kontroller startfargen på kortet. «Behold» starter animasjonen; «Rull tilbake» eller fristutløp går tilbake til utgangspunktet."
-msgstr "请查看显卡的起始颜色。“保留”会启动动画；“回退”或超时会恢复基准状态。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1593
-msgid "Se på det fysiske kortet før du beholder endringen. Uten bekreftelse forsøker hjelperen å rulle tilbake."
-msgstr "保留更改前请查看实体显卡。若未确认，辅助程序会尝试回退。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1606
-msgid "fristen styres av hjelperen"
-msgstr "期限由辅助程序管理"
-
-#: crates/rigg/src/pages/lys_kort.rs:1608
-msgid "fristen er ute; venter på status"
-msgstr "已超时；正在等待状态"
-
-#: crates/rigg/src/pages/lys_kort.rs:1610
-msgid "bekreft innen {tid}"
-msgstr "请在 {tid} 内确认"
-
-#: crates/rigg/src/pages/lys_kort.rs:1656
-msgid "Oppgi en gyldig fargekode på seks tegn, for eksempel #3A7BF0."
-msgstr "请输入有效的六位十六进制颜色代码，例如 #3A7BF0。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1660
-msgid "Bekreft eller rull tilbake prøven som pågår før du bruker en ny innstilling."
-msgstr "在应用新设置前，请先保留或回滚当前待确认的更改。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1711
-msgid "Se på kortet og bekreft lyset"
-msgstr "查看显卡并确认灯光"
-
-#: crates/rigg/src/pages/lys_kort.rs:1712
-msgid "Kortet er satt tilbake til {lys}. Hjelperen kan bare lese fargeverdiene, ikke hva kortet faktisk lyser. Bekreft når kortet viser dette, eller gjenopprett på nytt."
-msgstr "显卡已恢复为{lys}。辅助程序只能读取颜色值，无法得知显卡实际发出的灯光。显卡显示此灯光时请确认，或再次恢复。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1714
-msgid "Lyset må avklares"
-msgstr "需要确认处理灯光"
-
-#: crates/rigg/src/pages/lys_kort.rs:1716
-msgid "RGB-hjelperen meldte en driftsfeil. Gjenopprett utgangspunktet og kontroller lyset før du fortsetter."
-msgstr "RGB 辅助程序报告了运行错误。请先恢复基准状态并检查灯光，再继续操作。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1721
-msgid "Utgangspunktet er {lys}."
-msgstr "基准状态为{lys}。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1723
-msgid "Kortet viser ikke det lagrede utgangspunktet"
-msgstr "显卡没有显示已保存的基准"
-
-#: crates/rigg/src/pages/lys_kort.rs:1725
-msgid "Kortet viser nå {lest}, men det lagrede utgangspunktet er {lys}. Det er ingen endring fra appen: kortet kan ha gått tilbake til fabrikklyset av seg selv, for eksempel etter en kaldstart. «Gjenopprett utgangspunktet» skriver {lys} på nytt, og så bekrefter du det du ser på kortet. Det krever ikke passord."
-msgstr "显卡现在显示 {lest}，但已保存的基准是 {lys}。这不是应用做出的更改：显卡可能自行恢复了出厂灯光，例如在冷启动之后。“恢复基准”会重新写入 {lys}，然后由你确认显卡上看到的灯光。不需要密码。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1731
-msgid "Gjenopprett på nytt"
-msgstr "再次恢复"
-
-#: crates/rigg/src/pages/lys_kort.rs:1731
-msgid "Gjenopprett utgangspunktet"
-msgstr "恢复基准状态"
-
-#: crates/rigg/src/pages/lys_kort.rs:1737 crates/rigg/src/pages/lys_kort.rs:2369
-msgid "Stopp effekten"
-msgstr "停止效果"
-
-#: crates/rigg/src/pages/lys_kort.rs:1739 crates/rigg/src/pages/lys_kort.rs:2474
-msgid "Slutt å holde av"
-msgstr "停止保持关闭"
-
-#: crates/rigg/src/pages/lys_kort.rs:1743
-msgid "Kortet går tilbake til det lagrede utgangspunktet, og appen slipper lyset."
-msgstr "显卡恢复为已保存的基准状态，应用释放灯光控制。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1750
-msgid "det lagrede utgangspunktet"
-msgstr "已保存的基准状态"
-
-#: crates/rigg/src/pages/lys_kort.rs:1755
-msgid "Effekter kjører bare mens appen er åpen. Når appen lukkes, stopper effekten og kortet går tilbake til {lys}."
-msgstr "效果仅在应用打开时运行。关闭应用后，效果停止，显卡恢复为{lys}。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1759
-msgid "«Av» er kortets utgangspunkt og skrives ikke tilbake når appen lukkes. Mens appen er åpen, skrives det på nytt hvert 2. sekund, fordi kortet ellers kan gå tilbake til fabrikklyset av seg selv. Det kan også skje etter at appen er lukket."
-msgstr "“关闭”是显卡的基准，应用关闭时不会写回。应用打开期间每 2 秒重新写入一次，否则显卡可能自行恢复出厂灯光。应用关闭后也可能发生这种情况。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1761
-msgid "«Av» er kortets utgangspunkt, men skrives ikke på nytt nå. Trykk «Bruk» for å holde det mens appen er åpen."
-msgstr "“关闭”是显卡的基准，但现在没有重新写入。按“应用”可在应用打开期间保持它。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1764
-msgid "«Av» blir kortets utgangspunkt etter «Behold» og skrives ikke tilbake når appen lukkes. Mens appen er åpen, skrives det på nytt hvert 2. sekund, fordi kortet ellers kan gå tilbake til fabrikklyset av seg selv. Det kan også skje etter at appen er lukket."
-msgstr "按“保留”后，“关闭”会成为显卡的基准，应用关闭时不会写回。应用打开期间每 2 秒重新写入一次，否则显卡可能自行恢复出厂灯光。应用关闭后也可能发生这种情况。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1766
-msgid "«Av» skrives på nytt hvert 2. sekund mens appen er åpen, fordi kortet ellers kan gå tilbake til fabrikklyset av seg selv. Når appen lukkes, går kortet tilbake til {lys}."
-msgstr "应用打开期间，“关闭”每 2 秒重新写入一次，否则显卡可能自行恢复出厂灯光。应用关闭后，显卡会恢复为 {lys}。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1768
-msgid "Etter «Behold» blir valget kortets utgangspunkt og skrives ikke tilbake når appen lukkes. Om kortet selv beholder lyset etter omstart, er ikke verifisert."
-msgstr "按“保留”后，该选择成为显卡的基准状态，关闭应用时不会恢复。显卡重启后是否仍保持该灯光尚未验证。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1770
-msgid "Når appen lukkes, går kortet tilbake til {lys}."
-msgstr "关闭应用后，显卡恢复为{lys}。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1779
-msgid "Fabrikklyset: {lys}. Prøves som et vanlig valg; «Behold» gjør det til utgangspunktet igjen."
-msgstr "出厂灯光：{lys}。会像普通选择一样试用；按“保留”后它会重新成为基准状态。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1860 crates/rigg/src/pages/lys_kort.rs:2016
-msgid "RGB-oppsettet er ikke klart"
-msgstr "RGB 设置未就绪"
-
-#: crates/rigg/src/pages/lys_kort.rs:1872
-msgid "Slå av RGB-tilgang"
-msgstr "停用 RGB 访问"
-
-#: crates/rigg/src/pages/lys_kort.rs:1873
-msgid "Dette stopper RGB-arbeideren og fjerner kortets RGB-tillatelse når gjenopprettingen er avklart. Det lagrede utgangspunktet beholdes."
-msgstr "这将停止 RGB 工作进程，并在恢复处理完成后撤销显卡的 RGB 权限。保存的基准状态将保留。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1874
-msgid "Jeg vil slå av RGB-tilgangen for dette kortet."
-msgstr "我要停用此显卡的 RGB 访问。"
-
-#: crates/rigg/src/pages/lys_kort.rs:1878
+#: crates/rigg/src/pages/lys_kort.rs:180
+msgid "Gjenopprett lagret Av"
+msgstr "恢复已保存的熄灯设置"
+
+#: crates/rigg/src/pages/lys_kort.rs:180
 msgid "Gjenopprett lagret lys"
 msgstr "恢复已保存的灯光"
 
-#: crates/rigg/src/pages/lys_kort.rs:1879
-msgid "Administratorhjelperen stopper RGB-arbeideren hvis den kjører. Hvis det finnes en uavklart journal, forsøker den deretter å gjenopprette det lagrede utgangspunktet. Kontroller lyset og velg «Avklar tidligere økt» etterpå."
-msgstr "管理员辅助程序会停止正在运行的 RGB 工作进程。如果日志中有未解决的操作，辅助程序随后会尝试恢复已保存的基准状态。检查灯光，然后选择“处理先前会话”。"
+#: crates/rigg/src/pages/lys_kort.rs:319
+msgid "Svart med 0 %, holdt mens appen er åpen"
+msgstr "黑色、亮度 0 %，应用打开期间保持"
 
-#: crates/rigg/src/pages/lys_kort.rs:1880
-msgid "Jeg vil gjenopprette det lagrede utgangspunktet på dette kortet."
-msgstr "我要在此显卡上恢复已保存的基准状态。"
+#: crates/rigg/src/pages/lys_kort.rs:320
+msgid "Svart med 100 %"
+msgstr "黑色、亮度 100 %"
 
-#: crates/rigg/src/pages/lys_kort.rs:1883
-msgid "Aktiver lys på kortet"
-msgstr "启用显卡灯光"
+#: crates/rigg/src/pages/lys_kort.rs:321
+msgid "Svart med 0 %"
+msgstr "黑色、亮度 0 %"
 
-#: crates/rigg/src/pages/lys_kort.rs:1884
-msgid "Se på det fysiske kortet før du fortsetter. Lyset må allerede vise én fast farge. Pust, fargeskift og et ukjent utgangspunkt kan ikke lagres som et sikkert utgangspunkt. Administratorgodkjenningen gjelder bare kortlyset; den endrer ikke GPU-tillatelsen."
-msgstr "继续前请查看实体显卡。灯光必须已显示单一固定颜色。呼吸、变色或未知状态均无法保存为安全基准状态。管理员授权仅限灯光，不会更改 GPU 权限。"
+#: crates/rigg/src/pages/lys_kort.rs:322
+msgid "Valgt farge med 0 %"
+msgstr "所选颜色、亮度 0 %"
 
-#: crates/rigg/src/pages/lys_kort.rs:1885
-msgid "Jeg ser kortet og bekrefter at det viser én fast farge."
-msgstr "我看到了显卡，并确认它显示单一固定颜色。"
+#: crates/rigg/src/pages/lys_kort.rs:323
+msgid "Nesten svart (#010101) med 1 %"
+msgstr "近乎黑色（#010101）、亮度 1 %"
 
-#: crates/rigg/src/pages/lys_kort.rs:1894
-msgid "GPU-styringen røres ikke."
-msgstr "不会改动 GPU 控制。"
+#: crates/rigg/src/pages/lys_kort.rs:353 crates/rigg/src/pages/lys_kort.rs:356
+msgid "Av"
+msgstr "关闭"
 
-#: crates/rigg/src/pages/lys_kort.rs:1896
-msgid "GPU-hjelperen oppdateres også og startes på nytt: effekt, vifter og klokker går tilbake til utgangspunktet og må brukes på nytt."
-msgstr "GPU 辅助程序也会更新并重启：功耗、风扇和频率会恢复到初始值，需要重新应用。"
+#: crates/rigg/src/pages/lys_kort.rs:358
+msgid "fast farge {farge} · {styrke}"
+msgstr "固定颜色 {farge} · {styrke}"
 
-#: crates/rigg/src/pages/lys_kort.rs:1900
-msgid "Har en tidligere RGB-økt ikke blitt avsluttet, settes kortet først tilbake til det lagrede lyset i samme godkjenning. Deretter ber appen deg se på kortet og bekrefte det gjenopprettede lyset før økten avsluttes og oppdateringen fortsetter."
-msgstr "如果之前的 RGB 会话没有结束，显卡会在同一次授权中先恢复为已保存的灯光。随后应用会请你查看显卡并确认已恢复的灯光，然后才结束会话并继续更新。"
+#: crates/rigg/src/pages/lys_kort.rs:359
+msgid "Ingen kjent innstilling"
+msgstr "无已知设置"
 
-#: crates/rigg/src/pages/lys_kort.rs:1909
-msgid "Kort: {kort}\n\n{beskrivelse}"
-msgstr "显卡：{kort}\n\n{beskrivelse}"
+#: crates/rigg/src/pages/lys_kort.rs:376 crates/rigg/src/pages/lys_kort.rs:1546
+msgid "{farge} · rå lysstyrke {styrke}, utenfor støttet område"
+msgstr "{farge} · 原始亮度 {styrke}，超出支持范围"
 
-#: crates/rigg/src/pages/lys_kort.rs:1909
-msgid "Lagret binding"
-msgstr "已保存的显卡绑定"
+#: crates/rigg/src/pages/lys_kort.rs:377
+msgid "et lys som ikke kunne leses"
+msgstr "无法读取的灯光"
 
-#: crates/rigg/src/pages/lys_kort.rs:1911 crates/rigg/src/pages/lys_kort.rs:1925
-msgid "Fortsett til administratorgodkjenning"
-msgstr "继续进行管理员授权"
+#: crates/rigg/src/pages/lys_kort.rs:547
+msgid "Lys på kortet"
+msgstr "显卡灯光"
 
-#: crates/rigg/src/pages/lys_kort.rs:1944
-msgid "Avklar tidligere RGB-økt"
-msgstr "处理先前的 RGB 会话"
+#: crates/rigg/src/pages/lys_kort.rs:552 crates/rigg/src/pages/lys_kort.rs:1423
+msgid "Ikke aktivert"
+msgstr "未启用"
 
-#: crates/rigg/src/pages/lys_kort.rs:1945
-msgid "Lagret lys for {kort}: {lys}.\n\nSe på kortet. Fortsett bare hvis lyset viser dette utgangspunktet som én fast farge."
-msgstr "{kort} 的已保存灯光：{lys}。\n\n请查看显卡。仅当显卡以单一固定颜色显示此基准状态时才继续。"
+#: crates/rigg/src/pages/lys_kort.rs:586
+msgid "Kortlys på eller av"
+msgstr "显卡灯光开或关"
 
-#: crates/rigg/src/pages/lys_kort.rs:1946
-msgid "Jeg ser at kortlyset viser det lagrede, faste utgangspunktet."
-msgstr "我看到显卡显示已保存的固定基准状态。"
+#: crates/rigg/src/pages/lys_kort.rs:587
+msgid "Kortlys"
+msgstr "显卡灯光"
 
-#: crates/rigg/src/pages/lys_kort.rs:1976
-msgid "Bekreft og fortsett oppdateringen"
-msgstr "确认并继续更新"
+#: crates/rigg/src/pages/lys_kort.rs:591
+msgid "Fast farge"
+msgstr "固定颜色"
 
-#: crates/rigg/src/pages/lys_kort.rs:1989 crates/rigg/src/pages/lys_kort.rs:2113
-msgid "RGB-oppsettet er oppdatert. Kontroller status før du bruker en farge."
-msgstr "RGB 设置已更新。应用颜色前请检查状态。"
+#: crates/rigg/src/pages/lys_kort.rs:597
+msgid "Fysisk lysmodus"
+msgstr "实体灯光模式"
 
-#: crates/rigg/src/pages/lys_kort.rs:1991 crates/rigg/src/pages/lys_kort.rs:2121
-msgid "RGB-oppsett"
-msgstr "RGB 设置"
+#: crates/rigg/src/pages/lys_kort.rs:601
+msgid "Modus"
+msgstr "模式"
 
-#: crates/rigg/src/pages/lys_kort.rs:2070 crates/rigg/src/pages/lys_kort.rs:2117
-msgid "RGB-oppsettet kunne ikke fullføres."
-msgstr "无法完成 RGB 设置。"
+#: crates/rigg/src/pages/lys_kort.rs:618
+msgid "Farge på kortet, seks heksadesimale siffer"
+msgstr "显卡灯光颜色，六位十六进制数"
 
-#: crates/rigg/src/pages/lys_kort.rs:2109
-msgid "RGB-arbeideren er stoppet. Kontroller lyset og velg «Avklar tidligere økt» hvis en gjenoppretting gjenstår."
-msgstr "RGB 工作进程已停止。请检查灯光，如仍有未完成的恢复，请选择“处理先前会话”。"
+#: crates/rigg/src/pages/lys_kort.rs:631 crates/rigg/src/pages/lys_kort.rs:632
+msgid "Velg farge …"
+msgstr "选择颜色…"
 
-#: crates/rigg/src/pages/lys_kort.rs:2110
-msgid "Ingen uavklart RGB-journal for kortet. Du kan slå av RGB-tilgangen."
-msgstr "此显卡没有未处理的 RGB 日志。可以停用 RGB 访问。"
+#: crates/rigg/src/pages/lys_kort.rs:638
+msgid "Hurtigfarger"
+msgstr "快捷颜色"
 
-#: crates/rigg/src/pages/lys_kort.rs:2111
-msgid "Gjenopprettingen er avklart. Du kan slå av RGB-tilgangen eller aktivere lysstyring på nytt."
-msgstr "恢复已处理完成。可停用 RGB 访问或重新启用灯光控制。"
+#: crates/rigg/src/pages/lys_kort.rs:670
+msgid "Farge"
+msgstr "颜色"
 
-#: crates/rigg/src/pages/lys_kort.rs:2112
-msgid "RGB-tilgangen er slått av."
-msgstr "RGB 访问已停用。"
+#: crates/rigg/src/pages/lys_kort.rs:680 crates/rigg/src/pages/lys_kort.rs:690
+msgid "Kortlysets lysstyrke i prosent"
+msgstr "显卡灯光亮度百分比"
 
-#: crates/rigg/src/pages/lys_kort.rs:2114
-msgid "Administratorgodkjenningen ble avbrutt."
-msgstr "管理员授权已取消。"
+#: crates/rigg/src/pages/lys_kort.rs:696
+msgid "Lysstyrke"
+msgstr "亮度"
 
-#: crates/rigg/src/pages/lys_kort.rs:2115
-msgid "Avklaringsmålet er ugyldig eller gjelder et annet valgt kort."
-msgstr "恢复目标无效或属于其他显卡。"
+#: crates/rigg/src/pages/lys_kort.rs:699
+msgid "Behold også etter at appen lukkes"
+msgstr "关闭应用后也保留"
 
-#: crates/rigg/src/pages/lys_kort.rs:2121
-msgid "RGB-oppsett ble ikke fullført"
-msgstr "RGB 设置未完成"
+#: crates/rigg/src/pages/lys_kort.rs:727
+msgid "Bruk"
+msgstr "应用"
 
-#: crates/rigg/src/pages/lys_kort.rs:2147
-msgid "Administratorhandlinger for RGB krever appens vanlige maskinvareoppsett."
-msgstr "RGB 管理员操作要求应用使用正常的硬件设置。"
+#: crates/rigg/src/pages/lys_kort.rs:730
+msgid "Gjenopprett utgangspunkt"
+msgstr "恢复原始设置"
 
-#: crates/rigg/src/pages/lys_kort.rs:2171
-msgid "Systemkomponentene mangler. Se «Uten nett: bruk terminal» under «Detaljer og feilsøking»."
-msgstr "缺少系统组件。请查看“详细信息与故障排除”中的“离线：使用终端”。"
+#: crates/rigg/src/pages/lys_kort.rs:733 crates/rigg/src/pages/lys_kort.rs:1700
+msgid "Avslutt lysstyring"
+msgstr "释放灯光控制"
 
-#: crates/rigg/src/pages/lys_kort.rs:2215
+#: crates/rigg/src/pages/lys_kort.rs:734
+msgid "Bekreft lyset …"
+msgstr "确认灯光…"
+
+#: crates/rigg/src/pages/lys_kort.rs:750 crates/rigg/src/pages/lys_kort.rs:1602
+msgid "Behold"
+msgstr "保留"
+
+#: crates/rigg/src/pages/lys_kort.rs:751
+msgid "Rull tilbake"
+msgstr "回退"
+
+#: crates/rigg/src/pages/lys_kort.rs:761
+msgid "Avlesning: ukjent. Kortet er ikke undersøkt av denne visningen."
+msgstr "回读未知。此视图尚未检查显卡。"
+
+#: crates/rigg/src/pages/lys_kort.rs:765
+msgid "Farge og lysstyrke kan leses tilbake. Effektmodusen kan ikke leses; en visuell bekreftelse er din observasjon."
+msgstr "颜色和亮度可以回读，但效果模式无法回读；目视确认以实际看到的灯光为准。"
+
+#: crates/rigg/src/pages/lys_kort.rs:766
+msgid "Agentic HW Monitor støtter Palit GeForce RTX 2080 Super JetStream via den separate RGB-hjelperen."
+msgstr "Agentic HW Monitor 通过独立的 RGB 辅助程序支持 Palit GeForce RTX 2080 Super JetStream。"
+
+#: crates/rigg/src/pages/lys_kort.rs:775 crates/rigg/src/pages/lys_kort.rs:777
+msgid "Skrivemåte for «Av»"
+msgstr "“关闭”的写入方式"
+
+#: crates/rigg/src/pages/lys_kort.rs:781
+msgid "Sjekk igjen"
+msgstr "重新检查"
+
+#: crates/rigg/src/pages/lys_kort.rs:782
+msgid "Åpne Innstillinger › Skjermkortstyring"
+msgstr "打开设置 › 显卡控制"
+
+#: crates/rigg/src/pages/lys_kort.rs:783 crates/rigg/src/pages/lys_kort.rs:1652 crates/rigg/src/pages/lys_kort.rs:2263
+msgid "Jeg ser én fast farge"
+msgstr "我看到一种恒定的颜色"
+
+#: crates/rigg/src/pages/lys_kort.rs:786
+msgid "Tilbake til fabrikklyset"
+msgstr "恢复出厂灯光"
+
+#: crates/rigg/src/pages/lys_kort.rs:790
+msgid "Detaljer og feilsøking"
+msgstr "详细信息与故障排除"
+
+#: crates/rigg/src/pages/lys_kort.rs:999
+msgid "Jeg ser at lyset på kortet er slukket."
+msgstr "我看到显卡灯光已熄灭。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1000
+msgid "Jeg ser at lyset viser den forventede faste fargen."
+msgstr "我看到显卡显示预期的固定颜色。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1002 crates/rigg/src/pages/lys_kort.rs:2024
+msgid "Bekreft lyset på kortet"
+msgstr "确认显卡灯光"
+
+#: crates/rigg/src/pages/lys_kort.rs:1002
+msgid "Forventet lys: {lys}.\n\nSe på det fysiske kortet. Samsvarende fargeverdier alene er ikke nok. Hjelperen leser verdiene på nytt før observasjonen din lagres."
+msgstr "预期灯光：{lys}。\n\n请查看实体显卡。仅颜色值一致并不足够。辅助程序会再次读取数值，然后记录目视确认结果。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1002 crates/rigg/src/pages/lys_kort.rs:2046
+msgid "Bekreft min observasjon"
+msgstr "确认我的观察"
+
+#: crates/rigg/src/pages/lys_kort.rs:1008 crates/rigg/src/pages/lys_kort.rs:1013
+msgid "Lystilstanden er endret"
+msgstr "灯光状态已更改"
+
+#: crates/rigg/src/pages/lys_kort.rs:1008 crates/rigg/src/pages/lys_kort.rs:1013
+msgid "Kontroller det nye forventede lyset og åpne bekreftelsen på nytt."
+msgstr "请检查新的预期灯光并重新打开确认窗口。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1255 crates/rigg/src/pages/lys_kort.rs:1679
+msgid "Kortet viser ikke det lagrede utgangspunktet"
+msgstr "显卡没有显示已保存的基准"
+
+#: crates/rigg/src/pages/lys_kort.rs:1262
+msgid "Kunne ikke lese kortlyset"
+msgstr "无法读取显卡灯光"
+
+#: crates/rigg/src/pages/lys_kort.rs:1263 crates/rigg/src/pages/lys_kort.rs:1308
+msgid "Valget ble ikke lagret som varig"
+msgstr "该选择未保存为持久设置"
+
+#: crates/rigg/src/pages/lys_kort.rs:1264 crates/rigg/src/pages/lys_kort.rs:1312
+msgid "«Av» holdes ikke"
+msgstr "“关闭”未被保持"
+
+#: crates/rigg/src/pages/lys_kort.rs:1265 crates/rigg/src/pages/lys_kort.rs:1664
+msgid "Lysendringen ble ikke fullført"
+msgstr "灯光更改未完成"
+
+#: crates/rigg/src/pages/lys_kort.rs:1309
+msgid "Lyset er beholdt, men ikke lagret som kortets utgangspunkt. Trykk «Bruk» og «Behold» igjen for å prøve på nytt."
+msgstr "灯光已保留，但未保存为显卡的基准。请再次按“应用”和“保留”重试。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1313
+msgid "«Av» er satt, men skrives ikke på nytt mens appen er åpen. Trykk «Bruk» igjen for å starte det."
+msgstr "“关闭”已设置，但应用打开期间不会重新写入。请再次按“应用”来启动。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1402 crates/rigg/src/pages/lys_kort.rs:2265
+msgid "Bekreft kortets første lysopptak"
+msgstr "确认显卡的初始灯光"
+
+#: crates/rigg/src/pages/lys_kort.rs:1402 crates/rigg/src/pages/lys_kort.rs:1670 crates/rigg/src/pages/lys_kort.rs:2265
+msgid "Lyset må avklares"
+msgstr "需要确认处理灯光"
+
+#: crates/rigg/src/pages/lys_kort.rs:1404
+msgid "Se på kortet. Bekreft bare hvis det viser én fast farge."
+msgstr "请查看显卡。仅当灯光持续显示同一种颜色时才确认。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1406
+msgid "Behold lyset du ser, eller gjenopprett det lagrede lyset."
+msgstr "保留当前看到的灯光，或恢复已保存的灯光。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1409
+msgid "Venter …"
+msgstr "等待中…"
+
+#: crates/rigg/src/pages/lys_kort.rs:1411
+msgid "Frakoblet"
+msgstr "已断开"
+
+#: crates/rigg/src/pages/lys_kort.rs:1413
+msgid "Kortet er utilgjengelig"
+msgstr "显卡不可用"
+
+#: crates/rigg/src/pages/lys_kort.rs:1415
+msgid "Ikke klar"
+msgstr "未就绪"
+
+#: crates/rigg/src/pages/lys_kort.rs:1417
+msgid "Må oppdateres"
+msgstr "需要更新"
+
+#: crates/rigg/src/pages/lys_kort.rs:1419 crates/rigg/src/pages/lys_kort.rs:1477
+msgid "Ikke støttet"
+msgstr "不支持"
+
+#: crates/rigg/src/pages/lys_kort.rs:1421 crates/rigg/src/pages/lys_kort.rs:1479
+msgid "Venter på enhet"
+msgstr "正在等待设备"
+
+#: crates/rigg/src/pages/lys_kort.rs:1425
+msgid "Prøve pågår"
+msgstr "试用进行中"
+
+#: crates/rigg/src/pages/lys_kort.rs:1427 crates/rigg/src/pages/lys_kort.rs:2258
+msgid "Må avklares"
+msgstr "需要处理"
+
+#: crates/rigg/src/pages/lys_kort.rs:1429
+msgid "Avviker"
+msgstr "不一致"
+
+#: crates/rigg/src/pages/lys_kort.rs:1431
+msgid "Effekt aktiv"
+msgstr "效果已启用"
+
+#: crates/rigg/src/pages/lys_kort.rs:1433
+msgid "Lyset er av"
+msgstr "灯光已关闭"
+
+#: crates/rigg/src/pages/lys_kort.rs:1435
+msgid "Klar"
+msgstr "就绪"
+
+#: crates/rigg/src/pages/lys_kort.rs:1442
+msgid "Simulerte RGB-data · {status}"
+msgstr "模拟 RGB 数据 · {status}"
+
+#: crates/rigg/src/pages/lys_kort.rs:1464
+msgid "Venter på svar. Ingen ny endring kan sendes nå."
+msgstr "正在等待响应。现在无法发送新更改。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1466
+msgid "Forbindelsen til tjenesten er brutt. Hjelperen håndterer eventuell tilbakeføring."
+msgstr "服务连接已断开。如需回退，由辅助程序处理。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1471
+msgid "Kortet er ikke tilgjengelig. Nye lysendringer og aktivering er sperret."
+msgstr "显卡不可用。已阻止灯光更改和启用。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1473
+msgid "Et annet vindu styrer kortlyset. Her vises bare status."
+msgstr "其他窗口正在控制显卡灯光。此处仅显示状态。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1475
+msgid "Hele kortlyset er én sone. Ingenting sendes før du trykker «Bruk»."
+msgstr "显卡灯光是一个区域。按“应用”之前不会发送任何内容。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1481 crates/rigg/src/pages/lys_kort.rs:1487
+msgid "RGB-hjelperen er ikke klar."
+msgstr "RGB 辅助服务尚未就绪。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1483
+msgid "Skjermkortstyring er slått av."
+msgstr "显卡控制已关闭。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1485
+msgid "Tillatelsen gjelder et annet skjermkort."
+msgstr "此权限适用于另一张显卡。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1490
+msgid "Avklar lyset øverst før nye endringer kan sendes."
+msgstr "请先在上方确认灯光状态，然后再发送更改。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1501
+msgid "Venter på kortets PCI-adresse og UUID."
+msgstr "正在等待显卡的 PCI 地址和 UUID。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1502
+msgid "Valgt kort: {pci}"
+msgstr "所选显卡：{pci}"
+
+#: crates/rigg/src/pages/lys_kort.rs:1507
+msgid "{effekt} er valgt. Nå vises bare startfargen; animasjonen starter først etter «Behold»."
+msgstr "已选择{effekt}。现在只显示起始颜色；选择“保留”后才开始动画。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1511
+msgid "{effekt} er aktiv på hele kortlyset. Velg en annen modus eller farge og trykk «Bruk» for å bytte, eller «Stopp effekten» for å gå tilbake til utgangspunktet."
+msgstr "{effekt}正在整块显卡灯光上运行。选择其他模式或颜色并按“应用”即可切换，或按“停止效果”恢复基准状态。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1517
+msgid "Pusting varierer lysstyrken i fargen du velger."
+msgstr "呼吸效果会改变所选颜色的亮度。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1519
+msgid "Regnbue går gjennom hele fargespekteret fra fargetonen du velger. Gråtoner starter på rødt."
+msgstr "彩虹效果从所选色相开始遍历整个色谱。灰色从红色开始。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1522
+msgid "Fargesyklus veksler mellom seks tydelige fargetoner fra fargetonen du velger. Gråtoner starter på rødt."
+msgstr "颜色循环从所选色相开始，在六种明显不同的色相间切换。灰色从红色开始。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1525
+msgid "{detalj} Først prøves startfargen; «Behold» starter animasjonen på én lyssone."
+msgstr "{detalj} 首先试用起始颜色。选择“保留”将在一个区域启动动画。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1534
+msgid "RGB-hjelperen meldte en driftsfeil. Kontroller lyset før du fortsetter."
+msgstr "RGB 辅助程序报告运行错误。请检查灯光后再继续。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1551
+msgid "Lagret utgangspunkt: {lys}. Dette er ikke en ny avlesning."
+msgstr "已保存的基准状态：{lys}。这不是新的读数。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1554
+msgid "Sist lest fra kortet: {lys}. Effektmodus: ukjent."
+msgstr "显卡最后一次读数：{lys}。效果模式：未知。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1556
+msgid "Avlesning: ukjent. Effektmodusen er ikke bekreftet."
+msgstr "回读未知。效果模式未经确认。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1562
+msgid "Sist bekreftede valg: {lys}. Valget er ikke bevis på avlest effektmodus."
+msgstr "上次确认的选项：{lys}。这不能证明效果模式已回读。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1575
+msgid "Kontroller startfargen på kortet. «Behold» starter animasjonen; «Rull tilbake» eller fristutløp går tilbake til utgangspunktet."
+msgstr "请查看显卡的起始颜色。“保留”会启动动画；“回退”或超时会恢复基准状态。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1577
+msgid "Se på det fysiske kortet før du beholder endringen. Uten bekreftelse forsøker hjelperen å rulle tilbake."
+msgstr "保留更改前请查看实体显卡。若未确认，辅助程序会尝试回退。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1590
+msgid "fristen styres av hjelperen"
+msgstr "期限由辅助程序管理"
+
+#: crates/rigg/src/pages/lys_kort.rs:1592
+msgid "fristen er ute; venter på status"
+msgstr "已超时；正在等待状态"
+
+#: crates/rigg/src/pages/lys_kort.rs:1594
+msgid "bekreft innen {tid}"
+msgstr "请在 {tid} 内确认"
+
+#: crates/rigg/src/pages/lys_kort.rs:1603
+msgid "Behold ({sek})"
+msgstr "保留（{sek}）"
+
+#: crates/rigg/src/pages/lys_kort.rs:1631
+msgid "Oppgi en gyldig fargekode på seks tegn, for eksempel #3A7BF0."
+msgstr "请输入有效的六位十六进制颜色代码，例如 #3A7BF0。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1635
+msgid "Bekreft eller rull tilbake prøven som pågår før du bruker en ny innstilling."
+msgstr "在应用新设置前，请先保留或回滚当前待确认的更改。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1652 crates/rigg/src/pages/lys_kort.rs:2263
+msgid "Behold lyset jeg ser"
+msgstr "保留当前可见灯光"
+
+#: crates/rigg/src/pages/lys_kort.rs:1655
+msgid "Avlest lys: {lys}"
+msgstr "读取的灯光：{lys}"
+
+#: crates/rigg/src/pages/lys_kort.rs:1657
+msgid "Lagret lys: {lys}"
+msgstr "已保存的灯光：{lys}"
+
+#: crates/rigg/src/pages/lys_kort.rs:1660
+msgid "Fabrikklys: {lys}"
+msgstr "出厂灯光：{lys}"
+
+#: crates/rigg/src/pages/lys_kort.rs:1667
+msgid "Se på kortet og bekreft lyset"
+msgstr "查看显卡并确认灯光"
+
+#: crates/rigg/src/pages/lys_kort.rs:1668
+msgid "Kortet er satt tilbake til {lys}. Hjelperen kan bare lese fargeverdiene, ikke hva kortet faktisk lyser. Bekreft når kortet viser dette, eller gjenopprett på nytt."
+msgstr "显卡已恢复为{lys}。辅助程序只能读取颜色值，无法得知显卡实际发出的灯光。显卡显示此灯光时请确认，或再次恢复。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1672
+msgid "RGB-hjelperen meldte en driftsfeil. Gjenopprett utgangspunktet og kontroller lyset før du fortsetter."
+msgstr "RGB 辅助程序报告了运行错误。请先恢复基准状态并检查灯光，再继续操作。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1677
+msgid "Utgangspunktet er {lys}."
+msgstr "基准状态为{lys}。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1681
+msgid "Kortet viser {lest}. Velg «{knapp}» for å gjenopprette {lys}, og bekreft det du ser."
+msgstr "显卡当前显示{lest}。选择“{knapp}”以恢复{lys}，然后确认看到的灯光。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1690
+msgid "Gjenopprett på nytt"
+msgstr "再次恢复"
+
+#: crates/rigg/src/pages/lys_kort.rs:1696 crates/rigg/src/pages/lys_kort.rs:1980
+msgid "Stopp effekten"
+msgstr "停止效果"
+
+#: crates/rigg/src/pages/lys_kort.rs:1698 crates/rigg/src/pages/lys_kort.rs:2083
+msgid "Slutt å holde av"
+msgstr "停止保持关闭"
+
+#: crates/rigg/src/pages/lys_kort.rs:1702
+msgid "Kortet går tilbake til det lagrede utgangspunktet, og appen slipper lyset."
+msgstr "显卡恢复为已保存的基准状态，应用释放灯光控制。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1709
+msgid "det lagrede utgangspunktet"
+msgstr "已保存的基准状态"
+
+#: crates/rigg/src/pages/lys_kort.rs:1714
+msgid "Effekter kjører bare mens appen er åpen. Når appen lukkes, stopper effekten og kortet går tilbake til {lys}."
+msgstr "效果仅在应用打开时运行。关闭应用后，效果停止，显卡恢复为{lys}。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1718
+msgid "«Av» er kortets utgangspunkt og skrives ikke tilbake når appen lukkes. Mens appen er åpen, skrives det på nytt hvert 2. sekund, fordi kortet ellers kan gå tilbake til fabrikklyset av seg selv. Det kan også skje etter at appen er lukket."
+msgstr "“关闭”是显卡的基准，应用关闭时不会写回。应用打开期间每 2 秒重新写入一次，否则显卡可能自行恢复出厂灯光。应用关闭后也可能发生这种情况。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1720
+msgid "«Av» er kortets utgangspunkt, men skrives ikke på nytt nå. Trykk «Bruk» for å holde det mens appen er åpen."
+msgstr "“关闭”是显卡的基准，但现在没有重新写入。按“应用”可在应用打开期间保持它。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1723
+msgid "«Av» blir kortets utgangspunkt etter «Behold» og skrives ikke tilbake når appen lukkes. Mens appen er åpen, skrives det på nytt hvert 2. sekund, fordi kortet ellers kan gå tilbake til fabrikklyset av seg selv. Det kan også skje etter at appen er lukket."
+msgstr "按“保留”后，“关闭”会成为显卡的基准，应用关闭时不会写回。应用打开期间每 2 秒重新写入一次，否则显卡可能自行恢复出厂灯光。应用关闭后也可能发生这种情况。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1725
+msgid "«Av» skrives på nytt hvert 2. sekund mens appen er åpen, fordi kortet ellers kan gå tilbake til fabrikklyset av seg selv. Når appen lukkes, går kortet tilbake til {lys}."
+msgstr "应用打开期间，“关闭”每 2 秒重新写入一次，否则显卡可能自行恢复出厂灯光。应用关闭后，显卡会恢复为 {lys}。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1727
+msgid "Etter «Behold» blir valget kortets utgangspunkt og skrives ikke tilbake når appen lukkes. Om kortet selv beholder lyset etter omstart, er ikke verifisert."
+msgstr "按“保留”后，该选择成为显卡的基准状态，关闭应用时不会恢复。显卡重启后是否仍保持该灯光尚未验证。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1729
+msgid "Når appen lukkes, går kortet tilbake til {lys}."
+msgstr "关闭应用后，显卡恢复为{lys}。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1738
+msgid "Fabrikklyset: {lys}. Prøves som et vanlig valg; «Behold» gjør det til utgangspunktet igjen."
+msgstr "出厂灯光：{lys}。会像普通选择一样试用；按“保留”后它会重新成为基准状态。"
+
+#: crates/rigg/src/pages/lys_kort.rs:1821
 msgid "Avbryt"
 msgstr "取消"
