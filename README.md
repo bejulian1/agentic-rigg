@@ -38,7 +38,7 @@ It is meant for people who use Linux on a desktop PC and want what tools like MS
 | Network | Active connection, current and total traffic, routing and DNS, Wi-Fi signal, frequency and security, one expandable row per interface with addresses, hardware, counters and a graph, and listening ports |
 | System | Motherboard, BIOS, memory, operating system and controllers |
 | Clocks & Power, Fans | Opt-in NVML control of power limit, core and memory clock offsets, temperature target and fans: Basic and Advanced views, fan curves with hysteresis, drafts and profiles |
-| RGB lighting | Card-bound lighting control for the Palit GeForce RTX 2080 Super JetStream: a card lighting switch, static colour with a colour picker, breathing, rainbow and colour cycle, and brightness. Off holds while the app runs, and a static colour or off can be kept after the app closes. A 2D or 3D card previews the choice |
+| RGB lighting | Card-bound lighting control for the Palit GeForce RTX 2080 Super JetStream: a card lighting switch, static colour with a built-in spectrum colour picker (hex, RGB and keyboard support), breathing, rainbow and colour cycle, and brightness. Off holds while the app runs, and a static colour or off can be kept after the app closes. A 2D or 3D card previews the choice live |
 
 Readings come from `/proc`, sysfs/DMI, hwmon, UDisks2, NetworkManager and NVIDIA NVML. What is available depends on your hardware and drivers. Missing or unsupported values are shown as unknown, never estimated.
 
@@ -144,7 +144,7 @@ Changing clocks, power and fans can make a card unstable, so every write goes th
 
 - **GPU control (RTX 2080, NVML):** power limit 245 → 240 W, both fans to 50 %, core offset −15 MHz and memory offset −10 MHz, a flat 50 % fan curve, temperature target 83 → 82 °C, and Keep, reset and the timeout rollback through the daemon. Each write was verified by reading it back and restoring.
 - **RGB (Palit RTX 2080 Super JetStream):** a static blue at 100 % brightness was applied and automatically restored to the original green, confirmed visually by the user.
-- **Not verified:** extreme limits, positive overclocking, stress tests, driver crashes, power loss, automatic Zero RPM, other NVIDIA models and other RGB controllers. The safety fixes in 1.6.0 have been tested against simulated cards only.
+- **Not verified:** extreme limits, positive overclocking, stress tests, driver crashes, power loss, automatic Zero RPM, other NVIDIA models and other RGB controllers. The safety, boot-coordinator and lighting recovery changes in 1.6.0–1.7.1 have been tested against simulated cards and services only.
 
 ## Architecture
 
@@ -154,7 +154,7 @@ The Rust workspace is in [`app/`](app/):
 |---|---|---|
 | [`rigg`](app/crates/rigg) | `agentic-rigg` | GTK 4 user interface. Never loads NVML and never talks to the root helpers directly. |
 | [`riggd`](app/crates/riggd) | `agentic-riggd` | Unprivileged user daemon: NVML, `/proc`, `/sys`, hwmon, UDisks2, NetworkManager, processes, 48 h history, CSV logging, alerts, the tray icon and the per-user socket. |
-| [`rigg-helper`](app/crates/rigg-helper) | `agentic-rigg-helper` | Optional, card-bound root helper for NVML writes and, as a separate service, Palit RGB. Minimal dependencies. |
+| [`rigg-helper`](app/crates/rigg-helper) | `agentic-rigg-helper` | Optional, card-bound root helpers for NVML writes and, as a separate service, Palit RGB, started with fresh device rules by the boot coordinator (`agentic-rigg-card.service`). Minimal dependencies. |
 | [`rigg-core`](app/crates/rigg-core) | — | Data model, IPC protocol, history, settings, formatting, translations (`i18n`) and helper compatibility checks. |
 | [`rigg-hw`](app/crates/rigg-hw) | — | Hardware readers and writers, plus a simulated backend used only by isolated tests. |
 
@@ -162,7 +162,7 @@ Translations are gettext `.po` catalogs under [`app/data/i18n/`](app/data/i18n/)
 
 ## Privacy
 
-Everything runs locally. The app sends no telemetry or crash reports and does not connect to the network on its own. The only network access is when you enable GPU control or card lighting and the helpers need to be installed or updated: the administrator installer then downloads that release from GitHub. CSV logs and reports are written only where you choose. Hardware serial numbers and UUIDs are hidden in exported reports unless you opt in.
+Everything runs locally. The app sends no telemetry or crash reports and does not connect to the network on its own. The only network access is when you enable **Allow GPU tuning** (or update system components) and the helpers need to be installed or updated: the administrator installer then downloads that release from GitHub. CSV logs and reports are written only where you choose. Hardware serial numbers and UUIDs are hidden in exported reports unless you opt in.
 
 ## Status and roadmap
 
