@@ -174,7 +174,11 @@ fn recovery_text(state: &Value) -> String {
     }
 }
 
-fn is_blocked(state: &Value) -> bool {
+fn restore_label(status: &Value) -> &'static str {
+    if looks_off(&status["baselineRequest"]) { tr!("Gjenopprett lagret Av") } else { tr!("Gjenopprett lagret lys") }
+}
+
+pub(crate) fn is_blocked(state: &Value) -> bool {
     let visually_confirmed = state["recoveryConfirmationSource"] == "userVisual";
     state["error"].is_string()
         || state["readError"].is_string()
@@ -415,77 +419,79 @@ fn rgb_stale(_app: &App, helper: &Value) -> bool {
     lacks_current_features(helper)
 }
 
-fn lacks_current_features(helper: &Value) -> bool {
+pub(crate) fn lacks_current_features(helper: &Value) -> bool {
     helper["state"] == "on"
         && helper["status"].is_object()
         && !(helper["status"]["persist"] == true && helper["status"]["hold"] == true)
 }
 
 thread_local! {
-    /// «Hold» ved oppstart er forsøkt for denne forbindelsen til tjenesten.
-    static AUTO_HOLD_QUERY: Cell<bool> = const { Cell::new(false) };
-    static AUTO_HOLD_INSTANCE: RefCell<Option<String>> = const { RefCell::new(None) };
+    static HOLD_EPOCH: Cell<u64> = const { Cell::new(0) };
     static STOPPED_HOLD: RefCell<std::collections::BTreeSet<(String,String)>> = const { RefCell::new(std::collections::BTreeSet::new()) };
 }
 
-/// Etter hver ny forbindelse til tjenesten (appstart, eller tjenesten startet
-/// på nytt): er «Av» lagret som kortets utgangspunkt og skrivemåten «hold»,
-/// startes «hold» igjen, én gang. Bare når kortet allerede er lest likt
-/// utgangspunktet av hjelperen; et avvik vises på siden RGB-lys i stedet.
+/// Hver tilkobling, nytt kort eller endret skrivemåte får sin egen forespørsel.
+/// Bare en ventende arbeider trenger en ny tidsstyrt sjekk.
 pub(crate) fn auto_hold(app: &Rc<App>) {
-    AUTO_HOLD_INSTANCE.with(|t| t.borrow_mut().take());
-    try_auto_hold(app);
+    restart_auto_hold(app);
     thread_local! { static WIRED: Cell<bool> = const { Cell::new(false) }; }
-    if !WIRED.with(|w| w.replace(true)) {
-        let weak = Rc::downgrade(app);
-        glib::timeout_add_seconds_local(5, move || {
-            let Some(app) = weak.upgrade() else { return glib::ControlFlow::Break };
-            if crate::widgets::locked::helper_state(&app) == "on" { try_auto_hold(&app); }
-            glib::ControlFlow::Continue
-        });
-        let a = Rc::downgrade(app);
-        app.on_devices.connect(move |_| {
-            if let Some(app) = a.upgrade() {
-                try_auto_hold(&app);
+    if WIRED.with(|w| w.replace(true)) { return; }
+    let weak = Rc::downgrade(app);
+    let previous = RefCell::new(selected_identity(app));
+    app.on_devices.connect(move |_| {
+        if let Some(app) = weak.upgrade() {
+            let next = selected_identity(&app);
+            if next != *previous.borrow() {
+                previous.replace(next);
+                restart_auto_hold(&app);
             }
-        });
-    }
+        }
+    });
+    let weak = Rc::downgrade(app);
+    app.on_settings.connect(move |keys| {
+        if keys.iter().any(|key| key == "rgbAv") && let Some(app) = weak.upgrade() {
+            restart_auto_hold(&app);
+        }
+    });
 }
 
-fn try_auto_hold(app: &Rc<App>) {
-    if app.settings().rgb_av != "hold"
-        || !app.client.is_connected()
-        || !card_present(app)
-        || selected_identity(app).is_none_or(|card| STOPPED_HOLD.with(|s| s.borrow().contains(&card)))
-    {
+fn retry_auto_hold(helper: &Value) -> bool {
+    matches!(helper["state"].as_str(), Some("waiting" | "error"))
+        || (helper["state"] == "on" && helper["busy"] == true && looks_off(&helper["status"]["baselineRequest"]))
+}
+
+fn stopped_off_hold(op: &str, status: &Value) -> bool {
+    op == "rgb_release" && status["keepalive"] == true && status["effect"].is_null()
+}
+
+fn restart_auto_hold(app: &Rc<App>) {
+    let epoch = HOLD_EPOCH.with(|v| { v.set(v.get().wrapping_add(1)); v.get() });
+    try_auto_hold(app, epoch);
+}
+
+fn try_auto_hold(app: &Rc<App>, epoch: u64) {
+    let Some(card) = selected_identity(app) else { return };
+    if HOLD_EPOCH.with(Cell::get) != epoch || app.settings().rgb_av != "hold"
+        || !app.client.is_connected() || !card_present(app)
+        || STOPPED_HOLD.with(|s| s.borrow().contains(&card)) {
         return;
     }
-    if AUTO_HOLD_QUERY.with(|v| v.replace(true)) { return; }
     let a = app.clone();
     app.client.request("get_rgb_helper", json!({"refresh": true}), move |result| {
-        let eligible = result.ok().filter(|helper| auto_hold_wanted(&a, helper));
-        let Some((pci, uuid)) = selected_identity(&a).filter(|card| !STOPPED_HOLD.with(|s| s.borrow().contains(card))) else {
-            AUTO_HOLD_QUERY.with(|v| v.set(false));
-            return;
-        };
-        let Some(instance) = eligible.and_then(|h| h["status"]["instanceId"].as_str().map(str::to_owned)) else {
-            AUTO_HOLD_QUERY.with(|v| v.set(false));
-            return;
-        };
-        if AUTO_HOLD_INSTANCE.with(|v| v.borrow().as_ref() == Some(&instance)) {
-            AUTO_HOLD_QUERY.with(|v| v.set(false));
+        if HOLD_EPOCH.with(Cell::get) != epoch || selected_identity(&a).as_ref() != Some(&card)
+            || STOPPED_HOLD.with(|s| s.borrow().contains(&card)) { return; }
+        let retry = result.as_ref().is_err() || result.as_ref().is_ok_and(retry_auto_hold);
+        if retry {
+            glib::timeout_add_seconds_local_once(5, move || try_auto_hold(&a, epoch));
             return;
         }
-        let args = json!({"gpu": pci, "uuid": uuid, "kilde": "hold-oppstart"});
+        if !result.is_ok_and(|helper| auto_hold_wanted(&a, &helper)) { return; }
+        let args = json!({"gpu": card.0, "uuid": card.1, "kilde": "hold-oppstart"});
         a.client.request("rgb_hold", args, move |result| {
-            AUTO_HOLD_QUERY.with(|v| v.set(false));
-            if result.is_ok() { AUTO_HOLD_INSTANCE.with(|v| v.replace(Some(instance))); }
-            if let Err(error) = &result {
+            if let Err(error) = result {
                 eprintln!("RGB: «hold» ved oppstart ble ikke startet: {}", error.message);
             }
-            if let Some(p) = CURRENT.with(|c| c.borrow().upgrade()) {
-                p.refresh();
-            }
+            if let Some(p) = CURRENT.with(|c| c.borrow().upgrade()) { p.refresh(); }
         });
     });
 }
@@ -570,8 +576,7 @@ impl CardLight {
         let summary = paragraph("", &["muted"]);
         panel.body.append(&summary);
 
-        // Valgene står alltid fremme. Første «Bruk» aktiverer (eller
-        // oppdaterer) kortlyset med ett passord og bruker deretter valget.
+        // Lysvalgene blir tilgjengelige etter kortaktivering og avklaring.
         let controls = gtk::Grid::new();
         controls.add_css_class("rgb-card-grid");
         controls.set_row_spacing(10);
@@ -784,7 +789,7 @@ impl CardLight {
         let details_actions = flow();
         let refresh = button(Some("refresh-cw"), Some(tr!("Sjekk igjen")), &["sm", "flat"]);
         let settings = button(Some("settings"), Some(tr!("Åpne Innstillinger › Skjermkortstyring")), &["sm"]);
-        let keep_observed = button(Some("check"), None, &["sm"]);
+        let keep_observed = button(Some("check"), Some(tr!("Jeg ser én fast farge")), &["sm", "suggested"]);
         action_buttons.insert(&settings, -1);
         action_buttons.insert(&keep_observed, -1);
         let factory = button(Some("rotate-ccw"), Some(tr!("Tilbake til fabrikklyset")), &["sm", "flat"]);
@@ -871,6 +876,7 @@ impl CardLight {
         if self.syncing.get() {
             return;
         }
+        self.message.borrow_mut().take();
         self.edited.set(true);
     }
 
@@ -981,7 +987,14 @@ impl CardLight {
             let weak = Rc::downgrade(self);
             button.connect_clicked(move |_| {
                 if let Some(p) = weak.upgrade() {
-                    p.operation(op, json!({}));
+                    let args = {
+                        let helper = p.helper.borrow();
+                        let status = &helper["status"];
+                        if op == "rgb_reset" && status["review"].is_object() {
+                            json!({"recoveryId":status["review"]["id"],"expected":status["baselineRequest"]})
+                        } else { json!({}) }
+                    };
+                    p.operation(op, args);
                 }
             });
         }
@@ -1018,7 +1031,10 @@ impl CardLight {
                     p.refresh();
                     return;
                 }
-                p.operation("rgb_ack_recovery", json!({"confirmedStatic": true, "expected": expected, "recoveryId": recovery_id}));
+                if !p.operation("rgb_ack_recovery", json!({"confirmedStatic": true, "expected": expected, "recoveryId": recovery_id})) {
+                    p.app.toast(Toast::new(tr!("Lystilstanden er endret")).body(tr!("Kontroller det nye forventede lyset og åpne bekreftelsen på nytt.")));
+                    p.refresh();
+                }
             });
         });
         let weak = Rc::downgrade(self);
@@ -1102,7 +1118,7 @@ impl CardLight {
                     return;
                 }
                 *p.helper.borrow_mut() = match result {
-                    Ok(value) => value,
+                    Ok(value) => { p.message.borrow_mut().take(); value },
                     Err(error) => {
                         json!({"state": "error", "message": error.message, "status": null})
                     }
@@ -1187,6 +1203,7 @@ impl CardLight {
         if op == "rgb_release" && h["owned"] != true {
             return false;
         }
+        let stopped_hold = stopped_off_hold(op, &h["status"]);
         args["gpu"] = json!(pci);
         args["uuid"] = json!(uuid);
         // Hvor kallet kom fra, til tjenestens logg (`RGB: … fra …`).
@@ -1224,15 +1241,14 @@ impl CardLight {
                     {
                         p.followups.borrow_mut().push_back(Followup::Hold);
                     }
-                    if op == "rgb_release" && let Some(card) = selected_identity(&p.app) {
-                        STOPPED_HOLD.with(|s| s.borrow_mut().insert(card));
+                    if stopped_hold {
+                        STOPPED_HOLD.with(|s| s.borrow_mut().insert((pci.clone(), uuid.clone())));
                     }
-                    if hold_intent && let Some(card) = selected_identity(&p.app) {
-                        STOPPED_HOLD.with(|s| s.borrow_mut().remove(&card));
+                    if hold_intent {
+                        STOPPED_HOLD.with(|s| s.borrow_mut().remove(&(pci, uuid)));
                     }
                     if matches!(op, "rgb_ack_recovery" | "rgb_keep_observed") {
-                        AUTO_HOLD_INSTANCE.with(|v| v.borrow_mut().take());
-                        try_auto_hold(&p.app);
+                        restart_auto_hold(&p.app);
                     }
                     if op == "rgb_apply" && outcome == Some("unchanged") && p.varig.is_active() && value["status"]["effect"].is_null() {
                         p.followups.borrow_mut().push_front(Followup::Persist);
@@ -1257,7 +1273,7 @@ impl CardLight {
                     }
                     let drift = op == "rgb_hold" && p.helper.borrow()["status"]["drift"] == true;
                     let message = if drift {
-                        tr!("Kortet viser ikke det lagrede utgangspunktet. Se boksen på siden: «Gjenopprett utgangspunktet» setter det tilbake.").to_string()
+                        tr!("Kortet viser ikke det lagrede utgangspunktet").to_string()
                     } else {
                         operation_error(&error)
                     };
@@ -1400,6 +1416,15 @@ impl CardLight {
         let admin_ui = helper["systemAdmin"] == true;
         let newer_installed = admin_ui && !self.fixture.get() && !self.app.profile.is_dev()
             && crate::system_install::newer_installed();
+        let review = &status["review"];
+        let reviewing = bound && review.is_object();
+        let first = review["kind"] == "first";
+        let review_title = if first { tr!("Bekreft kortets første lysopptak") } else { tr!("Lyset må avklares") };
+        let review_hint = if first {
+            tr!("Se på kortet. Bekreft bare hvis det viser én fast farge.")
+        } else {
+            tr!("Behold lyset du ser, eller gjenopprett det lagrede lyset.")
+        };
         let badge = if self.busy.get() {
             tr!("Venter …")
         } else if !connected {
@@ -1418,7 +1443,7 @@ impl CardLight {
             tr!("Ikke aktivert")
         } else if pending {
             tr!("Prøve pågår")
-        } else if blocked {
+        } else if reviewing || blocked {
             tr!("Må avklares")
         } else if drift {
             tr!("Avviker")
@@ -1442,7 +1467,7 @@ impl CardLight {
         class(
             &self.badge,
             "warn",
-            connected && bound && (pending || blocked || drift),
+            connected && bound && (pending || reviewing || blocked || drift),
         );
         let message = if self.busy.get() {
             tr!("Venter på svar. Ingen ny endring kan sendes nå.").into()
@@ -1453,6 +1478,8 @@ impl CardLight {
             message
         } else if !present {
             tr!("Kortet er ikke tilgjengelig. Nye lysendringer og aktivering er sperret.").into()
+        } else if reviewing {
+            review_hint.into()
         } else if other {
             tr!("Et annet vindu styrer kortlyset. Her vises bare status.").into()
         } else if bound {
@@ -1463,8 +1490,12 @@ impl CardLight {
             with_diagnostic(tr!("Venter på enhet"), helper["message"].as_str())
         } else if helper["state"] == "error" || stale || newer_installed || helper["state"] == "outdated" {
             with_diagnostic(tr!("RGB-hjelperen er ikke klar."), helper["message"].as_str())
-        } else {
+        } else if helper["state"] == "off" {
             tr!("Skjermkortstyring er slått av.").into()
+        } else if !same_card && reported.is_object() {
+            tr!("Tillatelsen gjelder et annet skjermkort.").into()
+        } else {
+            tr!("RGB-hjelperen er ikke klar.").into()
         };
         set_text(&self.summary, &message);
         // Må avklares eller oppdateres: varselfarge, så det ikke forsvinner i resten.
@@ -1584,7 +1615,7 @@ impl CardLight {
         if self.swatch_color.replace(color) != color {
             self.swatch.queue_draw();
         }
-        self.support.set_visible(!bound);
+        self.support.set_visible(!bound && !unsupported);
         self.controls.set_visible(present && bound && status["review"].is_null());
         self.apply.set_visible(present);
         self.readback_note.set_visible(bound);
@@ -1621,22 +1652,26 @@ impl CardLight {
         let runtime_failed = bound && status["runtimeError"].is_string();
         let must_resolve = bound && !pending && (blocked || runtime_failed) && !needs_ack;
         let action = needs_ack || must_resolve || drift;
-        let review = &status["review"];
-        let reviewing = bound && review.is_object();
         let action = action || reviewing || !bound;
         self.action_box.set_visible(action || self.message.borrow().is_some());
         self.refresh.set_visible(reviewing || must_resolve || (!bound && !unsupported));
         self.settings.set_visible(!bound && !unsupported);
         self.keep_observed.set_visible(reviewing);
         self.keep_observed.set_sensitive(available && review["expected"].is_object());
-        self.keep_observed.set_label(if review["kind"] == "first" { tr!("Jeg ser én fast farge") } else { tr!("Behold lyset jeg ser") });
+        set_text_button(&self.keep_observed, if review["kind"] == "first" { tr!("Jeg ser én fast farge") } else { tr!("Behold lyset jeg ser") });
         if reviewing {
-            set_text(&self.action_title, if review["expected"].is_null() { tr!("Avlesning av kortlyset mislyktes. Nye lysendringer er sperret.") } else { tr!("Jeg ser én fast farge") });
-            let fields = trf!("Avlest lys: {lest}. Lagret lys: {lagret}. Fabrikklys: {fabrikk}.", lest = observed_text(observed), lagret = request_text(&status["baselineRequest"]), fabrikk = request_text(&status["factory"]));
-            set_text(&self.action_text, &with_diagnostic(&fields, state["readError"].as_str().or(self.message.borrow().as_deref())));
+            set_text(&self.action_title, review_title);
+            let mut fields = vec![trf!("Avlest lys: {lys}", lys = observed_text(observed))];
+            if status["baselineRequest"].is_object() {
+                fields.push(trf!("Lagret lys: {lys}", lys = request_text(&status["baselineRequest"])));
+            }
+            if status["factory"].is_object() {
+                fields.push(trf!("Fabrikklys: {lys}", lys = request_text(&status["factory"])));
+            }
+            set_text(&self.action_text, &with_diagnostic(&fields.join("\n"), state["readError"].as_str().or(self.message.borrow().as_deref())));
         } else if !bound || (!action && self.message.borrow().is_some()) {
-            set_text(&self.action_title, badge);
-            set_text(&self.action_text, &message);
+            set_text(&self.action_title, if !action { tr!("Lysendringen ble ikke fullført") } else { badge });
+            if unsupported { set_text(&self.action_text, &self.support.text()); } else { set_text(&self.action_text, &message); }
         } else if needs_ack {
             set_text(&self.action_title, tr!("Se på kortet og bekreft lyset"));
             set_text(&self.action_text, &trf!("Kortet er satt tilbake til {lys}. Hjelperen kan bare lese fargeverdiene, ikke hva kortet faktisk lyser. Bekreft når kortet viser dette, eller gjenopprett på nytt.", lys = request_text(&state["confirmed"])));
@@ -1652,13 +1687,13 @@ impl CardLight {
         } else if drift {
             set_text(&self.action_title, tr!("Kortet viser ikke det lagrede utgangspunktet"));
             let now = observed_text(observed);
-            set_text(&self.action_text, &trf!("Kortet viser nå {lest}, men det lagrede utgangspunktet er {lys}. Det er ingen endring fra appen: kortet kan ha gått tilbake til fabrikklyset av seg selv, for eksempel etter en kaldstart. «Gjenopprett utgangspunktet» skriver {lys} på nytt, og så bekrefter du det du ser på kortet. Det krever ikke passord.", lest = now, lys = request_text(&state["confirmed"])));
+            set_text(&self.action_text, &trf!("Kortet viser {lest}. Velg «{knapp}» for å gjenopprette {lys}, og bekreft det du ser.", lest = now, knapp = restore_label(status), lys = request_text(&status["baselineRequest"])));
         }
         self.ack.set_visible(needs_ack);
         self.ack.set_sensitive(available);
         self.reset.set_visible(bound && action && review["kind"] != "first");
         self.reset.set_sensitive(available);
-        set_text_button(&self.reset, if needs_ack { tr!("Gjenopprett på nytt") } else if looks_off(&status["baselineRequest"]) { tr!("Gjenopprett lagret Av") } else { tr!("Gjenopprett lagret lys") });
+        set_text_button(&self.reset, if needs_ack { tr!("Gjenopprett på nytt") } else { restore_label(status) });
         self.apply.set_visible(present && !action && !(pending && bound));
         // Under en prøve står «Behold» og «Rull tilbake» i egen boks.
         self.release.set_visible(bound && owned && !action && !pending);
@@ -1974,10 +2009,8 @@ pub(crate) fn debug_flow(step: &str) {
                 ));
             }
             "stale_rejected" => {
-                assert!(
-                    p.message.borrow().is_some(),
-                    "Utdatert expected ble ikke avvist"
-                );
+                assert!(p.message.borrow().is_none(), "En vellykket statusoppdatering skal rydde feilmeldingen");
+                assert!(p.ack.is_visible() && p.ack.is_sensitive(), "En avvist gammel bekreftelse skal kunne forsøkes på nytt");
                 assert_eq!(state["dirty"], true);
                 assert_eq!(state["recoveryNeedsConfirmation"], true);
                 assert!(state["recoveryConfirmationSource"].is_null());
@@ -2218,16 +2251,22 @@ pub(crate) fn debug_fixture(kind: &str) {
             }
             *p.helper.borrow_mut() = value;
             p.render();
-            if kind == "effect_error" {
+            if matches!(kind, "first" | "journal") {
+                assert!(p.badge.text().contains(tr!("Må avklares")) && p.badge.has_css_class("warn"));
+                assert!(!p.controls.is_visible() && p.keep_observed.is_visible() && !p.keep_observed.has_css_class("icon-only"));
+                let content = p.keep_observed.child().unwrap().downcast::<gtk::Box>().unwrap();
+                assert!(content.first_child().is_some_and(|child| child.is::<crate::widgets::icon::Icon>()));
+                let caption = content.last_child().unwrap().downcast::<gtk::Label>().unwrap();
+                assert_eq!(caption.text(), if kind == "first" { tr!("Jeg ser én fast farge") } else { tr!("Behold lyset jeg ser") });
+                assert_eq!(p.reset.is_visible(), kind == "journal");
+                assert_eq!(p.action_title.text(), if kind == "first" { tr!("Bekreft kortets første lysopptak") } else { tr!("Lyset må avklares") });
+            } else if kind == "effect_error" {
                 assert!(p.runtime_error.is_visible() && p.ack.is_visible());
                 assert!(p.helper.borrow()["status"]["state"]["error"].is_null());
             } else if kind == "off" {
-                // Uten aktiv hjelper skal valgene og «Bruk» likevel stå fremme:
-                // første «Bruk» aktiverer kortlyset (1.5.5).
+                // Uten aktiv arbeider viser panelet inngangen til Skjermkortstyring.
                 assert!(p.settings.is_visible() && !p.apply.is_sensitive());
-                for (id, _) in EFFECTS {
-                    assert!(p.mode.button(id).unwrap().is_visible(), "Effekter er skjult før aktivering");
-                }
+                assert!(!p.controls.is_visible() && !p.apply.is_visible());
             } else if kind == "pending_effects" {
                 for (id, _) in EFFECTS {
                     assert!(p.mode.button(id).unwrap().is_visible(), "Støttet effekt er skjult");
@@ -2245,6 +2284,18 @@ pub(crate) fn debug_fixture(kind: &str) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn bare_slutt_å_holde_av_husker_kortet() {
+        assert!(stopped_off_hold("rgb_release", &json!({"keepalive":true})));
+        assert!(!stopped_off_hold("rgb_release", &json!({"keepalive":true,"effect":"breathing"})));
+        assert!(!stopped_off_hold("rgb_release", &json!({"keepalive":false})));
+        assert!(!stopped_off_hold("rgb_hold", &json!({"keepalive":true})));
+        for state in ["off", "unsupported", "on"] {
+            assert!(!retry_auto_hold(&json!({"state":state,"busy":true})));
+        }
+        assert!(retry_auto_hold(&json!({"state":"waiting"})));
+    }
 
     #[test]
     fn av_skrives_slik_innstillingen_sier_og_bare_med_faste_registre() {

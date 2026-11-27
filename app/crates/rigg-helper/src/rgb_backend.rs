@@ -1,5 +1,5 @@
-//! Privilegert RGB-adapter. Oppstart leser bare private filer og tar en lås;
-//! ingen grunnverdier fanges automatisk og ingen journal gjenopprettes da.
+//! Kortbundet RGB-adapter. Oppstart identifiserer kontrolleren og leser opptak og journal.
+//! Første opptak og uavklarte økter krever brukerens valg før lyset kan endres.
 
 use crate::rgb_store::{
     EvidenceContext, Operation, Phase, PrivateStore, StoredJournal, VisualEvidence, fields_match,
@@ -87,6 +87,7 @@ pub(crate) struct NativeBackend {
     baseline: Baseline,
     store: PrivateStore,
     record: Option<StoredJournal>,
+    archive_sync_pending: bool,
     own_write_responsibility: bool,
     last_recovery: Option<Observed>,
     last_read: Option<Observed>,
@@ -130,18 +131,14 @@ impl NativeBackend {
     pub fn open_production() -> Result<(Authorization, Baseline, Self), StartupError> {
         // SAFETY: ren avlesning; ingen rettighetsøkning eller fallback.
         if unsafe { libc::geteuid() } != 0 {
-            return Err("RGB-arbeideren krever separat administratoraktivering.".into());
+            return Err("RGB-arbeideren krever administratoraktivering av skjermkortstyring.".into());
         }
         let authorization = load_authorization(Path::new(rgb_auth::CONFIG_PATH))?;
         let store = PrivateStore::open_production()?;
         let binding = authorization.binding();
         let discovery = palit_rgb::identify(Path::new("/"), &binding.pci, &binding.uuid)
-            .map_err(|error| match error.code() {
-                "unknown_signature" | "transport_unsupported" => StartupError::UnsupportedController,
-                _ if error.errno() == Some(libc::ENXIO) => StartupError::UnsupportedController,
-                _ => StartupError::Failed(error.to_string()),
-            })?;
-        if discovery.state == DiscoveryState::Unrecognized || discovery.binding.as_ref().is_some_and(|b| b.signature != binding.signature) {
+            .map_err(|error| if error.unsupported_controller() { StartupError::UnsupportedController } else { StartupError::Failed(error.to_string()) })?;
+        if discovery.state == DiscoveryState::Unrecognized {
             return Err(StartupError::UnsupportedController);
         }
         if discovery.state != DiscoveryState::IdentifiedReadOnly || discovery.binding.as_ref() != Some(binding) {
@@ -199,6 +196,7 @@ impl NativeBackend {
             baseline,
             store,
             record,
+            archive_sync_pending: false,
             own_write_responsibility: false,
             last_recovery: None,
             last_read: None,
@@ -228,8 +226,7 @@ impl NativeBackend {
         Ok(())
     }
 
-    /// Bare eksplisitt root-CLI. Ingen startup-recovery: vanlig konstruktør
-    /// avviser fremdeles enhver journal før maskinvareåpning.
+    /// Eksplisitt administrativ gjenoppretting. Normal oppstart viser journalen til avklaring.
     fn open_resolution(uid: u32, pci: &str, uuid: &str, confirmed: bool) -> Result<Self, String> {
         // SAFETY: ren identitetslesing. Ingen fixture- eller brukerfallback.
         if !confirmed || unsafe { libc::geteuid() } != 0 {
@@ -282,6 +279,7 @@ impl NativeBackend {
             baseline,
             store,
             record: Some(record),
+            archive_sync_pending: false,
             own_write_responsibility,
             last_recovery: None,
             last_read: None,
@@ -474,6 +472,12 @@ fn no_write(message: impl Into<String>) -> WriteError {
 
 impl Backend for NativeBackend {
     fn read(&mut self, binding: &Binding) -> Result<Observed, String> {
+        if self.archive_sync_pending {
+            self.store.sync()?;
+            self.archive_sync_pending = false;
+            self.record = None;
+            self.own_write_responsibility = false;
+        }
         self.last_read = None;
         self.binding(binding, &self.baseline)?;
         self.current_authorization()?;
@@ -508,14 +512,13 @@ impl Backend for NativeBackend {
             self.baseline = confirmed;
         } else if let Some(record) = &self.record {
             // Archive the original intent as unresolved. Never manufacture a successful old write.
-            if let Err(error) = self.store.archive_unresolved(&self.baseline, record) {
-                self.record = self.store.journal(&self.baseline)?;
-                return Err(error);
-            }
+            self.store.rename_unresolved(&self.baseline, record)?;
+            self.archive_sync_pending = true;
+            self.store.sync()?;
+            self.archive_sync_pending = false;
             self.record = None;
             self.own_write_responsibility = false;
         }
-        self.store.sync()?;
         Ok(self.baseline.clone())
     }
 
@@ -725,6 +728,7 @@ impl Backend for NativeBackend {
         if self.last_read.as_ref() != Some(next.observed()) {
             return Err("Det varige RGB-valget mangler en fersk, samsvarende avlesning.".into());
         }
+        let factory = self.store.factory(binding)?.unwrap_or_else(|| self.baseline.clone());
         if let Err(error) = self.store.adopt_baseline(&self.baseline, self.record.as_ref(), next) {
             finish_adopt(&self.store)?;
             let saved = self.store.baseline()?;
@@ -732,7 +736,7 @@ impl Backend for NativeBackend {
             if &saved != next || self.record.is_some() { return Err(error); }
             self.store.sync()?;
         }
-        self.factory = self.store.factory(binding)?;
+        self.factory = Some(factory);
         self.baseline = next.clone();
         self.record = None;
         self.own_write_responsibility = false;
@@ -1033,6 +1037,33 @@ mod tests {
         book.release(&mut backend).unwrap();
         assert!(backend.store.journal(&baseline).unwrap().is_some());
         assert!(book.snapshot().dirty);
+    }
+
+    #[test]
+    fn svart_med_full_styrke_gjenopprettes_uten_gjenværende_journal() {
+        let original = baseline();
+        let (fixture, mut backend, state) = backend(&original);
+        let mut book = Book::new(original).unwrap();
+        let off = Observed { color: Some([0; 3]), brightness_raw: Some(100), mode: None };
+        state.lock().unwrap().result = Ok(off.clone());
+        let trial = book.apply(&mut backend, 7, Request::Off {}, 0, 10_000).unwrap();
+        book.keep(&mut backend, 7, trial.txn.unwrap(), 1).unwrap();
+        book.persist(&mut backend, 7, 2).unwrap();
+        state.lock().unwrap().result = Ok(frame_observed([1,2,3]));
+        let trial = book.apply(&mut backend, 7, static_request([1,2,3]), 3, 10_000).unwrap();
+        state.lock().unwrap().result = Ok(off.clone());
+        book.revert(&mut backend, 7, trial.txn.unwrap(), 4).unwrap();
+        book.ack_recovery(&mut backend, 7, 5).unwrap();
+        assert!(!fixture.path.join("journal.json").exists());
+        drop(backend);
+        let store = PrivateStore::open_fixture(&fixture.path).unwrap();
+        let saved = store.baseline().unwrap();
+        let (hw, physical) = hardware();
+        physical.lock().unwrap().read_observed = off;
+        let native = NativeBackend::from_parts(authorization(), saved.clone(), store, hw, false).unwrap();
+        let runtime = crate::rgb_runtime::Runtime::new(authorization(), saved, native).unwrap();
+        assert!(runtime.status()["review"].is_null());
+        assert_eq!(runtime.status()["baselineRequest"], runtime.status()["state"]["confirmed"]);
     }
 
     #[test]

@@ -36,7 +36,7 @@ msgstr "所选显卡已更改。无法验证原显卡上的回退：{feil}"
 msgid "Valgt kort ble endret mens forespørselen ventet. Svaret brukes ikke på det nye kortet."
 msgstr "等待响应期间，所选 GPU 已更改。此响应不会用于新选中的 GPU。"
 
-#: crates/rigg/src/widgets/locked.rs:340 crates/rigg/src/widgets/locked.rs:675
+#: crates/rigg/src/widgets/locked.rs:340 crates/rigg/src/widgets/locked.rs:681
 msgid "Simulert kort"
 msgstr "模拟显卡"
 
@@ -44,7 +44,7 @@ msgstr "模拟显卡"
 msgid "Endringer gjelder bare simuleringen."
 msgstr "更改仅影响模拟。"
 
-#: crates/rigg/src/widgets/locked.rs:342 crates/rigg/src/widgets/locked.rs:679
+#: crates/rigg/src/widgets/locked.rs:342 crates/rigg/src/widgets/locked.rs:685
 msgid "Styring klar"
 msgstr "控制已就绪"
 
@@ -64,198 +64,202 @@ msgstr "更改仅影响模拟显卡。"
 msgid "Styring utilgjengelig"
 msgstr "控制不可用"
 
-#: crates/rigg/src/widgets/locked.rs:345
+#: crates/rigg/src/widgets/locked.rs:345 crates/rigg/src/widgets/locked.rs:357
+msgid "Venter på enhet"
+msgstr "正在等待设备"
+
+#: crates/rigg/src/widgets/locked.rs:346
 msgid "Styring: feil"
 msgstr "控制错误"
 
-#: crates/rigg/src/widgets/locked.rs:346
+#: crates/rigg/src/widgets/locked.rs:347
 msgid "Oppdater hjelper"
 msgstr "更新辅助程序"
 
-#: crates/rigg/src/widgets/locked.rs:347
+#: crates/rigg/src/widgets/locked.rs:348
 msgid "Bare visning"
 msgstr "只读"
 
-#: crates/rigg/src/widgets/locked.rs:347
+#: crates/rigg/src/widgets/locked.rs:348
 msgid "Endringer på skjermkortet er slått av. Aktiver én gang med administratorpassord i Innstillinger › Skjermkortstyring."
 msgstr "显卡调校已关闭。请在“设置 › GPU 控制”中使用管理员密码授权启用一次。"
 
-#: crates/rigg/src/widgets/locked.rs:355
+#: crates/rigg/src/widgets/locked.rs:356
 msgid "Hjelperen er ikke skriveklar for kortet som vises."
 msgstr "辅助程序尚未就绪，无法调校此 GPU。"
 
-#: crates/rigg/src/widgets/locked.rs:356
+#: crates/rigg/src/widgets/locked.rs:358
 msgid "Hjelperen svarer ikke. Endringer er låst."
 msgstr "辅助程序无响应。更改已锁定。"
 
-#: crates/rigg/src/widgets/locked.rs:357
+#: crates/rigg/src/widgets/locked.rs:359
 msgid "Hjelperen må oppdateres. Oppdater systemkomponentene fra Innstillinger › Skjermkortstyring."
 msgstr "必须更新辅助程序。请在“设置 › GPU 控制”中更新系统组件。"
 
-#: crates/rigg/src/widgets/locked.rs:516
+#: crates/rigg/src/widgets/locked.rs:522
 msgid "Utkastet må oppdateres"
 msgstr "草稿需要更新"
 
-#: crates/rigg/src/widgets/locked.rs:544
+#: crates/rigg/src/widgets/locked.rs:550
 msgid "Dette eldre utkastet mangler opprinnelig grunnlag. Behold det som referanse, eller forkast det og lag et nytt utkast fra kortets verdier."
 msgstr "这份旧草稿没有保存原始设置。可保留以供参考，也可放弃并基于 GPU 的当前设置新建草稿。"
 
-#: crates/rigg/src/widgets/locked.rs:547
+#: crates/rigg/src/widgets/locked.rs:553
 msgid "Utkastet tilhører en annen kortidentitet. Velg det opprinnelige kortet, eller forkast utkastet før du lager et nytt."
 msgstr "此草稿属于另一块 GPU。请选择原来的 GPU，或放弃此草稿后新建草稿。"
 
-#: crates/rigg/src/widgets/locked.rs:553
+#: crates/rigg/src/widgets/locked.rs:559
 msgid "Det finnes ikke noe utkast å bruke."
 msgstr "没有可应用的草稿。"
 
-#: crates/rigg/src/widgets/locked.rs:650 crates/rigg/src/widgets/locked.rs:683
+#: crates/rigg/src/widgets/locked.rs:656 crates/rigg/src/widgets/locked.rs:689
 msgid "Låst"
 msgstr "已锁定"
 
-#: crates/rigg/src/widgets/locked.rs:657
+#: crates/rigg/src/widgets/locked.rs:663
 msgid "Hva skal til?"
 msgstr "需要什么？"
 
-#: crates/rigg/src/widgets/locked.rs:659
+#: crates/rigg/src/widgets/locked.rs:665
 msgid "Aktivering og støtte for kortet"
 msgstr "启用与显卡支持"
 
-#: crates/rigg/src/widgets/locked.rs:673
+#: crates/rigg/src/widgets/locked.rs:679
 msgid "Kortet svarer ikke"
 msgstr "GPU 无响应"
 
-#: crates/rigg/src/widgets/locked.rs:673
+#: crates/rigg/src/widgets/locked.rs:679
 msgid "Verdiene vises igjen når kortet er tilbake. Utkastet beholdes."
 msgstr "显卡恢复可用后会重新显示数值。草稿会保留。"
 
-#: crates/rigg/src/widgets/locked.rs:675
+#: crates/rigg/src/widgets/locked.rs:681
 msgid "Bruk sender utkastet til den simulerte backenden, med Behold eller Rull tilbake. Det ekte kortet røres ikke."
 msgstr "“应用”会将草稿发送至模拟后端。可选择保留或回退。不会修改实体显卡。"
 
-#: crates/rigg/src/widgets/locked.rs:677 crates/rigg/src/widgets/locked.rs:717
+#: crates/rigg/src/widgets/locked.rs:683 crates/rigg/src/widgets/locked.rs:723
 msgid "Utilgjengelig"
 msgstr "不可用"
 
-#: crates/rigg/src/widgets/locked.rs:679
+#: crates/rigg/src/widgets/locked.rs:685
 msgid "Utkast"
 msgstr "草稿"
 
-#: crates/rigg/src/widgets/locked.rs:679
+#: crates/rigg/src/widgets/locked.rs:685
 msgid "Endringene sendes til kortet når du trykker Bruk. Behold dem innen fristen, ellers rulles de tilbake."
 msgstr "选择“应用”时会将更改发送给显卡。请在期限内保留，否则会回退。"
 
-#: crates/rigg/src/widgets/locked.rs:679
+#: crates/rigg/src/widgets/locked.rs:685
 msgid "Støttede funksjoner kan endres med Bruk og Behold."
 msgstr "可通过“应用”和“保留”更改受支持的功能。"
 
-#: crates/rigg/src/widgets/locked.rs:681
+#: crates/rigg/src/widgets/locked.rs:687
 msgid "Utkast · låst"
 msgstr "草稿 · 已锁定"
 
-#: crates/rigg/src/widgets/locked.rs:681
+#: crates/rigg/src/widgets/locked.rs:687
 msgid "Utkastet lagres i appen og sendes ikke til kortet. Styring er ikke tilgjengelig for kortet som vises, så Bruk er låst."
 msgstr "草稿保存在应用中，不会发送到显卡。此显卡不可控制，因此“应用”已锁定。"
 
-#: crates/rigg/src/widgets/locked.rs:706
+#: crates/rigg/src/widgets/locked.rs:712
 msgid "Skjermkortstyring"
 msgstr "GPU 控制"
 
-#: crates/rigg/src/widgets/locked.rs:707
+#: crates/rigg/src/widgets/locked.rs:713
 msgid "Aktiver styring én gang med administratorpassord i Innstillinger. Funksjonene under blir tilgjengelige der kortet og driveren støtter dem."
 msgstr "请在设置中使用管理员密码启用一次控制。显卡和驱动程序支持的下列功能将可用。"
 
-#: crates/rigg/src/widgets/locked.rs:711
+#: crates/rigg/src/widgets/locked.rs:717
 msgid "Effektgrense"
 msgstr "功率限制"
 
-#: crates/rigg/src/widgets/locked.rs:711
+#: crates/rigg/src/widgets/locked.rs:717
 msgid "Vifter"
 msgstr "风扇"
 
-#: crates/rigg/src/widgets/locked.rs:711
+#: crates/rigg/src/widgets/locked.rs:717
 msgid "Viftekurve"
 msgstr "风扇曲线"
 
-#: crates/rigg/src/widgets/locked.rs:711
+#: crates/rigg/src/widgets/locked.rs:717
 msgid "Kjerneklokke"
 msgstr "核心频率"
 
-#: crates/rigg/src/widgets/locked.rs:711
+#: crates/rigg/src/widgets/locked.rs:717
 msgid "Minneklokke"
 msgstr "显存频率"
 
-#: crates/rigg/src/widgets/locked.rs:711
+#: crates/rigg/src/widgets/locked.rs:717
 msgid "Temperaturmål"
 msgstr "目标温度"
 
-#: crates/rigg/src/widgets/locked.rs:717
+#: crates/rigg/src/widgets/locked.rs:723
 msgid "Tilgjengelig"
 msgstr "可用"
 
-#: crates/rigg/src/widgets/locked.rs:717
+#: crates/rigg/src/widgets/locked.rs:723
 msgid "Ikke undersøkt"
 msgstr "未检查"
 
-#: crates/rigg/src/widgets/locked.rs:721
+#: crates/rigg/src/widgets/locked.rs:727
 msgid "Hver endring må beholdes innen fristen. Du kan alltid velge Rull tilbake."
 msgstr "请在期限内保留每项更改。您始终可以选择“回退”。"
 
-#: crates/rigg/src/widgets/locked.rs:725
+#: crates/rigg/src/widgets/locked.rs:731
 msgid "Åpne Innstillinger › Skjermkortstyring"
 msgstr "打开“设置 › GPU 控制”"
 
-#: crates/rigg/src/widgets/locked.rs:940
+#: crates/rigg/src/widgets/locked.rs:956
 msgid "Rull tilbake"
 msgstr "回退"
 
-#: crates/rigg/src/widgets/locked.rs:941
+#: crates/rigg/src/widgets/locked.rs:957
 msgid "Behold"
 msgstr "保留"
 
-#: crates/rigg/src/widgets/locked.rs:961
+#: crates/rigg/src/widgets/locked.rs:977
 msgid "Tilbakestilling kunne ikke bekreftes. Kortets tilstand er usikker. Prøv Rull tilbake, og se status i Innstillinger › Skjermkortstyring."
 msgstr "无法验证回退。显卡状态不确定。请尝试“回退”，并在“设置 › GPU 控制”中检查状态。"
 
-#: crates/rigg/src/widgets/locked.rs:965 crates/rigg/src/widgets/locked.rs:1053 crates/rigg/src/widgets/locked.rs:1107
+#: crates/rigg/src/widgets/locked.rs:981 crates/rigg/src/widgets/locked.rs:1069 crates/rigg/src/widgets/locked.rs:1123
 msgid "Endringene er rullet tilbake"
 msgstr "更改已回退"
 
-#: crates/rigg/src/widgets/locked.rs:1025
+#: crates/rigg/src/widgets/locked.rs:1041
 msgid "Behold ({sek})"
 msgstr "保留（{sek}）"
 
-#: crates/rigg/src/widgets/locked.rs:1026
+#: crates/rigg/src/widgets/locked.rs:1042
 msgid "Kortet er byttet. Venter på bekreftet tilbakestilling på det opprinnelige kortet …"
 msgstr "所选显卡已更改。正在等待确认原显卡上的回退…"
 
-#: crates/rigg/src/widgets/locked.rs:1027
+#: crates/rigg/src/widgets/locked.rs:1043
 msgid "Fristen er ute. Venter på bekreftet tilbakestilling fra tjenesten …"
 msgstr "已超时。正在等待服务确认回退…"
 
-#: crates/rigg/src/widgets/locked.rs:1028
+#: crates/rigg/src/widgets/locked.rs:1044
 msgid "Behold endringene? Uten svar rulles de tilbake om {tid}."
 msgstr "保留更改？如果没有响应，更改将在 {tid} 后回退。"
 
-#: crates/rigg/src/widgets/locked.rs:1046
+#: crates/rigg/src/widgets/locked.rs:1062
 msgid "Tjenesten kan ikke bekrefte kortets tilstand eller tilbakestilling. Prøv Rull tilbake, og se status i Innstillinger › Skjermkortstyring."
 msgstr "服务无法验证显卡状态或回退。请尝试“回退”，并查看“设置 › GPU 控制”。"
 
-#: crates/rigg/src/widgets/locked.rs:1058
+#: crates/rigg/src/widgets/locked.rs:1074
 msgid "Kortets tilstand er bekreftet"
 msgstr "显卡状态已验证"
 
-#: crates/rigg/src/widgets/locked.rs:1058
+#: crates/rigg/src/widgets/locked.rs:1074
 msgid "Ingen ubekreftet endring venter."
 msgstr "没有待确认的更改。"
 
-#: crates/rigg/src/widgets/locked.rs:1107
+#: crates/rigg/src/widgets/locked.rs:1123
 msgid "Endringene er beholdt"
 msgstr "更改已保留"
 
-#: crates/rigg/src/widgets/locked.rs:1111
+#: crates/rigg/src/widgets/locked.rs:1127
 msgid "Tjenesten kan ikke bekrefte tilbakestillingen. Kortets tilstand er usikker. Prøv Rull tilbake."
 msgstr "服务无法验证回退。显卡状态不确定。请尝试“回退”。"
 
-#: crates/rigg/src/widgets/locked.rs:1112
+#: crates/rigg/src/widgets/locked.rs:1128
 msgid "Kunne ikke bekrefte svaret: {feil}. Prøv Rull tilbake. Endringen regnes ikke som tilbakestilt før tjenesten bekrefter det."
 msgstr "无法验证响应：{feil}。请尝试“回退”。服务验证前，不视为已回退。"

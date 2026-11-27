@@ -42,7 +42,7 @@ fn saved_binding(app: &App) -> bool {
     if crate::system_install::trusted(path) {
         return std::fs::read_to_string(path).ok()
             .and_then(|raw| rigg_core::hjelper::Config::parse(&raw).ok())
-            .is_some_and(|grant| !grant.legacy);
+            .is_some_and(|grant| !grant.legacy && grant.uid == unsafe { libc::geteuid() });
     }
     // Eldre RGB-tillatelser er private. Filen gir tilgang til opprydding i Innstillinger.
     crate::system_install::trusted(std::path::Path::new(rigg_core::rgb_auth::CONFIG_PATH))
@@ -56,7 +56,7 @@ fn state_text(app: &App) -> String {
     if !app.client.is_connected() { return tr!("Tjenesten svarer ikke. Endringer er låst.").into(); }
     let h = locked::helper(app);
     match locked::helper_state(app).as_str() {
-        "waiting" => tr!("Venter på enhet").into(),
+        "waiting" => locked::helper_line(app).unwrap_or_else(|| tr!("Venter på enhet").into()),
         "on" if locked::control_ready(app) => tr!("Styring er klar for det valgte skjermkortet. Endringer brukes først når du trykker Bruk.").into(),
         "on" if locked::gate(app) == rigg_core::txn::Gate::Sim => tr!("Simulert styring. Det ekte skjermkortet endres ikke.").into(),
         "outdated" if app.profile.is_dev() || !crate::system_install::newer_installed() => tr!("Oppdater systemkomponenter").into(),
@@ -123,7 +123,7 @@ fn failure(code: i32, err: &str, title: &str) -> Option<Toast> {
 /// installere dem selv: bryteren installerer og aktiverer da med ett passord.
 fn installable(app: &App) -> bool {
     !app.profile.is_dev() && app.data.borrow().backend == "nvml" && crate::system_install::can_install()
-        && (admin(app).is_none() || matches!(locked::helper_state(app).as_str(), "outdated" | "error"))
+        && (admin(app).is_none() || locked::helper_state(app) == "outdated")
 }
 
 /// Bare private skjermbildeplaner (utviklerprofil): vis «Venter på
@@ -162,7 +162,7 @@ pub(crate) fn toggle(app: &Rc<App>, on: bool) {
     if install && !on {
         let a = app.clone();
         crate::system_install::run(app, crate::system_install::CardAction::Revoke, move |ok| {
-            if ok { locked::refresh_helper(&a, request_render); }
+            if ok { a.toast(Toast::new(tr!("Skjermkortstyring er slått av")).body(tr!("Tillatelsen er fjernet.")).ms(4000)); }
         });
         return;
     }
@@ -223,7 +223,8 @@ fn rgb_state_text(helper: Option<&serde_json::Value>, selected: Option<&(String,
     let matches = selected.is_some_and(|(pci, uuid)| status["identity"]["pci"] == pci.as_str()
         && status["identity"]["uuid"] == uuid.as_str());
     match helper["state"].as_str() {
-        Some("on") if matches && status["review"].is_object() => tr!("Må avklares"),
+        Some("on") if matches && crate::pages::lys_kort::lacks_current_features(helper) => tr!("Oppdater systemkomponenter"),
+        Some("on") if matches && (status["review"].is_object() || crate::pages::lys_kort::is_blocked(&status["state"]) || status["runtimeError"].is_string()) => tr!("Må avklares"),
         Some("on") if matches => tr!("Tilgjengelig"),
         Some("unsupported") if matches => tr!("Ikke støttet"),
         Some("waiting") if matches => tr!("Venter på enhet"),
@@ -264,15 +265,25 @@ fn capabilities_group(app: &Rc<App>) -> Group {
         rows.push(row(name, Some(&detail), &tag, &format!("funksjonsstøtte {key} {status}")));
     }
     let rgb = label(tr!("Ikke undersøkt"), &["tag", "quiet"]);
+    let detail = label("", &["sm", "muted"]);
+    detail.set_wrap(true);
+    detail.set_visible(false);
+    let info = vbox(3, &[]);
+    rgb.set_halign(gtk::Align::End);
+    info.append(&rgb);
+    info.append(&detail);
     let timer = Rc::new(std::cell::RefCell::new(None::<glib::SourceId>));
     let running = timer.clone();
     let a = app.clone();
     rgb.connect_map(move |label| {
+        if let Some(id) = running.borrow_mut().take() { id.remove(); }
+        let detail = detail.downgrade();
         let a = a.clone();
         let target = label.downgrade();
         let pending = Rc::new(Cell::new(false));
         let refresh = move || {
             if pending.replace(true) { return; }
+            let detail = detail.clone();
             let current = a.clone();
             let target = target.clone();
             let pending = pending.clone();
@@ -280,7 +291,30 @@ fn capabilities_group(app: &Rc<App>) -> Group {
                 pending.set(false);
                 if let Some(label) = target.upgrade() {
                     let selected = current.gpu_id().zip(current.statics().and_then(|s| s.uuid));
-                    label.set_text(rgb_state_text(reply.ok().as_ref(), selected.as_ref()));
+                    let (helper, error) = match &reply {
+                        Ok(h) => (Some(h), None),
+                        Err(e) => (None, Some(e.message.as_str())),
+                    };
+                    let text = rgb_state_text(helper, selected.as_ref());
+                    label.set_text(text);
+                    let kind = if text == tr!("Tilgjengelig") { "ok" }
+                        else if text == tr!("Ikke klar") { "danger" }
+                        else if [tr!("Venter på enhet"), tr!("Må avklares"), tr!("Oppdater systemkomponenter")].contains(&text) { "warn" }
+                        else { "quiet" };
+                    label.set_css_classes(&["tag", kind]);
+                    let diagnostic = error.or_else(|| helper.and_then(|h| {
+                        let s = &h["status"];
+                        [s["runtimeError"].as_str(), s["state"]["error"].as_str(),
+                         s["state"]["readError"].as_str(), h["message"].as_str()].into_iter().flatten().next()
+                    })).map(display_diagnostic);
+                    if let Some(detail) = detail.upgrade() {
+                        let fallback = if text == tr!("Må avklares") { tr!("Se RGB-lys") }
+                            else if text == tr!("Venter på enhet") { tr!("Venter på at RGB-arbeideren skal starte.") }
+                            else if text == tr!("Ikke klar") { tr!("Sjekk igjen") } else { "" };
+                        let message = diagnostic.as_deref().unwrap_or(fallback);
+                        detail.set_text(message);
+                        detail.set_visible(!message.is_empty());
+                    }
                 }
             });
         };
@@ -293,7 +327,7 @@ fn capabilities_group(app: &Rc<App>) -> Group {
     rgb.connect_unmap(move |_| {
         if let Some(id) = timer.borrow_mut().take() { id.remove(); }
     });
-    rows.push(row(tr!("Kortlys (RGB)"), None, &rgb, "RGB"));
+    rows.push(row(tr!("Kortlys (RGB)"), None, &info, "RGB"));
     group(tr!("Tilgjengelige funksjoner"), GroupOpts {
         desc: Some(tr!("Én administratoraktivering gjelder støttede funksjoner på det valgte kortet. Listen er status, ikke ekstra godkjenninger.")),
 
@@ -321,7 +355,7 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     let consent = saved_binding(app);
     let waiting = state == "waiting" || (state == "off" && consent && !installable(app));
     let active = switch_active(&state, consent);
-    let busy = BUSY.with(Cell::get);
+    let busy = BUSY.with(Cell::get) || crate::system_install::busy();
 
     // ---- Bryteren ----
     let sw = gtk::Switch::new();
@@ -333,7 +367,7 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
         && crate::system_install::can_install();
     let can = app.client.is_connected() && (admin(app).is_some() || installable(app) || revoke_via_install)
         && (active || app.profile.is_dev() || app.data.borrow().backend == "nvml");
-    sw.set_sensitive(can && !busy && !crate::system_install::busy());
+    sw.set_sensitive(can && !busy);
     {
         let a = app.clone();
         // Bryteren flyttes først når skriptet er ferdig (state-set stoppes).
@@ -364,6 +398,7 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
     status_box.append(&status_line);
     let (kind, icon) = match state.as_str() {
         _ if busy => ("quiet", "timer"),
+        _ if waiting => ("warn", "timer"),
         "on" if locked::control_ready(app) => ("ok", "shield"),
         "on" if locked::gate(app) == rigg_core::txn::Gate::Sim => ("quiet", "shield"),
         "on" => ("warn", "circle-alert"),
@@ -403,6 +438,12 @@ pub fn build(app: &Rc<App>) -> Vec<Group> {
         let a = app.clone();
         update.connect_clicked(move |_| toggle(&a, true));
         status_actions.append(&update);
+    }
+    if !busy && state == "error" && admin(app).is_some() {
+        let restart = button(Some("refresh-cw"), Some(tr!("Start på nytt")), &["sm"]);
+        let a = app.clone();
+        restart.connect_clicked(move |_| toggle(&a, true));
+        status_actions.append(&restart);
     }
     if !busy && (waiting || matches!(state.as_str(), "error" | "outdated")) {
         let again = button(Some("refresh-cw"), Some(tr!("Sjekk igjen")), &["sm"]);
@@ -465,7 +506,7 @@ mod tests {
         for (state, text) in [("waiting", "Venter på enhet"), ("error", "Ikke klar"),
             ("unsupported", "Ikke støttet"), ("on", "Tilgjengelig")] {
             let helper = serde_json::json!({"state":state,"status":{
-                "identity":{"pci":selected.0, "uuid":selected.1}}});
+                "persist":true,"hold":true,"identity":{"pci":selected.0, "uuid":selected.1}}});
             assert_eq!(rgb_state_text(Some(&helper), Some(&selected)), text);
             assert_eq!(rgb_state_text(Some(&helper), None), "Ikke klar");
         }

@@ -36,7 +36,7 @@ msgstr "The selected GPU changed. Could not verify rollback on the original GPU:
 msgid "Valgt kort ble endret mens forespørselen ventet. Svaret brukes ikke på det nye kortet."
 msgstr "The selected GPU changed while the request was pending. The reply will not be used for the new GPU."
 
-#: crates/rigg/src/widgets/locked.rs:340 crates/rigg/src/widgets/locked.rs:675
+#: crates/rigg/src/widgets/locked.rs:340 crates/rigg/src/widgets/locked.rs:681
 msgid "Simulert kort"
 msgstr "Simulated GPU"
 
@@ -44,7 +44,7 @@ msgstr "Simulated GPU"
 msgid "Endringer gjelder bare simuleringen."
 msgstr "Changes affect only the simulation."
 
-#: crates/rigg/src/widgets/locked.rs:342 crates/rigg/src/widgets/locked.rs:679
+#: crates/rigg/src/widgets/locked.rs:342 crates/rigg/src/widgets/locked.rs:685
 msgid "Styring klar"
 msgstr "Control ready"
 
@@ -64,198 +64,202 @@ msgstr "Changes affect only the simulated GPU."
 msgid "Styring utilgjengelig"
 msgstr "Control unavailable"
 
-#: crates/rigg/src/widgets/locked.rs:345
+#: crates/rigg/src/widgets/locked.rs:345 crates/rigg/src/widgets/locked.rs:357
+msgid "Venter på enhet"
+msgstr "Waiting for device"
+
+#: crates/rigg/src/widgets/locked.rs:346
 msgid "Styring: feil"
 msgstr "Control error"
 
-#: crates/rigg/src/widgets/locked.rs:346
+#: crates/rigg/src/widgets/locked.rs:347
 msgid "Oppdater hjelper"
 msgstr "Update helper"
 
-#: crates/rigg/src/widgets/locked.rs:347
+#: crates/rigg/src/widgets/locked.rs:348
 msgid "Bare visning"
 msgstr "Read-only"
 
-#: crates/rigg/src/widgets/locked.rs:347
+#: crates/rigg/src/widgets/locked.rs:348
 msgid "Endringer på skjermkortet er slått av. Aktiver én gang med administratorpassord i Innstillinger › Skjermkortstyring."
 msgstr "GPU control is off. Enable it once with your administrator password in Settings › GPU Control."
 
-#: crates/rigg/src/widgets/locked.rs:355
+#: crates/rigg/src/widgets/locked.rs:356
 msgid "Hjelperen er ikke skriveklar for kortet som vises."
 msgstr "The helper is not ready to change this GPU."
 
-#: crates/rigg/src/widgets/locked.rs:356
+#: crates/rigg/src/widgets/locked.rs:358
 msgid "Hjelperen svarer ikke. Endringer er låst."
 msgstr "The helper is not responding. Changes are locked."
 
-#: crates/rigg/src/widgets/locked.rs:357
+#: crates/rigg/src/widgets/locked.rs:359
 msgid "Hjelperen må oppdateres. Oppdater systemkomponentene fra Innstillinger › Skjermkortstyring."
 msgstr "The helper must be updated. Update system components from Settings › GPU Control."
 
-#: crates/rigg/src/widgets/locked.rs:516
+#: crates/rigg/src/widgets/locked.rs:522
 msgid "Utkastet må oppdateres"
 msgstr "Draft needs updating"
 
-#: crates/rigg/src/widgets/locked.rs:544
+#: crates/rigg/src/widgets/locked.rs:550
 msgid "Dette eldre utkastet mangler opprinnelig grunnlag. Behold det som referanse, eller forkast det og lag et nytt utkast fra kortets verdier."
 msgstr "This older draft has no saved baseline. Keep it for reference, or discard it and start a new draft from the GPU’s current values."
 
-#: crates/rigg/src/widgets/locked.rs:547
+#: crates/rigg/src/widgets/locked.rs:553
 msgid "Utkastet tilhører en annen kortidentitet. Velg det opprinnelige kortet, eller forkast utkastet før du lager et nytt."
 msgstr "This draft belongs to a different GPU. Select the original GPU or discard the draft before creating a new one."
 
-#: crates/rigg/src/widgets/locked.rs:553
+#: crates/rigg/src/widgets/locked.rs:559
 msgid "Det finnes ikke noe utkast å bruke."
 msgstr "There is no draft to apply."
 
-#: crates/rigg/src/widgets/locked.rs:650 crates/rigg/src/widgets/locked.rs:683
+#: crates/rigg/src/widgets/locked.rs:656 crates/rigg/src/widgets/locked.rs:689
 msgid "Låst"
 msgstr "Locked"
 
-#: crates/rigg/src/widgets/locked.rs:657
+#: crates/rigg/src/widgets/locked.rs:663
 msgid "Hva skal til?"
 msgstr "What is required?"
 
-#: crates/rigg/src/widgets/locked.rs:659
+#: crates/rigg/src/widgets/locked.rs:665
 msgid "Aktivering og støtte for kortet"
 msgstr "Activation and GPU support"
 
-#: crates/rigg/src/widgets/locked.rs:673
+#: crates/rigg/src/widgets/locked.rs:679
 msgid "Kortet svarer ikke"
 msgstr "GPU not responding"
 
-#: crates/rigg/src/widgets/locked.rs:673
+#: crates/rigg/src/widgets/locked.rs:679
 msgid "Verdiene vises igjen når kortet er tilbake. Utkastet beholdes."
 msgstr "Values return when the GPU responds again. The draft is kept."
 
-#: crates/rigg/src/widgets/locked.rs:675
+#: crates/rigg/src/widgets/locked.rs:681
 msgid "Bruk sender utkastet til den simulerte backenden, med Behold eller Rull tilbake. Det ekte kortet røres ikke."
 msgstr "Apply sends the draft to the simulated backend. You can keep or roll back the change. No changes are made to the physical GPU."
 
-#: crates/rigg/src/widgets/locked.rs:677 crates/rigg/src/widgets/locked.rs:717
+#: crates/rigg/src/widgets/locked.rs:683 crates/rigg/src/widgets/locked.rs:723
 msgid "Utilgjengelig"
 msgstr "Unavailable"
 
-#: crates/rigg/src/widgets/locked.rs:679
+#: crates/rigg/src/widgets/locked.rs:685
 msgid "Utkast"
 msgstr "Draft"
 
-#: crates/rigg/src/widgets/locked.rs:679
+#: crates/rigg/src/widgets/locked.rs:685
 msgid "Endringene sendes til kortet når du trykker Bruk. Behold dem innen fristen, ellers rulles de tilbake."
 msgstr "Changes are sent to the GPU when you select Apply. Keep them before the deadline; otherwise they roll back."
 
-#: crates/rigg/src/widgets/locked.rs:679
+#: crates/rigg/src/widgets/locked.rs:685
 msgid "Støttede funksjoner kan endres med Bruk og Behold."
 msgstr "Supported features can be changed with Apply and Keep."
 
-#: crates/rigg/src/widgets/locked.rs:681
+#: crates/rigg/src/widgets/locked.rs:687
 msgid "Utkast · låst"
 msgstr "Draft · locked"
 
-#: crates/rigg/src/widgets/locked.rs:681
+#: crates/rigg/src/widgets/locked.rs:687
 msgid "Utkastet lagres i appen og sendes ikke til kortet. Styring er ikke tilgjengelig for kortet som vises, så Bruk er låst."
 msgstr "The draft is saved in the app and not sent to the GPU. Control is unavailable for this GPU, so Apply is locked."
 
-#: crates/rigg/src/widgets/locked.rs:706
+#: crates/rigg/src/widgets/locked.rs:712
 msgid "Skjermkortstyring"
 msgstr "GPU Control"
 
-#: crates/rigg/src/widgets/locked.rs:707
+#: crates/rigg/src/widgets/locked.rs:713
 msgid "Aktiver styring én gang med administratorpassord i Innstillinger. Funksjonene under blir tilgjengelige der kortet og driveren støtter dem."
 msgstr "Activate control once with an administrator password in Settings. The features below become available where supported by the GPU and driver."
 
-#: crates/rigg/src/widgets/locked.rs:711
+#: crates/rigg/src/widgets/locked.rs:717
 msgid "Effektgrense"
 msgstr "Power limit"
 
-#: crates/rigg/src/widgets/locked.rs:711
+#: crates/rigg/src/widgets/locked.rs:717
 msgid "Vifter"
 msgstr "Fans"
 
-#: crates/rigg/src/widgets/locked.rs:711
+#: crates/rigg/src/widgets/locked.rs:717
 msgid "Viftekurve"
 msgstr "Fan curve"
 
-#: crates/rigg/src/widgets/locked.rs:711
+#: crates/rigg/src/widgets/locked.rs:717
 msgid "Kjerneklokke"
 msgstr "Core clock"
 
-#: crates/rigg/src/widgets/locked.rs:711
+#: crates/rigg/src/widgets/locked.rs:717
 msgid "Minneklokke"
 msgstr "Memory clock"
 
-#: crates/rigg/src/widgets/locked.rs:711
+#: crates/rigg/src/widgets/locked.rs:717
 msgid "Temperaturmål"
 msgstr "Temperature target"
 
-#: crates/rigg/src/widgets/locked.rs:717
+#: crates/rigg/src/widgets/locked.rs:723
 msgid "Tilgjengelig"
 msgstr "Available"
 
-#: crates/rigg/src/widgets/locked.rs:717
+#: crates/rigg/src/widgets/locked.rs:723
 msgid "Ikke undersøkt"
 msgstr "Not checked"
 
-#: crates/rigg/src/widgets/locked.rs:721
+#: crates/rigg/src/widgets/locked.rs:727
 msgid "Hver endring må beholdes innen fristen. Du kan alltid velge Rull tilbake."
 msgstr "Keep each change before the deadline. You can always select Roll back."
 
-#: crates/rigg/src/widgets/locked.rs:725
+#: crates/rigg/src/widgets/locked.rs:731
 msgid "Åpne Innstillinger › Skjermkortstyring"
 msgstr "Open Settings › GPU Control"
 
-#: crates/rigg/src/widgets/locked.rs:940
+#: crates/rigg/src/widgets/locked.rs:956
 msgid "Rull tilbake"
 msgstr "Roll back"
 
-#: crates/rigg/src/widgets/locked.rs:941
+#: crates/rigg/src/widgets/locked.rs:957
 msgid "Behold"
 msgstr "Keep"
 
-#: crates/rigg/src/widgets/locked.rs:961
+#: crates/rigg/src/widgets/locked.rs:977
 msgid "Tilbakestilling kunne ikke bekreftes. Kortets tilstand er usikker. Prøv Rull tilbake, og se status i Innstillinger › Skjermkortstyring."
 msgstr "Could not verify rollback. The GPU state is uncertain. Try Roll back and check Settings › GPU Control."
 
-#: crates/rigg/src/widgets/locked.rs:965 crates/rigg/src/widgets/locked.rs:1053 crates/rigg/src/widgets/locked.rs:1107
+#: crates/rigg/src/widgets/locked.rs:981 crates/rigg/src/widgets/locked.rs:1069 crates/rigg/src/widgets/locked.rs:1123
 msgid "Endringene er rullet tilbake"
 msgstr "Changes rolled back"
 
-#: crates/rigg/src/widgets/locked.rs:1025
+#: crates/rigg/src/widgets/locked.rs:1041
 msgid "Behold ({sek})"
 msgstr "Keep ({sek})"
 
-#: crates/rigg/src/widgets/locked.rs:1026
+#: crates/rigg/src/widgets/locked.rs:1042
 msgid "Kortet er byttet. Venter på bekreftet tilbakestilling på det opprinnelige kortet …"
 msgstr "The selected GPU changed. Waiting for confirmed rollback on the original GPU…"
 
-#: crates/rigg/src/widgets/locked.rs:1027
+#: crates/rigg/src/widgets/locked.rs:1043
 msgid "Fristen er ute. Venter på bekreftet tilbakestilling fra tjenesten …"
 msgstr "The deadline expired. Waiting for the service to verify rollback…"
 
-#: crates/rigg/src/widgets/locked.rs:1028
+#: crates/rigg/src/widgets/locked.rs:1044
 msgid "Behold endringene? Uten svar rulles de tilbake om {tid}."
 msgstr "Keep the changes? Without a response they roll back in {tid}."
 
-#: crates/rigg/src/widgets/locked.rs:1046
+#: crates/rigg/src/widgets/locked.rs:1062
 msgid "Tjenesten kan ikke bekrefte kortets tilstand eller tilbakestilling. Prøv Rull tilbake, og se status i Innstillinger › Skjermkortstyring."
 msgstr "The service cannot verify the GPU state or rollback. Try Roll back and check Settings › GPU Control."
 
-#: crates/rigg/src/widgets/locked.rs:1058
+#: crates/rigg/src/widgets/locked.rs:1074
 msgid "Kortets tilstand er bekreftet"
 msgstr "Card state verified"
 
-#: crates/rigg/src/widgets/locked.rs:1058
+#: crates/rigg/src/widgets/locked.rs:1074
 msgid "Ingen ubekreftet endring venter."
 msgstr "No unconfirmed changes are pending."
 
-#: crates/rigg/src/widgets/locked.rs:1107
+#: crates/rigg/src/widgets/locked.rs:1123
 msgid "Endringene er beholdt"
 msgstr "Changes kept"
 
-#: crates/rigg/src/widgets/locked.rs:1111
+#: crates/rigg/src/widgets/locked.rs:1127
 msgid "Tjenesten kan ikke bekrefte tilbakestillingen. Kortets tilstand er usikker. Prøv Rull tilbake."
 msgstr "The service cannot verify rollback. The GPU state is uncertain. Try Roll back."
 
-#: crates/rigg/src/widgets/locked.rs:1112
+#: crates/rigg/src/widgets/locked.rs:1128
 msgid "Kunne ikke bekrefte svaret: {feil}. Prøv Rull tilbake. Endringen regnes ikke som tilbakestilt før tjenesten bekrefter det."
 msgstr "Could not verify the response: {feil}. Try Roll back. The change is not considered rolled back until the service verifies it."

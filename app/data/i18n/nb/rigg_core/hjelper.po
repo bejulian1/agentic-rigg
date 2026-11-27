@@ -7,282 +7,282 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: crates/rigg-core/src/hjelper.rs:401
+#: crates/rigg-core/src/hjelper.rs:414
 msgid "Effekt"
 msgstr "Effekt"
 
-#: crates/rigg-core/src/hjelper.rs:402
+#: crates/rigg-core/src/hjelper.rs:415
 msgid "Vifter"
 msgstr "Vifter"
 
-#: crates/rigg-core/src/hjelper.rs:403
+#: crates/rigg-core/src/hjelper.rs:416
 msgid "Klokker"
 msgstr "Klokker"
 
-#: crates/rigg-core/src/hjelper.rs:404
+#: crates/rigg-core/src/hjelper.rs:417
 msgid "RGB-lys"
 msgstr "RGB-lys"
 
-#: crates/rigg-core/src/hjelper.rs:409
+#: crates/rigg-core/src/hjelper.rs:422
 msgid "Trinnet «{one}» er ikke godkjent. Godkjenn det i Innstillinger › Styring først."
 msgstr "Trinnet «{one}» er ikke godkjent. Godkjenn det i Innstillinger › Styring først."
 
-#: crates/rigg-core/src/hjelper.rs:410
+#: crates/rigg-core/src/hjelper.rs:423
 msgid "Trinnene {steps} er ikke godkjent. Godkjenn dem i Innstillinger › Styring først."
 msgstr "Trinnene {steps} er ikke godkjent. Godkjenn dem i Innstillinger › Styring først."
 
-#: crates/rigg-core/src/hjelper.rs:424
+#: crates/rigg-core/src/hjelper.rs:437
 msgid "{felt}: Kortet tillater {min}–{max}. Ingenting er endret."
 msgstr "{felt}: Kortet tillater {min}–{max}. Ingenting er endret."
 
-#: crates/rigg-core/src/hjelper.rs:427 crates/rigg-core/src/hjelper.rs:528
+#: crates/rigg-core/src/hjelper.rs:440 crates/rigg-core/src/hjelper.rs:541
 msgid "Kortet eller driveren støtter ikke denne funksjonen."
 msgstr "Kortet eller driveren støtter ikke denne funksjonen."
 
-#: crates/rigg-core/src/hjelper.rs:435
+#: crates/rigg-core/src/hjelper.rs:448
 msgid "Effektgrense"
 msgstr "Effektgrense"
 
-#: crates/rigg-core/src/hjelper.rs:436
+#: crates/rigg-core/src/hjelper.rs:449
 msgid "Temperaturmål"
 msgstr "Temperaturmål"
 
-#: crates/rigg-core/src/hjelper.rs:437
+#: crates/rigg-core/src/hjelper.rs:450
 msgid "GPU-justering"
 msgstr "GPU-justering"
 
-#: crates/rigg-core/src/hjelper.rs:438
+#: crates/rigg-core/src/hjelper.rs:451
 msgid "Minnejustering"
 msgstr "Minnejustering"
 
-#: crates/rigg-core/src/hjelper.rs:439
+#: crates/rigg-core/src/hjelper.rs:452
 msgid "Viftefart"
 msgstr "Viftefart"
 
-#: crates/rigg-core/src/hjelper.rs:440
+#: crates/rigg-core/src/hjelper.rs:453
 msgid "Temperaturen i kurven"
 msgstr "Temperaturen i kurven"
 
-#: crates/rigg-core/src/hjelper.rs:441
+#: crates/rigg-core/src/hjelper.rs:454
 msgid "Viftefarten i kurven"
 msgstr "Viftefarten i kurven"
 
-#: crates/rigg-core/src/hjelper.rs:456
+#: crates/rigg-core/src/hjelper.rs:469
 msgid "Kan ikke lagre gjenopprettingsmerkør før endring: {feil}"
 msgstr "Kan ikke lagre gjenopprettingsmerkør før endring: {feil}"
 
-#: crates/rigg-core/src/hjelper.rs:459
+#: crates/rigg-core/src/hjelper.rs:472
 msgid "Kortet ble gjenopprettet, men merkøren kunne ikke ryddes: {feil}"
 msgstr "Kortet ble gjenopprettet, men merkøren kunne ikke ryddes: {feil}"
 
-#: crates/rigg-core/src/hjelper.rs:462
+#: crates/rigg-core/src/hjelper.rs:475
 msgid "Fikk ikke kontakt med hjelperen ({feil})"
 msgstr "Fikk ikke kontakt med hjelperen ({feil})"
 
-#: crates/rigg-core/src/hjelper.rs:465
+#: crates/rigg-core/src/hjelper.rs:478
 msgid "Hjelperen svarte ikke ({feil})"
 msgstr "Hjelperen svarte ikke ({feil})"
 
-#: crates/rigg-core/src/hjelper.rs:468
+#: crates/rigg-core/src/hjelper.rs:481
 msgid "Hjelperen tok ikke imot ({feil})"
 msgstr "Hjelperen tok ikke imot ({feil})"
 
-#: crates/rigg-core/src/hjelper.rs:479
+#: crates/rigg-core/src/hjelper.rs:492
 msgid "celsius må være 0–120"
 msgstr "celsius må være 0–120"
 
-#: crates/rigg-core/src/hjelper.rs:480
+#: crates/rigg-core/src/hjelper.rs:493
 msgid "RGB-backenden er ikke identifisert eller tilgjengelig."
 msgstr "RGB-backenden er ikke identifisert eller tilgjengelig."
 
-#: crates/rigg-core/src/hjelper.rs:481
+#: crates/rigg-core/src/hjelper.rs:494
 msgid "Viftestyring krever en lesbar temperatur for overtemperaturvernet."
 msgstr "Viftestyring krever en lesbar temperatur for overtemperaturvernet."
 
-#: crates/rigg-core/src/hjelper.rs:482
+#: crates/rigg-core/src/hjelper.rs:495
 msgid "Nødregelen gjelder. Vent til kortet er under 80 °C."
 msgstr "Nødregelen gjelder. Vent til kortet er under 80 °C."
 
-#: crates/rigg-core/src/hjelper.rs:483
+#: crates/rigg-core/src/hjelper.rs:496
 msgid "Endringer er låst: endring av skjermkortet er ikke slått på. Slå på «Tillat endring av skjermkortet» i Innstillinger › Styring."
 msgstr "Endringer er låst: endring av skjermkortet er ikke slått på. Slå på «Tillat endring av skjermkortet» i Innstillinger › Styring."
 
-#: crates/rigg-core/src/hjelper.rs:484
+#: crates/rigg-core/src/hjelper.rs:497
 msgid "Hjelperen for endring svarer ikke. Se Innstillinger › Styring."
 msgstr "Hjelperen for endring svarer ikke. Se Innstillinger › Styring."
 
-#: crates/rigg-core/src/hjelper.rs:485
+#: crates/rigg-core/src/hjelper.rs:498
 msgid "Hjelperen er fra en annen versjon av appen. Oppdater systemkomponentene fra Innstillinger › Skjermkortstyring."
 msgstr "Hjelperen er fra en annen versjon av appen. Oppdater systemkomponentene fra Innstillinger › Skjermkortstyring."
 
-#: crates/rigg-core/src/hjelper.rs:486
+#: crates/rigg-core/src/hjelper.rs:499
 msgid "Hjelperen er fra en annen versjon av appen. Slå bryteren i Innstillinger › Styring av og på igjen."
 msgstr "Hjelperen er fra en annen versjon av appen. Slå bryteren i Innstillinger › Styring av og på igjen."
 
-#: crates/rigg-core/src/hjelper.rs:487
+#: crates/rigg-core/src/hjelper.rs:500
 msgid "Hjelperen og tjenesten bruker ulike kort (simulert og ekte). Ingenting er sendt."
 msgstr "Hjelperen og tjenesten bruker ulike kort (simulert og ekte). Ingenting er sendt."
 
-#: crates/rigg-core/src/hjelper.rs:488
+#: crates/rigg-core/src/hjelper.rs:501
 msgid "NVML-hjelperen er ikke klar til å endre dette kortet."
 msgstr "NVML-hjelperen er ikke klar til å endre dette kortet."
 
-#: crates/rigg-core/src/hjelper.rs:489
+#: crates/rigg-core/src/hjelper.rs:502
 msgid "Skjermkortstyring må aktiveres med bryteren i Innstillinger."
 msgstr "Skjermkortstyring må aktiveres med bryteren i Innstillinger."
 
-#: crates/rigg-core/src/hjelper.rs:490 crates/rigg-core/src/hjelper.rs:530
+#: crates/rigg-core/src/hjelper.rs:503 crates/rigg-core/src/hjelper.rs:543
 msgid "Det valgte kortet er ikke kortet hjelperen er aktivert for."
 msgstr "Det valgte kortet er ikke kortet hjelperen er aktivert for."
 
-#: crates/rigg-core/src/hjelper.rs:491
+#: crates/rigg-core/src/hjelper.rs:504
 msgid "Gjenoppretting kunne ikke bekreftes. Nye endringer er sperret."
 msgstr "Gjenoppretting kunne ikke bekreftes. Nye endringer er sperret."
 
-#: crates/rigg-core/src/hjelper.rs:492
+#: crates/rigg-core/src/hjelper.rs:505
 msgid "Lys er ikke laget ennå."
 msgstr "Lys er ikke laget ennå."
 
-#: crates/rigg-core/src/hjelper.rs:493
+#: crates/rigg-core/src/hjelper.rs:506
 msgid "Endringer er låst. Skriving til skjermkortet er ikke slått på."
 msgstr "Endringer er låst. Skriving til skjermkortet er ikke slått på."
 
-#: crates/rigg-core/src/hjelper.rs:494
+#: crates/rigg-core/src/hjelper.rs:507
 msgid "Funksjonen er ikke tilgjengelig på dette kortet."
 msgstr "Funksjonen er ikke tilgjengelig på dette kortet."
 
-#: crates/rigg-core/src/hjelper.rs:495
+#: crates/rigg-core/src/hjelper.rs:508
 msgid "Hjelperen er aktivert for en annen bruker."
 msgstr "Hjelperen er aktivert for en annen bruker."
 
-#: crates/rigg-core/src/hjelper.rs:496
+#: crates/rigg-core/src/hjelper.rs:509
 msgid "Hjelperen kjører, men helper.json mangler."
 msgstr "Hjelperen kjører, men helper.json mangler."
 
-#: crates/rigg-core/src/hjelper.rs:497
+#: crates/rigg-core/src/hjelper.rs:510
 msgid "Gjenopprettingsmerkøren har feil identitet eller utrygg eier/modus."
 msgstr "Gjenopprettingsmerkøren har feil identitet eller utrygg eier/modus."
 
-#: crates/rigg-core/src/hjelper.rs:498
+#: crates/rigg-core/src/hjelper.rs:511
 msgid "Skjermkortet eller tjenesten svarer ikke. Endringer er låst."
 msgstr "Skjermkortet eller tjenesten svarer ikke. Endringer er låst."
 
-#: crates/rigg-core/src/hjelper.rs:499
+#: crates/rigg-core/src/hjelper.rs:512
 msgid "Hjelperen er aktivert for et annet kort. Aktiver styring for kortet som vises."
 msgstr "Hjelperen er aktivert for et annet kort. Aktiver styring for kortet som vises."
 
-#: crates/rigg-core/src/hjelper.rs:500
+#: crates/rigg-core/src/hjelper.rs:513
 msgid "Valgt kort ble endret mens forespørselen ventet. Svaret brukes ikke på det nye kortet."
 msgstr "Valgt kort ble endret mens forespørselen ventet. Svaret brukes ikke på det nye kortet."
 
-#: crates/rigg-core/src/hjelper.rs:501
+#: crates/rigg-core/src/hjelper.rs:514
 msgid "Endringer på skjermkortet er slått av. Aktiver én gang med administratorpassord i Innstillinger › Skjermkortstyring."
 msgstr "Endringer på skjermkortet er slått av. Aktiver én gang med administratorpassord i Innstillinger › Skjermkortstyring."
 
-#: crates/rigg-core/src/hjelper.rs:502
+#: crates/rigg-core/src/hjelper.rs:515
 msgid "Hjelperen er ikke skriveklar for kortet som vises."
 msgstr "Hjelperen er ikke skriveklar for kortet som vises."
 
-#: crates/rigg-core/src/hjelper.rs:503
+#: crates/rigg-core/src/hjelper.rs:516
 msgid "Dette eldre utkastet mangler opprinnelig grunnlag. Behold det som referanse, eller forkast det og lag et nytt utkast fra kortets verdier."
 msgstr "Dette eldre utkastet mangler opprinnelig grunnlag. Behold det som referanse, eller forkast det og lag et nytt utkast fra kortets verdier."
 
-#: crates/rigg-core/src/hjelper.rs:504
+#: crates/rigg-core/src/hjelper.rs:517
 msgid "Utkastet tilhører en annen kortidentitet. Velg det opprinnelige kortet, eller forkast utkastet før du lager et nytt."
 msgstr "Utkastet tilhører en annen kortidentitet. Velg det opprinnelige kortet, eller forkast utkastet før du lager et nytt."
 
-#: crates/rigg-core/src/hjelper.rs:505
+#: crates/rigg-core/src/hjelper.rs:518
 msgid "Det finnes ikke noe utkast å bruke."
 msgstr "Det finnes ikke noe utkast å bruke."
 
-#: crates/rigg-core/src/hjelper.rs:506
+#: crates/rigg-core/src/hjelper.rs:519
 msgid "Ugyldig argument."
 msgstr "Ugyldig argument."
 
-#: crates/rigg-core/src/hjelper.rs:507
+#: crates/rigg-core/src/hjelper.rs:520
 msgid "Ukjent skjermkort."
 msgstr "Ukjent skjermkort."
 
-#: crates/rigg-core/src/hjelper.rs:508
+#: crates/rigg-core/src/hjelper.rs:521
 msgid "Kortet eller driveren støtter ikke dette."
 msgstr "Kortet eller driveren støtter ikke dette."
 
-#: crates/rigg-core/src/hjelper.rs:509
+#: crates/rigg-core/src/hjelper.rs:522
 msgid "Ikke tillatt."
 msgstr "Ikke tillatt."
 
-#: crates/rigg-core/src/hjelper.rs:510
+#: crates/rigg-core/src/hjelper.rs:523
 msgid "En annen klient har en endring som venter."
 msgstr "En annen klient har en endring som venter."
 
-#: crates/rigg-core/src/hjelper.rs:511
+#: crates/rigg-core/src/hjelper.rs:524
 msgid "Ingen endring venter."
 msgstr "Ingen endring venter."
 
-#: crates/rigg-core/src/hjelper.rs:512
+#: crates/rigg-core/src/hjelper.rs:525
 msgid "Endringen finnes ikke lenger."
 msgstr "Endringen finnes ikke lenger."
 
-#: crates/rigg-core/src/hjelper.rs:513
+#: crates/rigg-core/src/hjelper.rs:526
 msgid "Bare klienten som gjorde endringen, kan bekrefte den."
 msgstr "Bare klienten som gjorde endringen, kan bekrefte den."
 
-#: crates/rigg-core/src/hjelper.rs:514
+#: crates/rigg-core/src/hjelper.rs:527
 msgid "Tjenesten stopper."
 msgstr "Tjenesten stopper."
 
-#: crates/rigg-core/src/hjelper.rs:515
+#: crates/rigg-core/src/hjelper.rs:528
 msgid "Feil i tjenesten."
 msgstr "Feil i tjenesten."
 
-#: crates/rigg-core/src/hjelper.rs:516
+#: crates/rigg-core/src/hjelper.rs:529
 msgid "Ikke tilgjengelig nå."
 msgstr "Ikke tilgjengelig nå."
 
-#: crates/rigg-core/src/hjelper.rs:517
+#: crates/rigg-core/src/hjelper.rs:530
 msgid "Trinnet er ikke godkjent."
 msgstr "Trinnet er ikke godkjent."
 
-#: crates/rigg-core/src/hjelper.rs:518
+#: crates/rigg-core/src/hjelper.rs:531
 msgid "Kortets standardtilstand kunne ikke bekreftes ved tilbakelesing."
 msgstr "Kortets standardtilstand kunne ikke bekreftes ved tilbakelesing."
 
-#: crates/rigg-core/src/hjelper.rs:519
+#: crates/rigg-core/src/hjelper.rs:532
 msgid "Hjelperen lukket forbindelsen"
 msgstr "Hjelperen lukket forbindelsen"
 
-#: crates/rigg-core/src/hjelper.rs:520
+#: crates/rigg-core/src/hjelper.rs:533
 msgid "For stort svar fra hjelperen"
 msgstr "For stort svar fra hjelperen"
 
-#: crates/rigg-core/src/hjelper.rs:521
+#: crates/rigg-core/src/hjelper.rs:534
 msgid "Tjenesten svarte ikke på 5 s."
 msgstr "Tjenesten svarte ikke på 5 s."
 
-#: crates/rigg-core/src/hjelper.rs:529
+#: crates/rigg-core/src/hjelper.rs:542
 msgid "Driveren ga ikke tilgang til å endre kortet."
 msgstr "Driveren ga ikke tilgang til å endre kortet."
 
-#: crates/rigg-core/src/hjelper.rs:531
+#: crates/rigg-core/src/hjelper.rs:544
 msgid "Kortet svarer ikke."
 msgstr "Kortet svarer ikke."
 
-#: crates/rigg-core/src/hjelper.rs:532
+#: crates/rigg-core/src/hjelper.rs:545
 msgid "Kortets innstillinger kunne ikke bekreftes ved tilbakelesing."
 msgstr "Kortets innstillinger kunne ikke bekreftes ved tilbakelesing."
 
-#: crates/rigg-core/src/hjelper.rs:533
+#: crates/rigg-core/src/hjelper.rs:546
 msgid "De opprinnelige innstillingene for kortet mangler."
 msgstr "De opprinnelige innstillingene for kortet mangler."
 
-#: crates/rigg-core/src/hjelper.rs:534
+#: crates/rigg-core/src/hjelper.rs:547
 msgid "Kortet må gjenopprettes før nye endringer."
 msgstr "Kortet må gjenopprettes før nye endringer."
 
-#: crates/rigg-core/src/hjelper.rs:535
+#: crates/rigg-core/src/hjelper.rs:548
 msgid "NVML avviste en ugyldig verdi."
 msgstr "NVML avviste en ugyldig verdi."
 
-#: crates/rigg-core/src/hjelper.rs:536
+#: crates/rigg-core/src/hjelper.rs:549
 msgid "En NVML-operasjon mislyktes."
 msgstr "En NVML-operasjon mislyktes."

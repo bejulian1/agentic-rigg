@@ -1030,3 +1030,7 @@ Ren dokumentasjonsendring, ingen ny appversjon. `docs/images/rgb-lighting.png` v
 Migrering fra bygg 32/33 bevarer RGB-grunnopptak og journal. Oppstartskoordinatoren binder begge arbeidernes enhetspolicy til kortets ferske enhetsnumre. Den isolerte regresjonsprøven dekker omnummerering, begge valg ved uavklart journal, Hold av lagret Av og tilbakekalling. Fysisk omstart og administratorflyten på brukerens PC inngår ikke i denne prøven.
 
 Innstillinger viser fortsatt kortbindingen når en arbeider venter eller stopper. Prøvene går gjennom manglende socket før og etter klarmelding, foreldet rapport for feil kort eller generasjon og tilbakekalling. Historiske bygg 33-filer brukes bare i den private migreringsprøven og holdes utenfor desktop-pakken.
+
+## 2026-11-27 · Kortstyring etter omstart, 1.7.1 bygg 34
+
+Codex rettet gjenoppretting ved generasjonsbytte, gjentatt Hold, kanonisk Av-mål og betinget avklaring etter omstart. Migrering og tilbakekalling bevarer en uavklart journals kortbinding. Innstillinger viser venting og feil per arbeider. Regresjonene bruker private systemrøtter og simulerte kort. Fysisk kort og ekte systemd-omstart gjenstår.

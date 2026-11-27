@@ -109,7 +109,7 @@ cd agentic-rigg
 
 ### Uninstall
 
-Turn off GPU control and card lighting in the app first, then run `./uninstall.sh` from the release folder or the source checkout. It keeps your settings (`~/.config/agentic-rigg/`) and history (`~/.local/state/agentic-rigg/`), and refuses to continue while a root helper is still active. To remove the system components as well, run `sudo /usr/local/libexec/agentic-rigg-system/system-install --uninstall` after turning both helpers off.
+Turn off the card permission in **Settings › GPU control** first, then run `./uninstall.sh` from the release folder or the source checkout. It keeps your settings (`~/.config/agentic-rigg/`) and history (`~/.local/state/agentic-rigg/`), and refuses to continue while a root helper is still active. To remove the system components as well, run `sudo /usr/local/libexec/agentic-rigg-system/system-install --uninstall` after turning off the card permission.
 
 ## Upgrade
 
@@ -117,7 +117,7 @@ Turn off GPU control and card lighting in the app first, then run `./uninstall.s
 2. Download and verify the new release as above, then run `./install.sh --bin-dir "$PWD/bin"` from the new folder. From source: `git pull` and `./install.sh`.
 3. Start the app again. Settings, history, logs and profiles are kept.
 
-**Upgrading from build 32 or 33.** In this development version, open **Settings › GPU control** and choose **Update system components** to authorize the expanded scope for the selected card. If only lighting was enabled, use **Allow GPU tuning** in the same place. Migration preserves the saved lighting, factory reference and any unresolved lighting journal. You can resolve it after the workers start.
+**Upgrading from build 32 or 33.** For 1.7.1 (build 34), open **Settings › GPU control** and choose **Update system components** to authorize the expanded scope for the selected card. If only lighting was enabled, use **Allow GPU tuning** in the same place. Migration preserves the saved lighting, factory reference and any unresolved lighting journal. You can resolve it after the workers start.
 
 ## GPU control and RGB lighting
 

@@ -192,6 +192,13 @@ class SystemTest(unittest.TestCase):
         self.assertEqual(json.loads(status.read_text())['rgb'], 'unsupported')
         self.assertIn('/dev/nvidia7 rw', rule.read_text())
         self.assertNotIn('nvidia13', rule.read_text())
+        nv_state = self.root / 'fixture-nvml-systemd.json'
+        nv_state.write_text(json.dumps({'ActiveState':'inactive', 'fail':{'start':'before'}}))
+        self.assertEqual(admin('boot').returncode, 75)
+        failed = json.loads(status.read_text())
+        self.assertEqual((failed['nvml'], failed['rgb']), ('waiting', 'unsupported'))
+        self.assertIn('start', failed['gpuMessage'])
+        nv_state.write_text('{}')
         with (self.root / 'run/agentic-rigg-system.lock').open('rb') as lock:
             fcntl.flock(lock, fcntl.LOCK_EX)
             for action, extra in [('deactivate', []), ('activate', card_args)]:
@@ -200,9 +207,34 @@ class SystemTest(unittest.TestCase):
                 self.assertIn('administratorhandling', res.stderr.decode())
         self.assertEqual(admin('activate', *card_args).returncode, 0)
         self.assertEqual(json.loads(grant_file.read_text()), grant)
+        rgb_config, journal, *_ = self.mod['active_files']('rgb')
+        previous = json.loads(rgb_config.read_text())
+        previous['binding'].update(pci='0000:02:00.0', uuid='GPU-23456789-abcd-ef01-2345-6789abcdef01')
+        rgb_config.write_text(json.dumps(previous))
         revoked = admin('deactivate')
         self.assertEqual(revoked.returncode, 0, revoked.stderr.decode())
-        self.assertFalse(grant_file.exists())
+        self.assertFalse(grant_file.exists() or rgb_config.exists())
+        receipt = journal.with_name('arkivert-tillatelse.json')
+        self.assertEqual(json.loads(receipt.read_text()), previous)
+        self.assertEqual(receipt.stat().st_mode & 0o777, 0o600)
+        self.mod['archive_state']('rgb', previous['binding']['uuid'])
+        self.assertFalse(journal.exists())
+
+    def test_admin_revoke_preserves_rgb_binding_for_later_archive(self):
+        self.test_migrate_stopped_build33_with_unresolved_journal()
+        config, journal, *_ = self.mod['active_files']('rgb')
+        original = config.read_bytes()
+        self.assertTrue(self.mod['revoke_shared']())
+        receipt = journal.with_name('arkivert-tillatelse.json')
+        self.assertEqual(receipt.read_bytes(), original)
+        self.assertEqual(receipt.stat().st_mode & 0o777, 0o600)
+        card = json.loads(original)['binding']
+        gpu = self.mod['GPU_INFO'] / card['pci']
+        (gpu / 'information').unlink()
+        gpu.rmdir()
+        self.mod['archive_state']('rgb', card['uuid'])
+        self.assertFalse(config.exists() or journal.exists())
+        self.assertEqual(next(self.root.rglob('arkivert-tillatelse.json')).read_bytes(), original)
 
     def test_migration_and_uninstall_keep_baseline(self):
         config, journal, unit, _ = self.mod['active_files']('nvml')
@@ -289,9 +321,10 @@ class SystemTest(unittest.TestCase):
                 self.directory(path.parent)
                 path.write_text('behold')
             revoke = self.mod['archive_state']
-            with self.assertRaises(ValueError):
-                revoke(domain, revoke=True)
-            journal.unlink()
+            if domain == 'nvml':
+                with self.assertRaises(ValueError):
+                    revoke(domain, revoke=True)
+                journal.unlink()
             self.mod['stopped'] = lambda _: False
             with self.assertRaises(ValueError):
                 revoke(domain, revoke=True)
@@ -446,9 +479,9 @@ class SystemTest(unittest.TestCase):
         self.directory(self.mod['MARK'].parent)
         self.mod['MARK'].write_text('2:33\n')
         self.mod['MARK'].chmod(0o644)
-        # Pakken: alle systemfiler fra denne kildekoden, bygg 33.
+        # Pakken: alle systemfiler fra denne kildekoden, bygg 34.
         files = dict(self.files)
-        files['version.json'] = json.dumps({'name': 'Agentic HW Monitor', 'version': '1.7.0', 'channel': 'stable', 'build': 33}).encode()
+        files['version.json'] = json.dumps({'name': 'Agentic HW Monitor', 'version': '1.7.1', 'channel': 'stable', 'build': 34}).encode()
         archive, digest = self.archive(files.items())
         hent = runpy.run_path(str(DATA / 'system-hent.py'), run_name='test')['main'].__globals__
         hent.update(STAGING=str(self.root), MARK=str(self.mod['MARK']), RGB_JOURNAL=str(rgb_journal),
@@ -492,11 +525,11 @@ class SystemTest(unittest.TestCase):
         hent.update(fetch=fetch, os=RootOs(), subprocess=type('S', (), {'run': run, 'DEVNULL': -3, 'PIPE': -1}))
         out = io.StringIO()
         with patch.dict(os.environ, {'PKEXEC_UID': '1000'}), contextlib.redirect_stdout(out):
-            self.assertEqual(hent['main'](['1.7.0', '33', '-', 'card', card['pci'], card['uuid']]), 0)
+            self.assertEqual(hent['main'](['1.7.1', '34', '-', 'card', card['pci'], card['uuid']]), 0)
         self.assertEqual([r[0] if isinstance(r, list) else r for r in ran], ['python3', 'aktiver.sh'])
         self.assertEqual(rgb_journal.read_bytes(), original)
         self.assertTrue(rgb_config.exists())
-        self.assertEqual(self.mod['MARK'].read_text(), '3:33\n')
+        self.assertEqual(self.mod['MARK'].read_text(), '3:34\n')
 
     def lock_functions(self):
         rgb = runpy.run_path(str(DATA / 'rgb-admin.py'))

@@ -388,9 +388,8 @@ def main(argv):
     uid = pkexec_uid()
     # Leses før nettet brukes, så en fremmed tillatelse stopper alt tidlig.
     before = snapshot(uid)
-    revoke = argv[3:] == ['revoke-card']
-    chosen = (argv[4].lower(), argv[5]) if then and not revoke else None
-    if not revoke and any(auth and card(auth) != chosen for auth in before[:2]):
+    chosen = (argv[4].lower(), argv[5]) if argv[3:4] == ['card'] else None
+    if chosen and any(auth and card(auth) != chosen for auth in before[:2]):
         fail('Velg det autoriserte kortet før du oppdaterer systemkomponentene.')
     name = ASSET.format(version=version, build=build)
     digest = published_digest(version, name)

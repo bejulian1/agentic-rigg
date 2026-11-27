@@ -165,7 +165,7 @@ class HentTest(unittest.TestCase):
         path.chmod(mode)
 
     def test_revoke_legacy_with_one_approval(self):
-        self.permission('rgb', mode=0o600)
+        self.permission('rgb', uuid='GPU-23456789-abcd-ef01-2345-6789abcdef01', mode=0o600)
         self.permission('nvml')
         self.journal.write_text('unresolved')
         self.assertEqual(self.main('revoke-card'), 0)

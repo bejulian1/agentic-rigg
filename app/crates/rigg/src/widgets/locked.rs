@@ -330,7 +330,7 @@ pub fn mark_topbar(app: &Rc<App>, page: &'static str) {
 
 pub fn sync_topbar(app: &Rc<App>, page: &'static str) {
     if let Some(s) = app.shell.get() {
-        // Lys har egen RGB-tillatelse og viser status ved sine kontroller.
+        // Kortlyset har egen arbeider og viser status ved sine kontroller.
         let open = !matches!(gate(app), Gate::Locked(_));
         s.topbar.set_locked(page, !open);
     }
@@ -342,6 +342,7 @@ pub fn badge(app: &App) -> (String, &'static str, String) {
         "on" if control_ready(app) => (tr!("Styring klar").into(), "shield", tr!("Støttede endringer sendes til det valgte kortet når du trykker Bruk.").into()),
         "on" if gate(app) == Gate::Sim => (tr!("Simulert styring").into(), "circle-dot", tr!("Endringer gjelder bare det simulerte kortet.").into()),
         "on" => (tr!("Styring utilgjengelig").into(), "triangle-alert", helper_line(app).unwrap_or_default()),
+        "waiting" => (tr!("Venter på enhet").into(), "timer", helper_line(app).unwrap_or_default()),
         "error" => (tr!("Styring: feil").into(), "triangle-alert", helper_line(app).unwrap_or_default()),
         "outdated" => (tr!("Oppdater hjelper").into(), "circle-alert", helper_line(app).unwrap_or_default()),
         _ => (tr!("Bare visning").into(), "lock", tr!("Endringer på skjermkortet er slått av. Aktiver én gang med administratorpassord i Innstillinger › Skjermkortstyring.").into()),
@@ -353,6 +354,7 @@ pub fn helper_line(app: &App) -> Option<String> {
     match helper_state(app).as_str() {
         "on" if control_ready(app) || gate(app) == Gate::Sim => None,
         "on" => Some(h["message"].as_str().map(display_diagnostic).map_or_else(|| tr!("Hjelperen er ikke skriveklar for kortet som vises.").into(), |text| text.into_owned())),
+        "waiting" => Some(h["message"].as_str().map(display_diagnostic).map_or_else(|| tr!("Venter på enhet").into(), |text| text.into_owned())),
         "error" => Some(h["message"].as_str().map(display_diagnostic).map_or_else(|| tr!("Hjelperen svarer ikke. Endringer er låst.").into(), |text| text.into_owned())),
         "outdated" => Some(tr!("Hjelperen må oppdateres. Oppdater systemkomponentene fra Innstillinger › Skjermkortstyring.").into()),
         _ => None,
@@ -718,7 +720,7 @@ pub fn what_it_takes(app: &Rc<App>, anchor: &gtk::Button) {
         title.set_hexpand(true);
         row.append(&title);
         let available = supports(app, key);
-        row.append(&label(if available { tr!("Tilgjengelig") } else if helper_state(app) == "off" { tr!("Ikke undersøkt") } else { tr!("Utilgjengelig") }, &["muted", "sm"]));
+        row.append(&label(if available { tr!("Tilgjengelig") } else if matches!(helper_state(app).as_str(), "off" | "waiting") { tr!("Ikke undersøkt") } else { tr!("Utilgjengelig") }, &["muted", "sm"]));
         row.set_tooltip_text((!available).then(|| capability_reason(app, key)).as_deref());
         bx.append(&row);
     }

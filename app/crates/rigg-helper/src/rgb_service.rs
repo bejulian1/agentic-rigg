@@ -82,7 +82,7 @@ pub fn dispatch() -> Option<i32> {
 }
 
 /// Monoton tid som også inkluderer suspend. Ingen reserve til veggklokke.
-fn now_ms() -> Result<u64, String> {
+pub(crate) fn now_ms() -> Result<u64, String> {
     let mut time = libc::timespec {
         tv_sec: 0,
         tv_nsec: 0,
@@ -172,7 +172,7 @@ struct Conn {
     buffer: LineBuffer,
 }
 
-struct Service {
+pub(crate) struct Service {
     listener: UnixListener,
     socket: PathBuf,
     socket_identity: (u64, u64),
@@ -182,7 +182,7 @@ struct Service {
 }
 
 impl Service {
-    fn new(listener: UnixListener, socket: PathBuf) -> Result<Self, String> {
+    pub(crate) fn new(listener: UnixListener, socket: PathBuf) -> Result<Self, String> {
         listener.set_nonblocking(true).map_err(|e| e.to_string())?;
         let metadata = std::fs::symlink_metadata(&socket).map_err(|e| e.to_string())?;
         Ok(Self {
@@ -209,7 +209,7 @@ impl Service {
         }
     }
 
-    fn run<B: Backend>(
+    pub(crate) fn run<B: Backend>(
         &mut self,
         runtime: &mut Runtime<B>,
         stop: &AtomicBool,
@@ -253,11 +253,7 @@ impl Service {
                 revents: 0,
             }));
             // SAFETY: fds inneholder gyldige descriptorer for denne runden.
-            let poll_ms = if runtime.animation_active() {
-                250
-            } else {
-                1000
-            };
+            let poll_ms = runtime.poll_ms(now_ms()?);
             let result =
                 unsafe { libc::poll(fds.as_mut_ptr(), fds.len() as libc::nfds_t, poll_ms) };
             if result < 0 {
@@ -300,7 +296,7 @@ impl Service {
             }
             // Frister og klienttrafikk går alltid foran en programvareramme.
             // Sjekk hangup igjen: annen RPC/recovery kan ha tatt tid siden poll.
-            if !runtime.animation_active() {
+            if !runtime.animation_active() && !runtime.keepalive_active() {
                 continue;
             }
             if stop.load(Ordering::SeqCst) {

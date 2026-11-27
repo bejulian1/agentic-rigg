@@ -74,6 +74,15 @@ struct IdentityArgs {
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct ResetArgs {
+    gpu: String,
+    uuid: String,
+    recovery_id: Option<String>,
+    expected: Option<Request>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 struct ApplyArgs {
     gpu: String,
     uuid: String,
@@ -107,7 +116,7 @@ enum Action {
     Apply(ApplyArgs),
     Confirm(TransactionArgs),
     Revert(TransactionArgs),
-    Reset(IdentityArgs),
+    Reset(ResetArgs),
     Read(IdentityArgs),
     Release(IdentityArgs),
     Heartbeat(IdentityArgs),
@@ -194,8 +203,8 @@ impl Action {
             Self::Apply(args) => Some((&args.gpu, &args.uuid)),
             Self::AckRecovery(args) | Self::KeepObserved(args) => Some((&args.gpu, &args.uuid)),
             Self::Confirm(args) | Self::Revert(args) => Some((&args.gpu, &args.uuid)),
-            Self::Reset(args)
-            | Self::Read(args)
+            Self::Reset(args) => Some((&args.gpu, &args.uuid)),
+            Self::Read(args)
             | Self::Release(args)
             | Self::Heartbeat(args)
             | Self::Persist(args)
@@ -384,6 +393,13 @@ impl<B: Backend> Runtime<B> {
             )
         })?;
         self.tick(now_ms)?;
+        if let Action::Reset(args) = &action {
+            let valid = match &self.review {
+                Some((_, id)) => args.recovery_id.as_ref() == Some(id) && args.expected.as_ref() == Some(self.book.baseline_request()),
+                None => args.recovery_id.is_none() && args.expected.is_none(),
+            };
+            if !valid { return Err(self.transaction_error(Error::RecoveryRequired)); }
+        }
         if let Some((kind, id)) = self.review.clone() {
             match action {
                 Action::Read(_) => self.inspect_startup().map_err(|e| ProtoError::msg(ErrorCode::Unavailable, e))?,
@@ -740,6 +756,18 @@ impl<B: Backend> Runtime<B> {
         }) {
             self.animation = None;
         }
+    }
+
+    pub fn keepalive_active(&self) -> bool {
+        self.keepalive.is_some()
+    }
+
+    pub fn poll_ms(&self, now: u64) -> i32 {
+        if self.animation_active() { return FRAME_INTERVAL_MS as i32; }
+        self.keepalive.as_ref().map_or(1000, |hold| {
+            hold.last_write_ms.saturating_add(rigg_core::rgb_effect::HOLD_INTERVAL_MS)
+                .saturating_sub(now).min(1000) as i32
+        })
     }
 
     pub fn animation_active(&self) -> bool {

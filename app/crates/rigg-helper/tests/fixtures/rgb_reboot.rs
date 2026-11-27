@@ -81,7 +81,7 @@ fn boot_metadata(root: &Path) -> Value {
 }
 
 #[allow(clippy::disallowed_methods)]
-fn script(script: &Path, args: &[&str]) {
+fn script(script: &Path, args: &[&str], code: i32) {
     let out = Command::new("/usr/bin/python3")
         .args(["-I", "-S"])
         .arg(script)
@@ -89,7 +89,7 @@ fn script(script: &Path, args: &[&str]) {
         .output()
         .unwrap();
     assert!(
-        out.status.success(),
+        out.status.code() == Some(code),
         "{}",
         String::from_utf8_lossy(&out.stderr)
     );
@@ -102,7 +102,11 @@ fn bygg33_kaldstart_med_journal_begge_avklaringsvalg() {
         let root = &fixture.path;
         let mut card = binding();
         card.uuid = UUID.into();
-        card.signature = Signature::Palit100;
+        card.signature = if keep {
+            Signature::Palit150
+        } else {
+            Signature::Palit100
+        };
         let off = Observed {
             mode: None,
             color: Some([0, 0, 0]),
@@ -154,7 +158,26 @@ fn bygg33_kaldstart_med_journal_begge_avklaringsvalg() {
         script(
             &app.join("scripts/test-system-install.py"),
             &["--migrate-fixture", root.to_str().unwrap()],
+            0,
         );
+        if keep {
+            let manager = root.join("usr/local/libexec/agentic-rigg/nvml-admin.py");
+            let boot = ["boot", "--root", root.to_str().unwrap(), "--uid", "1000"];
+            let worker_state = root.join("fixture-systemd.json");
+            put(
+                &worker_state,
+                br#"{"ActiveState":"inactive","fail":{"start":"before"}}"#,
+            );
+            script(&manager, &boot, 75);
+            let status_file = root.join("run/agentic-rigg-card/status.json");
+            let report =
+                || serde_json::from_slice::<Value>(&fs::read(&status_file).unwrap()).unwrap();
+            assert_eq!(report()["rgb"], "waiting");
+            assert_eq!(report()["nvml"], "ready");
+            put(&worker_state, b"{}");
+            script(&manager, &boot, 0);
+            assert_eq!(report()["rgb"], "ready");
+        }
         let rules = root.join("run/systemd/system");
         assert_eq!(
             fs::read_to_string(rules.join("agentic-rigg-helper.service.d/gpu.conf")).unwrap(),
@@ -193,11 +216,12 @@ fn bygg33_kaldstart_med_journal_begge_avklaringsvalg() {
             false,
         )
         .unwrap();
-        let mut runtime = Runtime::new(auth, saved.clone(), native).unwrap();
+        assert_eq!(auth.binding().signature, old.binding().signature);
+        let mut runtime = Runtime::new(auth.clone(), saved.clone(), native).unwrap();
         let id = json!({"gpu":PCI,"uuid":UUID});
-        let mut clock = 0;
+
         let mut rpc = |op: &str, mut args: Value| {
-            clock += 1;
+            let clock = crate::rgb_service::now_ms().unwrap();
             args["gpu"] = json!(PCI);
             args["uuid"] = json!(UUID);
             runtime.handle(1000, 7, op, &args, clock)
@@ -235,14 +259,64 @@ fn bygg33_kaldstart_med_journal_begge_avklaringsvalg() {
             rpc("rgb_persist", id.clone()).unwrap();
             rpc("rgb_persist", id.clone()).unwrap();
         } else {
-            let restored = rpc("rgb_reset", id.clone()).unwrap();
+            let stale = json!({"recoveryId":"obsolete","expected":status["baselineRequest"]});
+            assert!(rpc("rgb_reset", stale).is_err());
+            assert!(
+                physical
+                    .lock()
+                    .unwrap()
+                    .actions
+                    .iter()
+                    .all(|a| *a == "read")
+            );
+            let restored = rpc(
+                "rgb_reset",
+                json!({"recoveryId":status["review"]["id"],"expected":status["baselineRequest"]}),
+            )
+            .unwrap();
             let ack = json!({"confirmedStatic":true,"recoveryId":restored["status"]["recoveryId"],"expected":status["baselineRequest"]});
             rpc("rgb_ack_recovery", ack).unwrap();
         }
+        let hold_start = crate::rgb_service::now_ms().unwrap();
         assert_eq!(
             rpc("rgb_hold", id.clone()).unwrap()["status"]["keepalive"],
             true
         );
+        let socket = root.join("hold.sock");
+        let listener = std::os::unix::net::UnixListener::bind(&socket).unwrap();
+        let mut service = crate::rgb_service::Service::new(listener, socket).unwrap();
+        let writes = || {
+            physical
+                .lock()
+                .unwrap()
+                .actions
+                .iter()
+                .filter(|op| **op == "apply")
+                .count()
+        };
+        let before = writes();
+        let start = std::time::Instant::now();
+        let result = service.run(
+            &mut runtime,
+            &std::sync::atomic::AtomicBool::new(false),
+            &auth,
+            || {
+                if start.elapsed().as_secs() >= 5 || writes() > before {
+                    Err("tilbakekalt".into())
+                } else {
+                    Ok(auth.clone())
+                }
+            },
+        );
+        assert!(result.is_err() && crate::rgb_service::now_ms().unwrap() - hold_start >= 2000);
+        assert_eq!(writes(), before + 1);
+        assert!(!runtime.keepalive_active());
+        assert!(
+            !runtime
+                .animate(crate::rgb_service::now_ms().unwrap() + 3000)
+                .unwrap()
+        );
+        assert_eq!(writes(), before + 1);
         drop(runtime);
         // Even an unresolved journal cannot keep either permission active.
         put(
@@ -258,6 +332,7 @@ fn bygg33_kaldstart_med_journal_begge_avklaringsvalg() {
                 "--uid",
                 "1000",
             ],
+            0,
         );
         nvml.set_config(Err("Tilgang trukket tilbake.".into()), 4);
         assert!(nvml.handle(1, "apply", &change, 5).is_err());

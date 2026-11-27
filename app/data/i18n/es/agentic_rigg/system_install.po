@@ -52,10 +52,10 @@ msgstr "La instalación ha fallado. No se ha concedido ningún acceso nuevo."
 msgid "Installasjonen feilet: {feil}"
 msgstr "La instalación ha fallado: {feil}"
 
-#: crates/rigg/src/system_install.rs:242
+#: crates/rigg/src/system_install.rs:240
 msgid "Vent til den andre administratorhandlingen er ferdig"
 msgstr "Espera a que termine la otra acción de administrador"
 
-#: crates/rigg/src/system_install.rs:250 crates/rigg/src/system_install.rs:274 crates/rigg/src/system_install.rs:294
+#: crates/rigg/src/system_install.rs:248 crates/rigg/src/system_install.rs:272 crates/rigg/src/system_install.rs:292
 msgid "Installasjonen ble ikke fullført"
 msgstr "Instalación no completada"

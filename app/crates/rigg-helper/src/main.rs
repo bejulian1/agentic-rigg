@@ -338,7 +338,7 @@ fn main() {
             Ok(_) => {}
         }
     }
-    let (cfg, mtime) = match server::load_config(&args.config) {
+    let cfg = match server::load_config(&args.config) {
         Ok(c) => c,
         Err(e) => {
             journal::err(&format!("Starter ikke: {e}"));
@@ -434,7 +434,6 @@ fn main() {
         listener,
         args.socket.clone(),
         args.config.clone(),
-        Some(mtime),
     );
     srv.run(&mut m);
     sd_notify("STOPPING=1");

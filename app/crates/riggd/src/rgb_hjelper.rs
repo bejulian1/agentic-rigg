@@ -128,7 +128,7 @@ impl View {
             .map_err(|_| Self::error("RGB-hjelperen mangler en gyldig kortbinding."))?;
         binding.validate().map_err(Self::error)?;
         if status["authorized"] != true {
-            return Err(Self::error("Den separate RGB-tillatelsen er ikke aktiv."));
+            return Err(Self::error("Korttillatelsen for RGB-arbeideren er ikke aktiv."));
         }
         let state = &status["state"];
         let observed: Observed = serde_json::from_value(state["observed"].clone())
@@ -585,7 +585,8 @@ fn validate_args(op: &str, args: &Value) -> Result<(), ProtoError> {
         "rgb_apply" => &["gpu", "uuid", "request", "confirmTimeoutS", "effect"],
         "rgb_confirm" | "rgb_revert" => &["gpu", "uuid", "txn"],
         "rgb_ack_recovery" | "rgb_keep_observed" => &["gpu", "uuid", "confirmedStatic", "expected", "recoveryId"],
-        "rgb_reset" | "rgb_release" | "rgb_read" | "rgb_persist" | "rgb_hold" => &["gpu", "uuid"],
+        "rgb_reset" => &["gpu", "uuid", "recoveryId", "expected"],
+        "rgb_release" | "rgb_read" | "rgb_persist" | "rgb_hold" => &["gpu", "uuid"],
         _ => return Err(ProtoError::new(ErrorCode::UnknownOp)),
     };
     if object.keys().any(|key| !allowed.contains(&key.as_str())) {
@@ -642,6 +643,8 @@ fn validate_args(op: &str, args: &Value) -> Result<(), ProtoError> {
     }
     Ok(())
 }
+
+const PEER_CLOSED: &str = "RGB-hjelperen lukket forbindelsen.";
 
 struct Connection {
     stream: UnixStream,
@@ -858,9 +861,10 @@ impl Connection {
             wait_io(&self.stream, libc::POLLOUT, deadline, control, alive)?;
             deadline.check()?;
             match self.stream.write(&line[written..]) {
-                Ok(0) => return Err("RGB-hjelperen lukket forbindelsen.".into()),
+                Ok(0) => return Err(PEER_CLOSED.into()),
                 Ok(n) => written += n,
                 Err(e) if matches!(e.kind(), ErrorKind::WouldBlock | ErrorKind::Interrupted) => {}
+                Err(e) if matches!(e.kind(), ErrorKind::BrokenPipe | ErrorKind::ConnectionReset | ErrorKind::NotConnected) => return Err(PEER_CLOSED.into()),
                 Err(e) => return Err(e.to_string()),
             }
         }
@@ -869,11 +873,12 @@ impl Connection {
         loop {
             wait_io(&self.stream, libc::POLLIN, deadline, control, alive)?;
             match self.stream.read(&mut chunk) {
-                Ok(0) => return Err("RGB-hjelperen lukket forbindelsen.".into()),
+                Ok(0) => return Err(PEER_CLOSED.into()),
                 Ok(n) => answer.extend_from_slice(&chunk[..n]),
                 Err(e) if matches!(e.kind(), ErrorKind::WouldBlock | ErrorKind::Interrupted) => {
                     continue;
                 }
+                Err(e) if matches!(e.kind(), ErrorKind::BrokenPipe | ErrorKind::ConnectionReset | ErrorKind::NotConnected) => return Err(PEER_CLOSED.into()),
                 Err(e) => return Err(e.to_string()),
             }
             deadline.check()?;
@@ -1073,6 +1078,8 @@ fn execute(
     deadline: Deadline,
     already_owned: bool,
 ) -> OpResult {
+    let retry_closed = connection.is_some() && command.op == "get_rgb_helper" && !already_owned
+        && control.owner.load(Ordering::SeqCst) == 0;
     let run = (|| -> Result<OpResult, String> {
         deadline.check()?;
         if connection.is_none() {
@@ -1091,7 +1098,7 @@ fn execute(
             };
             return Ok(Err(ProtoError::msg(
                 ErrorCode::WriteLocked,
-                "Den separate RGB-hjelperen er av.",
+                "RGB-arbeideren er av.",
             )));
         };
         let status = connection
@@ -1177,6 +1184,10 @@ fn execute(
     })();
     match run {
         Ok(result) => result,
+        Err(message) if retry_closed && message == PEER_CLOSED && deadline.check().is_ok() => {
+            drop_connection(connection, control);
+            execute(paths, control, command, connection, view, deadline, already_owned)
+        }
         Err(message) => {
             if view.state != "outdated" {
                 *view = View::error(&message);
@@ -1464,6 +1475,7 @@ mod tests {
             ("name", json!("agentic-rigg-helper")),
             ("domain", json!("nvml")),
             ("protocol", json!(1)),
+            ("build", json!(33)),
             ("build", json!(rigg_core::version::build() + 1)),
         ] {
             let mut status = initial_status();
@@ -1600,6 +1612,20 @@ mod tests {
             ErrorCode::Busy
         );
         assert!(!fake.has("rgb_apply"));
+        client.stop();
+    }
+
+    #[test]
+    fn ren_deaktivering_av_cachet_forbindelse_vises_som_av() {
+        let root = Temp::new();
+        let fake = Fake::start(&root.paths(), false);
+        let (mut client, rx) = RgbClient::start(Some(root.paths()));
+        client.enqueue(7, &request(1, "get_rgb_helper")).unwrap();
+        assert_eq!(complete(&mut client, &rx).unwrap()["state"], "on");
+        drop(fake);
+        std::fs::remove_file(root.paths().socket()).unwrap();
+        client.enqueue(7, &request(2, "get_rgb_helper")).unwrap();
+        assert_eq!(complete(&mut client, &rx).unwrap()["state"], "off");
         client.stop();
     }
 

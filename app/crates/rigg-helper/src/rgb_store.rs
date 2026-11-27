@@ -214,7 +214,7 @@ impl VisualEvidence {
 /// produksjonsserveren: den sender alltid rgb_auth::CONFIG_PATH.
 pub(crate) fn load_authorization(path: &Path) -> Result<Authorization, String> {
     let auth = load_authorization_owned(path, 0, true)?;
-    let (grant, _) = crate::server::load_config(&path.with_file_name("helper.json"))?;
+    let grant = crate::server::load_config(&path.with_file_name("helper.json"))?;
     if !auth.matches_card(&grant) {
         return Err("Korttillatelsen er endret eller tilbakekalt.".into());
     }
@@ -654,11 +654,11 @@ impl PrivateStore {
         })
     }
 
-    pub fn archive_unresolved(&self, baseline: &Baseline, record: &StoredJournal) -> Result<(), String> {
+    /// Caller must sync the directory before releasing the journal responsibility.
+    pub fn rename_unresolved(&self, baseline: &Baseline, record: &StoredJournal) -> Result<(), String> {
         self.validate_state(baseline, Some(record))?;
         let archive = format!("journal-uavklart-{}.json", new_recovery_id()?);
-        rename_at(&self.directory, JOURNAL, &archive)?;
-        self.directory.sync_all().map_err(|e| e.to_string())
+        rename_at(&self.directory, JOURNAL, &archive)
     }
 
     fn factory_name(binding: &Binding) -> Result<String, String> {

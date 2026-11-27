@@ -25,9 +25,8 @@ use std::path::{Path, PathBuf};
 pub const PROTOCOL: u32 = 3;
 /// Gjennomgått sikkerhetsmotor. Øk ved sikkerhetsrettinger som eldre hjelpere
 /// ikke må få omgå; rene UI-patcher kan beholde autorisasjonen fra dette bygget.
-/// Bygg 32 (1.6.0): monoton klokke, trygg nødregel, merkøren slettes aldri
-/// ubekreftet, overtemperaturvern i feiltilstand og IPC-herding.
-pub const MIN_COMPATIBLE_BUILD: u32 = 33;
+/// Bygg 34 bevarer nødgjenoppretting ved et generasjonsbytte.
+pub const MIN_COMPATIBLE_BUILD: u32 = 34;
 
 /// Bare kjente hjelpere innen samme protokoll godtas. En nyere hjelper enn
 /// appen krever også oppdatering; ingen fremtidig kompatibilitet antas.
@@ -581,6 +580,7 @@ mod tests {
             assert!(!compatible(PROTOCOL, old), "{old}");
         }
         assert!(!compatible(PROTOCOL, 32));
+        assert!(!compatible(PROTOCOL, 33));
         assert!(compatible(PROTOCOL, crate::version::build()));
         assert!(!compatible(PROTOCOL - 1, 32));
         assert!(!compatible(PROTOCOL + 1, 32));

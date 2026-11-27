@@ -441,7 +441,8 @@ impl Book {
             .adopt_baseline(self.baseline.binding(), &next)
             .map_err(|message| Error::Backend { operation: "varig utgangspunkt", message })?;
         self.baseline = next;
-        self.initial = self.confirmed.clone();
+        self.initial = book.initial;
+        self.confirmed = self.initial.clone();
         self.dirty = false;
         self.may_have_written = false;
         self.owner = None;
@@ -516,9 +517,13 @@ impl Book {
                     && !matched(request_readback(&self.confirmed, &observed))
                 {
                     self.recovery_confirmation_source = None;
-                    self.recovery = Some(request_readback(&self.confirmed, &observed));
-                    self.error =
-                        Some("Lyset har endret seg etter den visuelle bekreftelsen.".into());
+                    if self.dirty {
+                        self.recovery = Some(request_readback(&self.confirmed, &observed));
+                        self.error = Some("Lyset har endret seg etter den visuelle bekreftelsen.".into());
+                    } else {
+                        self.recovery = None;
+                        self.current_recovery_attempt = None;
+                    }
                 }
                 self.observed = observed;
                 self.read_error = None;
@@ -1687,10 +1692,11 @@ mod tests {
         assert_eq!(book.baseline, initial);
         assert!(hw.journal.is_none());
         assert_eq!(hw.writes.len(), 2);
-        assert_eq!(
-            book.ack_recovery(&mut hw, 7, 31),
-            Err(Error::RecoveryRequired)
-        );
+        assert_eq!(book.ack_recovery(&mut hw, 7, 31), Err(Error::RecoveryRequired));
+        hw.observed.color = Some([12, 34, 56]);
+        assert!(book.read_clean(&mut hw).is_err());
+        assert!(book.drift() && book.snapshot().error.is_none());
+        book.restore_drift(&mut hw, 7, 32).unwrap();
     }
 
     #[test]

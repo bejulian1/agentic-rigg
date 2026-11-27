@@ -90,13 +90,15 @@ def active_files(domain):
 
 
 def remove_active(domain):
-    config, _, unit, dropin = active_files(domain)
+    config, journal, unit, dropin = active_files(domain)
+    if domain == 'rgb' and config.exists() and os.path.lexists(journal):
+        put(journal.with_name('arkivert-tillatelse.json'), trusted_file(config).read_bytes(), 0o600)
     if domain == 'nvml' and unit.exists():
         ctl('disable', unit.name)
     obsolete = UNITS / (unit.name + '.d/card.conf') if domain == 'rgb' else UNITS / 'multi-user.target.wants' / unit.name
     obsolete_run = ([dropin.with_name('card.conf')] if domain == 'rgb' else
                     [RUN / (unit.name + '.d/gpu.conf')])
-    for path in (dropin, obsolete, *obsolete_run, unit, config):
+    for path in (dropin, obsolete, *obsolete_run, UNITS / 'multi-user.target.wants' / unit.name, unit, config):
         if path.parent.exists():
             directory(path.parent)
             path.unlink(missing_ok=True)
@@ -189,7 +191,7 @@ def archive_state(domain, removed_uuid=None, *, revoke=False):
             require_card_absent(removed_uuid)
             if state.exists():
                 put(receipt, raw, 0o600)
-        elif os.path.lexists(journal) or (not revoke and config.exists()):
+        elif (os.path.lexists(journal) and not (revoke and domain == 'rgb')) or (not revoke and config.exists()):
             raise ValueError(f'Slå av {domain}-tilgangen først. Tilstand og journal beholdes.')
         if removed_uuid is not None:
             # A later boot must not recreate the projection just archived.
@@ -309,6 +311,28 @@ def restore_nvml(template):
                          f'Sandkassekommando: {" ".join(command)}. {error}') from error
 
 
+def clean_obsolete():
+    for domain, (unit, *_) in DOMAINS.items():
+        obsolete = [UNITS / 'multi-user.target.wants' / unit]
+        if domain == 'nvml':
+            obsolete.append(UNITS / (unit + '.d/gpu.conf'))
+        else:
+            obsolete.extend(base / (unit + '.d/card.conf') for base in (UNITS, RUN))
+        for path in obsolete:
+            if path.parent.exists():
+                directory(path.parent)
+                path.unlink(missing_ok=True)
+                sync_directory(path.parent)
+    for parent, names in ((RGB, ('rgb-admin.py', 'rgb-aktiver.sh', 'rgb-deaktiver.sh', 'rgb-avklar.sh', 'rgb-gjenopprett.sh')),
+                          (POL, ('io.github.AgenticRigg.rgb.v2.policy',))):
+        if parent.exists():
+            directory(parent)
+            for name in names:
+                (parent / name).unlink(missing_ok=True)
+            sync_directory(parent)
+    ctl('daemon-reload')
+
+
 def install(files):
     build = json.loads(files['version.json'])['build']
     if type(build) is not int or not 0 < build <= 0xffffffff:
@@ -339,13 +363,7 @@ def install(files):
     if MARK.exists():
         trusted_file(MARK).unlink()
         sync_directory(MARK.parent)
-    for parent, names in ((RGB, ('rgb-admin.py', 'rgb-aktiver.sh', 'rgb-deaktiver.sh', 'rgb-avklar.sh', 'rgb-gjenopprett.sh')),
-                          (POL, ('io.github.AgenticRigg.rgb.v2.policy',))):
-        if parent.exists():
-            directory(parent)
-            for name in names:
-                (parent / name).unlink(missing_ok=True)
-            sync_directory(parent)
+    clean_obsolete()
     legacy()
     for path, (key, mode) in ASSETS.items():
         put(path, files[key], mode)
@@ -363,6 +381,7 @@ def uninstall():
     disable_shared_boot()
     for domain in DOMAINS:
         archive_state(domain)
+    clean_obsolete()
     legacy()
     for path in (MARK, RGB_MARK, *ASSETS, STATE / 'agentic-rigg-rgb.inactive'):
         if path.parent.exists():

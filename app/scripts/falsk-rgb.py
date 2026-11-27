@@ -322,7 +322,10 @@ class FakeState:
         }
         if op not in shapes:
             raise RpcError("unknown_op", "Ukjent operasjon i RGB-fixturen.")
-        fields(args, shapes[op], ("effect",) if op == "rgb_apply" else ())
+        fields(args, shapes[op], {"rgb_apply": ("effect",), "rgb_reset": ("recoveryId", "expected")}.get(op, ()))
+        if op == "rgb_reset" and (self.review or "recoveryId" in args or "expected" in args):
+            if not self.review or args.get("recoveryId") != self.review["id"] or args.get("expected") != self.baseline:
+                raise RpcError("write_locked", "Avklaringen er endret.")
         if op == "rgb_status":
             return self.status()
         if args["gpu"] != BINDING["pci"] or args["uuid"] != BINDING["uuid"]:

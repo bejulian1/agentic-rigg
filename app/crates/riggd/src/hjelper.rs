@@ -35,7 +35,7 @@ pub enum State {
     /// Ikke aktivert (ingen `helper.json`).
     Off,
     /// Korttillatelsen finnes, men oppstarten venter på driver eller enhet.
-    Waiting,
+    Waiting(Option<String>),
     /// På og med kompatibelt bygg/protokoll.
     On,
     /// Aktivert, men svarer ikke (eller svarte feil).
@@ -270,7 +270,7 @@ impl Hjelper {
             self.state = if report["nvml"] == "ready" {
                 State::Error("GPU-arbeiderens socket er borte.".into())
             } else {
-                State::Waiting
+                State::Waiting(report["gpuMessage"].as_str().or(report["message"].as_str()).map(str::to_owned))
             };
             return;
         }
@@ -316,7 +316,7 @@ impl Hjelper {
     pub fn view(&self) -> Value {
         let (state, message) = match &self.state {
             State::Off => ("off", None),
-            State::Waiting => ("waiting", None),
+            State::Waiting(message) => ("waiting", message.clone()),
             State::On => ("on", None),
             State::Error(e) => ("error", Some(e.clone())),
             State::Outdated(b) => (
@@ -415,7 +415,7 @@ impl Daemon {
         }
         match &self.hjelper.state {
             State::Off => return None,
-            State::Waiting | State::Error(_) => return Some(Err(hjelper::locked("helper_error"))),
+            State::Waiting(_) | State::Error(_) => return Some(Err(hjelper::locked("helper_error"))),
             State::Outdated(_) => return Some(Err(hjelper::locked("helper_outdated"))),
             State::On => {}
         }

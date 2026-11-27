@@ -136,7 +136,7 @@ fn installed() {
 
 /// Reserven uten nett: terminalkommandoen der administratoren oppgir arkivet
 /// og summen selv. Vanlig installasjon skjer når brukeren slår på
-/// skjermkortstyring eller kortlys ([`run`]).
+/// skjermkortstyring ([`run`]).
 pub fn offline_fallback() -> gtk::Expander {
     let terminal = gtk::Box::new(gtk::Orientation::Vertical, 6);
     let hint = gtk::Label::new(Some(tr!("Kjør kommandoen i en administratorterminal. Oppgi arkivstien og SHA-256 fra utgivelsessiden.")));
@@ -229,10 +229,8 @@ fn failure_text(code: i32, err: &str) -> String {
     }
 }
 
-/// Installerer systemkomponentene og slår på `activate` med ett passord:
-/// `pkexec PYTHON -I -S -c HENT VERSJON BYGG DOMENE PCI UUID`, uten å
-/// blokkere vinduet. Feil vises som melding. `done(true)` når både
-/// installasjonen og aktiveringen lyktes og sidene er varslet.
+/// Installerer systemkomponentene og aktiverer eller tilbakekaller korttillatelsen.
+/// Polkit håndterer godkjenningen uten å blokkere vinduet.
 pub fn run(app: &Rc<App>, action: CardAction, done: impl FnOnce(bool) + 'static) {
     // Én administratorhandling om gangen: ikke mens GPU-styring eller RGB
     // aktiveres, slås av eller gjenopprettes.
@@ -262,7 +260,7 @@ pub fn run(app: &Rc<App>, action: CardAction, done: impl FnOnce(bool) + 'static)
     }
     let refs: Vec<&std::ffi::OsStr> = argv.iter().map(|a| a.as_os_str()).collect();
     // Unntaket fra «ingen programmer» (clippy.toml): brukeren slo selv på
-    // styringen eller kortlyset, og pkexec viser passordvinduet fra polkit.
+    // kortstyringen, og pkexec viser passordvinduet fra polkit.
     #[allow(clippy::disallowed_methods)]
     let started = gio::Subprocess::newv(
         &refs,

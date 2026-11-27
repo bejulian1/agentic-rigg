@@ -64,6 +64,11 @@ impl PalitRgbError {
         self.code
     }
 
+    /// Bare en fullstendig ukjent signatur eller manglende SMBus-funksjon er varig.
+    pub fn unsupported_controller(&self) -> bool {
+        matches!(self.code, "unknown_signature" | "transport_unsupported")
+    }
+
     pub fn errno(&self) -> Option<i32> {
         self.errno
     }
@@ -1242,6 +1247,17 @@ mod tests {
         assert_eq!(error.code(), "unknown_signature");
         assert_eq!(error.to_json()["rawSignature"], json!(raw_signature));
         assert_eq!(*events.borrow(), expected_events(0xf0..=0xff));
+    }
+
+    #[test]
+    fn sen_kontroller_er_midlertidig_ved_oppstart() {
+        for errno in [libc::ENXIO, libc::EIO, libc::ETIMEDOUT] {
+            let error = PalitRgbError::io("transport_error", "I2C_SMBUS", io::Error::from_raw_os_error(errno));
+            assert!(!error.unsupported_controller());
+        }
+        for code in ["unknown_signature", "transport_unsupported"] {
+            assert!(PalitRgbError::new(code, "fixture").unsupported_controller());
+        }
     }
 
     #[test]

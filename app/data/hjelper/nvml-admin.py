@@ -27,6 +27,7 @@ STATUS = Path('run/agentic-rigg-card/status.json')
 DROPIN = Path('run/systemd/system') / (UNIT + '.d/gpu.conf')
 # Det opprinnelige og de fire nyeste tidligere grunnopptakene beholdes.
 KEEP_PREVIOUS = 5
+BOOT_ERRORS = (OSError, RuntimeError, ValueError, KeyError, subprocess.SubprocessError)
 FIXTURE = Path(__file__).absolute() != Path('/') / SCRIPTS / 'nvml-admin.py'
 common = runpy.run_path(str(Path(__file__).with_name('rgb-admin.py')))
 fail = common['fail']
@@ -143,7 +144,6 @@ class Admin(common['Admin']):
             auth = dict(versjon=2, uid=self.uid, enabled=True, pci=self.args.pci,
                         uuid=self.args.uuid, bygg=build, scope='card', generation=secrets.token_hex(16),
                         aktivert=datetime.datetime.now(datetime.timezone.utc).isoformat())
-            self.write_json(CONFIG, auth, 0o644)
         if self.check_file(self.unit_path, missing=True):
             self.systemctl('disable', UNIT)
         self.remove(common['INACTIVE_MARKER'])
@@ -152,23 +152,29 @@ class Admin(common['Admin']):
         self.atomic(UNITS / BOOT, self.check_file(SCRIPTS / BOOT).read_bytes(), 0o644)
         self.systemctl('daemon-reload')
         self.systemctl('enable', BOOT)
+        self.write_json(CONFIG, auth, 0o644)
         # Complete initial discovery under the same lock as consent. Only the
         # asynchronous retry needs to reacquire it after this invocation.
         if not self.boot() and not self.fake:
             self.systemctl('--no-block', 'start', BOOT)
 
-    def gpu_minor(self, auth):
+    def gpu_fields(self, auth):
         info = self.path(Path('proc/driver/nvidia/gpus') / auth['pci'] / 'information')
         fields = dict(line.split(':', 1) for line in info.read_text().splitlines() if ':' in line)
-        minor = fields['Device Minor'].strip()
-        if (fields['GPU UUID'].strip() != auth['uuid'] or fields['Bus Location'].strip().lower() != auth['pci']
-                or not re.fullmatch(r'[0-9]{1,4}', minor)):
+        if fields['GPU UUID'].strip() != auth['uuid'] or fields['Bus Location'].strip().lower() != auth['pci']:
             fail('NVIDIA-driveren bekrefter ikke kortbindingen.')
+        return fields
+
+    def start_nvml(self, fields):
+        minor = fields['Device Minor'].strip()
+        if not re.fullmatch(r'[0-9]{1,4}', minor):
+            fail('NVIDIA-driveren har ikke oppgitt et gyldig enhetsnummer.')
         if not self.fake:
             node = self.path(Path('dev/nvidia' + minor)).lstat()
-            if not stat.S_ISCHR(node.st_mode) or os.minor(node.st_rdev) != int(minor) or os.major(node.st_rdev) != 195:
+            if not stat.S_ISCHR(node.st_mode) or (os.major(node.st_rdev), os.minor(node.st_rdev)) != (195, int(minor)):
                 fail('NVIDIA-enhetsnoden samsvarer ikke med kortbindingen.')
-        return minor
+        self.ensure_started(self, DROPIN, ['/dev/nvidiactl', '/dev/nvidia' + minor])
+        return 'ready'
 
     def ensure_started(self, admin, path, rules):
         contents = ('[Service]\nDeviceAllow=\n' + ''.join('DeviceAllow=' + rule + ' rw\n' for rule in rules)).encode()
@@ -198,66 +204,86 @@ class Admin(common['Admin']):
         rgb = self.rgb()
         status = dict(pci=auth['pci'], uuid=auth['uuid'], generation=auth['generation'])
         try:
-            minor = self.gpu_minor(auth)
-            self.ensure_started(self, DROPIN, ['/dev/nvidiactl', '/dev/nvidia' + minor])
-            status['nvml'] = 'ready'
-            ids = self.path(Path('sys/bus/pci/devices') / auth['pci'])
-            if (self.fake and not rgb.args.report.exists()) or (ids.exists() and any(
-                    (ids / key).read_text().strip().lower() != expected for key, expected in
-                    [('vendor', '0x10de'), ('device', '0x1e87'), ('subsystem_vendor', '0x10de'), ('subsystem_device', '0x1e87')])):
+            fields = self.gpu_fields(auth)
+        except BOOT_ERRORS as exc:
+            for name, worker, path in [('nvml', self, DROPIN), ('rgb', rgb, common['DROPIN'])]:
+                self.wait_for_retry(status, name, worker, path, exc)
+        else:
+            try:
+                status['nvml'] = self.start_nvml(fields)
+            except BOOT_ERRORS as exc:
+                self.wait_for_retry(status, 'nvml', self, DROPIN, exc)
+            try:
+                status['rgb'] = self.start_rgb(rgb, auth)
+            except BOOT_ERRORS as exc:
+                self.wait_for_retry(status, 'rgb', rgb, common['DROPIN'], exc)
+        self.write_json(STATUS, status, 0o644)
+        return 'waiting' not in (status['nvml'], status['rgb'])
+
+    def wait_for_retry(self, status, name, worker, path, error):
+        status[name] = 'waiting'
+        detail = str(error)
+        try:
+            self.withdraw_device(worker, path)
+        except BOOT_ERRORS as cleanup:
+            detail += f' ({cleanup})'
+        status['gpuMessage' if name == 'nvml' else 'message'] = detail
+
+    def start_rgb(self, rgb, auth):
+        ids = self.path(Path('sys/bus/pci/devices') / auth['pci'])
+        if (self.fake and not rgb.args.report.exists()) or (ids.exists() and any(
+                (ids / key).read_text().strip().lower() != expected for key, expected in
+                [('vendor', '0x10de'), ('device', '0x1e87'), ('subsystem_vendor', '0x10de'), ('subsystem_device', '0x1e87')])):
+            self.withdraw_device(rgb, common['DROPIN'])
+            return 'unsupported'
+        report = rgb.adapter_report()
+        bus = rgb.bus(report)
+        if not self.fake:
+            node = self.path(Path('dev/i2c-' + str(bus))).lstat()
+            if not stat.S_ISCHR(node.st_mode) or (os.major(node.st_rdev), os.minor(node.st_rdev)) != (89, bus):
+                fail('I2C-enhetsnoden samsvarer ikke med den ferske adapteridentiteten.')
+        m = report['metadata']
+        adapter = {key: m['adapter'][key] for key in ('port', 'name', 'parentPci')}
+        existing = rgb.selected_authorization(missing=True)
+        prior = existing
+        if not prior and rgb.check_file(common['STATE'] / 'journal.json', missing=True):
+            receipt = rgb.check_file(common['STATE'] / 'arkivert-tillatelse.json', missing=True)
+            if receipt:
+                previous = common['bounded_json'](receipt)
+                if (previous['binding']['pci'], previous['binding']['uuid']) != (auth['pci'], auth['uuid']):
+                    fail('Den bevarte lysjournalen gjelder et annet kort.')
+                prior = previous
+        signature = prior['binding'].get('signature', 'palit_100') if prior else 'palit_100'
+        if signature not in ('palit_100', 'palit_150'):
+            fail('Ukjent signatur i lagret kortbinding.')
+        binding = dict(pci=auth['pci'], uuid=auth['uuid'], pciIds=m['pciIds'], address=m['address'],
+                       adapter=dict(adapter, driver=m['driver']), signature=signature)
+        # This is the expected signature. The sandbox independently identifies it before any setter.
+        projection = dict(version=1, uid=self.uid, enabled=True, binding=binding,
+                          build=auth['bygg'], generation=auth['generation'])
+        template = rgb.unit_template()
+        installed = self.check_file(rgb.unit_path, missing=True)
+        if (projection != existing or not installed or installed.read_bytes() != template
+                or any(self.check_file(p, missing=True) for p in (common['OLD_DROPIN'], common['OLD_RUN_DROPIN']))):
+            rgb.stop()
+            rgb.remove(common['OLD_DROPIN'])
+            rgb.remove(common['OLD_RUN_DROPIN'])
+            self.write_json(common['CONFIG'], projection, 0o600)
+            self.atomic(rgb.unit_path, template, 0o644)
+            self.systemctl('daemon-reload')
+        try:
+            self.ensure_started(rgb, common['DROPIN'], ['/dev/i2c-' + str(bus)])
+            rgb.wait_for_worker()
+        except RuntimeError:
+            if not self.fake and rgb.systemctl('show', '--value', '-p', 'ExecMainStatus', rgb.unit).strip() == '77':
                 self.withdraw_device(rgb, common['DROPIN'])
-                status['rgb'] = 'unsupported'
-                return True
-            report = rgb.adapter_report()
-            bus = rgb.bus(report)
+                return 'unsupported'
             if not self.fake:
-                node = self.path(Path('dev/i2c-' + str(bus))).lstat()
-                if not stat.S_ISCHR(node.st_mode) or (os.major(node.st_rdev), os.minor(node.st_rdev)) != (89, bus):
-                    fail('I2C-enhetsnoden samsvarer ikke med den ferske adapteridentiteten.')
-            m = report['metadata']
-            adapter = {key: m['adapter'][key] for key in ('port', 'name', 'parentPci')}
-            binding = dict(pci=auth['pci'], uuid=auth['uuid'], pciIds=m['pciIds'], address=m['address'],
-                           adapter=dict(adapter, driver=m['driver']), signature='palit_100')
-            # This is the expected signature. The sandbox independently identifies it before any setter.
-            projection = dict(version=1, uid=self.uid, enabled=True, binding=binding,
-                              build=auth['bygg'], generation=auth['generation'])
-            existing = rgb.selected_authorization(missing=True)
-            template = rgb.unit_template()
-            installed = self.check_file(rgb.unit_path, missing=True)
-            if (projection != existing or not installed or installed.read_bytes() != template
-                    or any(self.check_file(p, missing=True) for p in (common['OLD_DROPIN'], common['OLD_RUN_DROPIN']))):
-                rgb.stop()
-                rgb.remove(common['OLD_DROPIN'])
-                rgb.remove(common['OLD_RUN_DROPIN'])
-                self.write_json(common['CONFIG'], projection, 0o600)
-                self.atomic(rgb.unit_path, template, 0o644)
-                self.systemctl('daemon-reload')
-            try:
-                self.ensure_started(rgb, common['DROPIN'], ['/dev/i2c-' + str(bus)])
-                rgb.wait_for_worker()
-            except RuntimeError:
-                if not self.fake and rgb.systemctl('show', '--value', '-p', 'ExecMainStatus', rgb.unit).strip() == '77':
-                    self.withdraw_device(rgb, common['DROPIN'])
-                    status['rgb'] = 'unsupported'
-                    return True
-                if not self.fake:
-                    detail = rgb.systemctl('show', '--value', '-p', 'StatusText', rgb.unit).strip()
-                    if detail:
-                        fail(detail)
-                raise
-            status['rgb'] = 'ready'
-            return True
-        except (OSError, RuntimeError, ValueError, KeyError, subprocess.SubprocessError) as exc:
-            # A stale grant must never keep an old bus open after failed discovery.
-            try:
-                self.withdraw_device(rgb, common['DROPIN'])
-            finally:
-                if 'nvml' not in status:
-                    self.withdraw_device(self, DROPIN)
-            status.update(rgb='waiting', message=str(exc))
-            return False
-        finally:
-            self.write_json(STATUS, status, 0o644)
+                detail = rgb.systemctl('show', '--value', '-p', 'StatusText', rgb.unit).strip()
+                if detail:
+                    fail(detail)
+            raise
+        return 'ready'
 
     def previous_baselines(self):
         """Trygge `baseline-forrige-*.json`, eldste først (opptakstid, navn)."""
@@ -304,13 +330,10 @@ class Admin(common['Admin']):
     def deactivate(self):
         auth = self.authorization()
         rgb = self.rgb()
-        if auth:
-            rgb.args.pci, rgb.args.uuid = auth['pci'], auth['uuid']
         old = rgb.check_file(common['CONFIG'], missing=True)
         if old:
             binding = common['bounded_json'](old)['binding']
-            if not auth:
-                rgb.args.pci, rgb.args.uuid = binding['pci'], binding['uuid']
+            rgb.args.pci, rgb.args.uuid = binding['pci'], binding['uuid']
             rgb.selected_authorization()
         if auth:
             self.write_json(CONFIG, dict(auth, enabled=False), 0o644)
@@ -321,6 +344,8 @@ class Admin(common['Admin']):
         if self.check_file(UNITS / BOOT, missing=True):
             self.systemctl('disable', '--now', BOOT)
         with rgb.lock('worker.lock'):
+            if old and rgb.check_file(common['STATE'] / 'journal.json', missing=True):
+                rgb.atomic(common['STATE'] / 'arkivert-tillatelse.json', old.read_bytes(), 0o600)
             for path in (common['CONFIG'], common['DROPIN'], common['OLD_DROPIN'], common['OLD_RUN_DROPIN'], rgb.unit_path):
                 self.remove(path)
             self.atomic(common['INACTIVE_MARKER'], b'Inaktiv\n', 0o644)

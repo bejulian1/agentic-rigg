@@ -67,7 +67,7 @@ impl Paths {
     }
 }
 /// Bygggrensen brukes sammen med protokoll 4 og felles kortgenerasjon.
-pub const MIN_COMPATIBLE_BUILD: u32 = 33;
+pub const MIN_COMPATIBLE_BUILD: u32 = 34;
 
 pub fn compatible_build(build: u32) -> bool {
     (MIN_COMPATIBLE_BUILD..=crate::version::build()).contains(&build)
@@ -258,6 +258,7 @@ mod tests {
         assert!(!compatible_build(24));
         assert!(!compatible_build(28), "protokoll 2-hjelpere må installeres på nytt");
         assert!(!compatible_build(29));
+        assert!(!compatible_build(33));
         assert!(compatible_build(crate::version::build()));
         assert!(!compatible_build(crate::version::build() + 1));
     }
